@@ -1,0 +1,22 @@
+﻿<Page
+    x:Class="USBManager.USBTextViewer"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    NavigationCacheMode="Required"
+    Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="42"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <CommandBar VerticalAlignment="Stretch" Name="CommandBarContorl" FlowDirection="LeftToRight" Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}" IsOpen="False" DefaultLabelPosition="Right">
+            <AppBarButton Icon="Save" Label="保存" Name="Save" Click="Save_Click"/>
+            <AppBarButton Icon="Cancel" Label="放弃" Name="Cancel" Click="Cancel_Click"/>
+        </CommandBar>
+        <TextBlock Margin="10,0,0,0" HorizontalAlignment="Left" FontSize="22" Name="Title"/>
+        <TextBox Name="Text" Grid.Row="1" Background="{ThemeResource TextBoxDisabledBackgroundThemeBrush}" AcceptsReturn="True" IsSpellCheckEnabled="False"/>
+    </Grid>
+</Page>

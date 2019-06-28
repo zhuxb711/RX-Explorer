@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap mp rescap">
+
+  <Identity
+    Name="89a50a4c-b807-417c-a064-6b4c66828259"
+    Publisher="CN=zhuxb"
+    Version="1.0.0.0" />
+
+  <mp:PhoneIdentity PhoneProductId="89a50a4c-b807-417c-a064-6b4c66828259" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+
+  <Properties>
+    <DisplayName>USBManager</DisplayName>
+    <PublisherDisplayName>zhuxb</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="x-generate"/>
+  </Resources>
+
+  <Applications>
+    <Application Id="App"
+      Executable="$targetnametoken$.exe"
+      EntryPoint="USBManager.App">
+      <uap:VisualElements
+        DisplayName="USB文件管理器"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png"
+        Description="USB文件管理器"
+        BackgroundColor="transparent">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\SmallTile.png" Square310x310Logo="Assets\LargeTile.png"/>
+        <uap:SplashScreen Image="Assets\SplashScreen.png"  BackgroundColor="deepSkyBlue"/>
+      </uap:VisualElements>
+      <Extensions>
+        <uap:Extension Category="windows.autoPlayContent">
+          <uap:AutoPlayContent>
+            <uap:LaunchAction Verb="USBArrival" ActionDisplayName="USB管理" ContentEvent="StorageOnArrival"/>
+          </uap:AutoPlayContent>
+        </uap:Extension>
+        <Extension Category="windows.backgroundTasks" EntryPoint="MediaProcessingBackgroundTask.MediaProcessingTask">
+          <BackgroundTasks>
+            <uap:Task Type="mediaProcessing"/>
+          </BackgroundTasks>
+        </Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <rescap:Capability Name="broadFileSystemAccess" />
+    <Capability Name="internetClient" />
+    <uap:Capability Name="removableStorage"/>
+    <DeviceCapability Name="bluetooth"/>
+  </Capabilities>
+</Package>

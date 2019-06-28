@@ -1,0 +1,21 @@
+﻿<Page
+    x:Class="USBManager.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:USBManager"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="33"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Border x:Name="TitleBar" Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" Text="USB文件管理器"/>
+        </Border>
+        <Frame Name="Nav" Grid.Row="1"/>
+    </Grid>
+</Page>

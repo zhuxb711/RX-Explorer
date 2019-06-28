@@ -1,0 +1,26 @@
+﻿<Page
+    x:Class="USBManager.USBPdfReader"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:USBManager"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    mc:Ignorable="d"
+    NavigationCacheMode="Required"
+    Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="100"/>
+        </Grid.RowDefinitions>
+        <FlipView Name="Flip" Grid.RowSpan="2">
+            <FlipView.ItemTemplate>
+                <DataTemplate>
+                    <Image Source="{Binding}" Stretch="Uniform"/>
+                </DataTemplate>
+            </FlipView.ItemTemplate>
+        </FlipView>
+        <controls:InAppNotification FlowDirection="RightToLeft" HorizontalContentAlignment="Right" ShowDismissButton="False" Name="PageNotification" StackMode="Replace" Width="200" Grid.Row="1"/>
+    </Grid>
+</Page>

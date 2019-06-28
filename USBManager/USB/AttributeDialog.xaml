@@ -1,0 +1,34 @@
+﻿<ContentDialog
+    x:Class="USBManager.AttributeDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:USBManager"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="属性"
+    CloseButtonText="确定">
+
+    <Grid>
+        <StackPanel Orientation="Horizontal">
+            <StackPanel Width="80">
+                <TextBlock Text="文件名" Height="35" TextAlignment="Justify"/>
+                <TextBlock Text="文件类型" Height="35" TextAlignment="Justify"/>
+                <TextBlock Text="位置" Height="35" TextAlignment="Justify"/>
+                <TextBlock Text="大小" Height="35" TextAlignment="Justify"/>
+                <TextBlock Text="创建时间" Height="35" TextAlignment="Justify"/>
+                <TextBlock Text="修改时间" Height="35" TextAlignment="Justify"/>
+            </StackPanel>
+            <TextBlock Width="25"/>
+            <StackPanel>
+                <TextBlock Text="{x:Bind FileName,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{x:Bind FileType,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{x:Bind Path,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{x:Bind FileSize,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{x:Bind CreateTime,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{x:Bind ChangeTime,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+
+</ContentDialog>

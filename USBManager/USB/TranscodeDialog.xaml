@@ -1,0 +1,24 @@
+﻿<ContentDialog
+    x:Class="USBManager.TranscodeDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:USBManager"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="转码"
+    PrimaryButtonText="确定"
+    CloseButtonText="取消"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal">
+                <ComboBox Header="转换格式" Name="Format" Width=" 180"/>
+                <ComboBox Header="编码质量" Name="Quality" SelectionChanged="Quality_SelectionChanged" Width="120" Margin="10,0,0,0"/>
+            </StackPanel>
+            <TextBlock Name="Info"/>
+            <CheckBox Name="SpeedUpEnable" Content="使用硬件加速(推荐)" IsChecked="True"/>
+        </StackPanel>
+    </Grid>
+</ContentDialog>
