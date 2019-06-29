@@ -1,4 +1,10 @@
-﻿using Windows.System;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Windows.Services.Store;
+using Windows.System;
+using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -8,6 +14,9 @@ namespace USBManager
 {
     public sealed partial class MainPage : Page
     {
+        private StoreContext Context;
+        private IReadOnlyList<StorePackageUpdate> Updates;
+
         public MainPage()
         {
             InitializeComponent();
@@ -15,7 +24,7 @@ namespace USBManager
             Loaded += MainPage_Loaded;
         }
 
-        private void MainPage_Loaded(object sender, RoutedEventArgs e)
+        private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
             KeyboardAccelerator GoBack = new KeyboardAccelerator
             {
@@ -34,6 +43,8 @@ namespace USBManager
             Nav.Navigate(typeof(USBControl), null, new DrillInNavigationTransitionInfo());
 
             USBControl.ThisPage.Nav.Navigated += Nav_Navigated;
+
+            await CheckAndInstallUpdate();
         }
 
         private void Nav_Navigated(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
@@ -59,5 +70,134 @@ namespace USBManager
         {
             BackRequested();
         }
+
+        private async Task CheckAndInstallUpdate()
+        {
+            Context = StoreContext.GetDefault();
+            Updates = await Context.GetAppAndOptionalStorePackageUpdatesAsync();
+
+            if (Updates.Count > 0)
+            {
+                ContentDialog dialog = new ContentDialog
+                {
+                    Title = "更新可用",
+                    Content = "最新版USB文件管理器已推出！是否立即下载？",
+                    CloseButtonText = "稍后提示",
+                    PrimaryButtonText = "立即下载"
+                };
+                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    SendUpdatableToastWithProgress();
+
+                    Progress<StorePackageUpdateStatus> UpdateProgress = new Progress<StorePackageUpdateStatus>((Status) =>
+                    {
+                        string Tag = "USB-Updating";
+
+                        var data = new NotificationData
+                        {
+                            SequenceNumber = 0
+                        };
+                        data.Values["ProgressValue"] = Status.TotalDownloadProgress.ToString();
+                        data.Values["ProgressString"] = (Status.TotalDownloadProgress * 100).ToString() + "%";
+
+                        ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                    });
+
+                    if (Context.CanSilentlyDownloadStorePackageUpdates)
+                    {
+                        StorePackageUpdateResult DownloadResult = await Context.TrySilentDownloadAndInstallStorePackageUpdatesAsync(Updates).AsTask(UpdateProgress);
+
+                        if (DownloadResult.OverallState != StorePackageUpdateState.Completed)
+                        {
+                            ShowErrorNotification();
+                        }
+                    }
+                    else
+                    {
+                        StorePackageUpdateResult DownloadResult = await Context.RequestDownloadAndInstallStorePackageUpdatesAsync(Updates).AsTask(UpdateProgress);
+
+                        if (DownloadResult.OverallState != StorePackageUpdateState.Completed)
+                        {
+                            ShowErrorNotification();
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ShowErrorNotification()
+        {
+            var Content = new ToastContent()
+            {
+                Scenario = ToastScenario.Default,
+                Launch = "UpdateError",
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                        {
+                            new AdaptiveText()
+                            {
+                                Text = "更新失败"
+                            },
+
+                            new AdaptiveText()
+                            {
+                                Text = "USB文件管理器无法更新至最新版"
+                            }
+                        }
+                    }
+                },
+            };
+            ToastNotificationManager.History.Clear();
+            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+        }
+
+        private void SendUpdatableToastWithProgress()
+        {
+            string Tag = "USB-Updating";
+
+            var content = new ToastContent()
+            {
+                Launch = "Updating",
+                Scenario = ToastScenario.Reminder,
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                        {
+                            new AdaptiveText()
+                            {
+                                Text = "正在下载应用更新..."
+                            },
+
+                            new AdaptiveProgressBar()
+                            {
+                                Title = "正在更新",
+                                Value = new BindableProgressBarValue("ProgressValue"),
+                                Status = new BindableString("ProgressStatus"),
+                                ValueStringOverride = new BindableString("ProgressString")
+                            }
+                        }
+                    }
+                }
+            };
+
+            var Toast = new ToastNotification(content.GetXml())
+            {
+                Tag = Tag,
+                Data = new NotificationData()
+            };
+            Toast.Data.Values["ProgressValue"] = "0";
+            Toast.Data.Values["ProgressStatus"] = "正在下载...";
+            Toast.Data.Values["ProgressString"] = "0%";
+            Toast.Data.SequenceNumber = 0;
+
+            ToastNotificationManager.History.Clear();
+            ToastNotificationManager.CreateToastNotifier().Show(Toast);
+        }
+
     }
 }
