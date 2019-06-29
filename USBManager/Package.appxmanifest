@@ -8,15 +8,15 @@
   IgnorableNamespaces="uap mp rescap">
 
   <Identity
-    Name="89a50a4c-b807-417c-a064-6b4c66828259"
-    Publisher="CN=zhuxb"
-    Version="1.0.0.0" />
+    Name="36186RuoFan.USB"
+    Publisher="CN=4FF1CB23-04BD-4F9C-A86A-B4A43196FE02"
+    Version="1.1.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="89a50a4c-b807-417c-a064-6b4c66828259" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="cb13434c-d58e-4756-a099-364235a676db" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>USBManager</DisplayName>
-    <PublisherDisplayName>zhuxb</PublisherDisplayName>
+    <DisplayName>USB文件管理器</DisplayName>
+    <PublisherDisplayName>Ruo_Fan</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 

@@ -22,10 +22,15 @@ namespace USBManager
 
         private async void USBTextViewer_Loaded(object sender, RoutedEventArgs e)
         {
+            LoadingControl.IsLoading = true;
             try
             {
                 string FileText = await FileIO.ReadTextAsync(SFile.File);
+
                 Text.Text = FileText;
+
+                await Task.Delay(500);
+                LoadingControl.IsLoading = false;
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -37,7 +42,11 @@ namespace USBManager
                 Encoding GBKEncoding = Encoding.GetEncoding("GBK");
 
                 string FileText = GBKEncoding.GetString(fileContent);
+
                 Text.Text = FileText;
+
+                await Task.Delay(500);
+                LoadingControl.IsLoading = false;
             }
         }
 

@@ -10,10 +10,16 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="33"/>
+            <RowDefinition Height="35"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Border x:Name="TitleBar" Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Button BorderThickness="0" Width="50" IsEnabled="False" Name="BackButton" Click="BackButton_Click" Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
+            <Viewbox Height="23">
+                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE72B;"/>
+            </Viewbox>
+        </Button>
+
+        <Border Margin="50,0,0,0" x:Name="TitleBar" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" Text="USB文件管理器"/>
         </Border>
         <Frame Name="Nav" Grid.Row="1"/>

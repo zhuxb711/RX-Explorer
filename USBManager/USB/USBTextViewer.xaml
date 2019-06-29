@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
     NavigationCacheMode="Required"
     Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
@@ -18,5 +19,14 @@
         </CommandBar>
         <TextBlock Margin="10,0,0,0" HorizontalAlignment="Left" FontSize="22" Name="Title"/>
         <TextBox Name="Text" Grid.Row="1" Background="{ThemeResource TextBoxDisabledBackgroundThemeBrush}" AcceptsReturn="True" IsSpellCheckEnabled="False"/>
+        <controls:Loading Name="LoadingControl" IsLoading="False" Grid.RowSpan="2">
+            <controls:Loading.Background>
+                <SolidColorBrush Color="Black" Opacity="0.7"/>
+            </controls:Loading.Background>
+            <StackPanel Orientation="Horizontal">
+                <ProgressRing IsActive="True" Height="25" Width="25" VerticalAlignment="Center"/>
+                <TextBlock Margin="10,0,0,0" Text="正在加载..." FontSize="20" VerticalAlignment="Center" />
+            </StackPanel>
+        </controls:Loading>
     </Grid>
 </Page>
