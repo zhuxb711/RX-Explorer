@@ -97,8 +97,8 @@ namespace USBManager
                         {
                             SequenceNumber = 0
                         };
-                        data.Values["ProgressValue"] = Status.TotalDownloadProgress.ToString();
-                        data.Values["ProgressString"] = (Status.TotalDownloadProgress * 100).ToString() + "%";
+                        data.Values["ProgressValue"] = (Status.PackageDownloadProgress * 1.25).ToString("0.##");
+                        data.Values["ProgressString"] = Math.Ceiling(Status.PackageDownloadProgress * 125).ToString() + "%";
 
                         ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
                     });

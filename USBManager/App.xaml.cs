@@ -3,6 +3,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.UI;
+using Windows.UI.Notifications;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -23,6 +24,7 @@ namespace USBManager
         {
             InitializeComponent();
             Suspending += OnSuspending;
+            ToastNotificationManager.History.Clear();
         }
 
         /// <summary>
@@ -49,9 +51,12 @@ namespace USBManager
 
         protected override void OnActivated(IActivatedEventArgs args)
         {
-            if (args is ToastNotificationActivatedEventArgs e && e.Argument == "Updating")
+            if (Window.Current.Content != null)
             {
-                return;
+                if (args is ToastNotificationActivatedEventArgs e && e.Argument == "Updating")
+                {
+                    return;
+                }
             }
 
             CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
