@@ -287,7 +287,6 @@ namespace USBManager
                     {
                         USBControl.ThisPage.Notification.Show("转码失败:" + ExcuteStatus, 10000);
                     }
-                    await USBFilePresenter.ThisPage.RefreshFileDisplay();
                 });
             }
         }

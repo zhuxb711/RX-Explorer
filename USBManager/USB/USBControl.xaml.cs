@@ -462,7 +462,12 @@ namespace USBManager
         {
             if ((CurrentNode = (e.OriginalSource as FrameworkElement)?.DataContext as TreeViewNode) != null)
             {
-                CreateFolder.IsEnabled = !FolderTree.RootNodes[0].Children.Contains(CurrentNode) && FolderTree.RootNodes[0] != CurrentNode;
+                CreateFolder.IsEnabled = FolderTree.RootNodes[0] != CurrentNode;
+                if (FolderTree.RootNodes[0].Children.Contains(CurrentNode))
+                {
+                    FolderDelete.IsEnabled = false;
+                    FolderRename.IsEnabled = false;
+                }
             }
             else
             {

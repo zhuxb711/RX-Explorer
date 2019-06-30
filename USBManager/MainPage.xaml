@@ -5,6 +5,7 @@
     xmlns:local="using:USBManager"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
 
@@ -23,5 +24,14 @@
             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" Text="USB文件管理器"/>
         </Border>
         <Frame Name="Nav" Grid.Row="1"/>
+        <controls:TeachingTip 
+            x:Name="TeachTip"      
+            Grid.Row="1"
+	        Title="更新可用"
+	        PreferredPlacement="Bottom"                                              
+	        IsLightDismissEnabled="True"
+	        ActionButtonContent="即刻更新"
+	        CloseButtonContent="稍后提示">
+        </controls:TeachingTip>
     </Grid>
 </Page>

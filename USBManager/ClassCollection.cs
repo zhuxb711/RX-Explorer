@@ -79,14 +79,6 @@ namespace USBManager
         }
 
         /// <summary>
-        /// 更新文件名称，并通知UI界面
-        /// </summary>
-        public void NameUpdateRequested()
-        {
-            OnPropertyChanged("DisplayName");
-        }
-
-        /// <summary>
         /// 更新文件大小，并通知UI界面
         /// </summary>
         /// <param name="Size"></param>

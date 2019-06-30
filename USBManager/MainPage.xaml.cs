@@ -78,15 +78,11 @@ namespace USBManager
 
             if (Updates.Count > 0)
             {
-                ContentDialog dialog = new ContentDialog
+                TeachTip.Subtitle = "最新版USB文件管理器已推出！\r最新版包含针对以往问题的修复补丁\r是否立即下载？";
+
+                TeachTip.ActionButtonClick += async (s, e) =>
                 {
-                    Title = "更新可用",
-                    Content = "最新版USB文件管理器已推出！是否立即下载？",
-                    CloseButtonText = "稍后提示",
-                    PrimaryButtonText = "立即下载"
-                };
-                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                {
+                    s.IsOpen = false;
                     SendUpdatableToastWithProgress();
 
                     Progress<StorePackageUpdateStatus> UpdateProgress = new Progress<StorePackageUpdateStatus>((Status) =>
@@ -121,7 +117,9 @@ namespace USBManager
                             ShowErrorNotification();
                         }
                     }
-                }
+                };
+
+                TeachTip.IsOpen = true;
             }
         }
 
