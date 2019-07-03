@@ -73,53 +73,60 @@ namespace USBManager
 
         private async Task CheckAndInstallUpdate()
         {
-            Context = StoreContext.GetDefault();
-            Updates = await Context.GetAppAndOptionalStorePackageUpdatesAsync();
-
-            if (Updates.Count > 0)
+            try
             {
-                TeachTip.Subtitle = "最新版USB文件管理器已推出！\r最新版包含针对以往问题的修复补丁\r是否立即下载？";
+                Context = StoreContext.GetDefault();
+                Updates = await Context.GetAppAndOptionalStorePackageUpdatesAsync();
 
-                TeachTip.ActionButtonClick += async (s, e) =>
+                if (Updates.Count > 0)
                 {
-                    s.IsOpen = false;
-                    SendUpdatableToastWithProgress();
+                    TeachTip.Subtitle = "最新版USB文件管理器已推出！\r最新版包含针对以往问题的修复补丁\r是否立即下载？";
 
-                    Progress<StorePackageUpdateStatus> UpdateProgress = new Progress<StorePackageUpdateStatus>((Status) =>
+                    TeachTip.ActionButtonClick += async (s, e) =>
                     {
-                        string Tag = "USB-Updating";
+                        s.IsOpen = false;
+                        SendUpdatableToastWithProgress();
 
-                        var data = new NotificationData
+                        Progress<StorePackageUpdateStatus> UpdateProgress = new Progress<StorePackageUpdateStatus>((Status) =>
                         {
-                            SequenceNumber = 0
-                        };
-                        data.Values["ProgressValue"] = (Status.PackageDownloadProgress * 1.25).ToString("0.##");
-                        data.Values["ProgressString"] = Math.Ceiling(Status.PackageDownloadProgress * 125).ToString() + "%";
+                            string Tag = "USB-Updating";
 
-                        ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
-                    });
+                            var data = new NotificationData
+                            {
+                                SequenceNumber = 0
+                            };
+                            data.Values["ProgressValue"] = (Status.PackageDownloadProgress * 1.25).ToString("0.##");
+                            data.Values["ProgressString"] = Math.Ceiling(Status.PackageDownloadProgress * 125).ToString() + "%";
 
-                    if (Context.CanSilentlyDownloadStorePackageUpdates)
-                    {
-                        StorePackageUpdateResult DownloadResult = await Context.TrySilentDownloadAndInstallStorePackageUpdatesAsync(Updates).AsTask(UpdateProgress);
+                            ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                        });
 
-                        if (DownloadResult.OverallState != StorePackageUpdateState.Completed)
+                        if (Context.CanSilentlyDownloadStorePackageUpdates)
                         {
-                            ShowErrorNotification();
+                            StorePackageUpdateResult DownloadResult = await Context.TrySilentDownloadAndInstallStorePackageUpdatesAsync(Updates).AsTask(UpdateProgress);
+
+                            if (DownloadResult.OverallState != StorePackageUpdateState.Completed)
+                            {
+                                ShowErrorNotification();
+                            }
                         }
-                    }
-                    else
-                    {
-                        StorePackageUpdateResult DownloadResult = await Context.RequestDownloadAndInstallStorePackageUpdatesAsync(Updates).AsTask(UpdateProgress);
-
-                        if (DownloadResult.OverallState != StorePackageUpdateState.Completed)
+                        else
                         {
-                            ShowErrorNotification();
-                        }
-                    }
-                };
+                            StorePackageUpdateResult DownloadResult = await Context.RequestDownloadAndInstallStorePackageUpdatesAsync(Updates).AsTask(UpdateProgress);
 
-                TeachTip.IsOpen = true;
+                            if (DownloadResult.OverallState != StorePackageUpdateState.Completed)
+                            {
+                                ShowErrorNotification();
+                            }
+                        }
+                    };
+
+                    TeachTip.IsOpen = true;
+                }
+            }
+            catch(Exception)
+            {
+                ShowErrorNotification();
             }
         }
 
