@@ -3,11 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Services.Store;
-using Windows.System;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace USBManager
@@ -26,20 +24,6 @@ namespace USBManager
 
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            KeyboardAccelerator GoBack = new KeyboardAccelerator
-            {
-                Key = VirtualKey.GoBack
-            };
-            GoBack.Invoked += BackInvoked;
-            KeyboardAccelerator AltLeft = new KeyboardAccelerator
-            {
-                Key = VirtualKey.Left
-            };
-            AltLeft.Invoked += BackInvoked;
-            KeyboardAccelerators.Add(GoBack);
-            KeyboardAccelerators.Add(AltLeft);
-            AltLeft.Modifiers = VirtualKeyModifiers.Menu;
-
             Nav.Navigate(typeof(USBControl), null, new DrillInNavigationTransitionInfo());
 
             USBControl.ThisPage.Nav.Navigated += Nav_Navigated;
@@ -52,23 +36,12 @@ namespace USBManager
             BackButton.IsEnabled = USBControl.ThisPage.Nav.CanGoBack;
         }
 
-        private void BackInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
-        {
-            BackRequested();
-            args.Handled = true;
-        }
-
-        private void BackRequested()
+        private void BackButton_Click(object sender, RoutedEventArgs e)
         {
             if (USBControl.ThisPage.Nav.CanGoBack)
             {
                 USBControl.ThisPage.Nav.GoBack();
             }
-        }
-
-        private void BackButton_Click(object sender, RoutedEventArgs e)
-        {
-            BackRequested();
         }
 
         private async Task CheckAndInstallUpdate()
@@ -124,7 +97,7 @@ namespace USBManager
                     TeachTip.IsOpen = true;
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
                 ShowErrorNotification();
             }
