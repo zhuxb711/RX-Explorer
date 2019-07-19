@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Services.Store;
+using Windows.Storage;
+using Windows.System;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -29,6 +31,9 @@ namespace USBManager
             USBControl.ThisPage.Nav.Navigated += Nav_Navigated;
 
             await CheckAndInstallUpdate();
+
+            await Task.Delay(30000);
+            RequestRateApplication();
         }
 
         private void Nav_Navigated(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
@@ -44,6 +49,97 @@ namespace USBManager
             }
         }
 
+        private bool WhetherUserRateAppInPast()
+        {
+            return ApplicationData.Current.LocalSettings.Values["IsRated"] is bool;
+        }
+
+        private void RequestRateApplication()
+        {
+            if (WhetherUserRateAppInPast())
+            {
+                return;
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["IsRated"] = true;
+            }
+
+            RateTip.IsOpen = true;
+            RateTip.ActionButtonClick += async(s, e) =>
+            {
+                var Result = await Context.RequestRateAndReviewAppAsync();
+                switch (Result.Status)
+                {
+                    case StoreRateAndReviewStatus.Succeeded:
+                        ShowRateSucceedNotification();
+                        break;
+                    case StoreRateAndReviewStatus.CanceledByUser:
+                        break;
+                    default:
+                        ShowRateErrorNotification();
+                        break;
+                }
+            };
+        }
+
+        private void ShowRateSucceedNotification()
+        {
+            var Content = new ToastContent()
+            {
+                Scenario = ToastScenario.Default,
+                Launch = "Updating",
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                        {
+                            new AdaptiveText()
+                            {
+                                Text = "评价成功"
+                            },
+
+                            new AdaptiveText()
+                            {
+                                Text = "感谢您对此App的评价，帮助我们做得更好。"
+                            }
+                        }
+                    }
+                },
+            };
+            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+        }
+
+        private void ShowRateErrorNotification()
+        {
+            var Content = new ToastContent()
+            {
+                Scenario = ToastScenario.Default,
+                Launch = "Updating",
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                        {
+                            new AdaptiveText()
+                            {
+                                Text = "评价失败"
+                            },
+
+                            new AdaptiveText()
+                            {
+                                Text = "因网络或其他原因而无法进行评价"
+                            }
+                        }
+                    }
+                },
+            };
+            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+        }
+
+
         private async Task CheckAndInstallUpdate()
         {
             try
@@ -53,9 +149,9 @@ namespace USBManager
 
                 if (Updates.Count > 0)
                 {
-                    TeachTip.Subtitle = "最新版USB文件管理器已推出！\r最新版包含针对以往问题的修复补丁\r是否立即下载？";
+                    UpdateTip.Subtitle = "最新版USB文件管理器已推出！\r最新版包含针对以往问题的修复补丁\r是否立即下载？";
 
-                    TeachTip.ActionButtonClick += async (s, e) =>
+                    UpdateTip.ActionButtonClick += async (s, e) =>
                     {
                         s.IsOpen = false;
                         SendUpdatableToastWithProgress();
@@ -94,7 +190,7 @@ namespace USBManager
                         }
                     };
 
-                    TeachTip.IsOpen = true;
+                    UpdateTip.IsOpen = true;
                 }
             }
             catch (Exception)
@@ -108,7 +204,7 @@ namespace USBManager
             var Content = new ToastContent()
             {
                 Scenario = ToastScenario.Default,
-                Launch = "UpdateError",
+                Launch = "Updating",
                 Visual = new ToastVisual()
                 {
                     BindingGeneric = new ToastBindingGeneric()
