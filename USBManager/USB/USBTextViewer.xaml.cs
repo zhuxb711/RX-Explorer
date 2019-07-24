@@ -65,20 +65,12 @@ namespace USBManager
             Text.Text = string.Empty;
         }
 
-        public async Task<string> GetSize(StorageFile file)
-        {
-            BasicProperties Properties = await file.GetBasicPropertiesAsync();
-            return Properties.Size / 1024f < 1024 ? Math.Round(Properties.Size / 1024f, 2).ToString() + " KB" :
-            (Properties.Size / 1048576f >= 1024 ? Math.Round(Properties.Size / 1073741824f, 2).ToString() + " GB" :
-            Math.Round(Properties.Size / 1048576f, 2).ToString() + " MB");
-        }
-
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
             StorageFolder Folder = await SFile.File.GetParentAsync();
             StorageFile NewFile = await Folder.CreateFileAsync(SFile.Name, CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteTextAsync(NewFile, Text.Text);
-            SFile.FileUpdateRequested(NewFile, await GetSize(NewFile));
+            await SFile.FileUpdateRequested(NewFile);
             USBControl.ThisPage.Nav.GoBack();
         }
 

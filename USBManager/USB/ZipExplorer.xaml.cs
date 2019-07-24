@@ -148,22 +148,9 @@ namespace USBManager
                 }
             }
 
-            OriginFile.SizeUpdateRequested(await GetSizeAsync(OriginFile.File));
+            await OriginFile.SizeUpdateRequested();
             await Task.Delay(500);
             LoadingActivation(false);
-        }
-
-        /// <summary>
-        /// 从文件获取文件大小的描述
-        /// </summary>
-        /// <param name="file">文件</param>
-        /// <returns></returns>
-        public async Task<string> GetSizeAsync(StorageFile file)
-        {
-            BasicProperties Properties = await file.GetBasicPropertiesAsync();
-            return Properties.Size / 1024f < 1024 ? Math.Round(Properties.Size / 1024f, 2).ToString() + " KB" :
-            (Properties.Size / 1048576f >= 1024 ? Math.Round(Properties.Size / 1073741824f, 2).ToString() + " GB" :
-            Math.Round(Properties.Size / 1048576f, 2).ToString() + " MB");
         }
 
         private async void Test_Click(object sender, RoutedEventArgs e)
@@ -245,6 +232,10 @@ namespace USBManager
         private async void Decompression_Click(object sender, RoutedEventArgs e)
         {
             LoadingActivation(true, "正在解压", true);
+
+            USBControl.ThisPage.FileTracker?.PauseDetection();
+            USBControl.ThisPage.FolderTracker?.PauseDetection();
+
             var file = GridControl.SelectedItem as ZipFileDisplay;
             using (var ZipFileStream = (await OriginFile.File.OpenStreamForReadAsync()))
             {
@@ -317,6 +308,7 @@ namespace USBManager
                                 Content = await USBControl.ThisPage.CurrentFolder.GetFolderAsync(NewFolder.Name),
                                 HasUnrealizedChildren = false
                             });
+
                         JUMP: break;
                         }
                     }
@@ -328,6 +320,11 @@ namespace USBManager
                     zipFile.Close();
                 }
             }
+
+            USBControl.ThisPage.FileTracker?.ResumeDetection();
+            USBControl.ThisPage.FolderTracker?.ResumeDetection();
+
+            await Task.Delay(1000);
             LoadingActivation(false);
         }
     }

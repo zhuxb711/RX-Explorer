@@ -76,7 +76,7 @@
             <AppBarButton Icon="Delete" Label="删除" Name="Delete" IsEnabled="False" Click="Delete_Click" Style="{StaticResource AppBarButtonRevealStyle}"/>
             <AppBarButton Icon="Edit" Label="重命名" Name="Rename" IsEnabled="False" Click="Rename_Click" Style="{StaticResource AppBarButtonRevealStyle}"/>
         </CommandBar>
-        <TextBlock Name="HasFile" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="无文件" FontSize="25" Visibility="Visible"/>
+        <TextBlock Name="HasFile" x:FieldModifier="public" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="无文件" FontSize="25" Visibility="Visible"/>
         <controls:Loading x:Name="LoadingControl" IsLoading="False" Grid.Column="2" Grid.RowSpan="2">
             <controls:Loading.Background>
                 <SolidColorBrush Color="Black" Opacity="0.5"/>
