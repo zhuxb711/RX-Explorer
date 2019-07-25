@@ -9,13 +9,20 @@
     mc:Ignorable="d"
     Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
 
+    <Page.Resources>
+        <AcrylicBrush x:Key="NavigationViewDefaultPaneBackground"
+                      BackgroundSource="Backdrop"
+                      TintColor="LightSlateGray"
+                      TintOpacity=".4"/>
+    </Page.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Button BorderThickness="0" Width="50" IsEnabled="False" Name="BackButton" Click="BackButton_Click" Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
-            <Viewbox Height="23">
+        <Button BorderThickness="0" Height="35" Width="40" IsEnabled="False" Name="BackButton" Click="BackButton_Click">
+            <Viewbox Height="18">
                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE72B;"/>
             </Viewbox>
         </Button>
@@ -23,7 +30,24 @@
         <Border Margin="50,0,0,0" x:Name="TitleBar" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" Text="USB文件管理器"/>
         </Border>
-        <Frame Name="Nav" Grid.Row="1"/>
+        <NavigationView Grid.Row="1"
+                        Name="NavView"
+                        IsBackButtonVisible="Collapsed"
+                        PaneDisplayMode="LeftCompact"
+                        IsPaneOpen="False"
+                        ItemInvoked="NavView_ItemInvoked">
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="USB管理" IsSelected="True">
+                    <NavigationViewItem.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xECF0;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+            <NavigationView.Content>
+                <Frame Name="Nav" Navigating="Nav_Navigating" Navigated="Nav_Navigated" x:FieldModifier="public" Grid.Row="1"/>
+            </NavigationView.Content>
+        </NavigationView>
+        
         <controls:TeachingTip 
             x:Name="UpdateTip"      
             Grid.Row="1"

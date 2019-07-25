@@ -34,19 +34,41 @@ namespace USBManager
             InitializeComponent();
             ThisPage = this;
             InitializeTreeView();
+            Nav.Navigate(typeof(USBFilePresenter), Nav, new DrillInNavigationTransitionInfo());
+
+            Application.Current.Suspending += Current_Suspending;
+            FolderTracker = new FileSystemTracker(FolderTree.RootNodes.FirstOrDefault());
+            FolderTracker.Created += FolderTracker_Created;
+            FolderTracker.Deleted += FolderTracker_Deleted;
+            FolderTracker.Renamed += FolderTracker_Renamed;
             Loaded += USBControl_Loaded;
+        }
+
+        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+        {
+            if (FileTracker != null)
+            {
+                FileTracker.Created -= FileTracker_Created;
+                FileTracker.Deleted -= FileTracker_Deleted;
+                FileTracker.Renamed -= FileTracker_Renamed;
+                FileTracker.Dispose();
+                FileTracker = null;
+            }
+
+            if (FolderTracker != null)
+            {
+                FolderTracker.Created -= FolderTracker_Created;
+                FolderTracker.Deleted -= FolderTracker_Deleted;
+                FolderTracker.Renamed -= FolderTracker_Renamed;
+                FolderTracker.Dispose();
+                FolderTracker = null;
+            }
         }
 
         private void USBControl_Loaded(object sender, RoutedEventArgs e)
         {
             CancelToken = new CancellationTokenSource();
             Locker = new AutoResetEvent(false);
-            Nav.Navigate(typeof(USBFilePresenter), Nav, new DrillInNavigationTransitionInfo());
-
-            FolderTracker = new FileSystemTracker(FolderTree.RootNodes.FirstOrDefault());
-            FolderTracker.Created += FolderTracker_Created;
-            FolderTracker.Deleted += FolderTracker_Deleted;
-            FolderTracker.Renamed += FolderTracker_Renamed;
         }
 
         private async void FolderTracker_Renamed(object sender, FileSystemRenameSet e)
@@ -103,24 +125,6 @@ namespace USBManager
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            if (FileTracker != null)
-            {
-                FileTracker.Created -= FileTracker_Created;
-                FileTracker.Deleted -= FileTracker_Deleted;
-                FileTracker.Renamed -= FileTracker_Renamed;
-                FileTracker.Dispose();
-                FileTracker = null;
-            }
-
-            if (FolderTracker != null)
-            {
-                FolderTracker.Created -= FolderTracker_Created;
-                FolderTracker.Deleted -= FolderTracker_Deleted;
-                FolderTracker.Renamed -= FolderTracker_Renamed;
-                FolderTracker.Dispose();
-                FolderTracker = null;
-            }
-
             Locker.Dispose();
             CancelToken.Dispose();
         }
@@ -415,7 +419,7 @@ namespace USBManager
 
                     StorageFolder Folder = CurrentNode.Content as StorageFolder;
                     await DeleteAllSubFilesAndFolders(Folder);
-                    await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    await Folder.DeleteAsync((bool)ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] ? StorageDeleteOption.PermanentDelete : StorageDeleteOption.Default);
 
                     if (USBFilePresenter.ThisPage.DisplayNode == CurrentNode)
                     {
@@ -426,9 +430,6 @@ namespace USBManager
                     TreeViewNode ParentNode = CurrentNode.Parent;
                     ParentNode.Children.Remove(CurrentNode);
                     CurrentNode = ParentNode;
-
-                    FileTracker?.ResumeDetection();
-                    FolderTracker?.ResumeDetection();
                 }
                 catch (Exception)
                 {
@@ -439,6 +440,11 @@ namespace USBManager
                         CloseButtonText = "确定"
                     };
                     _ = await Dialog.ShowAsync();
+                }
+                finally
+                {
+                    FileTracker?.ResumeDetection();
+                    FolderTracker?.ResumeDetection();
                 }
             }
         }
@@ -454,7 +460,7 @@ namespace USBManager
                 }
                 else
                 {
-                    await Item.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    await Item.DeleteAsync((bool)ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] ? StorageDeleteOption.PermanentDelete : StorageDeleteOption.Default);
                 }
             }
         }
@@ -577,6 +583,7 @@ namespace USBManager
                     HasUnrealizedChildren = false
                 });
             }
+            CurrentNode.IsExpanded = true;
 
             FileTracker?.ResumeDetection();
             FolderTracker?.ResumeDetection();

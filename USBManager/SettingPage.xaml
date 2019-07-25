@@ -6,9 +6,34 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+    NavigationCacheMode="Required"
     Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="25"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical">
+            <TextBlock Text="高级" FontSize="24"/>
+            <ToggleSwitch Name="TraceSwitch" Toggled="TraceSwitch_Toggled" Margin="0,20,0,0" Header="使用后台文件追踪系统追踪更改"/>
+            <ToggleSwitch Name="DeleteSwitch" Toggled="DeleteSwitch_Toggled" Header="删除文件时备份至回收站" Margin="0,20,0,0"/>
 
+            <TextBlock Text="版本" FontSize="24" Margin="0,30,0,0"/>
+            <TextBlock Name="Version" Margin="0,20,0,0" FontSize="16"/>
+
+            <TextBlock Margin="0,30,0,0" Text="其他" FontSize="24"/>
+            <Border Margin="0,20,0,0" Name="Like" PointerExited="Like_PointerExited" PointerEntered="Like_PointerEntered" PointerPressed="Like_PointerPressed" HorizontalAlignment="Left" Background="Transparent">
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Symbol="Like" Name="LikeSymbol" VerticalAlignment="Bottom"/>
+                    <TextBlock Margin="5,0,0,0" Name="LikeText" VerticalAlignment="Center" FontSize="16" Text="给App点赞"/>
+                </StackPanel>
+            </Border>
+            <HyperlinkButton Name="Link" Click="Link_Click" Margin="0,20,0,0" Content="关于开发者→→" FontSize="16"/>
+        </StackPanel>
     </Grid>
 </Page>

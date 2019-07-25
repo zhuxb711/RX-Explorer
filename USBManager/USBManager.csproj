@@ -123,6 +123,9 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AboutMe.xaml.cs">
+      <DependentUpon>AboutMe.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Bluetooth\BluetoothFileTransfer.xaml.cs">
       <DependentUpon>BluetoothFileTransfer.xaml</DependentUpon>
     </Compile>
@@ -187,6 +190,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\DocIcon.png" />
+    <Content Include="Assets\EmailIcon.png" />
+    <Content Include="Assets\GithubIcon.png" />
     <Content Include="Assets\LargeTile.scale-100.png" />
     <Content Include="Assets\LargeTile.scale-125.png" />
     <Content Include="Assets\LargeTile.scale-150.png" />
@@ -241,6 +246,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="AboutMe.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Bluetooth\BluetoothFileTransfer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

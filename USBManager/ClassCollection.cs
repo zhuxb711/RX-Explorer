@@ -671,7 +671,7 @@ namespace USBManager
             }
             IsResuming = true;
 
-            await Task.Delay(1000);
+            await Task.Delay(2000);
 
             if (TrackerMode == TrackerMode.TraceFolder)
             {
@@ -748,6 +748,11 @@ namespace USBManager
 
         private async void FileQuery_ContentsChanged(IStorageQueryResultBase sender, object args)
         {
+            if (!(bool)ApplicationData.Current.LocalSettings.Values["EnableTrace"])
+            {
+                return;
+            }
+
             lock (SyncRootProvider.SyncRoot)
             {
                 if (IsProcessing)
@@ -820,6 +825,11 @@ namespace USBManager
 
         private async void FolderQuery_ContentsChanged(IStorageQueryResultBase sender, object args)
         {
+            if (!(bool)ApplicationData.Current.LocalSettings.Values["EnableTrace"])
+            {
+                return;
+            }
+
             lock (SyncRootProvider.SyncRoot)
             {
                 if (IsProcessing)

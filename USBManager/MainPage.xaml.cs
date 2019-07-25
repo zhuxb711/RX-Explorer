@@ -1,14 +1,13 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Services.Store;
 using Windows.Storage;
-using Windows.System;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media.Animation;
 
 namespace USBManager
 {
@@ -16,19 +15,35 @@ namespace USBManager
     {
         private StoreContext Context;
         private IReadOnlyList<StorePackageUpdate> Updates;
-
+        private Dictionary<Type, string> PageDictionary;
+        public static MainPage ThisPage { get; private set; }
         public MainPage()
         {
             InitializeComponent();
+            ThisPage = this;
             Window.Current.SetTitleBar(TitleBar);
             Loaded += MainPage_Loaded;
         }
 
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            Nav.Navigate(typeof(USBControl), null, new DrillInNavigationTransitionInfo());
+            PageDictionary = new Dictionary<Type, string>
+            {
+                { typeof(USBControl),"USB管理" },
+                { typeof(AboutMe),NavView.SettingsItem.ToString() }
+            };
 
-            USBControl.ThisPage.Nav.Navigated += Nav_Navigated;
+            if(ApplicationData.Current.LocalSettings.Values["EnableTrace"] == null)
+            {
+                ApplicationData.Current.LocalSettings.Values["EnableTrace"] = true;
+            }
+
+            if(ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"]==null)
+            {
+                ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] = true;
+            }
+
+            Nav.Navigate(typeof(USBControl));
 
             await CheckAndInstallUpdate();
 
@@ -38,14 +53,44 @@ namespace USBManager
 
         private void Nav_Navigated(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
         {
-            BackButton.IsEnabled = USBControl.ThisPage.Nav.CanGoBack;
+            BackButton.IsEnabled = Nav.CanGoBack;
+
+            if (Nav.SourcePageType == typeof(SettingPage))
+            {
+                NavView.SelectedItem = NavView.SettingsItem as NavigationViewItem;
+            }
+            else
+            {
+                foreach (var MenuItem in from NavigationViewItemBase MenuItem in NavView.MenuItems
+                                         where MenuItem is NavigationViewItem && MenuItem.Content.ToString() == PageDictionary[Nav.SourcePageType]
+                                         select MenuItem)
+                {
+                    MenuItem.IsSelected = true;
+                    break;
+                }
+            }
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            if (USBControl.ThisPage.Nav.CanGoBack)
+            switch (Nav.CurrentSourcePageType.Name)
             {
-                USBControl.ThisPage.Nav.GoBack();
+                case "USBControl":
+                    if (USBControl.ThisPage.Nav.CanGoBack)
+                    {
+                        USBControl.ThisPage.Nav.GoBack();
+                    }
+                    else if (Nav.CanGoBack)
+                    {
+                        Nav.GoBack();
+                    }
+                    break;
+                default:
+                    if (Nav.CanGoBack)
+                    {
+                        Nav.GoBack();
+                    }
+                    break;
             }
         }
 
@@ -66,7 +111,7 @@ namespace USBManager
             }
 
             RateTip.IsOpen = true;
-            RateTip.ActionButtonClick += async(s, e) =>
+            RateTip.ActionButtonClick += async (s, e) =>
             {
                 var Result = await Context.RequestRateAndReviewAppAsync();
                 switch (Result.Status)
@@ -273,5 +318,27 @@ namespace USBManager
             ToastNotificationManager.CreateToastNotifier().Show(Toast);
         }
 
+        private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+        {
+            if (args.IsSettingsInvoked)
+            {
+                Nav.Navigate(typeof(SettingPage));
+            }
+            else
+            {
+                switch (args.InvokedItem.ToString())
+                {
+                    case "USB管理": Nav.Navigate(typeof(USBControl)); break;
+                }
+            }
+        }
+
+        private void Nav_Navigating(object sender, Windows.UI.Xaml.Navigation.NavigatingCancelEventArgs e)
+        {
+            if (Nav.CurrentSourcePageType == e.SourcePageType)
+            {
+                e.Cancel = true;
+            }
+        }
     }
 }

@@ -48,7 +48,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="16"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
         <Frame Grid.Column="2" Name="Nav" x:FieldModifier="Public"/>
@@ -71,6 +71,6 @@
             </TreeView.ContextFlyout>
         </TreeView>
         <controls:InAppNotification Grid.Column="2" StackMode="Replace" Name="Notification" x:FieldModifier="public" ShowDismissButton="True" HorizontalAlignment="Center"/>
-        <controls:GridSplitter ResizeBehavior="BasedOnAlignment" Width="13" ResizeDirection="Auto" Grid.Column="1" Background="Gray" Foreground="White" FontSize="13" HorizontalAlignment="Stretch"  Grid.RowSpan="2" VerticalAlignment="Stretch"/>
+        <controls:GridSplitter ResizeBehavior="BasedOnAlignment" ResizeDirection="Auto" Grid.Column="1"/>
     </Grid>
 </Page>

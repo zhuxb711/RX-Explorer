@@ -312,7 +312,7 @@ namespace USBManager
                 foreach (var item in FileList)
                 {
                     var file = (item as RemovableDeviceFile).File;
-                    await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    await file.DeleteAsync((bool)ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] ? StorageDeleteOption.PermanentDelete : StorageDeleteOption.Default);
 
                     for (int i = 0; i < FileCollection.Count; i++)
                     {
@@ -670,7 +670,7 @@ namespace USBManager
 
                 if (IsDeleteRequest)
                 {
-                    await SelectedFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    await SelectedFile.DeleteAsync((bool)ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] ? StorageDeleteOption.PermanentDelete : StorageDeleteOption.Default);
 
                     for (int i = 0; i < FileCollection.Count; i++)
                     {
@@ -1009,11 +1009,15 @@ namespace USBManager
                     goto JUMP;
                 }
 
-                USBControl.ThisPage.CurrentNode.Children.Add(new TreeViewNode
+                if (USBControl.ThisPage.CurrentNode.IsExpanded || !USBControl.ThisPage.CurrentNode.HasChildren)
                 {
-                    Content = await USBControl.ThisPage.CurrentFolder.GetFolderAsync(NewFolder.Name),
-                    HasUnrealizedChildren = false
-                });
+                    USBControl.ThisPage.CurrentNode.Children.Add(new TreeViewNode
+                    {
+                        Content = await USBControl.ThisPage.CurrentFolder.GetFolderAsync(NewFolder.Name),
+                        HasUnrealizedChildren = false
+                    });
+                }
+                USBControl.ThisPage.CurrentNode.IsExpanded = true;
 
             JUMP: continue;
             }

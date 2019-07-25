@@ -29,7 +29,7 @@ namespace USBManager
         {
             if (!UseStorageFileRatherThanStream)
             {
-                await ToDeleteFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                await ToDeleteFile.DeleteAsync((bool)ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] ? StorageDeleteOption.PermanentDelete : StorageDeleteOption.Default);
                 ToDeleteFile = null;
             }
 
