@@ -10,7 +10,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 
@@ -18,8 +17,8 @@ namespace USBManager
 {
     public sealed partial class USBControl : Page
     {
-        public TreeViewNode CurrentNode { get; private set; }
-        public StorageFolder CurrentFolder { get; private set; }
+        public TreeViewNode CurrentNode { get; set; }
+        public StorageFolder CurrentFolder { get; set; }
         public static USBControl ThisPage { get; private set; }
         private bool IsAdding = false;
         private string RootFolderId;
@@ -27,7 +26,7 @@ namespace USBManager
         private AutoResetEvent Locker;
         public FileSystemTracker FolderTracker;
         public FileSystemTracker FileTracker;
-
+        public AutoResetEvent ExpandLocker;
 
         public USBControl()
         {
@@ -69,6 +68,7 @@ namespace USBManager
         {
             CancelToken = new CancellationTokenSource();
             Locker = new AutoResetEvent(false);
+            ExpandLocker = new AutoResetEvent(false);
         }
 
         private async void FolderTracker_Renamed(object sender, FileSystemRenameSet e)
@@ -126,6 +126,7 @@ namespace USBManager
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             Locker.Dispose();
+            ExpandLocker.Dispose();
             CancelToken.Dispose();
         }
 
@@ -214,31 +215,15 @@ namespace USBManager
                     args.Node.Children.Add(new TreeViewNode() { Content = new EmptyDeviceDisplay() });
                 }
             }
-        }
-
-        /// <summary>
-        /// 获得指定文件的缩略图图像
-        /// </summary>
-        /// <param name="file">文件</param>
-        /// <returns>缩略图图像</returns>
-        public async Task<BitmapImage> GetThumbnailAsync(StorageFile file)
-        {
-            var Thumbnail = await file.GetThumbnailAsync(ThumbnailMode.ListView);
-            if (Thumbnail == null)
-            {
-                return null;
-            }
-
-            BitmapImage bitmapImage = new BitmapImage
-            {
-                DecodePixelHeight = 60,
-                DecodePixelWidth = 60
-            };
-            await bitmapImage.SetSourceAsync(Thumbnail);
-            return bitmapImage;
+            ExpandLocker.Set();
         }
 
         private async void FileTree_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
+        {
+            await DisplayItemsInFolder(args.InvokedItem as TreeViewNode);
+        }
+
+        public async Task DisplayItemsInFolder(TreeViewNode Node)
         {
             /*
              * 同一文件夹内可能存在大量文件
@@ -247,9 +232,9 @@ namespace USBManager
              * 确保不会出现异常
              */
             //防止多次点击同一文件夹导致的多重查找            
-            if ((args.InvokedItem as TreeViewNode).Content is StorageFolder folder)
+            if (Node.Content is StorageFolder folder)
             {
-                if (folder.FolderRelativeId == CurrentFolder?.FolderRelativeId)
+                if (folder.FolderRelativeId == CurrentFolder?.FolderRelativeId && !MainPage.ThisPage.IsNowSearching)
                 {
                     IsAdding = false;
                     return;
@@ -268,8 +253,13 @@ namespace USBManager
                 }
                 IsAdding = true;
 
+                if (MainPage.ThisPage.IsNowSearching)
+                {
+                    MainPage.ThisPage.IsNowSearching = false;
+                }
+
                 CurrentFolder = folder;
-                CurrentNode = args.InvokedItem as TreeViewNode;
+                CurrentNode = Node;
                 USBFilePresenter.ThisPage.DisplayNode = CurrentNode;
 
                 //当处于USB其他附加功能的页面时，若点击文件目录则自动执行返回导航
@@ -287,7 +277,6 @@ namespace USBManager
                 };
 
                 Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 60, ThumbnailOptions.ResizeThumbnail);
-                Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size" });
 
                 var FileQuery = folder.CreateFileQueryWithOptions(Options);
 
@@ -316,13 +305,7 @@ namespace USBManager
                         goto FLAG;
                     }
 
-                    IDictionary<string, object> PropertyResults = await file.Properties.RetrievePropertiesAsync(new string[] { "System.Size" });
-                    ulong PropertiesSize = Convert.ToUInt64(PropertyResults["System.Size"]);
-                    string Size = GetSizeDescription(PropertiesSize);
-
-                    BitmapImage Thumbnail = await GetThumbnailAsync(file);
-
-                    USBFilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceFile(file, Thumbnail, Size));
+                    USBFilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceStorageItem(file));
                 }
             }
 
@@ -339,7 +322,7 @@ namespace USBManager
             }
         }
 
-        private async void FileTracker_Renamed(object sender, FileSystemRenameSet e)
+        private void FileTracker_Renamed(object sender, FileSystemRenameSet e)
         {
             for (int i = 0; i < e.ToDeleteFileList.Count; i++)
             {
@@ -355,8 +338,7 @@ namespace USBManager
 
             foreach (StorageFile ExceptFile in e.ToAddFileList)
             {
-                BitmapImage Thumbnail = await GetThumbnailAsync(ExceptFile);
-                USBFilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceFile(ExceptFile, Thumbnail, await ExceptFile.GetSizeDescriptionAsync()));
+                USBFilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceStorageItem(ExceptFile));
             }
         }
 
@@ -366,7 +348,7 @@ namespace USBManager
             {
                 for (int j = 0; j < USBFilePresenter.ThisPage.FileCollection.Count; j++)
                 {
-                    RemovableDeviceFile DeviceFile = USBFilePresenter.ThisPage.FileCollection[j];
+                    RemovableDeviceStorageItem DeviceFile = USBFilePresenter.ThisPage.FileCollection[j];
                     if (DeviceFile.RelativeId == ((StorageFile)e.StorageItems[i]).FolderRelativeId)
                     {
                         USBFilePresenter.ThisPage.FileCollection.Remove(DeviceFile);
@@ -376,24 +358,12 @@ namespace USBManager
             }
         }
 
-        private async void FileTracker_Created(object sender, FileSystemChangeSet e)
+        private void FileTracker_Created(object sender, FileSystemChangeSet e)
         {
             foreach (StorageFile ExceptFile in e.StorageItems)
             {
-                BitmapImage Thumbnail = await GetThumbnailAsync(ExceptFile);
-
-                USBFilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceFile(ExceptFile, Thumbnail, await ExceptFile.GetSizeDescriptionAsync()));
+                USBFilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceStorageItem(ExceptFile));
             }
-        }
-
-        /// <summary>
-        /// 从文件大小获取标准描述
-        /// </summary>
-        /// <param name="PropertiesSize">文件大小</param>
-        /// <returns></returns>
-        private string GetSizeDescription(ulong PropertiesSize)
-        {
-            return PropertiesSize / 1024f < 1024 ? Math.Round(PropertiesSize / 1024f, 2).ToString() + " KB" : (PropertiesSize / 1048576f >= 1024 ? Math.Round(PropertiesSize / 1073741824f, 2).ToString() + " GB" : Math.Round(PropertiesSize / 1048576f, 2).ToString() + " MB");
         }
 
         private async void FolderDelete_Click(object sender, RoutedEventArgs e)
@@ -560,6 +530,16 @@ namespace USBManager
                     ChildCollection.Remove(CurrentNode);
                     await UpdateAllSubNodeFolder(NewNode);
                 }
+                else
+                {
+                    ChildCollection.Insert(index, new TreeViewNode()
+                    {
+                        Content = Folder,
+                        HasUnrealizedChildren = false,
+                        IsExpanded = false
+                    });
+                    ChildCollection.Remove(CurrentNode);
+                }
 
 
                 FileTracker?.ResumeDetection();
@@ -587,6 +567,11 @@ namespace USBManager
 
             FileTracker?.ResumeDetection();
             FolderTracker?.ResumeDetection();
+        }
+
+        private void Nav_Navigated(object sender, NavigationEventArgs e)
+        {
+            MainPage.ThisPage.BackButton.IsEnabled = Nav.CanGoBack;
         }
     }
 

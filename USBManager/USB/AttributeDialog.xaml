@@ -12,19 +12,19 @@
     <Grid>
         <StackPanel Orientation="Horizontal">
             <StackPanel Width="80">
-                <TextBlock Text="文件名" Height="35" TextAlignment="Justify"/>
-                <TextBlock Text="文件类型" Height="35" TextAlignment="Justify"/>
+                <TextBlock Text="文件名" Name="Na" Height="35" TextAlignment="Justify"/>
+                <TextBlock Text="文件类型" Visibility="{x:Bind Ty.Visibility,Mode=OneWay}" Height="35" TextAlignment="Justify"/>
                 <TextBlock Text="位置" Height="35" TextAlignment="Justify"/>
-                <TextBlock Text="大小" Height="35" TextAlignment="Justify"/>
+                <TextBlock Text="大小" Visibility="{x:Bind Si.Visibility,Mode=OneWay}" Height="35" TextAlignment="Justify"/>
                 <TextBlock Text="创建时间" Height="35" TextAlignment="Justify"/>
                 <TextBlock Text="修改时间" Height="35" TextAlignment="Justify"/>
             </StackPanel>
             <TextBlock Width="25"/>
             <StackPanel>
                 <TextBlock Text="{x:Bind FileName,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Text="{x:Bind FileType,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{x:Bind FileType,Mode=OneWay}" Name="Ty" Height="35" TextTrimming="CharacterEllipsis"/>
                 <TextBlock Text="{x:Bind Path,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Text="{x:Bind FileSize,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{x:Bind FileSize,Mode=OneWay}" Name="Si" Height="35" TextTrimming="CharacterEllipsis"/>
                 <TextBlock Text="{x:Bind CreateTime,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis"/>
                 <TextBlock Text="{x:Bind ChangeTime,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis"/>
             </StackPanel>

@@ -3,11 +3,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.Services.Store;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
+using Windows.Storage.Search;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Animation;
 
 namespace USBManager
 {
@@ -16,7 +20,9 @@ namespace USBManager
         private StoreContext Context;
         private IReadOnlyList<StorePackageUpdate> Updates;
         private Dictionary<Type, string> PageDictionary;
+        private List<string> SearchHistoryRecord;
         public static MainPage ThisPage { get; private set; }
+        public bool IsNowSearching { get; set; }
         public MainPage()
         {
             InitializeComponent();
@@ -33,15 +39,17 @@ namespace USBManager
                 { typeof(AboutMe),NavView.SettingsItem.ToString() }
             };
 
-            if(ApplicationData.Current.LocalSettings.Values["EnableTrace"] == null)
+            if (ApplicationData.Current.LocalSettings.Values["EnableTrace"] == null)
             {
                 ApplicationData.Current.LocalSettings.Values["EnableTrace"] = true;
             }
 
-            if(ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"]==null)
+            if (ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] == null)
             {
                 ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] = true;
             }
+
+            SearchHistoryRecord = await SQLite.GetInstance().GetSearchHistoryAsync();
 
             Nav.Navigate(typeof(USBControl));
 
@@ -201,34 +209,68 @@ namespace USBManager
                         s.IsOpen = false;
                         SendUpdatableToastWithProgress();
 
-                        Progress<StorePackageUpdateStatus> UpdateProgress = new Progress<StorePackageUpdateStatus>((Status) =>
-                        {
-                            string Tag = "USB-Updating";
-
-                            var data = new NotificationData
-                            {
-                                SequenceNumber = 0
-                            };
-                            data.Values["ProgressValue"] = (Status.PackageDownloadProgress * 1.25).ToString("0.##");
-                            data.Values["ProgressString"] = Math.Ceiling(Status.PackageDownloadProgress * 125).ToString() + "%";
-
-                            ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
-                        });
-
                         if (Context.CanSilentlyDownloadStorePackageUpdates)
                         {
-                            StorePackageUpdateResult DownloadResult = await Context.TrySilentDownloadAndInstallStorePackageUpdatesAsync(Updates).AsTask(UpdateProgress);
+                            IAsyncOperationWithProgress<StorePackageUpdateResult, StorePackageUpdateStatus> DownloadOperation = Context.TrySilentDownloadAndInstallStorePackageUpdatesAsync(Updates);
 
-                            if (DownloadResult.OverallState != StorePackageUpdateState.Completed)
+                            DownloadOperation.Progress += ((Info, Status) =>
+                            {
+                                if (Status.PackageDownloadProgress > 1.0)
+                                {
+                                    return;
+                                }
+
+                                string Tag = "USB-Updating";
+                                var data = new NotificationData
+                                {
+                                    SequenceNumber = 0
+                                };
+                                data.Values["ProgressValue"] = Status.PackageDownloadProgress.ToString("0.##");
+                                data.Values["ProgressString"] = Math.Ceiling(Status.PackageDownloadProgress).ToString() + "%";
+
+                                ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                            });
+
+                            StorePackageUpdateResult DownloadResult = await DownloadOperation.AsTask();
+
+                            if (DownloadResult.OverallState == StorePackageUpdateState.Completed)
+                            {
+                                _ = await Context.TrySilentDownloadAndInstallStorePackageUpdatesAsync(Updates).AsTask();
+                            }
+                            else
                             {
                                 ShowErrorNotification();
                             }
                         }
                         else
                         {
-                            StorePackageUpdateResult DownloadResult = await Context.RequestDownloadAndInstallStorePackageUpdatesAsync(Updates).AsTask(UpdateProgress);
+                            IAsyncOperationWithProgress<StorePackageUpdateResult, StorePackageUpdateStatus> DownloadOperation = Context.RequestDownloadAndInstallStorePackageUpdatesAsync(Updates);
 
-                            if (DownloadResult.OverallState != StorePackageUpdateState.Completed)
+                            DownloadOperation.Progress += ((Info, Status) =>
+                            {
+                                if (Status.PackageDownloadProgress > 1.0)
+                                {
+                                    return;
+                                }
+
+                                string Tag = "USB-Updating";
+                                var data = new NotificationData
+                                {
+                                    SequenceNumber = 0
+                                };
+                                data.Values["ProgressValue"] = Status.PackageDownloadProgress.ToString("0.##");
+                                data.Values["ProgressString"] = Math.Ceiling(Status.PackageDownloadProgress).ToString() + "%";
+
+                                ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                            });
+
+                            StorePackageUpdateResult DownloadResult = await DownloadOperation.AsTask();
+
+                            if (DownloadResult.OverallState == StorePackageUpdateState.Completed)
+                            {
+                                _ = await Context.RequestDownloadAndInstallStorePackageUpdatesAsync(Updates).AsTask();
+                            }
+                            else
                             {
                                 ShowErrorNotification();
                             }
@@ -338,6 +380,103 @@ namespace USBManager
             if (Nav.CurrentSourcePageType == e.SourcePageType)
             {
                 e.Cancel = true;
+            }
+        }
+
+        private async void GlobeSearch_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            if (string.IsNullOrWhiteSpace(args.QueryText))
+            {
+                return;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["LaunchSearchTips"] == null)
+            {
+                ApplicationData.Current.LocalSettings.Values["LaunchSearchTips"] = true;
+                SearchTip.IsOpen = true;
+            }
+
+            if (!SearchHistoryRecord.Contains(args.QueryText))
+            {
+                SearchHistoryRecord.Add(args.QueryText);
+                await SQLite.GetInstance().SetSearchHistoryAsync(args.QueryText);
+            }
+
+            IsNowSearching = true;
+
+            QueryOptions Options = new QueryOptions(CommonFileQuery.OrderByName, null)
+            {
+                FolderDepth = FolderDepth.Deep,
+                IndexerOption = IndexerOption.UseIndexerWhenAvailable
+            };
+
+            Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 30, ThumbnailOptions.ResizeThumbnail);
+
+            if (GlobeSearch.PlaceholderText.Substring(2) == "USB管理")
+            {
+                List<IStorageItem> SearchResult = new List<IStorageItem>();
+
+                foreach (var USBDevice in await KnownFolders.RemovableDevices.GetFoldersAsync())
+                {
+                    StorageItemQueryResult FileQuery = USBDevice.CreateItemQueryWithOptions(Options);
+                    SearchResult.AddRange(await FileQuery.GetItemsAsync());
+                }
+
+                List<IStorageItem> SortResult = new List<IStorageItem>(SearchResult.Count);
+
+                SortResult.AddRange(SearchResult.Where((Item) => Item.IsOfType(StorageItemTypes.Folder)));
+                SortResult.AddRange(SearchResult.Where((Item) => Item.IsOfType(StorageItemTypes.File)));
+
+                List<IStorageItem> Reuslt = SortResult.FindAll((Item) => Item.Name.Contains(sender.Text, StringComparison.OrdinalIgnoreCase));
+
+                if (USBControl.ThisPage.Nav.CurrentSourcePageType.Name != "SearchPage")
+                {
+                    USBControl.ThisPage.Nav.Navigate(typeof(SearchPage), Reuslt, new DrillInNavigationTransitionInfo());
+                }
+                else
+                {
+                    SearchPage.ThisPage.ResultList = Reuslt;
+                }
+            }
+        }
+
+        private async void GlobeSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            if (string.IsNullOrWhiteSpace(sender.Text))
+            {
+                if (IsNowSearching)
+                {
+                    if (USBControl.ThisPage.CurrentNode == null)
+                    {
+                        USBFilePresenter.ThisPage.FileCollection.Clear();
+                        USBFilePresenter.ThisPage.HasFile.Visibility = Visibility.Visible;
+                        USBFilePresenter.ThisPage.HasFile.Text = "无文件";
+                    }
+                    else
+                    {
+                        await USBControl.ThisPage.DisplayItemsInFolder(USBControl.ThisPage.CurrentNode);
+                    }
+                }
+                return;
+            }
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                List<string> FilterResult = SearchHistoryRecord.FindAll((s) => s.Contains(sender.Text, StringComparison.OrdinalIgnoreCase));
+                if (FilterResult.Count == 0)
+                {
+                    FilterResult.Add("无建议");
+                }
+                sender.ItemsSource = FilterResult;
+            }
+        }
+
+        private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+        {
+            foreach (var CurrentSelectionName in from NavigationViewItemBase MenuItem in NavView.MenuItems
+                                                 where MenuItem is NavigationViewItem && MenuItem.IsSelected
+                                                 select MenuItem.Content.ToString())
+            {
+                GlobeSearch.PlaceholderText = "搜索" + CurrentSelectionName;
             }
         }
     }

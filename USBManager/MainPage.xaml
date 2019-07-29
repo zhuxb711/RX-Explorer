@@ -21,7 +21,7 @@
             <RowDefinition Height="35"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Button BorderThickness="0" Height="35" Width="40" IsEnabled="False" Name="BackButton" Click="BackButton_Click">
+        <Button BorderThickness="0" x:FieldModifier="public" Height="35" Width="40" IsEnabled="False" Name="BackButton" Click="BackButton_Click">
             <Viewbox Height="18">
                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE72B;"/>
             </Viewbox>
@@ -35,6 +35,7 @@
                         IsBackButtonVisible="Collapsed"
                         PaneDisplayMode="LeftCompact"
                         IsPaneOpen="False"
+                        SelectionChanged="NavView_SelectionChanged"
                         ItemInvoked="NavView_ItemInvoked">
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="USB管理" IsSelected="True">
@@ -43,6 +44,9 @@
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
+            <NavigationView.AutoSuggestBox>
+                <AutoSuggestBox QueryIcon="Find" Name="GlobeSearch" QuerySubmitted="GlobeSearch_QuerySubmitted" TextChanged="GlobeSearch_TextChanged" UpdateTextOnSelect="True"/>
+            </NavigationView.AutoSuggestBox>
             <NavigationView.Content>
                 <Frame Name="Nav" Navigating="Nav_Navigating" Navigated="Nav_Navigated" x:FieldModifier="public" Grid.Row="1"/>
             </NavigationView.Content>
@@ -66,6 +70,16 @@
             Subtitle="您的评分很重要，请花一两分钟评价一下App吧！"
 	        ActionButtonContent="评分"
 	        CloseButtonContent="稍后">
+        </controls:TeachingTip>
+        <controls:TeachingTip 
+            x:Name="SearchTip"      
+            Grid.Row="1"
+	        Title="Tips"
+	        Target="{x:Bind GlobeSearch}"          
+            PreferredPlacement="BottomRight"
+	        IsLightDismissEnabled="True"
+            Subtitle="清空这个搜索框或点击任意文件夹即可退出搜索状态哦！"
+	        CloseButtonContent="知道啦">
         </controls:TeachingTip>
     </Grid>
 </Page>

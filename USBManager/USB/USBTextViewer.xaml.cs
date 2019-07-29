@@ -13,7 +13,7 @@ namespace USBManager
 {
     public sealed partial class USBTextViewer : Page
     {
-        private RemovableDeviceFile SFile;
+        private RemovableDeviceStorageItem SFile;
         public USBTextViewer()
         {
             InitializeComponent();
@@ -52,7 +52,7 @@ namespace USBManager
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is RemovableDeviceFile SFile)
+            if (e.Parameter is RemovableDeviceStorageItem SFile)
             {
                 this.SFile = SFile;
                 Title.Text = SFile.Name;
@@ -70,7 +70,7 @@ namespace USBManager
             StorageFolder Folder = await SFile.File.GetParentAsync();
             StorageFile NewFile = await Folder.CreateFileAsync(SFile.Name, CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteTextAsync(NewFile, Text.Text);
-            await SFile.FileUpdateRequested(NewFile);
+            await SFile.UpdateRequested(NewFile);
             USBControl.ThisPage.Nav.GoBack();
         }
 

@@ -51,12 +51,14 @@
             <ColumnDefinition Width="16"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
-        <Frame Grid.Column="2" Name="Nav" x:FieldModifier="Public"/>
+        <Frame Grid.Column="2" Name="Nav" Navigated="Nav_Navigated" x:FieldModifier="Public"/>
         <TreeView Name="FolderTree" 
+                  x:FieldModifier="public"
                   Expanding="FileTree_Expanding" 
                   ItemInvoked="FileTree_ItemInvoked" 
                   Collapsed="FileTree_Collapsed" 
                   HorizontalAlignment="Stretch" 
+                  SelectionMode="Single"
                   Grid.RowSpan="2" 
                   VerticalAlignment="Stretch" 
                   RightTapped="FolderTree_RightTapped">

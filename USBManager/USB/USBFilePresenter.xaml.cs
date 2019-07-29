@@ -18,14 +18,13 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 namespace USBManager
 {
     public sealed partial class USBFilePresenter : Page
     {
-        public ObservableCollection<RemovableDeviceFile> FileCollection = new ObservableCollection<RemovableDeviceFile>();
+        public ObservableCollection<RemovableDeviceStorageItem> FileCollection = new ObservableCollection<RemovableDeviceStorageItem>();
         public static USBFilePresenter ThisPage { get; private set; }
         public List<GridViewItem> ZipCollection = new List<GridViewItem>();
         public TreeViewNode DisplayNode;
@@ -87,13 +86,6 @@ namespace USBManager
             Ticker = null;
         }
 
-        public string GetSizeDescription(ulong PropertiesSize)
-        {
-            return PropertiesSize / 1024f < 1024 ? Math.Round(PropertiesSize / 1024f, 2).ToString() + " KB" :
-            (PropertiesSize / 1048576f >= 1024 ? Math.Round(PropertiesSize / 1073741824f, 2).ToString() + " GB" :
-            Math.Round(PropertiesSize / 1048576f, 2).ToString() + " MB");
-        }
-
         /// <summary>
         /// 关闭右键菜单并将GridView从多选模式恢复到单选模式
         /// </summary>
@@ -128,18 +120,13 @@ namespace USBManager
             };
 
             Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 60, ThumbnailOptions.ResizeThumbnail);
-            Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size" });
 
             StorageFileQueryResult QueryResult = USBControl.ThisPage.CurrentFolder.CreateFileQueryWithOptions(Options);
 
             var FileList = await QueryResult.GetFilesAsync();
             foreach (StorageFile file in FileList.Where(file => FileCollection.All((File) => File.RelativeId != file.FolderRelativeId)).Select(file => file))
             {
-                IDictionary<string, object> PropertyResults = await file.Properties.RetrievePropertiesAsync(new string[] { "System.Size" });
-                ulong PropertiesSize = (ulong)PropertyResults["System.Size"];
-                string Size = GetSizeDescription(PropertiesSize);
-                var Thumbnail = await GetThumbnailAsync(file);
-                FileCollection.Add(new RemovableDeviceFile(file, Thumbnail, Size));
+                FileCollection.Add(new RemovableDeviceStorageItem(file));
             }
 
             USBControl.ThisPage.FileTracker?.ResumeDetection();
@@ -152,7 +139,7 @@ namespace USBManager
             {
                 CopyedQueue.Clear();
             }
-            foreach (RemovableDeviceFile item in GridViewControl.SelectedItems)
+            foreach (RemovableDeviceStorageItem item in GridViewControl.SelectedItems)
             {
                 CopyedQueue.Enqueue(item.File);
             }
@@ -274,7 +261,7 @@ namespace USBManager
             {
                 CutQueue.Clear();
             }
-            foreach (RemovableDeviceFile item in GridViewControl.SelectedItems)
+            foreach (RemovableDeviceStorageItem item in GridViewControl.SelectedItems)
             {
                 CutQueue.Enqueue(item.File);
             }
@@ -299,8 +286,8 @@ namespace USBManager
             };
 
             contentDialog.Content = FileList.Count == 1
-                ? "此操作将永久删除 \"" + (FileList[0] as RemovableDeviceFile).Name + " \"\r\r是否继续?"
-                : "此操作将永久删除 \"" + (FileList[0] as RemovableDeviceFile).Name + "\" 等" + FileList.Count + "个文件\r\r是否继续?";
+                ? "此操作将永久删除 \"" + (FileList[0] as RemovableDeviceStorageItem).Name + " \"\r\r是否继续?"
+                : "此操作将永久删除 \"" + (FileList[0] as RemovableDeviceStorageItem).Name + "\" 等" + FileList.Count + "个文件\r\r是否继续?";
 
             if (await contentDialog.ShowAsync() == ContentDialogResult.Primary)
             {
@@ -311,7 +298,7 @@ namespace USBManager
 
                 foreach (var item in FileList)
                 {
-                    var file = (item as RemovableDeviceFile).File;
+                    var file = (item as RemovableDeviceStorageItem).File;
                     await file.DeleteAsync((bool)ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] ? StorageDeleteOption.PermanentDelete : StorageDeleteOption.Default);
 
                     for (int i = 0; i < FileCollection.Count; i++)
@@ -387,7 +374,7 @@ namespace USBManager
                 return;
             }
 
-            var file = (GridViewControl.SelectedItem as RemovableDeviceFile).File;
+            var file = (GridViewControl.SelectedItem as RemovableDeviceStorageItem).File;
             RenameDialog dialog = new RenameDialog(file.DisplayName, file.FileType);
             if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
@@ -409,7 +396,7 @@ namespace USBManager
 
                 await file.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
 
-                foreach (var File in from RemovableDeviceFile File in FileCollection
+                foreach (var File in from RemovableDeviceStorageItem File in FileCollection
                                      where File.Name == dialog.DesireName
                                      select File)
                 {
@@ -437,7 +424,7 @@ namespace USBManager
             List<object> FileList = new List<object>(GridViewControl.SelectedItems);
             Restore();
 
-            if (FileList.Any((File) => ((RemovableDeviceFile)File).Type != ".sle") && FileList.Any((File) => ((RemovableDeviceFile)File).Type == ".sle"))
+            if (FileList.Any((File) => ((RemovableDeviceStorageItem)File).Type != ".sle") && FileList.Any((File) => ((RemovableDeviceStorageItem)File).Type == ".sle"))
             {
                 ContentDialog dialog = new ContentDialog
                 {
@@ -453,7 +440,7 @@ namespace USBManager
             USBControl.ThisPage.FileTracker?.PauseDetection();
             USBControl.ThisPage.FolderTracker?.PauseDetection();
 
-            foreach (var SelectedFile in from RemovableDeviceFile AESFile in FileList select AESFile.File)
+            foreach (var SelectedFile in from RemovableDeviceStorageItem AESFile in FileList select AESFile.File)
             {
                 int KeySizeRequest;
                 string KeyRequest;
@@ -716,7 +703,7 @@ namespace USBManager
             Restore();
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
             {
-                foreach (RemovableDeviceFile file in FileList)
+                foreach (RemovableDeviceStorageItem file in FileList)
                 {
                     BluetoothUI Bluetooth = new BluetoothUI();
                     var result = await Bluetooth.ShowAsync();
@@ -744,23 +731,19 @@ namespace USBManager
             {
                 if (GridViewControl.SelectedIndex == -1)
                 {
+                    Rename.IsEnabled = false;
                     Copy.IsEnabled = false;
                     Cut.IsEnabled = false;
-                    Rename.IsEnabled = false;
-                    AES.IsEnabled = false;
-                    Delete.IsEnabled = false;
                     Transcode.IsEnabled = false;
-                    return;
                 }
                 else
                 {
+                    Rename.IsEnabled = true;
                     Copy.IsEnabled = true;
                     Cut.IsEnabled = true;
-                    Rename.IsEnabled = true;
-                    Delete.IsEnabled = true;
-                    AES.IsEnabled = true;
+
                     AES.Label = "AES加密";
-                    foreach (var _ in from RemovableDeviceFile item in e.AddedItems
+                    foreach (var _ in from RemovableDeviceStorageItem item in e.AddedItems
                                       where item.Type == ".sle"
                                       select new { })
                     {
@@ -770,7 +753,7 @@ namespace USBManager
 
                     if (e.AddedItems.Count == 1)
                     {
-                        switch ((e.AddedItems.FirstOrDefault() as RemovableDeviceFile).Type)
+                        switch ((e.AddedItems.FirstOrDefault() as RemovableDeviceStorageItem).Type)
                         {
                             case ".mkv":
                             case ".mp4":
@@ -796,38 +779,17 @@ namespace USBManager
         {
             if (GridViewControl.SelectedItems.Count <= 1)
             {
-                var Context = (e.OriginalSource as FrameworkElement)?.DataContext as RemovableDeviceFile;
+                var Context = (e.OriginalSource as FrameworkElement)?.DataContext as RemovableDeviceStorageItem;
                 GridViewControl.SelectedIndex = FileCollection.IndexOf(Context);
                 e.Handled = true;
             }
-        }
-
-        /// <summary>
-        /// 获得指定文件的缩略图图像
-        /// </summary>
-        /// <param name="file">文件</param>
-        /// <returns>缩略图图像</returns>
-        public async Task<BitmapImage> GetThumbnailAsync(StorageFile file)
-        {
-            var Thumbnail = await file.GetThumbnailAsync(ThumbnailMode.ListView);
-            if (Thumbnail == null)
-            {
-                return null;
-            }
-            BitmapImage bitmapImage = new BitmapImage
-            {
-                DecodePixelHeight = 60,
-                DecodePixelWidth = 60
-            };
-            await bitmapImage.SetSourceAsync(Thumbnail);
-            return bitmapImage;
         }
 
         private void GridViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
             if (GridViewControl.SelectedItems.Count <= 1)
             {
-                var Context = (e.OriginalSource as FrameworkElement)?.DataContext as RemovableDeviceFile;
+                var Context = (e.OriginalSource as FrameworkElement)?.DataContext as RemovableDeviceStorageItem;
                 GridViewControl.SelectedIndex = FileCollection.IndexOf(Context);
                 e.Handled = true;
             }
@@ -849,8 +811,17 @@ namespace USBManager
             }
             else
             {
-                AttributeDialog Dialog = new AttributeDialog((SelectedGroup[0] as RemovableDeviceFile).File);
-                await Dialog.ShowAsync();
+                RemovableDeviceStorageItem Device = SelectedGroup.FirstOrDefault() as RemovableDeviceStorageItem;
+                if (Device.File != null)
+                {
+                    AttributeDialog Dialog = new AttributeDialog(Device.File);
+                    await Dialog.ShowAsync();
+                }
+                else if (Device.Folder != null)
+                {
+                    AttributeDialog Dialog = new AttributeDialog(Device.Folder);
+                    await Dialog.ShowAsync();
+                }
             }
         }
 
@@ -859,7 +830,7 @@ namespace USBManager
             List<object> FileList = new List<object>(GridViewControl.SelectedItems);
             Restore();
 
-            if (FileList.All((File) => ((RemovableDeviceFile)File).Type == ".zip"))
+            if (FileList.All((File) => ((RemovableDeviceStorageItem)File).Type == ".zip"))
             {
                 USBControl.ThisPage.FileTracker?.PauseDetection();
                 USBControl.ThisPage.FolderTracker?.PauseDetection();
@@ -871,7 +842,7 @@ namespace USBManager
             }
             else
             {
-                ZipDialog dialog = FileList.Count == 1 ? new ZipDialog(true, (FileList[0] as RemovableDeviceFile).DisplayName) : new ZipDialog(true);
+                ZipDialog dialog = FileList.Count == 1 ? new ZipDialog(true, (FileList[0] as RemovableDeviceStorageItem).DisplayName) : new ZipDialog(true);
 
                 if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
@@ -907,7 +878,7 @@ namespace USBManager
         /// <returns>无</returns>
         private async Task UnZipAsync(List<object> ZFileList)
         {
-            foreach (RemovableDeviceFile ZFile in ZFileList)
+            foreach (RemovableDeviceStorageItem ZFile in ZFileList)
             {
                 StorageFolder NewFolder = null;
                 using (var ZipFileStream = await ZFile.File.OpenStreamForReadAsync())
@@ -1049,7 +1020,7 @@ namespace USBManager
                         ZipStream.Password = Password;
                         await Task.Run(async () =>
                         {
-                            foreach (var (ZipFile, NewEntry) in from RemovableDeviceFile ZipFile in FileList
+                            foreach (var (ZipFile, NewEntry) in from RemovableDeviceStorageItem ZipFile in FileList
                                                                 let NewEntry = new ZipEntry(ZipFile.File.Name)
                                                                 {
                                                                     DateTime = DateTime.Now,
@@ -1098,7 +1069,7 @@ namespace USBManager
                     {
                         await Task.Run(async () =>
                         {
-                            foreach (var (ZipFile, NewEntry) in from RemovableDeviceFile ZipFile in FileList
+                            foreach (var (ZipFile, NewEntry) in from RemovableDeviceStorageItem ZipFile in FileList
                                                                 let NewEntry = new ZipEntry(ZipFile.File.Name)
                                                                 {
                                                                     DateTime = DateTime.Now
@@ -1164,48 +1135,51 @@ namespace USBManager
 
         private async void GridViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is RemovableDeviceFile ReFile)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is RemovableDeviceStorageItem ReFile)
             {
-                switch (ReFile.File.FileType)
+                if (ReFile.File != null)
                 {
-                    case ".zip":
-                        Nav.Navigate(typeof(ZipExplorer), ReFile, new DrillInNavigationTransitionInfo());
-                        break;
-                    case ".jpg":
-                    case ".png":
-                    case ".bmp":
-                        Nav.Navigate(typeof(USBPhotoViewer), ReFile.File.FolderRelativeId, new DrillInNavigationTransitionInfo());
-                        break;
-                    case ".mkv":
-                    case ".mp4":
-                    case ".mp3":
-                    case ".flac":
-                    case ".wma":
-                    case ".wmv":
-                    case ".m4a":
-                    case ".mov":
-                    case ".alac":
-                        Nav.Navigate(typeof(USBMediaPlayer), ReFile.File, new DrillInNavigationTransitionInfo());
-                        break;
-                    case ".txt":
-                        Nav.Navigate(typeof(USBTextViewer), ReFile, new DrillInNavigationTransitionInfo());
-                        break;
-                    case ".pdf":
-                        Nav.Navigate(typeof(USBPdfReader), ReFile.File, new DrillInNavigationTransitionInfo());
-                        break;
-                    default:
-                        ContentDialog dialog = new ContentDialog
-                        {
-                            Title = "提示",
-                            Content = "  USB文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
-                            PrimaryButtonText = "默认应用打开",
-                            CloseButtonText = "取消"
-                        };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            await Launcher.LaunchFileAsync(ReFile.File);
-                        }
-                        break;
+                    switch (ReFile.File.FileType)
+                    {
+                        case ".zip":
+                            Nav.Navigate(typeof(ZipExplorer), ReFile, new DrillInNavigationTransitionInfo());
+                            break;
+                        case ".jpg":
+                        case ".png":
+                        case ".bmp":
+                            Nav.Navigate(typeof(USBPhotoViewer), ReFile.File.FolderRelativeId, new DrillInNavigationTransitionInfo());
+                            break;
+                        case ".mkv":
+                        case ".mp4":
+                        case ".mp3":
+                        case ".flac":
+                        case ".wma":
+                        case ".wmv":
+                        case ".m4a":
+                        case ".mov":
+                        case ".alac":
+                            Nav.Navigate(typeof(USBMediaPlayer), ReFile.File, new DrillInNavigationTransitionInfo());
+                            break;
+                        case ".txt":
+                            Nav.Navigate(typeof(USBTextViewer), ReFile, new DrillInNavigationTransitionInfo());
+                            break;
+                        case ".pdf":
+                            Nav.Navigate(typeof(USBPdfReader), ReFile.File, new DrillInNavigationTransitionInfo());
+                            break;
+                        default:
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Title = "提示",
+                                Content = "  USB文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
+                                PrimaryButtonText = "默认应用打开",
+                                CloseButtonText = "取消"
+                            };
+                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                            {
+                                await Launcher.LaunchFileAsync(ReFile.File);
+                            }
+                            break;
+                    }
                 }
             }
         }
@@ -1224,7 +1198,7 @@ namespace USBManager
                 ZipCollection.Add(GridItem);
             }
             AddToZipQueue?.Clear();
-            foreach (RemovableDeviceFile item in e.Items)
+            foreach (RemovableDeviceStorageItem item in e.Items)
             {
                 AddToZipQueue?.Enqueue(item.File);
             }
@@ -1240,7 +1214,7 @@ namespace USBManager
 
         private async void GridItem_Drop(object sender, DragEventArgs e)
         {
-            if ((e.OriginalSource as GridViewItem).Content is RemovableDeviceFile file)
+            if ((e.OriginalSource as GridViewItem).Content is RemovableDeviceStorageItem file)
             {
                 await AddFileToZipAsync(file);
             }
@@ -1251,7 +1225,7 @@ namespace USBManager
         /// </summary>
         /// <param name="file">待添加的文件</param>
         /// <returns>无</returns>
-        public async Task AddFileToZipAsync(RemovableDeviceFile file)
+        public async Task AddFileToZipAsync(RemovableDeviceStorageItem file)
         {
             LoadingActivation(true, "正在执行添加操作");
 
@@ -1302,7 +1276,7 @@ namespace USBManager
             var SelectedItems = GridViewControl.SelectedItems;
             if (SelectedItems.Count == 1)
             {
-                StorageFile file = (SelectedItems[0] as RemovableDeviceFile).File;
+                StorageFile file = (SelectedItems[0] as RemovableDeviceStorageItem).File;
                 TranscodeDialog dialog = new TranscodeDialog
                 {
                     SourceFile = file

@@ -1,6 +1,7 @@
 ﻿using Bluetooth.Core.Services;
 using Bluetooth.Services.Obex;
 using ICSharpCode.SharpZipLib.Zip;
+using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,11 +25,77 @@ using WinRTXamlToolkit.Controls.Extensions;
 
 namespace USBManager
 {
+    #region SQLite数据库
+    public sealed class SQLite : IDisposable
+    {
+        private SqliteConnection OLEDB = new SqliteConnection("Filename=SmartLens_SQLite.db");
+        private bool IsDisposed = false;
+        private static SQLite SQL = null;
+        private SQLite()
+        {
+            OLEDB.Open();
+            string Command = @"Create Table If Not Exists SearchHistory (SearchText Text Not Null);";
+            SqliteCommand CreateTable = new SqliteCommand(Command, OLEDB);
+            _ = CreateTable.ExecuteNonQuery();
+        }
+
+        public static SQLite GetInstance()
+        {
+            lock (SyncRootProvider.SyncRoot)
+            {
+                return SQL ?? (SQL = new SQLite());
+            }
+        }
+
+        public async Task SetSearchHistoryAsync(string SearchText)
+        {
+            SqliteCommand Command = new SqliteCommand("Insert Into SearchHistory Values (@Para)", OLEDB);
+            _ = Command.Parameters.AddWithValue("@Para", SearchText);
+            _ = await Command.ExecuteNonQueryAsync();
+        }
+
+        public async Task<List<string>> GetSearchHistoryAsync()
+        {
+            List<string> HistoryList = new List<string>();
+            SqliteCommand Command = new SqliteCommand("Select * From SearchHistory", OLEDB);
+            SqliteDataReader query = await Command.ExecuteReaderAsync();
+            while (query.Read())
+            {
+                HistoryList.Add(query[0].ToString());
+            }
+            return HistoryList;
+        }
+
+        public void Dispose()
+        {
+            if (!IsDisposed)
+            {
+                OLEDB.Dispose();
+                OLEDB = null;
+                SQL = null;
+            }
+            IsDisposed = true;
+        }
+
+        ~SQLite()
+        {
+            Dispose();
+        }
+    }
+    #endregion
+
     #region 可移动设备StorageFile类
+
+    public enum ContentType
+    {
+        Folder = 0,
+        File = 1
+    }
+
     /// <summary>
-    /// 提供USB设备中的文件的描述
+    /// 提供USB设备中的存储对象的描述
     /// </summary>
-    public sealed class RemovableDeviceFile : INotifyPropertyChanged
+    public sealed class RemovableDeviceStorageItem : INotifyPropertyChanged
     {
         /// <summary>
         /// 获取文件大小
@@ -40,6 +107,10 @@ namespace USBManager
         /// </summary>
         public StorageFile File { get; private set; }
 
+        public StorageFolder Folder { get; private set; }
+
+        public ContentType ContentType { get; private set; }
+
         /// <summary>
         /// 获取此文件的缩略图
         /// </summary>
@@ -49,21 +120,47 @@ namespace USBManager
         /// 创建RemovableDeviceFile实例
         /// </summary>
         /// <param name="Size">文件大小</param>
-        /// <param name="File">文件StorageFile对象</param>
+        /// <param name="Item">文件StorageFile对象</param>
         /// <param name="Thumbnail">文件缩略图</param>
-        public RemovableDeviceFile(StorageFile File, BitmapImage Thumbnail, string Size)
+        public RemovableDeviceStorageItem(IStorageItem Item)
         {
-            this.Size = Size;
-            this.File = File;
-
-            if (Thumbnail == null)
+            if (Item.IsOfType(StorageItemTypes.File))
             {
-                this.Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                File = Item as StorageFile;
+                ContentType = ContentType.File;
+            }
+            else if (Item.IsOfType(StorageItemTypes.Folder))
+            {
+                Folder = Item as StorageFolder;
+                ContentType = ContentType.Folder;
             }
             else
             {
-                this.Thumbnail = Thumbnail;
+                throw new Exception("Item must be folder or file");
             }
+
+            GetNecessaryInfo();
+        }
+
+        private async void GetNecessaryInfo()
+        {
+            switch (ContentType)
+            {
+                case ContentType.File:
+                    Size = await File.GetSizeDescriptionAsync();
+                    Thumbnail = await File.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                    ModifiedTime = await File.GetModifiedTimeAsync();
+                    break;
+                case ContentType.Folder:
+                    Size = await Folder.GetSizeDescriptionAsync();
+                    Thumbnail = await Folder.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                    ModifiedTime = await Folder.GetModifiedTimeAsync();
+                    break;
+            }
+
+            OnPropertyChanged("ModifiedTime");
+            OnPropertyChanged("Size");
+            OnPropertyChanged("Thumbnail");
         }
 
         private void OnPropertyChanged(string name)
@@ -78,10 +175,22 @@ namespace USBManager
         /// 更新文件以及文件大小，并通知UI界面
         /// </summary>
         /// <param name="File"></param>
-        public async Task FileUpdateRequested(StorageFile File)
+        public async Task UpdateRequested(IStorageItem Item)
         {
-            this.File = File;
-            Size = await File.GetSizeDescriptionAsync();
+            if (Item is StorageFolder Folder && ContentType == ContentType.Folder)
+            {
+                this.Folder = Folder;
+            }
+            else if (Item is StorageFile File && ContentType == ContentType.File)
+            {
+                this.File = File;
+            }
+            else
+            {
+                throw new Exception("Unsupport IStorageItem Or IStorageItem does not match the RemovableDeviceFile");
+            }
+
+            Size = await Item.GetSizeDescriptionAsync();
             OnPropertyChanged("DisplayName");
             OnPropertyChanged("Size");
         }
@@ -99,7 +208,14 @@ namespace USBManager
         /// </summary>
         public async Task SizeUpdateRequested()
         {
-            Size = await File.GetSizeDescriptionAsync();
+            switch (ContentType)
+            {
+                case ContentType.File:
+                    Size = await File.GetSizeDescriptionAsync();
+                    break;
+                case ContentType.Folder:
+                    throw new Exception("Could not update folder size");
+            }
             OnPropertyChanged("Size");
         }
 
@@ -110,7 +226,17 @@ namespace USBManager
         {
             get
             {
-                return File.DisplayName;
+                return ContentType == ContentType.Folder ? Folder.DisplayName : File.DisplayName;
+            }
+        }
+
+        public string ModifiedTime { get; private set; }
+
+        public string Path
+        {
+            get
+            {
+                return ContentType == ContentType.Folder ? Folder.Path : File.Path;
             }
         }
 
@@ -121,7 +247,7 @@ namespace USBManager
         {
             get
             {
-                return File.Name;
+                return ContentType == ContentType.Folder ? Folder.Name : File.Name;
             }
         }
 
@@ -132,7 +258,7 @@ namespace USBManager
         {
             get
             {
-                return File.DisplayType;
+                return ContentType == ContentType.Folder ? Folder.DisplayType : File.DisplayType;
             }
         }
 
@@ -143,7 +269,7 @@ namespace USBManager
         {
             get
             {
-                return File.FileType;
+                return ContentType == ContentType.Folder ? Folder.DisplayType : File.FileType;
             }
         }
 
@@ -154,7 +280,7 @@ namespace USBManager
         {
             get
             {
-                return File.FolderRelativeId;
+                return ContentType == ContentType.Folder ? Folder.FolderRelativeId : File.FolderRelativeId;
             }
         }
     }
@@ -921,13 +1047,13 @@ namespace USBManager
             return Except(FolderList, list2);
         }
 
-        private async Task<List<StorageFile>> ExceptAsync(IEnumerable<RemovableDeviceFile> list1, IEnumerable<StorageFile> list2)
+        private async Task<List<StorageFile>> ExceptAsync(IEnumerable<RemovableDeviceStorageItem> list1, IEnumerable<StorageFile> list2)
         {
             IEnumerable<StorageFile> FileList = list1.Select(x => x.File);
             return await ExceptAsync(list2, FileList);
         }
 
-        private async Task<List<StorageFile>> ExceptAsync(IEnumerable<StorageFile> list2, IEnumerable<RemovableDeviceFile> list1)
+        private async Task<List<StorageFile>> ExceptAsync(IEnumerable<StorageFile> list2, IEnumerable<RemovableDeviceStorageItem> list1)
         {
             IEnumerable<StorageFile> FileList = list1.Select(x => x.File);
             return await ExceptAsync(FileList, list2);
@@ -1016,15 +1142,77 @@ namespace USBManager
     }
     #endregion
 
+    #region 文件大小显示状态更改转换器
+    public sealed class SizeDisplayConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is StorageFolder)
+            {
+                return Visibility.Collapsed;
+            }
+            else
+            {
+                return Visibility.Visible;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    #endregion
+
     #region 扩展方法类
     public static class Extention
     {
-        public static async Task<string> GetSizeDescriptionAsync(this StorageFile file)
+        public static async Task<string> GetSizeDescriptionAsync(this IStorageItem Item)
         {
-            BasicProperties Properties = await file.GetBasicPropertiesAsync();
+            BasicProperties Properties = await Item.GetBasicPropertiesAsync();
             return Properties.Size / 1024f < 1024 ? Math.Round(Properties.Size / 1024f, 2).ToString() + " KB" :
             (Properties.Size / 1048576f >= 1024 ? Math.Round(Properties.Size / 1073741824f, 2).ToString() + " GB" :
             Math.Round(Properties.Size / 1048576f, 2).ToString() + " MB");
+        }
+
+        public static async Task<string>GetModifiedTimeAsync(this IStorageItem Item)
+        {
+            var Properties = await Item.GetBasicPropertiesAsync();
+            return Properties.DateModified.Year + "年" + Properties.DateModified.Month + "月" + Properties.DateModified.Day + "日, " + (Properties.DateModified.Hour < 10 ? "0" + Properties.DateModified.Hour : Properties.DateModified.Hour.ToString()) + ":" + (Properties.DateModified.Minute < 10 ? "0" + Properties.DateModified.Minute : Properties.DateModified.Minute.ToString()) + ":" + (Properties.DateModified.Second < 10 ? "0" + Properties.DateModified.Second : Properties.DateModified.Second.ToString());
+        }
+
+        public static async Task<BitmapImage> GetThumbnailBitmapAsync(this StorageFolder Item)
+        {
+            var Thumbnail = await Item.GetThumbnailAsync(ThumbnailMode.ListView);
+            if (Thumbnail == null)
+            {
+                return null;
+            }
+
+            BitmapImage bitmapImage = new BitmapImage
+            {
+                DecodePixelHeight = 60,
+                DecodePixelWidth = 60
+            };
+            await bitmapImage.SetSourceAsync(Thumbnail);
+            return bitmapImage;
+        }
+
+        public static async Task<BitmapImage> GetThumbnailBitmapAsync(this StorageFile Item)
+        {
+            var Thumbnail = await Item.GetThumbnailAsync(ThumbnailMode.ListView);
+            if (Thumbnail == null)
+            {
+                return null;
+            }
+
+            BitmapImage bitmapImage = new BitmapImage
+            {
+                DecodePixelHeight = 60,
+                DecodePixelWidth = 60
+            };
+            await bitmapImage.SetSourceAsync(Thumbnail);
+            return bitmapImage;
         }
 
         public static void ScrollIntoViewSmoothly(this ListViewBase listViewBase, object item, ScrollIntoViewAlignment alignment = ScrollIntoViewAlignment.Default)

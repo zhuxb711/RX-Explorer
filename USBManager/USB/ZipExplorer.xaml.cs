@@ -18,7 +18,7 @@ namespace USBManager
     public sealed partial class ZipExplorer : Page
     {
         ObservableCollection<ZipFileDisplay> FileCollection;
-        RemovableDeviceFile OriginFile;
+        RemovableDeviceStorageItem OriginFile;
 
         public ZipExplorer()
         {
@@ -28,7 +28,7 @@ namespace USBManager
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            OriginFile = e.Parameter as RemovableDeviceFile;
+            OriginFile = e.Parameter as RemovableDeviceStorageItem;
             FileCollection = new ObservableCollection<ZipFileDisplay>();
             GridControl.ItemsSource = FileCollection;
         }
