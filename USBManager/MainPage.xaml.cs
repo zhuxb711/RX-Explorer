@@ -44,9 +44,9 @@ namespace USBManager
                 ApplicationData.Current.LocalSettings.Values["EnableTrace"] = true;
             }
 
-            if (ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] == null)
+            if (ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] == null)
             {
-                ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] = true;
+                ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] = Convert.ToString(100);
             }
 
             SearchHistoryRecord = await SQLite.GetInstance().GetSearchHistoryAsync();
@@ -407,35 +407,23 @@ namespace USBManager
             QueryOptions Options = new QueryOptions(CommonFileQuery.OrderByName, null)
             {
                 FolderDepth = FolderDepth.Deep,
-                IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                IndexerOption = IndexerOption.UseIndexerWhenAvailable,
+                ApplicationSearchFilter = "System.FileName:*" + sender.Text + "*"
             };
 
             Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 30, ThumbnailOptions.ResizeThumbnail);
 
             if (GlobeSearch.PlaceholderText.Substring(2) == "USB管理")
             {
-                List<IStorageItem> SearchResult = new List<IStorageItem>();
-
-                foreach (var USBDevice in await KnownFolders.RemovableDevices.GetFoldersAsync())
-                {
-                    StorageItemQueryResult FileQuery = USBDevice.CreateItemQueryWithOptions(Options);
-                    SearchResult.AddRange(await FileQuery.GetItemsAsync());
-                }
-
-                List<IStorageItem> SortResult = new List<IStorageItem>(SearchResult.Count);
-
-                SortResult.AddRange(SearchResult.Where((Item) => Item.IsOfType(StorageItemTypes.Folder)));
-                SortResult.AddRange(SearchResult.Where((Item) => Item.IsOfType(StorageItemTypes.File)));
-
-                List<IStorageItem> Reuslt = SortResult.FindAll((Item) => Item.Name.Contains(sender.Text, StringComparison.OrdinalIgnoreCase));
-
                 if (USBControl.ThisPage.Nav.CurrentSourcePageType.Name != "SearchPage")
                 {
-                    USBControl.ThisPage.Nav.Navigate(typeof(SearchPage), Reuslt, new DrillInNavigationTransitionInfo());
+                    StorageItemQueryResult FileQuery = KnownFolders.RemovableDevices.CreateItemQueryWithOptions(Options);
+
+                    USBControl.ThisPage.Nav.Navigate(typeof(SearchPage), FileQuery, new DrillInNavigationTransitionInfo());
                 }
                 else
                 {
-                    SearchPage.ThisPage.ResultList = Reuslt;
+                    SearchPage.ThisPage.SetSearchTarget = sender.Text;
                 }
             }
         }

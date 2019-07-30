@@ -21,7 +21,7 @@
             <RowDefinition Height="35"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Button BorderThickness="0" x:FieldModifier="public" Height="35" Width="40" IsEnabled="False" Name="BackButton" Click="BackButton_Click">
+        <Button BorderThickness="0" Background="{StaticResource NavigationViewDefaultPaneBackground}" x:FieldModifier="public" Height="35" Width="40" IsEnabled="False" Name="BackButton" Click="BackButton_Click">
             <Viewbox Height="18">
                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE72B;"/>
             </Viewbox>

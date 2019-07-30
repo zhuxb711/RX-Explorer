@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.Storage;
+using Windows.Storage.Search;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -15,18 +18,22 @@ namespace USBManager
     public sealed partial class SearchPage : Page
     {
         ObservableCollection<RemovableDeviceStorageItem> SearchResult;
+        StorageItemQueryResult ItemQuery;
+        CancellationTokenSource Cancellation;
 
         public static SearchPage ThisPage { get; private set; }
-        public List<IStorageItem> ResultList
+
+        public string SetSearchTarget
         {
             set
             {
                 SearchResult.Clear();
 
-                foreach (var Item in value)
-                {
-                    SearchResult.Add(new RemovableDeviceStorageItem(Item));
-                }
+                QueryOptions NewOption = ItemQuery.GetCurrentQueryOptions();
+                NewOption.ApplicationSearchFilter = "System.FileName:*" + value + "*";
+                ItemQuery.ApplyNewQueryOptions(NewOption);
+
+                SearchPage_Loaded(null, null);
             }
         }
 
@@ -36,15 +43,61 @@ namespace USBManager
             ThisPage = this;
             SearchResult = new ObservableCollection<RemovableDeviceStorageItem>();
             SearchResultList.ItemsSource = SearchResult;
-            Loaded += SearchPage_Loaded;
         }
 
-        private void SearchPage_Loaded(object sender, RoutedEventArgs e)
+        private async void SearchPage_Loaded(object sender, RoutedEventArgs e)
         {
-            if (SearchResult.Count == 0)
+            Loaded -= SearchPage_Loaded;
+
+            uint MaxSearchNum = uint.Parse(ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] as string);
+
+            LoadingControl.IsLoading = true;
+            IReadOnlyList<IStorageItem> SearchItems = null;
+
+            try
+            {
+                Cancellation = new CancellationTokenSource();
+
+                IAsyncOperation<IReadOnlyList<IStorageItem>> SearchAsync = ItemQuery.GetItemsAsync(0, MaxSearchNum);
+                Cancellation.Token.Register((SearchOperation) =>
+                {
+                    (SearchOperation as IAsyncOperation<IReadOnlyList<IStorageItem>>).Cancel();
+                }, SearchAsync);
+
+                SearchItems = await SearchAsync;
+            }
+            catch (TaskCanceledException)
             {
                 HasItem.Visibility = Visibility.Visible;
                 SearchResultList.Visibility = Visibility.Collapsed;
+                LoadingControl.IsLoading = false;
+                return;
+            }
+            finally
+            {
+                Cancellation.Dispose();
+                Cancellation = null;
+            }
+
+            await Task.Delay(500);
+
+            LoadingControl.IsLoading = false;
+
+            if (SearchItems.Count == 0)
+            {
+                HasItem.Visibility = Visibility.Visible;
+                SearchResultList.Visibility = Visibility.Collapsed;
+                LoadingControl.IsLoading = false;
+                return;
+            }
+
+            List<IStorageItem> SortResult = new List<IStorageItem>(SearchItems.Count);
+            SortResult.AddRange(SearchItems.Where((Item) => Item.IsOfType(StorageItemTypes.Folder)));
+            SortResult.AddRange(SearchItems.Where((Item) => Item.IsOfType(StorageItemTypes.File)));
+
+            foreach (var Item in SortResult)
+            {
+                SearchResult.Add(new RemovableDeviceStorageItem(Item));
             }
         }
 
@@ -53,16 +106,14 @@ namespace USBManager
             HasItem.Visibility = Visibility.Collapsed;
             SearchResultList.Visibility = Visibility.Visible;
 
-            List<IStorageItem> List = e.Parameter as List<IStorageItem>;
-            foreach (var Item in List)
-            {
-                SearchResult.Add(new RemovableDeviceStorageItem(Item));
-            }
+            ItemQuery = e.Parameter as StorageItemQueryResult;
+            Loaded += SearchPage_Loaded;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             SearchResult.Clear();
+            Cancellation?.Cancel();
         }
 
         private async void Location_Click(object sender, RoutedEventArgs e)

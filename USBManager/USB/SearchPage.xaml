@@ -5,6 +5,7 @@
     xmlns:local="using:USBManager"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
     NavigationCacheMode="Enabled"
     Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
@@ -77,5 +78,18 @@
             </ListView.ContextFlyout>
         </ListView>
         <TextBlock Name="HasItem" Visibility="Collapsed" Text="无法搜索到任何文件" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+        <controls:Loading x:Name="LoadingControl" IsLoading="False" Grid.RowSpan="2">
+            <controls:Loading.Background>
+                <SolidColorBrush Color="Black" Opacity="0.8"/>
+            </controls:Loading.Background>
+            <StackPanel Orientation="Horizontal" Padding="12">
+                <Grid Margin="0,0,15,0">
+                    <ProgressRing x:Name="ProRing" IsActive="True" Foreground="White" Height="20" Width="20" />
+                </Grid>
+                <StackPanel>
+                    <TextBlock FontSize="22" Text="正在搜索..." VerticalAlignment="Center" TextAlignment="Center"/>
+                </StackPanel>
+            </StackPanel>
+        </controls:Loading>
     </Grid>
 </Page>

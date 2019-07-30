@@ -128,6 +128,7 @@ namespace USBManager
             Locker.Dispose();
             ExpandLocker.Dispose();
             CancelToken.Dispose();
+            
         }
 
         /// <summary>

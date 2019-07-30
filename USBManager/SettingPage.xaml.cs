@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
+using System.Linq;
 using Windows.ApplicationModel;
 using Windows.Services.Store;
 using Windows.Storage;
@@ -21,6 +22,10 @@ namespace USBManager
             InitializeComponent();
             Loaded += SettingPage_Loaded;
             Version.Text = string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
+            for (int i = 1; i <= 10; i++)
+            {
+                SearchNum.Items.Add("前" + (i * 10) + "项结果");
+            }
         }
 
         private void SettingPage_Loaded(object sender, RoutedEventArgs e)
@@ -30,10 +35,9 @@ namespace USBManager
                 TraceSwitch.IsOn = EnableTrace;
             }
 
-
-            if (ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] is bool EnableDirectDelete)
+            if (ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] is string MaxNum)
             {
-                DeleteSwitch.IsOn = !EnableDirectDelete;
+                SearchNum.SelectedIndex = SearchNum.Items.IndexOf(SearchNum.Items.Where((Item) => Item.ToString().Contains(MaxNum)).FirstOrDefault());
             }
         }
 
@@ -138,16 +142,27 @@ namespace USBManager
             }
         }
 
-        private void DeleteSwitch_Toggled(object sender, RoutedEventArgs e)
+        private void SearchNum_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (DeleteSwitch.IsOn)
+            ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] = ((SearchNum.SelectedIndex + 1) * 10).ToString();
+        }
+
+        private async void FlyoutContinue_Click(object sender, RoutedEventArgs e)
+        {
+            ConfirmFly.Hide();
+            await SQLite.GetInstance().ClearSearchHistoryRecord();
+            ContentDialog dialog = new ContentDialog
             {
-                ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] = false;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] = true;
-            }
+                Title = "提示",
+                Content = "搜索历史记录清理完成",
+                CloseButtonText = "确定"
+            };
+            _ = await dialog.ShowAsync();
+        }
+
+        private void FlyoutCancel_Click(object sender, RoutedEventArgs e)
+        {
+            ConfirmFly.Hide();
         }
     }
 }

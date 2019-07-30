@@ -66,6 +66,12 @@ namespace USBManager
             return HistoryList;
         }
 
+        public async Task ClearSearchHistoryRecord()
+        {
+            SqliteCommand Command = new SqliteCommand("Delete From SearchHistory", OLEDB);
+            _ = await Command.ExecuteNonQueryAsync();
+        }
+
         public void Dispose()
         {
             if (!IsDisposed)
