@@ -17,7 +17,7 @@ namespace USBManager
 {
     public sealed partial class SearchPage : Page
     {
-        ObservableCollection<RemovableDeviceStorageItem> SearchResult;
+        public ObservableCollection<RemovableDeviceStorageItem> SearchResult;
         StorageItemQueryResult ItemQuery;
         CancellationTokenSource Cancellation;
 
@@ -122,24 +122,43 @@ namespace USBManager
 
             if (RemoveFile.ContentType == ContentType.Folder)
             {
-                foreach (var USBDevice in from Device in USBControl.ThisPage.FolderTree.RootNodes[0].Children
-                                          where Path.GetPathRoot(RemoveFile.Folder.Path) == (Device.Content as StorageFolder).Path
-                                          select Device)
+                TreeViewNode TargetNode = await FindFolderLocationInTree(USBControl.ThisPage.FolderTree.RootNodes[0], new PathAnalysis(RemoveFile.Folder.Path));
+                if (TargetNode == null)
                 {
-                    USBControl.ThisPage.CurrentNode = await FindFolderLocationInTree(USBDevice, RemoveFile.Folder.FolderRelativeId);
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Title = "错误",
+                        Content = "无法定位文件夹，该文件夹可能已被删除或移动",
+                        CloseButtonText = "确定"
+                    };
+                    _ = await dialog.ShowAsync();
+                }
+                else
+                {
+                    USBControl.ThisPage.CurrentNode = TargetNode;
                     USBControl.ThisPage.CurrentFolder = USBControl.ThisPage.CurrentNode.Content as StorageFolder;
                     await USBControl.ThisPage.DisplayItemsInFolder(USBControl.ThisPage.CurrentNode);
                 }
             }
             else
             {
-                foreach (var USBDevice in from Device in USBControl.ThisPage.FolderTree.RootNodes[0].Children
-                                          where Path.GetPathRoot(RemoveFile.File.Path) == (Device.Content as StorageFolder).Path
-                                          select Device)
+                try
                 {
-                    USBControl.ThisPage.CurrentNode = await FindFolderLocationInTree(USBDevice, (await RemoveFile.File.GetParentAsync()).FolderRelativeId);
+                    _ = await StorageFile.GetFileFromPathAsync(RemoveFile.Path);
+
+                    USBControl.ThisPage.CurrentNode = await FindFolderLocationInTree(USBControl.ThisPage.FolderTree.RootNodes[0], new PathAnalysis((await RemoveFile.File.GetParentAsync()).Path));
                     USBControl.ThisPage.CurrentFolder = USBControl.ThisPage.CurrentNode.Content as StorageFolder;
                     await USBControl.ThisPage.DisplayItemsInFolder(USBControl.ThisPage.CurrentNode);
+                }
+                catch (FileNotFoundException)
+                {
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Title = "错误",
+                        Content = "无法定位文件，该文件可能已被删除或移动",
+                        CloseButtonText = "确定"
+                    };
+                    _ = await dialog.ShowAsync();
                 }
             }
         }
@@ -174,18 +193,10 @@ namespace USBManager
             }
         }
 
-        private async Task<TreeViewNode> FindFolderLocationInTree(TreeViewNode Node, string RelativeId)
+        private async Task<TreeViewNode> FindFolderLocationInTree(TreeViewNode Node, PathAnalysis Analysis)
         {
-            if ((Node.Content as StorageFolder).FolderRelativeId == RelativeId)
-            {
-                return Node;
-            }
-
-            bool IsChangeExpandState = false;
-
             if (Node.HasUnrealizedChildren)
             {
-                IsChangeExpandState = true;
                 Node.IsExpanded = true;
             }
             else
@@ -198,35 +209,16 @@ namespace USBManager
                 USBControl.ThisPage.ExpandLocker.WaitOne();
             });
 
-            if (Node.HasChildren)
-            {
-                while (Node.Children.Count == 0)
-                {
-                    await Task.Delay(100);
-                }
+            string NextPathLevel = Analysis.NextPathLevel();
 
-                foreach (var SubNode in Node.Children)
-                {
-                    if ((SubNode.Content as StorageFolder).FolderRelativeId == RelativeId)
-                    {
-                        return SubNode;
-                    }
-                    else
-                    {
-                        TreeViewNode Result = await FindFolderLocationInTree(SubNode, RelativeId);
-                        if (Result != null)
-                        {
-                            return Result;
-                        }
-                    }
-                }
-            }
-
-            if (IsChangeExpandState)
+            if (NextPathLevel == Analysis.FullPath)
             {
-                Node.IsExpanded = false;
+                return Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
             }
-            return null;
+            else
+            {
+                return await FindFolderLocationInTree(Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault(), Analysis);
+            }
         }
 
         private void SearchResultList_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)

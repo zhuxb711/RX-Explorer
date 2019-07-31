@@ -211,9 +211,7 @@ namespace USBManager
 
                         if (Context.CanSilentlyDownloadStorePackageUpdates)
                         {
-                            IAsyncOperationWithProgress<StorePackageUpdateResult, StorePackageUpdateStatus> DownloadOperation = Context.TrySilentDownloadAndInstallStorePackageUpdatesAsync(Updates);
-
-                            DownloadOperation.Progress += ((Info, Status) =>
+                            IProgress<StorePackageUpdateStatus> DownloadProgress = new Progress<StorePackageUpdateStatus>((Status) =>
                             {
                                 if (Status.PackageDownloadProgress > 1.0)
                                 {
@@ -231,7 +229,7 @@ namespace USBManager
                                 ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
                             });
 
-                            StorePackageUpdateResult DownloadResult = await DownloadOperation.AsTask();
+                            StorePackageUpdateResult DownloadResult = await Context.TrySilentDownloadAndInstallStorePackageUpdatesAsync(Updates).AsTask(DownloadProgress);
 
                             if (DownloadResult.OverallState == StorePackageUpdateState.Completed)
                             {
@@ -244,9 +242,7 @@ namespace USBManager
                         }
                         else
                         {
-                            IAsyncOperationWithProgress<StorePackageUpdateResult, StorePackageUpdateStatus> DownloadOperation = Context.RequestDownloadAndInstallStorePackageUpdatesAsync(Updates);
-
-                            DownloadOperation.Progress += ((Info, Status) =>
+                            IProgress<StorePackageUpdateStatus> DownloadProgress = new Progress<StorePackageUpdateStatus>((Status) =>
                             {
                                 if (Status.PackageDownloadProgress > 1.0)
                                 {
@@ -264,7 +260,7 @@ namespace USBManager
                                 ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
                             });
 
-                            StorePackageUpdateResult DownloadResult = await DownloadOperation.AsTask();
+                            StorePackageUpdateResult DownloadResult = await Context.RequestDownloadAndInstallStorePackageUpdatesAsync(Updates).AsTask(DownloadProgress);
 
                             if (DownloadResult.OverallState == StorePackageUpdateState.Completed)
                             {
@@ -436,9 +432,8 @@ namespace USBManager
                 {
                     if (USBControl.ThisPage.CurrentNode == null)
                     {
-                        USBFilePresenter.ThisPage.FileCollection.Clear();
-                        USBFilePresenter.ThisPage.HasFile.Visibility = Visibility.Visible;
-                        USBFilePresenter.ThisPage.HasFile.Text = "无文件";
+                        SearchPage.ThisPage.SearchResult.Clear();
+                        SearchPage.ThisPage.HasItem.Visibility = Visibility.Visible;
                     }
                     else
                     {

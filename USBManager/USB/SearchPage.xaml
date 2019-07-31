@@ -77,7 +77,7 @@
                 </CommandBarFlyout>
             </ListView.ContextFlyout>
         </ListView>
-        <TextBlock Name="HasItem" Visibility="Collapsed" Text="无法搜索到任何文件" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+        <TextBlock Name="HasItem" x:FieldModifier="public" Visibility="Collapsed" Text="无法搜索到任何文件" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
         <controls:Loading x:Name="LoadingControl" IsLoading="False" Grid.RowSpan="2">
             <controls:Loading.Background>
                 <SolidColorBrush Color="Black" Opacity="0.8"/>

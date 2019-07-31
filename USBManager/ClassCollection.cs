@@ -1181,7 +1181,7 @@ namespace USBManager
             Math.Round(Properties.Size / 1048576f, 2).ToString() + " MB");
         }
 
-        public static async Task<string>GetModifiedTimeAsync(this IStorageItem Item)
+        public static async Task<string> GetModifiedTimeAsync(this IStorageItem Item)
         {
             var Properties = await Item.GetBasicPropertiesAsync();
             return Properties.DateModified.Year + "年" + Properties.DateModified.Month + "月" + Properties.DateModified.Day + "日, " + (Properties.DateModified.Hour < 10 ? "0" + Properties.DateModified.Hour : Properties.DateModified.Hour.ToString()) + ":" + (Properties.DateModified.Minute < 10 ? "0" + Properties.DateModified.Minute : Properties.DateModified.Minute.ToString()) + ":" + (Properties.DateModified.Second < 10 ? "0" + Properties.DateModified.Second : Properties.DateModified.Second.ToString());
@@ -1421,6 +1421,39 @@ namespace USBManager
         public static void SetObexInstance(BluetoothDevice BT)
         {
             BTDevice = BT;
+        }
+    }
+    #endregion
+
+    #region 文件路径逐层解析类
+    public class PathAnalysis
+    {
+        public string FullPath { get; private set; }
+
+        private Queue<string> PathQueue;
+
+        private string CurrentLevel = string.Empty;
+
+        public PathAnalysis(string FullPath)
+        {
+            this.FullPath = FullPath;
+
+            string[] Split = FullPath.Split("\\", StringSplitOptions.RemoveEmptyEntries);
+            Split[0] = Split[0] + "\\";
+
+            PathQueue = new Queue<string>(Split.Take(2).Concat(Split.Skip(2).Select((Item) => "\\" + Item)));
+        }
+
+        public string NextPathLevel()
+        {
+            if (PathQueue.Count != 0)
+            {
+                return CurrentLevel += PathQueue.Dequeue();
+            }
+            else
+            {
+                return CurrentLevel;
+            }
         }
     }
     #endregion
