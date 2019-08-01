@@ -9,7 +9,8 @@
     Title="AES加密"
     CloseButtonText="取消"
     PrimaryButtonText="确定"
-    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    Background="{StaticResource DialogAcrylicBrush}">
     
     <Grid>
         <StackPanel Orientation="Vertical">

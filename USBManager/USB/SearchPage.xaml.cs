@@ -51,6 +51,9 @@ namespace USBManager
 
             uint MaxSearchNum = uint.Parse(ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] as string);
 
+            HasItem.Visibility = Visibility.Collapsed;
+            SearchResultList.Visibility = Visibility.Visible;
+
             LoadingControl.IsLoading = true;
             IReadOnlyList<IStorageItem> SearchItems = null;
 
@@ -87,25 +90,22 @@ namespace USBManager
             {
                 HasItem.Visibility = Visibility.Visible;
                 SearchResultList.Visibility = Visibility.Collapsed;
-                LoadingControl.IsLoading = false;
-                return;
             }
-
-            List<IStorageItem> SortResult = new List<IStorageItem>(SearchItems.Count);
-            SortResult.AddRange(SearchItems.Where((Item) => Item.IsOfType(StorageItemTypes.Folder)));
-            SortResult.AddRange(SearchItems.Where((Item) => Item.IsOfType(StorageItemTypes.File)));
-
-            foreach (var Item in SortResult)
+            else
             {
-                SearchResult.Add(new RemovableDeviceStorageItem(Item));
+                List<IStorageItem> SortResult = new List<IStorageItem>(SearchItems.Count);
+                SortResult.AddRange(SearchItems.Where((Item) => Item.IsOfType(StorageItemTypes.Folder)));
+                SortResult.AddRange(SearchItems.Where((Item) => Item.IsOfType(StorageItemTypes.File)));
+
+                foreach (var Item in SortResult)
+                {
+                    SearchResult.Add(new RemovableDeviceStorageItem(Item));
+                }
             }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            HasItem.Visibility = Visibility.Collapsed;
-            SearchResultList.Visibility = Visibility.Visible;
-
             ItemQuery = e.Parameter as StorageItemQueryResult;
             Loaded += SearchPage_Loaded;
         }
@@ -129,7 +129,8 @@ namespace USBManager
                     {
                         Title = "错误",
                         Content = "无法定位文件夹，该文件夹可能已被删除或移动",
-                        CloseButtonText = "确定"
+                        CloseButtonText = "确定",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                     };
                     _ = await dialog.ShowAsync();
                 }
@@ -137,6 +138,7 @@ namespace USBManager
                 {
                     USBControl.ThisPage.CurrentNode = TargetNode;
                     USBControl.ThisPage.CurrentFolder = USBControl.ThisPage.CurrentNode.Content as StorageFolder;
+                    (USBControl.ThisPage.FolderTree.ContainerFromNode(USBControl.ThisPage.CurrentNode) as TreeViewItem).IsSelected = true;
                     await USBControl.ThisPage.DisplayItemsInFolder(USBControl.ThisPage.CurrentNode);
                 }
             }
@@ -148,6 +150,7 @@ namespace USBManager
 
                     USBControl.ThisPage.CurrentNode = await FindFolderLocationInTree(USBControl.ThisPage.FolderTree.RootNodes[0], new PathAnalysis((await RemoveFile.File.GetParentAsync()).Path));
                     USBControl.ThisPage.CurrentFolder = USBControl.ThisPage.CurrentNode.Content as StorageFolder;
+                    (USBControl.ThisPage.FolderTree.ContainerFromNode(USBControl.ThisPage.CurrentNode) as TreeViewItem).IsSelected = true;
                     await USBControl.ThisPage.DisplayItemsInFolder(USBControl.ThisPage.CurrentNode);
                 }
                 catch (FileNotFoundException)
@@ -156,7 +159,8 @@ namespace USBManager
                     {
                         Title = "错误",
                         Content = "无法定位文件，该文件可能已被删除或移动",
-                        CloseButtonText = "确定"
+                        CloseButtonText = "确定",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                     };
                     _ = await dialog.ShowAsync();
                 }
@@ -173,7 +177,7 @@ namespace USBManager
                     Title = "错误",
                     Content = "仅允许查看单个文件属性，请重试",
                     CloseButtonText = "确定",
-                    Background = Resources["SystemControlChromeHighAcrylicWindowMediumBrush"] as Brush
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                 };
                 await dialog.ShowAsync();
             }
@@ -195,7 +199,7 @@ namespace USBManager
 
         private async Task<TreeViewNode> FindFolderLocationInTree(TreeViewNode Node, PathAnalysis Analysis)
         {
-            if (Node.HasUnrealizedChildren)
+            if (Node.HasUnrealizedChildren && !Node.IsExpanded)
             {
                 Node.IsExpanded = true;
             }
@@ -206,7 +210,7 @@ namespace USBManager
 
             await Task.Run(() =>
             {
-                USBControl.ThisPage.ExpandLocker.WaitOne();
+                USBControl.ThisPage.ExpandLocker.WaitOne(1000);
             });
 
             string NextPathLevel = Analysis.NextPathLevel();

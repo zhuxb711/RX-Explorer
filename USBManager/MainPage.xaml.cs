@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.Foundation;
 using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -61,7 +60,7 @@ namespace USBManager
 
         private void Nav_Navigated(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
         {
-            BackButton.IsEnabled = Nav.CanGoBack;
+            NavView.IsBackEnabled = Nav.CanGoBack;
 
             if (Nav.SourcePageType == typeof(SettingPage))
             {
@@ -76,29 +75,6 @@ namespace USBManager
                     MenuItem.IsSelected = true;
                     break;
                 }
-            }
-        }
-
-        private void BackButton_Click(object sender, RoutedEventArgs e)
-        {
-            switch (Nav.CurrentSourcePageType.Name)
-            {
-                case "USBControl":
-                    if (USBControl.ThisPage.Nav.CanGoBack)
-                    {
-                        USBControl.ThisPage.Nav.GoBack();
-                    }
-                    else if (Nav.CanGoBack)
-                    {
-                        Nav.GoBack();
-                    }
-                    break;
-                default:
-                    if (Nav.CanGoBack)
-                    {
-                        Nav.GoBack();
-                    }
-                    break;
             }
         }
 
@@ -213,7 +189,7 @@ namespace USBManager
                         {
                             IProgress<StorePackageUpdateStatus> DownloadProgress = new Progress<StorePackageUpdateStatus>((Status) =>
                             {
-                                if (Status.PackageDownloadProgress > 1.0)
+                                if (Status.PackageDownloadProgress > 0.8)
                                 {
                                     return;
                                 }
@@ -223,8 +199,8 @@ namespace USBManager
                                 {
                                     SequenceNumber = 0
                                 };
-                                data.Values["ProgressValue"] = Status.PackageDownloadProgress.ToString("0.##");
-                                data.Values["ProgressString"] = Math.Ceiling(Status.PackageDownloadProgress).ToString() + "%";
+                                data.Values["ProgressValue"] = (Status.PackageDownloadProgress * 1.25).ToString("0.##");
+                                data.Values["ProgressString"] = Math.Ceiling(Status.PackageDownloadProgress * 125).ToString() + "%";
 
                                 ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
                             });
@@ -244,7 +220,7 @@ namespace USBManager
                         {
                             IProgress<StorePackageUpdateStatus> DownloadProgress = new Progress<StorePackageUpdateStatus>((Status) =>
                             {
-                                if (Status.PackageDownloadProgress > 1.0)
+                                if (Status.PackageDownloadProgress > 0.8)
                                 {
                                     return;
                                 }
@@ -254,8 +230,8 @@ namespace USBManager
                                 {
                                     SequenceNumber = 0
                                 };
-                                data.Values["ProgressValue"] = Status.PackageDownloadProgress.ToString("0.##");
-                                data.Values["ProgressString"] = Math.Ceiling(Status.PackageDownloadProgress).ToString() + "%";
+                                data.Values["ProgressValue"] = (Status.PackageDownloadProgress * 1.25).ToString("0.##");
+                                data.Values["ProgressString"] = Math.Ceiling(Status.PackageDownloadProgress * 125).ToString() + "%";
 
                                 ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
                             });
@@ -360,7 +336,7 @@ namespace USBManager
         {
             if (args.IsSettingsInvoked)
             {
-                Nav.Navigate(typeof(SettingPage));
+                Nav.Navigate(typeof(SettingPage), null, new DrillInNavigationTransitionInfo());
             }
             else
             {
@@ -460,6 +436,29 @@ namespace USBManager
                                                  select MenuItem.Content.ToString())
             {
                 GlobeSearch.PlaceholderText = "搜索" + CurrentSelectionName;
+            }
+        }
+
+        private void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+        {
+            switch (Nav.CurrentSourcePageType.Name)
+            {
+                case "USBControl":
+                    if (USBControl.ThisPage.Nav.CanGoBack)
+                    {
+                        USBControl.ThisPage.Nav.GoBack();
+                    }
+                    else if (Nav.CanGoBack)
+                    {
+                        Nav.GoBack();
+                    }
+                    break;
+                default:
+                    if (Nav.CanGoBack)
+                    {
+                        Nav.GoBack();
+                    }
+                    break;
             }
         }
     }

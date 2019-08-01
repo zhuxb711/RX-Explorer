@@ -9,6 +9,7 @@
     Title="选择目标设备"
     PrimaryButtonText="确定"
     CloseButtonText="取消"
+    Background="{StaticResource DialogAcrylicBrush}"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
 
     <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">

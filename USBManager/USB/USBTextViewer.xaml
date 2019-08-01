@@ -7,7 +7,7 @@
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
     NavigationCacheMode="Required"
-    Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
+    Background="{StaticResource NavigationViewTopPaneBackground}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="42"/>

@@ -8,13 +8,18 @@
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
     NavigationCacheMode="Required"
-    Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
-    
+    Background="{StaticResource NavigationViewTopPaneBackground}">
+
     <Grid AllowDrop="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
+        <Grid.Transitions>
+            <TransitionCollection>
+                <PaneThemeTransition Edge="Right"/>
+            </TransitionCollection>
+        </Grid.Transitions>
         <GridView Name="GridViewControl" 
                   Grid.Row="1"
                   Margin="5,0,0,0"
@@ -40,8 +45,8 @@
                         <Image IsHitTestVisible="False" VerticalAlignment="Center" Stretch="Uniform" Source="{x:Bind Thumbnail,Mode=OneWay}" Margin="0,5,5,0" Height="60" Width="60"/>
                         <StackPanel AllowDrop="True" Orientation="Vertical">
                             <TextBlock IsHitTestVisible="False" Text="{x:Bind DisplayName,Mode=OneWay}" FontSize="17" Width="180" TextTrimming="CharacterEllipsis"/>
-                            <TextBlock IsHitTestVisible="False" Text="{x:Bind DisplayType}" FontSize="15" Foreground="Gray"/>
-                            <TextBlock IsHitTestVisible="False" Text="{x:Bind Size,Mode=OneWay}" FontSize="15" Foreground="Gray"/>
+                            <TextBlock IsHitTestVisible="False" Text="{x:Bind DisplayType}" FontSize="15"/>
+                            <TextBlock IsHitTestVisible="False" Text="{x:Bind Size,Mode=OneWay}" FontSize="15"/>
                         </StackPanel>
                     </StackPanel>
                 </DataTemplate>
@@ -51,6 +56,11 @@
                     <ItemsWrapGrid MaximumRowsOrColumns="6" Orientation="Horizontal" HorizontalAlignment="Stretch"/>
                 </ItemsPanelTemplate>
             </GridView.ItemsPanel>
+            <GridView.ItemContainerTransitions>
+                <TransitionCollection>
+                    <PaneThemeTransition Edge="Left" />
+                </TransitionCollection>
+            </GridView.ItemContainerTransitions>
             <GridView.ContextFlyout>
                 <CommandBarFlyout x:Name="CommandsFlyout" Placement="RightEdgeAlignedTop">
                     <AppBarButton Icon="Copy" ToolTipService.ToolTip="复制" IsEnabled="{x:Bind Copy.IsEnabled,Mode=OneWay}"  Click="Copy_Click"/>

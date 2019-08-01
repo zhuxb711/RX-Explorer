@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     NavigationCacheMode="Required"
-    Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
+    Background="{StaticResource NavigationViewTopPaneBackground}">
 
     <Grid>
         <MediaPlayerElement Stretch="Uniform" AutoPlay="True" Name="MVControl" AreTransportControlsEnabled="True" x:FieldModifier="Public" IsDoubleTapEnabled="True" DoubleTapped="MVControl_DoubleTapped"  VerticalAlignment="Stretch">

@@ -7,10 +7,15 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     NavigationCacheMode="Enabled"
-    Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
+    Background="{StaticResource NavigationViewTopPaneBackground}">
 
     <Grid>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
+            <StackPanel.ChildrenTransitions>
+                <TransitionCollection>
+                    <EntranceThemeTransition FromVerticalOffset="150" IsStaggeringEnabled="True"/>
+                </TransitionCollection>
+            </StackPanel.ChildrenTransitions>
             <TextBlock Text="Developer" FontWeight="ExtraBold" FontSize="22" HorizontalAlignment="Center"/>
             <TextBlock Text="Ruofan" Margin="0,20,0,0" FontSize="18" HorizontalAlignment="Center"/>
             <TextBlock Text="C# UWP WPF Developer" HorizontalAlignment="Center" FontSize="18"/>

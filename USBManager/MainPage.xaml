@@ -7,34 +7,23 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
-    Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
+    Background="{StaticResource NavigationViewTopPaneBackground}">
 
-    <Page.Resources>
-        <AcrylicBrush x:Key="NavigationViewDefaultPaneBackground"
-                      BackgroundSource="Backdrop"
-                      TintColor="LightSlateGray"
-                      TintOpacity=".4"/>
-    </Page.Resources>
-    
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="35"/>
+            <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Button BorderThickness="0" Background="{StaticResource NavigationViewDefaultPaneBackground}" x:FieldModifier="public" Height="35" Width="40" IsEnabled="False" Name="BackButton" Click="BackButton_Click">
-            <Viewbox Height="18">
-                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE72B;"/>
-            </Viewbox>
-        </Button>
 
-        <Border Margin="50,0,0,0" x:Name="TitleBar" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Border x:Name="TitleBar" Background="{StaticResource NavigationViewTopPaneBackground}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" Text="USB文件管理器"/>
         </Border>
         <NavigationView Grid.Row="1"
                         Name="NavView"
-                        IsBackButtonVisible="Collapsed"
-                        PaneDisplayMode="LeftCompact"
+                        PaneDisplayMode="Top"
                         IsPaneOpen="False"
+                        BackRequested="NavView_BackRequested"
+                        x:FieldModifier="public"
                         SelectionChanged="NavView_SelectionChanged"
                         ItemInvoked="NavView_ItemInvoked">
             <NavigationView.MenuItems>
@@ -45,13 +34,13 @@
                 </NavigationViewItem>
             </NavigationView.MenuItems>
             <NavigationView.AutoSuggestBox>
-                <AutoSuggestBox QueryIcon="Find" Name="GlobeSearch" QuerySubmitted="GlobeSearch_QuerySubmitted" TextChanged="GlobeSearch_TextChanged" UpdateTextOnSelect="True"/>
+                <AutoSuggestBox QueryIcon="Find" Width="200" Name="GlobeSearch" QuerySubmitted="GlobeSearch_QuerySubmitted" TextChanged="GlobeSearch_TextChanged" UpdateTextOnSelect="True"/>
             </NavigationView.AutoSuggestBox>
             <NavigationView.Content>
                 <Frame Name="Nav" Navigating="Nav_Navigating" Navigated="Nav_Navigated" x:FieldModifier="public" Grid.Row="1"/>
             </NavigationView.Content>
         </NavigationView>
-        
+
         <controls:TeachingTip 
             x:Name="UpdateTip"      
             Grid.Row="1"

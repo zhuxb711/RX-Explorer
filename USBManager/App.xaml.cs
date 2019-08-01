@@ -25,6 +25,7 @@ namespace USBManager
             InitializeComponent();
             Suspending += OnSuspending;
             ToastNotificationManager.History.Clear();
+            RequestedTheme = ApplicationTheme.Dark;
         }
 
         /// <summary>

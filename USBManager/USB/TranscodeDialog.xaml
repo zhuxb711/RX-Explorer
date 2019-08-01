@@ -9,7 +9,8 @@
     Title="转码"
     PrimaryButtonText="确定"
     CloseButtonText="取消"
-    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    Background="{StaticResource DialogAcrylicBrush}">
 
     <Grid>
         <StackPanel Orientation="Vertical">

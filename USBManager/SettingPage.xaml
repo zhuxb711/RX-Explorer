@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     NavigationCacheMode="Required"
-    Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
+    Background="{StaticResource NavigationViewTopPaneBackground}">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -19,6 +19,11 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical">
+            <StackPanel.ChildrenTransitions>
+                <TransitionCollection>
+                    <EntranceThemeTransition FromVerticalOffset="150" IsStaggeringEnabled="True"/>
+                </TransitionCollection>
+            </StackPanel.ChildrenTransitions>
             <TextBlock Text="高级" FontSize="24"/>
             <ToggleSwitch Name="TraceSwitch" Toggled="TraceSwitch_Toggled" Margin="0,20,0,0" Header="使用后台文件追踪系统追踪更改"/>
 

@@ -20,16 +20,13 @@ namespace USBManager
         public SettingPage()
         {
             InitializeComponent();
-            Loaded += SettingPage_Loaded;
             Version.Text = string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
+
             for (int i = 1; i <= 10; i++)
             {
                 SearchNum.Items.Add("前" + (i * 10) + "项结果");
             }
-        }
 
-        private void SettingPage_Loaded(object sender, RoutedEventArgs e)
-        {
             if (ApplicationData.Current.LocalSettings.Values["EnableTrace"] is bool EnableTrace)
             {
                 TraceSwitch.IsOn = EnableTrace;
@@ -155,7 +152,8 @@ namespace USBManager
             {
                 Title = "提示",
                 Content = "搜索历史记录清理完成",
-                CloseButtonText = "确定"
+                CloseButtonText = "确定",
+                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
             };
             _ = await dialog.ShowAsync();
         }

@@ -10,7 +10,7 @@
     PrimaryButtonText="确定"
     CloseButtonText="取消"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
-    Background="{ThemeResource SystemControlChromeHighAcrylicWindowMediumBrush}">
+    Background="{StaticResource DialogAcrylicBrush}">
     <ContentDialog.Resources>
         <local:ZipCryptConverter x:Key="ZipConverter" />
     </ContentDialog.Resources>

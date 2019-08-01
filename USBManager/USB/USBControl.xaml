@@ -8,7 +8,8 @@
     xmlns:local="using:USBManager"
     NavigationCacheMode="Required"
     mc:Ignorable="d"
-    Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
+    Background="{StaticResource NavigationViewTopPaneBackground}">
+
     <Page.Resources>
         <Style TargetType="TreeView">
             <Setter Property="IsTabStop" Value="False"/>
@@ -47,9 +48,9 @@
     </Page.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="16"/>
             <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="5*"/>
         </Grid.ColumnDefinitions>
         <Frame Grid.Column="2" Name="Nav" Navigated="Nav_Navigated" x:FieldModifier="Public"/>
         <TreeView Name="FolderTree" 
@@ -71,8 +72,13 @@
                     </CommandBarFlyout.SecondaryCommands>
                 </CommandBarFlyout>
             </TreeView.ContextFlyout>
+            <TreeView.Transitions>
+                <TransitionCollection>
+                    <PaneThemeTransition Edge="Left"/>
+                </TransitionCollection>
+            </TreeView.Transitions>
         </TreeView>
         <controls:InAppNotification Grid.Column="2" StackMode="Replace" Name="Notification" x:FieldModifier="public" ShowDismissButton="True" HorizontalAlignment="Center"/>
-        <controls:GridSplitter ResizeBehavior="BasedOnAlignment" ResizeDirection="Auto" Grid.Column="1"/>
+        <controls:GridSplitter Background="LightSlateGray" HorizontalAlignment="Center" ResizeBehavior="BasedOnAlignment" ResizeDirection="Auto" Grid.Column="1"/>
     </Grid>
 </Page>

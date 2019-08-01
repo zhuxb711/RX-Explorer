@@ -172,7 +172,8 @@ namespace USBManager
                         {
                             Title = "错误",
                             Content = "因源文件已删除，无法剪切到指定位置",
-                            CloseButtonText = "确定"
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                         };
                         _ = await Dialog.ShowAsync();
                     }
@@ -194,7 +195,8 @@ namespace USBManager
                     {
                         Title = "错误",
                         Content = "因设备剩余空间大小不足\r以下文件无法剪切：\r" + ErrorFileList,
-                        CloseButtonText = "确定"
+                        CloseButtonText = "确定",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                     };
                     LoadingActivation(false);
                     _ = await contentDialog.ShowAsync();
@@ -223,7 +225,8 @@ namespace USBManager
                         {
                             Title = "错误",
                             Content = "因源文件已删除，无法复制到指定位置",
-                            CloseButtonText = "确定"
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                         };
                         _ = await Dialog.ShowAsync();
                     }
@@ -243,7 +246,8 @@ namespace USBManager
                     {
                         Title = "错误",
                         Content = "因设备剩余空间大小不足\r以下文件无法复制：\r\r" + ErrorFileList,
-                        CloseButtonText = "确定"
+                        CloseButtonText = "确定",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                     };
                     LoadingActivation(false);
                     _ = await contentDialog.ShowAsync();
@@ -282,7 +286,7 @@ namespace USBManager
                 Title = "警告",
                 PrimaryButtonText = "是",
                 CloseButtonText = "否",
-                Background = Resources["SystemControlChromeHighAcrylicWindowMediumBrush"] as Brush
+                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
             };
 
             contentDialog.Content = FileList.Count == 1
@@ -368,7 +372,7 @@ namespace USBManager
                     Title = "错误",
                     Content = "无法同时重命名多个文件",
                     CloseButtonText = "确定",
-                    Background = Resources["SystemControlChromeHighAcrylicWindowMediumBrush"] as Brush
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                 };
                 await content.ShowAsync();
                 return;
@@ -385,7 +389,7 @@ namespace USBManager
                         Title = "错误",
                         Content = "文件名不能为空，重命名失败",
                         CloseButtonText = "确定",
-                        Background = Resources["SystemControlChromeHighAcrylicWindowMediumBrush"] as Brush
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                     };
                     await content.ShowAsync();
                     return;
@@ -431,7 +435,7 @@ namespace USBManager
                     Title = "错误",
                     Content = "  同时加密或解密多个文件时，.sle文件不能与其他文件混杂\r\r  允许的组合如下：\r\r      • 全部为.sle文件\r\r      • 全部为非.sle文件",
                     CloseButtonText = "确定",
-                    Background = Resources["SystemControlChromeHighAcrylicWindowMediumBrush"] as Brush
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                 };
                 await dialog.ShowAsync();
                 return;
@@ -554,7 +558,7 @@ namespace USBManager
                                         Title = "错误",
                                         Content = "  文件格式检验错误，文件可能已损坏",
                                         CloseButtonText = "确定",
-                                        Background = Resources["SystemControlChromeHighAcrylicWindowMediumBrush"] as Brush
+                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                                     };
                                     LoadingActivation(false);
                                     DecryptByteBuffer = null;
@@ -599,7 +603,7 @@ namespace USBManager
                                         Title = "错误",
                                         Content = "  密码错误，无法解密\r\r  请重试...",
                                         CloseButtonText = "确定",
-                                        Background = Resources["SystemControlChromeHighAcrylicWindowMediumBrush"] as Brush
+                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                                     };
                                     LoadingActivation(false);
                                     DecryptByteBuffer = null;
@@ -692,7 +696,8 @@ namespace USBManager
                     {
                         Title = "提示",
                         Content = "请开启蓝牙开关后再试",
-                        CloseButtonText = "确定"
+                        CloseButtonText = "确定",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                     };
                     _ = await dialog.ShowAsync();
                     return;
@@ -805,7 +810,7 @@ namespace USBManager
                     Title = "错误",
                     Content = "仅允许查看单个文件属性，请重试",
                     CloseButtonText = "确定",
-                    Background = Resources["SystemControlChromeHighAcrylicWindowMediumBrush"] as Brush
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                 };
                 await dialog.ShowAsync();
             }
@@ -959,7 +964,7 @@ namespace USBManager
                         {
                             Title = "错误",
                             Content = "解压文件时发生异常\r\r错误信息：\r\r" + e.Message,
-                            Background = Resources["SystemControlChromeHighAcrylicWindowMediumBrush"] as Brush,
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
                             CloseButtonText = "确定"
                         };
                         await dialog.ShowAsync();
@@ -1119,7 +1124,7 @@ namespace USBManager
                     {
                         Title = "错误",
                         Content = "压缩文件时发生异常\r\r错误信息：\r\r" + e.Message,
-                        Background = Resources["SystemControlChromeHighAcrylicWindowMediumBrush"] as Brush,
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
                         CloseButtonText = "确定"
                     };
                     await dialog.ShowAsync();
@@ -1172,7 +1177,8 @@ namespace USBManager
                                 Title = "提示",
                                 Content = "  USB文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
                                 PrimaryButtonText = "默认应用打开",
-                                CloseButtonText = "取消"
+                                CloseButtonText = "取消",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                             };
                             if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                             {
@@ -1289,7 +1295,8 @@ namespace USBManager
                 {
                     Title = "错误",
                     Content = "一次仅支持转码一个媒体文件",
-                    CloseButtonText = "确定"
+                    CloseButtonText = "确定",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                 };
                 await dialog.ShowAsync();
                 Restore();

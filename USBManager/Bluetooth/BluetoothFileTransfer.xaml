@@ -8,10 +8,11 @@
     mc:Ignorable="d"
     Title="正在初始化"
     SecondaryButtonText="中止"
-    SecondaryButtonClick="ContentDialog_SecondaryButtonClick">
+    SecondaryButtonClick="ContentDialog_SecondaryButtonClick"
+    Background="{StaticResource DialogAcrylicBrush}">
 
     <StackPanel Orientation="Vertical">
-        <ProgressBar Name="ProgressControl" Height="20"/>
+        <ProgressBar Name="ProgressControl" Height="15"/>
         <TextBlock HorizontalAlignment="Left" Name="ProgressText" Width="270" TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
     </StackPanel>
 </ContentDialog>
