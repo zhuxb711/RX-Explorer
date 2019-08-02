@@ -10,6 +10,7 @@ using Windows.Storage.Search;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace USBManager
@@ -18,10 +19,10 @@ namespace USBManager
     {
         private StoreContext Context;
         private IReadOnlyList<StorePackageUpdate> Updates;
-        private Dictionary<Type, string> PageDictionary;
         private List<string> SearchHistoryRecord;
         public static MainPage ThisPage { get; private set; }
         public bool IsNowSearching { get; set; }
+
         public MainPage()
         {
             InitializeComponent();
@@ -32,12 +33,6 @@ namespace USBManager
 
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            PageDictionary = new Dictionary<Type, string>
-            {
-                { typeof(USBControl),"USB管理" },
-                { typeof(AboutMe),NavView.SettingsItem.ToString() }
-            };
-
             if (ApplicationData.Current.LocalSettings.Values["EnableTrace"] == null)
             {
                 ApplicationData.Current.LocalSettings.Values["EnableTrace"] = true;
@@ -50,7 +45,7 @@ namespace USBManager
 
             SearchHistoryRecord = await SQLite.GetInstance().GetSearchHistoryAsync();
 
-            Nav.Navigate(typeof(USBControl));
+            Nav.Navigate(typeof(ThisPC));
 
             await CheckAndInstallUpdate();
 
@@ -69,7 +64,7 @@ namespace USBManager
             else
             {
                 foreach (var MenuItem in from NavigationViewItemBase MenuItem in NavView.MenuItems
-                                         where MenuItem is NavigationViewItem && MenuItem.Content.ToString() == PageDictionary[Nav.SourcePageType]
+                                         where MenuItem is NavigationViewItem && MenuItem.Content.ToString() == "这台电脑"
                                          select MenuItem)
                 {
                     MenuItem.IsSelected = true;
@@ -340,10 +335,7 @@ namespace USBManager
             }
             else
             {
-                switch (args.InvokedItem.ToString())
-                {
-                    case "USB管理": Nav.Navigate(typeof(USBControl)); break;
-                }
+                Nav.Navigate(typeof(ThisPC), null, new DrillInNavigationTransitionInfo());
             }
         }
 
@@ -362,41 +354,12 @@ namespace USBManager
                 return;
             }
 
-            if (ApplicationData.Current.LocalSettings.Values["LaunchSearchTips"] == null)
-            {
-                ApplicationData.Current.LocalSettings.Values["LaunchSearchTips"] = true;
-                SearchTip.IsOpen = true;
-            }
+            FlyoutBase.ShowAttachedFlyout(sender);
 
             if (!SearchHistoryRecord.Contains(args.QueryText))
             {
                 SearchHistoryRecord.Add(args.QueryText);
                 await SQLite.GetInstance().SetSearchHistoryAsync(args.QueryText);
-            }
-
-            IsNowSearching = true;
-
-            QueryOptions Options = new QueryOptions(CommonFileQuery.OrderByName, null)
-            {
-                FolderDepth = FolderDepth.Deep,
-                IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-                ApplicationSearchFilter = "System.FileName:*" + sender.Text + "*"
-            };
-
-            Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 30, ThumbnailOptions.ResizeThumbnail);
-
-            if (GlobeSearch.PlaceholderText.Substring(2) == "USB管理")
-            {
-                if (USBControl.ThisPage.Nav.CurrentSourcePageType.Name != "SearchPage")
-                {
-                    StorageItemQueryResult FileQuery = KnownFolders.RemovableDevices.CreateItemQueryWithOptions(Options);
-
-                    USBControl.ThisPage.Nav.Navigate(typeof(SearchPage), FileQuery, new DrillInNavigationTransitionInfo());
-                }
-                else
-                {
-                    SearchPage.ThisPage.SetSearchTarget = sender.Text;
-                }
             }
         }
 
@@ -429,16 +392,6 @@ namespace USBManager
             }
         }
 
-        private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
-        {
-            foreach (var CurrentSelectionName in from NavigationViewItemBase MenuItem in NavView.MenuItems
-                                                 where MenuItem is NavigationViewItem && MenuItem.IsSelected
-                                                 select MenuItem.Content.ToString())
-            {
-                GlobeSearch.PlaceholderText = "搜索" + CurrentSelectionName;
-            }
-        }
-
         private void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
             switch (Nav.CurrentSourcePageType.Name)
@@ -460,6 +413,57 @@ namespace USBManager
                     }
                     break;
             }
+        }
+
+        private void SearchConfirm_Click(object sender, RoutedEventArgs e)
+        {
+            SearchFlyout.Hide();
+
+            if (ApplicationData.Current.LocalSettings.Values["LaunchSearchTips"] == null)
+            {
+                ApplicationData.Current.LocalSettings.Values["LaunchSearchTips"] = true;
+                SearchTip.IsOpen = true;
+            }
+
+            IsNowSearching = true;
+
+            QueryOptions Options;
+            if ((bool)ShallowRadio.IsChecked)
+            {
+                Options = new QueryOptions(CommonFileQuery.OrderByName, null)
+                {
+                    FolderDepth = FolderDepth.Shallow,
+                    IndexerOption = IndexerOption.UseIndexerWhenAvailable,
+                    ApplicationSearchFilter = "System.FileName:*" + GlobeSearch.Text + "*"
+                };
+            }
+            else
+            {
+                Options = new QueryOptions(CommonFileQuery.OrderByName, null)
+                {
+                    FolderDepth = FolderDepth.Deep,
+                    IndexerOption = IndexerOption.UseIndexerWhenAvailable,
+                    ApplicationSearchFilter = "System.FileName:*" + GlobeSearch.Text + "*"
+                };
+            }
+
+            Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 60, ThumbnailOptions.ResizeThumbnail);
+
+            if (USBControl.ThisPage.Nav.CurrentSourcePageType.Name != "SearchPage")
+            {
+                StorageItemQueryResult FileQuery = (USBControl.ThisPage.FolderTree.RootNodes.FirstOrDefault().Content as StorageFolder).CreateItemQueryWithOptions(Options);
+
+                USBControl.ThisPage.Nav.Navigate(typeof(SearchPage), FileQuery, new DrillInNavigationTransitionInfo());
+            }
+            else
+            {
+                SearchPage.ThisPage.SetSearchTarget = Options;
+            }
+        }
+
+        private void SearchCancel_Click(object sender, RoutedEventArgs e)
+        {
+            SearchFlyout.Hide();
         }
     }
 }

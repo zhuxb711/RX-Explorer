@@ -37,6 +37,7 @@ namespace USBManager
         const int AESCacheSize = 1048576;
         byte[] EncryptByteBuffer;
         byte[] DecryptByteBuffer;
+        bool IsEnteringFolder = false;
 
         public USBFilePresenter()
         {
@@ -303,7 +304,7 @@ namespace USBManager
                 foreach (var item in FileList)
                 {
                     var file = (item as RemovableDeviceStorageItem).File;
-                    await file.DeleteAsync((bool)ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] ? StorageDeleteOption.PermanentDelete : StorageDeleteOption.Default);
+                    await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
                     for (int i = 0; i < FileCollection.Count; i++)
                     {
@@ -400,11 +401,11 @@ namespace USBManager
 
                 await file.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
 
-                foreach (var File in from RemovableDeviceStorageItem File in FileCollection
-                                     where File.Name == dialog.DesireName
-                                     select File)
+                foreach (var Item in from RemovableDeviceStorageItem Item in FileCollection
+                                     where Item.Name == dialog.DesireName
+                                     select Item)
                 {
-                    File.NameUpdateRequested();
+                    await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(file.Path));
                 }
 
                 USBControl.ThisPage.FileTracker?.ResumeDetection();
@@ -661,7 +662,7 @@ namespace USBManager
 
                 if (IsDeleteRequest)
                 {
-                    await SelectedFile.DeleteAsync((bool)ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] ? StorageDeleteOption.PermanentDelete : StorageDeleteOption.Default);
+                    await SelectedFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
                     for (int i = 0; i < FileCollection.Count; i++)
                     {
@@ -795,7 +796,25 @@ namespace USBManager
             if (GridViewControl.SelectedItems.Count <= 1)
             {
                 var Context = (e.OriginalSource as FrameworkElement)?.DataContext as RemovableDeviceStorageItem;
-                GridViewControl.SelectedIndex = FileCollection.IndexOf(Context);
+
+                if (Context != null)
+                {
+                    GridViewControl.SelectedIndex = FileCollection.IndexOf(Context);
+
+                    if (Context.ContentType == ContentType.Folder)
+                    {
+                        GridViewControl.ContextFlyout = FolderFlyout;
+                    }
+                    else
+                    {
+                        GridViewControl.ContextFlyout = CommandsFlyout;
+                    }
+                }
+                else
+                {
+                    GridViewControl.ContextFlyout = CommandsFlyout;
+                }
+
                 e.Handled = true;
             }
         }
@@ -1140,54 +1159,89 @@ namespace USBManager
 
         private async void GridViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
+            lock(SyncRootProvider.SyncRoot)
+            {
+                if(IsEnteringFolder)
+                {
+                    return;
+                }
+                IsEnteringFolder = true;
+            }
+
             if ((e.OriginalSource as FrameworkElement)?.DataContext is RemovableDeviceStorageItem ReFile)
             {
-                if (ReFile.File != null)
+                switch (ReFile.ContentType)
                 {
-                    switch (ReFile.File.FileType)
-                    {
-                        case ".zip":
-                            Nav.Navigate(typeof(ZipExplorer), ReFile, new DrillInNavigationTransitionInfo());
-                            break;
-                        case ".jpg":
-                        case ".png":
-                        case ".bmp":
-                            Nav.Navigate(typeof(USBPhotoViewer), ReFile.File.FolderRelativeId, new DrillInNavigationTransitionInfo());
-                            break;
-                        case ".mkv":
-                        case ".mp4":
-                        case ".mp3":
-                        case ".flac":
-                        case ".wma":
-                        case ".wmv":
-                        case ".m4a":
-                        case ".mov":
-                        case ".alac":
-                            Nav.Navigate(typeof(USBMediaPlayer), ReFile.File, new DrillInNavigationTransitionInfo());
-                            break;
-                        case ".txt":
-                            Nav.Navigate(typeof(USBTextViewer), ReFile, new DrillInNavigationTransitionInfo());
-                            break;
-                        case ".pdf":
-                            Nav.Navigate(typeof(USBPdfReader), ReFile.File, new DrillInNavigationTransitionInfo());
-                            break;
-                        default:
-                            ContentDialog dialog = new ContentDialog
-                            {
-                                Title = "提示",
-                                Content = "  USB文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
-                                PrimaryButtonText = "默认应用打开",
-                                CloseButtonText = "取消",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                await Launcher.LaunchFileAsync(ReFile.File);
-                            }
-                            break;
-                    }
+                    case ContentType.File:
+                        switch (ReFile.File.FileType)
+                        {
+                            case ".zip":
+                                Nav.Navigate(typeof(ZipExplorer), ReFile, new DrillInNavigationTransitionInfo());
+                                break;
+                            case ".jpg":
+                            case ".png":
+                            case ".bmp":
+                                Nav.Navigate(typeof(USBPhotoViewer), ReFile.File.FolderRelativeId, new DrillInNavigationTransitionInfo());
+                                break;
+                            case ".mkv":
+                            case ".mp4":
+                            case ".mp3":
+                            case ".flac":
+                            case ".wma":
+                            case ".wmv":
+                            case ".m4a":
+                            case ".mov":
+                            case ".alac":
+                                Nav.Navigate(typeof(USBMediaPlayer), ReFile.File, new DrillInNavigationTransitionInfo());
+                                break;
+                            case ".txt":
+                                Nav.Navigate(typeof(USBTextViewer), ReFile, new DrillInNavigationTransitionInfo());
+                                break;
+                            case ".pdf":
+                                Nav.Navigate(typeof(USBPdfReader), ReFile.File, new DrillInNavigationTransitionInfo());
+                                break;
+                            default:
+                                ContentDialog dialog = new ContentDialog
+                                {
+                                    Title = "提示",
+                                    Content = "  USB文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
+                                    PrimaryButtonText = "默认应用打开",
+                                    CloseButtonText = "取消",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    await Launcher.LaunchFileAsync(ReFile.File);
+                                }
+                                break;
+                        }
+                        break;
+                    case ContentType.Folder:
+                        if (USBControl.ThisPage.CurrentNode.HasUnrealizedChildren && !USBControl.ThisPage.CurrentNode.IsExpanded)
+                        {
+                            USBControl.ThisPage.CurrentNode.IsExpanded = true;
+                        }
+                        else
+                        {
+                            USBControl.ThisPage.ExpandLocker.Set();
+                        }
+
+                        await Task.Run(() =>
+                        {
+                            USBControl.ThisPage.ExpandLocker.WaitOne(1000);
+                        });
+
+                        var TargetNode = USBControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == ReFile.Name).FirstOrDefault();
+                        if (TargetNode != null)
+                        {
+                            await USBControl.ThisPage.DisplayItemsInFolder(TargetNode);
+                            (USBControl.ThisPage.FolderTree.ContainerFromNode(TargetNode) as TreeViewItem).IsSelected = true;
+                        }
+                        break;
                 }
             }
+
+            IsEnteringFolder = false;
         }
 
         private void GridViewControl_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
@@ -1312,6 +1366,151 @@ namespace USBManager
                 GridItem.Drop -= GridItem_Drop;
             }
             ZipCollection.Clear();
+        }
+
+        private async void FolderOpen_Click(object sender, RoutedEventArgs e)
+        {
+            if (USBControl.ThisPage.CurrentNode.HasUnrealizedChildren && !USBControl.ThisPage.CurrentNode.IsExpanded)
+            {
+                USBControl.ThisPage.CurrentNode.IsExpanded = true;
+            }
+            else
+            {
+                USBControl.ThisPage.ExpandLocker.Set();
+            }
+
+            await Task.Run(() =>
+            {
+                USBControl.ThisPage.ExpandLocker.WaitOne(1000);
+            });
+
+            var TargetNode = USBControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == (GridViewControl.SelectedItem as RemovableDeviceStorageItem).Name).FirstOrDefault();
+            if (TargetNode != null)
+            {
+                await USBControl.ThisPage.DisplayItemsInFolder(TargetNode);
+                (USBControl.ThisPage.FolderTree.ContainerFromNode(TargetNode) as TreeViewItem).IsSelected = true;
+            }
+        }
+
+        private async void FolderRename_Click(object sender, RoutedEventArgs e)
+        {
+            if (GridViewControl.SelectedItems.Count > 1)
+            {
+                Restore();
+                ContentDialog content = new ContentDialog
+                {
+                    Title = "错误",
+                    Content = "无法同时重命名多个文件夹",
+                    CloseButtonText = "确定",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                await content.ShowAsync();
+                return;
+            }
+
+            var Folder = (GridViewControl.SelectedItem as RemovableDeviceStorageItem).Folder;
+            RenameDialog dialog = new RenameDialog(Folder.DisplayName);
+            if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+            {
+                if (string.IsNullOrWhiteSpace(dialog.DesireName))
+                {
+                    ContentDialog content = new ContentDialog
+                    {
+                        Title = "错误",
+                        Content = "文件夹名不能为空，重命名失败",
+                        CloseButtonText = "确定",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    await content.ShowAsync();
+                    return;
+                }
+
+                USBControl.ThisPage.FileTracker?.PauseDetection();
+                USBControl.ThisPage.FolderTracker?.PauseDetection();
+
+                if (USBControl.ThisPage.CurrentNode.Children.Count != 0)
+                {
+                    var ChildCollection = USBControl.ThisPage.CurrentNode.Children;
+                    var TargetNode = USBControl.ThisPage.CurrentNode.Children.Where((Fold) => (Fold.Content as StorageFolder).FolderRelativeId == Folder.FolderRelativeId).FirstOrDefault();
+                    int index = USBControl.ThisPage.CurrentNode.Children.IndexOf(TargetNode);
+
+                    await Folder.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
+                    StorageFolder ReCreateFolder = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
+
+                    if (TargetNode.HasUnrealizedChildren)
+                    {
+                        ChildCollection.Insert(index, new TreeViewNode()
+                        {
+                            Content = ReCreateFolder,
+                            HasUnrealizedChildren = true,
+                            IsExpanded = false
+                        });
+                        ChildCollection.Remove(TargetNode);
+                    }
+                    else if (TargetNode.HasChildren)
+                    {
+                        var NewNode = new TreeViewNode()
+                        {
+                            Content = ReCreateFolder,
+                            HasUnrealizedChildren = false,
+                            IsExpanded = true
+                        };
+
+                        foreach (var SubNode in TargetNode.Children)
+                        {
+                            NewNode.Children.Add(SubNode);
+                        }
+
+                        ChildCollection.Insert(index, NewNode);
+                        ChildCollection.Remove(TargetNode);
+                        await NewNode.UpdateAllSubNodeFolder();
+                    }
+                    else
+                    {
+                        ChildCollection.Insert(index, new TreeViewNode()
+                        {
+                            Content = ReCreateFolder,
+                            HasUnrealizedChildren = false,
+                            IsExpanded = false
+                        });
+                        ChildCollection.Remove(TargetNode);
+                    }
+                }
+
+                foreach (var Item in from RemovableDeviceStorageItem Item in FileCollection
+                                     where Item.Name == dialog.DesireName
+                                     select Item)
+                {
+                    await Item.UpdateRequested(await StorageFolder.GetFolderFromPathAsync(Folder.Path));
+                }
+
+                USBControl.ThisPage.FileTracker?.ResumeDetection();
+                USBControl.ThisPage.FolderTracker?.ResumeDetection();
+            }
+
+        }
+
+        private async void FolderAttribute_Click(object sender, RoutedEventArgs e)
+        {
+            IList<object> SelectedGroup = GridViewControl.SelectedItems;
+            if (SelectedGroup.Count != 1)
+            {
+                ContentDialog dialog = new ContentDialog
+                {
+                    Title = "错误",
+                    Content = "仅允许查看单个文件夹属性，请重试",
+                    CloseButtonText = "确定",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                await dialog.ShowAsync();
+            }
+            else
+            {
+                RemovableDeviceStorageItem Device = SelectedGroup.FirstOrDefault() as RemovableDeviceStorageItem;
+
+                AttributeDialog Dialog = new AttributeDialog(Device.Folder);
+                await Dialog.ShowAsync();
+            }
         }
     }
 }

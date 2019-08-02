@@ -23,15 +23,13 @@ namespace USBManager
 
         public static SearchPage ThisPage { get; private set; }
 
-        public string SetSearchTarget
+        public QueryOptions SetSearchTarget
         {
             set
             {
                 SearchResult.Clear();
 
-                QueryOptions NewOption = ItemQuery.GetCurrentQueryOptions();
-                NewOption.ApplicationSearchFilter = "System.FileName:*" + value + "*";
-                ItemQuery.ApplyNewQueryOptions(NewOption);
+                ItemQuery.ApplyNewQueryOptions(value);
 
                 SearchPage_Loaded(null, null);
             }

@@ -171,10 +171,7 @@ namespace USBManager
 
         private void OnPropertyChanged(string name)
         {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(name));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         /// <summary>
@@ -199,14 +196,6 @@ namespace USBManager
             Size = await Item.GetSizeDescriptionAsync();
             OnPropertyChanged("DisplayName");
             OnPropertyChanged("Size");
-        }
-
-        /// <summary>
-        /// 更新文件名称，并通知UI界面
-        /// </summary>
-        public void NameUpdateRequested()
-        {
-            OnPropertyChanged("DisplayName");
         }
 
         /// <summary>
@@ -359,7 +348,7 @@ namespace USBManager
     #region USB设备为空时的文件目录树显示类
     public sealed class EmptyDeviceDisplay
     {
-        public string DisplayName { get => "无USB设备接入"; }
+        public string DisplayName { get => "无文件夹"; }
     }
     #endregion
 
@@ -711,9 +700,9 @@ namespace USBManager
     public sealed class FileSystemTracker : IDisposable
     {
         private StorageFolderQueryResult FolderQuery;
-        private StorageFileQueryResult FileQuery;
+        private StorageItemQueryResult ItemQuery;
         private TreeViewNode TrackNode;
-        private static bool IsProcessing = false;
+        private bool IsProcessing = false;
         private bool IsResuming = false;
         public TrackerMode TrackerMode { get; }
         public event EventHandler<FileSystemChangeSet> Deleted;
@@ -742,13 +731,13 @@ namespace USBManager
             _ = Initialize(TrackFolder);
         }
 
-        public FileSystemTracker(StorageFileQueryResult Query)
+        public FileSystemTracker(StorageItemQueryResult Query)
         {
             TrackerMode = TrackerMode.TraceFile;
 
-            FileQuery = Query ?? throw new ArgumentNullException("Query");
+            ItemQuery = Query ?? throw new ArgumentNullException("Query");
 
-            FileQuery.ContentsChanged += FileQuery_ContentsChanged;
+            ItemQuery.ContentsChanged += FileQuery_ContentsChanged;
         }
 
         private async Task Initialize(StorageFolder TrackFolder)
@@ -774,11 +763,11 @@ namespace USBManager
                         FolderDepth = FolderDepth.Shallow,
                         IndexerOption = IndexerOption.UseIndexerWhenAvailable
                     };
-                    FileQuery = TrackFolder.CreateFileQueryWithOptions(Options);
+                    ItemQuery = TrackFolder.CreateItemQueryWithOptions(Options);
 
-                    _ = await FileQuery.GetFilesAsync(0, 1);
+                    _ = await ItemQuery.GetItemsAsync(0, 1);
 
-                    FileQuery.ContentsChanged += FileQuery_ContentsChanged;
+                    ItemQuery.ContentsChanged += FileQuery_ContentsChanged;
                     break;
             }
         }
@@ -791,7 +780,7 @@ namespace USBManager
             }
             else
             {
-                FileQuery.ContentsChanged -= FileQuery_ContentsChanged;
+                ItemQuery.ContentsChanged -= FileQuery_ContentsChanged;
             }
         }
 
@@ -814,9 +803,9 @@ namespace USBManager
             }
             else
             {
-                if (FileQuery != null)
+                if (ItemQuery != null)
                 {
-                    FileQuery.ContentsChanged += FileQuery_ContentsChanged;
+                    ItemQuery.ContentsChanged += FileQuery_ContentsChanged;
                 }
             }
 
@@ -894,13 +883,13 @@ namespace USBManager
                 IsProcessing = true;
             }
 
-            IReadOnlyList<StorageFile> FileList = await sender.Folder.GetFilesAsync();
+            IReadOnlyList<IStorageItem> FileList = await sender.Folder.GetItemsAsync();
 
             if (FileList.Count != USBFilePresenter.ThisPage.FileCollection.Count)
             {
                 if (FileList.Count > USBFilePresenter.ThisPage.FileCollection.Count)
                 {
-                    List<IStorageItem> AddFileList = new List<IStorageItem>(await ExceptAsync(USBFilePresenter.ThisPage.FileCollection, FileList));
+                    List<IStorageItem> AddFileList = await ExceptAsync(USBFilePresenter.ThisPage.FileCollection, FileList);
                     if (AddFileList.Count == 0)
                     {
                         IsProcessing = false;
@@ -914,7 +903,7 @@ namespace USBManager
                 }
                 else
                 {
-                    List<IStorageItem> DeleteFileList = new List<IStorageItem>(await ExceptAsync(USBFilePresenter.ThisPage.FileCollection, FileList));
+                    List<IStorageItem> DeleteFileList = await ExceptAsync(USBFilePresenter.ThisPage.FileCollection, FileList);
                     if (DeleteFileList.Count == 0)
                     {
                         IsProcessing = false;
@@ -931,14 +920,14 @@ namespace USBManager
             {
                 if (USBFilePresenter.ThisPage.FileCollection.Count != 0)
                 {
-                    List<IStorageItem> DeleteFileList = new List<IStorageItem>(await ExceptAsync(USBFilePresenter.ThisPage.FileCollection, FileList));
+                    List<IStorageItem> DeleteFileList = await ExceptAsync(USBFilePresenter.ThisPage.FileCollection, FileList);
                     if (DeleteFileList.Count == 0)
                     {
                         IsProcessing = false;
                         return;
                     }
 
-                    List<IStorageItem> AddFileList = new List<IStorageItem>(await ExceptAsync(FileList, USBFilePresenter.ThisPage.FileCollection));
+                    List<IStorageItem> AddFileList = await ExceptAsync(FileList, USBFilePresenter.ThisPage.FileCollection);
                     if (AddFileList.Count == 0)
                     {
                         IsProcessing = false;
@@ -1016,10 +1005,7 @@ namespace USBManager
 
                 if (!(TrackNode.Children.FirstOrDefault().Content is EmptyDeviceDisplay))
                 {
-                    foreach (var DeviceNode in TrackNode.Children)
-                    {
-                        await FolderChangeAnalysis(DeviceNode);
-                    }
+                    await FolderChangeAnalysis(TrackNode);
                 }
             });
 
@@ -1033,10 +1019,10 @@ namespace USBManager
                 FolderQuery.ContentsChanged -= FolderQuery_ContentsChanged;
                 FolderQuery = null;
             }
-            if (FileQuery != null)
+            if (ItemQuery != null)
             {
-                FileQuery.ContentsChanged -= FileQuery_ContentsChanged;
-                FileQuery = null;
+                ItemQuery.ContentsChanged -= FileQuery_ContentsChanged;
+                ItemQuery = null;
             }
             TrackNode = null;
         }
@@ -1053,15 +1039,19 @@ namespace USBManager
             return Except(FolderList, list2);
         }
 
-        private async Task<List<StorageFile>> ExceptAsync(IEnumerable<RemovableDeviceStorageItem> list1, IEnumerable<StorageFile> list2)
+        private async Task<List<IStorageItem>> ExceptAsync(IEnumerable<RemovableDeviceStorageItem> list1, IEnumerable<IStorageItem> list2)
         {
-            IEnumerable<StorageFile> FileList = list1.Select(x => x.File);
+            List<IStorageItem> FileList = new List<IStorageItem>(list1.Where((y) => y.ContentType == ContentType.Folder).Select(x => x.Folder).ToList());
+            FileList.AddRange(list1.Where((y) => y.ContentType == ContentType.File).Select(x => x.File));
+
             return await ExceptAsync(list2, FileList);
         }
 
-        private async Task<List<StorageFile>> ExceptAsync(IEnumerable<StorageFile> list2, IEnumerable<RemovableDeviceStorageItem> list1)
+        private async Task<List<IStorageItem>> ExceptAsync(IEnumerable<IStorageItem> list2, IEnumerable<RemovableDeviceStorageItem> list1)
         {
-            IEnumerable<StorageFile> FileList = list1.Select(x => x.File);
+            List<IStorageItem> FileList = new List<IStorageItem>(list1.Where((y) => y.ContentType == ContentType.Folder).Select(x => x.Folder).ToList());
+            FileList.AddRange(list1.Where((y) => y.ContentType == ContentType.File).Select(x => x.File));
+
             return await ExceptAsync(FileList, list2);
         }
 
@@ -1091,7 +1081,7 @@ namespace USBManager
             }
         }
 
-        private Task<List<StorageFile>> ExceptAsync(IEnumerable<StorageFile> list1, IEnumerable<StorageFile> list2)
+        private Task<List<IStorageItem>> ExceptAsync(IEnumerable<IStorageItem> list1, IEnumerable<IStorageItem> list2)
         {
             return Task.Run(() =>
             {
@@ -1105,16 +1095,52 @@ namespace USBManager
                 }
                 if (list1.Count() == 0 && list2.Count() == 0)
                 {
-                    return new List<StorageFile>();
+                    return new List<IStorageItem>();
                 }
 
                 if (list1.Count() > list2.Count())
                 {
-                    return list1.Where(x => list2.All(y => x.FolderRelativeId != y.FolderRelativeId)).ToList();
+                    return list1.Where(x => list2.All(y =>
+                    {
+                        if (x is StorageFile && y is StorageFile)
+                        {
+                            return ((StorageFile)x).FolderRelativeId != ((StorageFile)y).FolderRelativeId;
+                        }
+                        else if (x is StorageFile && y is StorageFolder)
+                        {
+                            return ((StorageFile)x).FolderRelativeId != ((StorageFolder)y).FolderRelativeId;
+                        }
+                        else if (x is StorageFolder && y is StorageFile)
+                        {
+                            return ((StorageFolder)x).FolderRelativeId != ((StorageFile)y).FolderRelativeId;
+                        }
+                        else
+                        {
+                            return ((StorageFolder)x).FolderRelativeId != ((StorageFolder)y).FolderRelativeId;
+                        }
+                    })).ToList();
                 }
                 else
                 {
-                    return list2.Where(x => list1.All(y => x.FolderRelativeId != y.FolderRelativeId)).ToList();
+                    return list2.Where(x => list1.All(y =>
+                    {
+                        if (x is StorageFile && y is StorageFile)
+                        {
+                            return ((StorageFile)x).FolderRelativeId != ((StorageFile)y).FolderRelativeId;
+                        }
+                        else if (x is StorageFile && y is StorageFolder)
+                        {
+                            return ((StorageFile)x).FolderRelativeId != ((StorageFolder)y).FolderRelativeId;
+                        }
+                        else if (x is StorageFolder && y is StorageFile)
+                        {
+                            return ((StorageFolder)x).FolderRelativeId != ((StorageFile)y).FolderRelativeId;
+                        }
+                        else
+                        {
+                            return ((StorageFolder)x).FolderRelativeId != ((StorageFolder)y).FolderRelativeId;
+                        }
+                    })).ToList();
                 }
             });
         }
@@ -1173,6 +1199,20 @@ namespace USBManager
     #region 扩展方法类
     public static class Extention
     {
+        public static async Task UpdateAllSubNodeFolder(this TreeViewNode ParentNode)
+        {
+            StorageFolder ParentFolder = ParentNode.Content as StorageFolder;
+            foreach (var Package in ParentNode.Children.Select((SubNode) => new { (SubNode.Content as StorageFolder).Name, SubNode }))
+            {
+                Package.SubNode.Content = await ParentFolder.GetFolderAsync(Package.Name);
+
+                if (Package.SubNode.HasChildren)
+                {
+                    await UpdateAllSubNodeFolder(Package.SubNode);
+                }
+            }
+        }
+
         public static async Task<string> GetSizeDescriptionAsync(this IStorageItem Item)
         {
             BasicProperties Properties = await Item.GetBasicPropertiesAsync();
@@ -1189,7 +1229,7 @@ namespace USBManager
 
         public static async Task<BitmapImage> GetThumbnailBitmapAsync(this StorageFolder Item)
         {
-            var Thumbnail = await Item.GetThumbnailAsync(ThumbnailMode.ListView);
+            var Thumbnail = await Item.GetThumbnailAsync(ThumbnailMode.ListView, 60);
             if (Thumbnail == null)
             {
                 return null;
@@ -1280,10 +1320,7 @@ namespace USBManager
         public DeviceInformation DeviceInfo { get; set; }
         public void OnPropertyChanged(string name)
         {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(name));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         /// <summary>
@@ -1426,7 +1463,7 @@ namespace USBManager
     #endregion
 
     #region 文件路径逐层解析类
-    public class PathAnalysis
+    public sealed class PathAnalysis
     {
         public string FullPath { get; private set; }
 
@@ -1457,4 +1494,93 @@ namespace USBManager
         }
     }
     #endregion
+
+    public sealed class HardDeviceInfo : INotifyPropertyChanged
+    {
+        public BitmapImage Thumbnail { get; private set; }
+
+        public StorageFolder Folder { get; private set; }
+        public string Name { get; private set; }
+
+        public double Percent { get; private set; }
+
+        public string Capacity { get; private set; }
+
+        public string FreeSpace { get; private set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public string StorageSpaceDescription
+        {
+            get
+            {
+                return FreeSpace + " 可用, 共 " + Capacity;
+            }
+        }
+
+        public HardDeviceInfo(StorageFolder Device)
+        {
+            Name = Device.DisplayName;
+            Folder = Device;
+            GetNecessaryInfo(Device);
+        }
+
+        private async void GetNecessaryInfo(StorageFolder Device)
+        {
+            Thumbnail = await Device.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+
+            BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+            IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+            Capacity = GetSizeDescription((ulong)PropertiesRetrieve["System.Capacity"]);
+            FreeSpace = GetSizeDescription((ulong)PropertiesRetrieve["System.FreeSpace"]);
+
+            Percent = 1 - (ulong)PropertiesRetrieve["System.FreeSpace"] / Convert.ToDouble(PropertiesRetrieve["System.Capacity"]);
+
+            OnPropertyChanged("Thumbnail");
+            OnPropertyChanged("StorageSpaceDescription");
+            OnPropertyChanged("Percent");
+        }
+
+        private string GetSizeDescription(ulong Size)
+        {
+            return Size / 1024f < 1024 ? Math.Round(Size / 1024f, 2).ToString() + " KB" :
+            (Size / 1048576f >= 1024 ? Math.Round(Size / 1073741824f, 2).ToString() + " GB" :
+            Math.Round(Size / 1048576f, 2).ToString() + " MB");
+        }
+
+        private void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+    }
+
+    public sealed class LibraryFolder : INotifyPropertyChanged
+    {
+        public string Name { get; private set; }
+
+        public BitmapImage Thumbnail { get; private set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public StorageFolder Folder { get; private set; }
+
+        public LibraryFolder(StorageFolder Folder)
+        {
+            Name = Folder.Name;
+            this.Folder = Folder;
+            GetNecessaryInfo(Folder);
+        }
+
+        private async void GetNecessaryInfo(StorageFolder Folder)
+        {
+            Thumbnail = await Folder.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+
+            OnPropertyChanged("Thumbnail");
+        }
+
+        private void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+    }
 }

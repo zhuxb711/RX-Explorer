@@ -27,19 +27,15 @@ namespace USBManager
         public FileSystemTracker FolderTracker;
         public FileSystemTracker FileTracker;
         public AutoResetEvent ExpandLocker;
+        private bool PauseTrace = false;
 
         public USBControl()
         {
             InitializeComponent();
             ThisPage = this;
-            InitializeTreeView();
             Nav.Navigate(typeof(USBFilePresenter), Nav, new DrillInNavigationTransitionInfo());
 
             Application.Current.Suspending += Current_Suspending;
-            FolderTracker = new FileSystemTracker(FolderTree.RootNodes.FirstOrDefault());
-            FolderTracker.Created += FolderTracker_Created;
-            FolderTracker.Deleted += FolderTracker_Deleted;
-            FolderTracker.Renamed += FolderTracker_Renamed;
             Loaded += USBControl_Loaded;
         }
 
@@ -73,23 +69,58 @@ namespace USBManager
 
         private async void FolderTracker_Renamed(object sender, FileSystemRenameSet e)
         {
-            foreach (var SubNode in from StorageFolder OldFolder in e.ToDeleteFileList
-                                    from SubNode in
-                                        from SubNode in e.ParentNode.Children
-                                        where (SubNode.Content as StorageFolder).FolderRelativeId == OldFolder.FolderRelativeId
-                                        select SubNode
-                                    select SubNode)
-            {
-                e.ParentNode.Children.Remove(SubNode);
-            }
-
             foreach (StorageFolder NewFolder in e.ToAddFileList)
             {
-                e.ParentNode.Children.Add(new TreeViewNode
+                foreach (var Item in e.ToDeleteFileList)
                 {
-                    Content = NewFolder,
-                    HasUnrealizedChildren = (await NewFolder.GetFoldersAsync()).Count != 0
-                });
+                    if (e.ParentNode.Children.Count == 0)
+                    {
+                        return;
+                    }
+
+                    var ChildCollection = e.ParentNode.Children;
+                    var TargetNode = e.ParentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == ((StorageFolder)Item).FolderRelativeId).FirstOrDefault();
+                    int index = e.ParentNode.Children.IndexOf(TargetNode);
+
+                    if (TargetNode.HasUnrealizedChildren)
+                    {
+                        ChildCollection.Insert(index, new TreeViewNode()
+                        {
+                            Content = NewFolder,
+                            HasUnrealizedChildren = true,
+                            IsExpanded = false
+                        });
+                        ChildCollection.Remove(TargetNode);
+                    }
+                    else if (TargetNode.HasChildren)
+                    {
+                        var NewNode = new TreeViewNode()
+                        {
+                            Content = NewFolder,
+                            HasUnrealizedChildren = false,
+                            IsExpanded = true
+                        };
+
+                        foreach (var SubNode in TargetNode.Children)
+                        {
+                            NewNode.Children.Add(SubNode);
+                        }
+
+                        ChildCollection.Insert(index, NewNode);
+                        ChildCollection.Remove(TargetNode);
+                        await NewNode.UpdateAllSubNodeFolder();
+                    }
+                    else
+                    {
+                        ChildCollection.Insert(index, new TreeViewNode()
+                        {
+                            Content = NewFolder,
+                            HasUnrealizedChildren = false,
+                            IsExpanded = false
+                        });
+                        ChildCollection.Remove(TargetNode);
+                    }
+                }
             }
         }
 
@@ -123,34 +154,75 @@ namespace USBManager
             }
         }
 
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            StorageFolder TargetFolder = e.Parameter as StorageFolder;
+            InitializeTreeView(TargetFolder);
+            MainPage.ThisPage.GlobeSearch.PlaceholderText = "搜索" + TargetFolder.DisplayName;
+
+            if ((await KnownFolders.RemovableDevices.GetFoldersAsync()).Where((Folder) => Folder.FolderRelativeId == TargetFolder.FolderRelativeId).FirstOrDefault() == null)
+            {
+                PauseTrace = true;
+            }
+            else
+            {
+                FolderTracker = new FileSystemTracker(FolderTree.RootNodes.FirstOrDefault());
+                FolderTracker.Created += FolderTracker_Created;
+                FolderTracker.Deleted += FolderTracker_Deleted;
+                FolderTracker.Renamed += FolderTracker_Renamed;
+            }
+        }
+
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             Locker.Dispose();
             ExpandLocker.Dispose();
             CancelToken.Dispose();
 
+            PauseTrace = false;
+
+            FolderTree.RootNodes.Clear();
+            USBFilePresenter.ThisPage.FileCollection.Clear();
+            USBFilePresenter.ThisPage.HasFile.Visibility = Visibility.Visible;
+
+            if (FileTracker != null)
+            {
+                FileTracker.Created -= FileTracker_Created;
+                FileTracker.Deleted -= FileTracker_Deleted;
+                FileTracker.Renamed -= FileTracker_Renamed;
+                FileTracker.Dispose();
+                FileTracker = null;
+            }
+
+            if (FolderTracker != null)
+            {
+                FolderTracker.Created -= FolderTracker_Created;
+                FolderTracker.Deleted -= FolderTracker_Deleted;
+                FolderTracker.Renamed -= FolderTracker_Renamed;
+                FolderTracker.Dispose();
+                FolderTracker = null;
+            }
         }
 
         /// <summary>
         /// 执行文件目录的初始化，查找USB设备
         /// </summary>
-        private async void InitializeTreeView()
+        private async void InitializeTreeView(StorageFolder InitFolder)
         {
-            StorageFolder RemovableFolder = KnownFolders.RemovableDevices;
-            RootFolderId = RemovableFolder.FolderRelativeId;
-            if (RemovableFolder != null)
+            RootFolderId = InitFolder.FolderRelativeId;
+            if (InitFolder != null)
             {
-                TreeViewNode RemovableNode = new TreeViewNode
+                TreeViewNode RootNode = new TreeViewNode
                 {
-                    Content = RemovableFolder,
+                    Content = InitFolder,
                     IsExpanded = true,
                     HasUnrealizedChildren = true
                 };
-                FolderTree.RootNodes.Add(RemovableNode);
-                await FillTreeNode(RemovableNode);
-                if (RemovableNode.Children.Count == 0)
+                FolderTree.RootNodes.Add(RootNode);
+                await FillTreeNode(RootNode);
+                if (RootNode.Children.Count == 0)
                 {
-                    RemovableNode.Children.Add(new TreeViewNode() { Content = new EmptyDeviceDisplay() });
+                    RootNode.Children.Add(new TreeViewNode() { Content = new EmptyDeviceDisplay() });
                 }
             }
         }
@@ -279,25 +351,28 @@ namespace USBManager
 
                 Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 60, ThumbnailOptions.ResizeThumbnail);
 
-                var FileQuery = folder.CreateFileQueryWithOptions(Options);
+                var ItemQuery = folder.CreateItemQueryWithOptions(Options);
 
-                var FileList = await FileQuery.GetFilesAsync();
+                var FileList = await ItemQuery.GetItemsAsync();
 
                 USBFilePresenter.ThisPage.HasFile.Visibility = FileList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
-                if (FileTracker != null)
+                if (!PauseTrace)
                 {
-                    FileTracker.Created -= FileTracker_Created;
-                    FileTracker.Deleted -= FileTracker_Deleted;
-                    FileTracker.Renamed -= FileTracker_Renamed;
-                    FileTracker.Dispose();
-                    FileTracker = null;
-                }
+                    if (FileTracker != null)
+                    {
+                        FileTracker.Created -= FileTracker_Created;
+                        FileTracker.Deleted -= FileTracker_Deleted;
+                        FileTracker.Renamed -= FileTracker_Renamed;
+                        FileTracker.Dispose();
+                        FileTracker = null;
+                    }
 
-                FileTracker = new FileSystemTracker(FileQuery);
-                FileTracker.Created += FileTracker_Created;
-                FileTracker.Deleted += FileTracker_Deleted;
-                FileTracker.Renamed += FileTracker_Renamed;
+                    FileTracker = new FileSystemTracker(ItemQuery);
+                    FileTracker.Created += FileTracker_Created;
+                    FileTracker.Deleted += FileTracker_Deleted;
+                    FileTracker.Renamed += FileTracker_Renamed;
+                }
 
                 foreach (var file in FileList)
                 {
@@ -329,17 +404,31 @@ namespace USBManager
             {
                 for (int j = 0; j < USBFilePresenter.ThisPage.FileCollection.Count; j++)
                 {
-                    if (USBFilePresenter.ThisPage.FileCollection[j].RelativeId == ((StorageFile)e.ToDeleteFileList[i]).FolderRelativeId)
+                    switch (e.ToDeleteFileList[i])
                     {
-                        USBFilePresenter.ThisPage.FileCollection.RemoveAt(j);
-                        j--;
+                        case StorageFile File:
+                            if (USBFilePresenter.ThisPage.FileCollection[j].RelativeId == File.FolderRelativeId)
+                            {
+                                USBFilePresenter.ThisPage.FileCollection.RemoveAt(j);
+                                j--;
+                            }
+
+                            break;
+                        case StorageFolder Folder:
+                            if (USBFilePresenter.ThisPage.FileCollection[j].RelativeId == Folder.FolderRelativeId)
+                            {
+                                USBFilePresenter.ThisPage.FileCollection.RemoveAt(j);
+                                j--;
+                            }
+
+                            break;
                     }
                 }
             }
 
-            foreach (StorageFile ExceptFile in e.ToAddFileList)
+            foreach (IStorageItem ExceptItem in e.ToAddFileList)
             {
-                USBFilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceStorageItem(ExceptFile));
+                USBFilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceStorageItem(ExceptItem));
             }
         }
 
@@ -350,10 +439,25 @@ namespace USBManager
                 for (int j = 0; j < USBFilePresenter.ThisPage.FileCollection.Count; j++)
                 {
                     RemovableDeviceStorageItem DeviceFile = USBFilePresenter.ThisPage.FileCollection[j];
-                    if (DeviceFile.RelativeId == ((StorageFile)e.StorageItems[i]).FolderRelativeId)
+
+                    switch (e.StorageItems[i])
                     {
-                        USBFilePresenter.ThisPage.FileCollection.Remove(DeviceFile);
-                        j--;
+                        case StorageFile File:
+                            if (DeviceFile.RelativeId == File.FolderRelativeId)
+                            {
+                                USBFilePresenter.ThisPage.FileCollection.Remove(DeviceFile);
+                                j--;
+                            }
+
+                            break;
+                        case StorageFolder Folder:
+                            if (DeviceFile.RelativeId == Folder.FolderRelativeId)
+                            {
+                                USBFilePresenter.ThisPage.FileCollection.Remove(DeviceFile);
+                                j--;
+                            }
+
+                            break;
                     }
                 }
             }
@@ -361,9 +465,9 @@ namespace USBManager
 
         private void FileTracker_Created(object sender, FileSystemChangeSet e)
         {
-            foreach (StorageFile ExceptFile in e.StorageItems)
+            foreach (IStorageItem ExceptItem in e.StorageItems)
             {
-                USBFilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceStorageItem(ExceptFile));
+                USBFilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceStorageItem(ExceptItem));
             }
         }
 
@@ -391,7 +495,7 @@ namespace USBManager
 
                     StorageFolder Folder = CurrentNode.Content as StorageFolder;
                     await DeleteAllSubFilesAndFolders(Folder);
-                    await Folder.DeleteAsync((bool)ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] ? StorageDeleteOption.PermanentDelete : StorageDeleteOption.Default);
+                    await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
                     if (USBFilePresenter.ThisPage.DisplayNode == CurrentNode)
                     {
@@ -433,21 +537,7 @@ namespace USBManager
                 }
                 else
                 {
-                    await Item.DeleteAsync((bool)ApplicationData.Current.LocalSettings.Values["EnableDirectDelete"] ? StorageDeleteOption.PermanentDelete : StorageDeleteOption.Default);
-                }
-            }
-        }
-
-        private async Task UpdateAllSubNodeFolder(TreeViewNode ParentNode)
-        {
-            StorageFolder ParentFolder = ParentNode.Content as StorageFolder;
-            foreach (var Package in ParentNode.Children.Select((SubNode) => new { (SubNode.Content as StorageFolder).Name, SubNode }))
-            {
-                Package.SubNode.Content = await ParentFolder.GetFolderAsync(Package.Name);
-
-                if (Package.SubNode.HasChildren)
-                {
-                    await UpdateAllSubNodeFolder(Package.SubNode);
+                    await Item.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 }
             }
         }
@@ -462,11 +552,17 @@ namespace USBManager
         {
             if ((CurrentNode = (e.OriginalSource as FrameworkElement)?.DataContext as TreeViewNode) != null)
             {
-                CreateFolder.IsEnabled = FolderTree.RootNodes[0] != CurrentNode;
-                if (FolderTree.RootNodes[0].Children.Contains(CurrentNode))
+                (FolderTree.ContainerFromNode(CurrentNode) as TreeViewItem).IsSelected = true;
+
+                if (FolderTree.RootNodes.Contains(CurrentNode))
                 {
+                    CreateFolder.IsEnabled = true;
                     FolderDelete.IsEnabled = false;
                     FolderRename.IsEnabled = false;
+                }
+                else
+                {
+                    CreateFolder.IsEnabled = true;
                 }
             }
             else
@@ -501,6 +597,7 @@ namespace USBManager
                 FolderTracker?.PauseDetection();
 
                 await Folder.RenameAsync(renameDialog.DesireName, NameCollisionOption.GenerateUniqueName);
+                StorageFolder ReCreateFolder = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
 
                 var ChildCollection = CurrentNode.Parent.Children;
                 int index = CurrentNode.Parent.Children.IndexOf(CurrentNode);
@@ -509,7 +606,7 @@ namespace USBManager
                 {
                     ChildCollection.Insert(index, new TreeViewNode()
                     {
-                        Content = Folder,
+                        Content = ReCreateFolder,
                         HasUnrealizedChildren = true,
                         IsExpanded = false
                     });
@@ -519,7 +616,7 @@ namespace USBManager
                 {
                     var NewNode = new TreeViewNode()
                     {
-                        Content = Folder,
+                        Content = ReCreateFolder,
                         HasUnrealizedChildren = false,
                         IsExpanded = true
                     };
@@ -531,19 +628,18 @@ namespace USBManager
 
                     ChildCollection.Insert(index, NewNode);
                     ChildCollection.Remove(CurrentNode);
-                    await UpdateAllSubNodeFolder(NewNode);
+                    await NewNode.UpdateAllSubNodeFolder();
                 }
                 else
                 {
                     ChildCollection.Insert(index, new TreeViewNode()
                     {
-                        Content = Folder,
+                        Content = ReCreateFolder,
                         HasUnrealizedChildren = false,
                         IsExpanded = false
                     });
                     ChildCollection.Remove(CurrentNode);
                 }
-
 
                 FileTracker?.ResumeDetection();
                 FolderTracker?.ResumeDetection();
@@ -570,11 +666,6 @@ namespace USBManager
 
             FileTracker?.ResumeDetection();
             FolderTracker?.ResumeDetection();
-        }
-
-        private void Nav_Navigated(object sender, NavigationEventArgs e)
-        {
-            MainPage.ThisPage.NavView.IsBackEnabled = Nav.CanGoBack;
         }
     }
 

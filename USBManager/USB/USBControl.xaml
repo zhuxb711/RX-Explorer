@@ -52,7 +52,7 @@
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="5*"/>
         </Grid.ColumnDefinitions>
-        <Frame Grid.Column="2" Name="Nav" Navigated="Nav_Navigated" x:FieldModifier="Public"/>
+        <Frame Grid.Column="2" Name="Nav" x:FieldModifier="Public"/>
         <TreeView Name="FolderTree" 
                   x:FieldModifier="public"
                   Expanding="FileTree_Expanding" 
