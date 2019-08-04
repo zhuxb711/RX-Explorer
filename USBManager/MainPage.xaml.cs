@@ -363,21 +363,13 @@ namespace USBManager
             }
         }
 
-        private async void GlobeSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        private void GlobeSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             if (string.IsNullOrWhiteSpace(sender.Text))
             {
                 if (IsNowSearching)
                 {
-                    if (USBControl.ThisPage.CurrentNode == null)
-                    {
-                        SearchPage.ThisPage.SearchResult.Clear();
-                        SearchPage.ThisPage.HasItem.Visibility = Visibility.Visible;
-                    }
-                    else
-                    {
-                        await USBControl.ThisPage.DisplayItemsInFolder(USBControl.ThisPage.CurrentNode);
-                    }
+                    USBControl.ThisPage.Nav.GoBack();
                 }
                 return;
             }

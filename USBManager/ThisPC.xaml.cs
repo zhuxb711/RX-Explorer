@@ -33,13 +33,13 @@ namespace USBManager
             {
 
             }
-            else if(PotentialUsers.Count() == 1)
+            else if (PotentialUsers.Count() == 1)
             {
                 StorageFolder CurrentUser = PotentialUsers.FirstOrDefault();
 
                 IReadOnlyList<StorageFolder> LibraryFolder = await CurrentUser.GetFoldersAsync();
 
-                LibraryFolderList.Add(new LibraryFolder(LibraryFolder.Where((Folder)=>Folder.Name=="Desktop").FirstOrDefault()));
+                LibraryFolderList.Add(new LibraryFolder(LibraryFolder.Where((Folder) => Folder.Name == "Desktop").FirstOrDefault()));
                 LibraryFolderList.Add(new LibraryFolder(LibraryFolder.Where((Folder) => Folder.Name == "Downloads").FirstOrDefault()));
                 LibraryFolderList.Add(new LibraryFolder(LibraryFolder.Where((Folder) => Folder.Name == "Videos").FirstOrDefault()));
                 LibraryFolderList.Add(new LibraryFolder(LibraryFolder.Where((Folder) => Folder.Name == "3D Objects").FirstOrDefault()));
@@ -52,7 +52,7 @@ namespace USBManager
 
             }
 
-            for (int i = 67; i <= 90; i++)
+            for (int i = 67; i <= 78; i++)
             {
                 try
                 {
@@ -60,7 +60,7 @@ namespace USBManager
                 }
                 catch (Exception)
                 {
-                    break;
+                    continue;
                 }
             }
         }

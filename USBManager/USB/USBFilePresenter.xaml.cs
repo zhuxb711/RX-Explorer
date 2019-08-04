@@ -37,7 +37,6 @@ namespace USBManager
         const int AESCacheSize = 1048576;
         byte[] EncryptByteBuffer;
         byte[] DecryptByteBuffer;
-        bool IsEnteringFolder = false;
 
         public USBFilePresenter()
         {
@@ -1159,89 +1158,51 @@ namespace USBManager
 
         private async void GridViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
-            lock(SyncRootProvider.SyncRoot)
-            {
-                if(IsEnteringFolder)
-                {
-                    return;
-                }
-                IsEnteringFolder = true;
-            }
-
             if ((e.OriginalSource as FrameworkElement)?.DataContext is RemovableDeviceStorageItem ReFile)
             {
-                switch (ReFile.ContentType)
+                switch (ReFile.File.FileType)
                 {
-                    case ContentType.File:
-                        switch (ReFile.File.FileType)
-                        {
-                            case ".zip":
-                                Nav.Navigate(typeof(ZipExplorer), ReFile, new DrillInNavigationTransitionInfo());
-                                break;
-                            case ".jpg":
-                            case ".png":
-                            case ".bmp":
-                                Nav.Navigate(typeof(USBPhotoViewer), ReFile.File.FolderRelativeId, new DrillInNavigationTransitionInfo());
-                                break;
-                            case ".mkv":
-                            case ".mp4":
-                            case ".mp3":
-                            case ".flac":
-                            case ".wma":
-                            case ".wmv":
-                            case ".m4a":
-                            case ".mov":
-                            case ".alac":
-                                Nav.Navigate(typeof(USBMediaPlayer), ReFile.File, new DrillInNavigationTransitionInfo());
-                                break;
-                            case ".txt":
-                                Nav.Navigate(typeof(USBTextViewer), ReFile, new DrillInNavigationTransitionInfo());
-                                break;
-                            case ".pdf":
-                                Nav.Navigate(typeof(USBPdfReader), ReFile.File, new DrillInNavigationTransitionInfo());
-                                break;
-                            default:
-                                ContentDialog dialog = new ContentDialog
-                                {
-                                    Title = "提示",
-                                    Content = "  USB文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
-                                    PrimaryButtonText = "默认应用打开",
-                                    CloseButtonText = "取消",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                                };
-                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                                {
-                                    await Launcher.LaunchFileAsync(ReFile.File);
-                                }
-                                break;
-                        }
+                    case ".zip":
+                        Nav.Navigate(typeof(ZipExplorer), ReFile, new DrillInNavigationTransitionInfo());
                         break;
-                    case ContentType.Folder:
-                        if (USBControl.ThisPage.CurrentNode.HasUnrealizedChildren && !USBControl.ThisPage.CurrentNode.IsExpanded)
+                    case ".jpg":
+                    case ".png":
+                    case ".bmp":
+                        Nav.Navigate(typeof(USBPhotoViewer), ReFile.File.FolderRelativeId, new DrillInNavigationTransitionInfo());
+                        break;
+                    case ".mkv":
+                    case ".mp4":
+                    case ".mp3":
+                    case ".flac":
+                    case ".wma":
+                    case ".wmv":
+                    case ".m4a":
+                    case ".mov":
+                    case ".alac":
+                        Nav.Navigate(typeof(USBMediaPlayer), ReFile.File, new DrillInNavigationTransitionInfo());
+                        break;
+                    case ".txt":
+                        Nav.Navigate(typeof(USBTextViewer), ReFile, new DrillInNavigationTransitionInfo());
+                        break;
+                    case ".pdf":
+                        Nav.Navigate(typeof(USBPdfReader), ReFile.File, new DrillInNavigationTransitionInfo());
+                        break;
+                    default:
+                        ContentDialog dialog = new ContentDialog
                         {
-                            USBControl.ThisPage.CurrentNode.IsExpanded = true;
-                        }
-                        else
+                            Title = "提示",
+                            Content = "  USB文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
+                            PrimaryButtonText = "默认应用打开",
+                            CloseButtonText = "取消",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                         {
-                            USBControl.ThisPage.ExpandLocker.Set();
-                        }
-
-                        await Task.Run(() =>
-                        {
-                            USBControl.ThisPage.ExpandLocker.WaitOne(1000);
-                        });
-
-                        var TargetNode = USBControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == ReFile.Name).FirstOrDefault();
-                        if (TargetNode != null)
-                        {
-                            await USBControl.ThisPage.DisplayItemsInFolder(TargetNode);
-                            (USBControl.ThisPage.FolderTree.ContainerFromNode(TargetNode) as TreeViewItem).IsSelected = true;
+                            await Launcher.LaunchFileAsync(ReFile.File);
                         }
                         break;
                 }
             }
-
-            IsEnteringFolder = false;
         }
 
         private void GridViewControl_DragItemsStarting(object sender, DragItemsStartingEventArgs e)

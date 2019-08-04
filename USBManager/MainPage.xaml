@@ -33,7 +33,15 @@
                 </NavigationViewItem>
             </NavigationView.MenuItems>
             <NavigationView.AutoSuggestBox>
-                <AutoSuggestBox QueryIcon="Find" x:FieldModifier="public" Width="200" Name="GlobeSearch" QuerySubmitted="GlobeSearch_QuerySubmitted" TextChanged="GlobeSearch_TextChanged" UpdateTextOnSelect="True">
+                <AutoSuggestBox QueryIcon="Find"
+                                x:FieldModifier="public" 
+                                PlaceholderText="搜索..." 
+                                Width="200" 
+                                Name="GlobeSearch" 
+                                QuerySubmitted="GlobeSearch_QuerySubmitted" 
+                                TextChanged="GlobeSearch_TextChanged"
+                                UpdateTextOnSelect="True"
+                                Visibility="Collapsed">
                     <FlyoutBase.AttachedFlyout>
                         <Flyout Placement="BottomEdgeAlignedRight" x:Name="SearchFlyout">
                             <StackPanel>

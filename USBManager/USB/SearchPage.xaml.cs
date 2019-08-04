@@ -58,20 +58,19 @@ namespace USBManager
             try
             {
                 Cancellation = new CancellationTokenSource();
+                Cancellation.Token.Register(() =>
+                {
+                    HasItem.Visibility = Visibility.Visible;
+                    SearchResultList.Visibility = Visibility.Collapsed;
+                    LoadingControl.IsLoading = false;
+                });
 
                 IAsyncOperation<IReadOnlyList<IStorageItem>> SearchAsync = ItemQuery.GetItemsAsync(0, MaxSearchNum);
-                Cancellation.Token.Register((SearchOperation) =>
-                {
-                    (SearchOperation as IAsyncOperation<IReadOnlyList<IStorageItem>>).Cancel();
-                }, SearchAsync);
 
-                SearchItems = await SearchAsync;
+                SearchItems = await SearchAsync.AsTask(Cancellation.Token);
             }
             catch (TaskCanceledException)
             {
-                HasItem.Visibility = Visibility.Visible;
-                SearchResultList.Visibility = Visibility.Collapsed;
-                LoadingControl.IsLoading = false;
                 return;
             }
             finally
