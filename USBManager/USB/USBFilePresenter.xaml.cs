@@ -2,7 +2,6 @@
 using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -18,13 +17,14 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 namespace USBManager
 {
     public sealed partial class USBFilePresenter : Page
     {
-        public ObservableCollection<RemovableDeviceStorageItem> FileCollection = new ObservableCollection<RemovableDeviceStorageItem>();
+        public IncrementalLoadingCollection<RemovableDeviceStorageItem> FileCollection;
         public static USBFilePresenter ThisPage { get; private set; }
         public List<GridViewItem> ZipCollection = new List<GridViewItem>();
         public TreeViewNode DisplayNode;
@@ -42,12 +42,27 @@ namespace USBManager
         {
             InitializeComponent();
             ThisPage = this;
+
+            FileCollection = new IncrementalLoadingCollection<RemovableDeviceStorageItem>(GetMoreItemsFunction);
             GridViewControl.ItemsSource = FileCollection;
             FileCollection.CollectionChanged += FileCollection_CollectionChanged;
 
             //必须注册这个东西才能使用中文解码
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             ZipStrings.CodePage = 936;
+        }
+
+        private async Task<IEnumerable<RemovableDeviceStorageItem>> GetMoreItemsFunction(uint Index, uint Num, StorageItemQueryResult Query)
+        {
+            List<RemovableDeviceStorageItem> ItemList = new List<RemovableDeviceStorageItem>();
+            foreach (var Item in await Query.GetItemsAsync(Index, Num))
+            {
+                var Size = await Item.GetSizeDescriptionAsync();
+                var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                var ModifiedTime = await Item.GetModifiedTimeAsync();
+                ItemList.Add(new RemovableDeviceStorageItem(Item, Size, Thumbnail, ModifiedTime));
+            }
+            return ItemList;
         }
 
         private void FileCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -110,7 +125,7 @@ namespace USBManager
         /// </summary>
         public async Task RefreshFileDisplay()
         {
-            USBControl.ThisPage.FileTracker?.PauseDetection();
+            USBControl.ThisPage.ItemTracker?.PauseDetection();
             USBControl.ThisPage.FolderTracker?.PauseDetection();
 
             QueryOptions Options = new QueryOptions(CommonFileQuery.DefaultQuery, null)
@@ -126,10 +141,14 @@ namespace USBManager
             var FileList = await QueryResult.GetFilesAsync();
             foreach (StorageFile file in FileList.Where(file => FileCollection.All((File) => File.RelativeId != file.FolderRelativeId)).Select(file => file))
             {
-                FileCollection.Add(new RemovableDeviceStorageItem(file));
+                var Size = await file.GetSizeDescriptionAsync();
+                var Thumbnail = await file.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                var ModifiedTime = await file.GetModifiedTimeAsync();
+
+                FileCollection.Add(new RemovableDeviceStorageItem(file, Size, Thumbnail, ModifiedTime));
             }
 
-            USBControl.ThisPage.FileTracker?.ResumeDetection();
+            USBControl.ThisPage.ItemTracker?.ResumeDetection();
             USBControl.ThisPage.FolderTracker?.ResumeDetection();
         }
 
@@ -297,7 +316,7 @@ namespace USBManager
             {
                 LoadingActivation(true, "正在删除");
 
-                USBControl.ThisPage.FileTracker?.PauseDetection();
+                USBControl.ThisPage.ItemTracker?.PauseDetection();
                 USBControl.ThisPage.FolderTracker?.PauseDetection();
 
                 foreach (var item in FileList)
@@ -315,7 +334,7 @@ namespace USBManager
                     }
                 }
 
-                USBControl.ThisPage.FileTracker?.ResumeDetection();
+                USBControl.ThisPage.ItemTracker?.ResumeDetection();
                 USBControl.ThisPage.FolderTracker?.ResumeDetection();
 
                 await Task.Delay(500);
@@ -395,7 +414,7 @@ namespace USBManager
                     return;
                 }
 
-                USBControl.ThisPage.FileTracker?.PauseDetection();
+                USBControl.ThisPage.ItemTracker?.PauseDetection();
                 USBControl.ThisPage.FolderTracker?.PauseDetection();
 
                 await file.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
@@ -407,7 +426,7 @@ namespace USBManager
                     await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(file.Path));
                 }
 
-                USBControl.ThisPage.FileTracker?.ResumeDetection();
+                USBControl.ThisPage.ItemTracker?.ResumeDetection();
                 USBControl.ThisPage.FolderTracker?.ResumeDetection();
             }
         }
@@ -441,7 +460,7 @@ namespace USBManager
                 return;
             }
 
-            USBControl.ThisPage.FileTracker?.PauseDetection();
+            USBControl.ThisPage.ItemTracker?.PauseDetection();
             USBControl.ThisPage.FolderTracker?.PauseDetection();
 
             foreach (var SelectedFile in from RemovableDeviceStorageItem AESFile in FileList select AESFile.File)
@@ -855,12 +874,12 @@ namespace USBManager
 
             if (FileList.All((File) => ((RemovableDeviceStorageItem)File).Type == ".zip"))
             {
-                USBControl.ThisPage.FileTracker?.PauseDetection();
+                USBControl.ThisPage.ItemTracker?.PauseDetection();
                 USBControl.ThisPage.FolderTracker?.PauseDetection();
 
                 await UnZipAsync(FileList);
 
-                USBControl.ThisPage.FileTracker?.ResumeDetection();
+                USBControl.ThisPage.ItemTracker?.ResumeDetection();
                 USBControl.ThisPage.FolderTracker?.ResumeDetection();
             }
             else
@@ -871,7 +890,7 @@ namespace USBManager
                 {
                     LoadingActivation(true, "正在压缩", true);
 
-                    USBControl.ThisPage.FileTracker?.PauseDetection();
+                    USBControl.ThisPage.ItemTracker?.PauseDetection();
                     USBControl.ThisPage.FolderTracker?.PauseDetection();
 
                     if (dialog.IsCryptionEnable)
@@ -994,7 +1013,7 @@ namespace USBManager
                         zipFile.Close();
                     }
                 }
-                string RelativeId = (USBControl.ThisPage.CurrentNode.Content as StorageFolder).FolderRelativeId;
+                string RelativeId = USBControl.ThisPage.CurrentFolder.FolderRelativeId;
 
                 foreach (var _ in from item in USBControl.ThisPage.CurrentNode.Children
                                   where (item.Content as StorageFolder).FolderRelativeId == NewFolder.FolderRelativeId
@@ -1158,7 +1177,7 @@ namespace USBManager
 
         private async void GridViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is RemovableDeviceStorageItem ReFile)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is RemovableDeviceStorageItem ReFile && ReFile.ContentType == ContentType.File)
             {
                 switch (ReFile.File.FileType)
                 {
@@ -1250,7 +1269,7 @@ namespace USBManager
         {
             LoadingActivation(true, "正在执行添加操作");
 
-            USBControl.ThisPage.FileTracker?.PauseDetection();
+            USBControl.ThisPage.ItemTracker?.PauseDetection();
             USBControl.ThisPage.FolderTracker?.PauseDetection();
 
             using (var ZipFileStream = (await file.File.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
@@ -1285,7 +1304,7 @@ namespace USBManager
 
             await file.SizeUpdateRequested();
 
-            USBControl.ThisPage.FileTracker?.ResumeDetection();
+            USBControl.ThisPage.ItemTracker?.ResumeDetection();
             USBControl.ThisPage.FolderTracker?.ResumeDetection();
 
             await Task.Delay(500);
@@ -1342,10 +1361,10 @@ namespace USBManager
 
             await Task.Run(() =>
             {
-                USBControl.ThisPage.ExpandLocker.WaitOne(1000);
+                USBControl.ThisPage.ExpandLocker.WaitOne();
             });
 
-            var TargetNode = USBControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == (GridViewControl.SelectedItem as RemovableDeviceStorageItem).Name).FirstOrDefault();
+            var TargetNode = USBControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == (GridViewControl.SelectedItem as RemovableDeviceStorageItem).RelativeId).FirstOrDefault();
             if (TargetNode != null)
             {
                 await USBControl.ThisPage.DisplayItemsInFolder(TargetNode);
@@ -1386,7 +1405,7 @@ namespace USBManager
                     return;
                 }
 
-                USBControl.ThisPage.FileTracker?.PauseDetection();
+                USBControl.ThisPage.ItemTracker?.PauseDetection();
                 USBControl.ThisPage.FolderTracker?.PauseDetection();
 
                 if (USBControl.ThisPage.CurrentNode.Children.Count != 0)
@@ -1445,7 +1464,7 @@ namespace USBManager
                     await Item.UpdateRequested(await StorageFolder.GetFolderFromPathAsync(Folder.Path));
                 }
 
-                USBControl.ThisPage.FileTracker?.ResumeDetection();
+                USBControl.ThisPage.ItemTracker?.ResumeDetection();
                 USBControl.ThisPage.FolderTracker?.ResumeDetection();
             }
 
@@ -1473,5 +1492,20 @@ namespace USBManager
                 await Dialog.ShowAsync();
             }
         }
+
+        private async void FolderDelete_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (RemovableDeviceStorageItem Item in GridViewControl.SelectedItems)
+            {
+                FileCollection.Remove(Item);
+                if (USBControl.ThisPage.CurrentNode.IsExpanded)
+                {
+                    USBControl.ThisPage.CurrentNode.Children.Remove(USBControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == Item.RelativeId).FirstOrDefault());
+                }
+                await Item.Folder.DeleteAllSubFilesAndFolders();
+                await Item.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            }
+        }
     }
 }
+

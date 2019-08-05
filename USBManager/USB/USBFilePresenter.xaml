@@ -33,6 +33,7 @@
             <CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow" Label="打开" x:Name="FolderOpen" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="FolderOpen_Click"/>
                 <AppBarButton Icon="Edit" Label="重命名" x:Name="FolderRename" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="FolderRename_Click"/>
+                <AppBarButton Icon="Delete" Label="删除" x:Name="FolderDelete" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="FolderDelete_Click"/>
                 <AppBarButton Icon="Tag" Label="属性" x:Name="FolderAttribute" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="FolderAttribute_Click"/>
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
@@ -67,6 +68,8 @@
                   IsDoubleTapEnabled="True"
                   DoubleTapped="GridViewControl_DoubleTapped"
                   x:FieldModifier="Public"
+                  IncrementalLoadingTrigger="Edge"
+                  DataFetchSize="2"
                   DragItemsStarting="GridViewControl_DragItemsStarting">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="local:RemovableDeviceStorageItem">

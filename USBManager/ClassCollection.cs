@@ -4,14 +4,17 @@ using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
+using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
@@ -128,7 +131,7 @@ namespace USBManager
         /// <param name="Size">文件大小</param>
         /// <param name="Item">文件StorageFile对象</param>
         /// <param name="Thumbnail">文件缩略图</param>
-        public RemovableDeviceStorageItem(IStorageItem Item)
+        public RemovableDeviceStorageItem(IStorageItem Item, string Size, BitmapImage Thumbnail, string ModifiedTime)
         {
             if (Item.IsOfType(StorageItemTypes.File))
             {
@@ -144,29 +147,9 @@ namespace USBManager
             {
                 throw new Exception("Item must be folder or file");
             }
-
-            GetNecessaryInfo();
-        }
-
-        private async void GetNecessaryInfo()
-        {
-            switch (ContentType)
-            {
-                case ContentType.File:
-                    Size = await File.GetSizeDescriptionAsync();
-                    Thumbnail = await File.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                    ModifiedTime = await File.GetModifiedTimeAsync();
-                    break;
-                case ContentType.Folder:
-                    Size = await Folder.GetSizeDescriptionAsync();
-                    Thumbnail = await Folder.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                    ModifiedTime = await Folder.GetModifiedTimeAsync();
-                    break;
-            }
-
-            OnPropertyChanged("ModifiedTime");
-            OnPropertyChanged("Size");
-            OnPropertyChanged("Thumbnail");
+            this.Size = Size;
+            this.Thumbnail = Thumbnail;
+            this.ModifiedTime = ModifiedTime;
         }
 
         private void OnPropertyChanged(string name)
@@ -277,6 +260,11 @@ namespace USBManager
             {
                 return ContentType == ContentType.Folder ? Folder.FolderRelativeId : File.FolderRelativeId;
             }
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
     #endregion
@@ -1213,6 +1201,22 @@ namespace USBManager
             }
         }
 
+        public static async Task DeleteAllSubFilesAndFolders(this StorageFolder Folder)
+        {
+            IReadOnlyList<IStorageItem> ItemList = await Folder.GetItemsAsync();
+            foreach (var Item in ItemList)
+            {
+                if (Item is StorageFolder folder)
+                {
+                    await DeleteAllSubFilesAndFolders(folder);
+                }
+                else
+                {
+                    await Item.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                }
+            }
+        }
+
         public static async Task<string> GetSizeDescriptionAsync(this IStorageItem Item)
         {
             BasicProperties Properties = await Item.GetBasicPropertiesAsync();
@@ -1227,38 +1231,44 @@ namespace USBManager
             return Properties.DateModified.Year + "年" + Properties.DateModified.Month + "月" + Properties.DateModified.Day + "日, " + (Properties.DateModified.Hour < 10 ? "0" + Properties.DateModified.Hour : Properties.DateModified.Hour.ToString()) + ":" + (Properties.DateModified.Minute < 10 ? "0" + Properties.DateModified.Minute : Properties.DateModified.Minute.ToString()) + ":" + (Properties.DateModified.Second < 10 ? "0" + Properties.DateModified.Second : Properties.DateModified.Second.ToString());
         }
 
-        public static async Task<BitmapImage> GetThumbnailBitmapAsync(this StorageFolder Item)
+        public static async Task<BitmapImage> GetThumbnailBitmapAsync(this IStorageItem Item)
         {
-            var Thumbnail = await Item.GetThumbnailAsync(ThumbnailMode.ListView, 60);
-            if (Thumbnail == null)
+            if (Item is StorageFolder Folder)
+            {
+                var Thumbnail = await Folder.GetThumbnailAsync(ThumbnailMode.ListView, 60);
+                if (Thumbnail == null)
+                {
+                    return null;
+                }
+
+                BitmapImage bitmapImage = new BitmapImage
+                {
+                    DecodePixelHeight = 60,
+                    DecodePixelWidth = 60
+                };
+                await bitmapImage.SetSourceAsync(Thumbnail);
+                return bitmapImage;
+            }
+            else if (Item is StorageFile File)
+            {
+                var Thumbnail = await File.GetThumbnailAsync(ThumbnailMode.ListView, 60);
+                if (Thumbnail == null)
+                {
+                    return null;
+                }
+
+                BitmapImage bitmapImage = new BitmapImage
+                {
+                    DecodePixelHeight = 60,
+                    DecodePixelWidth = 60
+                };
+                await bitmapImage.SetSourceAsync(Thumbnail);
+                return bitmapImage;
+            }
+            else
             {
                 return null;
             }
-
-            BitmapImage bitmapImage = new BitmapImage
-            {
-                DecodePixelHeight = 60,
-                DecodePixelWidth = 60
-            };
-            await bitmapImage.SetSourceAsync(Thumbnail);
-            return bitmapImage;
-        }
-
-        public static async Task<BitmapImage> GetThumbnailBitmapAsync(this StorageFile Item)
-        {
-            var Thumbnail = await Item.GetThumbnailAsync(ThumbnailMode.ListView);
-            if (Thumbnail == null)
-            {
-                return null;
-            }
-
-            BitmapImage bitmapImage = new BitmapImage
-            {
-                DecodePixelHeight = 60,
-                DecodePixelWidth = 60
-            };
-            await bitmapImage.SetSourceAsync(Thumbnail);
-            return bitmapImage;
         }
 
         public static void ScrollIntoViewSmoothly(this ListViewBase listViewBase, object item, ScrollIntoViewAlignment alignment = ScrollIntoViewAlignment.Default)
@@ -1495,7 +1505,8 @@ namespace USBManager
     }
     #endregion
 
-    public sealed class HardDeviceInfo : INotifyPropertyChanged
+    #region 这台电脑相关驱动器和库显示类
+    public sealed class HardDeviceInfo
     {
         public BitmapImage Thumbnail { get; private set; }
 
@@ -1508,8 +1519,6 @@ namespace USBManager
 
         public string FreeSpace { get; private set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public string StorageSpaceDescription
         {
             get
@@ -1518,27 +1527,14 @@ namespace USBManager
             }
         }
 
-        public HardDeviceInfo(StorageFolder Device)
+        public HardDeviceInfo(StorageFolder Device,BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve)
         {
             Name = Device.DisplayName;
             Folder = Device;
-            GetNecessaryInfo(Device);
-        }
-
-        private async void GetNecessaryInfo(StorageFolder Device)
-        {
-            Thumbnail = await Device.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-
-            BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-            IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+            this.Thumbnail = Thumbnail;
             Capacity = GetSizeDescription((ulong)PropertiesRetrieve["System.Capacity"]);
             FreeSpace = GetSizeDescription((ulong)PropertiesRetrieve["System.FreeSpace"]);
-
             Percent = 1 - (ulong)PropertiesRetrieve["System.FreeSpace"] / Convert.ToDouble(PropertiesRetrieve["System.Capacity"]);
-
-            OnPropertyChanged("Thumbnail");
-            OnPropertyChanged("StorageSpaceDescription");
-            OnPropertyChanged("Percent");
         }
 
         private string GetSizeDescription(ulong Size)
@@ -1547,40 +1543,95 @@ namespace USBManager
             (Size / 1048576f >= 1024 ? Math.Round(Size / 1073741824f, 2).ToString() + " GB" :
             Math.Round(Size / 1048576f, 2).ToString() + " MB");
         }
-
-        private void OnPropertyChanged(string name)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
     }
 
-    public sealed class LibraryFolder : INotifyPropertyChanged
+    public sealed class LibraryFolder
     {
         public string Name { get; private set; }
 
         public BitmapImage Thumbnail { get; private set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public StorageFolder Folder { get; private set; }
 
-        public LibraryFolder(StorageFolder Folder)
+        public LibraryFolder(StorageFolder Folder,BitmapImage Thumbnail)
         {
             Name = Folder.Name;
+            this.Thumbnail = Thumbnail;
             this.Folder = Folder;
-            GetNecessaryInfo(Folder);
-        }
-
-        private async void GetNecessaryInfo(StorageFolder Folder)
-        {
-            Thumbnail = await Folder.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-
-            OnPropertyChanged("Thumbnail");
-        }
-
-        private void OnPropertyChanged(string name)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
+    #endregion
+
+    #region 增量加载集合类
+    public sealed class IncrementalLoadingCollection<T> : ObservableCollection<T>, ISupportIncrementalLoading
+    {
+        private StorageItemQueryResult Query;
+        private uint CurrentIndex = 0;
+        private Func<uint, uint, StorageItemQueryResult, Task<IEnumerable<T>>> MoreItemsNeed;
+        private uint MaxNum = 0;
+
+        public IncrementalLoadingCollection(Func<uint, uint, StorageItemQueryResult, Task<IEnumerable<T>>> MoreItemsNeed)
+        {
+            this.MoreItemsNeed = MoreItemsNeed;
+        }
+
+        public async Task SetStorageItemQuery(StorageItemQueryResult InputQuery)
+        {
+            Query = InputQuery;
+
+            MaxNum = await Query.GetItemCountAsync();
+
+            CurrentIndex = MaxNum > 50 ? 50 : MaxNum;
+
+            if (MaxNum > 50)
+            {
+                HasMoreItems = true;
+            }
+        }
+
+        public IAsyncOperation<LoadMoreItemsResult> LoadMoreItemsAsync(uint count)
+        {
+            return AsyncInfo.Run(async (c) =>
+            {
+                if (CurrentIndex + count >= MaxNum)
+                {
+                    uint ItemNeedNum = MaxNum - CurrentIndex;
+                    if (ItemNeedNum == 0)
+                    {
+                        HasMoreItems = false;
+                        return new LoadMoreItemsResult { Count = 0 };
+                    }
+                    else
+                    {
+                        IEnumerable<T> Result = await MoreItemsNeed(CurrentIndex, ItemNeedNum, Query);
+
+                        for (int i = 0; i < Result.Count() && HasMoreItems; i++)
+                        {
+                            Add(Result.ElementAt(i));
+                        }
+
+                        CurrentIndex = MaxNum;
+                        HasMoreItems = false;
+                        return new LoadMoreItemsResult { Count = ItemNeedNum };
+                    }
+                }
+                else
+                {
+                    IEnumerable<T> Result = await MoreItemsNeed(CurrentIndex, count, Query);
+
+                    for (int i = 0; i < Result.Count() && HasMoreItems; i++)
+                    {
+                        Add(Result.ElementAt(i));
+                    }
+
+                    CurrentIndex += count;
+                    HasMoreItems = true;
+                    return new LoadMoreItemsResult { Count = count };
+                }
+            });
+        }
+
+        public bool HasMoreItems { get; set; } = false;
+    }
+    #endregion
 }

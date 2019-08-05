@@ -11,6 +11,7 @@ using Windows.Storage.Search;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 namespace USBManager
@@ -96,7 +97,11 @@ namespace USBManager
 
                 foreach (var Item in SortResult)
                 {
-                    SearchResult.Add(new RemovableDeviceStorageItem(Item));
+                    var Size = await Item.GetSizeDescriptionAsync();
+                    var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                    var ModifiedTime = await Item.GetModifiedTimeAsync();
+
+                    SearchResult.Add(new RemovableDeviceStorageItem(Item, Size, Thumbnail, ModifiedTime));
                 }
             }
         }
@@ -134,7 +139,6 @@ namespace USBManager
                 else
                 {
                     USBControl.ThisPage.CurrentNode = TargetNode;
-                    USBControl.ThisPage.CurrentFolder = USBControl.ThisPage.CurrentNode.Content as StorageFolder;
                     (USBControl.ThisPage.FolderTree.ContainerFromNode(USBControl.ThisPage.CurrentNode) as TreeViewItem).IsSelected = true;
                     await USBControl.ThisPage.DisplayItemsInFolder(USBControl.ThisPage.CurrentNode);
                 }
@@ -146,7 +150,6 @@ namespace USBManager
                     _ = await StorageFile.GetFileFromPathAsync(RemoveFile.Path);
 
                     USBControl.ThisPage.CurrentNode = await FindFolderLocationInTree(USBControl.ThisPage.FolderTree.RootNodes[0], new PathAnalysis((await RemoveFile.File.GetParentAsync()).Path));
-                    USBControl.ThisPage.CurrentFolder = USBControl.ThisPage.CurrentNode.Content as StorageFolder;
                     (USBControl.ThisPage.FolderTree.ContainerFromNode(USBControl.ThisPage.CurrentNode) as TreeViewItem).IsSelected = true;
                     await USBControl.ThisPage.DisplayItemsInFolder(USBControl.ThisPage.CurrentNode);
                 }

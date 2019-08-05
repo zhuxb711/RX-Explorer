@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
@@ -11,6 +10,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 
@@ -19,14 +19,21 @@ namespace USBManager
     public sealed partial class USBControl : Page
     {
         public TreeViewNode CurrentNode { get; set; }
-        public StorageFolder CurrentFolder { get; set; }
+        public StorageFolder CurrentFolder
+        {
+            get
+            {
+                return CurrentNode?.Content as StorageFolder;
+            }
+        }
+
         public static USBControl ThisPage { get; private set; }
         private bool IsAdding = false;
         private string RootFolderId;
         private CancellationTokenSource CancelToken;
         private AutoResetEvent Locker;
         public FileSystemTracker FolderTracker;
-        public FileSystemTracker FileTracker;
+        public FileSystemTracker ItemTracker;
         public AutoResetEvent ExpandLocker;
         private bool PauseTrace = false;
 
@@ -42,13 +49,13 @@ namespace USBManager
 
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
         {
-            if (FileTracker != null)
+            if (ItemTracker != null)
             {
-                FileTracker.Created -= FileTracker_Created;
-                FileTracker.Deleted -= FileTracker_Deleted;
-                FileTracker.Renamed -= FileTracker_Renamed;
-                FileTracker.Dispose();
-                FileTracker = null;
+                ItemTracker.Created -= ItemTracker_Created;
+                ItemTracker.Deleted -= ItemTracker_Deleted;
+                ItemTracker.Renamed -= ItemTracker_Renamed;
+                ItemTracker.Dispose();
+                ItemTracker = null;
             }
 
             if (FolderTracker != null)
@@ -67,7 +74,9 @@ namespace USBManager
             Locker = new AutoResetEvent(false);
             ExpandLocker = new AutoResetEvent(false);
 
-            await DisplayItemsInFolder(FolderTree.RootNodes.FirstOrDefault());
+            var Node = FolderTree.RootNodes.FirstOrDefault();
+            (FolderTree.ContainerFromNode(Node) as TreeViewItem).IsSelected = true;
+            await DisplayItemsInFolder(Node);
         }
 
         private async void FolderTracker_Renamed(object sender, FileSystemRenameSet e)
@@ -191,13 +200,13 @@ namespace USBManager
             USBFilePresenter.ThisPage.FileCollection.Clear();
             USBFilePresenter.ThisPage.HasFile.Visibility = Visibility.Visible;
 
-            if (FileTracker != null)
+            if (ItemTracker != null)
             {
-                FileTracker.Created -= FileTracker_Created;
-                FileTracker.Deleted -= FileTracker_Deleted;
-                FileTracker.Renamed -= FileTracker_Renamed;
-                FileTracker.Dispose();
-                FileTracker = null;
+                ItemTracker.Created -= ItemTracker_Created;
+                ItemTracker.Deleted -= ItemTracker_Deleted;
+                ItemTracker.Renamed -= ItemTracker_Renamed;
+                ItemTracker.Dispose();
+                ItemTracker = null;
             }
 
             if (FolderTracker != null)
@@ -318,7 +327,7 @@ namespace USBManager
                     IsAdding = false;
                     return;
                 }
-                
+
                 if (IsAdding)
                 {
                     await Task.Run(() =>
@@ -327,6 +336,8 @@ namespace USBManager
                         {
                             CancelToken.Cancel();
                             Locker.WaitOne();
+                            CancelToken.Dispose();
+                            CancelToken = new CancellationTokenSource();
                         }
                     });
                 }
@@ -337,7 +348,6 @@ namespace USBManager
                     MainPage.ThisPage.IsNowSearching = false;
                 }
 
-                CurrentFolder = folder;
                 CurrentNode = Node;
                 USBFilePresenter.ThisPage.DisplayNode = CurrentNode;
 
@@ -362,43 +372,47 @@ namespace USBManager
                 IReadOnlyList<IStorageItem> FileList = null;
                 try
                 {
-                    FileList = await ItemQuery.GetItemsAsync().AsTask(CancelToken.Token);
+                    USBFilePresenter.ThisPage.FileCollection.HasMoreItems = false;
+                    FileList = await ItemQuery.GetItemsAsync(0, 50).AsTask(CancelToken.Token);
+                    await USBFilePresenter.ThisPage.FileCollection.SetStorageItemQuery(ItemQuery);
                 }
-                catch(TaskCanceledException)
+                catch (TaskCanceledException)
                 {
                     goto FLAG;
                 }
 
-                USBFilePresenter.ThisPage.HasFile.Visibility = FileList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-
                 if (!PauseTrace)
                 {
-                    if (FileTracker != null)
+                    if (ItemTracker != null)
                     {
-                        FileTracker.Created -= FileTracker_Created;
-                        FileTracker.Deleted -= FileTracker_Deleted;
-                        FileTracker.Renamed -= FileTracker_Renamed;
-                        FileTracker.Dispose();
-                        FileTracker = null;
+                        ItemTracker.Created -= ItemTracker_Created;
+                        ItemTracker.Deleted -= ItemTracker_Deleted;
+                        ItemTracker.Renamed -= ItemTracker_Renamed;
+                        ItemTracker.Dispose();
+                        ItemTracker = null;
                     }
 
-                    FileTracker = new FileSystemTracker(ItemQuery);
-                    FileTracker.Created += FileTracker_Created;
-                    FileTracker.Deleted += FileTracker_Deleted;
-                    FileTracker.Renamed += FileTracker_Renamed;
+                    ItemTracker = new FileSystemTracker(ItemQuery);
+                    ItemTracker.Created += ItemTracker_Created;
+                    ItemTracker.Deleted += ItemTracker_Deleted;
+                    ItemTracker.Renamed += ItemTracker_Renamed;
                 }
 
-                for (int i = 0; i < FileList.Count&& !CancelToken.IsCancellationRequested; i++)
+                USBFilePresenter.ThisPage.HasFile.Visibility = FileList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+                for (int i = 0; i < FileList.Count && !CancelToken.IsCancellationRequested; i++)
                 {
-                    USBFilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceStorageItem(FileList[i]));
+                    var Item = FileList[i];
+                    var Size = await Item.GetSizeDescriptionAsync();
+                    var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                    var ModifiedTime = await Item.GetModifiedTimeAsync();
+                    USBFilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceStorageItem(FileList[i], Size, Thumbnail, ModifiedTime));
                 }
             }
 
         FLAG:
             if (CancelToken.IsCancellationRequested)
             {
-                CancelToken.Dispose();
-                CancelToken = new CancellationTokenSource();
                 Locker.Set();
             }
             else
@@ -407,7 +421,7 @@ namespace USBManager
             }
         }
 
-        private void FileTracker_Renamed(object sender, FileSystemRenameSet e)
+        private async void ItemTracker_Renamed(object sender, FileSystemRenameSet e)
         {
             for (int i = 0; i < e.ToDeleteFileList.Count; i++)
             {
@@ -437,11 +451,15 @@ namespace USBManager
 
             foreach (IStorageItem ExceptItem in e.ToAddFileList)
             {
-                USBFilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceStorageItem(ExceptItem));
+                var Size = await ExceptItem.GetSizeDescriptionAsync();
+                var Thumbnail = await ExceptItem.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                var ModifiedTime = await ExceptItem.GetModifiedTimeAsync();
+
+                USBFilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceStorageItem(ExceptItem, Size, Thumbnail, ModifiedTime));
             }
         }
 
-        private void FileTracker_Deleted(object sender, FileSystemChangeSet e)
+        private void ItemTracker_Deleted(object sender, FileSystemChangeSet e)
         {
             for (int i = 0; i < e.StorageItems.Count; i++)
             {
@@ -472,11 +490,15 @@ namespace USBManager
             }
         }
 
-        private void FileTracker_Created(object sender, FileSystemChangeSet e)
+        private async void ItemTracker_Created(object sender, FileSystemChangeSet e)
         {
             foreach (IStorageItem ExceptItem in e.StorageItems)
             {
-                USBFilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceStorageItem(ExceptItem));
+                var Size = await ExceptItem.GetSizeDescriptionAsync();
+                var Thumbnail = await ExceptItem.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                var ModifiedTime = await ExceptItem.GetModifiedTimeAsync();
+
+                USBFilePresenter.ThisPage.FileCollection.Insert(0, new RemovableDeviceStorageItem(ExceptItem, Size, Thumbnail, ModifiedTime));
             }
         }
 
@@ -499,12 +521,12 @@ namespace USBManager
             {
                 try
                 {
-                    FileTracker?.PauseDetection();
+                    ItemTracker?.PauseDetection();
                     FolderTracker?.PauseDetection();
 
-                    StorageFolder Folder = CurrentNode.Content as StorageFolder;
-                    await DeleteAllSubFilesAndFolders(Folder);
-                    await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    USBFilePresenter.ThisPage.FileCollection.Remove(USBFilePresenter.ThisPage.FileCollection.Where((Item) => Item.RelativeId == CurrentFolder.FolderRelativeId).FirstOrDefault());
+                    await CurrentFolder.DeleteAllSubFilesAndFolders();
+                    await CurrentFolder.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
                     if (USBFilePresenter.ThisPage.DisplayNode == CurrentNode)
                     {
@@ -529,24 +551,8 @@ namespace USBManager
                 }
                 finally
                 {
-                    FileTracker?.ResumeDetection();
+                    ItemTracker?.ResumeDetection();
                     FolderTracker?.ResumeDetection();
-                }
-            }
-        }
-
-        private async Task DeleteAllSubFilesAndFolders(StorageFolder Folder)
-        {
-            IReadOnlyList<IStorageItem> ItemList = await Folder.GetItemsAsync();
-            foreach (var Item in ItemList)
-            {
-                if (Item is StorageFolder folder)
-                {
-                    await DeleteAllSubFilesAndFolders(folder);
-                }
-                else
-                {
-                    await Item.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 }
             }
         }
@@ -557,11 +563,14 @@ namespace USBManager
             args.Node.HasUnrealizedChildren = true;
         }
 
-        private void FolderTree_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        private async void FolderTree_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
-            if ((CurrentNode = (e.OriginalSource as FrameworkElement)?.DataContext as TreeViewNode) != null)
+            var Node = (e.OriginalSource as FrameworkElement)?.DataContext as TreeViewNode;
+            if (Node != null)
             {
-                (FolderTree.ContainerFromNode(CurrentNode) as TreeViewItem).IsSelected = true;
+                (FolderTree.ContainerFromNode(Node) as TreeViewItem).IsSelected = true;
+                await DisplayItemsInFolder(Node);
+                CurrentNode = Node;
 
                 if (FolderTree.RootNodes.Contains(CurrentNode))
                 {
@@ -586,7 +595,7 @@ namespace USBManager
             {
                 return;
             }
-            var Folder = CurrentNode.Content as StorageFolder;
+            var Folder = CurrentFolder;
             RenameDialog renameDialog = new RenameDialog(Folder.Name);
             if (await renameDialog.ShowAsync() == ContentDialogResult.Primary)
             {
@@ -602,11 +611,15 @@ namespace USBManager
                     await content.ShowAsync();
                     return;
                 }
-                FileTracker?.PauseDetection();
+                ItemTracker?.PauseDetection();
                 FolderTracker?.PauseDetection();
+
+                var ItemInFileCollection = USBFilePresenter.ThisPage.FileCollection.Where((Item) => Item.RelativeId == Folder.FolderRelativeId).FirstOrDefault();
 
                 await Folder.RenameAsync(renameDialog.DesireName, NameCollisionOption.GenerateUniqueName);
                 StorageFolder ReCreateFolder = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
+
+                await ItemInFileCollection.UpdateRequested(ReCreateFolder);
 
                 var ChildCollection = CurrentNode.Parent.Children;
                 int index = CurrentNode.Parent.Children.IndexOf(CurrentNode);
@@ -650,18 +663,23 @@ namespace USBManager
                     ChildCollection.Remove(CurrentNode);
                 }
 
-                FileTracker?.ResumeDetection();
+                ItemTracker?.ResumeDetection();
                 FolderTracker?.ResumeDetection();
             }
         }
 
         private async void CreateFolder_Click(object sender, RoutedEventArgs e)
         {
-            FileTracker?.PauseDetection();
+            ItemTracker?.PauseDetection();
             FolderTracker?.PauseDetection();
 
-            var CurrentFolder = (CurrentNode.Content as StorageFolder);
             var NewFolder = await CurrentFolder.CreateFolderAsync("新建文件夹", CreationCollisionOption.GenerateUniqueName);
+
+            var Size = await NewFolder.GetSizeDescriptionAsync();
+            var Thumbnail = await NewFolder.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+            var ModifiedTime = await NewFolder.GetModifiedTimeAsync();
+
+            USBFilePresenter.ThisPage.FileCollection.Insert(0, new RemovableDeviceStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
 
             if (CurrentNode.IsExpanded || !CurrentNode.HasChildren)
             {
@@ -673,7 +691,7 @@ namespace USBManager
             }
             CurrentNode.IsExpanded = true;
 
-            FileTracker?.ResumeDetection();
+            ItemTracker?.ResumeDetection();
             FolderTracker?.ResumeDetection();
         }
     }

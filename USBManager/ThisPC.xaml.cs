@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -39,13 +40,26 @@ namespace USBManager
 
                 IReadOnlyList<StorageFolder> LibraryFolder = await CurrentUser.GetFoldersAsync();
 
-                LibraryFolderList.Add(new LibraryFolder(LibraryFolder.Where((Folder) => Folder.Name == "Desktop").FirstOrDefault()));
-                LibraryFolderList.Add(new LibraryFolder(LibraryFolder.Where((Folder) => Folder.Name == "Downloads").FirstOrDefault()));
-                LibraryFolderList.Add(new LibraryFolder(LibraryFolder.Where((Folder) => Folder.Name == "Videos").FirstOrDefault()));
-                LibraryFolderList.Add(new LibraryFolder(LibraryFolder.Where((Folder) => Folder.Name == "3D Objects").FirstOrDefault()));
-                LibraryFolderList.Add(new LibraryFolder(LibraryFolder.Where((Folder) => Folder.Name == "Pictures").FirstOrDefault()));
-                LibraryFolderList.Add(new LibraryFolder(LibraryFolder.Where((Folder) => Folder.Name == "Documents").FirstOrDefault()));
-                LibraryFolderList.Add(new LibraryFolder(LibraryFolder.Where((Folder) => Folder.Name == "Music").FirstOrDefault()));
+                var DesktopFolder = LibraryFolder.Where((Folder) => Folder.Name == "Desktop").FirstOrDefault();
+                LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync()));
+
+                var DownloadsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Downloads").FirstOrDefault();
+                LibraryFolderList.Add(new LibraryFolder(DownloadsFolder, await DownloadsFolder.GetThumbnailBitmapAsync()));
+
+                var VideosFolder = LibraryFolder.Where((Folder) => Folder.Name == "Videos").FirstOrDefault();
+                LibraryFolderList.Add(new LibraryFolder(VideosFolder, await VideosFolder.GetThumbnailBitmapAsync()));
+
+                var ObjectsFolder = LibraryFolder.Where((Folder) => Folder.Name == "3D Objects").FirstOrDefault();
+                LibraryFolderList.Add(new LibraryFolder(ObjectsFolder, await ObjectsFolder.GetThumbnailBitmapAsync()));
+
+                var PicturesFolder = LibraryFolder.Where((Folder) => Folder.Name == "Pictures").FirstOrDefault();
+                LibraryFolderList.Add(new LibraryFolder(PicturesFolder, await PicturesFolder.GetThumbnailBitmapAsync()));
+
+                var DocumentsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Documents").FirstOrDefault();
+                LibraryFolderList.Add(new LibraryFolder(DocumentsFolder, await DocumentsFolder.GetThumbnailBitmapAsync()));
+
+                var MusicFolder = LibraryFolder.Where((Folder) => Folder.Name == "Music").FirstOrDefault();
+                LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync()));
             }
             else
             {
@@ -56,7 +70,11 @@ namespace USBManager
             {
                 try
                 {
-                    HardDeviceList.Add(new HardDeviceInfo(await StorageFolder.GetFolderFromPathAsync((char)i + ":\\")));
+                    var Device = await StorageFolder.GetFolderFromPathAsync((char)i + ":\\");
+                    BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+
+                    HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
                 }
                 catch (Exception)
                 {

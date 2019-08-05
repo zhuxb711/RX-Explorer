@@ -235,7 +235,7 @@ namespace USBManager
         {
             LoadingActivation(true, "正在解压", true);
 
-            USBControl.ThisPage.FileTracker?.PauseDetection();
+            USBControl.ThisPage.ItemTracker?.PauseDetection();
             USBControl.ThisPage.FolderTracker?.PauseDetection();
 
             var file = GridControl.SelectedItem as ZipFileDisplay;
@@ -296,7 +296,7 @@ namespace USBManager
                                 }
 
                             });
-                            string RelativeId = (USBControl.ThisPage.CurrentNode.Content as StorageFolder).FolderRelativeId;
+                            string RelativeId = USBControl.ThisPage.CurrentFolder.FolderRelativeId;
 
                             foreach (var _ in from Node in USBControl.ThisPage.CurrentNode.Children
                                               where (Node.Content as StorageFolder).FolderRelativeId == NewFolder.FolderRelativeId
@@ -327,7 +327,7 @@ namespace USBManager
                 }
             }
 
-            USBControl.ThisPage.FileTracker?.ResumeDetection();
+            USBControl.ThisPage.ItemTracker?.ResumeDetection();
             USBControl.ThisPage.FolderTracker?.ResumeDetection();
 
             await Task.Delay(1000);

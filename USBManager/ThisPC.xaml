@@ -40,7 +40,7 @@
                     <GridView.ItemTemplate>
                         <DataTemplate x:DataType="local:LibraryFolder">
                             <StackPanel Orientation="Horizontal" Width="220">
-                                <Image IsHitTestVisible="False" Height="60" Width="60" Source="{x:Bind Thumbnail,Mode=OneWay}" Stretch="Uniform"/>
+                                <Image IsHitTestVisible="False" Height="60" Width="60" Source="{x:Bind Thumbnail}" Stretch="Uniform"/>
                                 <StackPanel Orientation="Vertical" Margin="10,0,0,0">
                                     <TextBlock IsHitTestVisible="False" FontSize="17" Width="150" TextTrimming="CharacterEllipsis" Text="{x:Bind Name}"/>
                                     <TextBlock IsHitTestVisible="False" Width="150" FontSize="15" TextTrimming="CharacterEllipsis" Text="文件夹"/>
@@ -78,11 +78,11 @@
                     <GridView.ItemTemplate>
                         <DataTemplate x:DataType="local:HardDeviceInfo">
                             <StackPanel Orientation="Horizontal" Width="280">
-                                <Image IsHitTestVisible="False" Height="60" Width="60" Source="{x:Bind Thumbnail,Mode=OneWay}" Stretch="Uniform"/>
+                                <Image IsHitTestVisible="False" Height="60" Width="60" Source="{x:Bind Thumbnail}" Stretch="Uniform"/>
                                 <StackPanel Orientation="Vertical" Margin="10,0,0,0">
                                     <TextBlock IsHitTestVisible="False" FontSize="17" Width="200" TextTrimming="CharacterEllipsis" Text="{x:Bind Name}"/>
-                                    <ProgressBar Width="200" Height="13" IsHitTestVisible="False" Maximum="1" Minimum="0" Value="{x:Bind Percent,Mode=OneWay}"/>
-                                    <TextBlock IsHitTestVisible="False" Width="200" FontSize="15" TextTrimming="CharacterEllipsis" Text="{x:Bind StorageSpaceDescription,Mode=OneWay}"/>
+                                    <ProgressBar Width="200" Height="13" IsHitTestVisible="False" Maximum="1" Minimum="0" Value="{x:Bind Percent}"/>
+                                    <TextBlock IsHitTestVisible="False" Width="200" FontSize="15" TextTrimming="CharacterEllipsis" Text="{x:Bind StorageSpaceDescription}"/>
                                 </StackPanel>
                             </StackPanel>
                         </DataTemplate>
