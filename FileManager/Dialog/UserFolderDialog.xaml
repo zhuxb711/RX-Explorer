@@ -1,0 +1,21 @@
+﻿<ContentDialog
+    x:Class="FileManager.UserFolderDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FileManager"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{StaticResource DialogAcrylicBrush}"
+    Title="选择用户文件夹"
+    PrimaryButtonText="确定"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+
+    <Grid>
+        <StackPanel>
+            <TextBlock Text="无法自动确定用户文件夹"/>
+            <TextBlock Margin="0,5" Text="请手动指定用户"/>
+            <ComboBox Width="200" Name="UserCombo" DisplayMemberPath="Name"/>
+        </StackPanel>
+    </Grid>
+</ContentDialog>

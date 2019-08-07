@@ -1,0 +1,82 @@
+﻿<Page
+    x:Class="FileManager.ZipExplorer"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FileManager"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    mc:Ignorable="d"
+    NavigationCacheMode="Required"
+    Background="{StaticResource NavigationViewTopPaneBackground}">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="10*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="12*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Name="ZIPFileName" FontSize="25" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        <GridView Grid.Row="1" 
+                  Name="GridControl" 
+                  Grid.Column="1" 
+                  HorizontalAlignment="Stretch" 
+                  VerticalAlignment="Stretch"
+                  CanDrag="True"
+                  CanDragItems="True"
+                  CanReorderItems="True"
+                  IsTapEnabled="True"
+                  RightTapped="GridControl_RightTapped"
+                  SelectionChanged="GridControl_SelectionChanged">
+            <GridView.ItemTemplate>
+                <DataTemplate x:DataType="local:ZipFileDisplay" >
+                    <StackPanel Orientation="Vertical" Width="270" Padding="12">
+                        <TextBlock Text="{x:Bind Name}" FontSize="17"/>
+                        <TextBlock Text="{x:Bind Type}" FontSize="14"/>
+                        <TextBlock Text="{x:Bind IsCrypted}" FontSize="14"/>
+                        <TextBlock Text="{x:Bind CompresionSize}" FontSize="14"/>
+                        <TextBlock Text="{x:Bind ActualSize}" FontSize="14"/>
+                        <TextBlock Text="{x:Bind Time}" FontSize="14"/>
+                    </StackPanel>
+                </DataTemplate>
+            </GridView.ItemTemplate>
+            <GridView.ContextFlyout>
+                <CommandBarFlyout x:Name="CommandsFlyout" Placement="RightEdgeAlignedTop">
+                    <CommandBarFlyout.SecondaryCommands>
+                        <AppBarButton Icon="Bookmarks" Label="解压到当前目录" IsEnabled="{x:Bind Delete.IsEnabled,Mode=OneWay}" Name="Decompression" Click="Decompression_Click"/>
+                        <AppBarButton Icon="Delete" Label="删除" IsEnabled="False" Name="Delete" Click="Delete_Click"/>
+                        <AppBarButton Icon="Remote" Label="CRC文件完整性检验" IsEnabled="True" Name="Test" IsCompact="True">
+                            <AppBarButton.Flyout>
+                                <MenuFlyout ShowMode="Auto" Placement="Auto">
+                                    <MenuFlyoutItem Text="简单检查(速度快)" Name="Simple" Click="Test_Click"/>
+                                    <MenuFlyoutItem Text="完整检查(速度慢)" Name="Full" Click="Test_Click"/>
+                                </MenuFlyout>
+                            </AppBarButton.Flyout>
+                        </AppBarButton>
+                    </CommandBarFlyout.SecondaryCommands>
+                </CommandBarFlyout>
+            </GridView.ContextFlyout>
+
+        </GridView>
+        <TextBlock Name="HasFile" Grid.RowSpan="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="无文件" FontSize="25" Visibility="Collapsed" x:FieldModifier="Public"/>
+
+        <controls:Loading x:Name="LoadingControl" IsLoading="False" Grid.ColumnSpan="2" Grid.RowSpan="2">
+            <controls:Loading.Background>
+                <SolidColorBrush Color="Black" Opacity="0.5"/>
+            </controls:Loading.Background>
+            <StackPanel Orientation="Horizontal" Padding="12">
+                <Grid Margin="0,0,15,0">
+                    <ProgressRing Name="ProRing" IsActive="True" Foreground="White" Height="25" Width="25" />
+                </Grid>
+                <StackPanel>
+                    <TextBlock Name="ProgressInfo" FontSize="25" Foreground="White" VerticalAlignment="Center" TextAlignment="Center"/>
+                    <ProgressBar Name="ProBar" Margin="0,10,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </controls:Loading>
+
+    </Grid>
+</Page>

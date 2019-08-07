@@ -1,0 +1,22 @@
+﻿<Page
+    x:Class="FileManager.MediaPlayer"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    NavigationCacheMode="Required"
+    Background="{StaticResource NavigationViewTopPaneBackground}">
+
+    <Grid>
+        <MediaPlayerElement Stretch="Uniform" AutoPlay="True" Name="MVControl" AreTransportControlsEnabled="True" x:FieldModifier="Public" IsDoubleTapEnabled="True" DoubleTapped="MVControl_DoubleTapped"  VerticalAlignment="Stretch">
+            <MediaPlayerElement.TransportControls>
+                <MediaTransportControls IsFullWindowButtonVisible="True" IsZoomButtonVisible="False" IsSkipBackwardEnabled="True" IsSkipForwardEnabled="True" IsSkipForwardButtonVisible="True" IsSkipBackwardButtonVisible="True"/>
+            </MediaPlayerElement.TransportControls>
+        </MediaPlayerElement>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed" Name="MusicCover">
+            <Image Name="Cover" Width="250" Height="250"/>
+            <TextBlock Name="Display" Width="250" TextAlignment="Center" FontSize="23" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Margin="0,10,0,0"/>
+        </StackPanel>
+    </Grid>
+</Page>
