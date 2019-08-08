@@ -39,10 +39,7 @@ namespace FileManager
             this.IsZip = IsZip;
             if (IsZip)
             {
-                if (FileName != null)
-                {
-                    FName.Text = FileName + ".zip";
-                }
+                FName.Text = FileName + ".zip";
                 FName.SelectAll();
                 ZipCryption.SelectedIndex = 0;
                 ZipMethod.SelectedIndex = 2;

@@ -32,10 +32,8 @@ namespace FileManager
         private string RootFolderId;
         private CancellationTokenSource CancelToken;
         private AutoResetEvent Locker;
-        public FileSystemTracker FolderTracker;
-        public FileSystemTracker ItemTracker;
         public AutoResetEvent ExpandLocker;
-        private bool PauseTrace = false;
+        public bool ExpenderLockerReleaseRequest = false;
 
         public FileControl()
         {
@@ -43,29 +41,7 @@ namespace FileManager
             ThisPage = this;
             Nav.Navigate(typeof(FilePresenter), Nav, new DrillInNavigationTransitionInfo());
 
-            Application.Current.Suspending += Current_Suspending;
             Loaded += FileControl_Loaded;
-        }
-
-        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
-        {
-            if (ItemTracker != null)
-            {
-                ItemTracker.Created -= ItemTracker_Created;
-                ItemTracker.Deleted -= ItemTracker_Deleted;
-                ItemTracker.Renamed -= ItemTracker_Renamed;
-                ItemTracker.Dispose();
-                ItemTracker = null;
-            }
-
-            if (FolderTracker != null)
-            {
-                FolderTracker.Created -= FolderTracker_Created;
-                FolderTracker.Deleted -= FolderTracker_Deleted;
-                FolderTracker.Renamed -= FolderTracker_Renamed;
-                FolderTracker.Dispose();
-                FolderTracker = null;
-            }
         }
 
         private async void FileControl_Loaded(object sender, RoutedEventArgs e)
@@ -79,112 +55,13 @@ namespace FileManager
             await DisplayItemsInFolder(Node);
         }
 
-        private async void FolderTracker_Renamed(object sender, FileSystemRenameSet e)
-        {
-            foreach (StorageFolder NewFolder in e.ToAddFileList)
-            {
-                foreach (var Item in e.ToDeleteFileList)
-                {
-                    if (e.ParentNode.Children.Count == 0)
-                    {
-                        return;
-                    }
-
-                    var ChildCollection = e.ParentNode.Children;
-                    var TargetNode = e.ParentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == ((StorageFolder)Item).FolderRelativeId).FirstOrDefault();
-                    int index = e.ParentNode.Children.IndexOf(TargetNode);
-
-                    if (TargetNode.HasUnrealizedChildren)
-                    {
-                        ChildCollection.Insert(index, new TreeViewNode()
-                        {
-                            Content = NewFolder,
-                            HasUnrealizedChildren = true,
-                            IsExpanded = false
-                        });
-                        ChildCollection.Remove(TargetNode);
-                    }
-                    else if (TargetNode.HasChildren)
-                    {
-                        var NewNode = new TreeViewNode()
-                        {
-                            Content = NewFolder,
-                            HasUnrealizedChildren = false,
-                            IsExpanded = true
-                        };
-
-                        foreach (var SubNode in TargetNode.Children)
-                        {
-                            NewNode.Children.Add(SubNode);
-                        }
-
-                        ChildCollection.Insert(index, NewNode);
-                        ChildCollection.Remove(TargetNode);
-                        await NewNode.UpdateAllSubNodeFolder();
-                    }
-                    else
-                    {
-                        ChildCollection.Insert(index, new TreeViewNode()
-                        {
-                            Content = NewFolder,
-                            HasUnrealizedChildren = false,
-                            IsExpanded = false
-                        });
-                        ChildCollection.Remove(TargetNode);
-                    }
-                }
-            }
-        }
-
-        private void FolderTracker_Deleted(object sender, FileSystemChangeSet e)
-        {
-            foreach (StorageFolder OldFolder in e.StorageItems)
-            {
-                foreach (var SubNode in from SubNode in e.ParentNode.Children
-                                        where (SubNode.Content as StorageFolder).FolderRelativeId == OldFolder.FolderRelativeId
-                                        select SubNode)
-                {
-                    if (FolderTree.SelectedNodes.FirstOrDefault() == SubNode)
-                    {
-                        FilePresenter.ThisPage.FileCollection.Clear();
-                        FilePresenter.ThisPage.HasFile.Visibility = Visibility.Visible;
-                    }
-                    e.ParentNode.Children.Remove(SubNode);
-                }
-            }
-        }
-
-        private async void FolderTracker_Created(object sender, FileSystemChangeSet e)
-        {
-            foreach (StorageFolder NewFolder in e.StorageItems)
-            {
-                e.ParentNode.Children.Add(new TreeViewNode
-                {
-                    Content = NewFolder,
-                    HasUnrealizedChildren = (await NewFolder.GetFoldersAsync()).Count != 0
-                });
-            }
-        }
-
-        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             StorageFolder TargetFolder = e.Parameter as StorageFolder;
             InitializeTreeView(TargetFolder);
 
             MainPage.ThisPage.GlobeSearch.Visibility = Visibility.Visible;
             MainPage.ThisPage.GlobeSearch.PlaceholderText = "搜索" + TargetFolder.DisplayName;
-
-            if ((await KnownFolders.RemovableDevices.GetFoldersAsync()).Where((Folder) => Folder.FolderRelativeId == TargetFolder.FolderRelativeId).FirstOrDefault() == null)
-            {
-                PauseTrace = true;
-            }
-            else
-            {
-                FolderTracker = new FileSystemTracker(FolderTree.RootNodes.FirstOrDefault());
-                FolderTracker.Created += FolderTracker_Created;
-                FolderTracker.Deleted += FolderTracker_Deleted;
-                FolderTracker.Renamed += FolderTracker_Renamed;
-            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -195,30 +72,12 @@ namespace FileManager
 
             CurrentNode = null;
 
-            PauseTrace = false;
             MainPage.ThisPage.GlobeSearch.Visibility = Visibility.Collapsed;
 
             FolderTree.RootNodes.Clear();
             FilePresenter.ThisPage.FileCollection.Clear();
             FilePresenter.ThisPage.HasFile.Visibility = Visibility.Visible;
 
-            if (ItemTracker != null)
-            {
-                ItemTracker.Created -= ItemTracker_Created;
-                ItemTracker.Deleted -= ItemTracker_Deleted;
-                ItemTracker.Renamed -= ItemTracker_Renamed;
-                ItemTracker.Dispose();
-                ItemTracker = null;
-            }
-
-            if (FolderTracker != null)
-            {
-                FolderTracker.Created -= FolderTracker_Created;
-                FolderTracker.Deleted -= FolderTracker_Deleted;
-                FolderTracker.Renamed -= FolderTracker_Renamed;
-                FolderTracker.Dispose();
-                FolderTracker = null;
-            }
         }
 
         /// <summary>
@@ -305,7 +164,12 @@ namespace FileManager
                     args.Node.Children.Add(new TreeViewNode() { Content = new EmptyDeviceDisplay() });
                 }
             }
-            ExpandLocker.Set();
+
+            if (ExpenderLockerReleaseRequest)
+            {
+                ExpenderLockerReleaseRequest = false;
+                ExpandLocker.Set();
+            }
         }
 
         private async void FileTree_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
@@ -383,23 +247,6 @@ namespace FileManager
                     goto FLAG;
                 }
 
-                if (!PauseTrace)
-                {
-                    if (ItemTracker != null)
-                    {
-                        ItemTracker.Created -= ItemTracker_Created;
-                        ItemTracker.Deleted -= ItemTracker_Deleted;
-                        ItemTracker.Renamed -= ItemTracker_Renamed;
-                        ItemTracker.Dispose();
-                        ItemTracker = null;
-                    }
-
-                    ItemTracker = new FileSystemTracker(ItemQuery);
-                    ItemTracker.Created += ItemTracker_Created;
-                    ItemTracker.Deleted += ItemTracker_Deleted;
-                    ItemTracker.Renamed += ItemTracker_Renamed;
-                }
-
                 FilePresenter.ThisPage.HasFile.Visibility = FileList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
                 for (int i = 0; i < FileList.Count && !CancelToken.IsCancellationRequested; i++)
@@ -423,87 +270,6 @@ namespace FileManager
             }
         }
 
-        private async void ItemTracker_Renamed(object sender, FileSystemRenameSet e)
-        {
-            for (int i = 0; i < e.ToDeleteFileList.Count; i++)
-            {
-                for (int j = 0; j < FilePresenter.ThisPage.FileCollection.Count; j++)
-                {
-                    switch (e.ToDeleteFileList[i])
-                    {
-                        case StorageFile File:
-                            if (FilePresenter.ThisPage.FileCollection[j].RelativeId == File.FolderRelativeId)
-                            {
-                                FilePresenter.ThisPage.FileCollection.RemoveAt(j);
-                                j--;
-                            }
-
-                            break;
-                        case StorageFolder Folder:
-                            if (FilePresenter.ThisPage.FileCollection[j].RelativeId == Folder.FolderRelativeId)
-                            {
-                                FilePresenter.ThisPage.FileCollection.RemoveAt(j);
-                                j--;
-                            }
-
-                            break;
-                    }
-                }
-            }
-
-            foreach (IStorageItem ExceptItem in e.ToAddFileList)
-            {
-                var Size = await ExceptItem.GetSizeDescriptionAsync();
-                var Thumbnail = await ExceptItem.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                var ModifiedTime = await ExceptItem.GetModifiedTimeAsync();
-
-                FilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceStorageItem(ExceptItem, Size, Thumbnail, ModifiedTime));
-            }
-        }
-
-        private void ItemTracker_Deleted(object sender, FileSystemChangeSet e)
-        {
-            for (int i = 0; i < e.StorageItems.Count; i++)
-            {
-                for (int j = 0; j < FilePresenter.ThisPage.FileCollection.Count; j++)
-                {
-                    RemovableDeviceStorageItem DeviceFile = FilePresenter.ThisPage.FileCollection[j];
-
-                    switch (e.StorageItems[i])
-                    {
-                        case StorageFile File:
-                            if (DeviceFile.RelativeId == File.FolderRelativeId)
-                            {
-                                FilePresenter.ThisPage.FileCollection.Remove(DeviceFile);
-                                j--;
-                            }
-
-                            break;
-                        case StorageFolder Folder:
-                            if (DeviceFile.RelativeId == Folder.FolderRelativeId)
-                            {
-                                FilePresenter.ThisPage.FileCollection.Remove(DeviceFile);
-                                j--;
-                            }
-
-                            break;
-                    }
-                }
-            }
-        }
-
-        private async void ItemTracker_Created(object sender, FileSystemChangeSet e)
-        {
-            foreach (IStorageItem ExceptItem in e.StorageItems)
-            {
-                var Size = await ExceptItem.GetSizeDescriptionAsync();
-                var Thumbnail = await ExceptItem.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                var ModifiedTime = await ExceptItem.GetModifiedTimeAsync();
-
-                FilePresenter.ThisPage.FileCollection.Insert(0, new RemovableDeviceStorageItem(ExceptItem, Size, Thumbnail, ModifiedTime));
-            }
-        }
-
         private async void FolderDelete_Click(object sender, RoutedEventArgs e)
         {
             if (CurrentNode == null)
@@ -523,9 +289,6 @@ namespace FileManager
             {
                 try
                 {
-                    ItemTracker?.PauseDetection();
-                    FolderTracker?.PauseDetection();
-
                     FilePresenter.ThisPage.FileCollection.Remove(FilePresenter.ThisPage.FileCollection.Where((Item) => Item.RelativeId == CurrentFolder.FolderRelativeId).FirstOrDefault());
                     await CurrentFolder.DeleteAllSubFilesAndFolders();
                     await CurrentFolder.DeleteAsync(StorageDeleteOption.PermanentDelete);
@@ -538,6 +301,20 @@ namespace FileManager
 
                     TreeViewNode ParentNode = CurrentNode.Parent;
                     ParentNode.Children.Remove(CurrentNode);
+
+                    while (true)
+                    {
+                        if (FolderTree.ContainerFromNode(ParentNode) is TreeViewItem Item)
+                        {
+                            Item.IsSelected = true;
+                            await DisplayItemsInFolder(ParentNode);
+                            break;
+                        }
+                        else
+                        {
+                            await Task.Delay(200);
+                        }
+                    }
                     CurrentNode = ParentNode;
                 }
                 catch (Exception)
@@ -551,11 +328,6 @@ namespace FileManager
                     };
                     _ = await Dialog.ShowAsync();
                 }
-                finally
-                {
-                    ItemTracker?.ResumeDetection();
-                    FolderTracker?.ResumeDetection();
-                }
             }
         }
 
@@ -567,8 +339,7 @@ namespace FileManager
 
         private async void FolderTree_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
-            var Node = (e.OriginalSource as FrameworkElement)?.DataContext as TreeViewNode;
-            if (Node != null)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
             {
                 (FolderTree.ContainerFromNode(Node) as TreeViewItem).IsSelected = true;
                 await DisplayItemsInFolder(Node);
@@ -613,15 +384,9 @@ namespace FileManager
                     await content.ShowAsync();
                     return;
                 }
-                ItemTracker?.PauseDetection();
-                FolderTracker?.PauseDetection();
-
-                var ItemInFileCollection = FilePresenter.ThisPage.FileCollection.Where((Item) => Item.RelativeId == Folder.FolderRelativeId).FirstOrDefault();
 
                 await Folder.RenameAsync(renameDialog.DesireName, NameCollisionOption.GenerateUniqueName);
                 StorageFolder ReCreateFolder = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
-
-                await ItemInFileCollection.UpdateRequested(ReCreateFolder);
 
                 var ChildCollection = CurrentNode.Parent.Children;
                 int index = CurrentNode.Parent.Children.IndexOf(CurrentNode);
@@ -664,17 +429,11 @@ namespace FileManager
                     });
                     ChildCollection.Remove(CurrentNode);
                 }
-
-                ItemTracker?.ResumeDetection();
-                FolderTracker?.ResumeDetection();
             }
         }
 
         private async void CreateFolder_Click(object sender, RoutedEventArgs e)
         {
-            ItemTracker?.PauseDetection();
-            FolderTracker?.PauseDetection();
-
             var NewFolder = await CurrentFolder.CreateFolderAsync("新建文件夹", CreationCollisionOption.GenerateUniqueName);
 
             var Size = await NewFolder.GetSizeDescriptionAsync();
@@ -692,9 +451,6 @@ namespace FileManager
                 });
             }
             CurrentNode.IsExpanded = true;
-
-            ItemTracker?.ResumeDetection();
-            FolderTracker?.ResumeDetection();
         }
     }
 

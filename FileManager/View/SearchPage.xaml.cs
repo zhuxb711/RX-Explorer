@@ -139,8 +139,20 @@ namespace FileManager
                 else
                 {
                     FileControl.ThisPage.CurrentNode = TargetNode;
-                    (FileControl.ThisPage.FolderTree.ContainerFromNode(FileControl.ThisPage.CurrentNode) as TreeViewItem).IsSelected = true;
-                    await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode);
+
+                    while (true)
+                    {
+                        if (FileControl.ThisPage.FolderTree.ContainerFromNode(FileControl.ThisPage.CurrentNode) is TreeViewItem Item)
+                        {
+                            Item.IsSelected = true;
+                            await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode);
+                            break;
+                        }
+                        else
+                        {
+                            await Task.Delay(200);
+                        }
+                    }
                 }
             }
             else
@@ -201,6 +213,7 @@ namespace FileManager
         {
             if (Node.HasUnrealizedChildren && !Node.IsExpanded)
             {
+                FileControl.ThisPage.ExpenderLockerReleaseRequest = true;
                 Node.IsExpanded = true;
             }
             else
@@ -210,18 +223,18 @@ namespace FileManager
 
             await Task.Run(() =>
             {
-                FileControl.ThisPage.ExpandLocker.WaitOne(1000);
+                FileControl.ThisPage.ExpandLocker.WaitOne();
             });
 
             string NextPathLevel = Analysis.NextPathLevel();
 
             if (NextPathLevel == Analysis.FullPath)
             {
-                return Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
+                return (Node.Content as StorageFolder).Path == NextPathLevel ? Node : Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
             }
             else
             {
-                return await FindFolderLocationInTree(Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault(), Analysis);
+                return await FindFolderLocationInTree((Node.Content as StorageFolder).Path == NextPathLevel ? Node : Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault(), Analysis);
             }
         }
 

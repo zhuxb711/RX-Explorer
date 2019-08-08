@@ -19,11 +19,11 @@
             <AppBarButton Icon="Cut" ToolTipService.ToolTip="剪切" Click="Cut_Click" IsEnabled="{x:Bind Cut.IsEnabled,Mode=OneWay}"/>
             <CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Bullets" Label="多选/单选" Name="MulSelection" Click="MulSelection_Click"/>
-                <AppBarButton Icon="Delete" Label="删除" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="Delete_Click"/>
+                <AppBarButton Icon="Delete" Label="删除" IsEnabled="False" x:Name="DeleteButton" Click="Delete_Click"/>
                 <AppBarButton Icon="Edit" Label="重命名" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="Rename_Click"/>
                 <AppBarButton Icon="ProtectedDocument" Name="AES" Label="AES加密" Click="AES_Click" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}"/>
                 <AppBarButton Icon="Share" Label="蓝牙分享" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="BluetoothShare_Click"/>
-                <AppBarButton Icon="Bookmarks" Label="Zip压缩/解压" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="Zip_Click"/>
+                <AppBarButton Icon="Bookmarks" x:Name="Zip" Label="Zip压缩" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="Zip_Click"/>
                 <AppBarButton Icon="Switch" Name="Transcode" Label="媒体转码" IsEnabled="False" Click="Transcode_Click"/>
                 <AppBarButton Icon="Tag" Name="Attribute" Label="属性" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="Attribute_Click"/>
             </CommandBarFlyout.SecondaryCommands>
@@ -69,7 +69,7 @@
                   DoubleTapped="GridViewControl_DoubleTapped"
                   x:FieldModifier="Public"
                   IncrementalLoadingTrigger="Edge"
-                  DataFetchSize="2"
+                  DataFetchSize="1.5"
                   DragItemsStarting="GridViewControl_DragItemsStarting">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="local:RemovableDeviceStorageItem">

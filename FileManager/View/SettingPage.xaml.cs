@@ -27,11 +27,6 @@ namespace FileManager
                 SearchNum.Items.Add("前" + (i * 10) + "项结果");
             }
 
-            if (ApplicationData.Current.LocalSettings.Values["EnableTrace"] is bool EnableTrace)
-            {
-                TraceSwitch.IsOn = EnableTrace;
-            }
-
             if (ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] is string MaxNum)
             {
                 SearchNum.SelectedIndex = SearchNum.Items.IndexOf(SearchNum.Items.Where((Item) => Item.ToString().Contains(MaxNum)).FirstOrDefault());
@@ -125,18 +120,6 @@ namespace FileManager
                 },
             };
             ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-        }
-
-        private void TraceSwitch_Toggled(object sender, RoutedEventArgs e)
-        {
-            if (TraceSwitch.IsOn)
-            {
-                ApplicationData.Current.LocalSettings.Values["EnableTrace"] = true;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["EnableTrace"] = false;
-            }
         }
 
         private void SearchNum_SelectionChanged(object sender, SelectionChangedEventArgs e)

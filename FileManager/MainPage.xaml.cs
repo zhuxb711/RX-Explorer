@@ -39,11 +39,6 @@ namespace FileManager
 
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            if (ApplicationData.Current.LocalSettings.Values["EnableTrace"] == null)
-            {
-                ApplicationData.Current.LocalSettings.Values["EnableTrace"] = true;
-            }
-
             if (ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] == null)
             {
                 ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] = Convert.ToString(100);

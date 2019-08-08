@@ -235,9 +235,6 @@ namespace FileManager
         {
             LoadingActivation(true, "正在解压", true);
 
-            FileControl.ThisPage.ItemTracker?.PauseDetection();
-            FileControl.ThisPage.FolderTracker?.PauseDetection();
-
             var file = GridControl.SelectedItem as ZipFileDisplay;
             using (var ZipFileStream = (await OriginFile.File.OpenStreamForReadAsync()))
             {
@@ -326,9 +323,6 @@ namespace FileManager
                     zipFile.Close();
                 }
             }
-
-            FileControl.ThisPage.ItemTracker?.ResumeDetection();
-            FileControl.ThisPage.FolderTracker?.ResumeDetection();
 
             await Task.Delay(1000);
             LoadingActivation(false);
