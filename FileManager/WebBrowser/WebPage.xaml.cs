@@ -454,7 +454,8 @@ namespace FileManager
             {
                 Content = "导航失败，请检查网址或网络连接",
                 Title = "提示",
-                CloseButtonText = "确定"
+                CloseButtonText = "确定",
+                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
             };
             WebBrowser.Navigate(new Uri("about:blank"));
             await dialog.ShowAsync();
@@ -466,7 +467,8 @@ namespace FileManager
             {
                 Content = "浏览器进程意外终止\r将自动重启并返回主页",
                 Title = "提示",
-                CloseButtonText = "确定"
+                CloseButtonText = "确定",
+                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
             };
             await dialog.ShowAsync();
             WebBrowser = new WebView(WebViewExecutionMode.SeparateProcess);
@@ -665,7 +667,8 @@ namespace FileManager
                 {
                     Content = "导航失败，请检查网址或网络连接",
                     Title = "提示",
-                    CloseButtonText = "确定"
+                    CloseButtonText = "确定",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                 };
                 _ = dialog.ShowAsync();
                 WebBrowser.Navigate(new Uri("about:blank"));
@@ -761,7 +764,8 @@ namespace FileManager
                 {
                     Content = "检测到长时间运行的JavaScript脚本，可能会导致应用无响应，已自动终止",
                     Title = "警告",
-                    CloseButtonText = "确定"
+                    CloseButtonText = "确定",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                 };
                 await dialog.ShowAsync();
             }
@@ -774,7 +778,8 @@ namespace FileManager
                 Content = "SmartScreen筛选器将该页面标记为不安全",
                 Title = "警告",
                 CloseButtonText = "继续访问",
-                PrimaryButtonText = "返回主页"
+                PrimaryButtonText = "返回主页",
+                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
             };
             dialog.PrimaryButtonClick += (s, e) =>
             {
@@ -799,43 +804,96 @@ namespace FileManager
 
         private async void WebBrowser_PermissionRequested(WebView sender, WebViewPermissionRequestedEventArgs args)
         {
-            if (args.PermissionRequest.PermissionType == WebViewPermissionType.Geolocation)
+            switch (args.PermissionRequest.PermissionType)
             {
-                ContentDialog dialog = new ContentDialog
-                {
-                    Content = "网站请求获取您的精确GPS定位",
-                    Title = "权限",
-                    CloseButtonText = "拒绝",
-                    PrimaryButtonText = "允许"
-                };
-                dialog.PrimaryButtonClick += (s, e) =>
-                {
-                    args.PermissionRequest.Allow();
-                };
-                dialog.CloseButtonClick += (s, e) =>
-                {
+                case WebViewPermissionType.Geolocation:
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Content = "网站请求获取您的精确GPS定位",
+                            Title = "权限",
+                            CloseButtonText = "拒绝",
+                            PrimaryButtonText = "允许",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        dialog.PrimaryButtonClick += (s, e) =>
+                        {
+                            args.PermissionRequest.Allow();
+                        };
+                        dialog.CloseButtonClick += (s, e) =>
+                        {
+                            args.PermissionRequest.Deny();
+                        };
+                        await dialog.ShowAsync();
+                        break;
+                    }
+
+                case WebViewPermissionType.WebNotifications:
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Content = "网站请求Web通知权限",
+                            Title = "权限",
+                            CloseButtonText = "拒绝",
+                            PrimaryButtonText = "允许",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        dialog.PrimaryButtonClick += (s, e) =>
+                        {
+                            args.PermissionRequest.Allow();
+                        };
+                        dialog.CloseButtonClick += (s, e) =>
+                        {
+                            args.PermissionRequest.Deny();
+                        };
+                        await dialog.ShowAsync();
+                        break;
+                    }
+                case WebViewPermissionType.Media:
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Content = "网站请求媒体播放权限",
+                            Title = "权限",
+                            CloseButtonText = "拒绝",
+                            PrimaryButtonText = "允许",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        dialog.PrimaryButtonClick += (s, e) =>
+                        {
+                            args.PermissionRequest.Allow();
+                        };
+                        dialog.CloseButtonClick += (s, e) =>
+                        {
+                            args.PermissionRequest.Deny();
+                        };
+                        await dialog.ShowAsync();
+                        break;
+                    }
+                case WebViewPermissionType.Screen:
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Content = "网站请求屏幕截图权限",
+                            Title = "权限",
+                            CloseButtonText = "拒绝",
+                            PrimaryButtonText = "允许",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        dialog.PrimaryButtonClick += (s, e) =>
+                        {
+                            args.PermissionRequest.Allow();
+                        };
+                        dialog.CloseButtonClick += (s, e) =>
+                        {
+                            args.PermissionRequest.Deny();
+                        };
+                        await dialog.ShowAsync();
+                        break;
+                    }
+                default:
                     args.PermissionRequest.Deny();
-                };
-                await dialog.ShowAsync();
-            }
-            else if (args.PermissionRequest.PermissionType == WebViewPermissionType.WebNotifications)
-            {
-                ContentDialog dialog = new ContentDialog
-                {
-                    Content = "网站请求Web通知权限",
-                    Title = "权限",
-                    CloseButtonText = "拒绝",
-                    PrimaryButtonText = "允许"
-                };
-                dialog.PrimaryButtonClick += (s, e) =>
-                {
-                    args.PermissionRequest.Allow();
-                };
-                dialog.CloseButtonClick += (s, e) =>
-                {
-                    args.PermissionRequest.Deny();
-                };
-                await dialog.ShowAsync();
+                    break;
             }
         }
 
@@ -848,7 +906,8 @@ namespace FileManager
                     Content = "蓝牙功能尚未开启，是否前往设置开启？",
                     Title = "提示",
                     PrimaryButtonText = "确定",
-                    CloseButtonText = "取消"
+                    CloseButtonText = "取消",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                 };
                 if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
@@ -896,7 +955,8 @@ namespace FileManager
             {
                 Content = "所有缓存和历史记录数据均已清空",
                 Title = "提示",
-                CloseButtonText = "确定"
+                CloseButtonText = "确定",
+                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
             };
             await dialog.ShowAsync();
         }
@@ -905,9 +965,10 @@ namespace FileManager
         {
             ContentDialog dialog = new ContentDialog
             {
-                Content = "SmartLens浏览器\r\r具备SmartScreen保护和完整权限控制\r\r基于Microsoft Edge内核的轻型浏览器",
+                Content = "RX管理器内置浏览器\r\r具备SmartScreen保护和完整权限控制\r\r基于Microsoft Edge内核的轻型浏览器",
                 Title = "关于",
-                CloseButtonText = "确定"
+                CloseButtonText = "确定",
+                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
             };
             await dialog.ShowAsync();
         }

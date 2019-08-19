@@ -178,16 +178,46 @@
                 <ColumnDefinition Width="50"/>
                 <ColumnDefinition Width="10"/>
             </Grid.ColumnDefinitions>
-            <Button BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="0" Name="Back" Click="Back_Click" Style="{StaticResource ButtonRevealStyle}" Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}" IsEnabled="False">
+            <Button BorderThickness="1"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch" 
+                    Grid.Column="0" 
+                    Name="Back"
+                    Click="Back_Click"
+                    Style="{StaticResource ButtonRevealStyle}"
+                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}" 
+                    IsEnabled="False">
                 <SymbolIcon Symbol="Back"/>
             </Button>
-            <Button BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" Name="Forward" Click="Forward_Click"  Style="{StaticResource ButtonRevealStyle}" Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}" IsEnabled="False">
+            <Button BorderThickness="1" 
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch" 
+                    Grid.Column="1" 
+                    Name="Forward" 
+                    Click="Forward_Click"  
+                    Style="{StaticResource ButtonRevealStyle}" 
+                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}" 
+                    IsEnabled="False">
                 <SymbolIcon Symbol="Forward"/>
             </Button>
-            <Button BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="2" Name="Home" Click="Home_Click"  Style="{StaticResource ButtonRevealStyle}" Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
+            <Button BorderThickness="1" 
+                    HorizontalAlignment="Stretch" 
+                    VerticalAlignment="Stretch" 
+                    Grid.Column="2" 
+                    Name="Home" 
+                    Click="Home_Click"  
+                    Style="{StaticResource ButtonRevealStyle}" 
+                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
                 <SymbolIcon Symbol="Home"/>
             </Button>
-            <Button BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="3" Name="Refresh" Click="Refresh_Click" Style="{StaticResource ButtonRevealStyle}" Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
+            <Button BorderThickness="1" 
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Grid.Column="3" 
+                    Name="Refresh" 
+                    Click="Refresh_Click" 
+                    Style="{StaticResource ButtonRevealStyle}"
+                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
                 <SymbolIcon Symbol="Refresh" Name="RefreshState"/>
             </Button>
             <ProgressRing Grid.Column="4" Name="Progress" Height="25" Width="25"/>
@@ -221,17 +251,47 @@
                     </FlyoutBase.AttachedFlyout>
                 </SymbolIcon>
             </Viewbox>
-            <Button ToolTipService.ToolTip="下载列表" Click="DownloadListButton_Click" Name="DownloadListButton" BorderThickness="1"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="7" Style="{StaticResource ButtonRevealStyle}" Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
+            <Button ToolTipService.ToolTip="下载列表" 
+                    Click="DownloadListButton_Click" 
+                    Name="DownloadListButton" 
+                    BorderThickness="1"  
+                    HorizontalAlignment="Stretch" 
+                    VerticalAlignment="Stretch" 
+                    Grid.Column="7" 
+                    Style="{StaticResource ButtonRevealStyle}"
+                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE896;"/>
             </Button>
-            <Button ToolTipService.ToolTip="收藏夹" BorderThickness="1" Click="FavoutiteListButton_Click" Name="FavoutiteListButton" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="8" Style="{StaticResource ButtonRevealStyle}" Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
+            <Button ToolTipService.ToolTip="收藏夹" 
+                    BorderThickness="1" 
+                    Click="FavoutiteListButton_Click" 
+                    Name="FavoutiteListButton"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch" 
+                    Grid.Column="8" 
+                    Style="{StaticResource ButtonRevealStyle}"
+                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE728;"/>
             </Button>
-            <Button ToolTipService.ToolTip="设置" BorderThickness="1" HorizontalAlignment="Stretch" Name="Setting" Click="Setting_Click" VerticalAlignment="Stretch" Grid.Column="9" Style="{StaticResource ButtonRevealStyle}" Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
+            <Button ToolTipService.ToolTip="设置" 
+                    BorderThickness="1" 
+                    HorizontalAlignment="Stretch"
+                    Name="Setting"
+                    Click="Setting_Click" 
+                    VerticalAlignment="Stretch" 
+                    Grid.Column="9" 
+                    Style="{StaticResource ButtonRevealStyle}" 
+                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
                 <SymbolIcon Symbol="Setting"/>
             </Button>
         </Grid>
-        <SplitView Canvas.ZIndex="1" Grid.Row="1" Name="DownloadControl" PanePlacement="Right" OpenPaneLength="350" PaneBackground="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}" DisplayMode="Overlay">
+        <SplitView Canvas.ZIndex="1" 
+                   Grid.Row="1" 
+                   Name="DownloadControl" 
+                   PanePlacement="Right" 
+                   OpenPaneLength="350" 
+                   PaneBackground="{StaticResource SystemControlAcrylicElementMediumHighBrush}" 
+                   DisplayMode="Overlay">
             <SplitView.Pane>
                 <Grid>
                     <StackPanel Orientation="Vertical" Margin="20,15,20,10">
@@ -242,7 +302,15 @@
                 </Grid>
             </SplitView.Pane>
         </SplitView>
-        <SplitView PaneClosed="SettingControl_PaneClosed" PaneOpening="SettingControl_PaneOpening" Canvas.ZIndex="1" Grid.Row="1" Name="SettingControl" PanePlacement="Right" OpenPaneLength="320" PaneBackground="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}" DisplayMode="Overlay">
+        <SplitView PaneClosed="SettingControl_PaneClosed" 
+                   PaneOpening="SettingControl_PaneOpening" 
+                   Canvas.ZIndex="1" 
+                   Grid.Row="1" 
+                   Name="SettingControl" 
+                   PanePlacement="Right" 
+                   OpenPaneLength="320" 
+                   PaneBackground="{ThemeResource SystemControlAcrylicElementMediumHighBrush}" 
+                   DisplayMode="Overlay">
             <SplitView.Pane>
                 <ScrollViewer Name="Scroll" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Visible" IsVerticalScrollChainingEnabled="True">
                     <StackPanel Orientation="Vertical" Margin="20,15,10,0">
@@ -286,7 +354,13 @@
                 </ScrollViewer>
             </SplitView.Pane>
         </SplitView>
-        <SplitView Canvas.ZIndex="1" Grid.Row="1" Name="SplitControl" OpenPaneLength="320" PanePlacement="Right" PaneBackground="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}" DisplayMode="Overlay">
+        <SplitView Canvas.ZIndex="1" 
+                   Grid.Row="1" 
+                   Name="SplitControl" 
+                   OpenPaneLength="320" 
+                   PanePlacement="Right" 
+                   PaneBackground="{ThemeResource SystemControlAcrylicElementMediumHighBrush}" 
+                   DisplayMode="Overlay">
             <SplitView.Pane>
                 <Pivot Name="PivotControl" x:FieldModifier="public">
                     <PivotItem Header="收藏夹">
