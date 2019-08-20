@@ -106,7 +106,10 @@ namespace DownloaderProvider
 
         private string GetSizeDescription(long PropertiesSize)
         {
-            return PropertiesSize / 1024f < 1024 ? (PropertiesSize / 1024f).ToString("0.00") + " KB" : (PropertiesSize / 1048576 >= 1024 ? (PropertiesSize / 1073741824f).ToString("0.00") + " GB" : (PropertiesSize / 1048576f).ToString("0.00") + " MB");
+            return PropertiesSize / 1024f < 1024 ? Math.Round(PropertiesSize / 1024f, 2).ToString("0.00") + " KB" :
+            (PropertiesSize / 1048576f < 1024 ? Math.Round(PropertiesSize / 1048576f, 2).ToString("0.00") + " MB" :
+            (PropertiesSize / 1073741824f < 1024 ? Math.Round(PropertiesSize / 1073741824f, 2).ToString("0.00") + " GB" :
+            Math.Round(PropertiesSize / Convert.ToDouble(1099511627776), 2).ToString("0.00") + " TB"));
         }
 
         public async void StartDownload()

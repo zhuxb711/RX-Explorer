@@ -1,0 +1,67 @@
+﻿<ContentDialog
+    x:Class="FileManager.DeviceInfoDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FileManager"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    mc:Ignorable="d"
+    CloseButtonText="确定"
+    Background="{StaticResource DialogAcrylicBrush}">
+
+    <ContentDialog.Resources>
+        <Storyboard x:Name="Animation">
+            <DoubleAnimation Duration="0:0:0.7" 
+                             x:Name="DoubleAnimation"
+                             EnableDependentAnimation="True" 
+                             From="0"
+                             Storyboard.TargetName="RadialProgress"
+                             Storyboard.TargetProperty="Value">
+                <DoubleAnimation.EasingFunction>
+                    <CircleEase EasingMode="EaseInOut"></CircleEase>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+    </ContentDialog.Resources>
+    
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal">
+                <Image Width="40" Height="40" Name="Thumbnail"/>
+                <TextBlock Margin="10,0,0,0" FontSize="22" VerticalAlignment="Center" Name="DeviceName"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                <Border Width="20" Height="20" Background="DeepSkyBlue"/>
+                <TextBlock Text="已用空间" Margin="5,0,0,0"/>
+                <TextBlock x:Name="UsedByte" HorizontalTextAlignment="Center" Margin="10,0,0,0" Width="180"/>
+                <TextBlock x:Name="UsedSpace" HorizontalTextAlignment="Center" Margin="5,0,0,0" Width="80"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                <Border Width="20" Height="20" Background="LightGray"/>
+                <TextBlock Text="可用空间" Margin="5,0,0,0"/>
+                <TextBlock x:Name="FreeByte" HorizontalTextAlignment="Center" Margin="10,0,0,0" Width="180"/>
+                <TextBlock x:Name="FreeSpace" HorizontalTextAlignment="Center" Margin="5,0,0,0" Width="80"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="20,5,0,0">
+                <TextBlock Text="总计空间" Margin="5,0,0,0"/>
+                <TextBlock x:Name="TotalByte" HorizontalTextAlignment="Center" Margin="10,0,0,0" Width="180"/>
+                <TextBlock x:Name="TotalSpace" HorizontalTextAlignment="Center" Margin="5,0,0,0" Width="80"/>
+            </StackPanel>
+            <controls:RadialProgressBar x:Name="RadialProgress" 
+                                        Value="0" 
+                                        Foreground="DeepSkyBlue" 
+                                        Thickness="12" 
+                                        Minimum="0"
+                                        Maximum="100" 
+                                        Width="120" 
+                                        Height="120" 
+                                        Outline="LightGray" 
+                                        Margin="0,20,0,10"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="磁盘类型："/>
+                <TextBlock x:Name="DeviceType"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</ContentDialog>

@@ -938,9 +938,10 @@ namespace FileManager
         public static async Task<string> GetSizeDescriptionAsync(this IStorageItem Item)
         {
             BasicProperties Properties = await Item.GetBasicPropertiesAsync();
-            return Properties.Size / 1024f < 1024 ? Math.Round(Properties.Size / 1024f, 2).ToString() + " KB" :
-            (Properties.Size / 1048576f >= 1024 ? Math.Round(Properties.Size / 1073741824f, 2).ToString() + " GB" :
-            Math.Round(Properties.Size / 1048576f, 2).ToString() + " MB");
+            return Properties.Size / 1024f < 1024 ? Math.Round(Properties.Size / 1024f, 2).ToString("0.00") + " KB" :
+            (Properties.Size / 1048576f < 1024 ? Math.Round(Properties.Size / 1048576f, 2).ToString("0.00") + " MB" :
+            (Properties.Size / 1073741824f < 1024 ? Math.Round(Properties.Size / 1073741824f, 2).ToString("0.00") + " GB" :
+            Math.Round(Properties.Size / Convert.ToDouble(1099511627776), 2).ToString() + " TB"));
         }
 
         public static async Task<string> GetModifiedTimeAsync(this IStorageItem Item)
@@ -1235,6 +1236,10 @@ namespace FileManager
 
         public string Capacity { get; private set; }
 
+        public ulong TotalByte { get; private set; }
+
+        public ulong FreeByte { get; private set; }
+
         public string FreeSpace { get; private set; }
 
         public string StorageSpaceDescription
@@ -1255,16 +1260,20 @@ namespace FileManager
             Name = Device.DisplayName;
             Folder = Device;
             this.Thumbnail = Thumbnail;
-            Capacity = GetSizeDescription((ulong)PropertiesRetrieve["System.Capacity"]);
-            FreeSpace = GetSizeDescription((ulong)PropertiesRetrieve["System.FreeSpace"]);
-            Percent = 1 - (ulong)PropertiesRetrieve["System.FreeSpace"] / Convert.ToDouble(PropertiesRetrieve["System.Capacity"]);
+
+            TotalByte = (ulong)PropertiesRetrieve["System.Capacity"];
+            FreeByte = (ulong)PropertiesRetrieve["System.FreeSpace"];
+            Capacity = GetSizeDescription(TotalByte);
+            FreeSpace = GetSizeDescription(FreeByte);
+            Percent = 1 - FreeByte / Convert.ToDouble(TotalByte);
         }
 
         private string GetSizeDescription(ulong Size)
         {
-            return Size / 1024f < 1024 ? Math.Round(Size / 1024f, 2).ToString() + " KB" :
-            (Size / 1048576f >= 1024 ? Math.Round(Size / 1073741824f, 2).ToString() + " GB" :
-            Math.Round(Size / 1048576f, 2).ToString() + " MB");
+            return Size / 1024f < 1024 ? Math.Round(Size / 1024f, 2).ToString("0.00") + " KB" :
+            (Size / 1048576f < 1024 ? Math.Round(Size / 1048576f, 2).ToString("0.00") + " MB" :
+            (Size / 1073741824f < 1024 ? Math.Round(Size / 1073741824f, 2).ToString("0.00") + " GB" :
+            Math.Round(Size / Convert.ToDouble(1099511627776), 2).ToString("0.00") + " TB"));
         }
     }
 

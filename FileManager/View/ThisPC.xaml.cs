@@ -401,5 +401,28 @@ namespace FileManager
                 WebGridView.ContextFlyout = WebFlyout;
             }
         }
+
+        private async void Attribute_Click(object sender, RoutedEventArgs e)
+        {
+            DeviceInfoDialog Dialog = new DeviceInfoDialog(DeviceGrid.SelectedItem as HardDeviceInfo);
+            _ = await Dialog.ShowAsync();
+        }
+
+        private void DeviceGrid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Context)
+            {
+                DeviceGrid.SelectedIndex = HardDeviceList.IndexOf(Context);
+            }
+            else
+            {
+                DeviceGrid.SelectedIndex = -1;
+            }
+        }
+
+        private void DeviceGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Attribute.IsEnabled = DeviceGrid.SelectedIndex != -1;
+        }
     }
 }

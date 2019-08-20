@@ -171,6 +171,8 @@
                           IsItemClickEnabled="True"
                           IsDoubleTapEnabled="True"
                           IsRightTapEnabled="True"
+                          RightTapped="DeviceGrid_RightTapped"
+                          SelectionChanged="DeviceGrid_SelectionChanged"
                           DoubleTapped="DeviceGrid_DoubleTapped">
                     <GridView.ItemTemplate>
                         <DataTemplate x:DataType="local:HardDeviceInfo">
@@ -184,6 +186,13 @@
                             </StackPanel>
                         </DataTemplate>
                     </GridView.ItemTemplate>
+                    <GridView.ContextFlyout>
+                        <CommandBarFlyout Placement="RightEdgeAlignedTop">
+                            <CommandBarFlyout.SecondaryCommands>
+                                <AppBarButton Icon="Tag" Label="属性" x:Name="Attribute" Click="Attribute_Click"/>
+                            </CommandBarFlyout.SecondaryCommands>
+                        </CommandBarFlyout>
+                    </GridView.ContextFlyout>
                     <GridView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <ItemsWrapGrid MaximumRowsOrColumns="4" Orientation="Horizontal" HorizontalAlignment="Stretch"/>
