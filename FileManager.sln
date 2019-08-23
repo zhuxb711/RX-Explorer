@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaProcessingBackgroundTa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebDownloaderProvider", "DownloaderProvider\WebDownloaderProvider.csproj", "{B127736A-E045-4BD2-9746-B7225736551B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCV", "OpenCV\OpenCV.vcxproj", "{F9BE798F-758F-41D2-BE7E-24614FFA696F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -89,6 +91,24 @@ Global
 		{B127736A-E045-4BD2-9746-B7225736551B}.Release|x64.Build.0 = Release|x64
 		{B127736A-E045-4BD2-9746-B7225736551B}.Release|x86.ActiveCfg = Release|x86
 		{B127736A-E045-4BD2-9746-B7225736551B}.Release|x86.Build.0 = Release|x86
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Debug|ARM.ActiveCfg = Debug|ARM
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Debug|ARM.Build.0 = Debug|ARM
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Debug|ARM64.Build.0 = Debug|ARM64
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Debug|x64.ActiveCfg = Debug|x64
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Debug|x64.Build.0 = Debug|x64
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Debug|x86.ActiveCfg = Debug|Win32
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Debug|x86.Build.0 = Debug|Win32
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Release|Any CPU.ActiveCfg = Release|Win32
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Release|ARM.ActiveCfg = Release|ARM
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Release|ARM.Build.0 = Release|ARM
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Release|ARM64.ActiveCfg = Release|ARM64
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Release|ARM64.Build.0 = Release|ARM64
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Release|x64.ActiveCfg = Release|x64
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Release|x64.Build.0 = Release|x64
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Release|x86.ActiveCfg = Release|Win32
+		{F9BE798F-758F-41D2-BE7E-24614FFA696F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

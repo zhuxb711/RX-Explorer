@@ -255,7 +255,7 @@ namespace FileManager
                     var Size = await Item.GetSizeDescriptionAsync();
                     var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
                     var ModifiedTime = await Item.GetModifiedTimeAsync();
-                    FilePresenter.ThisPage.FileCollection.Add(new RemovableDeviceStorageItem(FileList[i], Size, Thumbnail, ModifiedTime));
+                    FilePresenter.ThisPage.FileCollection.Add(new FileSystemStorageItem(FileList[i], Size, Thumbnail, ModifiedTime));
                 }
             }
 
@@ -440,7 +440,7 @@ namespace FileManager
             var Thumbnail = await NewFolder.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
             var ModifiedTime = await NewFolder.GetModifiedTimeAsync();
 
-            FilePresenter.ThisPage.FileCollection.Insert(0, new RemovableDeviceStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
+            FilePresenter.ThisPage.FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
 
             if (CurrentNode.IsExpanded || !CurrentNode.HasChildren)
             {

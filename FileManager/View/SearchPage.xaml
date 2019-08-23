@@ -50,7 +50,7 @@
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="local:RemovableDeviceStorageItem">
+                <DataTemplate x:DataType="local:FileSystemStorageItem">
                     <Grid HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="4*"/>

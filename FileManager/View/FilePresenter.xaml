@@ -6,13 +6,14 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:controls1="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
     NavigationCacheMode="Required"
     Background="{StaticResource NavigationViewTopPaneBackground}">
 
     <Page.Resources>
         <local:SizeDisplayConverter x:Key="StateConverter" />
-        
+
         <CommandBarFlyout x:Name="CommandsFlyout" Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Copy" ToolTipService.ToolTip="复制" IsEnabled="{x:Bind Copy.IsEnabled,Mode=OneWay}"  Click="Copy_Click"/>
             <AppBarButton Icon="Paste" ToolTipService.ToolTip="粘贴" Click="Paste_Click" IsEnabled="{x:Bind Paste.IsEnabled,Mode=OneWay}"/>
@@ -22,7 +23,22 @@
                 <AppBarButton Icon="Delete" Label="删除" IsEnabled="False" x:Name="DeleteButton" Click="Delete_Click"/>
                 <AppBarButton Icon="Edit" Label="重命名" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="Rename_Click"/>
                 <AppBarButton Icon="ProtectedDocument" Name="AES" Label="AES加密" Click="AES_Click" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}"/>
-                <AppBarButton Icon="Share" Label="蓝牙分享" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="BluetoothShare_Click"/>
+                <AppBarButton Icon="Share" Label="共享" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout Placement="Right">
+                            <MenuFlyoutItem Text="WIFI共享" Name="WIFIShare" Click="WIFIShare_Click">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE701;"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Text="蓝牙共享" Click="BluetoothShare_Click">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE702;"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
                 <AppBarButton Icon="Bookmarks" x:Name="Zip" Label="Zip压缩" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="Zip_Click"/>
                 <AppBarButton Icon="Switch" Name="Transcode" Label="媒体转码" IsEnabled="False" Click="Transcode_Click"/>
                 <AppBarButton Icon="Tag" Name="Attribute" Label="属性" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="Attribute_Click"/>
@@ -72,7 +88,7 @@
                   DataFetchSize="1.5"
                   DragItemsStarting="GridViewControl_DragItemsStarting">
             <GridView.ItemTemplate>
-                <DataTemplate x:DataType="local:RemovableDeviceStorageItem">
+                <DataTemplate x:DataType="local:FileSystemStorageItem">
                     <StackPanel Width="250" Padding="12" Orientation="Horizontal" AllowDrop="True">
                         <Image IsHitTestVisible="False" VerticalAlignment="Center" Stretch="Uniform" Source="{x:Bind Thumbnail,Mode=OneWay}" Margin="0,5,5,0" Height="60" Width="60"/>
                         <StackPanel AllowDrop="True" Orientation="Vertical">
@@ -103,6 +119,27 @@
             <AppBarButton Icon="Edit" Label="重命名" Name="Rename" IsEnabled="False" Click="Rename_Click" Style="{StaticResource AppBarButtonRevealStyle}"/>
         </CommandBar>
         <TextBlock Name="HasFile" x:FieldModifier="public" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="无文件" FontSize="25" Visibility="Visible"/>
+        <controls1:TeachingTip Grid.Row="1"
+                               PreferredPlacement="Auto"
+                               Title="WIFI分享"
+                               HeroContentPlacement="Auto"
+                               Closed="QRTeachTip_Closed"
+                               Name="QRTeachTip">
+            <controls1:TeachingTip.HeroContent>
+                <Image Stretch="UniformToFill" Name="QRImage"/>
+            </controls1:TeachingTip.HeroContent>
+            <controls1:TeachingTip.Content>
+                <StackPanel HorizontalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBox VerticalAlignment="Center" Name="QRText" IsSpellCheckEnabled="False" IsReadOnly="True" Header="复制此链接至浏览器即可下载" Width="245"/>
+                        <Button VerticalAlignment="Bottom" Margin="5,0,0,0" Name="CopyLinkButton" Click="CopyLinkButton_Click">
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8C8;"/>
+                        </Button>
+                    </StackPanel>
+                    <TextBlock Margin="0,10,0,0" Text="传输过程中请勿关闭此窗口，否则将停止分享"/>
+                </StackPanel>
+            </controls1:TeachingTip.Content>
+        </controls1:TeachingTip>
         <controls:Loading x:Name="LoadingControl" IsLoading="False" Grid.Column="2" Grid.RowSpan="2">
             <controls:Loading.Background>
                 <SolidColorBrush Color="Black" Opacity="0.5"/>

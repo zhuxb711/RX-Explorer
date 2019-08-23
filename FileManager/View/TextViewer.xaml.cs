@@ -13,7 +13,7 @@ namespace FileManager
 {
     public sealed partial class TextViewer : Page
     {
-        private RemovableDeviceStorageItem SFile;
+        private FileSystemStorageItem SFile;
         public TextViewer()
         {
             InitializeComponent();
@@ -52,7 +52,7 @@ namespace FileManager
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is RemovableDeviceStorageItem SFile)
+            if (e.Parameter is FileSystemStorageItem SFile)
             {
                 this.SFile = SFile;
                 Title.Text = SFile.Name;

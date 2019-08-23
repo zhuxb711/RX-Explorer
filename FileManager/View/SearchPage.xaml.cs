@@ -18,7 +18,7 @@ namespace FileManager
 {
     public sealed partial class SearchPage : Page
     {
-        public ObservableCollection<RemovableDeviceStorageItem> SearchResult;
+        public ObservableCollection<FileSystemStorageItem> SearchResult;
         StorageItemQueryResult ItemQuery;
         CancellationTokenSource Cancellation;
 
@@ -40,7 +40,7 @@ namespace FileManager
         {
             InitializeComponent();
             ThisPage = this;
-            SearchResult = new ObservableCollection<RemovableDeviceStorageItem>();
+            SearchResult = new ObservableCollection<FileSystemStorageItem>();
             SearchResultList.ItemsSource = SearchResult;
         }
 
@@ -101,7 +101,7 @@ namespace FileManager
                     var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
                     var ModifiedTime = await Item.GetModifiedTimeAsync();
 
-                    SearchResult.Add(new RemovableDeviceStorageItem(Item, Size, Thumbnail, ModifiedTime));
+                    SearchResult.Add(new FileSystemStorageItem(Item, Size, Thumbnail, ModifiedTime));
                 }
             }
         }
@@ -120,7 +120,7 @@ namespace FileManager
 
         private async void Location_Click(object sender, RoutedEventArgs e)
         {
-            var RemoveFile = SearchResultList.SelectedItem as RemovableDeviceStorageItem;
+            var RemoveFile = SearchResultList.SelectedItem as FileSystemStorageItem;
 
             if (RemoveFile.ContentType == ContentType.Folder)
             {
@@ -195,7 +195,7 @@ namespace FileManager
             }
             else
             {
-                RemovableDeviceStorageItem Device = SelectedGroup.FirstOrDefault() as RemovableDeviceStorageItem;
+                FileSystemStorageItem Device = SelectedGroup.FirstOrDefault() as FileSystemStorageItem;
                 if (Device.File != null)
                 {
                     AttributeDialog Dialog = new AttributeDialog(Device.File);
@@ -240,7 +240,7 @@ namespace FileManager
 
         private void SearchResultList_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
-            RemovableDeviceStorageItem Context = (e.OriginalSource as FrameworkElement)?.DataContext as RemovableDeviceStorageItem;
+            FileSystemStorageItem Context = (e.OriginalSource as FrameworkElement)?.DataContext as FileSystemStorageItem;
             SearchResultList.SelectedIndex = SearchResult.IndexOf(Context);
             e.Handled = true;
         }

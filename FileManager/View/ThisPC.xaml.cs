@@ -424,5 +424,13 @@ namespace FileManager
         {
             Attribute.IsEnabled = DeviceGrid.SelectedIndex != -1;
         }
+
+        private void OpenDevice_Click(object sender, RoutedEventArgs e)
+        {
+            if (DeviceGrid.SelectedItem is HardDeviceInfo Device)
+            {
+                MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Device.Folder, new DrillInNavigationTransitionInfo());
+            }
+        }
     }
 }

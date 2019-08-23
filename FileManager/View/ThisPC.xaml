@@ -189,6 +189,7 @@
                     <GridView.ContextFlyout>
                         <CommandBarFlyout Placement="RightEdgeAlignedTop">
                             <CommandBarFlyout.SecondaryCommands>
+                                <AppBarButton Icon="BackToWindow" Label="打开" x:Name="OpenDevice" IsEnabled="{x:Bind Attribute.IsEnabled,Mode=OneWay}" Click="OpenDevice_Click"/>
                                 <AppBarButton Icon="Tag" Label="属性" x:Name="Attribute" Click="Attribute_Click"/>
                             </CommandBarFlyout.SecondaryCommands>
                         </CommandBarFlyout>

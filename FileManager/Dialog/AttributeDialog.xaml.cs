@@ -31,17 +31,18 @@ namespace FileManager
                     FileName = file.Name;
                     FileType = file.DisplayType + " (" + file.FileType + ")";
                     Path = file.Path;
-                    CreateTime = file.DateCreated.Year + "年" + file.DateCreated.Month + "月" + file.DateCreated.Day + "日, " + file.DateCreated.Hour + ":" + file.DateCreated.Minute + ":" + file.DateCreated.Second;
+                    CreateTime = file.DateCreated.Year + "年" + file.DateCreated.Month + "月" + file.DateCreated.Day + "日, " + file.DateCreated.Hour.ToString("D2") + ":" + file.DateCreated.Minute.ToString("D2") + ":" + file.DateCreated.Second.ToString("D2");
 
                     var Properties = await file.GetBasicPropertiesAsync();
 
-                    FileSize = Properties.Size / 1024f < 1024 ? Math.Round(Properties.Size / 1024f, 2).ToString() + " KB" :
-                (Properties.Size / 1048576f >= 1024 ? Math.Round(Properties.Size / 1073741824f, 2).ToString() + " GB" :
-                Math.Round(Properties.Size / 1048576f, 2).ToString() + " MB") + " (" + Properties.Size.ToString("N0") + " 字节)";
+                    FileSize = (Properties.Size / 1024f < 1024 ? Math.Round(Properties.Size / 1024f, 2).ToString("0.00") + " KB" :
+                    (Properties.Size / 1048576f < 1024 ? Math.Round(Properties.Size / 1048576f, 2).ToString("0.00") + " MB" :
+                    (Properties.Size / 1073741824f < 1024 ? Math.Round(Properties.Size / 1073741824f, 2).ToString("0.00") + " GB" :
+                    Math.Round(Properties.Size / Convert.ToDouble(1099511627776), 2).ToString() + " TB"))) + " (" + Properties.Size.ToString("N0") + " 字节)";
 
-                    ChangeTime = Properties.DateModified.Year + "年" + Properties.DateModified.Month + "月" + Properties.DateModified.Day + "日, " + (Properties.DateModified.Hour < 10 ? "0" + Properties.DateModified.Hour : Properties.DateModified.Hour.ToString()) + ":" + (Properties.DateModified.Minute < 10 ? "0" + Properties.DateModified.Minute : Properties.DateModified.Minute.ToString()) + ":" + (Properties.DateModified.Second < 10 ? "0" + Properties.DateModified.Second : Properties.DateModified.Second.ToString());
+                    ChangeTime = Properties.DateModified.Year + "年" + Properties.DateModified.Month + "月" + Properties.DateModified.Day + "日, " + Properties.DateModified.Hour.ToString("D2") + ":" + Properties.DateModified.Minute.ToString("D2") + ":" + Properties.DateModified.Second.ToString("D2");
                 }
-                else if(Item is StorageFolder folder)
+                else if (Item is StorageFolder folder)
                 {
                     Si.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                     Na.Text = "文件夹名";
@@ -49,10 +50,10 @@ namespace FileManager
 
                     FileName = folder.Name;
                     Path = folder.Path;
-                    CreateTime = folder.DateCreated.Year + "年" + folder.DateCreated.Month + "月" + folder.DateCreated.Day + "日, " + folder.DateCreated.Hour + ":" + folder.DateCreated.Minute + ":" + folder.DateCreated.Second;
+                    CreateTime = folder.DateCreated.Year + "年" + folder.DateCreated.Month + "月" + folder.DateCreated.Day + "日, " + folder.DateCreated.Hour.ToString("D2") + ":" + folder.DateCreated.Minute.ToString("D2") + ":" + folder.DateCreated.Second.ToString("D2");
 
                     var Properties = await folder.GetBasicPropertiesAsync();
-                    ChangeTime = Properties.DateModified.Year + "年" + Properties.DateModified.Month + "月" + Properties.DateModified.Day + "日, " + (Properties.DateModified.Hour < 10 ? "0" + Properties.DateModified.Hour : Properties.DateModified.Hour.ToString()) + ":" + (Properties.DateModified.Minute < 10 ? "0" + Properties.DateModified.Minute : Properties.DateModified.Minute.ToString()) + ":" + (Properties.DateModified.Second < 10 ? "0" + Properties.DateModified.Second : Properties.DateModified.Second.ToString());
+                    ChangeTime = Properties.DateModified.Year + "年" + Properties.DateModified.Month + "月" + Properties.DateModified.Day + "日, " + Properties.DateModified.Hour.ToString("D2") + ":" + Properties.DateModified.Minute.ToString("D2") + ":" + Properties.DateModified.Second.ToString("D2");
                 }
                 OnPropertyChanged();
             };

@@ -25,7 +25,29 @@ namespace FileManager
             InitializeComponent();
             Suspending += OnSuspending;
             ToastNotificationManager.History.Clear();
-            RequestedTheme = ApplicationTheme.Dark;
+            UnhandledException += App_UnhandledException;
+        }
+
+        private void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            if (!(Window.Current.Content is Frame rootFrame))
+            {
+                rootFrame = new Frame();
+
+                rootFrame.NavigationFailed += OnNavigationFailed;
+
+                Window.Current.Content = rootFrame;
+            }
+
+            string Message =
+                "\r以下是错误信息：\r\rException Code错误代码：" + e.Exception.HResult +
+                "\r\rMessage错误消息：" + e.Exception.Message +
+                "\r\rSource来源：" + (string.IsNullOrEmpty(e.Exception.Source) ? "Unknown" : e.Exception.Source) +
+                "\r\rStackTrace堆栈追踪：\r" + (string.IsNullOrEmpty(e.Exception.StackTrace) ? "Unknown" : e.Exception.StackTrace);
+
+            rootFrame.Navigate(typeof(BlueScreen), Message);
+
+            e.Handled = true;
         }
 
         /// <summary>

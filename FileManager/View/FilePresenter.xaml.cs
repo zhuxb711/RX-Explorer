@@ -1,5 +1,6 @@
 ﻿using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
+using OpenCV;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,22 +9,28 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.Radios;
+using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Search;
 using Windows.System;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
+using ZXing;
+using ZXing.QrCode;
+using ZXing.QrCode.Internal;
 
 namespace FileManager
 {
     public sealed partial class FilePresenter : Page
     {
-        public IncrementalLoadingCollection<RemovableDeviceStorageItem> FileCollection;
+        public IncrementalLoadingCollection<FileSystemStorageItem> FileCollection;
         public static FilePresenter ThisPage { get; private set; }
         public List<GridViewItem> ZipCollection = new List<GridViewItem>();
         public TreeViewNode DisplayNode;
@@ -33,6 +40,7 @@ namespace FileManager
         DispatcherTimer Ticker;
         Frame Nav;
         Queue<StorageFile> AddToZipQueue;
+        WiFiShareProvider WiFiProvider;
         const int AESCacheSize = 1048576;
         byte[] EncryptByteBuffer;
         byte[] DecryptByteBuffer;
@@ -42,24 +50,31 @@ namespace FileManager
             InitializeComponent();
             ThisPage = this;
 
-            FileCollection = new IncrementalLoadingCollection<RemovableDeviceStorageItem>(GetMoreItemsFunction);
+            FileCollection = new IncrementalLoadingCollection<FileSystemStorageItem>(GetMoreItemsFunction);
             GridViewControl.ItemsSource = FileCollection;
             FileCollection.CollectionChanged += FileCollection_CollectionChanged;
 
             //必须注册这个东西才能使用中文解码
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             ZipStrings.CodePage = 936;
+
+            Application.Current.Suspending += Current_Suspending;
         }
 
-        private async Task<IEnumerable<RemovableDeviceStorageItem>> GetMoreItemsFunction(uint Index, uint Num, StorageItemQueryResult Query)
+        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
         {
-            List<RemovableDeviceStorageItem> ItemList = new List<RemovableDeviceStorageItem>();
+            WiFiProvider.Dispose();
+        }
+
+        private async Task<IEnumerable<FileSystemStorageItem>> GetMoreItemsFunction(uint Index, uint Num, StorageItemQueryResult Query)
+        {
+            List<FileSystemStorageItem> ItemList = new List<FileSystemStorageItem>();
             foreach (var Item in await Query.GetItemsAsync(Index, Num))
             {
                 var Size = await Item.GetSizeDescriptionAsync();
                 var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
                 var ModifiedTime = await Item.GetModifiedTimeAsync();
-                ItemList.Add(new RemovableDeviceStorageItem(Item, Size, Thumbnail, ModifiedTime));
+                ItemList.Add(new FileSystemStorageItem(Item, Size, Thumbnail, ModifiedTime));
             }
             return ItemList;
         }
@@ -125,7 +140,7 @@ namespace FileManager
             {
                 CopyedQueue.Clear();
             }
-            foreach (RemovableDeviceStorageItem item in GridViewControl.SelectedItems)
+            foreach (FileSystemStorageItem item in GridViewControl.SelectedItems)
             {
                 CopyedQueue.Enqueue(item.File);
             }
@@ -153,11 +168,11 @@ namespace FileManager
                         await CutFile.MoveAsync(FileControl.ThisPage.CurrentFolder, CutFile.Name, NameCollisionOption.GenerateUniqueName);
                         if (FileCollection.Count > 0)
                         {
-                            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new RemovableDeviceStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
                         }
                         else
                         {
-                            FileCollection.Add(new RemovableDeviceStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                            FileCollection.Add(new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
                         }
                     }
                     catch (FileNotFoundException)
@@ -213,11 +228,11 @@ namespace FileManager
                         StorageFile NewFile = await CopyedFile.CopyAsync(FileControl.ThisPage.CurrentFolder, CopyedFile.Name, NameCollisionOption.GenerateUniqueName);
                         if (FileCollection.Count > 0)
                         {
-                            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new RemovableDeviceStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
                         }
                         else
                         {
-                            FileCollection.Add(new RemovableDeviceStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                            FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
                         }
                     }
                     catch (FileNotFoundException)
@@ -265,7 +280,7 @@ namespace FileManager
             {
                 CutQueue.Clear();
             }
-            foreach (RemovableDeviceStorageItem item in GridViewControl.SelectedItems)
+            foreach (FileSystemStorageItem item in GridViewControl.SelectedItems)
             {
                 CutQueue.Enqueue(item.File);
             }
@@ -290,8 +305,8 @@ namespace FileManager
             };
 
             contentDialog.Content = FileList.Count == 1
-                ? "此操作将永久删除 \"" + (FileList[0] as RemovableDeviceStorageItem).Name + " \"\r\r是否继续?"
-                : "此操作将永久删除 \"" + (FileList[0] as RemovableDeviceStorageItem).Name + "\" 等" + FileList.Count + "个文件\r\r是否继续?";
+                ? "此操作将永久删除 \"" + (FileList[0] as FileSystemStorageItem).Name + " \"\r\r是否继续?"
+                : "此操作将永久删除 \"" + (FileList[0] as FileSystemStorageItem).Name + "\" 等" + FileList.Count + "个文件\r\r是否继续?";
 
             if (await contentDialog.ShowAsync() == ContentDialogResult.Primary)
             {
@@ -299,7 +314,7 @@ namespace FileManager
 
                 foreach (var item in FileList)
                 {
-                    var file = (item as RemovableDeviceStorageItem).File;
+                    var file = (item as FileSystemStorageItem).File;
                     await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
                     for (int i = 0; i < FileCollection.Count; i++)
@@ -358,7 +373,7 @@ namespace FileManager
 
         private async void Rename_Click(object sender, RoutedEventArgs e)
         {
-            var file = (GridViewControl.SelectedItem as RemovableDeviceStorageItem).File;
+            var file = (GridViewControl.SelectedItem as FileSystemStorageItem).File;
             RenameDialog dialog = new RenameDialog(file.DisplayName, file.FileType);
             if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
@@ -377,7 +392,7 @@ namespace FileManager
 
                 await file.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
 
-                foreach (var Item in from RemovableDeviceStorageItem Item in FileCollection
+                foreach (var Item in from FileSystemStorageItem Item in FileCollection
                                      where Item.Name == dialog.DesireName
                                      select Item)
                 {
@@ -402,7 +417,7 @@ namespace FileManager
             List<object> FileList = new List<object>(GridViewControl.SelectedItems);
             Restore();
 
-            if (FileList.Any((File) => ((RemovableDeviceStorageItem)File).Type != ".sle") && FileList.Any((File) => ((RemovableDeviceStorageItem)File).Type == ".sle"))
+            if (FileList.Any((File) => ((FileSystemStorageItem)File).Type != ".sle") && FileList.Any((File) => ((FileSystemStorageItem)File).Type == ".sle"))
             {
                 ContentDialog dialog = new ContentDialog
                 {
@@ -415,7 +430,7 @@ namespace FileManager
                 return;
             }
 
-            foreach (var SelectedFile in from RemovableDeviceStorageItem AESFile in FileList select AESFile.File)
+            foreach (var SelectedFile in from FileSystemStorageItem AESFile in FileList select AESFile.File)
             {
                 int KeySizeRequest;
                 string KeyRequest;
@@ -453,15 +468,15 @@ namespace FileManager
                                     EncryptByteBuffer = new byte[FileStream.Length];
                                     FileStream.Read(EncryptByteBuffer, 0, EncryptByteBuffer.Length);
                                     await TargetFileStream.WriteAsync(Tail, 0, Tail.Length);
-                                    await TargetFileStream.WriteAsync(AESProvider.EncryptForUSB(PasswordFlag, KeyRequest, KeySizeRequest), 0, PasswordFlag.Length);
-                                    var EncryptedBytes = AESProvider.EncryptForUSB(EncryptByteBuffer, KeyRequest, KeySizeRequest);
+                                    await TargetFileStream.WriteAsync(AESProvider.ECBEncrypt(PasswordFlag, KeyRequest, KeySizeRequest), 0, PasswordFlag.Length);
+                                    var EncryptedBytes = AESProvider.ECBEncrypt(EncryptByteBuffer, KeyRequest, KeySizeRequest);
                                     await TargetFileStream.WriteAsync(EncryptedBytes, 0, EncryptedBytes.Length);
                                 }
                                 else
                                 {
                                     EncryptByteBuffer = new byte[Tail.Length];
                                     await TargetFileStream.WriteAsync(Tail, 0, Tail.Length);
-                                    await TargetFileStream.WriteAsync(AESProvider.EncryptForUSB(PasswordFlag, KeyRequest, KeySizeRequest), 0, PasswordFlag.Length);
+                                    await TargetFileStream.WriteAsync(AESProvider.ECBEncrypt(PasswordFlag, KeyRequest, KeySizeRequest), 0, PasswordFlag.Length);
 
                                     long BytesWrite = 0;
                                     EncryptByteBuffer = new byte[AESCacheSize];
@@ -477,7 +492,7 @@ namespace FileManager
                                         }
 
                                         BytesWrite += FileStream.Read(EncryptByteBuffer, 0, EncryptByteBuffer.Length);
-                                        var EncryptedBytes = AESProvider.EncryptForUSB(EncryptByteBuffer, KeyRequest, KeySizeRequest);
+                                        var EncryptedBytes = AESProvider.ECBEncrypt(EncryptByteBuffer, KeyRequest, KeySizeRequest);
                                         await TargetFileStream.WriteAsync(EncryptedBytes, 0, EncryptedBytes.Length);
                                     }
 
@@ -485,7 +500,7 @@ namespace FileManager
                             }
                         }
                     });
-                    FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new RemovableDeviceStorageItem(file, await file.GetSizeDescriptionAsync(), await file.GetThumbnailBitmapAsync(), await file.GetModifiedTimeAsync()));
+                    FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(file, await file.GetSizeDescriptionAsync(), await file.GetThumbnailBitmapAsync(), await file.GetModifiedTimeAsync()));
                 }
                 else
                 {
@@ -567,7 +582,7 @@ namespace FileManager
 
                             byte[] PasswordConfirm = new byte[16];
                             await FileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length);
-                            if (Encoding.UTF8.GetString(AESProvider.DecryptForUSB(PasswordConfirm, KeyRequest, EncryptKeySize)) != "PASSWORD_CORRECT")
+                            if (Encoding.UTF8.GetString(AESProvider.ECBDecrypt(PasswordConfirm, KeyRequest, EncryptKeySize)) != "PASSWORD_CORRECT")
                             {
                                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                                 {
@@ -601,7 +616,7 @@ namespace FileManager
                                 DecryptByteBuffer = new byte[AESCacheSize];
                             }
                             FileStream.Read(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
-                            DecryptedBytes = AESProvider.DecryptForUSB(DecryptByteBuffer, KeyRequest, EncryptKeySize);
+                            DecryptedBytes = AESProvider.ECBDecrypt(DecryptByteBuffer, KeyRequest, EncryptKeySize);
 
                             StorageFolder CurrentFolder = null;
                             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
@@ -629,15 +644,15 @@ namespace FileManager
                                             DecryptByteBuffer = new byte[FileStream.Length - BytesRead];
                                         }
                                         BytesRead += FileStream.Read(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
-                                        DecryptedBytes = AESProvider.DecryptForUSB(DecryptByteBuffer, KeyRequest, EncryptKeySize);
+                                        DecryptedBytes = AESProvider.ECBDecrypt(DecryptByteBuffer, KeyRequest, EncryptKeySize);
                                         await TargetFileStream.WriteAsync(DecryptedBytes, 0, DecryptedBytes.Length);
                                     }
                                 }
                             }
 
-                            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async() =>
+                            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                             {
-                                FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new RemovableDeviceStorageItem(file, await file.GetSizeDescriptionAsync(), await file.GetThumbnailBitmapAsync(), await file.GetModifiedTimeAsync()));
+                                FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(file, await file.GetSizeDescriptionAsync(), await file.GetThumbnailBitmapAsync(), await file.GetModifiedTimeAsync()));
                             });
                         }
                     });
@@ -690,7 +705,7 @@ namespace FileManager
             Restore();
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
             {
-                RemovableDeviceStorageItem file = GridViewControl.SelectedItem as RemovableDeviceStorageItem;
+                FileSystemStorageItem file = GridViewControl.SelectedItem as FileSystemStorageItem;
 
                 BluetoothUI Bluetooth = new BluetoothUI();
                 var result = await Bluetooth.ShowAsync();
@@ -738,7 +753,7 @@ namespace FileManager
                     {
                         Rename.IsEnabled = true;
                         Zip.Label = "Zip压缩";
-                        switch ((e.AddedItems.FirstOrDefault() as RemovableDeviceStorageItem).Type)
+                        switch ((e.AddedItems.FirstOrDefault() as FileSystemStorageItem).Type)
                         {
                             case ".zip":
                                 Zip.Label = "Zip解压";
@@ -759,7 +774,7 @@ namespace FileManager
                                 break;
                         }
 
-                        AES.Label = (e.AddedItems.FirstOrDefault() as RemovableDeviceStorageItem).Type == ".sle" ? "AES解密" : "AES加密";
+                        AES.Label = (e.AddedItems.FirstOrDefault() as FileSystemStorageItem).Type == ".sle" ? "AES解密" : "AES加密";
                     }
                     else
                     {
@@ -773,7 +788,7 @@ namespace FileManager
         {
             if (GridViewControl.SelectedItems.Count <= 1)
             {
-                var Context = (e.OriginalSource as FrameworkElement)?.DataContext as RemovableDeviceStorageItem;
+                var Context = (e.OriginalSource as FrameworkElement)?.DataContext as FileSystemStorageItem;
                 GridViewControl.SelectedIndex = FileCollection.IndexOf(Context);
                 e.Handled = true;
             }
@@ -783,7 +798,7 @@ namespace FileManager
         {
             if (GridViewControl.SelectedItems.Count <= 1)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is RemovableDeviceStorageItem Context)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
                 {
                     GridViewControl.SelectedIndex = FileCollection.IndexOf(Context);
 
@@ -807,7 +822,7 @@ namespace FileManager
 
         private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
-            RemovableDeviceStorageItem Device = GridViewControl.SelectedItems.FirstOrDefault() as RemovableDeviceStorageItem;
+            FileSystemStorageItem Device = GridViewControl.SelectedItems.FirstOrDefault() as FileSystemStorageItem;
             if (Device.File != null)
             {
                 AttributeDialog Dialog = new AttributeDialog(Device.File);
@@ -822,7 +837,7 @@ namespace FileManager
 
         private async void Zip_Click(object sender, RoutedEventArgs e)
         {
-            RemovableDeviceStorageItem SelectedItem = GridViewControl.SelectedItem as RemovableDeviceStorageItem;
+            FileSystemStorageItem SelectedItem = GridViewControl.SelectedItem as FileSystemStorageItem;
             Restore();
 
             if (SelectedItem.Type == ".zip")
@@ -861,7 +876,7 @@ namespace FileManager
         /// </summary>
         /// <param name="ZFileList">ZIP文件</param>
         /// <returns>无</returns>
-        private async Task UnZipAsync(RemovableDeviceStorageItem ZFile)
+        private async Task UnZipAsync(FileSystemStorageItem ZFile)
         {
             StorageFolder NewFolder = null;
             using (var ZipFileStream = await ZFile.File.OpenStreamForReadAsync())
@@ -969,7 +984,7 @@ namespace FileManager
                     HasUnrealizedChildren = false
                 });
             }
-            else if(!FileControl.ThisPage.CurrentNode.HasChildren)
+            else if (!FileControl.ThisPage.CurrentNode.HasChildren)
             {
                 FileControl.ThisPage.CurrentNode.HasUnrealizedChildren = true;
                 FileControl.ThisPage.ExpenderLockerReleaseRequest = true;
@@ -1015,7 +1030,7 @@ namespace FileManager
         /// <param name="Size">AES加密密钥长度</param>
         /// <param name="Password">密码</param>
         /// <returns>无</returns>
-        private async Task CreateZipAsync(RemovableDeviceStorageItem ZipFile, string NewZipName, int ZipLevel, bool EnableCryption = false, KeySize Size = KeySize.None, string Password = null)
+        private async Task CreateZipAsync(FileSystemStorageItem ZipFile, string NewZipName, int ZipLevel, bool EnableCryption = false, KeySize Size = KeySize.None, string Password = null)
         {
             var Newfile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(NewZipName, CreationCollisionOption.GenerateUniqueName);
             using (var NewFileStream = await Newfile.OpenStreamForWriteAsync())
@@ -1106,12 +1121,12 @@ namespace FileManager
                     ZipStream.Close();
                 }
             }
-            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new RemovableDeviceStorageItem(Newfile, await Newfile.GetSizeDescriptionAsync(), await Newfile.GetThumbnailBitmapAsync(), await Newfile.GetModifiedTimeAsync()));
+            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(Newfile, await Newfile.GetSizeDescriptionAsync(), await Newfile.GetThumbnailBitmapAsync(), await Newfile.GetModifiedTimeAsync()));
         }
 
         private async void GridViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is RemovableDeviceStorageItem ReFile && ReFile.ContentType == ContentType.File)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem ReFile && ReFile.ContentType == ContentType.File)
             {
                 switch (ReFile.File.FileType)
                 {
@@ -1172,7 +1187,7 @@ namespace FileManager
                 ZipCollection.Add(GridItem);
             }
             AddToZipQueue?.Clear();
-            foreach (RemovableDeviceStorageItem item in e.Items)
+            foreach (FileSystemStorageItem item in e.Items)
             {
                 AddToZipQueue?.Enqueue(item.File);
             }
@@ -1188,7 +1203,7 @@ namespace FileManager
 
         private async void GridItem_Drop(object sender, DragEventArgs e)
         {
-            if ((e.OriginalSource as GridViewItem).Content is RemovableDeviceStorageItem file)
+            if ((e.OriginalSource as GridViewItem).Content is FileSystemStorageItem file)
             {
                 await AddFileToZipAsync(file);
             }
@@ -1199,7 +1214,7 @@ namespace FileManager
         /// </summary>
         /// <param name="file">待添加的文件</param>
         /// <returns>无</returns>
-        public async Task AddFileToZipAsync(RemovableDeviceStorageItem file)
+        public async Task AddFileToZipAsync(FileSystemStorageItem file)
         {
             LoadingActivation(true, "正在执行添加操作");
 
@@ -1241,7 +1256,7 @@ namespace FileManager
 
         private async void Transcode_Click(object sender, RoutedEventArgs e)
         {
-            StorageFile file = (GridViewControl.SelectedItem as RemovableDeviceStorageItem).File;
+            StorageFile file = (GridViewControl.SelectedItem as FileSystemStorageItem).File;
             TranscodeDialog dialog = new TranscodeDialog
             {
                 SourceFile = file
@@ -1277,7 +1292,7 @@ namespace FileManager
                 FileControl.ThisPage.ExpandLocker.WaitOne();
             });
 
-            var TargetNode = FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == (GridViewControl.SelectedItem as RemovableDeviceStorageItem).RelativeId).FirstOrDefault();
+            var TargetNode = FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == (GridViewControl.SelectedItem as FileSystemStorageItem).RelativeId).FirstOrDefault();
             if (TargetNode != null)
             {
                 await FileControl.ThisPage.DisplayItemsInFolder(TargetNode);
@@ -1287,7 +1302,7 @@ namespace FileManager
 
         private async void FolderRename_Click(object sender, RoutedEventArgs e)
         {
-            var Folder = (GridViewControl.SelectedItem as RemovableDeviceStorageItem).Folder;
+            var Folder = (GridViewControl.SelectedItem as FileSystemStorageItem).Folder;
             RenameDialog dialog = new RenameDialog(Folder.DisplayName);
             if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
@@ -1354,14 +1369,14 @@ namespace FileManager
                     }
                 }
 
-                await (GridViewControl.SelectedItem as RemovableDeviceStorageItem).UpdateRequested(ReCreateFolder);
+                await (GridViewControl.SelectedItem as FileSystemStorageItem).UpdateRequested(ReCreateFolder);
             }
 
         }
 
         private async void FolderAttribute_Click(object sender, RoutedEventArgs e)
         {
-            RemovableDeviceStorageItem Device = GridViewControl.SelectedItems.FirstOrDefault() as RemovableDeviceStorageItem;
+            FileSystemStorageItem Device = GridViewControl.SelectedItems.FirstOrDefault() as FileSystemStorageItem;
 
             AttributeDialog Dialog = new AttributeDialog(Device.Folder);
             await Dialog.ShowAsync();
@@ -1369,7 +1384,7 @@ namespace FileManager
 
         private async void FolderDelete_Click(object sender, RoutedEventArgs e)
         {
-            var SelectedItem = GridViewControl.SelectedItem as RemovableDeviceStorageItem;
+            var SelectedItem = GridViewControl.SelectedItem as FileSystemStorageItem;
             Restore();
 
             ContentDialog contentDialog = new ContentDialog
@@ -1383,7 +1398,7 @@ namespace FileManager
 
             if ((await contentDialog.ShowAsync()) == ContentDialogResult.Primary)
             {
-                foreach (RemovableDeviceStorageItem Item in GridViewControl.SelectedItems)
+                foreach (FileSystemStorageItem Item in GridViewControl.SelectedItems)
                 {
                     FileCollection.Remove(Item);
                     if (FileControl.ThisPage.CurrentNode.IsExpanded)
@@ -1394,6 +1409,96 @@ namespace FileManager
                     await Item.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 }
             }
+        }
+
+        private async void WIFIShare_Click(object sender, RoutedEventArgs e)
+        {
+            if (QRTeachTip.IsOpen)
+            {
+                QRTeachTip.IsOpen = false;
+            }
+
+            FileSystemStorageItem Item = GridViewControl.SelectedItem as FileSystemStorageItem;
+            Restore();
+
+            string EncryptedString = Convert.ToBase64String(AESProvider.CBCEncrypt(Encoding.UTF8.GetBytes(Item.Path), AESProvider.Admin128Key, 128));
+
+            WiFiProvider = new WiFiShareProvider();
+            WiFiProvider.ThreadExitedUnexpectly -= WiFiProvider_ThreadExitedUnexpectly;
+            WiFiProvider.ThreadExitedUnexpectly += WiFiProvider_ThreadExitedUnexpectly;
+            QRText.Text = WiFiProvider.CurrentUri + EncryptedString;
+
+            QrCodeEncodingOptions options = new QrCodeEncodingOptions()
+            {
+                DisableECI = true,
+                CharacterSet = "UTF-8",
+                Width = 250,
+                Height = 250,
+                ErrorCorrection = ErrorCorrectionLevel.Q
+            };
+
+            BarcodeWriter Writer = new BarcodeWriter
+            {
+                Format = BarcodeFormat.QR_CODE,
+                Options = options
+            };
+
+            WriteableBitmap Bitmap = Writer.Write(QRText.Text);
+            using (SoftwareBitmap PreTransImage = SoftwareBitmap.CreateCopyFromBuffer(Bitmap.PixelBuffer, BitmapPixelFormat.Bgra8, 250, 250))
+            using (SoftwareBitmap TransferImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 400, 250, BitmapAlphaMode.Premultiplied))
+            {
+                OpenCVLibrary.ExtendBitmapBorder(PreTransImage, TransferImage, Colors.White, 0, 75, 75, 0);
+                SoftwareBitmapSource Source = new SoftwareBitmapSource();
+                QRImage.Source = Source;
+                await Source.SetBitmapAsync(TransferImage);
+            }
+
+            QRTeachTip.Target = GridViewControl.ContainerFromItem(Item) as GridViewItem;
+            QRTeachTip.IsOpen = true;
+
+            WiFiProvider.StartToListenRequest();
+        }
+
+        private async void WiFiProvider_ThreadExitedUnexpectly(object sender, Exception e)
+        {
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async() =>
+            {
+                QRTeachTip.IsOpen = false;
+
+                if (e is OverflowException)
+                {
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Title = "错误",
+                        Content = "文件过大，无法传输",
+                        CloseButtonText = "确定"
+                    };
+                    _ = await dialog.ShowAsync();
+                }
+                else
+                {
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Title = "错误",
+                        Content = "WIFI传输出现意外错误：\r" + e.Message,
+                        CloseButtonText = "确定"
+                    };
+                    _ = await dialog.ShowAsync();
+                }
+            });
+        }
+
+        private void QRTeachTip_Closed(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosedEventArgs args)
+        {
+            QRImage.Source = null;
+            WiFiProvider.Dispose();
+        }
+
+        private void CopyLinkButton_Click(object sender, RoutedEventArgs e)
+        {
+            DataPackage Package = new DataPackage();
+            Package.SetText(QRText.Text);
+            Clipboard.SetContent(Package);
         }
     }
 }

@@ -9,12 +9,17 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
+using Windows.Networking;
+using Windows.Networking.Connectivity;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
@@ -305,7 +310,7 @@ namespace FileManager
     }
     #endregion
 
-    #region 可移动设备StorageFile类
+    #region 文件系统StorageFile类
 
     public enum ContentType
     {
@@ -314,14 +319,15 @@ namespace FileManager
     }
 
     /// <summary>
-    /// 提供USB设备中的存储对象的描述
+    /// 提供对设备中的存储对象的描述
     /// </summary>
-    public sealed class RemovableDeviceStorageItem : INotifyPropertyChanged
+    public sealed class FileSystemStorageItem : INotifyPropertyChanged
     {
         /// <summary>
         /// 获取文件大小
         /// </summary>
         public string Size { get; private set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
         /// <summary>
         /// 获取此文件的StorageFile对象
@@ -343,7 +349,7 @@ namespace FileManager
         /// <param name="Size">文件大小</param>
         /// <param name="Item">文件StorageFile对象</param>
         /// <param name="Thumbnail">文件缩略图</param>
-        public RemovableDeviceStorageItem(IStorageItem Item, string Size, BitmapImage Thumbnail, string ModifiedTime)
+        public FileSystemStorageItem(IStorageItem Item, string Size, BitmapImage Thumbnail, string ModifiedTime)
         {
             if (Item.IsOfType(StorageItemTypes.File))
             {
@@ -416,7 +422,9 @@ namespace FileManager
         {
             get
             {
-                return ContentType == ContentType.Folder ? Folder.DisplayName : File.DisplayName;
+                return ContentType == ContentType.Folder ?
+                    (string.IsNullOrEmpty(Folder.DisplayName) ? Folder.Name : Folder.DisplayName) :
+                    (string.IsNullOrEmpty(File.DisplayName) ? File.Name : File.DisplayName);
             }
         }
 
@@ -662,7 +670,7 @@ namespace FileManager
         /// <param name="key">密码</param>
         /// <param name="KeySize">密钥长度</param>
         /// <returns>加密后数据</returns>
-        public static byte[] Encrypt(byte[] ToEncrypt, string key, int KeySize)
+        public static byte[] CBCEncrypt(byte[] ToEncrypt, string key, int KeySize)
         {
             if (KeySize != 256 && KeySize != 128)
             {
@@ -692,7 +700,7 @@ namespace FileManager
         /// <param name="key">密码</param>
         /// <param name="KeySize">密钥长度</param>
         /// <returns>解密后数据</returns>
-        public static byte[] Decrypt(byte[] ToDecrypt, string key, int KeySize)
+        public static byte[] CBCDecrypt(byte[] ToDecrypt, string key, int KeySize)
         {
             if (KeySize != 256 && KeySize != 128)
             {
@@ -723,7 +731,7 @@ namespace FileManager
         /// <param name="key">密码</param>
         /// <param name="KeySize">密钥长度</param>
         /// <returns></returns>
-        public static byte[] EncryptForUSB(byte[] ToEncrypt, string key, int KeySize)
+        public static byte[] ECBEncrypt(byte[] ToEncrypt, string key, int KeySize)
         {
             if (KeySize != 256 && KeySize != 128)
             {
@@ -753,7 +761,7 @@ namespace FileManager
         /// <param name="key">密码</param>
         /// <param name="KeySize">密钥长度</param>
         /// <returns>解密后数据</returns>
-        public static byte[] DecryptForUSB(byte[] ToDecrypt, string key, int KeySize)
+        public static byte[] ECBDecrypt(byte[] ToDecrypt, string key, int KeySize)
         {
             if (KeySize != 256 && KeySize != 128)
             {
@@ -1598,4 +1606,204 @@ namespace FileManager
         }
     }
     #endregion
+
+    public enum PortSelectionMode
+    {
+        Auto = 1,
+        Manual = 2
+    }
+
+    public sealed class WiFiShareProvider : IDisposable
+    {
+        private Socket ServerSocket;
+
+        private bool IsDisposed = false;
+
+        private CancellationTokenSource Cancellation = new CancellationTokenSource();
+
+        public event EventHandler<Exception> ThreadExitedUnexpectly;
+
+        public string CurrentUri { get; private set; }
+
+        public bool IsListeningThreadWorking { get; private set; } = false;
+
+        public PortSelectionMode PortSelectionMode { get; private set; }
+
+        public WiFiShareProvider()
+        {
+            ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            HostName CurrentHostName = NetworkInformation.GetHostNames().Where((IP) => IP.Type == HostNameType.Ipv4).FirstOrDefault();
+            IPAddress Address = IPAddress.Parse(CurrentHostName.ToString());
+
+            for (int i = 8000; ; i += 50)
+            {
+                try
+                {
+                    IPEndPoint LocalEndPoint = new IPEndPoint(Address, i);
+                    ServerSocket.Bind(LocalEndPoint);
+                    ServerSocket.Listen(10);
+                    CurrentUri = "http://" + CurrentHostName + ":" + i + "/";
+                    break;
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+
+            PortSelectionMode = PortSelectionMode.Auto;
+        }
+
+        public WiFiShareProvider(int UseCustomPort)
+        {
+            ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            HostName CurrentHostName = NetworkInformation.GetHostNames().Where((IP) => IP.Type == HostNameType.Ipv4).FirstOrDefault();
+            IPAddress Address = IPAddress.Parse(CurrentHostName.ToString());
+            IPEndPoint LocalEndPoint = new IPEndPoint(Address, UseCustomPort);
+
+            try
+            {
+                ServerSocket.Bind(LocalEndPoint);
+                ServerSocket.Listen(10);
+                CurrentUri = "http://" + CurrentHostName + ":" + UseCustomPort + "/";
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException("Port Could Not Be Used");
+            }
+
+            PortSelectionMode = PortSelectionMode.Manual;
+        }
+
+        public async void StartToListenRequest()
+        {
+            if (IsListeningThreadWorking)
+            {
+                return;
+            }
+
+            IsListeningThreadWorking = true;
+            try
+            {
+                await Task.Factory.StartNew(() =>
+                {
+                    while (true)
+                    {
+                        try
+                        {
+                            using (Socket ClientSocket = ServerSocket.Accept())
+                            {
+                                byte[] Buffer = new byte[1024 * 640];
+                                int DataReceived = ClientSocket.Receive(Buffer);
+                                string Message = Encoding.UTF8.GetString(Buffer, 0, DataReceived);
+
+                                if (!string.IsNullOrWhiteSpace(Message))
+                                {
+                                    HttpRequestInfo Request = AnalysisHttpRequest(Message);
+
+                                    string FilePath = Encoding.UTF8.GetString(AESProvider.CBCDecrypt(Convert.FromBase64String(Request.Uri), AESProvider.Admin128Key, 128));
+
+                                    StorageFile File = StorageFile.GetFileFromPathAsync(FilePath).AsTask().Result;
+                                    SendResponseMessage(ClientSocket, File);
+                                }
+                            }
+                        }
+                        catch(OverflowException e)
+                        {
+                            IsListeningThreadWorking = false;
+                            ThreadExitedUnexpectly?.Invoke(this, e);
+                            break;
+                        }
+                        catch(SocketException)
+                        {
+                            IsListeningThreadWorking = false;
+                            break;
+                        }
+                        catch (Exception e)
+                        {
+                            IsListeningThreadWorking = false;
+                            ThreadExitedUnexpectly?.Invoke(this, e);
+                            break;
+                        }
+                        finally
+                        {
+                            GC.Collect();
+                        }
+                    }
+
+                    Cancellation?.Dispose();
+                    Cancellation = null;
+
+                }, Cancellation.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            }
+            catch (Exception e)
+            {
+                IsListeningThreadWorking = false;
+                ThreadExitedUnexpectly?.Invoke(this, e);
+            }
+        }
+
+        private void SendResponseMessage(Socket ClientSocket, StorageFile TargetFile)
+        {
+            string BasicMessage = "HTTP/1.1 200 OK\r\n" +
+                "Content-type:" + TargetFile.ContentType + "\r\n" +
+                "Server:RX_FileManager\r\n" +
+                "Content-Disposition:attachment;filename=" + TargetFile.Name + "\r\n" +
+                "Content-Length:FileLength\r\n" +
+                "Connection:keep-alive\r\n\r\n";
+
+            using (Stream FileStream = TargetFile.OpenStreamForReadAsync().Result)
+            {
+                BasicMessage = BasicMessage.Replace("FileLength", FileStream.Length.ToString());
+                byte[] Buffer = new byte[FileStream.Length];
+                FileStream.Read(Buffer, 0, Buffer.Length);
+                ClientSocket.Send(Encoding.UTF8.GetBytes(BasicMessage).Concat(Buffer).ToArray());
+            }
+        }
+
+        private HttpRequestInfo AnalysisHttpRequest(string Message)
+        {
+            string MessageHeader = Message.Substring(0, Message.IndexOf("\r\n"));
+            string[] Info = MessageHeader.Split(" ");
+            return new HttpRequestInfo(Info[0], Info[1].Substring(1), Info[2]);
+        }
+
+        public void Dispose()
+        {
+            if (IsDisposed)
+            {
+                return;
+            }
+            else
+            {
+                IsDisposed = true;
+                Cancellation?.Cancel();
+                ServerSocket.Dispose();
+                ServerSocket = null;
+            }
+        }
+
+        ~WiFiShareProvider()
+        {
+            Dispose();
+        }
+    }
+
+    public class HttpRequestInfo
+    {
+        public string Method { get; private set; }
+
+        public string Uri { get; private set; }
+
+        public string HttpVersion { get; private set; }
+
+        public HttpRequestInfo(string Method, string Uri, string HttpVersion)
+        {
+            this.Method = Method;
+            this.Uri = Uri;
+            this.HttpVersion = HttpVersion;
+        }
+    }
 }

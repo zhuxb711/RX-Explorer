@@ -19,7 +19,7 @@ namespace FileManager
     public sealed partial class ZipExplorer : Page
     {
         ObservableCollection<ZipFileDisplay> FileCollection;
-        RemovableDeviceStorageItem OriginFile;
+        FileSystemStorageItem OriginFile;
 
         public ZipExplorer()
         {
@@ -29,7 +29,7 @@ namespace FileManager
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            OriginFile = e.Parameter as RemovableDeviceStorageItem;
+            OriginFile = e.Parameter as FileSystemStorageItem;
             FileCollection = new ObservableCollection<ZipFileDisplay>();
             GridControl.ItemsSource = FileCollection;
         }
