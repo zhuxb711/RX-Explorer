@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -1421,12 +1422,13 @@ namespace FileManager
             FileSystemStorageItem Item = GridViewControl.SelectedItem as FileSystemStorageItem;
             Restore();
 
-            string EncryptedString = Convert.ToBase64String(AESProvider.CBCEncrypt(Encoding.UTF8.GetBytes(Item.Path), AESProvider.Admin128Key, 128));
-
             WiFiProvider = new WiFiShareProvider();
             WiFiProvider.ThreadExitedUnexpectly -= WiFiProvider_ThreadExitedUnexpectly;
             WiFiProvider.ThreadExitedUnexpectly += WiFiProvider_ThreadExitedUnexpectly;
-            QRText.Text = WiFiProvider.CurrentUri + EncryptedString;
+
+            string Hash = ComputeMD5Hash(Item.Path);
+            QRText.Text = WiFiProvider.CurrentUri + Hash;
+            WiFiProvider.FilePathMap = new KeyValuePair<string, string>(Hash, Item.Path);
 
             QrCodeEncodingOptions options = new QrCodeEncodingOptions()
             {
@@ -1459,9 +1461,24 @@ namespace FileManager
             WiFiProvider.StartToListenRequest();
         }
 
+        public string ComputeMD5Hash(string Data)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] hash = md5.ComputeHash(Encoding.UTF8.GetBytes(Data));
+
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < hash.Length; i++)
+                {
+                    _ = builder.Append(hash[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
+
         private async void WiFiProvider_ThreadExitedUnexpectly(object sender, Exception e)
         {
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async() =>
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
             {
                 QRTeachTip.IsOpen = false;
 

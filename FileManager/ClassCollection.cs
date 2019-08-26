@@ -1607,6 +1607,7 @@ namespace FileManager
     }
     #endregion
 
+    #region WIFI分享功能提供器
     public enum PortSelectionMode
     {
         Auto = 1,
@@ -1622,6 +1623,8 @@ namespace FileManager
         private CancellationTokenSource Cancellation = new CancellationTokenSource();
 
         public event EventHandler<Exception> ThreadExitedUnexpectly;
+
+        public KeyValuePair<string, string> FilePathMap { get; set; }
 
         public string CurrentUri { get; private set; }
 
@@ -1703,20 +1706,25 @@ namespace FileManager
                                 {
                                     HttpRequestInfo Request = AnalysisHttpRequest(Message);
 
-                                    string FilePath = Encoding.UTF8.GetString(AESProvider.CBCDecrypt(Convert.FromBase64String(Request.Uri), AESProvider.Admin128Key, 128));
-
-                                    StorageFile File = StorageFile.GetFileFromPathAsync(FilePath).AsTask().Result;
-                                    SendResponseMessage(ClientSocket, File);
+                                    if (Request.Uri == FilePathMap.Key)
+                                    {
+                                        StorageFile File = StorageFile.GetFileFromPathAsync(FilePathMap.Value).AsTask().Result;
+                                        SendResponseMessage(ClientSocket, File);
+                                    }
+                                    else
+                                    {
+                                        SendErrorMessage(ClientSocket);
+                                    }
                                 }
                             }
                         }
-                        catch(OverflowException e)
+                        catch (OverflowException e)
                         {
                             IsListeningThreadWorking = false;
                             ThreadExitedUnexpectly?.Invoke(this, e);
                             break;
                         }
-                        catch(SocketException)
+                        catch (SocketException)
                         {
                             IsListeningThreadWorking = false;
                             break;
@@ -1745,21 +1753,33 @@ namespace FileManager
             }
         }
 
+        private void SendErrorMessage(Socket ClientSocket)
+        {
+
+            string Content = "<html><head><title>Error 404 Bad Request</title></head><body><p style=\"font-size:50px\">HTTP ERROR 404</p><p style=\"font-size:40px\">无法找到指定的资源，请检查URL</p></body></html>";
+            string BasicMessage = "HTTP/1.1 404 Bad Request\r\n" +
+                                  "Server:RX_FileManager\r\n" +
+                                  "Content-Length:" + Encoding.UTF8.GetBytes(Content).Length + "\r\n" +
+                                  "Content-Type:text/html;charset=UTF-8\r\n\r\n";
+
+            string SendMessage = BasicMessage + Content;
+            ClientSocket?.Send(Encoding.UTF8.GetBytes(SendMessage));
+        }
+
         private void SendResponseMessage(Socket ClientSocket, StorageFile TargetFile)
         {
-            string BasicMessage = "HTTP/1.1 200 OK\r\n" +
-                "Content-type:" + TargetFile.ContentType + "\r\n" +
-                "Server:RX_FileManager\r\n" +
-                "Content-Disposition:attachment;filename=" + TargetFile.Name + "\r\n" +
-                "Content-Length:FileLength\r\n" +
-                "Connection:keep-alive\r\n\r\n";
-
             using (Stream FileStream = TargetFile.OpenStreamForReadAsync().Result)
             {
-                BasicMessage = BasicMessage.Replace("FileLength", FileStream.Length.ToString());
+                string BasicMessage = "HTTP/1.1 200 OK\r\n" +
+                                      "Content-type:" + TargetFile.ContentType + "\r\n" +
+                                      "Server:RX_FileManager\r\n" +
+                                      "Content-Disposition:attachment;filename=" + TargetFile.Name + "\r\n" +
+                                      "Content-Length:" + FileStream.Length + "\r\n" +
+                                      "Connection:close\r\n\r\n";
+
                 byte[] Buffer = new byte[FileStream.Length];
                 FileStream.Read(Buffer, 0, Buffer.Length);
-                ClientSocket.Send(Encoding.UTF8.GetBytes(BasicMessage).Concat(Buffer).ToArray());
+                ClientSocket?.Send(Encoding.UTF8.GetBytes(BasicMessage).Concat(Buffer).ToArray());
             }
         }
 
@@ -1806,4 +1826,5 @@ namespace FileManager
             this.HttpVersion = HttpVersion;
         }
     }
+    #endregion
 }
