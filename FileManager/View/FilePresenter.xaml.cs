@@ -64,7 +64,7 @@ namespace FileManager
 
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
         {
-            WiFiProvider.Dispose();
+            WiFiProvider?.Dispose();
         }
 
         private async Task<IEnumerable<FileSystemStorageItem>> GetMoreItemsFunction(uint Index, uint Num, StorageItemQueryResult Query)
@@ -187,6 +187,21 @@ namespace FileManager
                         };
                         _ = await Dialog.ShowAsync();
                     }
+                    catch (UnauthorizedAccessException)
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
+                    }
                     catch (System.Runtime.InteropServices.COMException)
                     {
                         //收集但不立刻报告错误
@@ -247,11 +262,27 @@ namespace FileManager
                         };
                         _ = await Dialog.ShowAsync();
                     }
+                    catch (UnauthorizedAccessException)
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
+                    }
                     catch (System.Runtime.InteropServices.COMException)
                     {
                         ErrorCollection.Enqueue(CopyedFile.Name);
                     }
                 }
+
                 if (ErrorCollection.Count != 0)
                 {
                     string ErrorFileList = "";
@@ -316,14 +347,32 @@ namespace FileManager
                 foreach (var item in FileList)
                 {
                     var file = (item as FileSystemStorageItem).File;
-                    await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
-
-                    for (int i = 0; i < FileCollection.Count; i++)
+                    try
                     {
-                        if (FileCollection[i].RelativeId == file.FolderRelativeId)
+                        await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
+
+                        for (int i = 0; i < FileCollection.Count; i++)
                         {
-                            FileCollection.RemoveAt(i);
-                            break;
+                            if (FileCollection[i].RelativeId == file.FolderRelativeId)
+                            {
+                                FileCollection.RemoveAt(i);
+                                break;
+                            }
+                        }
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "RX无权删除此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
                         }
                     }
                 }
@@ -391,13 +440,31 @@ namespace FileManager
                     return;
                 }
 
-                await file.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
-
-                foreach (var Item in from FileSystemStorageItem Item in FileCollection
-                                     where Item.Name == dialog.DesireName
-                                     select Item)
+                try
                 {
-                    await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(file.Path));
+                    await file.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
+
+                    foreach (var Item in from FileSystemStorageItem Item in FileCollection
+                                         where Item.Name == dialog.DesireName
+                                         select Item)
+                    {
+                        await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(file.Path));
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    ContentDialog Dialog = new ContentDialog
+                    {
+                        Title = "错误",
+                        Content = "RX无权重命名此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                        PrimaryButtonText = "立刻",
+                        CloseButtonText = "稍后",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                    }
                 }
             }
         }
@@ -454,54 +521,73 @@ namespace FileManager
                     }
                     LoadingActivation(true, "正在加密");
 
-                    StorageFile file = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(SelectedFile.DisplayName + ".sle", CreationCollisionOption.GenerateUniqueName);
-                    await Task.Run(async () =>
+                    try
                     {
-                        using (var FileStream = await SelectedFile.OpenStreamForReadAsync())
+                        StorageFile file = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(SelectedFile.DisplayName + ".sle", CreationCollisionOption.GenerateUniqueName);
+
+                        await Task.Run(async () =>
                         {
-                            using (var TargetFileStream = await file.OpenStreamForWriteAsync())
+                            using (var FileStream = await SelectedFile.OpenStreamForReadAsync())
                             {
-                                byte[] Tail = Encoding.UTF8.GetBytes("$" + KeySizeRequest + "|" + SelectedFile.FileType + "$");
-                                byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
-
-                                if (FileStream.Length < AESCacheSize)
+                                using (var TargetFileStream = await file.OpenStreamForWriteAsync())
                                 {
-                                    EncryptByteBuffer = new byte[FileStream.Length];
-                                    FileStream.Read(EncryptByteBuffer, 0, EncryptByteBuffer.Length);
-                                    await TargetFileStream.WriteAsync(Tail, 0, Tail.Length);
-                                    await TargetFileStream.WriteAsync(AESProvider.ECBEncrypt(PasswordFlag, KeyRequest, KeySizeRequest), 0, PasswordFlag.Length);
-                                    var EncryptedBytes = AESProvider.ECBEncrypt(EncryptByteBuffer, KeyRequest, KeySizeRequest);
-                                    await TargetFileStream.WriteAsync(EncryptedBytes, 0, EncryptedBytes.Length);
-                                }
-                                else
-                                {
-                                    EncryptByteBuffer = new byte[Tail.Length];
-                                    await TargetFileStream.WriteAsync(Tail, 0, Tail.Length);
-                                    await TargetFileStream.WriteAsync(AESProvider.ECBEncrypt(PasswordFlag, KeyRequest, KeySizeRequest), 0, PasswordFlag.Length);
+                                    byte[] Tail = Encoding.UTF8.GetBytes("$" + KeySizeRequest + "|" + SelectedFile.FileType + "$");
+                                    byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
 
-                                    long BytesWrite = 0;
-                                    EncryptByteBuffer = new byte[AESCacheSize];
-                                    while (BytesWrite < FileStream.Length)
+                                    if (FileStream.Length < AESCacheSize)
                                     {
-                                        if (FileStream.Length - BytesWrite < AESCacheSize)
-                                        {
-                                            if (FileStream.Length - BytesWrite == 0)
-                                            {
-                                                break;
-                                            }
-                                            EncryptByteBuffer = new byte[FileStream.Length - BytesWrite];
-                                        }
-
-                                        BytesWrite += FileStream.Read(EncryptByteBuffer, 0, EncryptByteBuffer.Length);
+                                        EncryptByteBuffer = new byte[FileStream.Length];
+                                        FileStream.Read(EncryptByteBuffer, 0, EncryptByteBuffer.Length);
+                                        await TargetFileStream.WriteAsync(Tail, 0, Tail.Length);
+                                        await TargetFileStream.WriteAsync(AESProvider.ECBEncrypt(PasswordFlag, KeyRequest, KeySizeRequest), 0, PasswordFlag.Length);
                                         var EncryptedBytes = AESProvider.ECBEncrypt(EncryptByteBuffer, KeyRequest, KeySizeRequest);
                                         await TargetFileStream.WriteAsync(EncryptedBytes, 0, EncryptedBytes.Length);
                                     }
+                                    else
+                                    {
+                                        EncryptByteBuffer = new byte[Tail.Length];
+                                        await TargetFileStream.WriteAsync(Tail, 0, Tail.Length);
+                                        await TargetFileStream.WriteAsync(AESProvider.ECBEncrypt(PasswordFlag, KeyRequest, KeySizeRequest), 0, PasswordFlag.Length);
 
+                                        long BytesWrite = 0;
+                                        EncryptByteBuffer = new byte[AESCacheSize];
+                                        while (BytesWrite < FileStream.Length)
+                                        {
+                                            if (FileStream.Length - BytesWrite < AESCacheSize)
+                                            {
+                                                if (FileStream.Length - BytesWrite == 0)
+                                                {
+                                                    break;
+                                                }
+                                                EncryptByteBuffer = new byte[FileStream.Length - BytesWrite];
+                                            }
+
+                                            BytesWrite += FileStream.Read(EncryptByteBuffer, 0, EncryptByteBuffer.Length);
+                                            var EncryptedBytes = AESProvider.ECBEncrypt(EncryptByteBuffer, KeyRequest, KeySizeRequest);
+                                            await TargetFileStream.WriteAsync(EncryptedBytes, 0, EncryptedBytes.Length);
+                                        }
+
+                                    }
                                 }
                             }
+                        });
+                        FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(file, await file.GetSizeDescriptionAsync(), await file.GetThumbnailBitmapAsync(), await file.GetModifiedTimeAsync()));
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "RX无权在此处创建加密文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
                         }
-                    });
-                    FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(file, await file.GetSizeDescriptionAsync(), await file.GetThumbnailBitmapAsync(), await file.GetModifiedTimeAsync()));
+                    }
                 }
                 else
                 {
@@ -625,36 +711,54 @@ namespace FileManager
                                 CurrentFolder = FileControl.ThisPage.CurrentFolder;
                             });
 
-                            StorageFile file = await CurrentFolder.CreateFileAsync(SelectedFile.DisplayName + FileType, CreationCollisionOption.GenerateUniqueName);
-
-                            using (var TargetFileStream = await file.OpenStreamForWriteAsync())
+                            try
                             {
-                                await TargetFileStream.WriteAsync(DecryptedBytes, 0, DecryptedBytes.Length);
+                                StorageFile file = await CurrentFolder.CreateFileAsync(SelectedFile.DisplayName + FileType, CreationCollisionOption.GenerateUniqueName);
 
-                                if (FileStream.Length - SignalLength >= AESCacheSize)
+                                using (var TargetFileStream = await file.OpenStreamForWriteAsync())
                                 {
-                                    long BytesRead = DecryptByteBuffer.Length + SignalLength;
-                                    while (BytesRead < FileStream.Length)
+                                    await TargetFileStream.WriteAsync(DecryptedBytes, 0, DecryptedBytes.Length);
+
+                                    if (FileStream.Length - SignalLength >= AESCacheSize)
                                     {
-                                        if (FileStream.Length - BytesRead < AESCacheSize)
+                                        long BytesRead = DecryptByteBuffer.Length + SignalLength;
+                                        while (BytesRead < FileStream.Length)
                                         {
-                                            if (FileStream.Length - BytesRead == 0)
+                                            if (FileStream.Length - BytesRead < AESCacheSize)
                                             {
-                                                break;
+                                                if (FileStream.Length - BytesRead == 0)
+                                                {
+                                                    break;
+                                                }
+                                                DecryptByteBuffer = new byte[FileStream.Length - BytesRead];
                                             }
-                                            DecryptByteBuffer = new byte[FileStream.Length - BytesRead];
+                                            BytesRead += FileStream.Read(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
+                                            DecryptedBytes = AESProvider.ECBDecrypt(DecryptByteBuffer, KeyRequest, EncryptKeySize);
+                                            await TargetFileStream.WriteAsync(DecryptedBytes, 0, DecryptedBytes.Length);
                                         }
-                                        BytesRead += FileStream.Read(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
-                                        DecryptedBytes = AESProvider.ECBDecrypt(DecryptByteBuffer, KeyRequest, EncryptKeySize);
-                                        await TargetFileStream.WriteAsync(DecryptedBytes, 0, DecryptedBytes.Length);
                                     }
                                 }
-                            }
 
-                            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                                {
+                                    FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(file, await file.GetSizeDescriptionAsync(), await file.GetThumbnailBitmapAsync(), await file.GetModifiedTimeAsync()));
+                                });
+                            }
+                            catch (UnauthorizedAccessException)
                             {
-                                FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(file, await file.GetSizeDescriptionAsync(), await file.GetThumbnailBitmapAsync(), await file.GetModifiedTimeAsync()));
-                            });
+                                ContentDialog dialog = new ContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "RX无权在此处创建解密文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                                    PrimaryButtonText = "立刻",
+                                    CloseButtonText = "稍后",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                }
+                            }
                         }
                     });
                 }
@@ -919,40 +1023,61 @@ namespace FileManager
                                     CurrentFolder = FileControl.ThisPage.CurrentFolder;
                                 });
 
-                                NewFolder = await CurrentFolder.CreateFolderAsync(ZFile.File.DisplayName, CreationCollisionOption.OpenIfExists);
-                                StorageFile NewFile = await NewFolder.CreateFileAsync(Entry.Name, CreationCollisionOption.ReplaceExisting);
-                                using (Stream stream = await NewFile.OpenStreamForWriteAsync())
+                                try
                                 {
-                                    double FileSize = Entry.Size;
-                                    StreamUtils.Copy(ZipTempStream, stream, new byte[4096], async (s, e) =>
+                                    NewFolder = await CurrentFolder.CreateFolderAsync(ZFile.File.DisplayName, CreationCollisionOption.OpenIfExists);
+                                    StorageFile NewFile = await NewFolder.CreateFileAsync(Entry.Name, CreationCollisionOption.ReplaceExisting);
+                                    using (Stream stream = await NewFile.OpenStreamForWriteAsync())
                                     {
-                                        await LoadingControl.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                                        double FileSize = Entry.Size;
+                                        StreamUtils.Copy(ZipTempStream, stream, new byte[4096], async (s, e) =>
                                         {
-                                            lock (SyncRootProvider.SyncRoot)
+                                            await LoadingControl.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                                             {
-                                                string temp = ProgressInfo.Text.Remove(ProgressInfo.Text.LastIndexOf('.') + 1);
-                                                TCounter = Convert.ToInt32((e.Processed / FileSize) * 100);
-                                                if (RepeatFilter == TCounter)
+                                                lock (SyncRootProvider.SyncRoot)
                                                 {
-                                                    return;
-                                                }
-                                                else
-                                                {
-                                                    RepeatFilter = TCounter;
-                                                }
+                                                    string temp = ProgressInfo.Text.Remove(ProgressInfo.Text.LastIndexOf('.') + 1);
+                                                    TCounter = Convert.ToInt32((e.Processed / FileSize) * 100);
+                                                    if (RepeatFilter == TCounter)
+                                                    {
+                                                        return;
+                                                    }
+                                                    else
+                                                    {
+                                                        RepeatFilter = TCounter;
+                                                    }
 
-                                                int CurrentProgress = Convert.ToInt32((HCounter + TCounter) / ((double)zipFile.Count));
-                                                ProgressInfo.Text = temp + CurrentProgress + "%";
-                                                ProBar.Value = CurrentProgress;
+                                                    int CurrentProgress = Convert.ToInt32((HCounter + TCounter) / ((double)zipFile.Count));
+                                                    ProgressInfo.Text = temp + CurrentProgress + "%";
+                                                    ProBar.Value = CurrentProgress;
 
-                                                if (TCounter == 100)
-                                                {
-                                                    HCounter += 100;
+                                                    if (TCounter == 100)
+                                                    {
+                                                        HCounter += 100;
+                                                    }
                                                 }
-                                            }
-                                        });
+                                            });
 
-                                    }, TimeSpan.FromMilliseconds(100), null, string.Empty);
+                                        }, TimeSpan.FromMilliseconds(100), null, string.Empty);
+                                    }
+                                }
+                                catch (UnauthorizedAccessException)
+                                {
+                                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async() =>
+                                    {
+                                        ContentDialog dialog = new ContentDialog
+                                        {
+                                            Title = "错误",
+                                            Content = "RX无权在此处解压Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                                            PrimaryButtonText = "立刻",
+                                            CloseButtonText = "稍后",
+                                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                        };
+                                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                        {
+                                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                        }
+                                    });
                                 }
                             }
                         }
@@ -1005,7 +1130,7 @@ namespace FileManager
                 });
             }
 
-            TreeViewNode Node = FileControl.ThisPage.CurrentNode.Children.Where((Folder) => NewFolder.FolderRelativeId == (Folder.Content as StorageFolder).FolderRelativeId).FirstOrDefault();
+            TreeViewNode Node = FileControl.ThisPage.CurrentNode.Children.Where((Folder) => NewFolder.Name == (Folder.Content as StorageFolder).Name).FirstOrDefault();
             while (true)
             {
                 if (FileControl.ThisPage.FolderTree.ContainerFromNode(Node) is TreeViewItem Item)
@@ -1033,96 +1158,114 @@ namespace FileManager
         /// <returns>无</returns>
         private async Task CreateZipAsync(FileSystemStorageItem ZipFile, string NewZipName, int ZipLevel, bool EnableCryption = false, KeySize Size = KeySize.None, string Password = null)
         {
-            var Newfile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(NewZipName, CreationCollisionOption.GenerateUniqueName);
-            using (var NewFileStream = await Newfile.OpenStreamForWriteAsync())
+            try
             {
-                ZipOutputStream ZipStream = new ZipOutputStream(NewFileStream);
-                try
+                var Newfile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(NewZipName, CreationCollisionOption.GenerateUniqueName);
+                using (var NewFileStream = await Newfile.OpenStreamForWriteAsync())
                 {
-                    ZipStream.SetLevel(ZipLevel);
-                    ZipStream.UseZip64 = UseZip64.Off;
-                    if (EnableCryption)
+                    ZipOutputStream ZipStream = new ZipOutputStream(NewFileStream);
+                    try
                     {
-                        ZipStream.Password = Password;
-                        await Task.Run(async () =>
+                        ZipStream.SetLevel(ZipLevel);
+                        ZipStream.UseZip64 = UseZip64.Off;
+                        if (EnableCryption)
                         {
-                            var NewEntry = new ZipEntry(ZipFile.File.Name)
+                            ZipStream.Password = Password;
+                            await Task.Run(async () =>
                             {
-                                DateTime = DateTime.Now,
-                                AESKeySize = (int)Size,
-                                IsCrypted = true,
-                                CompressionMethod = CompressionMethod.Deflated
-                            };
-
-                            ZipStream.PutNextEntry(NewEntry);
-                            using (Stream stream = await ZipFile.File.OpenStreamForReadAsync())
-                            {
-                                StreamUtils.Copy(stream, ZipStream, new byte[4096], async (s, e) =>
+                                var NewEntry = new ZipEntry(ZipFile.File.Name)
                                 {
-                                    await LoadingControl.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                                    DateTime = DateTime.Now,
+                                    AESKeySize = (int)Size,
+                                    IsCrypted = true,
+                                    CompressionMethod = CompressionMethod.Deflated
+                                };
+
+                                ZipStream.PutNextEntry(NewEntry);
+                                using (Stream stream = await ZipFile.File.OpenStreamForReadAsync())
+                                {
+                                    StreamUtils.Copy(stream, ZipStream, new byte[4096], async (s, e) =>
                                     {
-                                        lock (SyncRootProvider.SyncRoot)
+                                        await LoadingControl.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                                         {
-                                            string temp = ProgressInfo.Text.Remove(ProgressInfo.Text.LastIndexOf('.') + 1);
-                                            int CurrentProgress = (int)Math.Ceiling(e.PercentComplete);
-                                            ProgressInfo.Text = temp + CurrentProgress + "%";
-                                            ProBar.Value = CurrentProgress;
-                                        }
-                                    });
-                                }, TimeSpan.FromMilliseconds(100), null, string.Empty);
-                                ZipStream.CloseEntry();
-                            }
-                        });
+                                            lock (SyncRootProvider.SyncRoot)
+                                            {
+                                                string temp = ProgressInfo.Text.Remove(ProgressInfo.Text.LastIndexOf('.') + 1);
+                                                int CurrentProgress = (int)Math.Ceiling(e.PercentComplete);
+                                                ProgressInfo.Text = temp + CurrentProgress + "%";
+                                                ProBar.Value = CurrentProgress;
+                                            }
+                                        });
+                                    }, TimeSpan.FromMilliseconds(100), null, string.Empty);
+                                    ZipStream.CloseEntry();
+                                }
+                            });
+                        }
+                        else
+                        {
+                            await Task.Run(async () =>
+                            {
+                                var NewEntry = new ZipEntry(ZipFile.File.Name)
+                                {
+                                    DateTime = DateTime.Now
+                                };
+
+                                ZipStream.PutNextEntry(NewEntry);
+                                using (Stream stream = await ZipFile.File.OpenStreamForReadAsync())
+                                {
+                                    StreamUtils.Copy(stream, ZipStream, new byte[4096], async (s, e) =>
+                                    {
+                                        await LoadingControl.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                                        {
+                                            lock (SyncRootProvider.SyncRoot)
+                                            {
+                                                string temp = ProgressInfo.Text.Remove(ProgressInfo.Text.LastIndexOf('.') + 1);
+
+                                                int CurrentProgress = (int)Math.Ceiling(e.PercentComplete);
+                                                ProgressInfo.Text = temp + CurrentProgress + "%";
+                                                ProBar.Value = CurrentProgress;
+                                            }
+                                        });
+                                    }, TimeSpan.FromMilliseconds(100), null, string.Empty);
+                                    ZipStream.CloseEntry();
+                                }
+                            });
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        await Task.Run(async () =>
+                        ContentDialog dialog = new ContentDialog
                         {
-                            var NewEntry = new ZipEntry(ZipFile.File.Name)
-                            {
-                                DateTime = DateTime.Now
-                            };
-
-                            ZipStream.PutNextEntry(NewEntry);
-                            using (Stream stream = await ZipFile.File.OpenStreamForReadAsync())
-                            {
-                                StreamUtils.Copy(stream, ZipStream, new byte[4096], async (s, e) =>
-                                {
-                                    await LoadingControl.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                                    {
-                                        lock (SyncRootProvider.SyncRoot)
-                                        {
-                                            string temp = ProgressInfo.Text.Remove(ProgressInfo.Text.LastIndexOf('.') + 1);
-
-                                            int CurrentProgress = (int)Math.Ceiling(e.PercentComplete);
-                                            ProgressInfo.Text = temp + CurrentProgress + "%";
-                                            ProBar.Value = CurrentProgress;
-                                        }
-                                    });
-                                }, TimeSpan.FromMilliseconds(100), null, string.Empty);
-                                ZipStream.CloseEntry();
-                            }
-                        });
+                            Title = "错误",
+                            Content = "压缩文件时发生异常\r\r错误信息：\r\r" + e.Message,
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
+                            CloseButtonText = "确定"
+                        };
+                        await dialog.ShowAsync();
+                    }
+                    finally
+                    {
+                        ZipStream.IsStreamOwner = false;
+                        ZipStream.Close();
                     }
                 }
-                catch (Exception e)
+                FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(Newfile, await Newfile.GetSizeDescriptionAsync(), await Newfile.GetThumbnailBitmapAsync(), await Newfile.GetModifiedTimeAsync()));
+            }
+            catch (UnauthorizedAccessException)
+            {
+                ContentDialog dialog = new ContentDialog
                 {
-                    ContentDialog dialog = new ContentDialog
-                    {
-                        Title = "错误",
-                        Content = "压缩文件时发生异常\r\r错误信息：\r\r" + e.Message,
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
-                        CloseButtonText = "确定"
-                    };
-                    await dialog.ShowAsync();
-                }
-                finally
+                    Title = "错误",
+                    Content = "RX无权在此处创建Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                    PrimaryButtonText = "立刻",
+                    CloseButtonText = "稍后",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    ZipStream.IsStreamOwner = false;
-                    ZipStream.Close();
+                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
                 }
             }
-            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(Newfile, await Newfile.GetSizeDescriptionAsync(), await Newfile.GetThumbnailBitmapAsync(), await Newfile.GetModifiedTimeAsync()));
         }
 
         private async void GridViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
@@ -1196,7 +1339,7 @@ namespace FileManager
 
         private void GridItem_DragEnter(object sender, DragEventArgs e)
         {
-            e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.Copy;
+            e.AcceptedOperation = DataPackageOperation.Copy;
             e.DragUIOverride.Caption = "添加至Zip文件";
             e.DragUIOverride.IsCaptionVisible = true;
             e.DragUIOverride.IsContentVisible = true;
@@ -1327,46 +1470,64 @@ namespace FileManager
                     var TargetNode = FileControl.ThisPage.CurrentNode.Children.Where((Fold) => (Fold.Content as StorageFolder).FolderRelativeId == Folder.FolderRelativeId).FirstOrDefault();
                     int index = FileControl.ThisPage.CurrentNode.Children.IndexOf(TargetNode);
 
-                    await Folder.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
-                    ReCreateFolder = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
-
-                    if (TargetNode.HasUnrealizedChildren)
+                    try
                     {
-                        ChildCollection.Insert(index, new TreeViewNode()
-                        {
-                            Content = ReCreateFolder,
-                            HasUnrealizedChildren = true,
-                            IsExpanded = false
-                        });
-                        ChildCollection.Remove(TargetNode);
-                    }
-                    else if (TargetNode.HasChildren)
-                    {
-                        var NewNode = new TreeViewNode()
-                        {
-                            Content = ReCreateFolder,
-                            HasUnrealizedChildren = false,
-                            IsExpanded = true
-                        };
+                        await Folder.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
+                        ReCreateFolder = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
 
-                        foreach (var SubNode in TargetNode.Children)
+                        if (TargetNode.HasUnrealizedChildren)
                         {
-                            NewNode.Children.Add(SubNode);
+                            ChildCollection.Insert(index, new TreeViewNode()
+                            {
+                                Content = ReCreateFolder,
+                                HasUnrealizedChildren = true,
+                                IsExpanded = false
+                            });
+                            ChildCollection.Remove(TargetNode);
                         }
-
-                        ChildCollection.Insert(index, NewNode);
-                        ChildCollection.Remove(TargetNode);
-                        await NewNode.UpdateAllSubNodeFolder();
-                    }
-                    else
-                    {
-                        ChildCollection.Insert(index, new TreeViewNode()
+                        else if (TargetNode.HasChildren)
                         {
-                            Content = ReCreateFolder,
-                            HasUnrealizedChildren = false,
-                            IsExpanded = false
-                        });
-                        ChildCollection.Remove(TargetNode);
+                            var NewNode = new TreeViewNode()
+                            {
+                                Content = ReCreateFolder,
+                                HasUnrealizedChildren = false,
+                                IsExpanded = true
+                            };
+
+                            foreach (var SubNode in TargetNode.Children)
+                            {
+                                NewNode.Children.Add(SubNode);
+                            }
+
+                            ChildCollection.Insert(index, NewNode);
+                            ChildCollection.Remove(TargetNode);
+                            await NewNode.UpdateAllSubNodeFolder();
+                        }
+                        else
+                        {
+                            ChildCollection.Insert(index, new TreeViewNode()
+                            {
+                                Content = ReCreateFolder,
+                                HasUnrealizedChildren = false,
+                                IsExpanded = false
+                            });
+                            ChildCollection.Remove(TargetNode);
+                        }
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        ContentDialog Dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "RX无权重命名此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
                     }
                 }
 
@@ -1401,13 +1562,33 @@ namespace FileManager
             {
                 foreach (FileSystemStorageItem Item in GridViewControl.SelectedItems)
                 {
+                    try
+                    {
+                        await Item.Folder.DeleteAllSubFilesAndFolders();
+                        await Item.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "RX无权删除此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
+                        return;
+                    }
+
                     FileCollection.Remove(Item);
                     if (FileControl.ThisPage.CurrentNode.IsExpanded)
                     {
                         FileControl.ThisPage.CurrentNode.Children.Remove(FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == Item.RelativeId).FirstOrDefault());
                     }
-                    await Item.Folder.DeleteAllSubFilesAndFolders();
-                    await Item.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 }
             }
         }

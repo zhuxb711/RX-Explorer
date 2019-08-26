@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 
 namespace FileManager
 {
@@ -171,7 +173,27 @@ namespace FileManager
                 throw new InvalidCastException("转码源文件未正确设置");
             }
 
-            await SetMediaTranscodeConfig();
+            try
+            {
+                await SetMediaTranscodeConfig();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                ContentDialog dialog = new ContentDialog
+                {
+                    Title = "错误",
+                    Content = "RX无权在此处创建转码文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                    PrimaryButtonText = "立刻",
+                    CloseButtonText = "稍后",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                }
+                return;
+            }
+
             RegisterMediaTranscodeBackgroundTask();
             await LaunchMediaTranscodeBackgroundTaskAsync();
         }
@@ -212,6 +234,7 @@ namespace FileManager
             ApplicationData.Current.LocalSettings.Values["MediaTranscodeInputFileToken"] = FutureItemAccessList.Add(SourceFile);
 
             string Type = ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] as string;
+
             StorageFile DestinationFile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(SourceFile.DisplayName + "." + Type.ToLower(), CreationCollisionOption.ReplaceExisting);
 
             ApplicationData.Current.LocalSettings.Values["MediaTranscodeOutputFileToken"] = FutureItemAccessList.Add(DestinationFile);

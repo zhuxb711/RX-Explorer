@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -289,9 +290,10 @@ namespace FileManager
             {
                 try
                 {
-                    FilePresenter.ThisPage.FileCollection.Remove(FilePresenter.ThisPage.FileCollection.Where((Item) => Item.RelativeId == CurrentFolder.FolderRelativeId).FirstOrDefault());
                     await CurrentFolder.DeleteAllSubFilesAndFolders();
                     await CurrentFolder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+
+                    FilePresenter.ThisPage.FileCollection.Remove(FilePresenter.ThisPage.FileCollection.Where((Item) => Item.RelativeId == CurrentFolder.FolderRelativeId).FirstOrDefault());
 
                     if (FilePresenter.ThisPage.DisplayNode == CurrentNode)
                     {
@@ -316,6 +318,21 @@ namespace FileManager
                         }
                     }
                     CurrentNode = ParentNode;
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Title = "错误",
+                        Content = "RX无权删除此文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
+                        PrimaryButtonText = "立刻",
+                        CloseButtonText = "稍后",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderAsync(CurrentFolder);
+                    }
                 }
                 catch (Exception)
                 {
@@ -385,72 +402,108 @@ namespace FileManager
                     return;
                 }
 
-                await Folder.RenameAsync(renameDialog.DesireName, NameCollisionOption.GenerateUniqueName);
-                StorageFolder ReCreateFolder = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
-
-                var ChildCollection = CurrentNode.Parent.Children;
-                int index = CurrentNode.Parent.Children.IndexOf(CurrentNode);
-
-                if (CurrentNode.HasUnrealizedChildren)
+                try
                 {
-                    ChildCollection.Insert(index, new TreeViewNode()
-                    {
-                        Content = ReCreateFolder,
-                        HasUnrealizedChildren = true,
-                        IsExpanded = false
-                    });
-                    ChildCollection.Remove(CurrentNode);
-                }
-                else if (CurrentNode.HasChildren)
-                {
-                    var NewNode = new TreeViewNode()
-                    {
-                        Content = ReCreateFolder,
-                        HasUnrealizedChildren = false,
-                        IsExpanded = true
-                    };
+                    await Folder.RenameAsync(renameDialog.DesireName, NameCollisionOption.GenerateUniqueName);
+                    StorageFolder ReCreateFolder = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
 
-                    foreach (var SubNode in CurrentNode.Children)
+                    var ChildCollection = CurrentNode.Parent.Children;
+                    int index = CurrentNode.Parent.Children.IndexOf(CurrentNode);
+
+                    if (CurrentNode.HasUnrealizedChildren)
                     {
-                        NewNode.Children.Add(SubNode);
+                        ChildCollection.Insert(index, new TreeViewNode()
+                        {
+                            Content = ReCreateFolder,
+                            HasUnrealizedChildren = true,
+                            IsExpanded = false
+                        });
+                        ChildCollection.Remove(CurrentNode);
                     }
-
-                    ChildCollection.Insert(index, NewNode);
-                    ChildCollection.Remove(CurrentNode);
-                    await NewNode.UpdateAllSubNodeFolder();
-                }
-                else
-                {
-                    ChildCollection.Insert(index, new TreeViewNode()
+                    else if (CurrentNode.HasChildren)
                     {
-                        Content = ReCreateFolder,
-                        HasUnrealizedChildren = false,
-                        IsExpanded = false
-                    });
-                    ChildCollection.Remove(CurrentNode);
+                        var NewNode = new TreeViewNode()
+                        {
+                            Content = ReCreateFolder,
+                            HasUnrealizedChildren = false,
+                            IsExpanded = true
+                        };
+
+                        foreach (var SubNode in CurrentNode.Children)
+                        {
+                            NewNode.Children.Add(SubNode);
+                        }
+
+                        ChildCollection.Insert(index, NewNode);
+                        ChildCollection.Remove(CurrentNode);
+                        await NewNode.UpdateAllSubNodeFolder();
+                    }
+                    else
+                    {
+                        ChildCollection.Insert(index, new TreeViewNode()
+                        {
+                            Content = ReCreateFolder,
+                            HasUnrealizedChildren = false,
+                            IsExpanded = false
+                        });
+                        ChildCollection.Remove(CurrentNode);
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Title = "错误",
+                        Content = "RX无权重命名此文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
+                        PrimaryButtonText = "立刻",
+                        CloseButtonText = "稍后",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderAsync(CurrentFolder);
+                    }
                 }
             }
         }
 
         private async void CreateFolder_Click(object sender, RoutedEventArgs e)
         {
-            var NewFolder = await CurrentFolder.CreateFolderAsync("新建文件夹", CreationCollisionOption.GenerateUniqueName);
-
-            var Size = await NewFolder.GetSizeDescriptionAsync();
-            var Thumbnail = await NewFolder.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-            var ModifiedTime = await NewFolder.GetModifiedTimeAsync();
-
-            FilePresenter.ThisPage.FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
-
-            if (CurrentNode.IsExpanded || !CurrentNode.HasChildren)
+            try
             {
-                CurrentNode.Children.Add(new TreeViewNode
+                var NewFolder = await CurrentFolder.CreateFolderAsync("新建文件夹", CreationCollisionOption.GenerateUniqueName);
+
+                var Size = await NewFolder.GetSizeDescriptionAsync();
+                var Thumbnail = await NewFolder.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                var ModifiedTime = await NewFolder.GetModifiedTimeAsync();
+
+                FilePresenter.ThisPage.FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
+
+                if (CurrentNode.IsExpanded || !CurrentNode.HasChildren)
                 {
-                    Content = NewFolder,
-                    HasUnrealizedChildren = false
-                });
+                    CurrentNode.Children.Add(new TreeViewNode
+                    {
+                        Content = NewFolder,
+                        HasUnrealizedChildren = false
+                    });
+                }
+                CurrentNode.IsExpanded = true;
             }
-            CurrentNode.IsExpanded = true;
+            catch (UnauthorizedAccessException)
+            {
+                ContentDialog dialog = new ContentDialog
+                {
+                    Title = "错误",
+                    Content = "RX无权在此创建文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
+                    PrimaryButtonText = "立刻",
+                    CloseButtonText = "稍后",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    _ = await Launcher.LaunchFolderAsync(CurrentFolder);
+                }
+            }
         }
     }
 
