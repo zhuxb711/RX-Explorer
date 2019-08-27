@@ -6,10 +6,16 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     NavigationCacheMode="Disabled"
+    Background="{ThemeResource SystemAccentColor}"
     mc:Ignorable="d">
 
-    <Grid Background="DeepSkyBlue">
+    <Grid>
         <Canvas>
+            <Canvas.ChildrenTransitions>
+                <TransitionCollection>
+                    <EntranceThemeTransition IsStaggeringEnabled="True" FromVerticalOffset="200"/>
+                </TransitionCollection>
+            </Canvas.ChildrenTransitions>
             <Image Name="extendedSplashImage" Source="ms-appx:///Assets/SplashScreen.png"/>
             <TextBlock FontSize="16" Name="Display" TextAlignment="Center" Width="350" Height="50"/>
             <StackPanel Orientation="Horizontal" Name="ButtonPane" Visibility="Collapsed" Width="210">

@@ -16,7 +16,7 @@ namespace FileManager
 {
     public sealed partial class ThisPC : Page
     {
-        private ObservableCollection<HardDeviceInfo> HardDeviceList;
+        public ObservableCollection<HardDeviceInfo> HardDeviceList;
         public ObservableCollection<LibraryFolder> LibraryFolderList { get; private set; }
         public ObservableCollection<QuickStartItem> QuickStartList { get; private set; }
         public ObservableCollection<QuickStartItem> WebList { get; private set; }
@@ -53,8 +53,8 @@ namespace FileManager
                 }
             }
 
-            QuickStartList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, string.Empty));
-            WebList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, string.Empty));
+            QuickStartList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
+            WebList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
 
             if (ApplicationData.Current.LocalSettings.Values["UserFolderPath"] is string UserPath)
             {
@@ -280,6 +280,13 @@ namespace FileManager
                     continue;
                 }
             }
+
+            if (MainPage.ThisPage.IsUSBActivate && !string.IsNullOrWhiteSpace(MainPage.ThisPage.ActivateUSBDevicePath))
+            {
+                MainPage.ThisPage.IsUSBActivate = false;
+                var HardDevice = HardDeviceList.Where((Device) => Device.Folder.Path == MainPage.ThisPage.ActivateUSBDevicePath).FirstOrDefault();
+                MainPage.ThisPage.Nav.Navigate(typeof(FileControl), HardDevice.Folder, new DrillInNavigationTransitionInfo());
+            }
         }
 
         private void DeviceGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
@@ -363,9 +370,9 @@ namespace FileManager
             await SQLite.GetInstance().DeleteQuickStartItemAsync(CurrenItem);
             WebList.Remove(CurrenItem);
 
-            if(MainPage.ThisPage.AdminQuickStartCollection.ContainsKey(CurrenItem.DisplayName))
+            if (MainPage.ThisPage.AdminQuickStartCollection.ContainsKey(CurrenItem.DisplayName))
             {
-                if(ApplicationData.Current.LocalSettings.Values["DeletedAdminQuickStart"] is string Query)
+                if (ApplicationData.Current.LocalSettings.Values["DeletedAdminQuickStart"] is string Query)
                 {
                     ApplicationData.Current.LocalSettings.Values["DeletedAdminQuickStart"] = Query + "," + CurrenItem.DisplayName;
                 }

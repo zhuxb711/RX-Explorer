@@ -5,15 +5,19 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Core;
 using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
 using Windows.UI.Notifications;
+using Windows.UI.Shell;
+using Windows.UI.StartScreen;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.UI.Xaml.Navigation;
 
 namespace FileManager
 {
@@ -29,12 +33,29 @@ namespace FileManager
 
         public Dictionary<string, InitializePackage> AdminQuickStartCollection;
 
+        public bool IsUSBActivate { get; set; } = false;
+
+        public string ActivateUSBDevicePath { get; private set; }
+
         public MainPage()
         {
             InitializeComponent();
             ThisPage = this;
             Window.Current.SetTitleBar(TitleBar);
             Loaded += MainPage_Loaded;
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            if (e.Parameter is string Parameter)
+            {
+                string[] Paras = Parameter.Split("||");
+                if (Paras[0] == "USBActivate")
+                {
+                    IsUSBActivate = true;
+                    ActivateUSBDevicePath = Paras[1];
+                }
+            }
         }
 
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
@@ -71,12 +92,12 @@ namespace FileManager
             SQLite SQL = SQLite.GetInstance();
             SearchHistoryRecord = await SQL.GetSearchHistoryAsync();
 
-            if(ApplicationData.Current.LocalSettings.Values["DeletedAdminQuickStart"] is string Query)
+            if (ApplicationData.Current.LocalSettings.Values["DeletedAdminQuickStart"] is string Query)
             {
                 var ToDeleteList = Query.Split(",", StringSplitOptions.RemoveEmptyEntries);
                 foreach (var Item in AdminQuickStartCollection)
                 {
-                    if(ToDeleteList.Contains(Item.Key))
+                    if (ToDeleteList.Contains(Item.Key))
                     {
                         continue;
                     }
@@ -94,12 +115,9 @@ namespace FileManager
             Nav.Navigate(typeof(ThisPC));
 
             await CheckAndInstallUpdate();
-
-            await Task.Delay(30000);
-            RequestRateApplication();
         }
 
-        private void Nav_Navigated(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
+        private void Nav_Navigated(object sender, NavigationEventArgs e)
         {
             NavView.IsBackEnabled = Nav.CanGoBack;
 
@@ -119,14 +137,68 @@ namespace FileManager
             }
         }
 
-        private bool WhetherUserRateAppInPast()
+        private async Task PinApplicationToTaskBar()
         {
-            return ApplicationData.Current.LocalSettings.Values["IsRated"] is bool;
+            if (ApplicationData.Current.LocalSettings.Values["IsPinToTaskBar"] is bool)
+            {
+                return;
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["IsPinToTaskBar"] = true;
+            }
+
+            TaskbarManager BarManager = TaskbarManager.GetDefault();
+            StartScreenManager ScreenManager = StartScreenManager.GetDefault();
+
+            bool PinStartScreen = false, PinTaskBar = false;
+
+            AppListEntry Entry = (await Package.Current.GetAppListEntriesAsync()).FirstOrDefault();
+            if (ScreenManager.SupportsAppListEntry(Entry) && !await ScreenManager.ContainsAppListEntryAsync(Entry))
+            {
+                PinStartScreen = true;
+            }
+            if (BarManager.IsPinningAllowed && !await BarManager.IsCurrentAppPinnedAsync())
+            {
+                PinTaskBar = true;
+            }
+
+            if (PinStartScreen && PinTaskBar)
+            {
+                PinTip.ActionButtonClick += async (s, e) =>
+                {
+                    _ = await BarManager.RequestPinCurrentAppAsync();
+                    _ = await ScreenManager.RequestAddAppListEntryAsync(Entry);
+                };
+            }
+            else if (PinStartScreen && !PinTaskBar)
+            {
+                PinTip.ActionButtonClick += async (s, e) =>
+                {
+                    _ = await ScreenManager.RequestAddAppListEntryAsync(Entry);
+                };
+            }
+            else if (!PinStartScreen && PinTaskBar)
+            {
+                PinTip.ActionButtonClick += async (s, e) =>
+                {
+                    _ = await BarManager.RequestPinCurrentAppAsync();
+                };
+            }
+
+            PinTip.Closed += async (s, e) =>
+            {
+                await Task.Delay(20000);
+                RequestRateApplication();
+            };
+
+            PinTip.Subtitle = "将RX文件管理器固定在和开始屏幕任务栏，启动更快更方便哦！\r\r★固定至开始菜单\r\r★固定至任务栏";
+            PinTip.IsOpen = true;
         }
 
         private void RequestRateApplication()
         {
-            if (WhetherUserRateAppInPast())
+            if (ApplicationData.Current.LocalSettings.Values["IsRated"] is bool)
             {
                 return;
             }
@@ -290,12 +362,20 @@ namespace FileManager
                         }
                     };
 
+                    UpdateTip.Closed += async (s, e) =>
+                    {
+                        await Task.Delay(5000);
+                        await PinApplicationToTaskBar();
+                    };
+
                     UpdateTip.IsOpen = true;
                 }
             }
             catch (Exception)
             {
                 ShowErrorNotification();
+                await Task.Delay(5000);
+                await PinApplicationToTaskBar();
             }
         }
 
@@ -391,7 +471,7 @@ namespace FileManager
             }
         }
 
-        private void Nav_Navigating(object sender, Windows.UI.Xaml.Navigation.NavigatingCancelEventArgs e)
+        private void Nav_Navigating(object sender, NavigatingCancelEventArgs e)
         {
             if (Nav.CurrentSourcePageType == e.SourcePageType)
             {

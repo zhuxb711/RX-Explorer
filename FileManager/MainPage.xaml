@@ -75,6 +75,15 @@
 	        ActionButtonContent="即刻更新"
 	        CloseButtonContent="稍后提示">
         </controls:TeachingTip>
+        <controls:TeachingTip
+            x:Name="PinTip"
+            Grid.Row="1"
+            Title="更快捷的启动"
+            PreferredPlacement="Bottom"
+            IsLightDismissEnabled="True"
+            ActionButtonContent="一键固定"
+            CloseButtonContent="关闭提示">
+        </controls:TeachingTip>
         <controls:TeachingTip 
             x:Name="RateTip"      
             Grid.Row="1"

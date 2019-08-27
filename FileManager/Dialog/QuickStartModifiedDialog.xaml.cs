@@ -44,7 +44,7 @@ namespace FileManager
             var Deferral = args.GetDeferral();
 
             if ((Type == QuickStartType.Application && ThisPC.ThisPage.QuickStartList.Any((Item) => Item.DisplayName == Name.Text)) 
-                || (Type == QuickStartType.Application && ThisPC.ThisPage.QuickStartList.Any((Item) => Item.DisplayName == Name.Text)))
+                || (Type == QuickStartType.WebSite && ThisPC.ThisPage.WebList.Any((Item) => Item.DisplayName == Name.Text)))
             {
                 ExistTip.IsOpen = true;
                 args.Cancel = true;

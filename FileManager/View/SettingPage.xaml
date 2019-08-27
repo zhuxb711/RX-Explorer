@@ -41,6 +41,7 @@
                     </Flyout>
                 </Button.Flyout>
             </Button>
+            <Button Margin="0,30,0,0" Content="还原并初始化App" Style="{StaticResource ButtonRevealStyle}" Name="ClearUp" Click="ClearUp_Click"/>
             <TextBlock Text="版本" FontSize="24" Margin="0,30,0,0"/>
             <TextBlock Name="Version" Margin="0,20,0,0" FontSize="16"/>
 

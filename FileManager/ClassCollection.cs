@@ -1549,19 +1549,11 @@ namespace FileManager
         public QuickStartItem(BitmapImage Image, Uri Uri, QuickStartType Type, string FullPath, string DisplayName = null)
         {
             this.Image = Image;
-            this.ProtocalUri = Uri;
+            ProtocalUri = Uri;
             this.Type = Type;
 
-            if (DisplayName == null)
-            {
-                this.DisplayName = string.Empty;
-                this.FullPath = string.Empty;
-            }
-            else
-            {
-                this.DisplayName = DisplayName;
-                this.FullPath = FullPath;
-            }
+            this.DisplayName = DisplayName;
+            this.FullPath = FullPath;
         }
     }
     #endregion
@@ -1574,7 +1566,7 @@ namespace FileManager
 
         protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
-            if (item is QuickStartItem Start && Start.DisplayName == string.Empty)
+            if (item is QuickStartItem Start && Start.DisplayName == null)
             {
                 return AddDataTemplate;
             }

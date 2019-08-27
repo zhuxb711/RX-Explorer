@@ -1,12 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
+using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.UI;
 using Windows.UI.Notifications;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 
 namespace FileManager
@@ -96,7 +101,7 @@ namespace FileManager
             Window.Current.Activate();
         }
 
-        protected override void OnFileActivated(FileActivatedEventArgs args)
+        protected override async void OnFileActivated(FileActivatedEventArgs args)
         {
             if (args.Verb == "USBArrival")
             {
@@ -106,11 +111,39 @@ namespace FileManager
                 viewTitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
                 viewTitleBar.ButtonForegroundColor = (Color)Resources["SystemBaseHighColor"];
 
-                if (!(Window.Current.Content is Frame))
+                if (Window.Current.Content is Frame)
                 {
-                    ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
-                    Window.Current.Content = extendedSplash;
+                    StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(args.Files.FirstOrDefault().Path);
+                    BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+                    ThisPC.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
+                    if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name == "FileControl")
+                    {
+                        MainPage.ThisPage.Nav.GoBack();
+                        MainPage.ThisPage.Nav.Navigate(typeof(FileControl), ThisPC.ThisPage.HardDeviceList.Last().Folder, new DrillInNavigationTransitionInfo());
+                    }
+                    else
+                    {
+                        MainPage.ThisPage.Nav.Navigate(typeof(FileControl), ThisPC.ThisPage.HardDeviceList.Last().Folder, new DrillInNavigationTransitionInfo());
+                    }
                 }
+                else
+                {
+                    try
+                    {
+                        _ = await StorageFolder.GetFolderFromPathAsync("C:\\");
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
+                        Window.Current.Content = extendedSplash;
+                    }
+
+                    Frame rootFrame = new Frame();
+                    Window.Current.Content = rootFrame;
+                    rootFrame.Navigate(typeof(MainPage), "USBActivate||" + args.Files.FirstOrDefault().Path);
+                }
+
                 Window.Current.Activate();
             }
         }

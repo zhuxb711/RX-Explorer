@@ -145,5 +145,69 @@ namespace FileManager
         {
             ConfirmFly.Hide();
         }
+
+        private async void ClearUp_Click(object sender, RoutedEventArgs e)
+        {
+            ContentDialog dialog = new ContentDialog
+            {
+                Title = "警告",
+                Content = " 此操作将完全初始化RX文件管理器，包括：\r\r     • 清除全部数据存储\r\r     • 还原所有应用设置\r\r     • RX文件管理器将自动关闭\r\r 您需要按提示重新启动",
+                CloseButtonText = "取消",
+                PrimaryButtonText = "确认",
+                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+            };
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+            {
+                SQLite.GetInstance().Dispose();
+                await ApplicationData.Current.ClearAsync();
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(GenerateRestartToast().GetXml()));
+                Application.Current.Exit();
+            }
+        }
+
+        public static ToastContent GenerateRestartToast()
+        {
+            return new ToastContent()
+            {
+                Launch = "Restart",
+                Scenario = ToastScenario.Alarm,
+
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                        {
+                        new AdaptiveText()
+                        {
+                            Text = "需要重新启动RX文件管理器"
+                        },
+
+                        new AdaptiveText()
+                        {
+                            Text = "初始化已完成"
+                        },
+
+                        new AdaptiveText()
+                        {
+                            Text = "请点击以立即重新启动RX"
+                        }
+                        }
+                    }
+                },
+
+                Actions = new ToastActionsCustom
+                {
+                    Buttons =
+                    {
+                        new ToastButton("立即启动","Restart")
+                        {
+                            ActivationType =ToastActivationType.Foreground
+                        },
+                        new ToastButtonDismiss("稍后")
+                    }
+                }
+            };
+        }
     }
 }
