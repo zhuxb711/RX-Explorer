@@ -31,8 +31,6 @@ namespace FileManager
 
         private Dictionary<Type, string> PageDictionary;
 
-        public Dictionary<string, InitializePackage> AdminQuickStartCollection;
-
         public bool IsUSBActivate { get; set; } = false;
 
         public string ActivateUSBDevicePath { get; private set; }
@@ -73,43 +71,25 @@ namespace FileManager
                 {typeof(AboutMe),"这台电脑" }
             };
 
-            AdminQuickStartCollection = new Dictionary<string, InitializePackage>
-            {
-                {"应用商店" ,new InitializePackage("应用商店", Path.Combine(Package.Current.InstalledLocation.Path, "Assets\\MicrosoftStore.png"), "ms-windows-store://home", QuickStartType.Application) },
-                {"计算器",new InitializePackage("计算器", Path.Combine(Package.Current.InstalledLocation.Path, "Assets\\Calculator.png"), "calculator:", QuickStartType.Application) },
-                {"系统设置",new InitializePackage("系统设置", Path.Combine(Package.Current.InstalledLocation.Path, "Assets\\Setting.png"), "ms-settings:", QuickStartType.Application) },
-                {"邮件",new InitializePackage("邮件", Path.Combine(Package.Current.InstalledLocation.Path, "Assets\\Email.png"), "mailto:", QuickStartType.Application) },
-                {"日历",new InitializePackage("必应地图", Path.Combine(Package.Current.InstalledLocation.Path, "Assets\\Map.png"), "bingmaps:", QuickStartType.Application) },
-                {"必应地图",new InitializePackage("必应地图", Path.Combine(Package.Current.InstalledLocation.Path, "Assets\\Map.png"), "bingmaps:", QuickStartType.Application) },
-                {"天气",new InitializePackage("天气", Path.Combine(Package.Current.InstalledLocation.Path, "Assets\\Weather.png"), "bingweather:", QuickStartType.Application) },
-                {"必应",new InitializePackage("必应", Path.Combine(Package.Current.InstalledLocation.Path, "Assets\\Bing.png"), "https://www.bing.com/", QuickStartType.WebSite) },
-                {"百度",new InitializePackage("百度", Path.Combine(Package.Current.InstalledLocation.Path, "Assets\\Baidu.png"), "https://www.baidu.com/", QuickStartType.WebSite) },
-                {"微信",new InitializePackage("微信", Path.Combine(Package.Current.InstalledLocation.Path, "Assets\\Wechat.png"), "https://wx.qq.com/", QuickStartType.WebSite) },
-                {"IT之家",new InitializePackage("IT之家", Path.Combine(Package.Current.InstalledLocation.Path, "Assets\\iThome.jpg"), "https://www.ithome.com/", QuickStartType.WebSite) },
-                {"微博",new InitializePackage("微博", Path.Combine(Package.Current.InstalledLocation.Path, "Assets\\Weibo.png"), "https://www.weibo.com/", QuickStartType.WebSite) }
-            };
-
             SQLite SQL = SQLite.GetInstance();
             SearchHistoryRecord = await SQL.GetSearchHistoryAsync();
 
-            if (ApplicationData.Current.LocalSettings.Values["DeletedAdminQuickStart"] is string Query)
+            if (!(ApplicationData.Current.LocalSettings.Values["IsInitQuickStart"] is bool))
             {
-                var ToDeleteList = Query.Split(",", StringSplitOptions.RemoveEmptyEntries);
-                foreach (var Item in AdminQuickStartCollection)
-                {
-                    if (ToDeleteList.Contains(Item.Key))
-                    {
-                        continue;
-                    }
-                    await SQL.SetQuickStartItemAsync(Item.Value.Name, Item.Value.FullPath, Item.Value.UriString, Item.Value.Type);
-                }
-            }
-            else
-            {
-                foreach (var Item in AdminQuickStartCollection)
-                {
-                    await SQL.SetQuickStartItemAsync(Item.Value.Name, Item.Value.FullPath, Item.Value.UriString, Item.Value.Type);
-                }
+                await SQLite.GetInstance().ClearTableAsync("QuickStart");
+                ApplicationData.Current.LocalSettings.Values["IsInitQuickStart"] = true;
+                await SQL.SetQuickStartItemAsync("应用商店", Path.Combine(Package.Current.InstalledLocation.Path, "QuickStartImage\\MicrosoftStore.png"), "ms-windows-store://home", QuickStartType.Application);
+                await SQL.SetQuickStartItemAsync("计算器", Path.Combine(Package.Current.InstalledLocation.Path, "QuickStartImage\\Calculator.png"), "calculator:", QuickStartType.Application);
+                await SQL.SetQuickStartItemAsync("系统设置", Path.Combine(Package.Current.InstalledLocation.Path, "QuickStartImage\\Setting.png"), "ms-settings:", QuickStartType.Application);
+                await SQL.SetQuickStartItemAsync("邮件", Path.Combine(Package.Current.InstalledLocation.Path, "QuickStartImage\\Email.png"), "mailto:", QuickStartType.Application);
+                await SQL.SetQuickStartItemAsync("日历", Path.Combine(Package.Current.InstalledLocation.Path, "QuickStartImage\\Calendar.png"), "outlookcal:", QuickStartType.Application);
+                await SQL.SetQuickStartItemAsync("必应地图", Path.Combine(Package.Current.InstalledLocation.Path, "QuickStartImage\\Map.png"), "bingmaps:", QuickStartType.Application);
+                await SQL.SetQuickStartItemAsync("天气", Path.Combine(Package.Current.InstalledLocation.Path, "QuickStartImage\\Weather.png"), "bingweather:", QuickStartType.Application);
+                await SQL.SetQuickStartItemAsync("必应", Path.Combine(Package.Current.InstalledLocation.Path, "HotWebImage\\Bing.png"), "https://www.bing.com/", QuickStartType.WebSite);
+                await SQL.SetQuickStartItemAsync("百度", Path.Combine(Package.Current.InstalledLocation.Path, "HotWebImage\\Baidu.png"), "https://www.baidu.com/", QuickStartType.WebSite);
+                await SQL.SetQuickStartItemAsync("微信", Path.Combine(Package.Current.InstalledLocation.Path, "HotWebImage\\Wechat.png"), "https://wx.qq.com/", QuickStartType.WebSite);
+                await SQL.SetQuickStartItemAsync("IT之家", Path.Combine(Package.Current.InstalledLocation.Path, "HotWebImage\\iThome.jpg"), "https://www.ithome.com/", QuickStartType.WebSite);
+                await SQL.SetQuickStartItemAsync("微博", Path.Combine(Package.Current.InstalledLocation.Path, "HotWebImage\\Weibo.png"), "https://www.weibo.com/", QuickStartType.WebSite);
             }
 
             Nav.Navigate(typeof(ThisPC));

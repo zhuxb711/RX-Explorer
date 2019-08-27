@@ -83,20 +83,34 @@ namespace FileManager
 
         public async Task UpdateQuickStartItemAsync(string OldName, string NewName, string FullPath, string Protocal, QuickStartType Type)
         {
-            using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName, FullPath=@Path, Protocal=@Protocal Where Name=@OldName And Type=@Type", OLEDB))
+            if (FullPath != null)
             {
-                _ = Command.Parameters.AddWithValue("@OldName", OldName);
-                _ = Command.Parameters.AddWithValue("@Path", FullPath);
-                _ = Command.Parameters.AddWithValue("@NewName", NewName);
-                _ = Command.Parameters.AddWithValue("@Protocal", Protocal);
-                _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                _ = await Command.ExecuteNonQueryAsync();
+                using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName, FullPath=@Path, Protocal=@Protocal Where Name=@OldName And Type=@Type", OLEDB))
+                {
+                    _ = Command.Parameters.AddWithValue("@OldName", OldName);
+                    _ = Command.Parameters.AddWithValue("@Path", FullPath);
+                    _ = Command.Parameters.AddWithValue("@NewName", NewName);
+                    _ = Command.Parameters.AddWithValue("@Protocal", Protocal);
+                    _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
+                    _ = await Command.ExecuteNonQueryAsync();
+                }
+            }
+            else
+            {
+                using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName, Protocal=@Protocal Where Name=@OldName And Type=@Type", OLEDB))
+                {
+                    _ = Command.Parameters.AddWithValue("@OldName", OldName);
+                    _ = Command.Parameters.AddWithValue("@NewName", NewName);
+                    _ = Command.Parameters.AddWithValue("@Protocal", Protocal);
+                    _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
+                    _ = await Command.ExecuteNonQueryAsync();
+                }
             }
         }
 
         public async Task DeleteQuickStartItemAsync(QuickStartItem Item)
         {
-            using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Name = @Name And FullPath=@FullPath And Type=@Type", OLEDB))
+            using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type", OLEDB))
             {
                 _ = Command.Parameters.AddWithValue("@Name", Item.DisplayName);
                 _ = Command.Parameters.AddWithValue("@FullPath", Item.FullPath);
@@ -114,23 +128,30 @@ namespace FileManager
             {
                 while (query.Read())
                 {
-                    StorageFile ImageFile = await StorageFile.GetFileFromPathAsync(query[1].ToString());
-                    using (var Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                    try
                     {
-                        BitmapImage Bitmap = new BitmapImage
+                        StorageFile ImageFile = await StorageFile.GetFileFromPathAsync(query[1].ToString());
+                        using (var Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
                         {
-                            DecodePixelHeight = 80,
-                            DecodePixelWidth = 80
-                        };
-                        await Bitmap.SetSourceAsync(Stream);
-                        if ((QuickStartType)Enum.Parse(typeof(QuickStartType), query[3].ToString()) == QuickStartType.Application)
-                        {
-                            QuickStartItemList.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.Application, ImageFile.Path, query[0].ToString())));
+                            BitmapImage Bitmap = new BitmapImage
+                            {
+                                DecodePixelHeight = 80,
+                                DecodePixelWidth = 80
+                            };
+                            await Bitmap.SetSourceAsync(Stream);
+                            if ((QuickStartType)Enum.Parse(typeof(QuickStartType), query[3].ToString()) == QuickStartType.Application)
+                            {
+                                QuickStartItemList.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.Application, ImageFile.Path, query[0].ToString())));
+                            }
+                            else
+                            {
+                                QuickStartItemList.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.WebSite, ImageFile.Path, query[0].ToString())));
+                            }
                         }
-                        else
-                        {
-                            QuickStartItemList.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.WebSite, ImageFile.Path, query[0].ToString())));
-                        }
+                    }
+                    catch(Exception)
+                    {
+                        continue;
                     }
                 }
                 return QuickStartItemList;
@@ -1535,7 +1556,11 @@ namespace FileManager
             this.ProtocalUri = ProtocalUri;
 
             this.DisplayName = DisplayName;
-            this.FullPath = FullPath;
+
+            if (FullPath != null)
+            {
+                this.FullPath = FullPath;
+            }
 
             OnPropertyChanged("DisplayName");
             OnPropertyChanged("Image");

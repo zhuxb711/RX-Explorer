@@ -43,8 +43,8 @@ namespace FileManager
         {
             var Deferral = args.GetDeferral();
 
-            if ((Type == QuickStartType.Application && ThisPC.ThisPage.QuickStartList.Any((Item) => Item.DisplayName == Name.Text)) 
-                || (Type == QuickStartType.WebSite && ThisPC.ThisPage.WebList.Any((Item) => Item.DisplayName == Name.Text)))
+            if ((Type == QuickStartType.Application && ThisPC.ThisPage.QuickStartList.Any((Item) => Item.DisplayName == Name.Text))
+                || (Type == QuickStartType.WebSite && ThisPC.ThisPage.HotWebList.Any((Item) => Item.DisplayName == Name.Text)))
             {
                 ExistTip.IsOpen = true;
                 args.Cancel = true;
@@ -86,7 +86,7 @@ namespace FileManager
                             }
 
                             string ImageName = Name.Text + Path.GetExtension(ImageFile.Path);
-                            StorageFile NewFile = await ImageFile.CopyAsync(ApplicationData.Current.RoamingFolder, ImageName, NameCollisionOption.ReplaceExisting);
+                            StorageFile NewFile = await ImageFile.CopyAsync(ApplicationData.Current.LocalFolder, ImageName, NameCollisionOption.ReplaceExisting);
 
                             ThisPC.ThisPage.QuickStartList.Insert(ThisPC.ThisPage.QuickStartList.Count - 1, new QuickStartItem(Icon.Source as BitmapImage, new Uri(Protocal.Text), QuickStartType.Application, NewFile.Path, Name.Text));
                             await SQLite.GetInstance().SetQuickStartItemAsync(Name.Text, NewFile.Path, Protocal.Text, QuickStartType.Application);
@@ -108,9 +108,9 @@ namespace FileManager
                             }
 
                             string ImageName = Name.Text + Path.GetExtension(ImageFile.Path);
-                            StorageFile NewFile = await ImageFile.CopyAsync(ApplicationData.Current.RoamingFolder, ImageName, NameCollisionOption.ReplaceExisting);
+                            StorageFile NewFile = await ImageFile.CopyAsync(ApplicationData.Current.LocalFolder, ImageName, NameCollisionOption.ReplaceExisting);
 
-                            ThisPC.ThisPage.WebList.Insert(ThisPC.ThisPage.WebList.Count - 1, new QuickStartItem(Icon.Source as BitmapImage, new Uri(Protocal.Text), QuickStartType.WebSite, NewFile.Path, Name.Text));
+                            ThisPC.ThisPage.HotWebList.Insert(ThisPC.ThisPage.HotWebList.Count - 1, new QuickStartItem(Icon.Source as BitmapImage, new Uri(Protocal.Text), QuickStartType.WebSite, NewFile.Path, Name.Text));
                             await SQLite.GetInstance().SetQuickStartItemAsync(Name.Text, NewFile.Path, Protocal.Text, QuickStartType.WebSite);
                             break;
                         }
@@ -133,7 +133,7 @@ namespace FileManager
                                 await (await StorageFile.GetFileFromPathAsync(QuickItem.FullPath)).DeleteAsync(StorageDeleteOption.PermanentDelete);
 
                                 string ImageName = Name.Text + Path.GetExtension(ImageFile.Path);
-                                StorageFile NewFile = await ImageFile.CopyAsync(ApplicationData.Current.RoamingFolder, ImageName, NameCollisionOption.ReplaceExisting);
+                                StorageFile NewFile = await ImageFile.CopyAsync(ApplicationData.Current.LocalFolder, ImageName, NameCollisionOption.ReplaceExisting);
 
                                 await SQLite.GetInstance().UpdateQuickStartItemAsync(QuickItem.DisplayName, Name.Text, NewFile.Path, Protocal.Text, QuickStartType.Application);
 
@@ -141,14 +141,9 @@ namespace FileManager
                             }
                             else
                             {
-                                StorageFile ImageFile = await StorageFile.GetFileFromPathAsync(QuickItem.FullPath);
+                                await SQLite.GetInstance().UpdateQuickStartItemAsync(QuickItem.DisplayName, Name.Text, null, Protocal.Text, QuickStartType.Application);
 
-                                string ImageName = Name.Text + Path.GetExtension(ImageFile.Path);
-                                await ImageFile.RenameAsync(ImageName, NameCollisionOption.ReplaceExisting);
-
-                                await SQLite.GetInstance().UpdateQuickStartItemAsync(QuickItem.DisplayName, Name.Text, ImageFile.Path, Protocal.Text, QuickStartType.Application);
-
-                                QuickItem.Update(Icon.Source as BitmapImage, new Uri(Protocal.Text), ImageFile.Path, Name.Text);
+                                QuickItem.Update(Icon.Source as BitmapImage, new Uri(Protocal.Text), null, Name.Text);
                             }
                             break;
                         }
@@ -171,7 +166,7 @@ namespace FileManager
                                 await (await StorageFile.GetFileFromPathAsync(QuickItem.FullPath)).DeleteAsync(StorageDeleteOption.PermanentDelete);
 
                                 string ImageName = Name.Text + Path.GetExtension(ImageFile.Path);
-                                StorageFile NewFile = await ImageFile.CopyAsync(ApplicationData.Current.RoamingFolder, ImageName, NameCollisionOption.ReplaceExisting);
+                                StorageFile NewFile = await ImageFile.CopyAsync(ApplicationData.Current.LocalFolder, ImageName, NameCollisionOption.ReplaceExisting);
 
                                 await SQLite.GetInstance().UpdateQuickStartItemAsync(QuickItem.DisplayName, Name.Text, NewFile.Path, Protocal.Text, QuickStartType.WebSite);
 
@@ -179,14 +174,9 @@ namespace FileManager
                             }
                             else
                             {
-                                StorageFile ImageFile = await StorageFile.GetFileFromPathAsync(QuickItem.FullPath);
+                                await SQLite.GetInstance().UpdateQuickStartItemAsync(QuickItem.DisplayName, Name.Text, null, Protocal.Text, QuickStartType.WebSite);
 
-                                string ImageName = Name.Text + Path.GetExtension(ImageFile.Path);
-                                await ImageFile.RenameAsync(ImageName, NameCollisionOption.ReplaceExisting);
-
-                                await SQLite.GetInstance().UpdateQuickStartItemAsync(QuickItem.DisplayName, Name.Text, ImageFile.Path, Protocal.Text, QuickStartType.WebSite);
-
-                                QuickItem.Update(Icon.Source as BitmapImage, new Uri(Protocal.Text), ImageFile.Path, Name.Text);
+                                QuickItem.Update(Icon.Source as BitmapImage, new Uri(Protocal.Text), null, Name.Text);
                             }
                             break;
                         }

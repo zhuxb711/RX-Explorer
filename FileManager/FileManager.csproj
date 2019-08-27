@@ -21,8 +21,8 @@
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x86|x64|arm|arm64</AppxBundlePlatforms>
-    <PackageCertificateThumbprint>628847F6A1B41C954B67977182CF398AF91B22E8</PackageCertificateThumbprint>
+    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
+    <PackageCertificateThumbprint>144E620B5D757A1C07EBF9C3374978248EFD3FA3</PackageCertificateThumbprint>
     <AppInstallerUpdateFrequency>0</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
@@ -222,23 +222,23 @@
   <ItemGroup>
     <Content Include="Assets\Add.png" />
     <Content Include="Assets\AddImage.png" />
-    <Content Include="Assets\Baidu.png" />
-    <Content Include="Assets\Bing.png" />
-    <Content Include="Assets\Calculator.png" />
-    <Content Include="Assets\Calendar.png" />
+    <Content Include="HotWebImage\Baidu.png" />
+    <Content Include="HotWebImage\Bing.png" />
+    <Content Include="QuickStartImage\Calculator.png" />
+    <Content Include="QuickStartImage\Calendar.png" />
     <Content Include="Assets\DocIcon.png" />
-    <Content Include="Assets\Email.png" />
+    <Content Include="QuickStartImage\Email.png" />
     <Content Include="Assets\EmailIcon.png" />
     <Content Include="Assets\GithubIcon.png" />
-    <Content Include="Assets\iThome.jpg" />
+    <Content Include="HotWebImage\iThome.jpg" />
     <Content Include="Assets\LargeTile.scale-100.png" />
     <Content Include="Assets\LargeTile.scale-125.png" />
     <Content Include="Assets\LargeTile.scale-150.png" />
     <Content Include="Assets\LargeTile.scale-200.png" />
     <Content Include="Assets\LargeTile.scale-400.png" />
-    <Content Include="Assets\Map.png" />
-    <Content Include="Assets\MicrosoftStore.png" />
-    <Content Include="Assets\Setting.png" />
+    <Content Include="QuickStartImage\Map.png" />
+    <Content Include="QuickStartImage\MicrosoftStore.png" />
+    <Content Include="QuickStartImage\Setting.png" />
     <Content Include="Assets\SmallTile.scale-100.png" />
     <Content Include="Assets\SmallTile.scale-125.png" />
     <Content Include="Assets\SmallTile.scale-150.png" />
@@ -275,9 +275,9 @@
     <Content Include="Assets\StoreLogo.scale-150.png" />
     <Content Include="Assets\StoreLogo.scale-200.png" />
     <Content Include="Assets\StoreLogo.scale-400.png" />
-    <Content Include="Assets\Weather.png" />
-    <Content Include="Assets\Wechat.png" />
-    <Content Include="Assets\Weibo.png" />
+    <Content Include="QuickStartImage\Weather.png" />
+    <Content Include="HotWebImage\Wechat.png" />
+    <Content Include="HotWebImage\Weibo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-100.png" />
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />

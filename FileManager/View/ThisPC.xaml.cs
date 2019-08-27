@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.System;
@@ -19,7 +20,7 @@ namespace FileManager
         public ObservableCollection<HardDeviceInfo> HardDeviceList;
         public ObservableCollection<LibraryFolder> LibraryFolderList { get; private set; }
         public ObservableCollection<QuickStartItem> QuickStartList { get; private set; }
-        public ObservableCollection<QuickStartItem> WebList { get; private set; }
+        public ObservableCollection<QuickStartItem> HotWebList { get; private set; }
         public static ThisPC ThisPage { get; private set; }
 
         private QuickStartItem CurrenItem;
@@ -30,11 +31,11 @@ namespace FileManager
             HardDeviceList = new ObservableCollection<HardDeviceInfo>();
             LibraryFolderList = new ObservableCollection<LibraryFolder>();
             QuickStartList = new ObservableCollection<QuickStartItem>();
-            WebList = new ObservableCollection<QuickStartItem>();
+            HotWebList = new ObservableCollection<QuickStartItem>();
             LibraryGrid.ItemsSource = LibraryFolderList;
             DeviceGrid.ItemsSource = HardDeviceList;
             QuickStartGridView.ItemsSource = QuickStartList;
-            WebGridView.ItemsSource = WebList;
+            WebGridView.ItemsSource = HotWebList;
             ThisPage = this;
             OnFirstLoad();
         }
@@ -49,12 +50,12 @@ namespace FileManager
                 }
                 else
                 {
-                    WebList.Add(Item.Value);
+                    HotWebList.Add(Item.Value);
                 }
             }
 
             QuickStartList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
-            WebList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
+            HotWebList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
 
             if (ApplicationData.Current.LocalSettings.Values["UserFolderPath"] is string UserPath)
             {
@@ -333,22 +334,8 @@ namespace FileManager
 
         private async void AppDelete_Click(object sender, RoutedEventArgs e)
         {
-            StorageFile File = await StorageFile.GetFileFromPathAsync(CurrenItem.FullPath);
-            await File.DeleteAsync(StorageDeleteOption.PermanentDelete);
             await SQLite.GetInstance().DeleteQuickStartItemAsync(CurrenItem);
             QuickStartList.Remove(CurrenItem);
-
-            if (MainPage.ThisPage.AdminQuickStartCollection.ContainsKey(CurrenItem.DisplayName))
-            {
-                if (ApplicationData.Current.LocalSettings.Values["DeletedAdminQuickStart"] is string Query)
-                {
-                    ApplicationData.Current.LocalSettings.Values["DeletedAdminQuickStart"] = Query + "," + CurrenItem.DisplayName;
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["DeletedAdminQuickStart"] = CurrenItem.DisplayName;
-                }
-            }
         }
 
         private async void AppEdit_Click(object sender, RoutedEventArgs e)
@@ -365,22 +352,8 @@ namespace FileManager
 
         private async void WebDelete_Click(object sender, RoutedEventArgs e)
         {
-            StorageFile File = await StorageFile.GetFileFromPathAsync(CurrenItem.FullPath);
-            await File.DeleteAsync(StorageDeleteOption.PermanentDelete);
             await SQLite.GetInstance().DeleteQuickStartItemAsync(CurrenItem);
-            WebList.Remove(CurrenItem);
-
-            if (MainPage.ThisPage.AdminQuickStartCollection.ContainsKey(CurrenItem.DisplayName))
-            {
-                if (ApplicationData.Current.LocalSettings.Values["DeletedAdminQuickStart"] is string Query)
-                {
-                    ApplicationData.Current.LocalSettings.Values["DeletedAdminQuickStart"] = Query + "," + CurrenItem.DisplayName;
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["DeletedAdminQuickStart"] = CurrenItem.DisplayName;
-                }
-            }
+            HotWebList.Remove(CurrenItem);
         }
 
         private void QuickStartGridView_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)

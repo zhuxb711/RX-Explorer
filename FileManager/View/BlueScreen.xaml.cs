@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.System;
+using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -49,5 +51,57 @@ namespace FileManager
         {
             await SendEmailAsync(Message.Text);
         }
+
+        private async void Reset_Click(object sender, RoutedEventArgs e)
+        {
+            SQLite.GetInstance().Dispose();
+            await ApplicationData.Current.ClearAsync();
+            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(GenerateRestartToast().GetXml()));
+            Application.Current.Exit();
+        }
+
+        public static ToastContent GenerateRestartToast()
+        {
+            return new ToastContent()
+            {
+                Launch = "Restart",
+                Scenario = ToastScenario.Alarm,
+
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                        {
+                        new AdaptiveText()
+                        {
+                            Text = "需要重新启动RX文件管理器"
+                        },
+
+                        new AdaptiveText()
+                        {
+                            Text = "重置已完成"
+                        },
+
+                        new AdaptiveText()
+                        {
+                            Text = "请点击以立即重新启动RX"
+                        }
+                        }
+                    }
+                },
+
+                Actions = new ToastActionsCustom
+                {
+                    Buttons =
+                    {
+                        new ToastButton("立即启动","Restart")
+                        {
+                            ActivationType =ToastActivationType.Foreground
+                        },
+                        new ToastButtonDismiss("稍后")
+                    }
+                }
+            };
+        }
     }
-}
