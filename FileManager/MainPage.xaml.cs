@@ -555,7 +555,7 @@ namespace FileManager
 
             if (FileControl.ThisPage.Nav.CurrentSourcePageType.Name != "SearchPage")
             {
-                StorageItemQueryResult FileQuery = (FileControl.ThisPage.FolderTree.RootNodes.FirstOrDefault().Content as StorageFolder).CreateItemQueryWithOptions(Options);
+                StorageItemQueryResult FileQuery = FileControl.ThisPage.CurrentFolder.CreateItemQueryWithOptions(Options);
 
                 FileControl.ThisPage.Nav.Navigate(typeof(SearchPage), FileQuery, new DrillInNavigationTransitionInfo());
             }

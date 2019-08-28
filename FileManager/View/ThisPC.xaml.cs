@@ -412,5 +412,27 @@ namespace FileManager
                 MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Device.Folder, new DrillInNavigationTransitionInfo());
             }
         }
+
+        private void DeviceGrid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (!((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Context))
+            {
+                DeviceGrid.SelectedIndex = -1;
+            }
+        }
+
+        private void LibraryGrid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (!((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Context))
+            {
+                LibraryGrid.SelectedIndex = -1;
+            }
+        }
+
+        private void Grid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            DeviceGrid.SelectedIndex = -1;
+            LibraryGrid.SelectedIndex = -1;
+        }
     }
 }

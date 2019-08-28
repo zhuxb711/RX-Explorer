@@ -151,7 +151,13 @@ namespace FileManager
                     }
                     catch(Exception)
                     {
-                        continue;
+                        using (SqliteCommand Command1 = new SqliteCommand("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type", OLEDB))
+                        {
+                            _ = Command1.Parameters.AddWithValue("@Name", query[0].ToString());
+                            _ = Command1.Parameters.AddWithValue("@FullPath", query[1].ToString());
+                            _ = Command1.Parameters.AddWithValue("@Type", query[3].ToString());
+                            _ = await Command1.ExecuteNonQueryAsync();
+                        }
                     }
                 }
                 return QuickStartItemList;
@@ -571,13 +577,6 @@ namespace FileManager
                 this.IsCrypted = "密码保护：否";
             }
         }
-    }
-    #endregion
-
-    #region USB设备为空时的文件目录树显示类
-    public sealed class EmptyDeviceDisplay
-    {
-        public string DisplayName { get => "无文件夹"; }
     }
     #endregion
 
@@ -1599,27 +1598,6 @@ namespace FileManager
             {
                 return NormalDataTemplate;
             }
-        }
-    }
-    #endregion
-
-    #region 默认快速启动初始化图标包
-    public sealed class InitializePackage
-    {
-        public string FullPath { get; private set; }
-
-        public string Name { get; private set; }
-
-        public string UriString { get; private set; }
-
-        public QuickStartType Type { get; private set; }
-
-        public InitializePackage(string Name, string FullPath, string UriString, QuickStartType Type)
-        {
-            this.FullPath = FullPath;
-            this.Name = Name;
-            this.UriString = UriString;
-            this.Type = Type;
         }
     }
     #endregion

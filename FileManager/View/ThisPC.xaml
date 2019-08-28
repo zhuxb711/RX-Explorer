@@ -34,7 +34,7 @@
         </CommandBarFlyout>
     </Page.Resources>
 
-    <Grid>
+    <Grid Background="Transparent" PointerPressed="Grid_PointerPressed">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300"/>
             <ColumnDefinition Width="5*"/>
@@ -108,18 +108,13 @@
                 </GridView.ItemContainerTransitions>
             </GridView>
         </Grid>
-        <Grid Grid.Column="2" Margin="10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="3*"/>
-                <RowDefinition Height="5*"/>
-            </Grid.RowDefinitions>
-            <Grid.ChildrenTransitions>
+        <StackPanel Grid.Column="2" Margin="10">
+            <StackPanel.ChildrenTransitions>
                 <TransitionCollection>
                     <PaneThemeTransition Edge="Top"/>
                 </TransitionCollection>
-            </Grid.ChildrenTransitions>
+            </StackPanel.ChildrenTransitions>
             <controls:Expander x:Name="LibraryExpander"
-                               Grid.Row="0"
                                VerticalAlignment="Stretch"
                                Background="{StaticResource NavigationViewTopPaneBackground}"
                                IsExpanded="True"
@@ -131,7 +126,7 @@
                           Name="LibraryGrid"
                           IsItemClickEnabled="True"
                           IsDoubleTapEnabled="True"
-                          IsRightTapEnabled="True"
+                          PointerPressed="LibraryGrid_PointerPressed"
                           DoubleTapped="LibraryGrid_DoubleTapped">
 
                     <GridView.ItemTemplate>
@@ -158,7 +153,6 @@
                 </GridView>
             </controls:Expander>
             <controls:Expander x:Name="DeviceExpander"
-                               Grid.Row="1" 
                                Background="{StaticResource NavigationViewTopPaneBackground}"
                                VerticalAlignment="Stretch"
                                HorizontalContentAlignment="Stretch"
@@ -171,6 +165,7 @@
                           IsItemClickEnabled="True"
                           IsDoubleTapEnabled="True"
                           IsRightTapEnabled="True"
+                          PointerPressed="DeviceGrid_PointerPressed"
                           RightTapped="DeviceGrid_RightTapped"
                           SelectionChanged="DeviceGrid_SelectionChanged"
                           DoubleTapped="DeviceGrid_DoubleTapped">
@@ -206,6 +201,6 @@
                     </GridView.ItemContainerTransitions>
                 </GridView>
             </controls:Expander>
-        </Grid>
+        </StackPanel>
     </Grid>
 </Page>

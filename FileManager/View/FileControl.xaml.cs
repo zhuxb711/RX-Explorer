@@ -19,7 +19,23 @@ namespace FileManager
 {
     public sealed partial class FileControl : Page
     {
-        public TreeViewNode CurrentNode { get; set; }
+        private TreeViewNode currentnode;
+        public TreeViewNode CurrentNode
+        {
+            get
+            {
+                return currentnode;
+            }
+            set
+            {
+                currentnode = value;
+                if (currentnode != null)
+                {
+                    MainPage.ThisPage.GlobeSearch.PlaceholderText = "搜索 " + (currentnode.Content as StorageFolder).DisplayName;
+                }
+            }
+        }
+
         public StorageFolder CurrentFolder
         {
             get
@@ -30,7 +46,6 @@ namespace FileManager
 
         public static FileControl ThisPage { get; private set; }
         private bool IsAdding = false;
-        private string RootFolderId;
         private CancellationTokenSource CancelToken;
         private AutoResetEvent Locker;
         public AutoResetEvent ExpandLocker;
@@ -51,9 +66,21 @@ namespace FileManager
             Locker = new AutoResetEvent(false);
             ExpandLocker = new AutoResetEvent(false);
 
-            var Node = FolderTree.RootNodes.FirstOrDefault();
-            (FolderTree.ContainerFromNode(Node) as TreeViewItem).IsSelected = true;
-            await DisplayItemsInFolder(Node);
+            while (true)
+            {
+                var Node = FolderTree.RootNodes.FirstOrDefault();
+                if (Node == null)
+                {
+                    await Task.Delay(200);
+                    continue;
+                }
+                else
+                {
+                    (FolderTree.ContainerFromNode(Node) as TreeViewItem).IsSelected = true;
+                    await DisplayItemsInFolder(Node);
+                    break;
+                }
+            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -62,7 +89,7 @@ namespace FileManager
             InitializeTreeView(TargetFolder);
 
             MainPage.ThisPage.GlobeSearch.Visibility = Visibility.Visible;
-            MainPage.ThisPage.GlobeSearch.PlaceholderText = "搜索" + TargetFolder.DisplayName;
+            MainPage.ThisPage.GlobeSearch.PlaceholderText = "搜索 " + TargetFolder.DisplayName;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -86,21 +113,17 @@ namespace FileManager
         /// </summary>
         private async void InitializeTreeView(StorageFolder InitFolder)
         {
-            RootFolderId = InitFolder.FolderRelativeId;
             if (InitFolder != null)
             {
+                var SubFolders = await InitFolder.GetFoldersAsync();
                 TreeViewNode RootNode = new TreeViewNode
                 {
                     Content = InitFolder,
-                    IsExpanded = true,
-                    HasUnrealizedChildren = true
+                    IsExpanded = SubFolders.Count != 0,
+                    HasUnrealizedChildren = SubFolders.Count != 0
                 };
                 FolderTree.RootNodes.Add(RootNode);
                 await FillTreeNode(RootNode);
-                if (RootNode.Children.Count == 0)
-                {
-                    RootNode.Children.Add(new TreeViewNode() { Content = new EmptyDeviceDisplay() });
-                }
             }
         }
 
@@ -122,15 +145,6 @@ namespace FileManager
             }
 
             IReadOnlyList<StorageFolder> StorageFolderList = await folder.GetFoldersAsync();
-            if (folder.FolderRelativeId == RootFolderId)
-            {
-                //若当前节点为根节点，且在根节点下无任何文件夹被发现，说明无USB设备插入
-                //因此清除根文件夹下的节点
-                if (StorageFolderList.Count == 0)
-                {
-                    Node.Children.Clear();
-                }
-            }
 
             if (StorageFolderList.Count == 0)
             {
@@ -157,13 +171,6 @@ namespace FileManager
             if (args.Node.HasUnrealizedChildren)
             {
                 await FillTreeNode(args.Node);
-            }
-            if ((args.Node.Content as StorageFolder).FolderRelativeId == RootFolderId)
-            {
-                if (args.Node.Children.Count == 0)
-                {
-                    args.Node.Children.Add(new TreeViewNode() { Content = new EmptyDeviceDisplay() });
-                }
             }
 
             if (ExpenderLockerReleaseRequest)

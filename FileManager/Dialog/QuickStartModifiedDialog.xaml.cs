@@ -130,8 +130,6 @@ namespace FileManager
 
                             if (ImageFile != null)
                             {
-                                await (await StorageFile.GetFileFromPathAsync(QuickItem.FullPath)).DeleteAsync(StorageDeleteOption.PermanentDelete);
-
                                 string ImageName = Name.Text + Path.GetExtension(ImageFile.Path);
                                 StorageFile NewFile = await ImageFile.CopyAsync(ApplicationData.Current.LocalFolder, ImageName, NameCollisionOption.ReplaceExisting);
 
@@ -163,8 +161,6 @@ namespace FileManager
 
                             if (ImageFile != null)
                             {
-                                await (await StorageFile.GetFileFromPathAsync(QuickItem.FullPath)).DeleteAsync(StorageDeleteOption.PermanentDelete);
-
                                 string ImageName = Name.Text + Path.GetExtension(ImageFile.Path);
                                 StorageFile NewFile = await ImageFile.CopyAsync(ApplicationData.Current.LocalFolder, ImageName, NameCollisionOption.ReplaceExisting);
 
