@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.System;
@@ -17,7 +16,7 @@ namespace FileManager
 {
     public sealed partial class ThisPC : Page
     {
-        public ObservableCollection<HardDeviceInfo> HardDeviceList;
+        public ObservableCollection<HardDeviceInfo> HardDeviceList { get; private set; }
         public ObservableCollection<LibraryFolder> LibraryFolderList { get; private set; }
         public ObservableCollection<QuickStartItem> QuickStartList { get; private set; }
         public ObservableCollection<QuickStartItem> HotWebList { get; private set; }

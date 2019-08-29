@@ -69,6 +69,7 @@
                         <AppBarButton Icon="NewFolder" Label="新建文件夹" Name="CreateFolder" Click="CreateFolder_Click"/>
                         <AppBarButton Icon="Delete" Label="删除此文件夹" Name="FolderDelete" IsEnabled="{x:Bind CreateFolder.IsEnabled,Mode=OneWay}" Click="FolderDelete_Click"/>
                         <AppBarButton Icon="Edit" Label="重命名此文件夹" Name="FolderRename" IsEnabled="{x:Bind CreateFolder.IsEnabled,Mode=OneWay}" Click="FolderRename_Click"/>
+                        <AppBarButton Icon="Tag" Label="属性" x:Name="FolderAttribute" IsEnabled="{x:Bind CreateFolder.IsEnabled,Mode=OneWay}" Click="FolderAttribute_Click"/>
                     </CommandBarFlyout.SecondaryCommands>
                 </CommandBarFlyout>
             </TreeView.ContextFlyout>

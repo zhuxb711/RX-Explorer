@@ -512,6 +512,12 @@ namespace FileManager
                 }
             }
         }
+
+        private async void FolderAttribute_Click(object sender, RoutedEventArgs e)
+        {
+            AttributeDialog Dialog = new AttributeDialog(CurrentFolder);
+            _ = await Dialog.ShowAsync();
+        }
     }
 
 }

@@ -48,7 +48,7 @@ namespace FileManager
                     Na.Text = "文件夹名";
                     Ty.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
 
-                    FileName = folder.Name;
+                    FileName = folder.DisplayName;
                     Path = folder.Path;
                     CreateTime = folder.DateCreated.Year + "年" + folder.DateCreated.Month + "月" + folder.DateCreated.Day + "日, " + folder.DateCreated.Hour.ToString("D2") + ":" + folder.DateCreated.Minute.ToString("D2") + ":" + folder.DateCreated.Second.ToString("D2");
 

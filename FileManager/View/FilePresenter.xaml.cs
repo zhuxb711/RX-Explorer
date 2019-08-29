@@ -35,8 +35,8 @@ namespace FileManager
         public static FilePresenter ThisPage { get; private set; }
         public List<GridViewItem> ZipCollection = new List<GridViewItem>();
         public TreeViewNode DisplayNode;
-        Queue<StorageFile> CopyedQueue;
-        Queue<StorageFile> CutQueue;
+        StorageFile CopyFile;
+        StorageFile CutFile;
         AutoResetEvent AESControl;
         DispatcherTimer Ticker;
         Frame Nav;
@@ -91,8 +91,6 @@ namespace FileManager
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             Nav = e.Parameter as Frame;
-            CopyedQueue = new Queue<StorageFile>();
-            CutQueue = new Queue<StorageFile>();
             AddToZipQueue = new Queue<StorageFile>();
             AESControl = new AutoResetEvent(false);
             Ticker = new DispatcherTimer
@@ -101,15 +99,13 @@ namespace FileManager
             };
             Ticker.Tick += (s, v) =>
             {
-                ProgressInfo.Text = ProgressInfo.Text + "\r文件较大，请耐心等待...";
+                ProgressInfo.Text += "\r文件较大，请耐心等待...";
                 Ticker.Stop();
             };
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            CopyedQueue = null;
-            CutQueue = null;
             AddToZipQueue = null;
             AESControl?.Dispose();
             Ticker?.Stop();
@@ -122,184 +118,141 @@ namespace FileManager
         private void Restore()
         {
             CommandsFlyout.Hide();
-            if (GridViewControl.SelectionMode != ListViewSelectionMode.Single)
-            {
-                GridViewControl.SelectionMode = ListViewSelectionMode.Single;
-            }
-        }
-        private void MulSelection_Click(object sender, RoutedEventArgs e)
-        {
-            CommandsFlyout.Hide();
-            GridViewControl.SelectionMode = GridViewControl.SelectionMode != ListViewSelectionMode.Multiple
-                ? ListViewSelectionMode.Multiple
-                : ListViewSelectionMode.Single;
         }
 
         private void Copy_Click(object sender, RoutedEventArgs e)
         {
-            if (CopyedQueue.Count != 0)
+            if (CopyFile != null)
             {
-                CopyedQueue.Clear();
+                CopyFile = null;
             }
-            foreach (FileSystemStorageItem item in GridViewControl.SelectedItems)
-            {
-                CopyedQueue.Enqueue(item.File);
-            }
+
+            CopyFile = (GridViewControl.SelectedItem as FileSystemStorageItem).File;
+
             Paste.IsEnabled = true;
-            if (CutQueue.Count != 0)
+
+            if (CutFile != null)
             {
-                CutQueue.Clear();
+                CutFile = null;
             }
+
             Restore();
         }
 
         private async void Paste_Click(object sender, RoutedEventArgs e)
         {
             Restore();
-            if (CutQueue.Count != 0)
+            if (CutFile != null)
             {
                 LoadingActivation(true, "正在剪切");
-                Queue<string> ErrorCollection = new Queue<string>();
 
-                while (CutQueue.Count != 0)
+                try
                 {
-                    var CutFile = CutQueue.Dequeue();
-                    try
+                    await CutFile.MoveAsync(FileControl.ThisPage.CurrentFolder, CutFile.Name, NameCollisionOption.GenerateUniqueName);
+                    if (FileCollection.Count > 0)
                     {
-                        await CutFile.MoveAsync(FileControl.ThisPage.CurrentFolder, CutFile.Name, NameCollisionOption.GenerateUniqueName);
-                        if (FileCollection.Count > 0)
-                        {
-                            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
-                        }
-                        else
-                        {
-                            FileCollection.Add(new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
-                        }
+                        FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
                     }
-                    catch (FileNotFoundException)
+                    else
                     {
-                        ContentDialog Dialog = new ContentDialog
-                        {
-                            Title = "错误",
-                            Content = "因源文件已删除，无法剪切到指定位置",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        _ = await Dialog.ShowAsync();
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        ContentDialog dialog = new ContentDialog
-                        {
-                            Title = "错误",
-                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                            PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                        }
-                    }
-                    catch (System.Runtime.InteropServices.COMException)
-                    {
-                        //收集但不立刻报告错误
-                        ErrorCollection.Enqueue(CutFile.Name);
+                        FileCollection.Add(new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
                     }
                 }
-
-                if (ErrorCollection.Count != 0)
+                catch (FileNotFoundException)
                 {
-                    string ErrorFileList = "";
-                    while (ErrorCollection.Count != 0)
-                    {
-                        ErrorFileList = ErrorFileList + ErrorCollection.Dequeue() + "\r";
-                    }
-                    ContentDialog contentDialog = new ContentDialog
+                    ContentDialog Dialog = new ContentDialog
                     {
                         Title = "错误",
-                        Content = "因设备剩余空间大小不足\r以下文件无法剪切：\r" + ErrorFileList,
+                        Content = "因源文件已删除，无法剪切到指定位置",
                         CloseButtonText = "确定",
                         Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                     };
-                    LoadingActivation(false);
+                    _ = await Dialog.ShowAsync();
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Title = "错误",
+                        Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                        PrimaryButtonText = "立刻",
+                        CloseButtonText = "稍后",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                    }
+                }
+                catch (System.Runtime.InteropServices.COMException)
+                {
+                    ContentDialog contentDialog = new ContentDialog
+                    {
+                        Title = "错误",
+                        Content = "因设备剩余空间大小不足，文件无法剪切",
+                        CloseButtonText = "确定",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
                     _ = await contentDialog.ShowAsync();
                 }
 
                 await Task.Delay(500);
                 LoadingActivation(false);
-                Paste.IsEnabled = false;
             }
-            else if (CopyedQueue.Count != 0)
+            else if (CopyFile != null)
             {
-
                 LoadingActivation(true, "正在复制");
-                Queue<string> ErrorCollection = new Queue<string>();
-                while (CopyedQueue.Count != 0)
+
+                try
                 {
-                    var CopyedFile = CopyedQueue.Dequeue();
-                    try
+                    StorageFile NewFile = await CopyFile.CopyAsync(FileControl.ThisPage.CurrentFolder, CopyFile.Name, NameCollisionOption.GenerateUniqueName);
+                    if (FileCollection.Count > 0)
                     {
-                        StorageFile NewFile = await CopyedFile.CopyAsync(FileControl.ThisPage.CurrentFolder, CopyedFile.Name, NameCollisionOption.GenerateUniqueName);
-                        if (FileCollection.Count > 0)
-                        {
-                            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
-                        }
-                        else
-                        {
-                            FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
-                        }
+                        FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
                     }
-                    catch (FileNotFoundException)
+                    else
                     {
-                        ContentDialog Dialog = new ContentDialog
-                        {
-                            Title = "错误",
-                            Content = "因源文件已删除，无法复制到指定位置",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        _ = await Dialog.ShowAsync();
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        ContentDialog dialog = new ContentDialog
-                        {
-                            Title = "错误",
-                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                            PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                        }
-                    }
-                    catch (System.Runtime.InteropServices.COMException)
-                    {
-                        ErrorCollection.Enqueue(CopyedFile.Name);
+                        FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
                     }
                 }
-
-                if (ErrorCollection.Count != 0)
+                catch (FileNotFoundException)
                 {
-                    string ErrorFileList = "";
-                    while (ErrorCollection.Count != 0)
-                    {
-                        ErrorFileList = ErrorFileList + ErrorCollection.Dequeue() + "\r";
-                    }
-                    ContentDialog contentDialog = new ContentDialog
+                    ContentDialog Dialog = new ContentDialog
                     {
                         Title = "错误",
-                        Content = "因设备剩余空间大小不足\r以下文件无法复制：\r\r" + ErrorFileList,
+                        Content = "因源文件已删除，无法复制到指定位置",
                         CloseButtonText = "确定",
                         Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                     };
-                    LoadingActivation(false);
+                    _ = await Dialog.ShowAsync();
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Title = "错误",
+                        Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                        PrimaryButtonText = "立刻",
+                        CloseButtonText = "稍后",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                    }
+                }
+                catch (System.Runtime.InteropServices.COMException)
+                {
+                    ContentDialog contentDialog = new ContentDialog
+                    {
+                        Title = "错误",
+                        Content = "因设备剩余空间大小不足，文件无法复制",
+                        CloseButtonText = "确定",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
                     _ = await contentDialog.ShowAsync();
                 }
+
                 await Task.Delay(500);
                 LoadingActivation(false);
             }
@@ -308,25 +261,24 @@ namespace FileManager
 
         private void Cut_Click(object sender, RoutedEventArgs e)
         {
-            if (CutQueue.Count != 0)
+            if (CutFile != null)
             {
-                CutQueue.Clear();
+                CutFile = null;
             }
-            foreach (FileSystemStorageItem item in GridViewControl.SelectedItems)
-            {
-                CutQueue.Enqueue(item.File);
-            }
+
+            CutFile = (GridViewControl.SelectedItem as FileSystemStorageItem).File;
             Paste.IsEnabled = true;
-            if (CopyedQueue.Count != 0)
+
+            if (CopyFile != null)
             {
-                CopyedQueue.Clear();
+                CopyFile = null;
             }
             Restore();
         }
 
         private async void Delete_Click(object sender, RoutedEventArgs e)
         {
-            var FileList = new List<object>(GridViewControl.SelectedItems);
+            var FileToDelete = GridViewControl.SelectedItem as FileSystemStorageItem;
             Restore();
             ContentDialog contentDialog = new ContentDialog
             {
@@ -336,44 +288,38 @@ namespace FileManager
                 Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
             };
 
-            contentDialog.Content = FileList.Count == 1
-                ? "此操作将永久删除 \"" + (FileList[0] as FileSystemStorageItem).Name + " \"\r\r是否继续?"
-                : "此操作将永久删除 \"" + (FileList[0] as FileSystemStorageItem).Name + "\" 等" + FileList.Count + "个文件\r\r是否继续?";
+            contentDialog.Content = "此操作将永久删除 \"" + FileToDelete.Name + " \"\r\r是否继续?";
 
             if (await contentDialog.ShowAsync() == ContentDialogResult.Primary)
             {
                 LoadingActivation(true, "正在删除");
 
-                foreach (var item in FileList)
+                try
                 {
-                    var file = (item as FileSystemStorageItem).File;
-                    try
-                    {
-                        await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    await FileToDelete.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
-                        for (int i = 0; i < FileCollection.Count; i++)
+                    for (int i = 0; i < FileCollection.Count; i++)
+                    {
+                        if (FileCollection[i].RelativeId == FileToDelete.File.FolderRelativeId)
                         {
-                            if (FileCollection[i].RelativeId == file.FolderRelativeId)
-                            {
-                                FileCollection.RemoveAt(i);
-                                break;
-                            }
+                            FileCollection.RemoveAt(i);
+                            break;
                         }
                     }
-                    catch (UnauthorizedAccessException)
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    ContentDialog dialog = new ContentDialog
                     {
-                        ContentDialog dialog = new ContentDialog
-                        {
-                            Title = "错误",
-                            Content = "RX无权删除此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                            PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                        }
+                        Title = "错误",
+                        Content = "RX无权删除此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                        PrimaryButtonText = "立刻",
+                        CloseButtonText = "稍后",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
                     }
                 }
 
@@ -482,304 +428,288 @@ namespace FileManager
          */
         private async void AES_Click(object sender, RoutedEventArgs e)
         {
-            List<object> FileList = new List<object>(GridViewControl.SelectedItems);
+            var SelectedFile = (GridViewControl.SelectedItem as FileSystemStorageItem).File;
             Restore();
 
-            if (FileList.Any((File) => ((FileSystemStorageItem)File).Type != ".sle") && FileList.Any((File) => ((FileSystemStorageItem)File).Type == ".sle"))
+            int KeySizeRequest;
+            string KeyRequest;
+            bool IsDeleteRequest;
+            if (SelectedFile.FileType != ".sle")
             {
-                ContentDialog dialog = new ContentDialog
+                AESDialog Dialog = new AESDialog(true, SelectedFile.Name);
+                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    Title = "错误",
-                    Content = "  同时加密或解密多个文件时，.sle文件不能与其他文件混杂\r\r  允许的组合如下：\r\r      • 全部为.sle文件\r\r      • 全部为非.sle文件",
-                    CloseButtonText = "确定",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                };
-                await dialog.ShowAsync();
-                return;
-            }
-
-            foreach (var SelectedFile in from FileSystemStorageItem AESFile in FileList select AESFile.File)
-            {
-                int KeySizeRequest;
-                string KeyRequest;
-                bool IsDeleteRequest;
-                if (SelectedFile.FileType != ".sle")
-                {
-                    AESDialog Dialog = new AESDialog(true, SelectedFile.Name);
-                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                    {
-                        KeyRequest = Dialog.Key;
-                        IsDeleteRequest = Dialog.IsDeleteChecked;
-                        KeySizeRequest = Dialog.KeySize;
-                    }
-                    else
-                    {
-                        LoadingActivation(false);
-                        DecryptByteBuffer = null;
-                        EncryptByteBuffer = null;
-                        return;
-                    }
-                    LoadingActivation(true, "正在加密");
-
-                    try
-                    {
-                        StorageFile file = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(SelectedFile.DisplayName + ".sle", CreationCollisionOption.GenerateUniqueName);
-
-                        await Task.Run(async () =>
-                        {
-                            using (var FileStream = await SelectedFile.OpenStreamForReadAsync())
-                            {
-                                using (var TargetFileStream = await file.OpenStreamForWriteAsync())
-                                {
-                                    byte[] Tail = Encoding.UTF8.GetBytes("$" + KeySizeRequest + "|" + SelectedFile.FileType + "$");
-                                    byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
-
-                                    if (FileStream.Length < AESCacheSize)
-                                    {
-                                        EncryptByteBuffer = new byte[FileStream.Length];
-                                        FileStream.Read(EncryptByteBuffer, 0, EncryptByteBuffer.Length);
-                                        await TargetFileStream.WriteAsync(Tail, 0, Tail.Length);
-                                        await TargetFileStream.WriteAsync(AESProvider.ECBEncrypt(PasswordFlag, KeyRequest, KeySizeRequest), 0, PasswordFlag.Length);
-                                        var EncryptedBytes = AESProvider.ECBEncrypt(EncryptByteBuffer, KeyRequest, KeySizeRequest);
-                                        await TargetFileStream.WriteAsync(EncryptedBytes, 0, EncryptedBytes.Length);
-                                    }
-                                    else
-                                    {
-                                        EncryptByteBuffer = new byte[Tail.Length];
-                                        await TargetFileStream.WriteAsync(Tail, 0, Tail.Length);
-                                        await TargetFileStream.WriteAsync(AESProvider.ECBEncrypt(PasswordFlag, KeyRequest, KeySizeRequest), 0, PasswordFlag.Length);
-
-                                        long BytesWrite = 0;
-                                        EncryptByteBuffer = new byte[AESCacheSize];
-                                        while (BytesWrite < FileStream.Length)
-                                        {
-                                            if (FileStream.Length - BytesWrite < AESCacheSize)
-                                            {
-                                                if (FileStream.Length - BytesWrite == 0)
-                                                {
-                                                    break;
-                                                }
-                                                EncryptByteBuffer = new byte[FileStream.Length - BytesWrite];
-                                            }
-
-                                            BytesWrite += FileStream.Read(EncryptByteBuffer, 0, EncryptByteBuffer.Length);
-                                            var EncryptedBytes = AESProvider.ECBEncrypt(EncryptByteBuffer, KeyRequest, KeySizeRequest);
-                                            await TargetFileStream.WriteAsync(EncryptedBytes, 0, EncryptedBytes.Length);
-                                        }
-
-                                    }
-                                }
-                            }
-                        });
-                        FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(file, await file.GetSizeDescriptionAsync(), await file.GetThumbnailBitmapAsync(), await file.GetModifiedTimeAsync()));
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        ContentDialog dialog = new ContentDialog
-                        {
-                            Title = "错误",
-                            Content = "RX无权在此处创建加密文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                            PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                        }
-                    }
+                    KeyRequest = Dialog.Key;
+                    IsDeleteRequest = Dialog.IsDeleteChecked;
+                    KeySizeRequest = Dialog.KeySize;
                 }
                 else
                 {
-                    AESDialog Dialog = new AESDialog(false, SelectedFile.Name);
-                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                    {
-                        KeyRequest = Dialog.Key;
-                        IsDeleteRequest = Dialog.IsDeleteChecked;
-                    }
-                    else
-                    {
-                        LoadingActivation(false);
-                        DecryptByteBuffer = null;
-                        EncryptByteBuffer = null;
-                        return;
-                    }
+                    LoadingActivation(false);
+                    DecryptByteBuffer = null;
+                    EncryptByteBuffer = null;
+                    return;
+                }
+                LoadingActivation(true, "正在加密");
 
-                    LoadingActivation(true, "正在解密");
+                try
+                {
+                    StorageFile file = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(SelectedFile.DisplayName + ".sle", CreationCollisionOption.GenerateUniqueName);
+
                     await Task.Run(async () =>
                     {
                         using (var FileStream = await SelectedFile.OpenStreamForReadAsync())
                         {
-                            string FileType;
-                            byte[] DecryptedBytes;
-                            int SignalLength = 0;
-                            int EncryptKeySize = 0;
+                            using (var TargetFileStream = await file.OpenStreamForWriteAsync())
+                            {
+                                byte[] Tail = Encoding.UTF8.GetBytes("$" + KeySizeRequest + "|" + SelectedFile.FileType + "$");
+                                byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
 
-                            DecryptByteBuffer = new byte[20];
-                            FileStream.Read(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
-                            try
-                            {
-                                if (Encoding.UTF8.GetString(DecryptByteBuffer, 0, 1) != "$")
+                                if (FileStream.Length < AESCacheSize)
                                 {
-                                    throw new Exception("文件格式错误");
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-                                {
-                                    ContentDialog dialog = new ContentDialog
-                                    {
-                                        Title = "错误",
-                                        Content = "  文件格式检验错误，文件可能已损坏",
-                                        CloseButtonText = "确定",
-                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                                    };
-                                    LoadingActivation(false);
-                                    DecryptByteBuffer = null;
-                                    EncryptByteBuffer = null;
-                                    await dialog.ShowAsync();
-                                });
-
-                                return;
-                            }
-                            StringBuilder builder = new StringBuilder();
-                            for (int i = 1; ; i++)
-                            {
-                                string Char = Encoding.UTF8.GetString(DecryptByteBuffer, i, 1);
-                                if (Char == "|")
-                                {
-                                    EncryptKeySize = int.Parse(builder.ToString());
-                                    KeyRequest = KeyRequest.PadRight(EncryptKeySize / 8, '0');
-                                    builder.Clear();
-                                    continue;
-                                }
-                                if (Char != "$")
-                                {
-                                    builder.Append(Char);
+                                    EncryptByteBuffer = new byte[FileStream.Length];
+                                    FileStream.Read(EncryptByteBuffer, 0, EncryptByteBuffer.Length);
+                                    await TargetFileStream.WriteAsync(Tail, 0, Tail.Length);
+                                    await TargetFileStream.WriteAsync(AESProvider.ECBEncrypt(PasswordFlag, KeyRequest, KeySizeRequest), 0, PasswordFlag.Length);
+                                    var EncryptedBytes = AESProvider.ECBEncrypt(EncryptByteBuffer, KeyRequest, KeySizeRequest);
+                                    await TargetFileStream.WriteAsync(EncryptedBytes, 0, EncryptedBytes.Length);
                                 }
                                 else
                                 {
-                                    SignalLength = i + 1;
-                                    break;
-                                }
-                            }
-                            FileType = builder.ToString();
-                            FileStream.Seek(SignalLength, SeekOrigin.Begin);
+                                    EncryptByteBuffer = new byte[Tail.Length];
+                                    await TargetFileStream.WriteAsync(Tail, 0, Tail.Length);
+                                    await TargetFileStream.WriteAsync(AESProvider.ECBEncrypt(PasswordFlag, KeyRequest, KeySizeRequest), 0, PasswordFlag.Length);
 
-                            byte[] PasswordConfirm = new byte[16];
-                            await FileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length);
-                            if (Encoding.UTF8.GetString(AESProvider.ECBDecrypt(PasswordConfirm, KeyRequest, EncryptKeySize)) != "PASSWORD_CORRECT")
-                            {
-                                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-                                {
-                                    ContentDialog dialog = new ContentDialog
+                                    long BytesWrite = 0;
+                                    EncryptByteBuffer = new byte[AESCacheSize];
+                                    while (BytesWrite < FileStream.Length)
                                     {
-                                        Title = "错误",
-                                        Content = "  密码错误，无法解密\r\r  请重试...",
-                                        CloseButtonText = "确定",
-                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                                    };
-                                    LoadingActivation(false);
-                                    DecryptByteBuffer = null;
-                                    EncryptByteBuffer = null;
-                                    await dialog.ShowAsync();
-                                    AESControl.Set();
-                                });
-                                AESControl.WaitOne();
-                                return;
-                            }
-                            else
-                            {
-                                SignalLength += 16;
-                            }
-
-                            if (FileStream.Length - SignalLength < AESCacheSize)
-                            {
-                                DecryptByteBuffer = new byte[FileStream.Length - SignalLength];
-                            }
-                            else
-                            {
-                                DecryptByteBuffer = new byte[AESCacheSize];
-                            }
-                            FileStream.Read(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
-                            DecryptedBytes = AESProvider.ECBDecrypt(DecryptByteBuffer, KeyRequest, EncryptKeySize);
-
-                            StorageFolder CurrentFolder = null;
-                            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                            {
-                                CurrentFolder = FileControl.ThisPage.CurrentFolder;
-                            });
-
-                            try
-                            {
-                                StorageFile file = await CurrentFolder.CreateFileAsync(SelectedFile.DisplayName + FileType, CreationCollisionOption.GenerateUniqueName);
-
-                                using (var TargetFileStream = await file.OpenStreamForWriteAsync())
-                                {
-                                    await TargetFileStream.WriteAsync(DecryptedBytes, 0, DecryptedBytes.Length);
-
-                                    if (FileStream.Length - SignalLength >= AESCacheSize)
-                                    {
-                                        long BytesRead = DecryptByteBuffer.Length + SignalLength;
-                                        while (BytesRead < FileStream.Length)
+                                        if (FileStream.Length - BytesWrite < AESCacheSize)
                                         {
-                                            if (FileStream.Length - BytesRead < AESCacheSize)
+                                            if (FileStream.Length - BytesWrite == 0)
                                             {
-                                                if (FileStream.Length - BytesRead == 0)
-                                                {
-                                                    break;
-                                                }
-                                                DecryptByteBuffer = new byte[FileStream.Length - BytesRead];
+                                                break;
                                             }
-                                            BytesRead += FileStream.Read(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
-                                            DecryptedBytes = AESProvider.ECBDecrypt(DecryptByteBuffer, KeyRequest, EncryptKeySize);
-                                            await TargetFileStream.WriteAsync(DecryptedBytes, 0, DecryptedBytes.Length);
+                                            EncryptByteBuffer = new byte[FileStream.Length - BytesWrite];
                                         }
-                                    }
-                                }
 
-                                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-                                {
-                                    FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(file, await file.GetSizeDescriptionAsync(), await file.GetThumbnailBitmapAsync(), await file.GetModifiedTimeAsync()));
-                                });
-                            }
-                            catch (UnauthorizedAccessException)
-                            {
-                                ContentDialog dialog = new ContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "RX无权在此处创建解密文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                                    PrimaryButtonText = "立刻",
-                                    CloseButtonText = "稍后",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                                };
-                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                                {
-                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                        BytesWrite += FileStream.Read(EncryptByteBuffer, 0, EncryptByteBuffer.Length);
+                                        var EncryptedBytes = AESProvider.ECBEncrypt(EncryptByteBuffer, KeyRequest, KeySizeRequest);
+                                        await TargetFileStream.WriteAsync(EncryptedBytes, 0, EncryptedBytes.Length);
+                                    }
+
                                 }
                             }
                         }
                     });
+                    FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(file, await file.GetSizeDescriptionAsync(), await file.GetThumbnailBitmapAsync(), await file.GetModifiedTimeAsync()));
                 }
-
-                if (IsDeleteRequest)
+                catch (UnauthorizedAccessException)
                 {
-                    await SelectedFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
-
-                    for (int i = 0; i < FileCollection.Count; i++)
+                    ContentDialog dialog = new ContentDialog
                     {
-                        if (FileCollection[i].RelativeId == SelectedFile.FolderRelativeId)
-                        {
-                            FileCollection.RemoveAt(i);
-                            break;
-                        }
+                        Title = "错误",
+                        Content = "RX无权在此处创建加密文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                        PrimaryButtonText = "立刻",
+                        CloseButtonText = "稍后",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
                     }
                 }
-
-                DecryptByteBuffer = null;
-                EncryptByteBuffer = null;
             }
+            else
+            {
+                AESDialog Dialog = new AESDialog(false, SelectedFile.Name);
+                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    KeyRequest = Dialog.Key;
+                    IsDeleteRequest = Dialog.IsDeleteChecked;
+                }
+                else
+                {
+                    LoadingActivation(false);
+                    DecryptByteBuffer = null;
+                    EncryptByteBuffer = null;
+                    return;
+                }
+
+                LoadingActivation(true, "正在解密");
+                await Task.Run(async () =>
+                {
+                    using (var FileStream = await SelectedFile.OpenStreamForReadAsync())
+                    {
+                        string FileType;
+                        byte[] DecryptedBytes;
+                        int SignalLength = 0;
+                        int EncryptKeySize = 0;
+
+                        DecryptByteBuffer = new byte[20];
+                        FileStream.Read(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
+                        try
+                        {
+                            if (Encoding.UTF8.GetString(DecryptByteBuffer, 0, 1) != "$")
+                            {
+                                throw new Exception("文件格式错误");
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                            {
+                                ContentDialog dialog = new ContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "  文件格式检验错误，文件可能已损坏",
+                                    CloseButtonText = "确定",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                LoadingActivation(false);
+                                DecryptByteBuffer = null;
+                                EncryptByteBuffer = null;
+                                await dialog.ShowAsync();
+                            });
+
+                            return;
+                        }
+                        StringBuilder builder = new StringBuilder();
+                        for (int i = 1; ; i++)
+                        {
+                            string Char = Encoding.UTF8.GetString(DecryptByteBuffer, i, 1);
+                            if (Char == "|")
+                            {
+                                EncryptKeySize = int.Parse(builder.ToString());
+                                KeyRequest = KeyRequest.PadRight(EncryptKeySize / 8, '0');
+                                builder.Clear();
+                                continue;
+                            }
+                            if (Char != "$")
+                            {
+                                builder.Append(Char);
+                            }
+                            else
+                            {
+                                SignalLength = i + 1;
+                                break;
+                            }
+                        }
+                        FileType = builder.ToString();
+                        FileStream.Seek(SignalLength, SeekOrigin.Begin);
+
+                        byte[] PasswordConfirm = new byte[16];
+                        await FileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length);
+                        if (Encoding.UTF8.GetString(AESProvider.ECBDecrypt(PasswordConfirm, KeyRequest, EncryptKeySize)) != "PASSWORD_CORRECT")
+                        {
+                            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                            {
+                                ContentDialog dialog = new ContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "  密码错误，无法解密\r\r  请重试...",
+                                    CloseButtonText = "确定",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                LoadingActivation(false);
+                                DecryptByteBuffer = null;
+                                EncryptByteBuffer = null;
+                                await dialog.ShowAsync();
+                                AESControl.Set();
+                            });
+                            AESControl.WaitOne();
+                            return;
+                        }
+                        else
+                        {
+                            SignalLength += 16;
+                        }
+
+                        if (FileStream.Length - SignalLength < AESCacheSize)
+                        {
+                            DecryptByteBuffer = new byte[FileStream.Length - SignalLength];
+                        }
+                        else
+                        {
+                            DecryptByteBuffer = new byte[AESCacheSize];
+                        }
+                        FileStream.Read(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
+                        DecryptedBytes = AESProvider.ECBDecrypt(DecryptByteBuffer, KeyRequest, EncryptKeySize);
+
+                        StorageFolder CurrentFolder = null;
+                        await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        {
+                            CurrentFolder = FileControl.ThisPage.CurrentFolder;
+                        });
+
+                        try
+                        {
+                            StorageFile file = await CurrentFolder.CreateFileAsync(SelectedFile.DisplayName + FileType, CreationCollisionOption.GenerateUniqueName);
+
+                            using (var TargetFileStream = await file.OpenStreamForWriteAsync())
+                            {
+                                await TargetFileStream.WriteAsync(DecryptedBytes, 0, DecryptedBytes.Length);
+
+                                if (FileStream.Length - SignalLength >= AESCacheSize)
+                                {
+                                    long BytesRead = DecryptByteBuffer.Length + SignalLength;
+                                    while (BytesRead < FileStream.Length)
+                                    {
+                                        if (FileStream.Length - BytesRead < AESCacheSize)
+                                        {
+                                            if (FileStream.Length - BytesRead == 0)
+                                            {
+                                                break;
+                                            }
+                                            DecryptByteBuffer = new byte[FileStream.Length - BytesRead];
+                                        }
+                                        BytesRead += FileStream.Read(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
+                                        DecryptedBytes = AESProvider.ECBDecrypt(DecryptByteBuffer, KeyRequest, EncryptKeySize);
+                                        await TargetFileStream.WriteAsync(DecryptedBytes, 0, DecryptedBytes.Length);
+                                    }
+                                }
+                            }
+
+                            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                            {
+                                FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(file, await file.GetSizeDescriptionAsync(), await file.GetThumbnailBitmapAsync(), await file.GetModifiedTimeAsync()));
+                            });
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Title = "错误",
+                                Content = "RX无权在此处创建解密文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                                PrimaryButtonText = "立刻",
+                                CloseButtonText = "稍后",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                            {
+                                _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (IsDeleteRequest)
+            {
+                await SelectedFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+
+                for (int i = 0; i < FileCollection.Count; i++)
+                {
+                    if (FileCollection[i].RelativeId == SelectedFile.FolderRelativeId)
+                    {
+                        FileCollection.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+
+            DecryptByteBuffer = null;
+            EncryptByteBuffer = null;
 
             await Task.Delay(500);
             LoadingActivation(false);
@@ -835,99 +765,73 @@ namespace FileManager
         {
             lock (SyncRootProvider.SyncRoot)
             {
-                if (GridViewControl.SelectedIndex == -1)
+                if (e.AddedItems.Count == 0)
                 {
-                    Rename.IsEnabled = false;
-                    Copy.IsEnabled = false;
-                    Cut.IsEnabled = false;
-                    Transcode.IsEnabled = false;
-                    DeleteButton.IsEnabled = false;
+                    return;
                 }
-                else
+
+                if ((GridViewControl.SelectedItem as FileSystemStorageItem).ContentType == ContentType.File)
                 {
-                    if (e.AddedItems.Count == 0)
+                    Zip.Label = "Zip压缩";
+                    switch ((e.AddedItems.FirstOrDefault() as FileSystemStorageItem).Type)
                     {
-                        return;
+                        case ".zip":
+                            Zip.Label = "Zip解压";
+                            break;
+                        case ".mkv":
+                        case ".mp4":
+                        case ".mp3":
+                        case ".flac":
+                        case ".wma":
+                        case ".wmv":
+                        case ".m4a":
+                        case ".mov":
+                        case ".alac":
+                            Transcode.IsEnabled = true;
+                            break;
+                        default:
+                            Transcode.IsEnabled = false;
+                            break;
                     }
 
-                    Copy.IsEnabled = true;
-                    Cut.IsEnabled = true;
-                    DeleteButton.IsEnabled = true;
-
-                    if (GridViewControl.SelectionMode == ListViewSelectionMode.Single)
-                    {
-                        Rename.IsEnabled = true;
-                        Zip.Label = "Zip压缩";
-                        switch ((e.AddedItems.FirstOrDefault() as FileSystemStorageItem).Type)
-                        {
-                            case ".zip":
-                                Zip.Label = "Zip解压";
-                                break;
-                            case ".mkv":
-                            case ".mp4":
-                            case ".mp3":
-                            case ".flac":
-                            case ".wma":
-                            case ".wmv":
-                            case ".m4a":
-                            case ".mov":
-                            case ".alac":
-                                Transcode.IsEnabled = true;
-                                break;
-                            default:
-                                Transcode.IsEnabled = false;
-                                break;
-                        }
-
-                        AES.Label = (e.AddedItems.FirstOrDefault() as FileSystemStorageItem).Type == ".sle" ? "AES解密" : "AES加密";
-                    }
-                    else
-                    {
-                        Rename.IsEnabled = false;
-                    }
+                    AES.Label = (e.AddedItems.FirstOrDefault() as FileSystemStorageItem).Type == ".sle" ? "AES解密" : "AES加密";
                 }
             }
         }
 
         private void GridViewControl_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (GridViewControl.SelectedItems.Count <= 1)
-            {
-                var Context = (e.OriginalSource as FrameworkElement)?.DataContext as FileSystemStorageItem;
-                GridViewControl.SelectedIndex = FileCollection.IndexOf(Context);
-                e.Handled = true;
-            }
+            var Context = (e.OriginalSource as FrameworkElement)?.DataContext as FileSystemStorageItem;
+            GridViewControl.SelectedIndex = FileCollection.IndexOf(Context);
+            e.Handled = true;
         }
 
         private void GridViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
-            if (GridViewControl.SelectedItems.Count <= 1)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
-                {
-                    GridViewControl.SelectedIndex = FileCollection.IndexOf(Context);
+                GridViewControl.SelectedIndex = FileCollection.IndexOf(Context);
 
-                    if (Context.ContentType == ContentType.Folder)
-                    {
-                        GridViewControl.ContextFlyout = FolderFlyout;
-                    }
-                    else
-                    {
-                        GridViewControl.ContextFlyout = CommandsFlyout;
-                    }
+                if (Context.ContentType == ContentType.Folder)
+                {
+                    GridViewControl.ContextFlyout = FolderFlyout;
                 }
                 else
                 {
                     GridViewControl.ContextFlyout = CommandsFlyout;
                 }
-
-                e.Handled = true;
             }
+            else
+            {
+                GridViewControl.ContextFlyout = EmptyFlyout;
+            }
+
+            e.Handled = true;
         }
 
         private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
-            FileSystemStorageItem Device = GridViewControl.SelectedItems.FirstOrDefault() as FileSystemStorageItem;
+            FileSystemStorageItem Device = GridViewControl.SelectedItem as FileSystemStorageItem;
             if (Device.File != null)
             {
                 AttributeDialog Dialog = new AttributeDialog(Device.File);
@@ -1063,7 +967,7 @@ namespace FileManager
                                 }
                                 catch (UnauthorizedAccessException)
                                 {
-                                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async() =>
+                                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                                     {
                                         ContentDialog dialog = new ContentDialog
                                         {
@@ -1538,10 +1442,9 @@ namespace FileManager
 
         private async void FolderAttribute_Click(object sender, RoutedEventArgs e)
         {
-            FileSystemStorageItem Device = GridViewControl.SelectedItems.FirstOrDefault() as FileSystemStorageItem;
-
+            FileSystemStorageItem Device = GridViewControl.SelectedItem as FileSystemStorageItem;
             AttributeDialog Dialog = new AttributeDialog(Device.Folder);
-            await Dialog.ShowAsync();
+            _ = await Dialog.ShowAsync();
         }
 
         private async void FolderDelete_Click(object sender, RoutedEventArgs e)
@@ -1697,6 +1600,17 @@ namespace FileManager
             DataPackage Package = new DataPackage();
             Package.SetText(QRText.Text);
             Clipboard.SetContent(Package);
+        }
+
+        private async void UseSystemFileMananger_Click(object sender, RoutedEventArgs e)
+        {
+            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+        }
+
+        private async void ParentAttribute_Click(object sender, RoutedEventArgs e)
+        {
+            AttributeDialog Dialog = new AttributeDialog(FileControl.ThisPage.CurrentFolder);
+            _ = await Dialog.ShowAsync();
         }
     }
 }

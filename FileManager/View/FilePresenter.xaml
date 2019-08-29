@@ -15,15 +15,13 @@
         <local:SizeDisplayConverter x:Key="StateConverter" />
 
         <CommandBarFlyout x:Name="CommandsFlyout" Placement="RightEdgeAlignedTop">
-            <AppBarButton Icon="Copy" ToolTipService.ToolTip="复制" IsEnabled="{x:Bind Copy.IsEnabled,Mode=OneWay}"  Click="Copy_Click"/>
-            <AppBarButton Icon="Paste" ToolTipService.ToolTip="粘贴" Click="Paste_Click" IsEnabled="{x:Bind Paste.IsEnabled,Mode=OneWay}"/>
-            <AppBarButton Icon="Cut" ToolTipService.ToolTip="剪切" Click="Cut_Click" IsEnabled="{x:Bind Cut.IsEnabled,Mode=OneWay}"/>
+            <AppBarButton Icon="Copy" ToolTipService.ToolTip="复制" Name="Copy"  Click="Copy_Click"/>
+            <AppBarButton Icon="Cut" ToolTipService.ToolTip="剪切" Click="Cut_Click" Name="Cut"/>
+            <AppBarButton Icon="Delete" ToolTipService.ToolTip="删除" x:Name="DeleteButton" Click="Delete_Click"/>
             <CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Bullets" Label="多选/单选" Name="MulSelection" Click="MulSelection_Click"/>
-                <AppBarButton Icon="Delete" Label="删除" IsEnabled="False" x:Name="DeleteButton" Click="Delete_Click"/>
-                <AppBarButton Icon="Edit" Label="重命名" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="Rename_Click"/>
-                <AppBarButton Icon="ProtectedDocument" Name="AES" Label="AES加密" Click="AES_Click" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}"/>
-                <AppBarButton Icon="Share" Label="共享" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}">
+                <AppBarButton Icon="Edit" Label="重命名" Click="Rename_Click"/>
+                <AppBarButton Icon="ProtectedDocument" Name="AES" Label="AES加密" Click="AES_Click"/>
+                <AppBarButton Icon="Share" Label="共享">
                     <AppBarButton.Flyout>
                         <MenuFlyout Placement="Right">
                             <MenuFlyoutItem Text="WIFI共享" Name="WIFIShare" Click="WIFIShare_Click">
@@ -39,35 +37,38 @@
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
-                <AppBarButton Icon="Bookmarks" x:Name="Zip" Label="Zip压缩" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="Zip_Click"/>
+                <AppBarButton Icon="Bookmarks" x:Name="Zip" Label="Zip压缩" Click="Zip_Click"/>
                 <AppBarButton Icon="Switch" Name="Transcode" Label="媒体转码" IsEnabled="False" Click="Transcode_Click"/>
-                <AppBarButton Icon="Tag" Name="Attribute" Label="属性" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="Attribute_Click"/>
+                <AppBarButton Icon="Tag" Name="Attribute" Label="属性" Click="Attribute_Click"/>
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
         <CommandBarFlyout x:Name="FolderFlyout" Placement="RightEdgeAlignedTop">
             <CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="BackToWindow" Label="打开" x:Name="FolderOpen" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="FolderOpen_Click"/>
-                <AppBarButton Icon="Edit" Label="重命名" x:Name="FolderRename" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="FolderRename_Click"/>
-                <AppBarButton Icon="Delete" Label="删除" x:Name="FolderDelete" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="FolderDelete_Click"/>
-                <AppBarButton Icon="Tag" Label="属性" x:Name="FolderAttribute" IsEnabled="{x:Bind Rename.IsEnabled,Mode=OneWay}" Click="FolderAttribute_Click"/>
+                <AppBarButton Icon="BackToWindow" Label="打开" x:Name="FolderOpen" Click="FolderOpen_Click"/>
+                <AppBarButton Icon="Edit" Label="重命名" x:Name="FolderRename" Click="FolderRename_Click"/>
+                <AppBarButton Icon="Delete" Label="删除" x:Name="FolderDelete" Click="FolderDelete_Click"/>
+                <AppBarButton Icon="Tag" Label="属性" x:Name="FolderAttribute" Click="FolderAttribute_Click"/>
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
+
+        <CommandBarFlyout x:Name="EmptyFlyout" Placement="RightEdgeAlignedTop">
+            <AppBarButton Icon="Paste" ToolTipService.ToolTip="粘贴" Label="粘贴" IsEnabled="False" Click="Paste_Click" Name="Paste"/>
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="BackToWindow" Label="使用系统管理器打开" x:Name="UseSystemFileMananger" Click="UseSystemFileMananger_Click"/>
+                <AppBarButton Icon="Tag" Label="文件夹属性" x:Name="ParentAttribute" Click="ParentAttribute_Click"/>
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
     </Page.Resources>
 
     <Grid AllowDrop="True">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="1*"/>
-        </Grid.RowDefinitions>
         <Grid.Transitions>
             <TransitionCollection>
                 <PaneThemeTransition Edge="Right"/>
             </TransitionCollection>
         </Grid.Transitions>
         <GridView Name="GridViewControl" 
-                  Grid.Row="1"
                   Margin="5,0,0,0"
                   HorizontalAlignment="Stretch" 
                   VerticalAlignment="Stretch" 
@@ -110,17 +111,8 @@
                 </TransitionCollection>
             </GridView.ItemContainerTransitions>
         </GridView>
-        <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsDynamicOverflowEnabled="False">
-            <AppBarButton Icon="Bullets" Label="多选/单选" Click="MulSelection_Click" Style="{StaticResource AppBarButtonRevealStyle}"/>
-            <AppBarButton Icon="Copy" Label="复制" Click="Copy_Click" Name="Copy" IsEnabled="False" Style="{StaticResource AppBarButtonRevealStyle}"/>
-            <AppBarButton Icon="Paste" Label="粘贴" Click="Paste_Click" Name="Paste" IsEnabled="False" Style="{StaticResource AppBarButtonRevealStyle}"/>
-            <AppBarButton Icon="Cut" Label="剪切" Click="Cut_Click" Name="Cut" IsEnabled="False" Style="{StaticResource AppBarButtonRevealStyle}"/>
-            <AppBarButton Icon="Delete" Label="删除" Name="Delete" IsEnabled="False" Click="Delete_Click" Style="{StaticResource AppBarButtonRevealStyle}"/>
-            <AppBarButton Icon="Edit" Label="重命名" Name="Rename" IsEnabled="False" Click="Rename_Click" Style="{StaticResource AppBarButtonRevealStyle}"/>
-        </CommandBar>
         <TextBlock Name="HasFile" x:FieldModifier="public" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="无文件" FontSize="25" Visibility="Visible"/>
-        <controls1:TeachingTip Grid.Row="1"
-                               PreferredPlacement="Auto"
+        <controls1:TeachingTip PreferredPlacement="Auto"
                                Title="WIFI分享"
                                HeroContentPlacement="Auto"
                                Closed="QRTeachTip_Closed"
