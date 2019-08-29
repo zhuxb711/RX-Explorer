@@ -113,7 +113,7 @@ namespace FileManager
             using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type", OLEDB))
             {
                 _ = Command.Parameters.AddWithValue("@Name", Item.DisplayName);
-                _ = Command.Parameters.AddWithValue("@FullPath", Item.FullPath);
+                _ = Command.Parameters.AddWithValue("@FullPath", Item.RelativePath);
                 _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Item.Type));
                 _ = await Command.ExecuteNonQueryAsync();
             }
@@ -130,7 +130,7 @@ namespace FileManager
                 {
                     try
                     {
-                        StorageFile ImageFile = await StorageFile.GetFileFromPathAsync(query[1].ToString());
+                        StorageFile ImageFile = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, query[1].ToString()));
                         using (var Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
                         {
                             BitmapImage Bitmap = new BitmapImage
@@ -141,15 +141,15 @@ namespace FileManager
                             await Bitmap.SetSourceAsync(Stream);
                             if ((QuickStartType)Enum.Parse(typeof(QuickStartType), query[3].ToString()) == QuickStartType.Application)
                             {
-                                QuickStartItemList.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.Application, ImageFile.Path, query[0].ToString())));
+                                QuickStartItemList.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.Application, query[1].ToString(), query[0].ToString())));
                             }
                             else
                             {
-                                QuickStartItemList.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.WebSite, ImageFile.Path, query[0].ToString())));
+                                QuickStartItemList.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.WebSite, query[1].ToString(), query[0].ToString())));
                             }
                         }
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                         using (SqliteCommand Command1 = new SqliteCommand("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type", OLEDB))
                         {
@@ -1258,7 +1258,14 @@ namespace FileManager
         public BitmapImage Thumbnail { get; private set; }
 
         public StorageFolder Folder { get; private set; }
-        public string Name { get; private set; }
+
+        public string Name
+        {
+            get
+            {
+                return Folder.DisplayName;
+            }
+        }
 
         public double Percent { get; private set; }
 
@@ -1285,7 +1292,6 @@ namespace FileManager
                 throw new FileNotFoundException();
             }
 
-            Name = Device.DisplayName;
             Folder = Device;
             this.Thumbnail = Thumbnail;
 
@@ -1541,7 +1547,7 @@ namespace FileManager
 
         public string DisplayName { get; private set; }
 
-        public string FullPath { get; private set; }
+        public string RelativePath { get; private set; }
 
         public QuickStartType Type { get; private set; }
 
@@ -1549,16 +1555,16 @@ namespace FileManager
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void Update(BitmapImage Image, Uri ProtocalUri, string FullPath, string DisplayName)
+        public void Update(BitmapImage Image, Uri ProtocalUri, string RelativePath, string DisplayName)
         {
             this.Image = Image;
             this.ProtocalUri = ProtocalUri;
 
             this.DisplayName = DisplayName;
 
-            if (FullPath != null)
+            if (RelativePath != null)
             {
-                this.FullPath = FullPath;
+                this.RelativePath = RelativePath;
             }
 
             OnPropertyChanged("DisplayName");
@@ -1570,14 +1576,14 @@ namespace FileManager
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public QuickStartItem(BitmapImage Image, Uri Uri, QuickStartType Type, string FullPath, string DisplayName = null)
+        public QuickStartItem(BitmapImage Image, Uri Uri, QuickStartType Type, string RelativePath, string DisplayName = null)
         {
             this.Image = Image;
             ProtocalUri = Uri;
             this.Type = Type;
 
             this.DisplayName = DisplayName;
-            this.FullPath = FullPath;
+            this.RelativePath = RelativePath;
         }
     }
     #endregion

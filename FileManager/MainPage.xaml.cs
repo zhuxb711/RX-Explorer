@@ -1,7 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -73,24 +72,6 @@ namespace FileManager
 
             SQLite SQL = SQLite.GetInstance();
             SearchHistoryRecord = await SQL.GetSearchHistoryAsync();
-
-            if (!(ApplicationData.Current.LocalSettings.Values["IsInitQuickStart"] is bool))
-            {
-                await SQLite.GetInstance().ClearTableAsync("QuickStart");
-                ApplicationData.Current.LocalSettings.Values["IsInitQuickStart"] = true;
-                await SQL.SetQuickStartItemAsync("应用商店", Path.Combine(Package.Current.InstalledLocation.Path, "QuickStartImage\\MicrosoftStore.png"), "ms-windows-store://home", QuickStartType.Application);
-                await SQL.SetQuickStartItemAsync("计算器", Path.Combine(Package.Current.InstalledLocation.Path, "QuickStartImage\\Calculator.png"), "calculator:", QuickStartType.Application);
-                await SQL.SetQuickStartItemAsync("系统设置", Path.Combine(Package.Current.InstalledLocation.Path, "QuickStartImage\\Setting.png"), "ms-settings:", QuickStartType.Application);
-                await SQL.SetQuickStartItemAsync("邮件", Path.Combine(Package.Current.InstalledLocation.Path, "QuickStartImage\\Email.png"), "mailto:", QuickStartType.Application);
-                await SQL.SetQuickStartItemAsync("日历", Path.Combine(Package.Current.InstalledLocation.Path, "QuickStartImage\\Calendar.png"), "outlookcal:", QuickStartType.Application);
-                await SQL.SetQuickStartItemAsync("必应地图", Path.Combine(Package.Current.InstalledLocation.Path, "QuickStartImage\\Map.png"), "bingmaps:", QuickStartType.Application);
-                await SQL.SetQuickStartItemAsync("天气", Path.Combine(Package.Current.InstalledLocation.Path, "QuickStartImage\\Weather.png"), "bingweather:", QuickStartType.Application);
-                await SQL.SetQuickStartItemAsync("必应", Path.Combine(Package.Current.InstalledLocation.Path, "HotWebImage\\Bing.png"), "https://www.bing.com/", QuickStartType.WebSite);
-                await SQL.SetQuickStartItemAsync("百度", Path.Combine(Package.Current.InstalledLocation.Path, "HotWebImage\\Baidu.png"), "https://www.baidu.com/", QuickStartType.WebSite);
-                await SQL.SetQuickStartItemAsync("微信", Path.Combine(Package.Current.InstalledLocation.Path, "HotWebImage\\Wechat.png"), "https://wx.qq.com/", QuickStartType.WebSite);
-                await SQL.SetQuickStartItemAsync("IT之家", Path.Combine(Package.Current.InstalledLocation.Path, "HotWebImage\\iThome.jpg"), "https://www.ithome.com/", QuickStartType.WebSite);
-                await SQL.SetQuickStartItemAsync("微博", Path.Combine(Package.Current.InstalledLocation.Path, "HotWebImage\\Weibo.png"), "https://www.weibo.com/", QuickStartType.WebSite);
-            }
 
             Nav.Navigate(typeof(ThisPC));
 

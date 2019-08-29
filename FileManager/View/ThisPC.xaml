@@ -17,7 +17,7 @@
         <DataTemplate x:Name="NormalDataTemplate" x:DataType="local:QuickStartItem">
             <StackPanel Orientation="Vertical">
                 <Image IsHitTestVisible="False" Margin="20,10,20,5" HorizontalAlignment="Center" Height="40" Width="40" Source="{x:Bind Image,Mode=OneWay}" Stretch="Uniform"/>
-                <TextBlock HorizontalAlignment="Center" HorizontalTextAlignment="Center" Text="{x:Bind DisplayName,Mode=OneWay}"/>
+                <TextBlock HorizontalAlignment="Center" Width="75" TextTrimming="CharacterEllipsis" HorizontalTextAlignment="Center" Text="{x:Bind DisplayName,Mode=OneWay}"/>
             </StackPanel>
         </DataTemplate>
         <CommandBarFlyout x:Name="AppFlyout" Placement="RightEdgeAlignedTop">

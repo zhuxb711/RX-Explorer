@@ -4,6 +4,7 @@ using System.Linq;
 using Windows.ApplicationModel;
 using Windows.Services.Store;
 using Windows.Storage;
+using Windows.System;
 using Windows.UI;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
@@ -52,74 +53,7 @@ namespace FileManager
 
         private async void Like_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            var Result = await StoreContext.GetDefault().RequestRateAndReviewAppAsync();
-            switch (Result.Status)
-            {
-                case StoreRateAndReviewStatus.Succeeded:
-                    ShowRateSucceedNotification();
-                    break;
-                case StoreRateAndReviewStatus.CanceledByUser:
-                    break;
-                default:
-                    ShowRateErrorNotification();
-                    break;
-            }
-        }
-
-        private void ShowRateSucceedNotification()
-        {
-            var Content = new ToastContent()
-            {
-                Scenario = ToastScenario.Default,
-                Launch = "Updating",
-                Visual = new ToastVisual()
-                {
-                    BindingGeneric = new ToastBindingGeneric()
-                    {
-                        Children =
-                        {
-                            new AdaptiveText()
-                            {
-                                Text = "评价成功"
-                            },
-
-                            new AdaptiveText()
-                            {
-                                Text = "感谢您对此App的评价，帮助我们做得更好。"
-                            }
-                        }
-                    }
-                },
-            };
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-        }
-
-        private void ShowRateErrorNotification()
-        {
-            var Content = new ToastContent()
-            {
-                Scenario = ToastScenario.Default,
-                Launch = "Updating",
-                Visual = new ToastVisual()
-                {
-                    BindingGeneric = new ToastBindingGeneric()
-                    {
-                        Children =
-                        {
-                            new AdaptiveText()
-                            {
-                                Text = "评价失败"
-                            },
-
-                            new AdaptiveText()
-                            {
-                                Text = "因网络或其他原因而无法进行评价"
-                            }
-                        }
-                    }
-                },
-            };
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            await Launcher.LaunchUriAsync(new Uri("ms-windows-store://review/?productid=9N88QBQKF2RS"));
         }
 
         private void SearchNum_SelectionChanged(object sender, SelectionChangedEventArgs e)

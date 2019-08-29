@@ -222,23 +222,41 @@
   <ItemGroup>
     <Content Include="Assets\Add.png" />
     <Content Include="Assets\AddImage.png" />
-    <Content Include="HotWebImage\Baidu.png" />
-    <Content Include="HotWebImage\Bing.png" />
-    <Content Include="QuickStartImage\Calculator.png" />
-    <Content Include="QuickStartImage\Calendar.png" />
+    <Content Include="HotWebImage\Baidu.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="HotWebImage\Bing.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QuickStartImage\Calculator.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QuickStartImage\Calendar.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\DocIcon.png" />
-    <Content Include="QuickStartImage\Email.png" />
+    <Content Include="QuickStartImage\Email.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\EmailIcon.png" />
     <Content Include="Assets\GithubIcon.png" />
-    <Content Include="HotWebImage\iThome.jpg" />
+    <Content Include="HotWebImage\iThome.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\LargeTile.scale-100.png" />
     <Content Include="Assets\LargeTile.scale-125.png" />
     <Content Include="Assets\LargeTile.scale-150.png" />
     <Content Include="Assets\LargeTile.scale-200.png" />
     <Content Include="Assets\LargeTile.scale-400.png" />
-    <Content Include="QuickStartImage\Map.png" />
-    <Content Include="QuickStartImage\MicrosoftStore.png" />
-    <Content Include="QuickStartImage\Setting.png" />
+    <Content Include="QuickStartImage\Map.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QuickStartImage\MicrosoftStore.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QuickStartImage\Setting.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\SmallTile.scale-100.png" />
     <Content Include="Assets\SmallTile.scale-125.png" />
     <Content Include="Assets\SmallTile.scale-150.png" />
@@ -275,9 +293,15 @@
     <Content Include="Assets\StoreLogo.scale-150.png" />
     <Content Include="Assets\StoreLogo.scale-200.png" />
     <Content Include="Assets\StoreLogo.scale-400.png" />
-    <Content Include="QuickStartImage\Weather.png" />
-    <Content Include="HotWebImage\Wechat.png" />
-    <Content Include="HotWebImage\Weibo.png" />
+    <Content Include="QuickStartImage\Weather.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="HotWebImage\Wechat.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="HotWebImage\Weibo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\Wide310x150Logo.scale-100.png" />
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />

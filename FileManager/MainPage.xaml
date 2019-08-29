@@ -8,7 +8,48 @@
     xmlns:controls="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
     Background="{StaticResource NavigationViewTopPaneBackground}">
-
+    
+    <Page.Resources>
+        <controls:TeachingTip 
+            x:Name="UpdateTip"      
+            Grid.Row="1"
+	        Title="更新可用"
+	        PreferredPlacement="Bottom"                                              
+	        IsLightDismissEnabled="True"
+	        ActionButtonContent="即刻更新"
+	        CloseButtonContent="稍后提示">
+        </controls:TeachingTip>
+        <controls:TeachingTip
+            x:Name="PinTip"
+            Grid.Row="1"
+            Title="更快捷的启动"
+            PreferredPlacement="Bottom"
+            IsLightDismissEnabled="True"
+            ActionButtonContent="一键固定"
+            CloseButtonContent="关闭提示">
+        </controls:TeachingTip>
+        <controls:TeachingTip 
+            x:Name="RateTip"      
+            Grid.Row="1"
+	        Title="请为此App评分"
+	        PreferredPlacement="Bottom"                                              
+	        IsLightDismissEnabled="True"
+            Subtitle="您的评分很重要，请花一两分钟评价一下App吧！"
+	        ActionButtonContent="评分"
+	        CloseButtonContent="稍后">
+        </controls:TeachingTip>
+        <controls:TeachingTip 
+            x:Name="SearchTip"      
+            Grid.Row="1"
+	        Title="Tips"
+	        Target="{x:Bind GlobeSearch}"          
+            PreferredPlacement="BottomRight"
+	        IsLightDismissEnabled="True"
+            Subtitle="清空这个搜索框或点击任意文件夹即可退出搜索状态哦！"
+	        CloseButtonContent="知道啦">
+        </controls:TeachingTip>
+    </Page.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
@@ -65,44 +106,5 @@
                 <Frame Name="Nav" Navigating="Nav_Navigating" Navigated="Nav_Navigated" x:FieldModifier="public" Grid.Row="1"/>
             </NavigationView.Content>
         </NavigationView>
-
-        <controls:TeachingTip 
-            x:Name="UpdateTip"      
-            Grid.Row="1"
-	        Title="更新可用"
-	        PreferredPlacement="Bottom"                                              
-	        IsLightDismissEnabled="True"
-	        ActionButtonContent="即刻更新"
-	        CloseButtonContent="稍后提示">
-        </controls:TeachingTip>
-        <controls:TeachingTip
-            x:Name="PinTip"
-            Grid.Row="1"
-            Title="更快捷的启动"
-            PreferredPlacement="Bottom"
-            IsLightDismissEnabled="True"
-            ActionButtonContent="一键固定"
-            CloseButtonContent="关闭提示">
-        </controls:TeachingTip>
-        <controls:TeachingTip 
-            x:Name="RateTip"      
-            Grid.Row="1"
-	        Title="请为此App评分"
-	        PreferredPlacement="Bottom"                                              
-	        IsLightDismissEnabled="True"
-            Subtitle="您的评分很重要，请花一两分钟评价一下App吧！"
-	        ActionButtonContent="评分"
-	        CloseButtonContent="稍后">
-        </controls:TeachingTip>
-        <controls:TeachingTip 
-            x:Name="SearchTip"      
-            Grid.Row="1"
-	        Title="Tips"
-	        Target="{x:Bind GlobeSearch}"          
-            PreferredPlacement="BottomRight"
-	        IsLightDismissEnabled="True"
-            Subtitle="清空这个搜索框或点击任意文件夹即可退出搜索状态哦！"
-	        CloseButtonContent="知道啦">
-        </controls:TeachingTip>
     </Grid>
 </Page>

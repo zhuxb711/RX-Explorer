@@ -13,26 +13,18 @@
     CloseButtonText="取消"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
 
-    <Grid>
-        <StackPanel Orientation="Horizontal">
-            <Image Width="110" Height="110" Name="Icon" Stretch="UniformToFill" Source="ms-appx:///Assets/AddImage.png"/>
-            <StackPanel Margin="10,2,0,0">
-                <Button Name="SelectIconButton" Content="选择图标" Click="SelectIconButton_Click"/>
-                <TextBox Name="Protocal" Margin="0,5" PlaceholderText="启动协议" Width="200"/>
-                <TextBox Name="Name" PlaceholderText="显示名称" Width="200"/>
-            </StackPanel>
-        </StackPanel>
+    <ContentDialog.Resources>
         <controls:TeachingTip 
             x:Name="EmptyTip"      
 	        Title="Tips"      
-            PreferredPlacement="Auto"
+            PreferredPlacement="TopRight"
 	        IsLightDismissEnabled="True"
             Subtitle="此处不能为空">
         </controls:TeachingTip>
         <controls:TeachingTip 
             x:Name="FormatErrorTip"      
 	        Title="Tips"      
-            PreferredPlacement="Auto"
+            PreferredPlacement="TopRight"
             Target="{x:Bind Protocal}"
 	        IsLightDismissEnabled="True"
             Subtitle="协议或地址格式错误">
@@ -40,10 +32,33 @@
         <controls:TeachingTip 
             x:Name="ExistTip"      
 	        Title="Tips"      
-            PreferredPlacement="Auto"
+            PreferredPlacement="TopRight"
             Target="{x:Bind Name}"
 	        IsLightDismissEnabled="True"
             Subtitle="该名称已存在，无法重复添加">
         </controls:TeachingTip>
+        <controls:TeachingTip 
+            x:Name="ProtocalTips"      
+	        Title="Tips"      
+            PreferredPlacement="TopRight"
+            Target="{x:Bind ProtocalIcon}"
+	        IsLightDismissEnabled="True"
+            Subtitle="协议参考">
+            <HyperlinkButton Content="Win10_UWP应用启动命令大全-IT之家" NavigateUri="https://www.ithome.com/html/win10/295999.htm"/>
+        </controls:TeachingTip>
+    </ContentDialog.Resources>
+
+    <Grid>
+        <StackPanel Orientation="Horizontal">
+            <Image Width="110" Height="110" Name="Icon" Stretch="UniformToFill" Source="ms-appx:///Assets/AddImage.png"/>
+            <StackPanel Margin="10,2,0,0">
+                <Button Name="SelectIconButton" Content="选择图标" Click="SelectIconButton_Click"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBox Name="Protocal" Margin="0,5" PlaceholderText="启动协议" Width="170" IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"/>
+                    <FontIcon Glyph="&#xE946;" Name="ProtocalIcon" Margin="10,0,0,0" PointerPressed="ProtocalIcon_PointerPressed"/>
+                </StackPanel>
+                <TextBox HorizontalAlignment="Left" Name="Name" PlaceholderText="显示名称" Width="200"/>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </ContentDialog>

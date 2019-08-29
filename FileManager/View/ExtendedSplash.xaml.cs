@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation;
@@ -65,6 +66,40 @@ namespace FileManager
 
         private async void Screen_Dismissed(SplashScreen sender, object args)
         {
+            if (!(ApplicationData.Current.LocalSettings.Values["IsInitialQuickStart"] is bool) || !(ApplicationData.Current.LocalSettings.Values["QuickStartInitialFinished"] is bool))
+            {
+                var SQL = SQLite.GetInstance();
+                await SQL.ClearTableAsync("QuickStart");
+                ApplicationData.Current.LocalSettings.Values["IsInitialQuickStart"] = true;
+
+                var QuickFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.ReplaceExisting);
+                foreach (var File in await (await Package.Current.InstalledLocation.GetFolderAsync("QuickStartImage")).GetFilesAsync())
+                {
+                    _ = await File.CopyAsync(QuickFolder, File.Name, NameCollisionOption.ReplaceExisting);
+                }
+
+                var WebFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("HotWebImage", CreationCollisionOption.ReplaceExisting);
+                foreach (var File in await (await Package.Current.InstalledLocation.GetFolderAsync("HotWebImage")).GetFilesAsync())
+                {
+                    _ = await File.CopyAsync(WebFolder, File.Name, NameCollisionOption.ReplaceExisting);
+                }
+
+                await SQL.SetQuickStartItemAsync("应用商店", "QuickStartImage\\MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application);
+                await SQL.SetQuickStartItemAsync("计算器", "QuickStartImage\\Calculator.png", "calculator:", QuickStartType.Application);
+                await SQL.SetQuickStartItemAsync("系统设置", "QuickStartImage\\Setting.png", "ms-settings:", QuickStartType.Application);
+                await SQL.SetQuickStartItemAsync("邮件", "QuickStartImage\\Email.png", "mailto:", QuickStartType.Application);
+                await SQL.SetQuickStartItemAsync("日历", "QuickStartImage\\Calendar.png", "outlookcal:", QuickStartType.Application);
+                await SQL.SetQuickStartItemAsync("必应地图", "QuickStartImage\\Map.png", "bingmaps:", QuickStartType.Application);
+                await SQL.SetQuickStartItemAsync("天气", "QuickStartImage\\Weather.png", "bingweather:", QuickStartType.Application);
+                await SQL.SetQuickStartItemAsync("必应", "HotWebImage\\Bing.png", "https://www.bing.com/", QuickStartType.WebSite);
+                await SQL.SetQuickStartItemAsync("百度", "HotWebImage\\Baidu.png", "https://www.baidu.com/", QuickStartType.WebSite);
+                await SQL.SetQuickStartItemAsync("微信", "HotWebImage\\Wechat.png", "https://wx.qq.com/", QuickStartType.WebSite);
+                await SQL.SetQuickStartItemAsync("IT之家", "HotWebImage\\iThome.jpg", "https://www.ithome.com/", QuickStartType.WebSite);
+                await SQL.SetQuickStartItemAsync("微博", "HotWebImage\\Weibo.png", "https://www.weibo.com/", QuickStartType.WebSite);
+
+                ApplicationData.Current.LocalSettings.Values["QuickStartInitialFinished"] = true;
+            }
+
             if (await CheckFileAccessAuthority())
             {
                 DismissExtendedSplash();
@@ -133,7 +168,7 @@ namespace FileManager
                             {
                                 Text = "随后点击下方的立即启动"
                             }
-                        }   
+                        }
                     }
                 },
 
