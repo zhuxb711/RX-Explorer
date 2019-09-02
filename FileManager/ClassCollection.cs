@@ -10,7 +10,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text;
@@ -1609,15 +1608,9 @@ namespace FileManager
     #endregion
 
     #region WIFI分享功能提供器
-    public enum PortSelectionMode
-    {
-        Auto = 1,
-        Manual = 2
-    }
-
     public sealed class WiFiShareProvider : IDisposable
     {
-        private Socket ServerSocket;
+        private HttpListener Listener;
 
         private bool IsDisposed = false;
 
@@ -1631,54 +1624,14 @@ namespace FileManager
 
         public bool IsListeningThreadWorking { get; private set; } = false;
 
-        public PortSelectionMode PortSelectionMode { get; private set; }
-
         public WiFiShareProvider()
         {
-            ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            Listener = new HttpListener();
+            Listener.Prefixes.Add("http://*:8125/");
+            Listener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
 
             HostName CurrentHostName = NetworkInformation.GetHostNames().Where((IP) => IP.Type == HostNameType.Ipv4).FirstOrDefault();
-            IPAddress Address = IPAddress.Parse(CurrentHostName.ToString());
-
-            for (int i = 8000; ; i += 50)
-            {
-                try
-                {
-                    IPEndPoint LocalEndPoint = new IPEndPoint(Address, i);
-                    ServerSocket.Bind(LocalEndPoint);
-                    ServerSocket.Listen(10);
-                    CurrentUri = "http://" + CurrentHostName + ":" + i + "/";
-                    break;
-                }
-                catch (Exception)
-                {
-                    continue;
-                }
-            }
-
-            PortSelectionMode = PortSelectionMode.Auto;
-        }
-
-        public WiFiShareProvider(int UseCustomPort)
-        {
-            ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            HostName CurrentHostName = NetworkInformation.GetHostNames().Where((IP) => IP.Type == HostNameType.Ipv4).FirstOrDefault();
-            IPAddress Address = IPAddress.Parse(CurrentHostName.ToString());
-            IPEndPoint LocalEndPoint = new IPEndPoint(Address, UseCustomPort);
-
-            try
-            {
-                ServerSocket.Bind(LocalEndPoint);
-                ServerSocket.Listen(10);
-                CurrentUri = "http://" + CurrentHostName + ":" + UseCustomPort + "/";
-            }
-            catch (Exception)
-            {
-                throw new InvalidOperationException("Port Could Not Be Used");
-            }
-
-            PortSelectionMode = PortSelectionMode.Manual;
+            CurrentUri = "http://" + CurrentHostName + ":8125/";
         }
 
         public async void StartToListenRequest()
@@ -1688,107 +1641,77 @@ namespace FileManager
                 return;
             }
 
+            if(IsDisposed)
+            {
+                throw new ObjectDisposedException("This Object has been disposed");
+            }
+
             IsListeningThreadWorking = true;
             try
             {
-                await Task.Factory.StartNew(() =>
+                Listener.Start();
+
+                while (true)
                 {
-                    while (true)
-                    {
-                        try
-                        {
-                            using (Socket ClientSocket = ServerSocket.Accept())
-                            {
-                                byte[] Buffer = new byte[1024 * 640];
-                                int DataReceived = ClientSocket.Receive(Buffer);
-                                string Message = Encoding.UTF8.GetString(Buffer, 0, DataReceived);
+                    HttpListenerContext Context = await Listener.GetContextAsync();
 
-                                if (!string.IsNullOrWhiteSpace(Message))
-                                {
-                                    HttpRequestInfo Request = AnalysisHttpRequest(Message);
+                    _ = Task.Factory.StartNew((Para) =>
+                     {
+                         try
+                         {
+                             HttpListenerContext HttpContext = Para as HttpListenerContext;
+                             if (HttpContext.Request.Url.LocalPath.Substring(1) == FilePathMap.Key)
+                             {
+                                 StorageFile File = StorageFile.GetFileFromPathAsync(FilePathMap.Value).AsTask().Result;
+                                 using (Stream FileStream = File.OpenStreamForReadAsync().Result)
+                                 {
+                                     Context.Response.ContentLength64 = FileStream.Length;
+                                     Context.Response.ContentType = File.ContentType;
+                                     Context.Response.AddHeader("Content-Disposition", "Attachment;filename*=UTF-8''" + File.Name);
 
-                                    if (Request.Uri == FilePathMap.Key)
-                                    {
-                                        StorageFile File = StorageFile.GetFileFromPathAsync(FilePathMap.Value).AsTask().Result;
-                                        SendResponseMessage(ClientSocket, File);
-                                    }
-                                    else
-                                    {
-                                        SendErrorMessage(ClientSocket);
-                                    }
-                                }
-                            }
-                        }
-                        catch (OverflowException e)
-                        {
-                            IsListeningThreadWorking = false;
-                            ThreadExitedUnexpectly?.Invoke(this, e);
-                            break;
-                        }
-                        catch (SocketException)
-                        {
-                            IsListeningThreadWorking = false;
-                            break;
-                        }
-                        catch (Exception e)
-                        {
-                            IsListeningThreadWorking = false;
-                            ThreadExitedUnexpectly?.Invoke(this, e);
-                            break;
-                        }
-                        finally
-                        {
-                            GC.Collect();
-                        }
-                    }
+                                     try
+                                     {
+                                         FileStream.CopyTo(Context.Response.OutputStream);
+                                     }
+                                     catch (HttpListenerException) { }
+                                     finally
+                                     {
+                                         Context.Response.Close();
+                                     }
+                                 }
+                             }
+                             else
+                             {
+                                 string ErrorMessage = "<html><head><title>Error 404 Bad Request</title></head><body><p style=\"font-size:50px\">HTTP ERROR 404</p><p style=\"font-size:40px\">无法找到指定的资源，请检查URL</p></body></html>";
+                                 byte[] SendByte = Encoding.UTF8.GetBytes(ErrorMessage);
 
-                    Cancellation?.Dispose();
-                    Cancellation = null;
-
-                }, Cancellation.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                                 Context.Response.StatusCode = 404;
+                                 Context.Response.StatusDescription = "Bad Request";
+                                 Context.Response.ContentType = "text/html";
+                                 Context.Response.ContentLength64 = SendByte.Length;
+                                 Context.Response.OutputStream.Write(SendByte, 0, SendByte.Length);
+                                 Context.Response.Close();
+                             }
+                         }
+                         catch (Exception e)
+                         {
+                             ThreadExitedUnexpectly?.Invoke(this, e);
+                         }
+                     }, Context, Cancellation.Token);
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                IsListeningThreadWorking = false;
             }
             catch (Exception e)
             {
                 IsListeningThreadWorking = false;
                 ThreadExitedUnexpectly?.Invoke(this, e);
             }
-        }
 
-        private void SendErrorMessage(Socket ClientSocket)
-        {
-
-            string Content = "<html><head><title>Error 404 Bad Request</title></head><body><p style=\"font-size:50px\">HTTP ERROR 404</p><p style=\"font-size:40px\">无法找到指定的资源，请检查URL</p></body></html>";
-            string BasicMessage = "HTTP/1.1 404 Bad Request\r\n" +
-                                  "Server:RX_FileManager\r\n" +
-                                  "Content-Length:" + Encoding.UTF8.GetBytes(Content).Length + "\r\n" +
-                                  "Content-Type:text/html;charset=UTF-8\r\n\r\n";
-
-            string SendMessage = BasicMessage + Content;
-            ClientSocket?.Send(Encoding.UTF8.GetBytes(SendMessage));
-        }
-
-        private void SendResponseMessage(Socket ClientSocket, StorageFile TargetFile)
-        {
-            using (Stream FileStream = TargetFile.OpenStreamForReadAsync().Result)
-            {
-                string BasicMessage = "HTTP/1.1 200 OK\r\n" +
-                                      "Content-type:" + TargetFile.ContentType + "\r\n" +
-                                      "Server:RX_FileManager\r\n" +
-                                      "Content-Disposition:attachment;filename=" + TargetFile.Name + "\r\n" +
-                                      "Content-Length:" + FileStream.Length + "\r\n" +
-                                      "Connection:close\r\n\r\n";
-
-                byte[] Buffer = new byte[FileStream.Length];
-                FileStream.Read(Buffer, 0, Buffer.Length);
-                ClientSocket?.Send(Encoding.UTF8.GetBytes(BasicMessage).Concat(Buffer).ToArray());
-            }
-        }
-
-        private HttpRequestInfo AnalysisHttpRequest(string Message)
-        {
-            string MessageHeader = Message.Substring(0, Message.IndexOf("\r\n"));
-            string[] Info = MessageHeader.Split(" ");
-            return new HttpRequestInfo(Info[0], Info[1].Substring(1), Info[2]);
+            Cancellation?.Dispose();
+            Cancellation = null;
         }
 
         public void Dispose()
@@ -1801,30 +1724,16 @@ namespace FileManager
             {
                 IsDisposed = true;
                 Cancellation?.Cancel();
-                ServerSocket.Dispose();
-                ServerSocket = null;
+                Listener.Stop();
+                Listener.Abort();
+                Listener.Close();
+                Listener = null;
             }
         }
 
         ~WiFiShareProvider()
         {
             Dispose();
-        }
-    }
-
-    public class HttpRequestInfo
-    {
-        public string Method { get; private set; }
-
-        public string Uri { get; private set; }
-
-        public string HttpVersion { get; private set; }
-
-        public HttpRequestInfo(string Method, string Uri, string HttpVersion)
-        {
-            this.Method = Method;
-            this.Uri = Uri;
-            this.HttpVersion = HttpVersion;
         }
     }
     #endregion
