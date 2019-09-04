@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+    x:Uid="AttributeDialog"
     Title="属性"
     CloseButtonText="确定"
     Background="{StaticResource DialogAcrylicBrush}">
@@ -13,21 +14,21 @@
     <Grid>
         <StackPanel Orientation="Horizontal">
             <StackPanel Width="80">
-                <TextBlock Text="文件名" Name="Na" Height="35" TextAlignment="Justify"/>
-                <TextBlock Text="文件类型" Visibility="{x:Bind Ty.Visibility,Mode=OneWay}" Height="35" TextAlignment="Justify"/>
-                <TextBlock Text="位置" Height="35" TextAlignment="Justify"/>
-                <TextBlock Text="大小" Visibility="{x:Bind Si.Visibility,Mode=OneWay}" Height="35" TextAlignment="Justify"/>
-                <TextBlock Text="创建时间" Height="35" TextAlignment="Justify"/>
-                <TextBlock Text="修改时间" Height="35" TextAlignment="Justify"/>
+                <TextBlock Text="文件名" x:Uid="AttributeFileName" Name="Na" Height="35" TextAlignment="Justify"/>
+                <TextBlock Text="文件类型" x:Uid="AttributeType" Visibility="{x:Bind Ty.Visibility,Mode=OneWay}" Height="35" TextAlignment="Justify"/>
+                <TextBlock Text="位置" x:Uid="AttributeLocation" Height="35" TextAlignment="Justify"/>
+                <TextBlock Text="大小" x:Uid="AttributeSize" Visibility="{x:Bind Si.Visibility,Mode=OneWay}" Height="35" TextAlignment="Justify"/>
+                <TextBlock Text="创建时间" x:Uid="AttributeCreated" Height="35" TextAlignment="Justify"/>
+                <TextBlock Text="修改时间" x:Uid="AttributeModified" Height="35" TextAlignment="Justify"/>
             </StackPanel>
             <TextBlock Width="25"/>
             <StackPanel>
-                <TextBlock Text="{x:Bind FileName,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Text="{x:Bind FileType,Mode=OneWay}" Name="Ty" Height="35" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Text="{x:Bind Path,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Text="{x:Bind FileSize,Mode=OneWay}" Name="Si" Height="35" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Text="{x:Bind CreateTime,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Text="{x:Bind ChangeTime,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{x:Bind FileName,Mode=OneWay}" ToolTipService.ToolTip="{x:Bind FileName,Mode=OneWay}" Height="35" TextTrimming="CharacterEllipsis" Width="280"/>
+                <TextBlock Text="{x:Bind FileType,Mode=OneWay}" ToolTipService.ToolTip="{x:Bind FileType,Mode=OneWay}"  Name="Ty" Height="35" TextTrimming="CharacterEllipsis" Width="280"/>
+                <TextBlock Text="{x:Bind Path,Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Path,Mode=OneWay}"  Height="35" TextTrimming="CharacterEllipsis" Width="280"/>
+                <TextBlock Text="{x:Bind FileSize,Mode=OneWay}" ToolTipService.ToolTip="{x:Bind FileSize,Mode=OneWay}"  Name="Si" Height="35" TextTrimming="CharacterEllipsis" Width="280"/>
+                <TextBlock Text="{x:Bind CreateTime,Mode=OneWay}" ToolTipService.ToolTip="{x:Bind CreateTime,Mode=OneWay}"  Height="35" TextTrimming="CharacterEllipsis" Width="280"/>
+                <TextBlock Text="{x:Bind ChangeTime,Mode=OneWay}" ToolTipService.ToolTip="{x:Bind ChangeTime,Mode=OneWay}"  Height="35" TextTrimming="CharacterEllipsis" Width="280"/>
             </StackPanel>
         </StackPanel>
     </Grid>

@@ -18,13 +18,28 @@ namespace FileManager
             InitializeComponent();
             this.IsEncrypt = IsEncrypt;
             KeySelector.SelectedIndex = 0;
-            FileName.Text = "文件名：" + Name;
-            if (!IsEncrypt)
+
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                Title = "AES解密";
-                PasswordControl.Header = "解密密码";
-                KeySelector.Visibility = Visibility.Collapsed;
-                Check.Content = "解密完成后删除源文件";
+                FileName.Text = "文件名：" + Name;
+                if (!IsEncrypt)
+                {
+                    Title = "AES解密";
+                    PasswordControl.Header = "解密密码";
+                    KeySelector.Visibility = Visibility.Collapsed;
+                    Check.Content = "解密完成后删除源文件";
+                }
+            }
+            else
+            {
+                FileName.Text = "FileName：" + Name;
+                if (!IsEncrypt)
+                {
+                    Title = "AES Decryption";
+                    PasswordControl.Header = "Decryption Password";
+                    KeySelector.Visibility = Visibility.Collapsed;
+                    Check.Content = "Delete source file after decryption is complete";
+                }
             }
         }
 

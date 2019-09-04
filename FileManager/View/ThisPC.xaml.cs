@@ -87,14 +87,30 @@ namespace FileManager
                 }
                 catch (FileNotFoundException)
                 {
-                    ContentDialog Tips = new ContentDialog
+                    ContentDialog Tips;
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Title = "错误",
-                        Content = "无法正确解析用户文件夹，可能已经被移动或不存在\r是否要重新选择用户文件夹",
-                        PrimaryButtonText = "重新选择",
-                        CloseButtonText = "忽略并继续",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
+                        Tips = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "无法正确解析用户文件夹，可能已经被移动或不存在\r是否要重新选择用户文件夹",
+                            PrimaryButtonText = "重新选择",
+                            CloseButtonText = "忽略并继续",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                    }
+                    else
+                    {
+                        Tips = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Unable to parse user folder correctly，the folder may have been moved or does not exist\rDo you want to manually specify a user folder ?",
+                            PrimaryButtonText = "Select",
+                            CloseButtonText = "Ignore",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                    }
+
                     if (await Tips.ShowAsync() == ContentDialogResult.Primary)
                     {
                         StorageFolder UserFolder = await StorageFolder.GetFolderFromPathAsync(@"C:\Users");
@@ -136,14 +152,29 @@ namespace FileManager
                         }
                         catch (FileNotFoundException)
                         {
-                            ContentDialog Tip = new ContentDialog
+                            ContentDialog Tip;
+                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                             {
-                                Title = "错误",
-                                Content = "无法正确解析用户文件夹\r请重新检查用户文件夹选择是否正确",
-                                PrimaryButtonText = "重新选择",
-                                CloseButtonText = "忽略并继续",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
+                                Tip = new ContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "无法正确解析用户文件夹\r请重新检查用户文件夹选择是否正确",
+                                    PrimaryButtonText = "重新选择",
+                                    CloseButtonText = "忽略并继续",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+                            else
+                            {
+                                Tip = new ContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "Unable to parse user folder correctly\rPlease re-check if the user folder is selected correctly",
+                                    PrimaryButtonText = "Re-Select",
+                                    CloseButtonText = "Ignore",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
                             if (await Tip.ShowAsync() == ContentDialogResult.Primary)
                             {
                                 goto FLAG1;
@@ -195,14 +226,29 @@ namespace FileManager
                     }
                     catch (FileNotFoundException)
                     {
-                        ContentDialog Tips = new ContentDialog
+                        ContentDialog Tips;
+                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                         {
-                            Title = "错误",
-                            Content = "无法正确解析用户文件夹\r请重新检查用户文件夹选择是否正确",
-                            PrimaryButtonText = "重新选择",
-                            CloseButtonText = "忽略并继续",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
+                            Tips = new ContentDialog
+                            {
+                                Title = "错误",
+                                Content = "无法正确解析用户文件夹\r请重新检查用户文件夹选择是否正确",
+                                PrimaryButtonText = "重新选择",
+                                CloseButtonText = "忽略并继续",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                        }
+                        else
+                        {
+                            Tips = new ContentDialog
+                            {
+                                Title = "Error",
+                                Content = "Unable to parse user folder correctly\rPlease re-check if the user folder is selected correctly",
+                                PrimaryButtonText = "Re-Select",
+                                CloseButtonText = "Ignore",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                        }
                         if (await Tips.ShowAsync() == ContentDialogResult.Primary)
                         {
                             goto FLAG;
@@ -242,25 +288,53 @@ namespace FileManager
                     }
                     catch (FileNotFoundException)
                     {
-                        ContentDialog Tips = new ContentDialog
+                        ContentDialog Tips;
+                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                         {
-                            Title = "错误",
-                            Content = "无法正确解析用户文件夹中的部分库文件夹\r可能已经被移动或不存在",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
+                            Tips = new ContentDialog
+                            {
+                                Title = "错误",
+                                Content = "无法正确解析用户文件夹中的部分库文件夹\r可能已经被移动或不存在",
+                                CloseButtonText = "确定",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                        }
+                        else
+                        {
+                            Tips = new ContentDialog
+                            {
+                                Title = "Error",
+                                Content = "Some library folders in the user folder cannot be parsed correctly\rThe folder may have been moved or does not exist",
+                                CloseButtonText = "Confirm",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                        }
                         _ = await Tips.ShowAsync();
                     }
                 }
                 else
                 {
-                    ContentDialog Tips = new ContentDialog
+                    ContentDialog Tips;
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Title = "错误",
-                        Content = "无法正确解析用户文件夹，仅存在公用文件夹\r库文件无法正确显示",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
+                        Tips = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "无法正确解析用户文件夹，仅存在公用文件夹\r库文件夹无法正确显示",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                    }
+                    else
+                    {
+                        Tips = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Unable to parse user folder correctly, Only public folders exist\rLibrary folder does not display correctly",
+                            CloseButtonText = "Confirm",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                    }
                     _ = await Tips.ShowAsync();
                 }
             }

@@ -46,13 +46,13 @@
             <GridView.ContextFlyout>
                 <CommandBarFlyout x:Name="CommandsFlyout" Placement="RightEdgeAlignedTop">
                     <CommandBarFlyout.SecondaryCommands>
-                        <AppBarButton Icon="Bookmarks" Label="解压到当前目录" IsEnabled="{x:Bind Delete.IsEnabled,Mode=OneWay}" Name="Decompression" Click="Decompression_Click"/>
-                        <AppBarButton Icon="Delete" Label="删除" IsEnabled="False" Name="Delete" Click="Delete_Click"/>
-                        <AppBarButton Icon="Remote" Label="CRC文件完整性检验" IsEnabled="True" Name="Test" IsCompact="True">
+                        <AppBarButton Icon="Bookmarks" x:Uid="ZipDecompression" Label="解压到当前目录" IsEnabled="{x:Bind Delete.IsEnabled,Mode=OneWay}" Name="Decompression" Click="Decompression_Click"/>
+                        <AppBarButton Icon="Delete" x:Uid="ZipDelete" Label="删除" IsEnabled="False" Name="Delete" Click="Delete_Click"/>
+                        <AppBarButton Icon="Remote" x:Uid="ZipCRC" Label="CRC完整性检验" IsEnabled="True" Name="Test" IsCompact="True">
                             <AppBarButton.Flyout>
                                 <MenuFlyout ShowMode="Auto" Placement="Auto">
-                                    <MenuFlyoutItem Text="简单检查(速度快)" Name="Simple" Click="Test_Click"/>
-                                    <MenuFlyoutItem Text="完整检查(速度慢)" Name="Full" Click="Test_Click"/>
+                                    <MenuFlyoutItem x:Uid="ZipCRCSimple" Text="简单检查(速度快)" Name="Simple" Click="Test_Click"/>
+                                    <MenuFlyoutItem x:Uid="ZipCRCComplete" Text="完整检查(速度慢)" Name="Full" Click="Test_Click"/>
                                 </MenuFlyout>
                             </AppBarButton.Flyout>
                         </AppBarButton>
@@ -61,7 +61,7 @@
             </GridView.ContextFlyout>
 
         </GridView>
-        <TextBlock Name="HasFile" Grid.RowSpan="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="无文件" FontSize="25" Visibility="Collapsed" x:FieldModifier="Public"/>
+        <TextBlock Name="HasFile" x:Uid="ZipHasFile" Grid.RowSpan="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="无文件" FontSize="25" Visibility="Collapsed" x:FieldModifier="Public"/>
 
         <controls:Loading x:Name="LoadingControl" IsLoading="False" Grid.ColumnSpan="2" Grid.RowSpan="2">
             <controls:Loading.Background>

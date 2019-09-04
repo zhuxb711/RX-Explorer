@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Title="AES加密"
+    x:Uid="AESDialog"
     CloseButtonText="取消"
     PrimaryButtonText="确定"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
@@ -15,8 +16,8 @@
     <Grid>
         <StackPanel Orientation="Vertical">
             <TextBlock FontSize="18" Height="30" Name="FileName" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
-            <PasswordBox PlaceholderText="密码" Name="PasswordControl" Header="加密密码" MaxLength="16"/>
-            <ComboBox Header="加密方式" HorizontalAlignment="Stretch" Name="KeySelector">
+            <PasswordBox x:Uid="AESPassword" PlaceholderText="密码" Name="PasswordControl" Header="加密密码" MaxLength="16"/>
+            <ComboBox Header="加密方式" x:Uid="AESMethod" HorizontalAlignment="Stretch" Name="KeySelector">
                 <ComboBox.Items>
                     <x:String>
                         AES-128bit
@@ -26,7 +27,7 @@
                     </x:String>
                 </ComboBox.Items>
             </ComboBox>
-            <CheckBox Content="加密完成后删除源文件" Name="Check" IsChecked="{x:Bind IsDeleteChecked,Mode=TwoWay}"/>
+            <CheckBox Content="加密完成后删除源文件" x:Uid="AESCheckBox" Name="Check" IsChecked="{x:Bind IsDeleteChecked,Mode=TwoWay}"/>
         </StackPanel>
     </Grid>
 </ContentDialog>

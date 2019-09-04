@@ -39,6 +39,18 @@ namespace FileManager
             InitializeComponent();
             FavouriteList.ItemsSource = WebTab.ThisPage.FavouriteCollection;
             DownloadList.ItemsSource = WebDownloader.DownloadList;
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            {
+                TabOpenMethod.Items.Add("空白页");
+                TabOpenMethod.Items.Add("主页");
+                TabOpenMethod.Items.Add("特定页");
+            }
+            else
+            {
+                TabOpenMethod.Items.Add("Blank Page");
+                TabOpenMethod.Items.Add("Home Page");
+                TabOpenMethod.Items.Add("Specific Page");
+            }
 
         //由于未知原因此处new WebView时，若选择多进程模型则可能会引发异常
         FLAG:
@@ -66,73 +78,148 @@ namespace FileManager
         private void InitHistoryList()
         {
             //根据WebTab提供的分类信息决定历史记录树应当展示多少分类
-            if (WebTab.ThisPage.HistoryFlag.HasFlag(HistoryTreeCategoryFlag.Today))
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                HistoryTree.RootNodes.Add(new TreeViewNode
+                if (WebTab.ThisPage.HistoryFlag.HasFlag(HistoryTreeCategoryFlag.Today))
                 {
-                    Content = new WebSiteItem("今天", string.Empty),
-                    HasUnrealizedChildren = true,
-                    IsExpanded = true
-                });
-            }
-
-            if (WebTab.ThisPage.HistoryFlag.HasFlag(HistoryTreeCategoryFlag.Yesterday))
-            {
-                HistoryTree.RootNodes.Add(new TreeViewNode
-                {
-                    Content = new WebSiteItem("昨天", string.Empty),
-                    HasUnrealizedChildren = true
-                });
-            }
-
-            if (WebTab.ThisPage.HistoryFlag.HasFlag(HistoryTreeCategoryFlag.Earlier))
-            {
-                HistoryTree.RootNodes.Add(new TreeViewNode
-                {
-                    Content = new WebSiteItem("更早", string.Empty),
-                    HasUnrealizedChildren = true
-                });
-            }
-
-            //遍历HistoryCollection集合以向历史记录树中对应分类添加子对象
-            foreach (var HistoryItem in WebTab.ThisPage.HistoryCollection)
-            {
-                if (HistoryItem.Key == DateTime.Today.AddDays(-1))
-                {
-                    var TreeNode = from Item in HistoryTree.RootNodes
-                                   where (Item.Content as WebSiteItem).Subject == "昨天"
-                                   select Item;
-                    TreeNode.FirstOrDefault()?.Children.Add(new TreeViewNode
+                    HistoryTree.RootNodes.Add(new TreeViewNode
                     {
-                        Content = HistoryItem.Value,
-                        HasUnrealizedChildren = false,
-                        IsExpanded = false
-                    });
-
-                }
-                else if (HistoryItem.Key == DateTime.Today)
-                {
-                    var TreeNode = from Item in HistoryTree.RootNodes
-                                   where (Item.Content as WebSiteItem).Subject == "今天"
-                                   select Item;
-                    TreeNode.FirstOrDefault()?.Children.Add(new TreeViewNode
-                    {
-                        Content = HistoryItem.Value,
-                        HasUnrealizedChildren = false,
-                        IsExpanded = false
+                        Content = new WebSiteItem("今天", string.Empty),
+                        HasUnrealizedChildren = true,
+                        IsExpanded = true
                     });
                 }
-                else
+
+                if (WebTab.ThisPage.HistoryFlag.HasFlag(HistoryTreeCategoryFlag.Yesterday))
                 {
-                    var TreeNode = from Item in HistoryTree.RootNodes
-                                   where (Item.Content as WebSiteItem).Subject == "更早"
-                                   select Item;
-                    TreeNode.FirstOrDefault()?.Children.Add(new TreeViewNode
+                    HistoryTree.RootNodes.Add(new TreeViewNode
                     {
-                        Content = HistoryItem.Value,
-                        HasUnrealizedChildren = false,
-                        IsExpanded = false
+                        Content = new WebSiteItem("昨天", string.Empty),
+                        HasUnrealizedChildren = true
                     });
+                }
+
+                if (WebTab.ThisPage.HistoryFlag.HasFlag(HistoryTreeCategoryFlag.Earlier))
+                {
+                    HistoryTree.RootNodes.Add(new TreeViewNode
+                    {
+                        Content = new WebSiteItem("更早", string.Empty),
+                        HasUnrealizedChildren = true
+                    });
+                }
+
+                //遍历HistoryCollection集合以向历史记录树中对应分类添加子对象
+                foreach (var HistoryItem in WebTab.ThisPage.HistoryCollection)
+                {
+                    if (HistoryItem.Key == DateTime.Today.AddDays(-1))
+                    {
+                        var TreeNode = from Item in HistoryTree.RootNodes
+                                       where (Item.Content as WebSiteItem).Subject == "昨天"
+                                       select Item;
+                        TreeNode.FirstOrDefault()?.Children.Add(new TreeViewNode
+                        {
+                            Content = HistoryItem.Value,
+                            HasUnrealizedChildren = false,
+                            IsExpanded = false
+                        });
+
+                    }
+                    else if (HistoryItem.Key == DateTime.Today)
+                    {
+                        var TreeNode = from Item in HistoryTree.RootNodes
+                                       where (Item.Content as WebSiteItem).Subject == "今天"
+                                       select Item;
+                        TreeNode.FirstOrDefault()?.Children.Add(new TreeViewNode
+                        {
+                            Content = HistoryItem.Value,
+                            HasUnrealizedChildren = false,
+                            IsExpanded = false
+                        });
+                    }
+                    else
+                    {
+                        var TreeNode = from Item in HistoryTree.RootNodes
+                                       where (Item.Content as WebSiteItem).Subject == "更早"
+                                       select Item;
+                        TreeNode.FirstOrDefault()?.Children.Add(new TreeViewNode
+                        {
+                            Content = HistoryItem.Value,
+                            HasUnrealizedChildren = false,
+                            IsExpanded = false
+                        });
+                    }
+                }
+            }
+            else
+            {
+                if (WebTab.ThisPage.HistoryFlag.HasFlag(HistoryTreeCategoryFlag.Today))
+                {
+                    HistoryTree.RootNodes.Add(new TreeViewNode
+                    {
+                        Content = new WebSiteItem("Today", string.Empty),
+                        HasUnrealizedChildren = true,
+                        IsExpanded = true
+                    });
+                }
+
+                if (WebTab.ThisPage.HistoryFlag.HasFlag(HistoryTreeCategoryFlag.Yesterday))
+                {
+                    HistoryTree.RootNodes.Add(new TreeViewNode
+                    {
+                        Content = new WebSiteItem("Yesterday", string.Empty),
+                        HasUnrealizedChildren = true
+                    });
+                }
+
+                if (WebTab.ThisPage.HistoryFlag.HasFlag(HistoryTreeCategoryFlag.Earlier))
+                {
+                    HistoryTree.RootNodes.Add(new TreeViewNode
+                    {
+                        Content = new WebSiteItem("Earlier", string.Empty),
+                        HasUnrealizedChildren = true
+                    });
+                }
+
+                //遍历HistoryCollection集合以向历史记录树中对应分类添加子对象
+                foreach (var HistoryItem in WebTab.ThisPage.HistoryCollection)
+                {
+                    if (HistoryItem.Key == DateTime.Today.AddDays(-1))
+                    {
+                        var TreeNode = from Item in HistoryTree.RootNodes
+                                       where (Item.Content as WebSiteItem).Subject == "Yesterday"
+                                       select Item;
+                        TreeNode.FirstOrDefault()?.Children.Add(new TreeViewNode
+                        {
+                            Content = HistoryItem.Value,
+                            HasUnrealizedChildren = false,
+                            IsExpanded = false
+                        });
+
+                    }
+                    else if (HistoryItem.Key == DateTime.Today)
+                    {
+                        var TreeNode = from Item in HistoryTree.RootNodes
+                                       where (Item.Content as WebSiteItem).Subject == "Today"
+                                       select Item;
+                        TreeNode.FirstOrDefault()?.Children.Add(new TreeViewNode
+                        {
+                            Content = HistoryItem.Value,
+                            HasUnrealizedChildren = false,
+                            IsExpanded = false
+                        });
+                    }
+                    else
+                    {
+                        var TreeNode = from Item in HistoryTree.RootNodes
+                                       where (Item.Content as WebSiteItem).Subject == "Earlier"
+                                       select Item;
+                        TreeNode.FirstOrDefault()?.Children.Add(new TreeViewNode
+                        {
+                            Content = HistoryItem.Value,
+                            HasUnrealizedChildren = false,
+                            IsExpanded = false
+                        });
+                    }
                 }
             }
         }
@@ -156,7 +243,8 @@ namespace FileManager
             {
                 //寻找分类标题为“今天”的节点，与HistoryCollection内的数量进行比对，若不同则发生了变动
                 var TreeNodes = from Item in HistoryTree.RootNodes
-                                where (Item.Content as WebSiteItem).Subject == "今天"
+                                let Subject = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "今天" : "Today"
+                                where (Item.Content as WebSiteItem).Subject == Subject
                                 select Item;
                 if (TreeNodes.Count() > 0)
                 {
@@ -193,9 +281,9 @@ namespace FileManager
                 TabOpenMethod.SelectedIndex = 0;
             }
 
-            if (ApplicationData.Current.LocalSettings.Values["WebTabMainPage"] is string MainPage)
+            if (ApplicationData.Current.LocalSettings.Values["WebTabMainPage"] is string Page)
             {
-                MainUrl.Text = MainPage;
+                MainUrl.Text = Page;
             }
             else
             {
@@ -352,13 +440,26 @@ namespace FileManager
                 Width = GridLength.Auto
             });
 
-            TextBlock textBlock = new TextBlock
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                Text = "是否保存文件 " + FileName + " 至本地计算机?\r发布者：" + (string.IsNullOrWhiteSpace(Refer.Host) ? "Unknown" : Refer.Host),
-                VerticalAlignment = VerticalAlignment.Center,
-                FontSize = 16
-            };
-            GridControl.Children.Add(textBlock);
+                TextBlock textBlock = new TextBlock
+                {
+                    Text = "是否保存文件 " + FileName + " 至本地计算机?\r发布者：" + (string.IsNullOrWhiteSpace(Refer.Host) ? "Unknown" : Refer.Host),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    FontSize = 16
+                };
+                GridControl.Children.Add(textBlock);
+            }
+            else
+            {
+                TextBlock textBlock = new TextBlock
+                {
+                    Text = "Whether to save the file " + FileName + " to the local computer?\rPublisher：" + (string.IsNullOrWhiteSpace(Refer.Host) ? "Unknown" : Refer.Host),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    FontSize = 16
+                };
+                GridControl.Children.Add(textBlock);
+            }
 
             // Buttons part
             StackPanel stackPanel = new StackPanel
@@ -370,7 +471,7 @@ namespace FileManager
 
             Button SaveConfirmButton = new Button
             {
-                Content = "保存",
+                Content = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "保存" : "Save",
                 Width = 120,
                 Height = 30,
             };
@@ -392,7 +493,7 @@ namespace FileManager
 
             Button CancelButton = new Button
             {
-                Content = "取消",
+                Content = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "取消" : "Cancel",
                 Width = 120,
                 Height = 30,
                 Margin = new Thickness(10, 0, 0, 0)
@@ -450,27 +551,57 @@ namespace FileManager
 
         private async void WebBrowser_NavigationFailed(object sender, WebViewNavigationFailedEventArgs e)
         {
-            ContentDialog dialog = new ContentDialog
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                Content = "导航失败，请检查网址或网络连接",
-                Title = "提示",
-                CloseButtonText = "确定",
-                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-            };
-            WebBrowser.Navigate(new Uri("about:blank"));
-            await dialog.ShowAsync();
+                ContentDialog dialog = new ContentDialog
+                {
+                    Content = "导航失败，请检查网址或网络连接",
+                    Title = "提示",
+                    CloseButtonText = "确定",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                WebBrowser.Navigate(new Uri("about:blank"));
+                _ = await dialog.ShowAsync();
+            }
+            else
+            {
+                ContentDialog dialog = new ContentDialog
+                {
+                    Content = "Navigation failed, please check the URL or network connection",
+                    Title = "Tips",
+                    CloseButtonText = "Confirm",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                WebBrowser.Navigate(new Uri("about:blank"));
+                _ = await dialog.ShowAsync();
+            }
         }
 
         private async void WebBrowser_SeparateProcessLost(WebView sender, WebViewSeparateProcessLostEventArgs args)
         {
-            ContentDialog dialog = new ContentDialog
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                Content = "浏览器进程意外终止\r将自动重启并返回主页",
-                Title = "提示",
-                CloseButtonText = "确定",
-                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-            };
-            await dialog.ShowAsync();
+                ContentDialog dialog = new ContentDialog
+                {
+                    Content = "浏览器进程意外终止\r将自动重启并返回主页",
+                    Title = "提示",
+                    CloseButtonText = "确定",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                _ = await dialog.ShowAsync();
+            }
+            else
+            {
+                ContentDialog dialog = new ContentDialog
+                {
+                    Content = "Browser process terminated unexpectedly\rWe will automatically restart and return to the home page",
+                    Title = "Tips",
+                    CloseButtonText = "Confirm",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                _ = await dialog.ShowAsync();
+            }
+
             WebBrowser = new WebView(WebViewExecutionMode.SeparateProcess);
             InitializeWebView();
             WebBrowser.Navigate(new Uri(ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString()));
@@ -478,7 +609,7 @@ namespace FileManager
 
         private void WebBrowser_ContentLoading(WebView sender, WebViewContentLoadingEventArgs args)
         {
-            ThisTab.Header = WebBrowser.DocumentTitle != "" ? WebBrowser.DocumentTitle : "正在加载...";
+            ThisTab.Header = WebBrowser.DocumentTitle != "" ? WebBrowser.DocumentTitle : (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "正在加载..." : "Loading...");
 
             AutoSuggest.Text = args.Uri.ToString();
 
@@ -518,7 +649,8 @@ namespace FileManager
                         if (!HistoryItem.Key.Equals(default))
                         {
                             foreach (var (RootNode, InnerNode) in from RootNode in HistoryTree.RootNodes
-                                                                  where (RootNode.Content as WebSiteItem).Subject == "今天"
+                                                                  let Subject = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "今天" : "Today"
+                                                                  where (RootNode.Content as WebSiteItem).Subject == Subject
                                                                   from InnerNode in RootNode.Children
                                                                   where (InnerNode.Content as WebSiteItem).WebSite == HistoryItem.Value.WebSite
                                                                   select (RootNode, InnerNode))
@@ -542,7 +674,7 @@ namespace FileManager
             //TabViewItem的Header必须设置否则将导致异常发生
             TabViewItem NewItem = new TabViewItem
             {
-                Header = "空白页",
+                Header = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "空白页" : "Blank Page",
                 Icon = new SymbolIcon(Symbol.Document),
                 Content = Web
             };
@@ -576,10 +708,12 @@ namespace FileManager
                 Uri uri = new Uri(url);
                 HttpWebRequest wr = (HttpWebRequest)WebRequest.Create(uri);
                 Stream s = wr.GetResponse().GetResponseStream();
-                StreamReader sr = new StreamReader(s, Encoding.GetEncoding("GBK"));
-                str = sr.ReadToEnd();
-                str = str.Remove(0, 17);
-                str = str.Remove(str.Length - 2, 2);
+                using (StreamReader sr = new StreamReader(s, Encoding.GetEncoding("GBK")))
+                {
+                    str = sr.ReadToEnd();
+                    str = str.Remove(0, 17);
+                    str = str.Remove(str.Length - 2, 2);
+                }
             }
             catch
             {
@@ -603,7 +737,7 @@ namespace FileManager
         {
             if (args.ChosenSuggestion != null)
             {
-                WebBrowser.Navigate(new Uri("https://www.baidu.com/s?wd=" + args.ChosenSuggestion.ToString()));
+                WebBrowser.Navigate(new Uri(MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? ("https://www.baidu.com/s?wd=" + args.ChosenSuggestion.ToString()) : ("https://www.bing.com/search?q=" + args.ChosenSuggestion.ToString())));
             }
             else
             {
@@ -614,7 +748,7 @@ namespace FileManager
                 }
                 else
                 {
-                    WebBrowser.Navigate(new Uri("https://www.baidu.com/s?wd=" + args.QueryText));
+                    WebBrowser.Navigate(new Uri(MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? ("https://www.baidu.com/s?wd=" + args.QueryText) : ("https://www.bing.com/search?q=" + args.QueryText)));
                 }
             }
         }
@@ -663,14 +797,28 @@ namespace FileManager
             }
             else
             {
-                ContentDialog dialog = new ContentDialog
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                 {
-                    Content = "导航失败，请检查网址或网络连接",
-                    Title = "提示",
-                    CloseButtonText = "确定",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                };
-                _ = dialog.ShowAsync();
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Content = "导航失败，请检查网址或网络连接",
+                        Title = "提示",
+                        CloseButtonText = "确定",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    _ = dialog.ShowAsync();
+                }
+                else
+                {
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Content = "Navigation failed, please check the URL or network connection",
+                        Title = "Tips",
+                        CloseButtonText = "Confirm",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    _ = dialog.ShowAsync();
+                }
                 WebBrowser.Navigate(new Uri("about:blank"));
             }
         }
@@ -694,9 +842,9 @@ namespace FileManager
 
         private void WebBrowser_NavigationCompleted(WebView sender, WebViewNavigationCompletedEventArgs args)
         {
-            if (ThisTab.Header.ToString() == "正在加载...")
+            if (ThisTab.Header.ToString() == "正在加载..." || ThisTab.Header.ToString() == "Loading...")
             {
-                ThisTab.Header = WebBrowser.DocumentTitle == "" ? "空白页" : WebBrowser.DocumentTitle;
+                ThisTab.Header = WebBrowser.DocumentTitle == "" ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "空白页" : "Blank Page") : WebBrowser.DocumentTitle;
             }
 
             if (InPrivate.IsOn)
@@ -721,7 +869,8 @@ namespace FileManager
                             if (!HistoryItem.Key.Equals(default))
                             {
                                 foreach (var (RootNode, InnerNode) in from RootNode in HistoryTree.RootNodes
-                                                                      where (RootNode.Content as WebSiteItem).Subject == "今天"
+                                                                      let Subject = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "今天" : "Today"
+                                                                      where (RootNode.Content as WebSiteItem).Subject == Subject
                                                                       from InnerNode in RootNode.Children
                                                                       where (InnerNode.Content as WebSiteItem).WebSite == HistoryItem.Value.WebSite
                                                                       select (RootNode, InnerNode))
@@ -760,32 +909,63 @@ namespace FileManager
             if (args.ExecutionTime.TotalMilliseconds >= 5000)
             {
                 args.StopPageScriptExecution = true;
-                ContentDialog dialog = new ContentDialog
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                 {
-                    Content = "检测到长时间运行的JavaScript脚本，可能会导致应用无响应，已自动终止",
-                    Title = "警告",
-                    CloseButtonText = "确定",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                };
-                await dialog.ShowAsync();
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Content = "检测到长时间运行的JavaScript脚本，可能会导致应用无响应，已自动终止",
+                        Title = "警告",
+                        CloseButtonText = "确定",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    _ = await dialog.ShowAsync();
+                }
+                else
+                {
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Content = "A long-running JavaScript script is detected\rWhich may cause the app to become unresponsive\rHas been automatically terminated",
+                        Title = "Warning",
+                        CloseButtonText = "Confirm",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    _ = await dialog.ShowAsync();
+                }
             }
         }
 
         private async void WebBrowser_UnsafeContentWarningDisplaying(WebView sender, object args)
         {
-            ContentDialog dialog = new ContentDialog
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                Content = "SmartScreen筛选器将该页面标记为不安全",
-                Title = "警告",
-                CloseButtonText = "继续访问",
-                PrimaryButtonText = "返回主页",
-                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-            };
-            dialog.PrimaryButtonClick += (s, e) =>
+                ContentDialog dialog = new ContentDialog
+                {
+                    Content = "SmartScreen将该页面标记为不安全",
+                    Title = "警告",
+                    CloseButtonText = "继续访问",
+                    PrimaryButtonText = "返回主页",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    WebBrowser.Navigate(new Uri(ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString()));
+                }
+            }
+            else
             {
-                WebBrowser.Navigate(new Uri(ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString()));
-            };
-            await dialog.ShowAsync();
+                ContentDialog dialog = new ContentDialog
+                {
+                    Content = "SmartScreen marks the page as unsafe",
+                    Title = "Warning",
+                    CloseButtonText = "Ignore anyway",
+                    PrimaryButtonText = "Back to homepage",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    WebBrowser.Navigate(new Uri(ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString()));
+                }
+            }
         }
 
         private void WebBrowser_ContainsFullScreenElementChanged(WebView sender, object args)
@@ -808,87 +988,148 @@ namespace FileManager
             {
                 case WebViewPermissionType.Geolocation:
                     {
-                        ContentDialog dialog = new ContentDialog
+                        ContentDialog dialog;
+                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                         {
-                            Content = "网站请求获取您的精确GPS定位",
-                            Title = "权限",
-                            CloseButtonText = "拒绝",
-                            PrimaryButtonText = "允许",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        dialog.PrimaryButtonClick += (s, e) =>
+                            dialog = new ContentDialog
+                            {
+                                Content = "网站请求获取您的精确GPS定位",
+                                Title = "权限",
+                                SecondaryButtonText = "拒绝",
+                                PrimaryButtonText = "允许",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                        }
+                        else
                         {
-                            args.PermissionRequest.Allow();
-                        };
-                        dialog.CloseButtonClick += (s, e) =>
+                            dialog = new ContentDialog
+                            {
+                                Content = "The website requests to get your precise GPS location",
+                                Title = "Permission",
+                                SecondaryButtonText = "Deny",
+                                PrimaryButtonText = "Allow",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                        }
+                        switch (await dialog.ShowAsync())
                         {
-                            args.PermissionRequest.Deny();
-                        };
-                        await dialog.ShowAsync();
+                            case ContentDialogResult.Primary:
+                                args.PermissionRequest.Allow();
+                                break;
+                            case ContentDialogResult.Secondary:
+                                args.PermissionRequest.Deny();
+                                break;
+                        }
                         break;
                     }
 
                 case WebViewPermissionType.WebNotifications:
                     {
-                        ContentDialog dialog = new ContentDialog
+                        ContentDialog dialog;
+                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                         {
-                            Content = "网站请求Web通知权限",
-                            Title = "权限",
-                            CloseButtonText = "拒绝",
-                            PrimaryButtonText = "允许",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        dialog.PrimaryButtonClick += (s, e) =>
+                            dialog = new ContentDialog
+                            {
+                                Content = "网站请求Web通知权限",
+                                Title = "权限",
+                                SecondaryButtonText = "拒绝",
+                                PrimaryButtonText = "允许",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                        }
+                        else
                         {
-                            args.PermissionRequest.Allow();
-                        };
-                        dialog.CloseButtonClick += (s, e) =>
+                            dialog = new ContentDialog
+                            {
+                                Content = "Website request web notification permission",
+                                Title = "Permission",
+                                SecondaryButtonText = "Deny",
+                                PrimaryButtonText = "Allow",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                        }
+
+                        switch (await dialog.ShowAsync())
                         {
-                            args.PermissionRequest.Deny();
-                        };
-                        await dialog.ShowAsync();
+                            case ContentDialogResult.Primary:
+                                args.PermissionRequest.Allow();
+                                break;
+                            case ContentDialogResult.Secondary:
+                                args.PermissionRequest.Deny();
+                                break;
+                        }
                         break;
                     }
                 case WebViewPermissionType.Media:
                     {
-                        ContentDialog dialog = new ContentDialog
+                        ContentDialog dialog;
+                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                         {
-                            Content = "网站请求媒体播放权限",
-                            Title = "权限",
-                            CloseButtonText = "拒绝",
-                            PrimaryButtonText = "允许",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        dialog.PrimaryButtonClick += (s, e) =>
+                            dialog = new ContentDialog
+                            {
+                                Content = "网站请求媒体播放权限",
+                                Title = "权限",
+                                SecondaryButtonText = "拒绝",
+                                PrimaryButtonText = "允许",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                        }
+                        else
                         {
-                            args.PermissionRequest.Allow();
-                        };
-                        dialog.CloseButtonClick += (s, e) =>
+                            dialog = new ContentDialog
+                            {
+                                Content = "Website request media playback permission",
+                                Title = "Permission",
+                                SecondaryButtonText = "Deny",
+                                PrimaryButtonText = "Allow",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                        }
+                        switch (await dialog.ShowAsync())
                         {
-                            args.PermissionRequest.Deny();
-                        };
-                        await dialog.ShowAsync();
+                            case ContentDialogResult.Primary:
+                                args.PermissionRequest.Allow();
+                                break;
+                            case ContentDialogResult.Secondary:
+                                args.PermissionRequest.Deny();
+                                break;
+                        }
                         break;
                     }
                 case WebViewPermissionType.Screen:
                     {
-                        ContentDialog dialog = new ContentDialog
+                        ContentDialog dialog;
+                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                         {
-                            Content = "网站请求屏幕截图权限",
-                            Title = "权限",
-                            CloseButtonText = "拒绝",
-                            PrimaryButtonText = "允许",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        dialog.PrimaryButtonClick += (s, e) =>
+                            dialog = new ContentDialog
+                            {
+                                Content = "网站请求屏幕截图权限",
+                                Title = "权限",
+                                CloseButtonText = "拒绝",
+                                PrimaryButtonText = "允许",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                        }
+                        else
                         {
-                            args.PermissionRequest.Allow();
-                        };
-                        dialog.CloseButtonClick += (s, e) =>
+                            dialog = new ContentDialog
+                            {
+                                Content = "Website request screenshot permission",
+                                Title = "Permission",
+                                CloseButtonText = "Deny",
+                                PrimaryButtonText = "Allow",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                        }
+                        switch (await dialog.ShowAsync())
                         {
-                            args.PermissionRequest.Deny();
-                        };
-                        await dialog.ShowAsync();
+                            case ContentDialogResult.Primary:
+                                args.PermissionRequest.Allow();
+                                break;
+                            case ContentDialogResult.Secondary:
+                                args.PermissionRequest.Deny();
+                                break;
+                        }
                         break;
                     }
                 default:
@@ -901,17 +1142,35 @@ namespace FileManager
         {
             if ((await (await BluetoothAdapter.GetDefaultAsync()).GetRadioAsync()).State != RadioState.On)
             {
-                ContentDialog dialog = new ContentDialog
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                 {
-                    Content = "蓝牙功能尚未开启，是否前往设置开启？",
-                    Title = "提示",
-                    PrimaryButtonText = "确定",
-                    CloseButtonText = "取消",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                };
-                if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Content = "蓝牙功能尚未开启，是否前往设置开启？",
+                        Title = "提示",
+                        PrimaryButtonText = "确定",
+                        CloseButtonText = "取消",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    {
+                        await Launcher.LaunchUriAsync(new Uri("ms-settings:bluetooth"));
+                    }
+                }
+                else
                 {
-                    await Launcher.LaunchUriAsync(new Uri("ms-settings:bluetooth"));
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Content = "Bluetooth is not turned on, go to setting to enable？",
+                        Title = "Tips",
+                        PrimaryButtonText = "Confirm",
+                        CloseButtonText = "Cancel",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    {
+                        await Launcher.LaunchUriAsync(new Uri("ms-settings:bluetooth"));
+                    }
                 }
                 return;
             }
@@ -934,7 +1193,7 @@ namespace FileManager
                     BluetoothFileTransfer FileTransfer = new BluetoothFileTransfer
                     {
                         StreamToSend = stream.AsStream(),
-                        FileName = WebBrowser.DocumentTitle == "" ? "屏幕截图.jpg" : WebBrowser.DocumentTitle + ".jpg",
+                        FileName = WebBrowser.DocumentTitle == "" ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "屏幕截图.jpg" : "Screenshot.jpg") : (WebBrowser.DocumentTitle + ".jpg"),
                         UseStorageFileRatherThanStream = false
                     };
                     await FileTransfer.ShowAsync();
@@ -951,26 +1210,54 @@ namespace FileManager
             WebTab.ThisPage.HistoryCollection.Clear();
             HistoryTree.RootNodes.Clear();
 
-            ContentDialog dialog = new ContentDialog
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                Content = "所有缓存和历史记录数据均已清空",
-                Title = "提示",
-                CloseButtonText = "确定",
-                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-            };
-            await dialog.ShowAsync();
+                ContentDialog dialog = new ContentDialog
+                {
+                    Content = "所有缓存和历史记录数据均已清空",
+                    Title = "提示",
+                    CloseButtonText = "确定",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                _ = await dialog.ShowAsync();
+            }
+            else
+            {
+                ContentDialog dialog = new ContentDialog
+                {
+                    Content = "All cache and history data has being cleared",
+                    Title = "Tips",
+                    CloseButtonText = "Confirm",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                _ = await dialog.ShowAsync();
+            }
         }
 
         private async void About_Click(object sender, RoutedEventArgs e)
         {
-            ContentDialog dialog = new ContentDialog
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                Content = "RX管理器内置浏览器\r\r具备SmartScreen保护和完整权限控制\r\r基于Microsoft Edge内核的轻型浏览器",
-                Title = "关于",
-                CloseButtonText = "确定",
-                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-            };
-            await dialog.ShowAsync();
+                ContentDialog dialog = new ContentDialog
+                {
+                    Content = "RX管理器内置浏览器\r\r具备SmartScreen保护和完整权限控制\r\r基于Microsoft Edge内核的轻型浏览器",
+                    Title = "关于",
+                    CloseButtonText = "确定",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                _ = await dialog.ShowAsync();
+            }
+            else
+            {
+                ContentDialog dialog = new ContentDialog
+                {
+                    Content = "RX Manager built-in browser\r\rSmartScreen protection and full access control\r\rLightweight browser based on Microsoft Edge kernel",
+                    Title = "About",
+                    CloseButtonText = "Confirm",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                _ = await dialog.ShowAsync();
+            }
         }
 
         public async void Dispose()
@@ -1022,7 +1309,7 @@ namespace FileManager
 
         private async void Favourite_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if (ThisTab.Header.ToString() == "空白页")
+            if (ThisTab.Header.ToString() == "空白页" || ThisTab.Header.ToString() == "Blank Page")
             {
                 return;
             }
@@ -1058,7 +1345,7 @@ namespace FileManager
         private void TabOpenMethod_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ApplicationData.Current.LocalSettings.Values["WebTabOpenMethod"] = TabOpenMethod.SelectedItem.ToString();
-            SpecificUrl.Visibility = TabOpenMethod.SelectedItem.ToString() == "特定页" ? Visibility.Visible : Visibility.Collapsed;
+            SpecificUrl.Visibility = (TabOpenMethod.SelectedItem.ToString() == "特定页" || TabOpenMethod.SelectedItem.ToString() == "Specific Page") ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void ShowMainButton_Toggled(object sender, RoutedEventArgs e)
@@ -1276,7 +1563,7 @@ namespace FileManager
             Button btn = (Button)sender;
             DownloadList.SelectedItem = btn.DataContext;
 
-            if (btn.Content.ToString() == "暂停")
+            if (btn.Content.ToString() == "暂停" || btn.Content.ToString() == "Pause")
             {
                 ListViewItem Item = DownloadList.ContainerFromItem(DownloadList.SelectedItem) as ListViewItem;
                 Item.ContentTemplate = DownloadPauseTemplate;
@@ -1307,7 +1594,6 @@ namespace FileManager
         {
             FolderPicker SavePicker = new FolderPicker
             {
-                CommitButtonText = "保存",
                 SuggestedStartLocation = PickerLocationId.Downloads,
                 ViewMode = PickerViewMode.List
             };

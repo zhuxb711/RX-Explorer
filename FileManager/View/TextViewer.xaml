@@ -14,8 +14,8 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <CommandBar VerticalAlignment="Stretch" Name="CommandBarContorl" FlowDirection="LeftToRight" Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}" IsOpen="False" DefaultLabelPosition="Right">
-            <AppBarButton Icon="Save" Label="保存" Name="Save" Click="Save_Click"/>
-            <AppBarButton Icon="Cancel" Label="放弃" Name="Cancel" Click="Cancel_Click"/>
+            <AppBarButton Icon="Save" x:Uid="TextViewerSave" Label="保存" Name="Save" Click="Save_Click"/>
+            <AppBarButton Icon="Cancel" x:Uid="TextViewerCancel" Label="放弃" Name="Cancel" Click="Cancel_Click"/>
         </CommandBar>
         <TextBlock Margin="10,0,0,0" HorizontalAlignment="Left" FontSize="22" Name="Title"/>
         <TextBox Name="Text" Grid.Row="1" Background="{ThemeResource TextBoxDisabledBackgroundThemeBrush}" AcceptsReturn="True" IsSpellCheckEnabled="False"/>
@@ -25,7 +25,7 @@
             </controls:Loading.Background>
             <StackPanel Orientation="Horizontal">
                 <ProgressRing IsActive="True" Height="25" Width="25" VerticalAlignment="Center"/>
-                <TextBlock Margin="10,0,0,0" Text="正在加载..." FontSize="20" VerticalAlignment="Center" />
+                <TextBlock Margin="10,0,0,0" x:Uid="TextViewerLoading" Text="正在加载..." FontSize="20" VerticalAlignment="Center" />
             </StackPanel>
         </controls:Loading>
     </Grid>

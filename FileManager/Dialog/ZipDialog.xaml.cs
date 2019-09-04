@@ -46,9 +46,18 @@ namespace FileManager
             }
             else
             {
-                Title = "需要解压密码";
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                {
+                    Title = "需要解压密码";
+                    Pass.PlaceholderText = "输入解密密码";
+                }
+                else
+                {
+                    Title = "Password required";
+                    Pass.PlaceholderText = "Enter decompression password";
+                }
+
                 FName.Visibility = Visibility.Collapsed;
-                Pass.PlaceholderText = "输入解密密码";
                 ZipMethod.Visibility = Visibility.Collapsed;
                 EnableCryption.Visibility = Visibility.Collapsed;
             }
@@ -89,11 +98,11 @@ namespace FileManager
                 Password = Pass.Password;
                 switch (ZipMethod.SelectedItem as string)
                 {
-                    case "最大": Level = CompressionLevel.Max; break;
-                    case "较大": Level = CompressionLevel.AboveStandard; break;
-                    case "标准": Level = CompressionLevel.Standard; break;
-                    case "较低": Level = CompressionLevel.BelowStandard; break;
-                    case "仅存档": Level = CompressionLevel.PackOnly; break;
+                    case "Max": Level = CompressionLevel.Max; break;
+                    case "Higher": Level = CompressionLevel.AboveStandard; break;
+                    case "Standard": Level = CompressionLevel.Standard; break;
+                    case "Lower": Level = CompressionLevel.BelowStandard; break;
+                    case "Min": Level = CompressionLevel.PackOnly; break;
                 }
 
                 switch (ZipCryption.SelectedItem as string)

@@ -15,21 +15,21 @@
         <local:SizeDisplayConverter x:Key="StateConverter" />
 
         <CommandBarFlyout x:Name="CommandsFlyout" Placement="RightEdgeAlignedTop">
-            <AppBarButton Icon="Copy" ToolTipService.ToolTip="复制" Name="Copy"  Click="Copy_Click"/>
-            <AppBarButton Icon="Cut" ToolTipService.ToolTip="剪切" Click="Cut_Click" Name="Cut"/>
-            <AppBarButton Icon="Delete" ToolTipService.ToolTip="删除" x:Name="DeleteButton" Click="Delete_Click"/>
+            <AppBarButton Icon="Copy" ToolTipService.ToolTip="复制" Name="Copy" x:Uid="FileCopy" Click="Copy_Click"/>
+            <AppBarButton Icon="Cut" ToolTipService.ToolTip="剪切" x:Uid="FileCut" Click="Cut_Click" Name="Cut"/>
+            <AppBarButton Icon="Delete" ToolTipService.ToolTip="删除" x:Uid="FileDelete" x:Name="DeleteButton" Click="Delete_Click"/>
             <CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Edit" Label="重命名" Click="Rename_Click"/>
-                <AppBarButton Icon="ProtectedDocument" Name="AES" Label="AES加密" Click="AES_Click"/>
-                <AppBarButton Icon="Share" Label="共享">
+                <AppBarButton Icon="Edit" Label="重命名" x:Uid="FileRename" Click="Rename_Click"/>
+                <AppBarButton Icon="ProtectedDocument" x:Uid="FileAES" Name="AES" Label="AES加密" Click="AES_Click"/>
+                <AppBarButton Icon="Share" x:Uid="FileShare" Label="共享">
                     <AppBarButton.Flyout>
                         <MenuFlyout Placement="Right">
-                            <MenuFlyoutItem Text="WIFI共享" Name="WIFIShare" Click="WIFIShare_Click">
+                            <MenuFlyoutItem Text="WIFI共享" x:Uid="WIFIShare" Name="WIFIShare" Click="WIFIShare_Click">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon Glyph="&#xE701;"/>
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
-                            <MenuFlyoutItem Text="蓝牙共享" Click="BluetoothShare_Click">
+                            <MenuFlyoutItem Text="蓝牙共享" x:Uid="BluetoothShare" Click="BluetoothShare_Click">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon Glyph="&#xE702;"/>
                                 </MenuFlyoutItem.Icon>
@@ -37,26 +37,26 @@
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
-                <AppBarButton Icon="Bookmarks" x:Name="Zip" Label="Zip压缩" Click="Zip_Click"/>
-                <AppBarButton Icon="Switch" Name="Transcode" Label="媒体转码" IsEnabled="False" Click="Transcode_Click"/>
-                <AppBarButton Icon="Tag" Name="Attribute" Label="属性" Click="Attribute_Click"/>
+                <AppBarButton Icon="Bookmarks" x:Name="Zip" x:Uid="Zip" Label="Zip压缩" Click="Zip_Click"/>
+                <AppBarButton Icon="Switch" Name="Transcode" x:Uid="Transcode" Label="媒体转码" IsEnabled="False" Click="Transcode_Click"/>
+                <AppBarButton Icon="Tag" Name="Attribute" x:Uid="FileAttribute" Label="属性" Click="Attribute_Click"/>
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
         <CommandBarFlyout x:Name="FolderFlyout" Placement="RightEdgeAlignedTop">
             <CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="BackToWindow" Label="打开" x:Name="FolderOpen" Click="FolderOpen_Click"/>
-                <AppBarButton Icon="Edit" Label="重命名" x:Name="FolderRename" Click="FolderRename_Click"/>
-                <AppBarButton Icon="Delete" Label="删除" x:Name="FolderDelete" Click="FolderDelete_Click"/>
-                <AppBarButton Icon="Tag" Label="属性" x:Name="FolderAttribute" Click="FolderAttribute_Click"/>
+                <AppBarButton Icon="BackToWindow" Label="打开" x:Uid="FolderOpen" x:Name="FolderOpen" Click="FolderOpen_Click"/>
+                <AppBarButton Icon="Edit" Label="重命名" x:Uid="FolderRename" x:Name="FolderRename" Click="FolderRename_Click"/>
+                <AppBarButton Icon="Delete" Label="删除" x:Uid="FolderDelete" x:Name="FolderDelete" Click="FolderDelete_Click"/>
+                <AppBarButton Icon="Tag" Label="属性" x:Uid="FolderAttribute" x:Name="FolderAttribute" Click="FolderAttribute_Click"/>
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
         <CommandBarFlyout x:Name="EmptyFlyout" Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Paste" ToolTipService.ToolTip="粘贴" Label="粘贴" IsEnabled="False" Click="Paste_Click" Name="Paste"/>
             <CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="BackToWindow" Label="使用系统管理器打开" x:Name="UseSystemFileMananger" Click="UseSystemFileMananger_Click"/>
-                <AppBarButton Icon="Tag" Label="文件夹属性" x:Name="ParentAttribute" Click="ParentAttribute_Click"/>
+                <AppBarButton Icon="BackToWindow" Label="使用系统管理器打开" x:Uid="SystemManagerOpen" x:Name="UseSystemFileMananger" Click="UseSystemFileMananger_Click"/>
+                <AppBarButton Icon="Tag" Label="文件夹属性" x:Uid="ParentAttribute" x:Name="ParentAttribute" Click="ParentAttribute_Click"/>
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
@@ -111,9 +111,10 @@
                 </TransitionCollection>
             </GridView.ItemContainerTransitions>
         </GridView>
-        <TextBlock Name="HasFile" x:FieldModifier="public" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="无文件" FontSize="25" Visibility="Visible"/>
+        <TextBlock Name="HasFile" x:FieldModifier="public" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" x:Uid="HasFile" Text="无文件" FontSize="25" Visibility="Visible"/>
         <controls1:TeachingTip PreferredPlacement="Auto"
                                Title="WIFI分享"
+                               x:Uid="WIFIShareTip"
                                HeroContentPlacement="Auto"
                                Closed="QRTeachTip_Closed"
                                Name="QRTeachTip">
@@ -123,12 +124,12 @@
             <controls1:TeachingTip.Content>
                 <StackPanel HorizontalAlignment="Center">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBox VerticalAlignment="Center" Name="QRText" IsSpellCheckEnabled="False" IsReadOnly="True" Header="复制此链接至浏览器即可下载" Width="245"/>
+                        <TextBox VerticalAlignment="Center" Name="QRText" x:Uid="QRText" IsSpellCheckEnabled="False" IsReadOnly="True" Header="复制此链接至浏览器即可下载" Width="245"/>
                         <Button VerticalAlignment="Bottom" Margin="5,0,0,0" Name="CopyLinkButton" Click="CopyLinkButton_Click">
                             <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8C8;"/>
                         </Button>
                     </StackPanel>
-                    <TextBlock Margin="0,10,0,0" Text="传输过程中请勿关闭此窗口，否则将停止分享"/>
+                    <TextBlock Margin="0,10,0,0" x:Uid="WIFIShareText" Text="传输过程中请勿关闭此窗口，否则将停止分享"/>
                 </StackPanel>
             </controls1:TeachingTip.Content>
         </controls1:TeachingTip>

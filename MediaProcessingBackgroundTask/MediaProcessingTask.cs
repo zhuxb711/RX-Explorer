@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
@@ -61,102 +62,206 @@ namespace MediaProcessingBackgroundTask
 
         private void ShowCompleteNotification()
         {
-            var Content = new ToastContent()
+            if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
             {
-                Scenario = ToastScenario.Default,
-                Launch = "Transcode",
-                Visual = new ToastVisual()
+                var Content = new ToastContent()
                 {
-                    BindingGeneric = new ToastBindingGeneric()
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
                     {
-                        Children =
+                        BindingGeneric = new ToastBindingGeneric()
                         {
-                            new AdaptiveText()
+                            Children =
                             {
-                                Text = "转换已完成！"
-                            },
+                                new AdaptiveText()
+                                {
+                                    Text = "转换已完成！"
+                                },
 
-                            new AdaptiveText()
-                            {
-                               Text = InputFile.Name+" 已成功转换为 "+OutputFile.Name
-                            },
+                                new AdaptiveText()
+                                {
+                                   Text = InputFile.Name+" 已成功转换为 "+OutputFile.Name
+                                },
 
-                            new AdaptiveText()
-                            {
-                                Text="点击以消除提示"
+                                new AdaptiveText()
+                                {
+                                    Text="点击以消除提示"
+                                }
                             }
                         }
-                    }
-                },
-            };
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+                    },
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            else
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "Transcoding has been completed！"
+                                },
 
+                                new AdaptiveText()
+                                {
+                                   Text = InputFile.Name+" has been successfully transcoded to "+OutputFile.Name
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text="Click to remove the prompt"
+                                }
+                            }
+                        }
+                    },
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
         }
 
         private void ShowUserCancelNotification()
         {
-            var Content = new ToastContent()
+            if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
             {
-                Scenario = ToastScenario.Default,
-                Launch = "Transcode",
-                Visual = new ToastVisual()
+                var Content = new ToastContent()
                 {
-                    BindingGeneric = new ToastBindingGeneric()
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
                     {
-                        Children =
+                        BindingGeneric = new ToastBindingGeneric()
                         {
-                            new AdaptiveText()
+                            Children =
                             {
-                                Text = "格式转换已被取消"
-                            },
+                                new AdaptiveText()
+                                {
+                                    Text = "格式转换已被取消"
+                                },
 
-                            new AdaptiveText()
-                            {
-                               Text = "您可以尝试重新启动转换"
-                            },
+                                new AdaptiveText()
+                                {
+                                   Text = "您可以尝试重新启动转换"
+                                },
 
-                            new AdaptiveText()
-                            {
-                                Text="点击以消除提示"
+                                new AdaptiveText()
+                                {
+                                    Text="点击以消除提示"
+                                }
                             }
                         }
                     }
-                }
-            };
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            else
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "Transcode has been cancelled"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                   Text = "You can try restarting the transcode"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text="Click to remove the prompt"
+                                }
+                            }
+                        }
+                    }
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
         }
 
         private void ShowUnexceptCancelNotification(BackgroundTaskCancellationReason Reason)
         {
-            var Content = new ToastContent()
+            if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
             {
-                Scenario = ToastScenario.Default,
-                Launch = "Transcode",
-                Visual = new ToastVisual()
+                var Content = new ToastContent()
                 {
-                    BindingGeneric = new ToastBindingGeneric()
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
                     {
-                        Children =
+                        BindingGeneric = new ToastBindingGeneric()
                         {
-                            new AdaptiveText()
+                            Children =
                             {
-                                Text = "转换因Windows策略而意外终止"
-                            },
+                                new AdaptiveText()
+                                {
+                                    Text = "转换因Windows策略而意外终止"
+                                },
 
-                            new AdaptiveText()
-                            {
-                               Text = "终止原因："+ Enum.GetName(typeof(BackgroundTaskCancellationReason),Reason)
-                            },
+                                new AdaptiveText()
+                                {
+                                   Text = "终止原因："+ Enum.GetName(typeof(BackgroundTaskCancellationReason),Reason)
+                                },
 
-                            new AdaptiveText()
-                            {
-                                Text="点击以消除提示"
+                                new AdaptiveText()
+                                {
+                                    Text="点击以消除提示"
+                                }
                             }
                         }
                     }
-                }
-            };
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            else
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "Transcoding terminated unexpectedly due to Windows policy"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                   Text = "Reason for termination："+ Enum.GetName(typeof(BackgroundTaskCancellationReason),Reason)
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text="Click to remove the prompt"
+                                }
+                            }
+                        }
+                    }
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
         }
 
         private async Task TranscodeMediaAsync()
@@ -265,7 +370,9 @@ namespace MediaProcessingBackgroundTask
                             }
                             else
                             {
-                                ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = "转码格式不支持";
+                                ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh")
+                                    ? "转码格式不支持"
+                                    : "Transcoding format is not supported";
                                 await OutputFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
                             }
                         }
@@ -279,7 +386,9 @@ namespace MediaProcessingBackgroundTask
                     {
                         if (!IsSystemCancelRequest)
                         {
-                            ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = "转码任务被取消";
+                            ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh")
+                                ? "转码任务被取消"
+                                : "Transcoding task is cancelled";
                         }
                     }
                     catch (Exception e)
@@ -313,7 +422,9 @@ namespace MediaProcessingBackgroundTask
             Cancellation.Cancel();
             ToastNotificationManager.History.Remove("SmartLens-TranscodeNotification");
             await OutputFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
-            ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = "转码任务被Windows终止";
+            ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh")
+                ? "转码任务被Windows终止"
+                : "Transcoding task terminated by Windows";
             ShowUnexceptCancelNotification(reason);
             Locker.Set();
         }
@@ -348,7 +459,9 @@ namespace MediaProcessingBackgroundTask
                         {
                             new AdaptiveText()
                             {
-                                Text = "正在转换:"+InputFile.DisplayName
+                                Text =Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh")
+                                ? ("正在转换:"+InputFile.DisplayName)
+                                : ("Transcoding:"+InputFile.DisplayName)
                             },
 
                             new AdaptiveProgressBar()
@@ -370,7 +483,9 @@ namespace MediaProcessingBackgroundTask
             };
             Toast.Data.Values["ProgressValue"] = "0";
             Toast.Data.Values["ProgressValueString"] = "0%";
-            Toast.Data.Values["ProgressStatus"] = "点击该提示以取消转码";
+            Toast.Data.Values["ProgressStatus"] = Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh")
+                ? "点击该提示以取消转码"
+                : "Click the prompt to cancel transcoding";
             Toast.Data.SequenceNumber = 0;
 
             Toast.Activated += (s, e) =>

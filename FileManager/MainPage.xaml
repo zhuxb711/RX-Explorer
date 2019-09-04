@@ -11,7 +11,8 @@
     
     <Page.Resources>
         <controls:TeachingTip 
-            x:Name="UpdateTip"      
+            x:Name="UpdateTip"
+            x:Uid="UpdateTip"
             Grid.Row="1"
 	        Title="更新可用"
 	        PreferredPlacement="Bottom"                                              
@@ -21,6 +22,7 @@
         </controls:TeachingTip>
         <controls:TeachingTip
             x:Name="PinTip"
+            x:Uid="PinTip"
             Grid.Row="1"
             Title="更快捷的启动"
             PreferredPlacement="Bottom"
@@ -30,6 +32,7 @@
         </controls:TeachingTip>
         <controls:TeachingTip 
             x:Name="RateTip"      
+            x:Uid="RateTip"
             Grid.Row="1"
 	        Title="请为此App评分"
 	        PreferredPlacement="Bottom"                                              
@@ -39,7 +42,8 @@
 	        CloseButtonContent="稍后">
         </controls:TeachingTip>
         <controls:TeachingTip 
-            x:Name="SearchTip"      
+            x:Name="SearchTip"   
+            x:Uid="SearchTip"
             Grid.Row="1"
 	        Title="Tips"
 	        Target="{x:Bind GlobeSearch}"          
@@ -57,7 +61,7 @@
         </Grid.RowDefinitions>
 
         <Border x:Name="TitleBar" Background="{StaticResource NavigationViewTopPaneBackground}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" Text="RX文件管理器"/>
+            <TextBlock x:Uid="AppName" Margin="10,0,0,0" VerticalAlignment="Center" Text="RX文件管理器"/>
         </Border>
         <NavigationView Grid.Row="1"
                         Name="NavView"
@@ -67,12 +71,12 @@
                         x:FieldModifier="public"
                         ItemInvoked="NavView_ItemInvoked">
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="这台电脑" IsSelected="True">
+                <NavigationViewItem Content="这台电脑" x:Uid="ThisPC" IsSelected="True">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8CC;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="浏览器" IsSelected="True">
+                <NavigationViewItem Content="浏览器" x:Uid="Browser" IsSelected="True">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE909;" />
                     </NavigationViewItem.Icon>
@@ -91,11 +95,11 @@
                     <FlyoutBase.AttachedFlyout>
                         <Flyout Placement="BottomEdgeAlignedRight" x:Name="SearchFlyout">
                             <StackPanel>
-                                <RadioButton Name="ShallowRadio" Width="200" Content="仅搜索当前目录(较快)" Tag="Shallow" IsChecked="True" GroupName="Search"/>
-                                <RadioButton Name="DeepRadio" Width="200" Margin="0,5,0,0" Content="深度搜索全部目录(较慢)" Tag="Deep" GroupName="Search"/>
+                                <RadioButton Name="ShallowRadio" Width="200" x:Uid="SearchFlyoutShallowRadio" Content="仅搜索当前目录(较快)" Tag="Shallow" IsChecked="True" GroupName="Search"/>
+                                <RadioButton Name="DeepRadio" Width="200" Margin="0,5,0,0" x:Uid="SearchFlyoutDeepRadio" Content="深度搜索全部目录(较慢)" Tag="Deep" GroupName="Search"/>
                                 <StackPanel Margin="0,5,0,0" Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <Button Content="搜索" Name="SearchConfirm" Click="SearchConfirm_Click"/>
-                                    <Button Content="取消" Name="SearchCancel" Margin="10,0,0,0" Click="SearchCancel_Click"/>
+                                    <Button Content="搜索" x:Uid="SearchFlyoutConfirm" Name="SearchConfirm" Click="SearchConfirm_Click"/>
+                                    <Button Content="取消" x:Uid="SearchFlyoutCancel" Name="SearchCancel" Margin="10,0,0,0" Click="SearchCancel_Click"/>
                                 </StackPanel>
                             </StackPanel>
                         </Flyout>

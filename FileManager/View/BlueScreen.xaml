@@ -25,13 +25,13 @@
         </Grid.ColumnDefinitions>
         <TextBlock Text="):" FontSize="90" Grid.Column="1" Grid.Row="1"/>
         <TextBlock Grid.Column="2" Grid.Row="1" Text="Oops..." FontSize="90"/>
-        <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Text="RX不小心崩溃了...(￣▽￣)/" FontSize="50"/>
+        <TextBlock x:Uid="CrashText" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Text="RX不小心崩溃了...(￣▽￣)/" FontSize="50"/>
         <ScrollViewer Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Visible" IsVerticalScrollChainingEnabled="True" >
             <TextBlock FontSize="25" Name="Message" TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
         </ScrollViewer>
         <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="2" HorizontalAlignment="Right">
-            <Button FontSize="17" Width="130" Height="50" Content="报告给开发者" Name="Report" Click="Report_Click"/>
-            <Button Content="重置以恢复" Margin="15,0,0,0" FontSize="17" Width="130" Height="50" Name="Reset" Click="Reset_Click"/>
+            <Button FontSize="17" Width="130" Height="50" Content="报告给开发者" x:Uid="BlueScreenReport" Name="Report" Click="Report_Click"/>
+            <Button Content="重置以恢复" Margin="15,0,0,0" FontSize="17" Width="130" Height="50" x:Uid="BlueScreenReset" Name="Reset" Click="Reset_Click"/>
         </StackPanel>
     </Grid>
 </Page>

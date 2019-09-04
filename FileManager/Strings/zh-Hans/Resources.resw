@@ -1,0 +1,615 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppDelete.Label" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="AppEdit.Label" xml:space="preserve">
+    <value>编辑</value>
+  </data>
+  <data name="AppName.Text" xml:space="preserve">
+    <value>RX 文件管理器</value>
+  </data>
+  <data name="Browser.Content" xml:space="preserve">
+    <value>浏览器</value>
+  </data>
+  <data name="CloseButton.Content" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="DeviceAttribute.Label" xml:space="preserve">
+    <value>属性</value>
+  </data>
+  <data name="DeviceExpander.Header" xml:space="preserve">
+    <value>设备和驱动器</value>
+  </data>
+  <data name="HotWebTitle.Text" xml:space="preserve">
+    <value>热门网站</value>
+  </data>
+  <data name="LibraryExpander.Header" xml:space="preserve">
+    <value>文件夹和库</value>
+  </data>
+  <data name="OpenDevice.Label" xml:space="preserve">
+    <value>打开</value>
+  </data>
+  <data name="PermissionButton.Content" xml:space="preserve">
+    <value>授予权限</value>
+  </data>
+  <data name="PinTip.ActionButtonContent" xml:space="preserve">
+    <value>即刻固定</value>
+  </data>
+  <data name="PinTip.CloseButtonContent" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="PinTip.Title" xml:space="preserve">
+    <value>启动更快速</value>
+  </data>
+  <data name="QuickStartTitle.Text" xml:space="preserve">
+    <value>快速启动</value>
+  </data>
+  <data name="RateTip.ActionButtonContent" xml:space="preserve">
+    <value>评价</value>
+  </data>
+  <data name="RateTip.CloseButtonContent" xml:space="preserve">
+    <value>稍后</value>
+  </data>
+  <data name="RateTip.Subtitle" xml:space="preserve">
+    <value>您的评价对我们十分重要，请花上一两分钟来评价此App吧</value>
+  </data>
+  <data name="RateTip.Title" xml:space="preserve">
+    <value>请对我们进行评价</value>
+  </data>
+  <data name="SearchTip.CloseButtonContent" xml:space="preserve">
+    <value>知道了</value>
+  </data>
+  <data name="SearchTip.Subtitle" xml:space="preserve">
+    <value>清空搜索框或点击任意其他文件夹即可退出搜索页面</value>
+  </data>
+  <data name="ThisPC.Content" xml:space="preserve">
+    <value>这台电脑</value>
+  </data>
+  <data name="UpdateTip.ActionButtonContent" xml:space="preserve">
+    <value>立刻更新</value>
+  </data>
+  <data name="UpdateTip.CloseButtonContent" xml:space="preserve">
+    <value>稍后</value>
+  </data>
+  <data name="UpdateTip.Title" xml:space="preserve">
+    <value>更新可用</value>
+  </data>
+  <data name="WebDelete.Label" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="WebEdit.Label" xml:space="preserve">
+    <value>编辑</value>
+  </data>
+  <data name="BlueScreenReport.Content" xml:space="preserve">
+    <value>报告给开发者</value>
+  </data>
+  <data name="BlueScreenReset.Content" xml:space="preserve">
+    <value>重置</value>
+  </data>
+  <data name="BluetoothShare.Text" xml:space="preserve">
+    <value>蓝牙</value>
+  </data>
+  <data name="CrashText.Text" xml:space="preserve">
+    <value>RX 不小心崩溃了...(￣▽￣)/</value>
+  </data>
+  <data name="FileAES.Label" xml:space="preserve">
+    <value>AES 加密</value>
+  </data>
+  <data name="FileAttribute.Label" xml:space="preserve">
+    <value>属性</value>
+  </data>
+  <data name="FileCopy.ToolTipService.ToolTip" xml:space="preserve">
+    <value>复制</value>
+  </data>
+  <data name="FileCut.ToolTipService.ToolTip" xml:space="preserve">
+    <value>剪切</value>
+  </data>
+  <data name="FileDelete.ToolTipService.ToolTip" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="FileRename.Label" xml:space="preserve">
+    <value>重命名</value>
+  </data>
+  <data name="FileShare.Label" xml:space="preserve">
+    <value>共享</value>
+  </data>
+  <data name="FolderAttribute.Label" xml:space="preserve">
+    <value>属性</value>
+  </data>
+  <data name="FolderDelete.Label" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="FolderOpen.Label" xml:space="preserve">
+    <value>打开</value>
+  </data>
+  <data name="FolderRename.Label" xml:space="preserve">
+    <value>重命名</value>
+  </data>
+  <data name="HasFile.Text" xml:space="preserve">
+    <value>无内容</value>
+  </data>
+  <data name="ParentAttribute.Label" xml:space="preserve">
+    <value>文件夹属性</value>
+  </data>
+  <data name="QRText.Header" xml:space="preserve">
+    <value>复制此链接至浏览器即可下载</value>
+  </data>
+  <data name="SearchHasItem.Text" xml:space="preserve">
+    <value>无结果</value>
+  </data>
+  <data name="SearchLocation.Label" xml:space="preserve">
+    <value>打开所在位置</value>
+  </data>
+  <data name="SearchModified.Text" xml:space="preserve">
+    <value>修改时间</value>
+  </data>
+  <data name="SearchName.Text" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="SearchPath.Text" xml:space="preserve">
+    <value>路径</value>
+  </data>
+  <data name="SearchProperties.Label" xml:space="preserve">
+    <value>属性</value>
+  </data>
+  <data name="SearchResult.Text" xml:space="preserve">
+    <value>搜索结果</value>
+  </data>
+  <data name="SearchSize.Text" xml:space="preserve">
+    <value>大小</value>
+  </data>
+  <data name="SearchType.Text" xml:space="preserve">
+    <value>类型</value>
+  </data>
+  <data name="SystemManagerOpen.Label" xml:space="preserve">
+    <value>使用系统管理器打开</value>
+  </data>
+  <data name="Transcode.Label" xml:space="preserve">
+    <value>转码</value>
+  </data>
+  <data name="WIFIShare.Text" xml:space="preserve">
+    <value>WIFI</value>
+  </data>
+  <data name="WIFIShareText.Text" xml:space="preserve">
+    <value>传输过程中请勿关闭此窗口，否则将停止分享</value>
+  </data>
+  <data name="WIFIShareTip.Title" xml:space="preserve">
+    <value>WiFi共享</value>
+  </data>
+  <data name="Zip.Label" xml:space="preserve">
+    <value>Zip 压缩</value>
+  </data>
+  <data name="SearchingText.Text" xml:space="preserve">
+    <value>搜索中</value>
+  </data>
+  <data name="AESCheckBox.Content" xml:space="preserve">
+    <value>加密完成后删除源文件</value>
+  </data>
+  <data name="AESDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="AESDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="AESMethod.Header" xml:space="preserve">
+    <value>加密方式</value>
+  </data>
+  <data name="AESPassword.Header" xml:space="preserve">
+    <value>加密密码</value>
+  </data>
+  <data name="AESPassword.PlaceholderText" xml:space="preserve">
+    <value>密码</value>
+  </data>
+  <data name="AttributeCreated.Text" xml:space="preserve">
+    <value>创建时间</value>
+  </data>
+  <data name="AttributeDialog.CloseButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="AttributeDialog.Title" xml:space="preserve">
+    <value>属性</value>
+  </data>
+  <data name="AttributeFileName.Text" xml:space="preserve">
+    <value>文件名</value>
+  </data>
+  <data name="AttributeLocation.Text" xml:space="preserve">
+    <value>路径</value>
+  </data>
+  <data name="AttributeModified.Text" xml:space="preserve">
+    <value>修改时间</value>
+  </data>
+  <data name="AttributeSize.Text" xml:space="preserve">
+    <value>大小</value>
+  </data>
+  <data name="AttributeType.Text" xml:space="preserve">
+    <value>类型</value>
+  </data>
+  <data name="BluetoothTranfer.SecondaryButtonText" xml:space="preserve">
+    <value>终止</value>
+  </data>
+  <data name="BluetoothTranfer.Title" xml:space="preserve">
+    <value>初始化中</value>
+  </data>
+  <data name="BluetoothUI.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="BluetoothUI.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="BluetoothUI.Title" xml:space="preserve">
+    <value>选择目标设备</value>
+  </data>
+  <data name="BluetoothUIPinNo.Content" xml:space="preserve">
+    <value>否</value>
+  </data>
+  <data name="BluetoothUIPinYes.Content" xml:space="preserve">
+    <value>是</value>
+  </data>
+  <data name="BluetoothUISearching.Text" xml:space="preserve">
+    <value>搜索中</value>
+  </data>
+  <data name="DeviceCapacity.Text" xml:space="preserve">
+    <value>容量</value>
+  </data>
+  <data name="DeviceDialog.CloseButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="DeviceFreeSpace.Text" xml:space="preserve">
+    <value>可用空间</value>
+  </data>
+  <data name="DeviceType.Text" xml:space="preserve">
+    <value>磁盘类型：</value>
+  </data>
+  <data name="DeviceUsedSpace.Text" xml:space="preserve">
+    <value>已用空间</value>
+  </data>
+  <data name="QuickStartChooseIcon.Content" xml:space="preserve">
+    <value>选择图片</value>
+  </data>
+  <data name="QuickStartDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="QuickStartDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="QuickStartDialog.Title" xml:space="preserve">
+    <value>自定义</value>
+  </data>
+  <data name="QuickStartDisplayName.PlaceholderText" xml:space="preserve">
+    <value>显示名称</value>
+  </data>
+  <data name="QuickStartEmptyTip.Subtitle" xml:space="preserve">
+    <value>此处不能为空</value>
+  </data>
+  <data name="QuickStartExistTip.Subtitle" xml:space="preserve">
+    <value>该名称已存在，无法重复添加</value>
+  </data>
+  <data name="QuickStartFormatErrorTip.Subtitle" xml:space="preserve">
+    <value>协议或地址格式错误</value>
+  </data>
+  <data name="QuickStartLink.Content" xml:space="preserve">
+    <value>Win10_UWP应用启动命令大全-IT之家</value>
+  </data>
+  <data name="QuickStartLink.NavigateUri" xml:space="preserve">
+    <value>https://www.ithome.com/html/win10/295999.htm</value>
+  </data>
+  <data name="QuickStartProtocal.PlaceholderText" xml:space="preserve">
+    <value>启动协议</value>
+  </data>
+  <data name="QuickStartProtocalTip.Subtitle" xml:space="preserve">
+    <value>协议参考</value>
+  </data>
+  <data name="RenameDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="RenameDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="RenameDialog.Title" xml:space="preserve">
+    <value>重命名</value>
+  </data>
+  <data name="RenamePreview.Text" xml:space="preserve">
+    <value>预览</value>
+  </data>
+  <data name="SettingAbout.Content" xml:space="preserve">
+    <value>关于开发者→→</value>
+  </data>
+  <data name="SettingAdvance.Text" xml:space="preserve">
+    <value>高级</value>
+  </data>
+  <data name="SettingCleanup.Content" xml:space="preserve">
+    <value>重置并初始化</value>
+  </data>
+  <data name="SettingClearHistory.Content" xml:space="preserve">
+    <value>清除搜索历史</value>
+  </data>
+  <data name="SettingLike.Text" xml:space="preserve">
+    <value>给App点赞</value>
+  </data>
+  <data name="SettingOther.Text" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="SettingSearchNum.Header" xml:space="preserve">
+    <value>设置最大搜索结果数</value>
+  </data>
+  <data name="SettingVersion.Text" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="TextViewerCancel.Label" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="TextViewerLoading.Text" xml:space="preserve">
+    <value>正在加载...</value>
+  </data>
+  <data name="TextViewerSave.Label" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="TranscodeBoost.Content" xml:space="preserve">
+    <value>使用硬件加速(推荐)</value>
+  </data>
+  <data name="TranscodeDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="TranscodeDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="TranscodeDialog.Title" xml:space="preserve">
+    <value>转码</value>
+  </data>
+  <data name="TranscodeFormat.Header" xml:space="preserve">
+    <value>转换格式</value>
+  </data>
+  <data name="TranscodeQuality.Header" xml:space="preserve">
+    <value>转换质量</value>
+  </data>
+  <data name="UserFolderDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="UserFolderDialog.Title" xml:space="preserve">
+    <value>选择用户文件夹</value>
+  </data>
+  <data name="UserFolderDialog.UserFolderText1" xml:space="preserve">
+    <value>未能自动确定用户文件夹</value>
+  </data>
+  <data name="UserFolderDialog.UserFolderText2" xml:space="preserve">
+    <value>请手动指定用户文件夹</value>
+  </data>
+  <data name="ZipCRC.Label" xml:space="preserve">
+    <value>CRC 完整性校验</value>
+  </data>
+  <data name="ZipCRCComplete.Text" xml:space="preserve">
+    <value>完整 (较慢)</value>
+  </data>
+  <data name="ZipCRCSimple.Text" xml:space="preserve">
+    <value>简单 (较快)</value>
+  </data>
+  <data name="ZipDecompression.Label" xml:space="preserve">
+    <value>解压到当前目录</value>
+  </data>
+  <data name="ZipDelete.Label" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="ZipDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="ZipDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="ZipDialog.Title" xml:space="preserve">
+    <value>Zip压缩选项</value>
+  </data>
+  <data name="ZipDialogCheckBox.Content" xml:space="preserve">
+    <value>启用Zip加密</value>
+  </data>
+  <data name="ZipDialogEncryption.Header" xml:space="preserve">
+    <value>加密方式</value>
+  </data>
+  <data name="ZipDialogLevel.Header" xml:space="preserve">
+    <value>压缩等级</value>
+  </data>
+  <data name="ZipDialogName.Header" xml:space="preserve">
+    <value>文件名</value>
+  </data>
+  <data name="ZipDialogName.Text" xml:space="preserve">
+    <value>新建压缩文件.zip</value>
+  </data>
+  <data name="ZipDialogPassword.Header" xml:space="preserve">
+    <value>密码</value>
+  </data>
+  <data name="ZipDialogPassword.PlaceholderText" xml:space="preserve">
+    <value>输入加密密码</value>
+  </data>
+  <data name="ZipHasFile.Text" xml:space="preserve">
+    <value>无文件</value>
+  </data>
+  <data name="WebAllowDB.Header" xml:space="preserve">
+    <value>允许使用IndexedDB</value>
+  </data>
+  <data name="WebAllowJS.Header" xml:space="preserve">
+    <value>允许JavaScript运行</value>
+  </data>
+  <data name="WebClearCache.Content" xml:space="preserve">
+    <value>清除所有缓存和历史记录</value>
+  </data>
+  <data name="WebDonwloadLoaction.Text" xml:space="preserve">
+    <value>默认下载路径</value>
+  </data>
+  <data name="WebDownloadButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>下载列表</value>
+  </data>
+  <data name="WebDownloadCancel.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="WebDownloadList.Text" xml:space="preserve">
+    <value>下载列表</value>
+  </data>
+  <data name="WebDownloadListEmpty.Text" xml:space="preserve">
+    <value>无内容</value>
+  </data>
+  <data name="WebDownloadPause.Content" xml:space="preserve">
+    <value>暂停</value>
+  </data>
+  <data name="WebExplorerButton.Content" xml:space="preserve">
+    <value>浏览</value>
+  </data>
+  <data name="WebFavButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>收藏夹</value>
+  </data>
+  <data name="WebFavFlyoutCancel.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="WebFavFlyoutConfirm.Content" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="WebFavName.Header" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="WebFavouriteClear.Text" xml:space="preserve">
+    <value>清除全部</value>
+  </data>
+  <data name="WebFavouriteClearCancel.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="WebFavouriteClearConfirm.Content" xml:space="preserve">
+    <value>继续</value>
+  </data>
+  <data name="WebFavouriteClearText.Text" xml:space="preserve">
+    <value>清除所有收藏夹内容？</value>
+  </data>
+  <data name="WebFavouriteFlyoutDelete.Label" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="WebFavouriteListTitle.Header" xml:space="preserve">
+    <value>收藏夹</value>
+  </data>
+  <data name="WebFavouriteText.Text" xml:space="preserve">
+    <value>收藏夹</value>
+  </data>
+  <data name="WebHistoryClear.Text" xml:space="preserve">
+    <value>清除全部</value>
+  </data>
+  <data name="WebHistoryClearCancel.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="WebHistoryClearConfirm.Content" xml:space="preserve">
+    <value>继续</value>
+  </data>
+  <data name="WebHistoryClearText.Text" xml:space="preserve">
+    <value>清除所有历史记录？</value>
+  </data>
+  <data name="WebHistoryEmptyTip.Text" xml:space="preserve">
+    <value>无内容</value>
+  </data>
+  <data name="WebHistoryTitle.Header" xml:space="preserve">
+    <value>历史记录</value>
+  </data>
+  <data name="WebInPrivate.Header" xml:space="preserve">
+    <value>InPrivate隐私模式</value>
+  </data>
+  <data name="WebScreenShot.Content" xml:space="preserve">
+    <value>截图并蓝牙发送</value>
+  </data>
+  <data name="WebSettingAbout.Content" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="WebSettingAdvanceTile.Text" xml:space="preserve">
+    <value>高级</value>
+  </data>
+  <data name="WebSettingButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="WebSettingOtherTitle.Text" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="WebSettingTitle.Text" xml:space="preserve">
+    <value>自定义</value>
+  </data>
+  <data name="WebSpecificUrl.Header" xml:space="preserve">
+    <value>设置特定页URL</value>
+  </data>
+  <data name="WebSpecificUrl.PlaceholderText" xml:space="preserve">
+    <value>输入URL</value>
+  </data>
+  <data name="WebSuggestBox.PlaceholderText" xml:space="preserve">
+    <value>搜索或输入网址</value>
+  </data>
+  <data name="WebTabOpenMethod.Header" xml:space="preserve">
+    <value>标签页打开方式</value>
+  </data>
+  <data name="WevFavEmptyTip.Text" xml:space="preserve">
+    <value>无内容</value>
+  </data>
+  <data name="AESDialog.Title" xml:space="preserve">
+    <value>AES加密</value>
+  </data>
+  <data name="WebSettingShowMainPage.Header" xml:space="preserve">
+    <value>显示主页按钮</value>
+  </data>
+  <data name="WebSettingUrl.Header" xml:space="preserve">
+    <value>设置主页URL</value>
+  </data>
+  <data name="WebSettingUrl.PlaceholderText" xml:space="preserve">
+    <value>输入URL</value>
+  </data>
+  <data name="WebSettingClearFlyCancel.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="WebSettingClearFlyConfirm.Content" xml:space="preserve">
+    <value>继续</value>
+  </data>
+  <data name="WebSettingClearFlyText.Text" xml:space="preserve">
+    <value>所有缓存包括浏览历史记录等都将被清除，是否继续?</value>
+  </data>
+  <data name="WebInPrivateConfirm.Content" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="WebInPrivateExit.Content" xml:space="preserve">
+    <value>退出InPrivate</value>
+  </data>
+  <data name="WebInPrivateText.Text" xml:space="preserve">
+    <value>浏览器已进入InPrivate隐私模式，将不会记录任何信息</value>
+  </data>
+  <data name="WebDownloadCancelText.Text" xml:space="preserve">
+    <value>下载已取消</value>
+  </data>
+  <data name="WebDownloadCompleteText.Text" xml:space="preserve">
+    <value>下载已完成</value>
+  </data>
+  <data name="WebDownloadErrorText.Text" xml:space="preserve">
+    <value>下载出错</value>
+  </data>
+  <data name="WebDownloadPauseCancel.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="WebDownloadPauseContinue.Content" xml:space="preserve">
+    <value>继续</value>
+  </data>
+  <data name="WebDownloadPauseText.Text" xml:space="preserve">
+    <value>下载已暂停</value>
+  </data>
+  <data name="SearchFlyoutCancel.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="SearchFlyoutConfirm.Content" xml:space="preserve">
+    <value>搜索</value>
+  </data>
+  <data name="SearchFlyoutDeepRadio.Content" xml:space="preserve">
+    <value>深度搜索全部目录(较慢)</value>
+  </data>
+  <data name="SearchFlyoutShallowRadio.Content" xml:space="preserve">
+    <value>仅搜索当前目录(较快)</value>
+  </data>
+</root>

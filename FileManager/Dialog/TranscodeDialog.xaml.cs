@@ -25,107 +25,213 @@ namespace FileManager
 
         private void TranscodeDialog_Loaded(object sender, RoutedEventArgs e)
         {
-            switch (SourceFile.FileType)
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                case ".mp4":
-                    Format.Items.Add("MKV(.mkv)格式");
-                    Format.Items.Add("AVI(.avi)格式");
-                    Format.Items.Add("WMV(.wmv)格式");
-                    Quality.Items.Add("UHD2160p");
-                    Quality.Items.Add("HD1080p");
-                    Quality.Items.Add("HD720p");
-                    Quality.Items.Add("WVGA");
-                    Quality.Items.Add("VGA");
-                    Quality.Items.Add("QVGA");
-                    break;
-                case ".mkv":
-                    Format.Items.Add("MP4(.mp4)格式");
-                    Format.Items.Add("AVI(.avi)格式");
-                    Format.Items.Add("WMV(.wmv)格式");
-                    Quality.Items.Add("UHD2160p");
-                    Quality.Items.Add("HD1080p");
-                    Quality.Items.Add("HD720p");
-                    Quality.Items.Add("WVGA");
-                    Quality.Items.Add("VGA");
-                    Quality.Items.Add("QVGA");
-                    break;
-                case ".avi":
-                    Format.Items.Add("MKV(.mkv)格式");
-                    Format.Items.Add("MP4(.mp4)格式");
-                    Format.Items.Add("WMV(.wmv)格式");
-                    Quality.Items.Add("UHD2160p");
-                    Quality.Items.Add("HD1080p");
-                    Quality.Items.Add("HD720p");
-                    Quality.Items.Add("WVGA");
-                    Quality.Items.Add("VGA");
-                    Quality.Items.Add("QVGA");
-                    break;
-                case ".wmv":
-                    Format.Items.Add("MKV(.mkv)格式");
-                    Format.Items.Add("MP4(.mp4)格式");
-                    Format.Items.Add("AVI(.avi)格式");
-                    Quality.Items.Add("UHD2160p");
-                    Quality.Items.Add("HD1080p");
-                    Quality.Items.Add("HD720p");
-                    Quality.Items.Add("WVGA");
-                    Quality.Items.Add("VGA");
-                    Quality.Items.Add("QVGA");
-                    break;
-                case ".mov":
-                    Format.Items.Add("MKV(.mkv)格式");
-                    Format.Items.Add("MP4(.mp4)格式");
-                    Format.Items.Add("AVI(.avi)格式");
-                    Format.Items.Add("WMV(.wmv)格式");
-                    Quality.Items.Add("UHD2160p");
-                    Quality.Items.Add("HD1080p");
-                    Quality.Items.Add("HD720p");
-                    Quality.Items.Add("WVGA");
-                    Quality.Items.Add("VGA");
-                    Quality.Items.Add("QVGA");
-                    break;
-                case ".flac":
-                    Format.Items.Add("ALAC(.alac)格式");
-                    Format.Items.Add("AAC(.m4a)格式");
-                    Format.Items.Add("MP3(.mp3)格式");
-                    Format.Items.Add("WMA(.wma)格式");
-                    Quality.Items.Add("High");
-                    Quality.Items.Add("Medium");
-                    Quality.Items.Add("Low");
-                    break;
-                case ".alac":
-                    Format.Items.Add("AAC(.m4a)格式");
-                    Format.Items.Add("MP3(.mp3)格式");
-                    Format.Items.Add("WMA(.wma)格式");
-                    Quality.Items.Add("High");
-                    Quality.Items.Add("Medium");
-                    Quality.Items.Add("Low");
-                    break;
-                case ".m4a":
-                    Format.Items.Add("ALAC(.alac)格式");
-                    Format.Items.Add("MP3(.mp3)格式");
-                    Format.Items.Add("WMA(.wma)格式");
-                    Quality.Items.Add("High");
-                    Quality.Items.Add("Medium");
-                    Quality.Items.Add("Low");
-                    break;
-                case ".mp3":
-                    Format.Items.Add("ALAC(.alac)格式");
-                    Format.Items.Add("AAC(.m4a)格式");
-                    Format.Items.Add("WMA(.wma)格式");
-                    Quality.Items.Add("High");
-                    Quality.Items.Add("Medium");
-                    Quality.Items.Add("Low");
-                    break;
-                case ".wma":
-                    Format.Items.Add("ALAC(.alac)格式");
-                    Format.Items.Add("AAC(.m4a)格式");
-                    Format.Items.Add("MP3(.mp3)格式");
-                    Quality.Items.Add("High");
-                    Quality.Items.Add("Medium");
-                    Quality.Items.Add("Low");
-                    break;
-                default:
-                    throw new InvalidDataException("不受支持的格式");
+                switch (SourceFile.FileType)
+                {
+                    case ".mp4":
+                        Format.Items.Add("MKV(.mkv)格式");
+                        Format.Items.Add("AVI(.avi)格式");
+                        Format.Items.Add("WMV(.wmv)格式");
+                        Quality.Items.Add("UHD2160p");
+                        Quality.Items.Add("HD1080p");
+                        Quality.Items.Add("HD720p");
+                        Quality.Items.Add("WVGA");
+                        Quality.Items.Add("VGA");
+                        Quality.Items.Add("QVGA");
+                        break;
+                    case ".mkv":
+                        Format.Items.Add("MP4(.mp4)格式");
+                        Format.Items.Add("AVI(.avi)格式");
+                        Format.Items.Add("WMV(.wmv)格式");
+                        Quality.Items.Add("UHD2160p");
+                        Quality.Items.Add("HD1080p");
+                        Quality.Items.Add("HD720p");
+                        Quality.Items.Add("WVGA");
+                        Quality.Items.Add("VGA");
+                        Quality.Items.Add("QVGA");
+                        break;
+                    case ".avi":
+                        Format.Items.Add("MKV(.mkv)格式");
+                        Format.Items.Add("MP4(.mp4)格式");
+                        Format.Items.Add("WMV(.wmv)格式");
+                        Quality.Items.Add("UHD2160p");
+                        Quality.Items.Add("HD1080p");
+                        Quality.Items.Add("HD720p");
+                        Quality.Items.Add("WVGA");
+                        Quality.Items.Add("VGA");
+                        Quality.Items.Add("QVGA");
+                        break;
+                    case ".wmv":
+                        Format.Items.Add("MKV(.mkv)格式");
+                        Format.Items.Add("MP4(.mp4)格式");
+                        Format.Items.Add("AVI(.avi)格式");
+                        Quality.Items.Add("UHD2160p");
+                        Quality.Items.Add("HD1080p");
+                        Quality.Items.Add("HD720p");
+                        Quality.Items.Add("WVGA");
+                        Quality.Items.Add("VGA");
+                        Quality.Items.Add("QVGA");
+                        break;
+                    case ".mov":
+                        Format.Items.Add("MKV(.mkv)格式");
+                        Format.Items.Add("MP4(.mp4)格式");
+                        Format.Items.Add("AVI(.avi)格式");
+                        Format.Items.Add("WMV(.wmv)格式");
+                        Quality.Items.Add("UHD2160p");
+                        Quality.Items.Add("HD1080p");
+                        Quality.Items.Add("HD720p");
+                        Quality.Items.Add("WVGA");
+                        Quality.Items.Add("VGA");
+                        Quality.Items.Add("QVGA");
+                        break;
+                    case ".flac":
+                        Format.Items.Add("ALAC(.alac)格式");
+                        Format.Items.Add("AAC(.m4a)格式");
+                        Format.Items.Add("MP3(.mp3)格式");
+                        Format.Items.Add("WMA(.wma)格式");
+                        Quality.Items.Add("High");
+                        Quality.Items.Add("Medium");
+                        Quality.Items.Add("Low");
+                        break;
+                    case ".alac":
+                        Format.Items.Add("AAC(.m4a)格式");
+                        Format.Items.Add("MP3(.mp3)格式");
+                        Format.Items.Add("WMA(.wma)格式");
+                        Quality.Items.Add("High");
+                        Quality.Items.Add("Medium");
+                        Quality.Items.Add("Low");
+                        break;
+                    case ".m4a":
+                        Format.Items.Add("ALAC(.alac)格式");
+                        Format.Items.Add("MP3(.mp3)格式");
+                        Format.Items.Add("WMA(.wma)格式");
+                        Quality.Items.Add("High");
+                        Quality.Items.Add("Medium");
+                        Quality.Items.Add("Low");
+                        break;
+                    case ".mp3":
+                        Format.Items.Add("ALAC(.alac)格式");
+                        Format.Items.Add("AAC(.m4a)格式");
+                        Format.Items.Add("WMA(.wma)格式");
+                        Quality.Items.Add("High");
+                        Quality.Items.Add("Medium");
+                        Quality.Items.Add("Low");
+                        break;
+                    case ".wma":
+                        Format.Items.Add("ALAC(.alac)格式");
+                        Format.Items.Add("AAC(.m4a)格式");
+                        Format.Items.Add("MP3(.mp3)格式");
+                        Quality.Items.Add("High");
+                        Quality.Items.Add("Medium");
+                        Quality.Items.Add("Low");
+                        break;
+                    default:
+                        throw new InvalidDataException("不受支持的格式");
+                }
+            }
+            else
+            {
+                switch (SourceFile.FileType)
+                {
+                    case ".mp4":
+                        Format.Items.Add("MKV(.mkv)");
+                        Format.Items.Add("AVI(.avi)");
+                        Format.Items.Add("WMV(.wmv)");
+                        Quality.Items.Add("UHD2160p");
+                        Quality.Items.Add("HD1080p");
+                        Quality.Items.Add("HD720p");
+                        Quality.Items.Add("WVGA");
+                        Quality.Items.Add("VGA");
+                        Quality.Items.Add("QVGA");
+                        break;
+                    case ".mkv":
+                        Format.Items.Add("MP4(.mp4)");
+                        Format.Items.Add("AVI(.avi)");
+                        Format.Items.Add("WMV(.wmv)");
+                        Quality.Items.Add("UHD2160p");
+                        Quality.Items.Add("HD1080p");
+                        Quality.Items.Add("HD720p");
+                        Quality.Items.Add("WVGA");
+                        Quality.Items.Add("VGA");
+                        Quality.Items.Add("QVGA");
+                        break;
+                    case ".avi":
+                        Format.Items.Add("MKV(.mkv)");
+                        Format.Items.Add("MP4(.mp4)");
+                        Format.Items.Add("WMV(.wmv)");
+                        Quality.Items.Add("UHD2160p");
+                        Quality.Items.Add("HD1080p");
+                        Quality.Items.Add("HD720p");
+                        Quality.Items.Add("WVGA");
+                        Quality.Items.Add("VGA");
+                        Quality.Items.Add("QVGA");
+                        break;
+                    case ".wmv":
+                        Format.Items.Add("MKV(.mkv)");
+                        Format.Items.Add("MP4(.mp4)");
+                        Format.Items.Add("AVI(.avi)");
+                        Quality.Items.Add("UHD2160p");
+                        Quality.Items.Add("HD1080p");
+                        Quality.Items.Add("HD720p");
+                        Quality.Items.Add("WVGA");
+                        Quality.Items.Add("VGA");
+                        Quality.Items.Add("QVGA");
+                        break;
+                    case ".mov":
+                        Format.Items.Add("MKV(.mkv)");
+                        Format.Items.Add("MP4(.mp4)");
+                        Format.Items.Add("AVI(.avi)");
+                        Format.Items.Add("WMV(.wmv)");
+                        Quality.Items.Add("UHD2160p");
+                        Quality.Items.Add("HD1080p");
+                        Quality.Items.Add("HD720p");
+                        Quality.Items.Add("WVGA");
+                        Quality.Items.Add("VGA");
+                        Quality.Items.Add("QVGA");
+                        break;
+                    case ".flac":
+                        Format.Items.Add("ALAC(.alac)");
+                        Format.Items.Add("AAC(.m4a)");
+                        Format.Items.Add("MP3(.mp3)");
+                        Format.Items.Add("WMA(.wma)");
+                        Quality.Items.Add("High");
+                        Quality.Items.Add("Medium");
+                        Quality.Items.Add("Low");
+                        break;
+                    case ".alac":
+                        Format.Items.Add("AAC(.m4a)");
+                        Format.Items.Add("MP3(.mp3)");
+                        Format.Items.Add("WMA(.wma)");
+                        Quality.Items.Add("High");
+                        Quality.Items.Add("Medium");
+                        Quality.Items.Add("Low");
+                        break;
+                    case ".m4a":
+                        Format.Items.Add("ALAC(.alac)");
+                        Format.Items.Add("MP3(.mp3)");
+                        Format.Items.Add("WMA(.wma)");
+                        Quality.Items.Add("High");
+                        Quality.Items.Add("Medium");
+                        Quality.Items.Add("Low");
+                        break;
+                    case ".mp3":
+                        Format.Items.Add("ALAC(.alac)");
+                        Format.Items.Add("AAC(.m4a)");
+                        Format.Items.Add("WMA(.wma)");
+                        Quality.Items.Add("High");
+                        Quality.Items.Add("Medium");
+                        Quality.Items.Add("Low");
+                        break;
+                    case ".wma":
+                        Format.Items.Add("ALAC(.alac)");
+                        Format.Items.Add("AAC(.m4a)");
+                        Format.Items.Add("MP3(.mp3)");
+                        Quality.Items.Add("High");
+                        Quality.Items.Add("Medium");
+                        Quality.Items.Add("Low");
+                        break;
+                }
             }
             Format.SelectedIndex = 0;
             Quality.SelectedIndex = 0;
@@ -133,36 +239,71 @@ namespace FileManager
 
         private void Quality_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
-            switch (Quality.SelectedItem as string)
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                case "UHD2160p":
-                    Info.Text = "分辨率3840 X 2160，30FPS";
-                    break;
-                case "HD1080p":
-                    Info.Text = "分辨率1920 X 1080，30FPS";
-                    break;
-                case "HD720p":
-                    Info.Text = "分辨率1280 X 720，30FPS";
-                    break;
-                case "WVGA":
-                    Info.Text = "分辨率800 X 480，30FPS";
-                    break;
-                case "VGA":
-                    Info.Text = "分辨率640 X 480，30FPS";
-                    break;
-                case "QVGA":
-                    Info.Text = "分辨率320 X 240，30FPS";
-                    break;
-                case "High":
-                    Info.Text = "比特率192kbps，采样率48khz";
-                    break;
-                case "Medium":
-                    Info.Text = "比特率128kbps，采样率44.1khz";
-                    break;
-                case "Low":
-                    Info.Text = "比特率96kbps，采样率44.1khz";
-                    break;
+                switch (Quality.SelectedItem as string)
+                {
+                    case "UHD2160p":
+                        Info.Text = "分辨率3840 X 2160，30FPS";
+                        break;
+                    case "HD1080p":
+                        Info.Text = "分辨率1920 X 1080，30FPS";
+                        break;
+                    case "HD720p":
+                        Info.Text = "分辨率1280 X 720，30FPS";
+                        break;
+                    case "WVGA":
+                        Info.Text = "分辨率800 X 480，30FPS";
+                        break;
+                    case "VGA":
+                        Info.Text = "分辨率640 X 480，30FPS";
+                        break;
+                    case "QVGA":
+                        Info.Text = "分辨率320 X 240，30FPS";
+                        break;
+                    case "High":
+                        Info.Text = "比特率192kbps，采样率48khz";
+                        break;
+                    case "Medium":
+                        Info.Text = "比特率128kbps，采样率44.1khz";
+                        break;
+                    case "Low":
+                        Info.Text = "比特率96kbps，采样率44.1khz";
+                        break;
+                }
+            }
+            else
+            {
+                switch (Quality.SelectedItem as string)
+                {
+                    case "UHD2160p":
+                        Info.Text = "Resolution 3840 X 2160，30FPS";
+                        break;
+                    case "HD1080p":
+                        Info.Text = "Resolution 1920 X 1080，30FPS";
+                        break;
+                    case "HD720p":
+                        Info.Text = "Resolution 1280 X 720，30FPS";
+                        break;
+                    case "WVGA":
+                        Info.Text = "Resolution 800 X 480，30FPS";
+                        break;
+                    case "VGA":
+                        Info.Text = "Resolution 640 X 480，30FPS";
+                        break;
+                    case "QVGA":
+                        Info.Text = "Resolution 320 X 240，30FPS";
+                        break;
+                    case "High":
+                        Info.Text = "Bit-Rate 192kbps，Sampling-Rate 48khz";
+                        break;
+                    case "Medium":
+                        Info.Text = "Bit-Rate 128kbps，Sampling-Rate 44.1khz";
+                        break;
+                    case "Low":
+                        Info.Text = "Bit-Rate 96kbps，Sampling-Rate 44.1khz";
+                        break;
+                }
             }
         }
 
@@ -179,17 +320,35 @@ namespace FileManager
             }
             catch (UnauthorizedAccessException)
             {
-                ContentDialog dialog = new ContentDialog
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                 {
-                    Title = "错误",
-                    Content = "RX无权在此处创建转码文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                    PrimaryButtonText = "立刻",
-                    CloseButtonText = "稍后",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                };
-                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Title = "错误",
+                        Content = "RX无权在此处创建转码文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                        PrimaryButtonText = "立刻",
+                        CloseButtonText = "稍后",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                    }
+                }
+                else
                 {
-                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Title = "Error",
+                        Content = "RX does not have permission to create transcode file, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                        PrimaryButtonText = "Enter",
+                        CloseButtonText = "Later",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                    }
                 }
                 return;
             }
@@ -200,32 +359,65 @@ namespace FileManager
 
         private async Task SetMediaTranscodeConfig()
         {
-            switch (Format.SelectedItem as string)
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                case "MKV(.mkv)格式":
-                    ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "MKV";
-                    break;
-                case "AVI(.avi)格式":
-                    ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "AVI";
-                    break;
-                case "WMV(.wmv)格式":
-                    ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "WMV";
-                    break;
-                case "MP4(.mp4)格式":
-                    ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "MP4";
-                    break;
-                case "ALAC(.alac)格式":
-                    ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "ALAC";
-                    break;
-                case "AAC(.m4a)格式":
-                    ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "M4A";
-                    break;
-                case "WMA(.wma)格式":
-                    ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "WMA";
-                    break;
-                case "MP3(.mp3)格式":
-                    ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "MP3";
-                    break;
+                switch (Format.SelectedItem as string)
+                {
+                    case "MKV(.mkv)格式":
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "MKV";
+                        break;
+                    case "AVI(.avi)格式":
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "AVI";
+                        break;
+                    case "WMV(.wmv)格式":
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "WMV";
+                        break;
+                    case "MP4(.mp4)格式":
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "MP4";
+                        break;
+                    case "ALAC(.alac)格式":
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "ALAC";
+                        break;
+                    case "AAC(.m4a)格式":
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "M4A";
+                        break;
+                    case "WMA(.wma)格式":
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "WMA";
+                        break;
+                    case "MP3(.mp3)格式":
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "MP3";
+                        break;
+                }
+            }
+            else
+            {
+                switch (Format.SelectedItem as string)
+                {
+                    case "MKV(.mkv)":
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "MKV";
+                        break;
+                    case "AVI(.avi)":
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "AVI";
+                        break;
+                    case "WMV(.wmv)":
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "WMV";
+                        break;
+                    case "MP4(.mp4)":
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "MP4";
+                        break;
+                    case "ALAC(.alac)":
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "ALAC";
+                        break;
+                    case "AAC(.m4a)":
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "M4A";
+                        break;
+                    case "WMA(.wma)":
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "WMA";
+                        break;
+                    case "MP3(.mp3)":
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeEncodingProfile"] = "MP3";
+                        break;
+                }
             }
 
             ApplicationData.Current.LocalSettings.Values["MediaTranscodeQuality"] = Quality.SelectedItem as string;
@@ -266,7 +458,14 @@ namespace FileManager
                 if (!success)
                 {
                     TaskRegistration.Unregister(true);
-                    FileControl.ThisPage.Notification.Show("转码无法启动:" + Enum.GetName(typeof(MediaProcessingTriggerResult), ActivationResult));
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    {
+                        FileControl.ThisPage.Notification.Show("转码无法启动:" + Enum.GetName(typeof(MediaProcessingTriggerResult), ActivationResult));
+                    }
+                    else
+                    {
+                        FileControl.ThisPage.Notification.Show("Transcoding cannot be started:" + Enum.GetName(typeof(MediaProcessingTriggerResult), ActivationResult));
+                    }
                 }
             }
 
@@ -302,13 +501,27 @@ namespace FileManager
             {
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
-                    if (ExcuteStatus == "Success")
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        FileControl.ThisPage.Notification.Show("转码已成功完成", 10000);
+                        if (ExcuteStatus == "Success")
+                        {
+                            FileControl.ThisPage.Notification.Show("转码已成功完成", 10000);
+                        }
+                        else
+                        {
+                            FileControl.ThisPage.Notification.Show("转码失败:" + ExcuteStatus, 10000);
+                        }
                     }
                     else
                     {
-                        FileControl.ThisPage.Notification.Show("转码失败:" + ExcuteStatus, 10000);
+                        if (ExcuteStatus == "Success")
+                        {
+                            FileControl.ThisPage.Notification.Show("Transcoding has been successfully completed", 10000);
+                        }
+                        else
+                        {
+                            FileControl.ThisPage.Notification.Show("Transcoding failed:" + ExcuteStatus, 10000);
+                        }
                     }
                 });
             }

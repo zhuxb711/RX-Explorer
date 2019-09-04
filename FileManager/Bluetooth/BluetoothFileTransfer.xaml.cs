@@ -78,7 +78,9 @@ namespace FileManager
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Title = "正在传输中";
+                Title = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                ? "正在传输中"
+                : "Transferring";
             });
         }
 
@@ -91,10 +93,20 @@ namespace FileManager
             }
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Title = "传输终止";
-                ProgressText.Text = "目标设备终止了文件传输";
-                CloseButtonText = "退出";
-                SecondaryButtonText = "重试";
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                {
+                    Title = "传输终止";
+                    ProgressText.Text = "目标设备终止了文件传输";
+                    CloseButtonText = "退出";
+                    SecondaryButtonText = "重试";
+                }
+                else
+                {
+                    Title = "Transmission terminated";
+                    ProgressText.Text = "Target device terminated file transfer";
+                    CloseButtonText = "Exit";
+                    SecondaryButtonText = "Retry";
+                }
             });
         }
 
@@ -102,10 +114,20 @@ namespace FileManager
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Title = "传输终止";
-                ProgressText.Text = "文件传输终止";
-                CloseButtonText = "退出";
-                SecondaryButtonText = "重试";
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                {
+                    Title = "传输终止";
+                    ProgressText.Text = "文件传输终止";
+                    CloseButtonText = "退出";
+                    SecondaryButtonText = "重试";
+                }
+                else
+                {
+                    Title = "Transmission terminated";
+                    ProgressText.Text = "File transfer terminated";
+                    CloseButtonText = "Exit";
+                    SecondaryButtonText = "Retry";
+                }
             });
         }
 
@@ -113,10 +135,20 @@ namespace FileManager
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Title = "传输终止";
-                ProgressText.Text = "连接失败: " + e.ExceptionObject.Message;
-                CloseButtonText = "退出";
-                SecondaryButtonText = "重试";
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                {
+                    Title = "传输终止";
+                    ProgressText.Text = "连接失败: " + e.ExceptionObject.Message;
+                    CloseButtonText = "退出";
+                    SecondaryButtonText = "重试";
+                }
+                else
+                {
+                    Title = "Transmission terminated";
+                    ProgressText.Text = "Connection failed: " + e.ExceptionObject.Message;
+                    CloseButtonText = "Exit";
+                    SecondaryButtonText = "Retry";
+                }
             });
         }
 
@@ -125,10 +157,20 @@ namespace FileManager
             AbortFromHere = true;
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Title = "传输完成";
-                ProgressControl.Value = 100;
-                ProgressText.Text = "100%" + " \r文件传输完成";
-                SecondaryButtonText = "完成";
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                {
+                    Title = "传输完成";
+                    ProgressControl.Value = 100;
+                    ProgressText.Text = "100%" + " \r文件传输完成";
+                    SecondaryButtonText = "完成";
+                }
+                else
+                {
+                    Title = "Transfer completed";
+                    ProgressControl.Value = 100;
+                    ProgressText.Text = "100%" + " \rFile transfer completed";
+                    SecondaryButtonText = "Complete";
+                }
             });
         }
 
@@ -145,10 +187,20 @@ namespace FileManager
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Title = "传输终止";
-                ProgressText.Text = "文件传输意外终止:" + e.ExceptionObject.Message;
-                CloseButtonText = "退出";
-                SecondaryButtonText = "重试";
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                {
+                    Title = "传输终止";
+                    ProgressText.Text = "文件传输意外终止:" + e.ExceptionObject.Message;
+                    CloseButtonText = "退出";
+                    SecondaryButtonText = "重试";
+                }
+                else
+                {
+                    Title = "Transmission terminated";
+                    ProgressText.Text = "File transfer terminated unexpectedly:" + e.ExceptionObject.Message;
+                    CloseButtonText = "Exit";
+                    SecondaryButtonText = "Retry";
+                }
             });
         }
 
@@ -156,54 +208,106 @@ namespace FileManager
         {
             var Deferral = args.GetDeferral();
 
-            if (SecondaryButtonText == "中止")
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                args.Cancel = true;
-                AbortFromHere = true;
-
-                try
+                if (SecondaryButtonText == "中止")
                 {
-                    await ObexClient.AbortAsync();
+                    args.Cancel = true;
+                    AbortFromHere = true;
+
+                    try
+                    {
+                        await ObexClient.AbortAsync();
+                    }
+                    catch (Exception) { }
                 }
-                catch (Exception) { }
+                else if (SecondaryButtonText == "重试")
+                {
+                    args.Cancel = true;
+                    ProgressText.Text = "0%";
+
+                    ObexClient.DataTransferFailed -= ObexClient_DataTransferFailed;
+                    ObexClient.DataTransferProgressed -= ObexClient_DataTransferProgressed;
+                    ObexClient.DataTransferSucceeded -= ObexClient_DataTransferSucceeded;
+                    ObexClient.ConnectionFailed -= ObexClient_ConnectionFailed;
+                    ObexClient.Aborted -= ObexClient_Aborted;
+                    ObexClient.Disconnected -= ObexClient_Disconnected;
+                    ObexClient.DeviceConnected -= ObexClient_DeviceConnected;
+
+                    ObexClient = ObexServiceProvider.GetObexNewInstance();
+
+                    ObexClient.DataTransferFailed += ObexClient_DataTransferFailed;
+                    ObexClient.DataTransferProgressed += ObexClient_DataTransferProgressed;
+                    ObexClient.DataTransferSucceeded += ObexClient_DataTransferSucceeded;
+                    ObexClient.ConnectionFailed += ObexClient_ConnectionFailed;
+                    ObexClient.Aborted += ObexClient_Aborted;
+                    ObexClient.Disconnected += ObexClient_Disconnected;
+                    ObexClient.DeviceConnected += ObexClient_DeviceConnected;
+
+                    try
+                    {
+                        ProgressControl.Value = 0;
+                        CloseButtonText = "";
+                        SecondaryButtonText = "中止";
+                        await ObexClient.ConnectAsync();
+                        await ObexClient.SendFileAsync(ToDeleteFile);
+                    }
+                    catch (Exception)
+                    {
+                        ProgressText.Text = "尝试重新连接失败";
+                    }
+                }
             }
-            else if (SecondaryButtonText == "重试")
+            else
             {
-                args.Cancel = true;
-                ProgressText.Text = "0%";
-
-                ObexClient.DataTransferFailed -= ObexClient_DataTransferFailed;
-                ObexClient.DataTransferProgressed -= ObexClient_DataTransferProgressed;
-                ObexClient.DataTransferSucceeded -= ObexClient_DataTransferSucceeded;
-                ObexClient.ConnectionFailed -= ObexClient_ConnectionFailed;
-                ObexClient.Aborted -= ObexClient_Aborted;
-                ObexClient.Disconnected -= ObexClient_Disconnected;
-                ObexClient.DeviceConnected -= ObexClient_DeviceConnected;
-
-                ObexClient = ObexServiceProvider.GetObexNewInstance();
-
-                ObexClient.DataTransferFailed += ObexClient_DataTransferFailed;
-                ObexClient.DataTransferProgressed += ObexClient_DataTransferProgressed;
-                ObexClient.DataTransferSucceeded += ObexClient_DataTransferSucceeded;
-                ObexClient.ConnectionFailed += ObexClient_ConnectionFailed;
-                ObexClient.Aborted += ObexClient_Aborted;
-                ObexClient.Disconnected += ObexClient_Disconnected;
-                ObexClient.DeviceConnected += ObexClient_DeviceConnected;
-
-                try
+                if (SecondaryButtonText == "Abort")
                 {
-                    ProgressControl.Value = 0;
-                    CloseButtonText = "";
-                    SecondaryButtonText = "中止";
-                    await ObexClient.ConnectAsync();
-                    await ObexClient.SendFileAsync(ToDeleteFile);
+                    args.Cancel = true;
+                    AbortFromHere = true;
+
+                    try
+                    {
+                        await ObexClient.AbortAsync();
+                    }
+                    catch (Exception) { }
                 }
-                catch (Exception)
+                else if (SecondaryButtonText == "Retry")
                 {
-                    ProgressText.Text = "尝试重新连接失败";
+                    args.Cancel = true;
+                    ProgressText.Text = "0%";
+
+                    ObexClient.DataTransferFailed -= ObexClient_DataTransferFailed;
+                    ObexClient.DataTransferProgressed -= ObexClient_DataTransferProgressed;
+                    ObexClient.DataTransferSucceeded -= ObexClient_DataTransferSucceeded;
+                    ObexClient.ConnectionFailed -= ObexClient_ConnectionFailed;
+                    ObexClient.Aborted -= ObexClient_Aborted;
+                    ObexClient.Disconnected -= ObexClient_Disconnected;
+                    ObexClient.DeviceConnected -= ObexClient_DeviceConnected;
+
+                    ObexClient = ObexServiceProvider.GetObexNewInstance();
+
+                    ObexClient.DataTransferFailed += ObexClient_DataTransferFailed;
+                    ObexClient.DataTransferProgressed += ObexClient_DataTransferProgressed;
+                    ObexClient.DataTransferSucceeded += ObexClient_DataTransferSucceeded;
+                    ObexClient.ConnectionFailed += ObexClient_ConnectionFailed;
+                    ObexClient.Aborted += ObexClient_Aborted;
+                    ObexClient.Disconnected += ObexClient_Disconnected;
+                    ObexClient.DeviceConnected += ObexClient_DeviceConnected;
+
+                    try
+                    {
+                        ProgressControl.Value = 0;
+                        CloseButtonText = "";
+                        SecondaryButtonText = "Abort";
+                        await ObexClient.ConnectAsync();
+                        await ObexClient.SendFileAsync(ToDeleteFile);
+                    }
+                    catch (Exception)
+                    {
+                        ProgressText.Text = "Trying to reconnect failed";
+                    }
                 }
             }
-
             Deferral.Complete();
         }
     }

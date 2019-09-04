@@ -18,12 +18,16 @@ namespace FileManager
             switch (Type)
             {
                 case QuickStartType.Application:
-                    Protocal.PlaceholderText = "启动协议";
+                    Protocal.PlaceholderText = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                        ? "启动协议"
+                        : "Protocal";
                     ProtocalIcon.Visibility = Windows.UI.Xaml.Visibility.Visible;
                     Protocal.Width = 170;
                     break;
                 case QuickStartType.WebSite:
-                    Protocal.PlaceholderText = "网址";
+                    Protocal.PlaceholderText = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                        ? "网址"
+                        : "WebSite";
                     ProtocalIcon.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                     Protocal.Width = 200;
                     break;
@@ -202,7 +206,6 @@ namespace FileManager
         {
             FileOpenPicker Picker = new FileOpenPicker
             {
-                CommitButtonText = "确定",
                 SuggestedStartLocation = PickerLocationId.Desktop,
                 ViewMode = PickerViewMode.Thumbnail
             };

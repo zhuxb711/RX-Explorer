@@ -7,7 +7,6 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -43,37 +42,76 @@ namespace FileManager
 
         private async void ZipExplorer_Loaded(object sender, RoutedEventArgs e)
         {
-            ZIPFileName.Text = "ZIP文件查看器 - " + OriginFile.File.Name;
-            using (var ZipFileStream = await OriginFile.File.OpenStreamForReadAsync())
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                ZipFile zipFile = new ZipFile(ZipFileStream);
-                try
+                ZIPFileName.Text = "Zip文件查看器 - " + OriginFile.File.Name;
+                using (var ZipFileStream = await OriginFile.File.OpenStreamForReadAsync())
                 {
-                    foreach (ZipEntry Entry in zipFile)
+                    ZipFile zipFile = new ZipFile(ZipFileStream);
+                    try
                     {
-                        if (!Entry.IsFile)
+                        foreach (ZipEntry Entry in zipFile)
                         {
-                            continue;
+                            if (!Entry.IsFile)
+                            {
+                                continue;
+                            }
+                            string DisplayName, Type;
+                            int index = Entry.Name.LastIndexOf(".");
+                            if (index != -1)
+                            {
+                                DisplayName = Entry.Name.Substring(0, index);
+                                Type = Entry.Name.Substring(index + 1).ToUpper() + "文件";
+                            }
+                            else
+                            {
+                                DisplayName = Entry.Name;
+                                Type = "未知文件类型";
+                            }
+                            FileCollection.Add(new ZipFileDisplay(DisplayName, Type, "压缩大小：" + GetSize(Entry.CompressedSize), "解压大小：" + GetSize(Entry.Size), GetDate(Entry.DateTime), Entry.IsCrypted));
                         }
-                        string DisplayName, Type;
-                        int index = Entry.Name.LastIndexOf(".");
-                        if (index != -1)
-                        {
-                            DisplayName = Entry.Name.Substring(0, index);
-                            Type = Entry.Name.Substring(index + 1).ToUpper() + "文件";
-                        }
-                        else
-                        {
-                            DisplayName = Entry.Name;
-                            Type = "未知文件类型";
-                        }
-                        FileCollection.Add(new ZipFileDisplay(DisplayName, Type, "压缩大小：" + GetSize(Entry.CompressedSize), "解压大小：" + GetSize(Entry.Size), GetDate(Entry.DateTime), Entry.IsCrypted));
+                    }
+                    finally
+                    {
+                        zipFile.IsStreamOwner = false;
+                        zipFile.Close();
                     }
                 }
-                finally
+            }
+            else
+            {
+                ZIPFileName.Text = "Zip Viewer - " + OriginFile.File.Name;
+                using (var ZipFileStream = await OriginFile.File.OpenStreamForReadAsync())
                 {
-                    zipFile.IsStreamOwner = false;
-                    zipFile.Close();
+                    ZipFile zipFile = new ZipFile(ZipFileStream);
+                    try
+                    {
+                        foreach (ZipEntry Entry in zipFile)
+                        {
+                            if (!Entry.IsFile)
+                            {
+                                continue;
+                            }
+                            string DisplayName, Type;
+                            int index = Entry.Name.LastIndexOf(".");
+                            if (index != -1)
+                            {
+                                DisplayName = Entry.Name.Substring(0, index);
+                                Type = Entry.Name.Substring(index + 1).ToUpper() + "File";
+                            }
+                            else
+                            {
+                                DisplayName = Entry.Name;
+                                Type = "UnknownType";
+                            }
+                            FileCollection.Add(new ZipFileDisplay(DisplayName, Type, "Compressed：" + GetSize(Entry.CompressedSize), "Decompressed：" + GetSize(Entry.Size), GetDate(Entry.DateTime), Entry.IsCrypted));
+                        }
+                    }
+                    finally
+                    {
+                        zipFile.IsStreamOwner = false;
+                        zipFile.Close();
+                    }
                 }
             }
         }
@@ -97,7 +135,14 @@ namespace FileManager
         /// <returns></returns>
         private string GetDate(DateTime time)
         {
-            return "创建时间：" + time.Year + "年" + time.Month + "月" + time.Day + "日" + (time.Hour < 10 ? "0" + time.Hour : time.Hour.ToString()) + ":" + (time.Minute < 10 ? "0" + time.Minute : time.Minute.ToString()) + ":" + (time.Second < 10 ? "0" + time.Second : time.Second.ToString());
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            {
+                return "创建时间：" + time.ToString("F");
+            }
+            else
+            {
+                return "Created：" + time.ToString("F");
+            }
         }
 
         private void GridControl_RightTapped(object sender, RightTappedRoutedEventArgs e)
@@ -109,7 +154,9 @@ namespace FileManager
 
         private async void Delete_Click(object sender, RoutedEventArgs e)
         {
-            LoadingActivation(true, "正在执行删除操作");
+            LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                ? "正在执行删除操作"
+                : "Deleting");
             var file = GridControl.SelectedItem as ZipFileDisplay;
             using (var ZipFileStream = (await OriginFile.File.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
             {
@@ -156,7 +203,9 @@ namespace FileManager
 
         private async void Test_Click(object sender, RoutedEventArgs e)
         {
-            LoadingActivation(true, "正在检验文件");
+            LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                ? "正在检验文件"
+                : "Verifying");
             var file = GridControl.SelectedItem as ZipFileDisplay;
             using (var ZipFileStream = await OriginFile.File.OpenStreamForReadAsync())
             {
@@ -177,13 +226,28 @@ namespace FileManager
                     {
                         await Task.Delay(1000);
                     }
-                    ContentDialog contentDialog = new ContentDialog
+
+                    ContentDialog contentDialog;
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Title = "测试结果",
-                        Content = IsCorrect ? "CRC校验通过，Zip文件完整" : "未能通过CRC校验，Zip文件存在问题",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
+                        contentDialog = new ContentDialog
+                        {
+                            Title = "测试结果",
+                            Content = IsCorrect ? "CRC校验通过，Zip文件完整" : "未能通过CRC校验，Zip文件存在问题",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                    }
+                    else
+                    {
+                        contentDialog = new ContentDialog
+                        {
+                            Title = "Test Result",
+                            Content = IsCorrect ? "The CRC is verified" : "Failed to pass CRC check",
+                            CloseButtonText = "Confirm",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                    }
                     LoadingActivation(false);
                     await Task.Delay(500);
                     await contentDialog.ShowAsync();
@@ -233,7 +297,9 @@ namespace FileManager
 
         private async void Decompression_Click(object sender, RoutedEventArgs e)
         {
-            LoadingActivation(true, "正在解压", true);
+            LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                ? "正在解压"
+                : "Extracting", true);
 
             var file = GridControl.SelectedItem as ZipFileDisplay;
             using (var ZipFileStream = (await OriginFile.File.OpenStreamForReadAsync()))

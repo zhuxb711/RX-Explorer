@@ -99,7 +99,9 @@ namespace FileManager
         private void Flip_SelectionChanged1(object sender, SelectionChangedEventArgs e)
         {
             int CurrentPage = Flip.SelectedIndex + 1;
-            PageNotification.Show(CurrentPage + " / (共 " + Pdf.PageCount + " 页)", 1200);
+            PageNotification.Show(MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+            ? CurrentPage + " / (共 " + Pdf.PageCount + " 页)"
+            : CurrentPage + " / (" + Pdf.PageCount + " Page)", 1200);
         }
 
         private async void Flip_SelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -1,0 +1,720 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AESCheckBox.Content" xml:space="preserve">
+    <value>Delete source file after encryption is complete</value>
+  </data>
+  <data name="AESDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="AESDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="AESDialog.Title" xml:space="preserve">
+    <value>AES Encryption</value>
+  </data>
+  <data name="AESMethod.Header" xml:space="preserve">
+    <value>Encryption Method</value>
+  </data>
+  <data name="AESPassword.Header" xml:space="preserve">
+    <value>Encryption password</value>
+  </data>
+  <data name="AESPassword.PlaceholderText" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="AppDelete.Label" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="AppEdit.Label" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="AppName.Text" xml:space="preserve">
+    <value>RX FileManager</value>
+  </data>
+  <data name="AttributeCreated.Text" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="AttributeDialog.CloseButtonText" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="AttributeDialog.Title" xml:space="preserve">
+    <value>Properties</value>
+  </data>
+  <data name="AttributeFileName.Text" xml:space="preserve">
+    <value>FileName</value>
+  </data>
+  <data name="AttributeLocation.Text" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="AttributeModified.Text" xml:space="preserve">
+    <value>Modified</value>
+  </data>
+  <data name="AttributeSize.Text" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="AttributeType.Text" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="BlueScreenReport.Content" xml:space="preserve">
+    <value>Report to Developer</value>
+  </data>
+  <data name="BlueScreenReset.Content" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="BluetoothShare.Text" xml:space="preserve">
+    <value>Bluetooth</value>
+  </data>
+  <data name="BluetoothTranfer.SecondaryButtonText" xml:space="preserve">
+    <value>Abort</value>
+  </data>
+  <data name="BluetoothTranfer.Title" xml:space="preserve">
+    <value>Initializing</value>
+  </data>
+  <data name="BluetoothUI.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="BluetoothUI.PrimaryButtonText" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="BluetoothUI.Title" xml:space="preserve">
+    <value>Select target device</value>
+  </data>
+  <data name="BluetoothUIPinNo.Content" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="BluetoothUIPinYes.Content" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="BluetoothUISearching.Text" xml:space="preserve">
+    <value>Searching</value>
+  </data>
+  <data name="Browser.Content" xml:space="preserve">
+    <value>Browser</value>
+  </data>
+  <data name="CloseButton.Content" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="CrashText.Text" xml:space="preserve">
+    <value>RX Crashed Accidentally...(￣▽￣)/</value>
+  </data>
+  <data name="DeviceAttribute.Label" xml:space="preserve">
+    <value>Properties</value>
+  </data>
+  <data name="DeviceCapacity.Text" xml:space="preserve">
+    <value>Capacity</value>
+  </data>
+  <data name="DeviceDialog.CloseButtonText" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="DeviceExpander.Header" xml:space="preserve">
+    <value>Devices and drives</value>
+  </data>
+  <data name="DeviceFreeSpace.Text" xml:space="preserve">
+    <value>Free space</value>
+  </data>
+  <data name="DeviceType.Text" xml:space="preserve">
+    <value>Disk Type：</value>
+  </data>
+  <data name="DeviceUsedSpace.Text" xml:space="preserve">
+    <value>Used space</value>
+  </data>
+  <data name="FileAES.Label" xml:space="preserve">
+    <value>AES Encryption</value>
+  </data>
+  <data name="FileAttribute.Label" xml:space="preserve">
+    <value>Properties</value>
+  </data>
+  <data name="FileCopy.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="FileCut.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Cut</value>
+  </data>
+  <data name="FileDelete.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="FileRename.Label" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="FileShare.Label" xml:space="preserve">
+    <value>Share</value>
+  </data>
+  <data name="FolderAttribute.Label" xml:space="preserve">
+    <value>Properties</value>
+  </data>
+  <data name="FolderDelete.Label" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="FolderOpen.Label" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="FolderRename.Label" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="HasFile.Text" xml:space="preserve">
+    <value>Empty</value>
+  </data>
+  <data name="HotWebTitle.Text" xml:space="preserve">
+    <value>Popular Website</value>
+  </data>
+  <data name="LibraryExpander.Header" xml:space="preserve">
+    <value>Folders</value>
+  </data>
+  <data name="OpenDevice.Label" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="ParentAttribute.Label" xml:space="preserve">
+    <value>FolderProperties</value>
+  </data>
+  <data name="PermissionButton.Content" xml:space="preserve">
+    <value>Permission</value>
+  </data>
+  <data name="PinTip.ActionButtonContent" xml:space="preserve">
+    <value>Now</value>
+  </data>
+  <data name="PinTip.CloseButtonContent" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="PinTip.Title" xml:space="preserve">
+    <value>Launch Faster</value>
+  </data>
+  <data name="QRText.Header" xml:space="preserve">
+    <value>Copy this link to your browser to download</value>
+  </data>
+  <data name="QuickStartChooseIcon.Content" xml:space="preserve">
+    <value>Select Image</value>
+  </data>
+  <data name="QuickStartDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="QuickStartDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="QuickStartDialog.Title" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="QuickStartDisplayName.PlaceholderText" xml:space="preserve">
+    <value>DisplayName</value>
+  </data>
+  <data name="QuickStartEmptyTip.Subtitle" xml:space="preserve">
+    <value>Can't be empty here</value>
+  </data>
+  <data name="QuickStartExistTip.Subtitle" xml:space="preserve">
+    <value>The name already exists and cannot be added repeatedly</value>
+  </data>
+  <data name="QuickStartFormatErrorTip.Subtitle" xml:space="preserve">
+    <value>Protocol or address format error</value>
+  </data>
+  <data name="QuickStartLink.Content" xml:space="preserve">
+    <value>Launch an app with a URI</value>
+  </data>
+  <data name="QuickStartLink.NavigateUri" xml:space="preserve">
+    <value>https://docs.microsoft.com/en-us/windows/uwp/launch-resume/launch-app-with-uri</value>
+  </data>
+  <data name="QuickStartProtocal.PlaceholderText" xml:space="preserve">
+    <value>Protocal</value>
+  </data>
+  <data name="QuickStartProtocalTip.Subtitle" xml:space="preserve">
+    <value>Protocal Reference</value>
+  </data>
+  <data name="QuickStartTitle.Text" xml:space="preserve">
+    <value>Quick Start</value>
+  </data>
+  <data name="RateTip.ActionButtonContent" xml:space="preserve">
+    <value>Rate</value>
+  </data>
+  <data name="RateTip.CloseButtonContent" xml:space="preserve">
+    <value>Later</value>
+  </data>
+  <data name="RateTip.Subtitle" xml:space="preserve">
+    <value>Your rating is very important, please take a minute or two to rate the app.</value>
+  </data>
+  <data name="RateTip.Title" xml:space="preserve">
+    <value>Please rate us</value>
+  </data>
+  <data name="RenameDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="RenameDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="RenameDialog.Title" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="RenamePreview.Text" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="SearchFlyoutCancel.Content" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="SearchFlyoutConfirm.Content" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="SearchFlyoutDeepRadio.Content" xml:space="preserve">
+    <value>Deep search for all directories (slower)</value>
+  </data>
+  <data name="SearchFlyoutShallowRadio.Content" xml:space="preserve">
+    <value>Only search the current directory (faster)</value>
+  </data>
+  <data name="SearchHasItem.Text" xml:space="preserve">
+    <value>No Result</value>
+  </data>
+  <data name="SearchingText.Text" xml:space="preserve">
+    <value>Searching</value>
+  </data>
+  <data name="SearchLocation.Label" xml:space="preserve">
+    <value>Open Location</value>
+  </data>
+  <data name="SearchModified.Text" xml:space="preserve">
+    <value>Date modified</value>
+  </data>
+  <data name="SearchName.Text" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="SearchPath.Text" xml:space="preserve">
+    <value>Path</value>
+  </data>
+  <data name="SearchProperties.Label" xml:space="preserve">
+    <value>Properties</value>
+  </data>
+  <data name="SearchResult.Text" xml:space="preserve">
+    <value>Search Result</value>
+  </data>
+  <data name="SearchSize.Text" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="SearchTip.CloseButtonContent" xml:space="preserve">
+    <value>Got it</value>
+  </data>
+  <data name="SearchTip.Subtitle" xml:space="preserve">
+    <value>Clear this search box or click on any folder to exit the search status</value>
+  </data>
+  <data name="SearchType.Text" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="SettingAbout.Content" xml:space="preserve">
+    <value>About Developer→→</value>
+  </data>
+  <data name="SettingAdvance.Text" xml:space="preserve">
+    <value>Advance</value>
+  </data>
+  <data name="SettingCleanup.Content" xml:space="preserve">
+    <value>Restore and initialize</value>
+  </data>
+  <data name="SettingClearHistory.Content" xml:space="preserve">
+    <value>Clear search history</value>
+  </data>
+  <data name="SettingLike.Text" xml:space="preserve">
+    <value>Like the app</value>
+  </data>
+  <data name="SettingOther.Text" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="SettingSearchNum.Header" xml:space="preserve">
+    <value>Set the maximum number of search results</value>
+  </data>
+  <data name="SettingVersion.Text" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="SystemManagerOpen.Label" xml:space="preserve">
+    <value>Use System File Explorer Open</value>
+  </data>
+  <data name="TextViewerCancel.Label" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="TextViewerLoading.Text" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="TextViewerSave.Label" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="ThisPC.Content" xml:space="preserve">
+    <value>ThisPC</value>
+  </data>
+  <data name="Transcode.Label" xml:space="preserve">
+    <value>Transcode</value>
+  </data>
+  <data name="TranscodeBoost.Content" xml:space="preserve">
+    <value>Use hardware acceleration (Recommand)</value>
+  </data>
+  <data name="TranscodeDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="TranscodeDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="TranscodeDialog.Title" xml:space="preserve">
+    <value>Transcode</value>
+  </data>
+  <data name="TranscodeFormat.Header" xml:space="preserve">
+    <value>Conversion format</value>
+  </data>
+  <data name="TranscodeQuality.Header" xml:space="preserve">
+    <value>Quality</value>
+  </data>
+  <data name="UpdateTip.ActionButtonContent" xml:space="preserve">
+    <value>Update Now</value>
+  </data>
+  <data name="UpdateTip.CloseButtonContent" xml:space="preserve">
+    <value>Later</value>
+  </data>
+  <data name="UpdateTip.Title" xml:space="preserve">
+    <value>Update Available</value>
+  </data>
+  <data name="UserFolderDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="UserFolderDialog.Title" xml:space="preserve">
+    <value>Choose User Folder</value>
+  </data>
+  <data name="UserFolderDialog.UserFolderText1" xml:space="preserve">
+    <value>Unable to automatically determine User folder</value>
+  </data>
+  <data name="UserFolderDialog.UserFolderText2" xml:space="preserve">
+    <value>Please specify the user folder manually</value>
+  </data>
+  <data name="WebAllowDB.Header" xml:space="preserve">
+    <value>Allow to use IndexedDB</value>
+  </data>
+  <data name="WebAllowJS.Header" xml:space="preserve">
+    <value>Allow JavaScript to run</value>
+  </data>
+  <data name="WebClearCache.Content" xml:space="preserve">
+    <value>Clear cache and history</value>
+  </data>
+  <data name="WebDelete.Label" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="WebDonwloadLoaction.Text" xml:space="preserve">
+    <value>Default download location</value>
+  </data>
+  <data name="WebDownloadButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>DownloadList</value>
+  </data>
+  <data name="WebDownloadCancel.Content" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="WebDownloadCancelText.Text" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="WebDownloadCompleteText.Text" xml:space="preserve">
+    <value>Complete</value>
+  </data>
+  <data name="WebDownloadErrorText.Text" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="WebDownloadList.Text" xml:space="preserve">
+    <value>Download List</value>
+  </data>
+  <data name="WebDownloadListEmpty.Text" xml:space="preserve">
+    <value>Empty</value>
+  </data>
+  <data name="WebDownloadPause.Content" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="WebDownloadPauseCancel.Content" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="WebDownloadPauseContinue.Content" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="WebDownloadPauseText.Text" xml:space="preserve">
+    <value>Paused</value>
+  </data>
+  <data name="WebEdit.Label" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="WebExplorerButton.Content" xml:space="preserve">
+    <value>Browse</value>
+  </data>
+  <data name="WebFavButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Favorites</value>
+  </data>
+  <data name="WebFavFlyoutCancel.Content" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="WebFavFlyoutConfirm.Content" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="WebFavName.Header" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="WebFavouriteClear.Text" xml:space="preserve">
+    <value>Clear all</value>
+  </data>
+  <data name="WebFavouriteClearCancel.Content" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="WebFavouriteClearConfirm.Content" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="WebFavouriteClearText.Text" xml:space="preserve">
+    <value>Clear all tags?</value>
+  </data>
+  <data name="WebFavouriteFlyoutDelete.Label" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="WebFavouriteListTitle.Header" xml:space="preserve">
+    <value>Favourite</value>
+  </data>
+  <data name="WebFavouriteText.Text" xml:space="preserve">
+    <value>Favorites</value>
+  </data>
+  <data name="WebHistoryClear.Text" xml:space="preserve">
+    <value>Clear all</value>
+  </data>
+  <data name="WebHistoryClearCancel.Content" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="WebHistoryClearConfirm.Content" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="WebHistoryClearText.Text" xml:space="preserve">
+    <value>Clear all history?</value>
+  </data>
+  <data name="WebHistoryEmptyTip.Text" xml:space="preserve">
+    <value>Empty</value>
+  </data>
+  <data name="WebHistoryTitle.Header" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="WebInPrivate.Header" xml:space="preserve">
+    <value>InPrivate Mode</value>
+  </data>
+  <data name="WebInPrivateConfirm.Content" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="WebInPrivateExit.Content" xml:space="preserve">
+    <value>Exit InPrivate</value>
+  </data>
+  <data name="WebInPrivateText.Text" xml:space="preserve">
+    <value>The browser has entered InPrivate privacy mode and will not record any information.</value>
+  </data>
+  <data name="WebScreenShot.Content" xml:space="preserve">
+    <value>Screenshot and send by Bluetooth</value>
+  </data>
+  <data name="WebSettingAbout.Content" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="WebSettingAdvanceTile.Text" xml:space="preserve">
+    <value>Advance</value>
+  </data>
+  <data name="WebSettingButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Setting</value>
+  </data>
+  <data name="WebSettingClearFlyCancel.Content" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="WebSettingClearFlyConfirm.Content" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="WebSettingClearFlyText.Text" xml:space="preserve">
+    <value>All caches including browsing history will be cleared</value>
+  </data>
+  <data name="WebSettingOtherTitle.Text" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="WebSettingShowMainPage.Header" xml:space="preserve">
+    <value>Show home button</value>
+  </data>
+  <data name="WebSettingTitle.Text" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="WebSettingUrl.Header" xml:space="preserve">
+    <value>Home page URL</value>
+  </data>
+  <data name="WebSettingUrl.PlaceholderText" xml:space="preserve">
+    <value>Enter URL</value>
+  </data>
+  <data name="WebSpecificUrl.Header" xml:space="preserve">
+    <value>Page Url</value>
+  </data>
+  <data name="WebSpecificUrl.PlaceholderText" xml:space="preserve">
+    <value>Enter Url</value>
+  </data>
+  <data name="WebSuggestBox.PlaceholderText" xml:space="preserve">
+    <value>Search or enter url</value>
+  </data>
+  <data name="WebTabOpenMethod.Header" xml:space="preserve">
+    <value>Open with</value>
+  </data>
+  <data name="WevFavEmptyTip.Text" xml:space="preserve">
+    <value>Empty</value>
+  </data>
+  <data name="WIFIShare.Text" xml:space="preserve">
+    <value>WIFI</value>
+  </data>
+  <data name="WIFIShareText.Text" xml:space="preserve">
+    <value>Do not close this window during transmission</value>
+  </data>
+  <data name="WIFIShareTip.Title" xml:space="preserve">
+    <value>WiFi Share</value>
+  </data>
+  <data name="Zip.Label" xml:space="preserve">
+    <value>Zip Compression</value>
+  </data>
+  <data name="ZipCRC.Label" xml:space="preserve">
+    <value>CRC integrity check</value>
+  </data>
+  <data name="ZipCRCComplete.Text" xml:space="preserve">
+    <value>Complete (Slower)</value>
+  </data>
+  <data name="ZipCRCSimple.Text" xml:space="preserve">
+    <value>Simple (Faster)</value>
+  </data>
+  <data name="ZipDecompression.Label" xml:space="preserve">
+    <value>Extract</value>
+  </data>
+  <data name="ZipDelete.Label" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="ZipDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="ZipDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="ZipDialog.Title" xml:space="preserve">
+    <value>Zip Compression Option</value>
+  </data>
+  <data name="ZipDialogCheckBox.Content" xml:space="preserve">
+    <value>Enable Zip encryption</value>
+  </data>
+  <data name="ZipDialogEncryption.Header" xml:space="preserve">
+    <value>Encryption Method</value>
+  </data>
+  <data name="ZipDialogLevel.Header" xml:space="preserve">
+    <value>Compression Level</value>
+  </data>
+  <data name="ZipDialogName.Header" xml:space="preserve">
+    <value>FileName</value>
+  </data>
+  <data name="ZipDialogName.Text" xml:space="preserve">
+    <value>New Compression File.zip</value>
+  </data>
+  <data name="ZipDialogPassword.Header" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="ZipDialogPassword.PlaceholderText" xml:space="preserve">
+    <value>Enter password</value>
+  </data>
+  <data name="ZipHasFile.Text" xml:space="preserve">
+    <value>Empty</value>
+  </data>
+</root>

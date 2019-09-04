@@ -31,7 +31,9 @@ namespace FileManager
                 currentnode = value;
                 if (currentnode != null)
                 {
-                    MainPage.ThisPage.GlobeSearch.PlaceholderText = "搜索 " + (currentnode.Content as StorageFolder).DisplayName;
+                    MainPage.ThisPage.GlobeSearch.PlaceholderText = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                         ? "搜索 " + (currentnode.Content as StorageFolder).DisplayName
+                         : "Search " + (currentnode.Content as StorageFolder).DisplayName;
                 }
             }
         }
@@ -76,7 +78,13 @@ namespace FileManager
                 }
                 else
                 {
-                    (FolderTree.ContainerFromNode(Node) as TreeViewItem).IsSelected = true;
+                    if (!(FolderTree.ContainerFromNode(Node) is TreeViewItem Container))
+                    {
+                        await Task.Delay(200);
+                        continue;
+                    }
+
+                    Container.IsSelected = true;
                     await DisplayItemsInFolder(Node);
                     break;
                 }
@@ -89,7 +97,9 @@ namespace FileManager
             InitializeTreeView(TargetFolder);
 
             MainPage.ThisPage.GlobeSearch.Visibility = Visibility.Visible;
-            MainPage.ThisPage.GlobeSearch.PlaceholderText = "搜索 " + TargetFolder.DisplayName;
+            MainPage.ThisPage.GlobeSearch.PlaceholderText = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                ? "搜索 " + TargetFolder.DisplayName
+                : "Search " + TargetFolder.DisplayName;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -285,14 +295,30 @@ namespace FileManager
                 return;
             }
 
-            ContentDialog contentDialog = new ContentDialog
+            ContentDialog contentDialog;
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                Title = "警告",
-                Content = "    此操作将永久删除该文件夹内的所有内容\r\r    是否继续？",
-                PrimaryButtonText = "继续",
-                CloseButtonText = "取消",
-                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-            };
+                contentDialog = new ContentDialog
+                {
+                    Title = "警告",
+                    Content = "    此操作将永久删除该文件夹内的所有内容\r\r    是否继续？",
+                    PrimaryButtonText = "继续",
+                    CloseButtonText = "取消",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+            }
+            else
+            {
+                contentDialog = new ContentDialog
+                {
+                    Title = "Warning",
+                    Content = "    This will permanently delete everything in the folder\r\r    Whether to continue ？",
+                    PrimaryButtonText = "Continue",
+                    CloseButtonText = "Cancel",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+            }
+
             if (await contentDialog.ShowAsync() == ContentDialogResult.Primary)
             {
                 try
@@ -328,14 +354,30 @@ namespace FileManager
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    ContentDialog dialog = new ContentDialog
+                    ContentDialog dialog;
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Title = "错误",
-                        Content = "RX无权删除此文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
-                        PrimaryButtonText = "立刻",
-                        CloseButtonText = "稍后",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
+                        dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "RX无权删除此文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                    }
+                    else
+                    {
+                        dialog = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "RX does not have permission to delete this folder, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                            PrimaryButtonText = "Enter",
+                            CloseButtonText = "Later",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                    }
+
                     if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         _ = await Launcher.LaunchFolderAsync(CurrentFolder);
@@ -343,13 +385,27 @@ namespace FileManager
                 }
                 catch (Exception)
                 {
-                    ContentDialog Dialog = new ContentDialog
+                    ContentDialog Dialog;
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Title = "错误",
-                        Content = "删除文件夹时出现错误",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
+                        Dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "删除文件夹时出现错误",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                    }
+                    else
+                    {
+                        Dialog = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "An error occurred while deleting the folder",
+                            CloseButtonText = "Confirm",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                    }
                     _ = await Dialog.ShowAsync();
                 }
             }
@@ -398,14 +454,28 @@ namespace FileManager
             {
                 if (renameDialog.DesireName == "")
                 {
-                    ContentDialog content = new ContentDialog
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Title = "错误",
-                        Content = "文件夹名不能为空，重命名失败",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    await content.ShowAsync();
+                        ContentDialog content = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "文件夹名不能为空，重命名失败",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await content.ShowAsync();
+                    }
+                    else
+                    {
+                        ContentDialog content = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Folder name cannot be empty, rename failed",
+                            CloseButtonText = "Confirm",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await content.ShowAsync();
+                    }
                     return;
                 }
 
@@ -458,14 +528,30 @@ namespace FileManager
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    ContentDialog dialog = new ContentDialog
+                    ContentDialog dialog;
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Title = "错误",
-                        Content = "RX无权重命名此文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
-                        PrimaryButtonText = "立刻",
-                        CloseButtonText = "稍后",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
+                        dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "RX无权重命名此文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                    }
+                    else
+                    {
+                        dialog = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "RX does not have permission to rename this folder, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                            PrimaryButtonText = "Enter",
+                            CloseButtonText = "Later",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                    }
+
                     if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         _ = await Launcher.LaunchFolderAsync(CurrentFolder);
@@ -478,7 +564,9 @@ namespace FileManager
         {
             try
             {
-                var NewFolder = await CurrentFolder.CreateFolderAsync("新建文件夹", CreationCollisionOption.GenerateUniqueName);
+                var NewFolder = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                    ? await CurrentFolder.CreateFolderAsync("新建文件夹", CreationCollisionOption.GenerateUniqueName)
+                    : await CurrentFolder.CreateFolderAsync("New folder", CreationCollisionOption.GenerateUniqueName);
 
                 var Size = await NewFolder.GetSizeDescriptionAsync();
                 var Thumbnail = await NewFolder.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
@@ -498,14 +586,30 @@ namespace FileManager
             }
             catch (UnauthorizedAccessException)
             {
-                ContentDialog dialog = new ContentDialog
+                ContentDialog dialog;
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                 {
-                    Title = "错误",
-                    Content = "RX无权在此创建文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
-                    PrimaryButtonText = "立刻",
-                    CloseButtonText = "稍后",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                };
+                    dialog = new ContentDialog
+                    {
+                        Title = "错误",
+                        Content = "RX无权在此创建文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
+                        PrimaryButtonText = "立刻",
+                        CloseButtonText = "稍后",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                }
+                else
+                {
+                    dialog = new ContentDialog
+                    {
+                        Title = "Error",
+                        Content = "RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                        PrimaryButtonText = "Enter",
+                        CloseButtonText = "Later",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                }
+
                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
                     _ = await Launcher.LaunchFolderAsync(CurrentFolder);

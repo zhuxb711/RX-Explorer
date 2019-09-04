@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+    x:Uid="BluetoothUI"
     Title="选择目标设备"
     PrimaryButtonText="确定"
     CloseButtonText="取消"
@@ -14,7 +15,7 @@
 
     <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <StackPanel Orientation="Horizontal">
-            <TextBlock Text="正在搜索" FontSize="14" Name="StatusText"/>
+            <TextBlock Text="正在搜索" x:Uid="BluetoothUISearching" FontSize="14" Name="StatusText"/>
             <ProgressRing Margin="5,0,0,0" IsActive="True" Name="Progress"/>
         </StackPanel>
         <ListView Margin="0,10,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Name="BluetoothControl" ScrollViewer.VerticalScrollMode="Auto" Height="250">
@@ -41,8 +42,8 @@
         </ListView>
         <StackPanel Orientation="Horizontal" Margin="5,10,0,10">
             <TextBlock Name="Tips" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="240" FontSize="14"/>
-            <Button Content="是" Width="60" Style="{StaticResource ButtonRevealStyle}" Name="PinConfirm" Visibility="Collapsed" Click="PinConfirm_Click"/>
-            <Button Content="否" Margin="5,0,0,0" Width="60" Style="{StaticResource ButtonRevealStyle}" Name="PinRefuse" Visibility="Collapsed" Click="PinRefuse_Click"/>
+            <Button Content="是" x:Uid="BluetoothUIPinYes" Width="60" Style="{StaticResource ButtonRevealStyle}" Name="PinConfirm" Visibility="Collapsed" Click="PinConfirm_Click"/>
+            <Button Content="否" x:Uid="BluetoothUIPinNo" Margin="5,0,0,0" Width="60" Style="{StaticResource ButtonRevealStyle}" Name="PinRefuse" Visibility="Collapsed" Click="PinRefuse_Click"/>
         </StackPanel>
     </StackPanel>
 </ContentDialog>

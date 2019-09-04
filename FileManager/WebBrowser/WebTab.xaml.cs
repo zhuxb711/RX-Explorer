@@ -128,13 +128,14 @@ namespace FileManager
                     if (e.Action == NotifyCollectionChangedAction.Add)
                     {
                         var TreeNode = from Item in CurrentWebPage.HistoryTree.RootNodes
-                                       where (Item.Content as WebSiteItem).Subject == "今天"
+                                       let Subject = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "今天" : "Today"
+                                       where (Item.Content as WebSiteItem).Subject == Subject
                                        select Item;
                         if (TreeNode.Count() == 0)
                         {
                             CurrentWebPage.HistoryTree.RootNodes.Insert(0, new TreeViewNode
                             {
-                                Content = new WebSiteItem("今天", string.Empty),
+                                Content = new WebSiteItem(MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "今天" : "Today", string.Empty),
                                 HasUnrealizedChildren = true,
                                 IsExpanded = true
                             });
@@ -171,47 +172,92 @@ namespace FileManager
                 }
             };
 
-            switch (ApplicationData.Current.LocalSettings.Values["WebTabOpenMethod"]?.ToString() ?? "空白页")
+            switch (ApplicationData.Current.LocalSettings.Values["WebTabOpenMethod"]?.ToString() ?? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "空白页" : "Blank Page"))
             {
                 case "空白页":
+                case "Blank Page":
                     CreateNewTab(new Uri("about:blank"));
                     break;
                 case "主页":
-                    string TabMain = ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString();
-                    if (Uri.TryCreate(TabMain, UriKind.Absolute, out Uri uri))
                     {
-                        CreateNewTab(uri);
-                    }
-                    else
-                    {
-                        ContentDialog dialog = new ContentDialog
+                        string TabMain = ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString();
+                        if (Uri.TryCreate(TabMain, UriKind.Absolute, out Uri uri))
                         {
-                            Content = "导航失败，请检查网址或网络连接",
-                            Title = "提示",
-                            CloseButtonText = "确定"
-                        };
-                        _ = dialog.ShowAsync();
-                        CreateNewTab(new Uri("about:blank"));
+                            CreateNewTab(uri);
+                        }
+                        else
+                        {
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Content = "导航失败，请检查网址或网络连接",
+                                Title = "提示",
+                                CloseButtonText = "确定"
+                            };
+                            _ = dialog.ShowAsync();
+                            CreateNewTab(new Uri("about:blank"));
+                        }
+                        break;
                     }
-                    break;
+                case "Home Page":
+                    {
+                        string TabMain = ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString();
+                        if (Uri.TryCreate(TabMain, UriKind.Absolute, out Uri uri))
+                        {
+                            CreateNewTab(uri);
+                        }
+                        else
+                        {
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Content = "Navigation failed, please check the URL or network connection",
+                                Title = "Tips",
+                                CloseButtonText = "Confirm"
+                            };
+                            _ = dialog.ShowAsync();
+                            CreateNewTab(new Uri("about:blank"));
+                        }
+                        break;
+                    }
                 case "特定页":
-                    string SpecifiedPage = ApplicationData.Current.LocalSettings.Values["WebTabSpecifiedPage"].ToString();
-                    if (Uri.TryCreate(SpecifiedPage, UriKind.Absolute, out Uri uri1))
                     {
-                        CreateNewTab(uri1);
-                    }
-                    else
-                    {
-                        ContentDialog dialog = new ContentDialog
+                        string SpecifiedPage = ApplicationData.Current.LocalSettings.Values["WebTabSpecifiedPage"].ToString();
+                        if (Uri.TryCreate(SpecifiedPage, UriKind.Absolute, out Uri uri1))
                         {
-                            Content = "导航失败，请检查网址或网络连接",
-                            Title = "提示",
-                            CloseButtonText = "确定"
-                        };
-                        _ = dialog.ShowAsync();
-                        CreateNewTab(new Uri("about:blank"));
+                            CreateNewTab(uri1);
+                        }
+                        else
+                        {
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Content = "导航失败，请检查网址或网络连接",
+                                Title = "提示",
+                                CloseButtonText = "确定"
+                            };
+                            _ = dialog.ShowAsync();
+                            CreateNewTab(new Uri("about:blank"));
+                        }
+                        break;
                     }
-                    break;
+                case "Specific Page":
+                    {
+                        string SpecifiedPage = ApplicationData.Current.LocalSettings.Values["WebTabSpecifiedPage"].ToString();
+                        if (Uri.TryCreate(SpecifiedPage, UriKind.Absolute, out Uri uri1))
+                        {
+                            CreateNewTab(uri1);
+                        }
+                        else
+                        {
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Content = "Navigation failed, please check the URL or network connection",
+                                Title = "Tips",
+                                CloseButtonText = "Confirm"
+                            };
+                            _ = dialog.ShowAsync();
+                            CreateNewTab(new Uri("about:blank"));
+                        }
+                        break;
+                    }
             }
         }
 
@@ -226,7 +272,7 @@ namespace FileManager
                 WebPage Web = new WebPage(uri);
                 TabViewItem CurrentItem = new TabViewItem
                 {
-                    Header = "空白页",
+                    Header = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "空白页" : "Blank Page",
                     Icon = new SymbolIcon(Symbol.Document),
                     Content = Web
                 };
@@ -250,44 +296,89 @@ namespace FileManager
             switch (ApplicationData.Current.LocalSettings.Values["WebTabOpenMethod"].ToString())
             {
                 case "空白页":
+                case "Blank Page":
                     CreateNewTab(new Uri("about:blank"));
                     break;
                 case "主页":
-                    string TabMain = ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString();
-                    if (Uri.TryCreate(TabMain, UriKind.Absolute, out Uri uri))
                     {
-                        CreateNewTab(uri);
-                    }
-                    else
-                    {
-                        ContentDialog dialog = new ContentDialog
+                        string TabMain = ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString();
+                        if (Uri.TryCreate(TabMain, UriKind.Absolute, out Uri uri))
                         {
-                            Content = "导航失败，请检查网址或网络连接",
-                            Title = "提示",
-                            CloseButtonText = "确定"
-                        };
-                        _ = dialog.ShowAsync();
-                        CreateNewTab(new Uri("about:blank"));
+                            CreateNewTab(uri);
+                        }
+                        else
+                        {
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Content = "导航失败，请检查网址或网络连接",
+                                Title = "提示",
+                                CloseButtonText = "确定"
+                            };
+                            _ = dialog.ShowAsync();
+                            CreateNewTab(new Uri("about:blank"));
+                        }
+                        break;
                     }
-                    break;
+                case "Home Page":
+                    {
+                        string TabMain = ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString();
+                        if (Uri.TryCreate(TabMain, UriKind.Absolute, out Uri uri))
+                        {
+                            CreateNewTab(uri);
+                        }
+                        else
+                        {
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Content = "Navigation failed, please check the URL or network connection",
+                                Title = "Tips",
+                                CloseButtonText = "Confirm"
+                            };
+                            _ = dialog.ShowAsync();
+                            CreateNewTab(new Uri("about:blank"));
+                        }
+                        break;
+                    }
                 case "特定页":
-                    string SpecifiedPage = ApplicationData.Current.LocalSettings.Values["WebTabSpecifiedPage"].ToString();
-                    if (Uri.TryCreate(SpecifiedPage, UriKind.Absolute, out Uri uri1))
                     {
-                        CreateNewTab(uri1);
-                    }
-                    else
-                    {
-                        ContentDialog dialog = new ContentDialog
+                        string SpecifiedPage = ApplicationData.Current.LocalSettings.Values["WebTabSpecifiedPage"].ToString();
+                        if (Uri.TryCreate(SpecifiedPage, UriKind.Absolute, out Uri uri1))
                         {
-                            Content = "导航失败，请检查网址或网络连接",
-                            Title = "提示",
-                            CloseButtonText = "确定"
-                        };
-                        _ = dialog.ShowAsync();
-                        CreateNewTab(new Uri("about:blank"));
+                            CreateNewTab(uri1);
+                        }
+                        else
+                        {
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Content = "导航失败，请检查网址或网络连接",
+                                Title = "提示",
+                                CloseButtonText = "确定"
+                            };
+                            _ = dialog.ShowAsync();
+                            CreateNewTab(new Uri("about:blank"));
+                        }
+                        break;
                     }
-                    break;
+                case "Specific Page":
+                    {
+                        string SpecifiedPage = ApplicationData.Current.LocalSettings.Values["WebTabSpecifiedPage"].ToString();
+                        if (Uri.TryCreate(SpecifiedPage, UriKind.Absolute, out Uri uri1))
+                        {
+                            CreateNewTab(uri1);
+                        }
+                        else
+                        {
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Content = "Navigation failed, please check the URL or network connection",
+                                Title = "Tips",
+                                CloseButtonText = "Confirm"
+                            };
+                            _ = dialog.ShowAsync();
+                            CreateNewTab(new Uri("about:blank"));
+                        }
+                        break;
+                    }
             }
 
         }

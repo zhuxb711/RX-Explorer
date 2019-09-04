@@ -1,0 +1,812 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="zh-Hans" original="FILEMANAGER/STRINGS/EN-US/RESOURCES.RESW" tool-id="MultilingualAppToolkit" product-name="n/a" product-version="n/a" build-num="n/a">
+    <header>
+      <tool tool-id="MultilingualAppToolkit" tool-name="Multilingual App Toolkit" tool-version="4.0.6914.0" tool-company="Microsoft" />
+    </header>
+    <body>
+      <group id="FILEMANAGER/STRINGS/EN-US/RESOURCES.RESW" datatype="resx">
+        <trans-unit id="AppDelete.Label" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="translated">删除</target>
+        </trans-unit>
+        <trans-unit id="AppEdit.Label" translate="yes" xml:space="preserve">
+          <source>Edit</source>
+          <target state="translated">编辑</target>
+        </trans-unit>
+        <trans-unit id="AppName.Text" translate="yes" xml:space="preserve">
+          <source>RX FileManager</source>
+          <target state="translated">RX 文件管理器</target>
+        </trans-unit>
+        <trans-unit id="Browser.Content" translate="yes" xml:space="preserve">
+          <source>Browser</source>
+          <target state="translated">浏览器</target>
+        </trans-unit>
+        <trans-unit id="CloseButton.Content" translate="yes" xml:space="preserve">
+          <source>Exit</source>
+          <target state="translated">退出</target>
+        </trans-unit>
+        <trans-unit id="DeviceAttribute.Label" translate="yes" xml:space="preserve">
+          <source>Properties</source>
+          <target state="translated">属性</target>
+        </trans-unit>
+        <trans-unit id="DeviceExpander.Header" translate="yes" xml:space="preserve">
+          <source>Devices and drives</source>
+          <target state="translated">设备和驱动器</target>
+        </trans-unit>
+        <trans-unit id="HotWebTitle.Text" translate="yes" xml:space="preserve">
+          <source>Popular Website</source>
+          <target state="translated">热门网站</target>
+        </trans-unit>
+        <trans-unit id="LibraryExpander.Header" translate="yes" xml:space="preserve">
+          <source>Folders</source>
+          <target state="translated">文件夹和库</target>
+        </trans-unit>
+        <trans-unit id="OpenDevice.Label" translate="yes" xml:space="preserve">
+          <source>Open</source>
+          <target state="translated">打开</target>
+        </trans-unit>
+        <trans-unit id="PermissionButton.Content" translate="yes" xml:space="preserve">
+          <source>Permission</source>
+          <target state="translated">授予权限</target>
+        </trans-unit>
+        <trans-unit id="PinTip.ActionButtonContent" translate="yes" xml:space="preserve">
+          <source>Now</source>
+          <target state="translated">即刻固定</target>
+        </trans-unit>
+        <trans-unit id="PinTip.CloseButtonContent" translate="yes" xml:space="preserve">
+          <source>Close</source>
+          <target state="translated">关闭</target>
+        </trans-unit>
+        <trans-unit id="PinTip.Title" translate="yes" xml:space="preserve">
+          <source>Launch Faster</source>
+          <target state="translated">启动更快速</target>
+        </trans-unit>
+        <trans-unit id="QuickStartTitle.Text" translate="yes" xml:space="preserve">
+          <source>Quick Start</source>
+          <target state="translated">快速启动</target>
+        </trans-unit>
+        <trans-unit id="RateTip.ActionButtonContent" translate="yes" xml:space="preserve">
+          <source>Rate</source>
+          <target state="translated">评价</target>
+        </trans-unit>
+        <trans-unit id="RateTip.CloseButtonContent" translate="yes" xml:space="preserve">
+          <source>Later</source>
+          <target state="translated">稍后</target>
+        </trans-unit>
+        <trans-unit id="RateTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Your rating is very important, please take a minute or two to rate the app.</source>
+          <target state="translated">您的评价对我们十分重要，请花上一两分钟来评价此App吧</target>
+        </trans-unit>
+        <trans-unit id="RateTip.Title" translate="yes" xml:space="preserve">
+          <source>Please rate us</source>
+          <target state="translated">请对我们进行评价</target>
+        </trans-unit>
+        <trans-unit id="SearchTip.CloseButtonContent" translate="yes" xml:space="preserve">
+          <source>Got it</source>
+          <target state="translated">知道了</target>
+        </trans-unit>
+        <trans-unit id="SearchTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Clear this search box or click on any folder to exit the search status</source>
+          <target state="translated">清空搜索框或点击任意其他文件夹即可退出搜索页面</target>
+        </trans-unit>
+        <trans-unit id="ThisPC.Content" translate="yes" xml:space="preserve">
+          <source>ThisPC</source>
+          <target state="translated">这台电脑</target>
+        </trans-unit>
+        <trans-unit id="UpdateTip.ActionButtonContent" translate="yes" xml:space="preserve">
+          <source>Update Now</source>
+          <target state="translated">立刻更新</target>
+        </trans-unit>
+        <trans-unit id="UpdateTip.CloseButtonContent" translate="yes" xml:space="preserve">
+          <source>Later</source>
+          <target state="translated">稍后</target>
+        </trans-unit>
+        <trans-unit id="UpdateTip.Title" translate="yes" xml:space="preserve">
+          <source>Update Available</source>
+          <target state="translated">更新可用</target>
+        </trans-unit>
+        <trans-unit id="WebDelete.Label" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="translated">删除</target>
+        </trans-unit>
+        <trans-unit id="WebEdit.Label" translate="yes" xml:space="preserve">
+          <source>Edit</source>
+          <target state="translated">编辑</target>
+        </trans-unit>
+        <trans-unit id="BlueScreenReport.Content" translate="yes" xml:space="preserve">
+          <source>Report to Developer</source>
+          <target state="translated">报告给开发者</target>
+        </trans-unit>
+        <trans-unit id="BlueScreenReset.Content" translate="yes" xml:space="preserve">
+          <source>Reset</source>
+          <target state="translated">重置</target>
+        </trans-unit>
+        <trans-unit id="BluetoothShare.Text" translate="yes" xml:space="preserve">
+          <source>Bluetooth</source>
+          <target state="translated">蓝牙</target>
+        </trans-unit>
+        <trans-unit id="CrashText.Text" translate="yes" xml:space="preserve">
+          <source>RX Crashed Accidentally...(￣▽￣)/</source>
+          <target state="translated">RX 不小心崩溃了...(￣▽￣)/</target>
+        </trans-unit>
+        <trans-unit id="FileAES.Label" translate="yes" xml:space="preserve">
+          <source>AES Encryption</source>
+          <target state="translated">AES 加密</target>
+        </trans-unit>
+        <trans-unit id="FileAttribute.Label" translate="yes" xml:space="preserve">
+          <source>Properties</source>
+          <target state="translated">属性</target>
+        </trans-unit>
+        <trans-unit id="FileCopy.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Copy</source>
+          <target state="translated">复制</target>
+        </trans-unit>
+        <trans-unit id="FileCut.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Cut</source>
+          <target state="translated">剪切</target>
+        </trans-unit>
+        <trans-unit id="FileDelete.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="translated">删除</target>
+        </trans-unit>
+        <trans-unit id="FileRename.Label" translate="yes" xml:space="preserve">
+          <source>Rename</source>
+          <target state="translated">重命名</target>
+        </trans-unit>
+        <trans-unit id="FileShare.Label" translate="yes" xml:space="preserve">
+          <source>Share</source>
+          <target state="translated">共享</target>
+        </trans-unit>
+        <trans-unit id="FolderAttribute.Label" translate="yes" xml:space="preserve">
+          <source>Properties</source>
+          <target state="translated">属性</target>
+        </trans-unit>
+        <trans-unit id="FolderDelete.Label" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="translated">删除</target>
+        </trans-unit>
+        <trans-unit id="FolderOpen.Label" translate="yes" xml:space="preserve">
+          <source>Open</source>
+          <target state="translated">打开</target>
+        </trans-unit>
+        <trans-unit id="FolderRename.Label" translate="yes" xml:space="preserve">
+          <source>Rename</source>
+          <target state="translated">重命名</target>
+        </trans-unit>
+        <trans-unit id="HasFile.Text" translate="yes" xml:space="preserve">
+          <source>Empty</source>
+          <target state="translated">无内容</target>
+        </trans-unit>
+        <trans-unit id="ParentAttribute.Label" translate="yes" xml:space="preserve">
+          <source>FolderProperties</source>
+          <target state="translated">文件夹属性</target>
+        </trans-unit>
+        <trans-unit id="QRText.Header" translate="yes" xml:space="preserve">
+          <source>Copy this link to your browser to download</source>
+          <target state="translated">复制此链接至浏览器即可下载</target>
+        </trans-unit>
+        <trans-unit id="SearchHasItem.Text" translate="yes" xml:space="preserve">
+          <source>No Result</source>
+          <target state="translated">无结果</target>
+        </trans-unit>
+        <trans-unit id="SearchLocation.Label" translate="yes" xml:space="preserve">
+          <source>Open Location</source>
+          <target state="translated">打开所在位置</target>
+        </trans-unit>
+        <trans-unit id="SearchModified.Text" translate="yes" xml:space="preserve">
+          <source>Date modified</source>
+          <target state="translated">修改时间</target>
+        </trans-unit>
+        <trans-unit id="SearchName.Text" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">名称</target>
+        </trans-unit>
+        <trans-unit id="SearchPath.Text" translate="yes" xml:space="preserve">
+          <source>Path</source>
+          <target state="translated">路径</target>
+        </trans-unit>
+        <trans-unit id="SearchProperties.Label" translate="yes" xml:space="preserve">
+          <source>Properties</source>
+          <target state="translated">属性</target>
+        </trans-unit>
+        <trans-unit id="SearchResult.Text" translate="yes" xml:space="preserve">
+          <source>Search Result</source>
+          <target state="translated">搜索结果</target>
+        </trans-unit>
+        <trans-unit id="SearchSize.Text" translate="yes" xml:space="preserve">
+          <source>Size</source>
+          <target state="translated">大小</target>
+        </trans-unit>
+        <trans-unit id="SearchType.Text" translate="yes" xml:space="preserve">
+          <source>Type</source>
+          <target state="translated">类型</target>
+        </trans-unit>
+        <trans-unit id="SystemManagerOpen.Label" translate="yes" xml:space="preserve">
+          <source>Use System File Explorer Open</source>
+          <target state="translated">使用系统管理器打开</target>
+        </trans-unit>
+        <trans-unit id="Transcode.Label" translate="yes" xml:space="preserve">
+          <source>Transcode</source>
+          <target state="translated">转码</target>
+        </trans-unit>
+        <trans-unit id="WIFIShare.Text" translate="yes" xml:space="preserve">
+          <source>WIFI</source>
+          <target state="translated">WIFI</target>
+        </trans-unit>
+        <trans-unit id="WIFIShareText.Text" translate="yes" xml:space="preserve">
+          <source>Do not close this window during transmission</source>
+          <target state="translated">传输过程中请勿关闭此窗口，否则将停止分享</target>
+        </trans-unit>
+        <trans-unit id="WIFIShareTip.Title" translate="yes" xml:space="preserve">
+          <source>WiFi Share</source>
+          <target state="translated">WiFi共享</target>
+        </trans-unit>
+        <trans-unit id="Zip.Label" translate="yes" xml:space="preserve">
+          <source>Zip Compression</source>
+          <target state="translated">Zip 压缩</target>
+        </trans-unit>
+        <trans-unit id="SearchingText.Text" translate="yes" xml:space="preserve">
+          <source>Searching</source>
+          <target state="translated">搜索中</target>
+        </trans-unit>
+        <trans-unit id="AESCheckBox.Content" translate="yes" xml:space="preserve">
+          <source>Delete source file after encryption is complete</source>
+          <target state="translated">加密完成后删除源文件</target>
+        </trans-unit>
+        <trans-unit id="AESDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="AESDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="AESMethod.Header" translate="yes" xml:space="preserve">
+          <source>Encryption Method</source>
+          <target state="translated">加密方式</target>
+        </trans-unit>
+        <trans-unit id="AESPassword.Header" translate="yes" xml:space="preserve">
+          <source>Encryption password</source>
+          <target state="translated">加密密码</target>
+        </trans-unit>
+        <trans-unit id="AESPassword.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Password</source>
+          <target state="translated">密码</target>
+        </trans-unit>
+        <trans-unit id="AttributeCreated.Text" translate="yes" xml:space="preserve">
+          <source>Created</source>
+          <target state="translated">创建时间</target>
+        </trans-unit>
+        <trans-unit id="AttributeDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>OK</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="AttributeDialog.Title" translate="yes" xml:space="preserve">
+          <source>Properties</source>
+          <target state="translated">属性</target>
+        </trans-unit>
+        <trans-unit id="AttributeFileName.Text" translate="yes" xml:space="preserve">
+          <source>FileName</source>
+          <target state="translated">文件名</target>
+        </trans-unit>
+        <trans-unit id="AttributeLocation.Text" translate="yes" xml:space="preserve">
+          <source>Location</source>
+          <target state="translated">路径</target>
+        </trans-unit>
+        <trans-unit id="AttributeModified.Text" translate="yes" xml:space="preserve">
+          <source>Modified</source>
+          <target state="translated">修改时间</target>
+        </trans-unit>
+        <trans-unit id="AttributeSize.Text" translate="yes" xml:space="preserve">
+          <source>Size</source>
+          <target state="translated">大小</target>
+        </trans-unit>
+        <trans-unit id="AttributeType.Text" translate="yes" xml:space="preserve">
+          <source>Type</source>
+          <target state="translated">类型</target>
+        </trans-unit>
+        <trans-unit id="BluetoothTranfer.SecondaryButtonText" translate="yes" xml:space="preserve">
+          <source>Abort</source>
+          <target state="translated">终止</target>
+        </trans-unit>
+        <trans-unit id="BluetoothTranfer.Title" translate="yes" xml:space="preserve">
+          <source>Initializing</source>
+          <target state="translated">初始化中</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI.Title" translate="yes" xml:space="preserve">
+          <source>Select target device</source>
+          <target state="translated">选择目标设备</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUIPinNo.Content" translate="yes" xml:space="preserve">
+          <source>No</source>
+          <target state="translated">否</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUIPinYes.Content" translate="yes" xml:space="preserve">
+          <source>Yes</source>
+          <target state="translated">是</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUISearching.Text" translate="yes" xml:space="preserve">
+          <source>Searching</source>
+          <target state="translated">搜索中</target>
+        </trans-unit>
+        <trans-unit id="DeviceCapacity.Text" translate="yes" xml:space="preserve">
+          <source>Capacity</source>
+          <target state="translated">容量</target>
+        </trans-unit>
+        <trans-unit id="DeviceDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="DeviceFreeSpace.Text" translate="yes" xml:space="preserve">
+          <source>Free space</source>
+          <target state="translated">可用空间</target>
+        </trans-unit>
+        <trans-unit id="DeviceType.Text" translate="yes" xml:space="preserve">
+          <source>Disk Type：</source>
+          <target state="translated">磁盘类型：</target>
+        </trans-unit>
+        <trans-unit id="DeviceUsedSpace.Text" translate="yes" xml:space="preserve">
+          <source>Used space</source>
+          <target state="translated">已用空间</target>
+        </trans-unit>
+        <trans-unit id="QuickStartChooseIcon.Content" translate="yes" xml:space="preserve">
+          <source>Select Image</source>
+          <target state="translated">选择图片</target>
+        </trans-unit>
+        <trans-unit id="QuickStartDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="QuickStartDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="QuickStartDialog.Title" translate="yes" xml:space="preserve">
+          <source>Custom</source>
+          <target state="translated">自定义</target>
+        </trans-unit>
+        <trans-unit id="QuickStartDisplayName.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>DisplayName</source>
+          <target state="translated">显示名称</target>
+        </trans-unit>
+        <trans-unit id="QuickStartEmptyTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Can't be empty here</source>
+          <target state="translated">此处不能为空</target>
+        </trans-unit>
+        <trans-unit id="QuickStartExistTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>The name already exists and cannot be added repeatedly</source>
+          <target state="translated">该名称已存在，无法重复添加</target>
+        </trans-unit>
+        <trans-unit id="QuickStartFormatErrorTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Protocol or address format error</source>
+          <target state="translated">协议或地址格式错误</target>
+        </trans-unit>
+        <trans-unit id="QuickStartLink.Content" translate="yes" xml:space="preserve">
+          <source>Launch an app with a URI</source>
+          <target state="translated">Win10_UWP应用启动命令大全-IT之家</target>
+        </trans-unit>
+        <trans-unit id="QuickStartLink.NavigateUri" translate="yes" xml:space="preserve">
+          <source>https://docs.microsoft.com/en-us/windows/uwp/launch-resume/launch-app-with-uri</source>
+          <target state="translated">https://www.ithome.com/html/win10/295999.htm</target>
+        </trans-unit>
+        <trans-unit id="QuickStartProtocal.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Protocal</source>
+          <target state="translated">启动协议</target>
+        </trans-unit>
+        <trans-unit id="QuickStartProtocalTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Protocal Reference</source>
+          <target state="translated">协议参考</target>
+        </trans-unit>
+        <trans-unit id="RenameDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="RenameDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="RenameDialog.Title" translate="yes" xml:space="preserve">
+          <source>Rename</source>
+          <target state="translated">重命名</target>
+        </trans-unit>
+        <trans-unit id="RenamePreview.Text" translate="yes" xml:space="preserve">
+          <source>Preview</source>
+          <target state="translated">预览</target>
+        </trans-unit>
+        <trans-unit id="SettingAbout.Content" translate="yes" xml:space="preserve">
+          <source>About Developer→→</source>
+          <target state="translated">关于开发者→→</target>
+        </trans-unit>
+        <trans-unit id="SettingAdvance.Text" translate="yes" xml:space="preserve">
+          <source>Advance</source>
+          <target state="translated">高级</target>
+        </trans-unit>
+        <trans-unit id="SettingCleanup.Content" translate="yes" xml:space="preserve">
+          <source>Restore and initialize</source>
+          <target state="translated">重置并初始化</target>
+        </trans-unit>
+        <trans-unit id="SettingClearHistory.Content" translate="yes" xml:space="preserve">
+          <source>Clear search history</source>
+          <target state="translated">清除搜索历史</target>
+        </trans-unit>
+        <trans-unit id="SettingLike.Text" translate="yes" xml:space="preserve">
+          <source>Like the app</source>
+          <target state="translated">给App点赞</target>
+        </trans-unit>
+        <trans-unit id="SettingOther.Text" translate="yes" xml:space="preserve">
+          <source>Other</source>
+          <target state="translated">其他</target>
+        </trans-unit>
+        <trans-unit id="SettingSearchNum.Header" translate="yes" xml:space="preserve">
+          <source>Set the maximum number of search results</source>
+          <target state="translated">设置最大搜索结果数</target>
+        </trans-unit>
+        <trans-unit id="SettingVersion.Text" translate="yes" xml:space="preserve">
+          <source>Version</source>
+          <target state="translated">版本</target>
+        </trans-unit>
+        <trans-unit id="TextViewerCancel.Label" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="TextViewerLoading.Text" translate="yes" xml:space="preserve">
+          <source>Loading...</source>
+          <target state="translated">正在加载...</target>
+        </trans-unit>
+        <trans-unit id="TextViewerSave.Label" translate="yes" xml:space="preserve">
+          <source>Save</source>
+          <target state="translated">保存</target>
+        </trans-unit>
+        <trans-unit id="TranscodeBoost.Content" translate="yes" xml:space="preserve">
+          <source>Use hardware acceleration (Recommand)</source>
+          <target state="translated">使用硬件加速(推荐)</target>
+        </trans-unit>
+        <trans-unit id="TranscodeDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="TranscodeDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="TranscodeDialog.Title" translate="yes" xml:space="preserve">
+          <source>Transcode</source>
+          <target state="translated">转码</target>
+        </trans-unit>
+        <trans-unit id="TranscodeFormat.Header" translate="yes" xml:space="preserve">
+          <source>Conversion format</source>
+          <target state="translated">转换格式</target>
+        </trans-unit>
+        <trans-unit id="TranscodeQuality.Header" translate="yes" xml:space="preserve">
+          <source>Quality</source>
+          <target state="translated">转换质量</target>
+        </trans-unit>
+        <trans-unit id="UserFolderDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="UserFolderDialog.Title" translate="yes" xml:space="preserve">
+          <source>Choose User Folder</source>
+          <target state="translated">选择用户文件夹</target>
+        </trans-unit>
+        <trans-unit id="UserFolderDialog.UserFolderText1" translate="yes" xml:space="preserve">
+          <source>Unable to automatically determine User folder</source>
+          <target state="translated">未能自动确定用户文件夹</target>
+        </trans-unit>
+        <trans-unit id="UserFolderDialog.UserFolderText2" translate="yes" xml:space="preserve">
+          <source>Please specify the user folder manually</source>
+          <target state="translated">请手动指定用户文件夹</target>
+        </trans-unit>
+        <trans-unit id="ZipCRC.Label" translate="yes" xml:space="preserve">
+          <source>CRC integrity check</source>
+          <target state="translated">CRC 完整性校验</target>
+        </trans-unit>
+        <trans-unit id="ZipCRCComplete.Text" translate="yes" xml:space="preserve">
+          <source>Complete (Slower)</source>
+          <target state="translated">完整 (较慢)</target>
+        </trans-unit>
+        <trans-unit id="ZipCRCSimple.Text" translate="yes" xml:space="preserve">
+          <source>Simple (Faster)</source>
+          <target state="translated">简单 (较快)</target>
+        </trans-unit>
+        <trans-unit id="ZipDecompression.Label" translate="yes" xml:space="preserve">
+          <source>Extract</source>
+          <target state="translated">解压到当前目录</target>
+        </trans-unit>
+        <trans-unit id="ZipDelete.Label" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="translated">删除</target>
+        </trans-unit>
+        <trans-unit id="ZipDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="ZipDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="ZipDialog.Title" translate="yes" xml:space="preserve">
+          <source>Zip Compression Option</source>
+          <target state="translated">Zip压缩选项</target>
+        </trans-unit>
+        <trans-unit id="ZipDialogCheckBox.Content" translate="yes" xml:space="preserve">
+          <source>Enable Zip encryption</source>
+          <target state="translated">启用Zip加密</target>
+        </trans-unit>
+        <trans-unit id="ZipDialogEncryption.Header" translate="yes" xml:space="preserve">
+          <source>Encryption Method</source>
+          <target state="translated">加密方式</target>
+        </trans-unit>
+        <trans-unit id="ZipDialogLevel.Header" translate="yes" xml:space="preserve">
+          <source>Compression Level</source>
+          <target state="translated">压缩等级</target>
+        </trans-unit>
+        <trans-unit id="ZipDialogName.Header" translate="yes" xml:space="preserve">
+          <source>FileName</source>
+          <target state="translated">文件名</target>
+        </trans-unit>
+        <trans-unit id="ZipDialogName.Text" translate="yes" xml:space="preserve">
+          <source>New Compression File.zip</source>
+          <target state="translated">新建压缩文件.zip</target>
+        </trans-unit>
+        <trans-unit id="ZipDialogPassword.Header" translate="yes" xml:space="preserve">
+          <source>Password</source>
+          <target state="translated">密码</target>
+        </trans-unit>
+        <trans-unit id="ZipDialogPassword.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter password</source>
+          <target state="translated">输入加密密码</target>
+        </trans-unit>
+        <trans-unit id="ZipHasFile.Text" translate="yes" xml:space="preserve">
+          <source>Empty</source>
+          <target state="translated">无文件</target>
+        </trans-unit>
+        <trans-unit id="WebAllowDB.Header" translate="yes" xml:space="preserve">
+          <source>Allow to use IndexedDB</source>
+          <target state="translated">允许使用IndexedDB</target>
+        </trans-unit>
+        <trans-unit id="WebAllowJS.Header" translate="yes" xml:space="preserve">
+          <source>Allow JavaScript to run</source>
+          <target state="translated">允许JavaScript运行</target>
+        </trans-unit>
+        <trans-unit id="WebClearCache.Content" translate="yes" xml:space="preserve">
+          <source>Clear cache and history</source>
+          <target state="translated">清除所有缓存和历史记录</target>
+        </trans-unit>
+        <trans-unit id="WebDonwloadLoaction.Text" translate="yes" xml:space="preserve">
+          <source>Default download location</source>
+          <target state="translated">默认下载路径</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>DownloadList</source>
+          <target state="translated">下载列表</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadCancel.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadList.Text" translate="yes" xml:space="preserve">
+          <source>Download List</source>
+          <target state="translated">下载列表</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadListEmpty.Text" translate="yes" xml:space="preserve">
+          <source>Empty</source>
+          <target state="translated">无内容</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadPause.Content" translate="yes" xml:space="preserve">
+          <source>Pause</source>
+          <target state="translated">暂停</target>
+        </trans-unit>
+        <trans-unit id="WebExplorerButton.Content" translate="yes" xml:space="preserve">
+          <source>Browse</source>
+          <target state="translated">浏览</target>
+        </trans-unit>
+        <trans-unit id="WebFavButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Favorites</source>
+          <target state="translated">收藏夹</target>
+        </trans-unit>
+        <trans-unit id="WebFavFlyoutCancel.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="WebFavFlyoutConfirm.Content" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="WebFavName.Header" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">名称</target>
+        </trans-unit>
+        <trans-unit id="WebFavouriteClear.Text" translate="yes" xml:space="preserve">
+          <source>Clear all</source>
+          <target state="translated">清除全部</target>
+        </trans-unit>
+        <trans-unit id="WebFavouriteClearCancel.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="WebFavouriteClearConfirm.Content" translate="yes" xml:space="preserve">
+          <source>Continue</source>
+          <target state="translated">继续</target>
+        </trans-unit>
+        <trans-unit id="WebFavouriteClearText.Text" translate="yes" xml:space="preserve">
+          <source>Clear all tags?</source>
+          <target state="translated">清除所有收藏夹内容？</target>
+        </trans-unit>
+        <trans-unit id="WebFavouriteFlyoutDelete.Label" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="translated">删除</target>
+        </trans-unit>
+        <trans-unit id="WebFavouriteListTitle.Header" translate="yes" xml:space="preserve">
+          <source>Favourite</source>
+          <target state="translated">收藏夹</target>
+        </trans-unit>
+        <trans-unit id="WebFavouriteText.Text" translate="yes" xml:space="preserve">
+          <source>Favorites</source>
+          <target state="translated">收藏夹</target>
+        </trans-unit>
+        <trans-unit id="WebHistoryClear.Text" translate="yes" xml:space="preserve">
+          <source>Clear all</source>
+          <target state="translated">清除全部</target>
+        </trans-unit>
+        <trans-unit id="WebHistoryClearCancel.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="WebHistoryClearConfirm.Content" translate="yes" xml:space="preserve">
+          <source>Continue</source>
+          <target state="translated">继续</target>
+        </trans-unit>
+        <trans-unit id="WebHistoryClearText.Text" translate="yes" xml:space="preserve">
+          <source>Clear all history?</source>
+          <target state="translated">清除所有历史记录？</target>
+        </trans-unit>
+        <trans-unit id="WebHistoryEmptyTip.Text" translate="yes" xml:space="preserve">
+          <source>Empty</source>
+          <target state="translated">无内容</target>
+        </trans-unit>
+        <trans-unit id="WebHistoryTitle.Header" translate="yes" xml:space="preserve">
+          <source>History</source>
+          <target state="translated">历史记录</target>
+        </trans-unit>
+        <trans-unit id="WebInPrivate.Header" translate="yes" xml:space="preserve">
+          <source>InPrivate Mode</source>
+          <target state="translated">InPrivate隐私模式</target>
+        </trans-unit>
+        <trans-unit id="WebScreenShot.Content" translate="yes" xml:space="preserve">
+          <source>Screenshot and send by Bluetooth</source>
+          <target state="translated">截图并蓝牙发送</target>
+        </trans-unit>
+        <trans-unit id="WebSettingAbout.Content" translate="yes" xml:space="preserve">
+          <source>About</source>
+          <target state="translated">关于</target>
+        </trans-unit>
+        <trans-unit id="WebSettingAdvanceTile.Text" translate="yes" xml:space="preserve">
+          <source>Advance</source>
+          <target state="translated">高级</target>
+        </trans-unit>
+        <trans-unit id="WebSettingButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Setting</source>
+          <target state="translated">设置</target>
+        </trans-unit>
+        <trans-unit id="WebSettingOtherTitle.Text" translate="yes" xml:space="preserve">
+          <source>Other</source>
+          <target state="translated">其他</target>
+        </trans-unit>
+        <trans-unit id="WebSettingTitle.Text" translate="yes" xml:space="preserve">
+          <source>Custom</source>
+          <target state="translated">自定义</target>
+        </trans-unit>
+        <trans-unit id="WebSpecificUrl.Header" translate="yes" xml:space="preserve">
+          <source>Page Url</source>
+          <target state="translated">设置特定页URL</target>
+        </trans-unit>
+        <trans-unit id="WebSpecificUrl.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter Url</source>
+          <target state="translated">输入URL</target>
+        </trans-unit>
+        <trans-unit id="WebSuggestBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Search or enter url</source>
+          <target state="translated">搜索或输入网址</target>
+        </trans-unit>
+        <trans-unit id="WebTabOpenMethod.Header" translate="yes" xml:space="preserve">
+          <source>Open with</source>
+          <target state="translated">标签页打开方式</target>
+        </trans-unit>
+        <trans-unit id="WevFavEmptyTip.Text" translate="yes" xml:space="preserve">
+          <source>Empty</source>
+          <target state="translated">无内容</target>
+        </trans-unit>
+        <trans-unit id="AESDialog.Title" translate="yes" xml:space="preserve">
+          <source>AES Encryption</source>
+          <target state="translated">AES加密</target>
+        </trans-unit>
+        <trans-unit id="WebSettingShowMainPage.Header" translate="yes" xml:space="preserve">
+          <source>Show home button</source>
+          <target state="translated">显示主页按钮</target>
+        </trans-unit>
+        <trans-unit id="WebSettingUrl.Header" translate="yes" xml:space="preserve">
+          <source>Home page URL</source>
+          <target state="translated">设置主页URL</target>
+        </trans-unit>
+        <trans-unit id="WebSettingUrl.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter URL</source>
+          <target state="translated">输入URL</target>
+        </trans-unit>
+        <trans-unit id="WebSettingClearFlyCancel.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="WebSettingClearFlyConfirm.Content" translate="yes" xml:space="preserve">
+          <source>Continue</source>
+          <target state="translated">继续</target>
+        </trans-unit>
+        <trans-unit id="WebSettingClearFlyText.Text" translate="yes" xml:space="preserve">
+          <source>All caches including browsing history will be cleared</source>
+          <target state="translated">所有缓存包括浏览历史记录等都将被清除，是否继续?</target>
+        </trans-unit>
+        <trans-unit id="WebInPrivateConfirm.Content" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="WebInPrivateExit.Content" translate="yes" xml:space="preserve">
+          <source>Exit InPrivate</source>
+          <target state="translated">退出InPrivate</target>
+        </trans-unit>
+        <trans-unit id="WebInPrivateText.Text" translate="yes" xml:space="preserve">
+          <source>The browser has entered InPrivate privacy mode and will not record any information.</source>
+          <target state="translated">浏览器已进入InPrivate隐私模式，将不会记录任何信息</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadCancelText.Text" translate="yes" xml:space="preserve">
+          <source>Cancelled</source>
+          <target state="translated">下载已取消</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadCompleteText.Text" translate="yes" xml:space="preserve">
+          <source>Complete</source>
+          <target state="translated">下载已完成</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadErrorText.Text" translate="yes" xml:space="preserve">
+          <source>Error</source>
+          <target state="translated">下载出错</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadPauseCancel.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadPauseContinue.Content" translate="yes" xml:space="preserve">
+          <source>Continue</source>
+          <target state="translated">继续</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadPauseText.Text" translate="yes" xml:space="preserve">
+          <source>Paused</source>
+          <target state="translated">下载已暂停</target>
+        </trans-unit>
+        <trans-unit id="SearchFlyoutCancel.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="SearchFlyoutConfirm.Content" translate="yes" xml:space="preserve">
+          <source>Search</source>
+          <target state="translated">搜索</target>
+        </trans-unit>
+        <trans-unit id="SearchFlyoutDeepRadio.Content" translate="yes" xml:space="preserve">
+          <source>Deep search for all directories (slower)</source>
+          <target state="translated">深度搜索全部目录(较慢)</target>
+        </trans-unit>
+        <trans-unit id="SearchFlyoutShallowRadio.Content" translate="yes" xml:space="preserve">
+          <source>Only search the current directory (faster)</source>
+          <target state="translated">仅搜索当前目录(较快)</target>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

@@ -19,7 +19,7 @@
             <RowDefinition Height="50"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TextBlock Margin="10,10,0,0" Text="搜索结果" FontSize="22"/>
+        <TextBlock Margin="10,10,0,0" Text="搜索结果" x:Uid="SearchResult" FontSize="22"/>
         <ListView Margin="10" Grid.Row="1" 
                   Name="SearchResultList"
                   x:FieldModifier="public"
@@ -36,11 +36,11 @@
                             <ColumnDefinition Width="1.5*"/>
                             <ColumnDefinition Width="3*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="名称" Margin="13,0,0,0" TextTrimming="CharacterEllipsis" Grid.Column="0"/>
-                        <TextBlock Text="修改日期" Margin="4,0,0,0" TextTrimming="CharacterEllipsis" Grid.Column="1"/>
-                        <TextBlock Text="类型" TextTrimming="CharacterEllipsis" Grid.Column="2"/>
-                        <TextBlock Text="大小" TextTrimming="CharacterEllipsis" Grid.Column="3"/>
-                        <TextBlock Text="路径" Margin="-5,0,0,0" TextTrimming="CharacterEllipsis" Grid.Column="4"/>
+                        <TextBlock Text="名称" x:Uid="SearchName" Margin="13,0,0,0" TextTrimming="CharacterEllipsis" Grid.Column="0"/>
+                        <TextBlock Text="修改日期" x:Uid="SearchModified" Margin="4,0,0,0" TextTrimming="CharacterEllipsis" Grid.Column="1"/>
+                        <TextBlock Text="类型" x:Uid="SearchType" TextTrimming="CharacterEllipsis" Grid.Column="2"/>
+                        <TextBlock Text="大小" x:Uid="SearchSize" TextTrimming="CharacterEllipsis" Grid.Column="3"/>
+                        <TextBlock Text="路径" x:Uid="SearchPath" Margin="-5,0,0,0" TextTrimming="CharacterEllipsis" Grid.Column="4"/>
                     </Grid>
                 </DataTemplate>
             </ListView.HeaderTemplate>
@@ -71,13 +71,13 @@
             <ListView.ContextFlyout>
                 <CommandBarFlyout x:Name="SearchCommandFlyout" Placement="RightEdgeAlignedTop">
                     <CommandBarFlyout.SecondaryCommands>
-                        <AppBarButton Icon="Remote" x:Name="Location" Label="打开所在位置" Click="Location_Click"/>
-                        <AppBarButton Icon="Tag" Label="属性" IsEnabled="{x:Bind Location.IsEnabled,Mode=OneWay}" Click="Attribute_Click"/>
+                        <AppBarButton Icon="Remote" x:Uid="SearchLocation" x:Name="Location" Label="打开所在位置" Click="Location_Click"/>
+                        <AppBarButton Icon="Tag" x:Uid="SearchProperties" Label="属性" IsEnabled="{x:Bind Location.IsEnabled,Mode=OneWay}" Click="Attribute_Click"/>
                     </CommandBarFlyout.SecondaryCommands>
                 </CommandBarFlyout>
             </ListView.ContextFlyout>
         </ListView>
-        <TextBlock Name="HasItem" x:FieldModifier="public" Visibility="Collapsed" Text="无法搜索到任何文件" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+        <TextBlock Name="HasItem" x:FieldModifier="public" Visibility="Collapsed" x:Uid="SearchHasItem" Text="无法搜索到任何文件" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
         <controls:Loading x:Name="LoadingControl" IsLoading="False" Grid.RowSpan="2">
             <controls:Loading.Background>
                 <SolidColorBrush Color="Black" Opacity="0.8"/>
@@ -87,7 +87,7 @@
                     <ProgressRing x:Name="ProRing" IsActive="True" Foreground="White" Height="20" Width="20" />
                 </Grid>
                 <StackPanel>
-                    <TextBlock FontSize="22" Text="正在搜索..." VerticalAlignment="Center" TextAlignment="Center"/>
+                    <TextBlock FontSize="22" x:Uid="SearchingText" Text="正在搜索..." VerticalAlignment="Center" TextAlignment="Center"/>
                 </StackPanel>
             </StackPanel>
         </controls:Loading>

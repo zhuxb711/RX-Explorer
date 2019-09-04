@@ -3,6 +3,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -217,99 +218,206 @@ namespace DownloaderProvider
             switch (Category)
             {
                 case ToastNotificationCategory.Succeed:
-                    var SucceedContent = new ToastContent()
+                    if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
                     {
-                        Scenario = ToastScenario.Default,
-                        Launch = "DownloadNotification",
-                        Visual = new ToastVisual()
+                        var SucceedContent = new ToastContent()
                         {
-                            BindingGeneric = new ToastBindingGeneric()
+                            Scenario = ToastScenario.Default,
+                            Launch = "DownloadNotification",
+                            Visual = new ToastVisual()
                             {
-                                Children =
+                                BindingGeneric = new ToastBindingGeneric()
                                 {
-                                    new AdaptiveText()
+                                    Children =
                                     {
-                                        Text = "下载已完成"
-                                    },
+                                        new AdaptiveText()
+                                        {
+                                            Text = "下载已完成"
+                                        },
 
-                                    new AdaptiveText()
-                                    {
-                                       Text = ActualFileName
-                                    },
+                                        new AdaptiveText()
+                                        {
+                                           Text = ActualFileName
+                                        },
 
-                                    new AdaptiveText()
-                                    {
-                                       Text = "已成功下载"
+                                        new AdaptiveText()
+                                        {
+                                           Text = "已成功下载"
+                                        }
                                     }
                                 }
-                            }
-                        },
-                    };
-                    return new ToastNotification(SucceedContent.GetXml());
+                            },
+                        };
+                        return new ToastNotification(SucceedContent.GetXml());
+                    }
+                    else
+                    {
+                        var SucceedContent = new ToastContent()
+                        {
+                            Scenario = ToastScenario.Default,
+                            Launch = "DownloadNotification",
+                            Visual = new ToastVisual()
+                            {
+                                BindingGeneric = new ToastBindingGeneric()
+                                {
+                                    Children =
+                                    {
+                                        new AdaptiveText()
+                                        {
+                                            Text = "Download complete"
+                                        },
+
+                                        new AdaptiveText()
+                                        {
+                                           Text = ActualFileName
+                                        },
+
+                                        new AdaptiveText()
+                                        {
+                                           Text = "Successful"
+                                        }
+                                    }
+                                }
+                            },
+                        };
+                        return new ToastNotification(SucceedContent.GetXml());
+                    }
 
                 case ToastNotificationCategory.Error:
-                    var ErrorContent = new ToastContent()
+                    if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
                     {
-                        Scenario = ToastScenario.Default,
-                        Launch = "DownloadNotification",
-                        Visual = new ToastVisual()
+                        var ErrorContent = new ToastContent()
                         {
-                            BindingGeneric = new ToastBindingGeneric()
+                            Scenario = ToastScenario.Default,
+                            Launch = "DownloadNotification",
+                            Visual = new ToastVisual()
                             {
-                                Children =
+                                BindingGeneric = new ToastBindingGeneric()
                                 {
-                                    new AdaptiveText()
+                                    Children =
                                     {
-                                        Text = "下载出错"
-                                    },
+                                        new AdaptiveText()
+                                        {
+                                            Text = "下载出错"
+                                        },
 
-                                    new AdaptiveText()
-                                    {
-                                       Text = ActualFileName
-                                    },
+                                        new AdaptiveText()
+                                        {
+                                           Text = ActualFileName
+                                        },
 
-                                    new AdaptiveText()
-                                    {
-                                       Text = "无法下载"
+                                        new AdaptiveText()
+                                        {
+                                           Text = "无法下载"
+                                        }
+
                                     }
-
                                 }
-                            }
-                        },
-                    };
-                    return new ToastNotification(ErrorContent.GetXml());
+                            },
+                        };
+                        return new ToastNotification(ErrorContent.GetXml());
+                    }
+                    else
+                    {
+                        var ErrorContent = new ToastContent()
+                        {
+                            Scenario = ToastScenario.Default,
+                            Launch = "DownloadNotification",
+                            Visual = new ToastVisual()
+                            {
+                                BindingGeneric = new ToastBindingGeneric()
+                                {
+                                    Children =
+                                    {
+                                        new AdaptiveText()
+                                        {
+                                            Text = "Download failed"
+                                        },
+
+                                        new AdaptiveText()
+                                        {
+                                           Text = ActualFileName
+                                        },
+
+                                        new AdaptiveText()
+                                        {
+                                           Text = "Download is not complete"
+                                        }
+
+                                    }
+                                }
+                            },
+                        };
+                        return new ToastNotification(ErrorContent.GetXml());
+                    }
 
                 case ToastNotificationCategory.TaskCancel:
-                    var CancelContent = new ToastContent()
+                    if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
                     {
-                        Scenario = ToastScenario.Default,
-                        Launch = "DownloadNotification",
-                        Visual = new ToastVisual()
+                        var CancelContent = new ToastContent()
                         {
-                            BindingGeneric = new ToastBindingGeneric()
+                            Scenario = ToastScenario.Default,
+                            Launch = "DownloadNotification",
+                            Visual = new ToastVisual()
                             {
-                                Children =
+                                BindingGeneric = new ToastBindingGeneric()
                                 {
-                                    new AdaptiveText()
+                                    Children =
                                     {
-                                        Text = "下载已取消"
-                                    },
+                                        new AdaptiveText()
+                                        {
+                                            Text = "下载已取消"
+                                        },
 
-                                    new AdaptiveText()
-                                    {
-                                       Text = ActualFileName
-                                    },
+                                        new AdaptiveText()
+                                        {
+                                           Text = ActualFileName
+                                        },
 
-                                    new AdaptiveText()
-                                    {
-                                       Text = "已取消下载"
+                                        new AdaptiveText()
+                                        {
+                                           Text = "已取消下载"
+                                        }
+
                                     }
-
                                 }
-                            }
-                        },
-                    };
-                    return new ToastNotification(CancelContent.GetXml());
+                            },
+                        };
+                        return new ToastNotification(CancelContent.GetXml());
+                    }
+                    else
+                    {
+                        var CancelContent = new ToastContent()
+                        {
+                            Scenario = ToastScenario.Default,
+                            Launch = "DownloadNotification",
+                            Visual = new ToastVisual()
+                            {
+                                BindingGeneric = new ToastBindingGeneric()
+                                {
+                                    Children =
+                                    {
+                                        new AdaptiveText()
+                                        {
+                                            Text = "Download cancelled"
+                                        },
+
+                                        new AdaptiveText()
+                                        {
+                                           Text = ActualFileName
+                                        },
+
+                                        new AdaptiveText()
+                                        {
+                                           Text = "Download is not complete"
+                                        }
+
+                                    }
+                                }
+                            },
+                        };
+                        return new ToastNotification(CancelContent.GetXml());
+                    }
                 default:
                     return null;
             }

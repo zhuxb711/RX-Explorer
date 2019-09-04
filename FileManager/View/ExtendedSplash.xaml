@@ -17,10 +17,10 @@
                 </TransitionCollection>
             </Canvas.ChildrenTransitions>
             <Image Name="extendedSplashImage" Source="ms-appx:///Assets/SplashScreen.png"/>
-            <TextBlock FontSize="16" Name="Display" TextAlignment="Center" Width="350" Height="50"/>
-            <StackPanel Orientation="Horizontal" Name="ButtonPane" Visibility="Collapsed" Width="210">
-                <Button Name="NavigationButton" Content="授予权限" HorizontalAlignment="Center" FontSize="16" Width="100" Click="NavigationButton_Click"/>
-                <Button Name="CloseButton" Content="关闭应用" Margin="10,0,0,0" HorizontalAlignment="Center" FontSize="16" Width="100" Click="CloseButton_Click"/>
+            <TextBlock FontSize="15" Name="Display" TextAlignment="Center" Width="450" Height="50"/>
+            <StackPanel Orientation="Horizontal" Name="ButtonPane" Visibility="Collapsed" Width="250">
+                <Button Name="NavigationButton" x:Uid="PermissionButton" Content="授予权限" HorizontalAlignment="Center" FontSize="16" Width="120" Click="NavigationButton_Click"/>
+                <Button Name="CloseButton" Content="关闭应用" x:Uid="CloseButton" Margin="10,0,0,0" HorizontalAlignment="Center" FontSize="16" Width="120" Click="CloseButton_Click"/>
             </StackPanel>
         </Canvas>
     </Grid>

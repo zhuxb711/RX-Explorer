@@ -9,12 +9,13 @@
     Background="{StaticResource DialogAcrylicBrush}"
     Title="选择用户文件夹"
     PrimaryButtonText="确定"
+    x:Uid="UserFolderDialog"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
 
     <Grid>
         <StackPanel>
-            <TextBlock Text="无法自动确定用户文件夹"/>
-            <TextBlock Margin="0,5" Text="请手动指定用户"/>
+            <TextBlock Text="无法自动确定用户文件夹" x:Uid="UserFolderText1"/>
+            <TextBlock Margin="0,5" Text="请手动指定用户文件夹" x:Uid="UserFolderText2"/>
             <ComboBox Width="200" Name="UserCombo" DisplayMemberPath="Name"/>
         </StackPanel>
     </Grid>

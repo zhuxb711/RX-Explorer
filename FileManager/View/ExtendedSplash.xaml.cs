@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
@@ -84,18 +85,35 @@ namespace FileManager
                     _ = await File.CopyAsync(WebFolder, File.Name, NameCollisionOption.ReplaceExisting);
                 }
 
-                await SQL.SetQuickStartItemAsync("应用商店", "QuickStartImage\\MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application);
-                await SQL.SetQuickStartItemAsync("计算器", "QuickStartImage\\Calculator.png", "calculator:", QuickStartType.Application);
-                await SQL.SetQuickStartItemAsync("系统设置", "QuickStartImage\\Setting.png", "ms-settings:", QuickStartType.Application);
-                await SQL.SetQuickStartItemAsync("邮件", "QuickStartImage\\Email.png", "mailto:", QuickStartType.Application);
-                await SQL.SetQuickStartItemAsync("日历", "QuickStartImage\\Calendar.png", "outlookcal:", QuickStartType.Application);
-                await SQL.SetQuickStartItemAsync("必应地图", "QuickStartImage\\Map.png", "bingmaps:", QuickStartType.Application);
-                await SQL.SetQuickStartItemAsync("天气", "QuickStartImage\\Weather.png", "bingweather:", QuickStartType.Application);
-                await SQL.SetQuickStartItemAsync("必应", "HotWebImage\\Bing.png", "https://www.bing.com/", QuickStartType.WebSite);
-                await SQL.SetQuickStartItemAsync("百度", "HotWebImage\\Baidu.png", "https://www.baidu.com/", QuickStartType.WebSite);
-                await SQL.SetQuickStartItemAsync("微信", "HotWebImage\\Wechat.png", "https://wx.qq.com/", QuickStartType.WebSite);
-                await SQL.SetQuickStartItemAsync("IT之家", "HotWebImage\\iThome.jpg", "https://www.ithome.com/", QuickStartType.WebSite);
-                await SQL.SetQuickStartItemAsync("微博", "HotWebImage\\Weibo.png", "https://www.weibo.com/", QuickStartType.WebSite);
+                if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
+                {
+                    await SQL.SetQuickStartItemAsync("应用商店", "QuickStartImage\\MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application);
+                    await SQL.SetQuickStartItemAsync("计算器", "QuickStartImage\\Calculator.png", "calculator:", QuickStartType.Application);
+                    await SQL.SetQuickStartItemAsync("系统设置", "QuickStartImage\\Setting.png", "ms-settings:", QuickStartType.Application);
+                    await SQL.SetQuickStartItemAsync("邮件", "QuickStartImage\\Email.png", "mailto:", QuickStartType.Application);
+                    await SQL.SetQuickStartItemAsync("日历", "QuickStartImage\\Calendar.png", "outlookcal:", QuickStartType.Application);
+                    await SQL.SetQuickStartItemAsync("必应地图", "QuickStartImage\\Map.png", "bingmaps:", QuickStartType.Application);
+                    await SQL.SetQuickStartItemAsync("天气", "QuickStartImage\\Weather.png", "bingweather:", QuickStartType.Application);
+                    await SQL.SetQuickStartItemAsync("必应", "HotWebImage\\Bing.png", "https://www.bing.com/", QuickStartType.WebSite);
+                    await SQL.SetQuickStartItemAsync("百度", "HotWebImage\\Baidu.png", "https://www.baidu.com/", QuickStartType.WebSite);
+                    await SQL.SetQuickStartItemAsync("微信", "HotWebImage\\Wechat.png", "https://wx.qq.com/", QuickStartType.WebSite);
+                    await SQL.SetQuickStartItemAsync("IT之家", "HotWebImage\\iThome.jpg", "https://www.ithome.com/", QuickStartType.WebSite);
+                    await SQL.SetQuickStartItemAsync("微博", "HotWebImage\\Weibo.png", "https://www.weibo.com/", QuickStartType.WebSite);
+                }
+                else
+                {
+                    await SQL.SetQuickStartItemAsync("Microsoft Store", "QuickStartImage\\MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application);
+                    await SQL.SetQuickStartItemAsync("Calculator", "QuickStartImage\\Calculator.png", "calculator:", QuickStartType.Application);
+                    await SQL.SetQuickStartItemAsync("Setting", "QuickStartImage\\Setting.png", "ms-settings:", QuickStartType.Application);
+                    await SQL.SetQuickStartItemAsync("Email", "QuickStartImage\\Email.png", "mailto:", QuickStartType.Application);
+                    await SQL.SetQuickStartItemAsync("Calendar", "QuickStartImage\\Calendar.png", "outlookcal:", QuickStartType.Application);
+                    await SQL.SetQuickStartItemAsync("Bing Map", "QuickStartImage\\Map.png", "bingmaps:", QuickStartType.Application);
+                    await SQL.SetQuickStartItemAsync("Weather", "QuickStartImage\\Weather.png", "bingweather:", QuickStartType.Application);
+                    await SQL.SetQuickStartItemAsync("Bing", "HotWebImage\\Bing.png", "https://www.bing.com/", QuickStartType.WebSite);
+                    await SQL.SetQuickStartItemAsync("Facebook", "HotWebImage\\Facebook.png", "https://www.facebook.com/", QuickStartType.WebSite);
+                    await SQL.SetQuickStartItemAsync("Instagram", "HotWebImage\\Instagram.png", "https://www.instagram.com/", QuickStartType.WebSite);
+                    await SQL.SetQuickStartItemAsync("Twitter", "HotWebImage\\Twitter.png", "https://twitter.com", QuickStartType.WebSite);
+                }
 
                 ApplicationData.Current.LocalSettings.Values["QuickStartInitialFinished"] = true;
             }
@@ -108,7 +126,9 @@ namespace FileManager
             {
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    Display.Text = "请开启此应用的文件系统访问权限以正常工作\r然后重新启动该应用";
+                    Display.Text = Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh")
+                                    ? "请开启此应用的文件系统访问权限以正常工作\r然后重新启动该应用"
+                                    : "Please enable file system access for this app to work properly\rThen restart the app";
                     ButtonPane.Visibility = Visibility.Visible;
                 });
             }
@@ -144,47 +164,94 @@ namespace FileManager
         private async void NavigationButton_Click(object sender, RoutedEventArgs e)
         {
             await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
-            ToastContent Content = new ToastContent()
+            if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
             {
-                Scenario = ToastScenario.Reminder,
-
-                Visual = new ToastVisual()
+                ToastContent Content = new ToastContent()
                 {
-                    BindingGeneric = new ToastBindingGeneric()
+                    Scenario = ToastScenario.Reminder,
+
+                    Visual = new ToastVisual()
                     {
-                        Children =
+                        BindingGeneric = new ToastBindingGeneric()
                         {
-                            new AdaptiveText()
+                            Children =
                             {
-                                Text = "正在等待用户完成操作..."
-                            },
+                                new AdaptiveText()
+                                {
+                                    Text = "正在等待用户完成操作..."
+                                },
 
-                            new AdaptiveText()
-                            {
-                                Text = "请开启文件系统权限"
-                            },
+                                new AdaptiveText()
+                                {
+                                    Text = "请开启文件系统权限"
+                                },
 
-                            new AdaptiveText()
-                            {
-                                Text = "随后点击下方的立即启动"
+                                new AdaptiveText()
+                                {
+                                    Text = "随后点击下方的立即启动"
+                                }
                             }
                         }
-                    }
-                },
+                    },
 
-                Actions = new ToastActionsCustom
-                {
-                    Buttons =
+                    Actions = new ToastActionsCustom
                     {
-                        new ToastButton("立即启动","Restart")
+                        Buttons =
                         {
-                            ActivationType =ToastActivationType.Foreground
-                        },
-                        new ToastButtonDismiss("稍后")
+                            new ToastButton("立即启动","Restart")
+                            {
+                                ActivationType =ToastActivationType.Foreground
+                            },
+                            new ToastButtonDismiss("稍后")
+                        }
                     }
-                }
-            };
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            else
+            {
+                ToastContent Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Reminder,
+
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "Waiting for user to complete operation..."
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "Please turn on file system permissions"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "Then click on the launch below to start immediately"
+                                }
+                            }
+                        }
+                    },
+
+                    Actions = new ToastActionsCustom
+                    {
+                        Buttons =
+                        {
+                            new ToastButton("Launch","Restart")
+                            {
+                                ActivationType =ToastActivationType.Foreground
+                            },
+                            new ToastButtonDismiss("Later")
+                        }
+                    }
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
 
             Application.Current.Exit();
         }

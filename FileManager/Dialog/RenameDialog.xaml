@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+    x:Uid="RenameDialog"
     Title="重命名"
     CloseButtonText="取消"
     PrimaryButtonText="确定"
@@ -15,7 +16,7 @@
     <Grid>
         <StackPanel Orientation="Vertical">
             <TextBox  Name="Text" TextChanging="Text_TextChanging" FontSize="18" Width="300"/>
-            <TextBlock Text="预览" FontSize="22"/>
+            <TextBlock Text="预览" x:Uid="RenamePreview" FontSize="22"/>
             <TextBlock Name="Preview" FontSize="18" Width="300" TextWrapping="Wrap"/>
         </StackPanel>
     </Grid>

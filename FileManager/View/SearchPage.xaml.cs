@@ -127,14 +127,28 @@ namespace FileManager
                 TreeViewNode TargetNode = await FindFolderLocationInTree(FileControl.ThisPage.FolderTree.RootNodes[0], new PathAnalysis(RemoveFile.Folder.Path));
                 if (TargetNode == null)
                 {
-                    ContentDialog dialog = new ContentDialog
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Title = "错误",
-                        Content = "无法定位文件夹，该文件夹可能已被删除或移动",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    _ = await dialog.ShowAsync();
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "无法定位文件夹，该文件夹可能已被删除或移动",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Unable to locate folder, which may have been deleted or moved",
+                            CloseButtonText = "Confirm",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
                 }
                 else
                 {
@@ -167,45 +181,44 @@ namespace FileManager
                 }
                 catch (FileNotFoundException)
                 {
-                    ContentDialog dialog = new ContentDialog
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Title = "错误",
-                        Content = "无法定位文件，该文件可能已被删除或移动",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    _ = await dialog.ShowAsync();
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "无法定位文件，该文件可能已被删除或移动",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Unable to locate file, which may have been deleted or moved",
+                            CloseButtonText = "Confirm",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
                 }
             }
         }
 
         private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
-            IList<object> SelectedGroup = SearchResultList.SelectedItems;
-            if (SelectedGroup.Count != 1)
+            FileSystemStorageItem Device = SearchResultList.SelectedItems.FirstOrDefault() as FileSystemStorageItem;
+            if (Device.File != null)
             {
-                ContentDialog dialog = new ContentDialog
-                {
-                    Title = "错误",
-                    Content = "仅允许查看单个文件属性，请重试",
-                    CloseButtonText = "确定",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                };
-                await dialog.ShowAsync();
+                AttributeDialog Dialog = new AttributeDialog(Device.File);
+                _ = await Dialog.ShowAsync();
             }
-            else
+            else if (Device.Folder != null)
             {
-                FileSystemStorageItem Device = SelectedGroup.FirstOrDefault() as FileSystemStorageItem;
-                if (Device.File != null)
-                {
-                    AttributeDialog Dialog = new AttributeDialog(Device.File);
-                    await Dialog.ShowAsync();
-                }
-                else if (Device.Folder != null)
-                {
-                    AttributeDialog Dialog = new AttributeDialog(Device.Folder);
-                    await Dialog.ShowAsync();
-                }
+                AttributeDialog Dialog = new AttributeDialog(Device.Folder);
+                _ = await Dialog.ShowAsync();
             }
         }
 

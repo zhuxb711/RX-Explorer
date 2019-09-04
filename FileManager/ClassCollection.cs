@@ -450,7 +450,7 @@ namespace FileManager
             {
                 return ContentType == ContentType.Folder ?
                     (string.IsNullOrEmpty(Folder.DisplayName) ? Folder.Name : Folder.DisplayName) :
-                    (string.IsNullOrEmpty(File.DisplayName) ? File.Name : File.DisplayName);
+                    (string.IsNullOrEmpty(File.DisplayName) ? File.Name : (File.DisplayName.Contains(File.FileType) ? File.DisplayName.Remove(File.DisplayName.LastIndexOf(".")) : File.DisplayName));
             }
         }
 
@@ -808,9 +808,9 @@ namespace FileManager
     }
     #endregion
 
-    #region USB图片展示类
+    #region 图片展示类
     /// <summary>
-    /// 为USB图片查看提供支持
+    /// 为图片查看提供支持
     /// </summary>
     public sealed class PhotoDisplaySupport
     {
@@ -1086,7 +1086,7 @@ namespace FileManager
         {
             get
             {
-                return string.IsNullOrWhiteSpace(DeviceInfo.Name) ? "未知设备" : DeviceInfo.Name;
+                return string.IsNullOrWhiteSpace(DeviceInfo.Name) ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "未知设备" : "Unknown") : DeviceInfo.Name;
             }
         }
 
@@ -1112,11 +1112,11 @@ namespace FileManager
             {
                 if (DeviceInfo.Pairing.IsPaired)
                 {
-                    return "已配对";
+                    return MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "已配对" : "Paired";
                 }
                 else
                 {
-                    return "准备配对";
+                    return MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "准备配对" : "ReadyToPair";
                 }
             }
         }
@@ -1130,11 +1130,11 @@ namespace FileManager
             {
                 if (DeviceInfo.Pairing.IsPaired)
                 {
-                    return "取消配对";
+                    return MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "取消配对" : "Unpair";
                 }
                 else
                 {
-                    return "配对";
+                    return MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "配对" : "Pair";
                 }
             }
         }
@@ -1280,7 +1280,14 @@ namespace FileManager
         {
             get
             {
-                return FreeSpace + " 可用, 共 " + Capacity;
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                {
+                    return FreeSpace + " 可用, 共 " + Capacity;
+                }
+                else
+                {
+                    return FreeSpace + " free of " + Capacity;
+                }
             }
         }
 
@@ -1317,6 +1324,14 @@ namespace FileManager
         public BitmapImage Thumbnail { get; private set; }
 
         public StorageFolder Folder { get; private set; }
+
+        public string DisplayType
+        {
+            get
+            {
+                return Folder.DisplayType;
+            }
+        }
 
         public LibraryFolder(StorageFolder Folder, BitmapImage Thumbnail)
         {
@@ -1641,7 +1656,7 @@ namespace FileManager
                 return;
             }
 
-            if(IsDisposed)
+            if (IsDisposed)
             {
                 throw new ObjectDisposedException("This Object has been disposed");
             }
@@ -1737,4 +1752,10 @@ namespace FileManager
         }
     }
     #endregion
+
+    public enum LanguageEnum
+    {
+        Chinese = 1,
+        English = 2
+    }
 }

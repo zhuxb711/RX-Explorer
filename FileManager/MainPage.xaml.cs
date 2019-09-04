@@ -9,6 +9,7 @@ using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
+using Windows.System;
 using Windows.UI.Notifications;
 using Windows.UI.Shell;
 using Windows.UI.StartScreen;
@@ -34,12 +35,17 @@ namespace FileManager
 
         public string ActivateUSBDevicePath { get; private set; }
 
+        public LanguageEnum CurrentLanguage { get; private set; }
+
         public MainPage()
         {
             InitializeComponent();
             ThisPage = this;
             Window.Current.SetTitleBar(TitleBar);
             Loaded += MainPage_Loaded;
+            CurrentLanguage = Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh")
+                ? LanguageEnum.Chinese
+                : LanguageEnum.English;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -62,13 +68,26 @@ namespace FileManager
                 ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] = Convert.ToString(100);
             }
 
-            PageDictionary = new Dictionary<Type, string>()
+            if (CurrentLanguage == LanguageEnum.Chinese)
             {
-                {typeof(WebTab), "浏览器"},
-                {typeof(ThisPC),"这台电脑" },
-                {typeof(FileControl),"这台电脑" },
-                {typeof(AboutMe),"这台电脑" }
-            };
+                PageDictionary = new Dictionary<Type, string>()
+                {
+                    {typeof(WebTab), "浏览器"},
+                    {typeof(ThisPC),"这台电脑" },
+                    {typeof(FileControl),"这台电脑" },
+                    {typeof(AboutMe),"这台电脑" }
+                };
+            }
+            else
+            {
+                PageDictionary = new Dictionary<Type, string>()
+                {
+                    {typeof(WebTab), "Browser"},
+                    {typeof(ThisPC),"ThisPC" },
+                    {typeof(FileControl),"ThisPC" },
+                    {typeof(AboutMe),"ThisPC" }
+                };
+            }
 
             SQLite SQL = SQLite.GetInstance();
             SearchHistoryRecord = await SQL.GetSearchHistoryAsync();
@@ -153,7 +172,9 @@ namespace FileManager
                 RequestRateApplication();
             };
 
-            PinTip.Subtitle = "将RX文件管理器固定在和开始屏幕任务栏，启动更快更方便哦！\r\r★固定至开始菜单\r\r★固定至任务栏";
+            PinTip.Subtitle = CurrentLanguage == LanguageEnum.Chinese
+                ? "将RX文件管理器固定在和开始屏幕任务栏，启动更快更方便哦！\r\r★固定至开始菜单\r\r★固定至任务栏"
+                : "Pin the RX FileManager to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar";
             PinTip.IsOpen = true;
         }
 
@@ -171,77 +192,9 @@ namespace FileManager
             RateTip.IsOpen = true;
             RateTip.ActionButtonClick += async (s, e) =>
             {
-                var Result = await Context.RequestRateAndReviewAppAsync();
-                switch (Result.Status)
-                {
-                    case StoreRateAndReviewStatus.Succeeded:
-                        ShowRateSucceedNotification();
-                        break;
-                    case StoreRateAndReviewStatus.CanceledByUser:
-                        break;
-                    default:
-                        ShowRateErrorNotification();
-                        break;
-                }
+                await Launcher.LaunchUriAsync(new Uri("ms-windows-store://review/?productid=9N88QBQKF2RS"));
             };
         }
-
-        private void ShowRateSucceedNotification()
-        {
-            var Content = new ToastContent()
-            {
-                Scenario = ToastScenario.Default,
-                Launch = "Updating",
-                Visual = new ToastVisual()
-                {
-                    BindingGeneric = new ToastBindingGeneric()
-                    {
-                        Children =
-                        {
-                            new AdaptiveText()
-                            {
-                                Text = "评价成功"
-                            },
-
-                            new AdaptiveText()
-                            {
-                                Text = "感谢您对此App的评价，帮助我们做得更好。"
-                            }
-                        }
-                    }
-                },
-            };
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-        }
-
-        private void ShowRateErrorNotification()
-        {
-            var Content = new ToastContent()
-            {
-                Scenario = ToastScenario.Default,
-                Launch = "Updating",
-                Visual = new ToastVisual()
-                {
-                    BindingGeneric = new ToastBindingGeneric()
-                    {
-                        Children =
-                        {
-                            new AdaptiveText()
-                            {
-                                Text = "评价失败"
-                            },
-
-                            new AdaptiveText()
-                            {
-                                Text = "因网络或其他原因而无法进行评价"
-                            }
-                        }
-                    }
-                },
-            };
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-        }
-
 
         private async Task CheckAndInstallUpdate()
         {
@@ -252,7 +205,9 @@ namespace FileManager
 
                 if (Updates.Count > 0)
                 {
-                    UpdateTip.Subtitle = "最新版RX文件管理器已推出！\r最新版包含针对以往问题的修复补丁\r是否立即下载？";
+                    UpdateTip.Subtitle = CurrentLanguage == LanguageEnum.Chinese
+                        ? "最新版RX文件管理器已推出！\r最新版包含针对以往问题的修复补丁\r是否立即下载？"
+                        : "The latest version of the RX FileManager has been released! \rIncluding fixes for past issues\rWhether to download it now ?";
 
                     UpdateTip.ActionButtonClick += async (s, e) =>
                     {
@@ -354,12 +309,16 @@ namespace FileManager
                         {
                             new AdaptiveText()
                             {
-                                Text = "更新失败"
+                                Text = CurrentLanguage == LanguageEnum.Chinese
+                                        ? "更新失败"
+                                        : "Update Failed"
                             },
 
                             new AdaptiveText()
                             {
-                                Text = "RX文件管理器无法更新至最新版"
+                                Text = CurrentLanguage == LanguageEnum.Chinese
+                                        ? "RX文件管理器无法更新至最新版"
+                                        : "RX FileManager cannot be updated to the latest version"
                             }
                         }
                     }
@@ -385,12 +344,16 @@ namespace FileManager
                         {
                             new AdaptiveText()
                             {
-                                Text = "正在下载应用更新..."
+                                Text = CurrentLanguage == LanguageEnum.Chinese
+                                        ? "正在下载应用更新..."
+                                        : "Downloading Updates..."
                             },
 
                             new AdaptiveProgressBar()
                             {
-                                Title = "正在更新",
+                                Title = CurrentLanguage == LanguageEnum.Chinese
+                                        ? "正在更新..."
+                                        : "Updating...",
                                 Value = new BindableProgressBarValue("ProgressValue"),
                                 Status = new BindableString("ProgressStatus"),
                                 ValueStringOverride = new BindableString("ProgressString")
@@ -406,7 +369,9 @@ namespace FileManager
                 Data = new NotificationData()
             };
             Toast.Data.Values["ProgressValue"] = "0";
-            Toast.Data.Values["ProgressStatus"] = "正在下载...";
+            Toast.Data.Values["ProgressStatus"] = CurrentLanguage == LanguageEnum.Chinese
+                                                    ? "正在下载..."
+                                                    : "Downloading...";
             Toast.Data.Values["ProgressString"] = "0%";
             Toast.Data.SequenceNumber = 0;
 
@@ -425,8 +390,10 @@ namespace FileManager
                 switch (args.InvokedItem.ToString())
                 {
                     case "这台电脑":
+                    case "ThisPC":
                         Nav.Navigate(typeof(ThisPC), null, new DrillInNavigationTransitionInfo()); break;
                     case "浏览器":
+                    case "Browser":
                         Nav.Navigate(typeof(WebTab), null, new DrillInNavigationTransitionInfo()); break;
                 }
             }
@@ -471,7 +438,9 @@ namespace FileManager
                 List<string> FilterResult = SearchHistoryRecord.FindAll((s) => s.Contains(sender.Text, StringComparison.OrdinalIgnoreCase));
                 if (FilterResult.Count == 0)
                 {
-                    FilterResult.Add("无建议");
+                    FilterResult.Add(CurrentLanguage == LanguageEnum.Chinese
+                                        ? "无建议"
+                                        : "No Result");
                 }
                 sender.ItemsSource = FilterResult;
             }

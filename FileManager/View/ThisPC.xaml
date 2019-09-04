@@ -22,14 +22,14 @@
         </DataTemplate>
         <CommandBarFlyout x:Name="AppFlyout" Placement="RightEdgeAlignedTop">
             <CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Edit" Label="编辑" Name="AppEdit" Click="AppEdit_Click"/>
-                <AppBarButton Icon="Delete" Name="AppDelete" Label="删除" Click="AppDelete_Click"/>
+                <AppBarButton Icon="Edit" Label="编辑" x:Uid="AppEdit" Name="AppEdit" Click="AppEdit_Click"/>
+                <AppBarButton Icon="Delete" Name="AppDelete" x:Uid="AppDelete" Label="删除" Click="AppDelete_Click"/>
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
         <CommandBarFlyout x:Name="WebFlyout" Placement="RightEdgeAlignedTop">
             <CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Edit" Label="编辑" Name="WebEdit" Click="WebEdit_Click"/>
-                <AppBarButton Icon="Delete" Name="WebDelete" Label="删除" Click="WebDelete_Click"/>
+                <AppBarButton Icon="Edit" Label="编辑" x:Uid="WebEdit" Name="WebEdit" Click="WebEdit_Click"/>
+                <AppBarButton Icon="Delete" Name="WebDelete" x:Uid="WebDelete" Label="删除" Click="WebDelete_Click"/>
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
     </Page.Resources>
@@ -52,7 +52,7 @@
                 </TransitionCollection>
             </Grid.ChildrenTransitions>
             <StackPanel>
-                <TextBlock Text="快速启动" Margin="10" FontSize="20"/>
+                <TextBlock Text="快速启动" x:Uid="QuickStartTitle" Margin="10" FontSize="20"/>
                 <Line X1="10" Y1="0" X2="260" Y2="0" StrokeThickness="2" Stroke="Gray"/>
             </StackPanel>
             <GridView Name="QuickStartGridView"
@@ -80,7 +80,7 @@
                 </GridView.ItemContainerTransitions>
             </GridView>
             <StackPanel Grid.Row="2">
-                <TextBlock Text="热门网站" Margin="10" FontSize="20"/>
+                <TextBlock Text="热门网站" x:Uid="HotWebTitle" Margin="10" FontSize="20"/>
                 <Line X1="10" Y1="0" X2="260" Y2="0" StrokeThickness="2" Stroke="Gray"/>
             </StackPanel>
             <GridView Name="WebGridView"
@@ -121,7 +121,8 @@
                                ExpandDirection="Down"
                                HorizontalContentAlignment="Stretch"
                                VerticalContentAlignment="Top"
-                               Header="文件夹和库">
+                               Header="文件夹和库"
+                               x:Uid="LibraryExpander">
                 <GridView Margin="0,20,0,0"
                           Name="LibraryGrid"
                           IsItemClickEnabled="True"
@@ -135,7 +136,7 @@
                                 <Image IsHitTestVisible="False" Height="60" Width="60" Source="{x:Bind Thumbnail}" Stretch="Uniform"/>
                                 <StackPanel Orientation="Vertical" Margin="10,0,0,0">
                                     <TextBlock IsHitTestVisible="False" FontSize="17" Width="150" TextTrimming="CharacterEllipsis" Text="{x:Bind Name}"/>
-                                    <TextBlock IsHitTestVisible="False" Width="150" FontSize="15" TextTrimming="CharacterEllipsis" Text="文件夹"/>
+                                    <TextBlock IsHitTestVisible="False" Width="150" FontSize="15" TextTrimming="CharacterEllipsis" Text="{x:Bind DisplayType}"/>
                                 </StackPanel>
                             </StackPanel>
                         </DataTemplate>
@@ -159,7 +160,8 @@
                                IsExpanded="True"
                                ExpandDirection="Down"
                                VerticalContentAlignment="Top"
-                               Header="设备和驱动器">
+                               Header="设备和驱动器"
+                               x:Uid="DeviceExpander">
                 <GridView Margin="0,20,0,0"
                           Name="DeviceGrid"
                           IsItemClickEnabled="True"
@@ -184,8 +186,8 @@
                     <GridView.ContextFlyout>
                         <CommandBarFlyout Placement="RightEdgeAlignedTop">
                             <CommandBarFlyout.SecondaryCommands>
-                                <AppBarButton Icon="BackToWindow" Label="打开" x:Name="OpenDevice" IsEnabled="{x:Bind Attribute.IsEnabled,Mode=OneWay}" Click="OpenDevice_Click"/>
-                                <AppBarButton Icon="Tag" Label="属性" x:Name="Attribute" Click="Attribute_Click"/>
+                                <AppBarButton Icon="BackToWindow" Label="打开" x:Uid="OpenDevice" x:Name="OpenDevice" IsEnabled="{x:Bind Attribute.IsEnabled,Mode=OneWay}" Click="OpenDevice_Click"/>
+                                <AppBarButton Icon="Tag" Label="属性" x:Uid="DeviceAttribute" x:Name="Attribute" Click="Attribute_Click"/>
                             </CommandBarFlyout.SecondaryCommands>
                         </CommandBarFlyout>
                     </GridView.ContextFlyout>

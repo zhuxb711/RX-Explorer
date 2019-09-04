@@ -38,7 +38,6 @@ namespace FileManager
         StorageFile CopyFile;
         StorageFile CutFile;
         AutoResetEvent AESControl;
-        DispatcherTimer Ticker;
         Frame Nav;
         Queue<StorageFile> AddToZipQueue;
         WiFiShareProvider WiFiProvider;
@@ -93,23 +92,12 @@ namespace FileManager
             Nav = e.Parameter as Frame;
             AddToZipQueue = new Queue<StorageFile>();
             AESControl = new AutoResetEvent(false);
-            Ticker = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(10)
-            };
-            Ticker.Tick += (s, v) =>
-            {
-                ProgressInfo.Text += "\r文件较大，请耐心等待...";
-                Ticker.Stop();
-            };
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             AddToZipQueue = null;
             AESControl?.Dispose();
-            Ticker?.Stop();
-            Ticker = null;
         }
 
         /// <summary>
@@ -144,56 +132,113 @@ namespace FileManager
             Restore();
             if (CutFile != null)
             {
-                LoadingActivation(true, "正在剪切");
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                {
+                    LoadingActivation(true, "正在剪切");
 
-                try
-                {
-                    await CutFile.MoveAsync(FileControl.ThisPage.CurrentFolder, CutFile.Name, NameCollisionOption.GenerateUniqueName);
-                    if (FileCollection.Count > 0)
+                    try
                     {
-                        FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                        await CutFile.MoveAsync(FileControl.ThisPage.CurrentFolder, CutFile.Name, NameCollisionOption.GenerateUniqueName);
+                        if (FileCollection.Count > 0)
+                        {
+                            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                        }
+                        else
+                        {
+                            FileCollection.Add(new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                        }
                     }
-                    else
+                    catch (FileNotFoundException)
                     {
-                        FileCollection.Add(new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                        ContentDialog Dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "因源文件已删除，无法剪切到指定位置",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
+                    }
+                    catch (System.Runtime.InteropServices.COMException)
+                    {
+                        ContentDialog contentDialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "因设备剩余空间大小不足，文件无法剪切",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await contentDialog.ShowAsync();
                     }
                 }
-                catch (FileNotFoundException)
+                else
                 {
-                    ContentDialog Dialog = new ContentDialog
+                    LoadingActivation(true, "Cutting");
+
+                    try
                     {
-                        Title = "错误",
-                        Content = "因源文件已删除，无法剪切到指定位置",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    _ = await Dialog.ShowAsync();
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    ContentDialog dialog = new ContentDialog
-                    {
-                        Title = "错误",
-                        Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                        PrimaryButtonText = "立刻",
-                        CloseButtonText = "稍后",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                    {
-                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        await CutFile.MoveAsync(FileControl.ThisPage.CurrentFolder, CutFile.Name, NameCollisionOption.GenerateUniqueName);
+                        if (FileCollection.Count > 0)
+                        {
+                            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                        }
+                        else
+                        {
+                            FileCollection.Add(new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                        }
                     }
-                }
-                catch (System.Runtime.InteropServices.COMException)
-                {
-                    ContentDialog contentDialog = new ContentDialog
+                    catch (FileNotFoundException)
                     {
-                        Title = "错误",
-                        Content = "因设备剩余空间大小不足，文件无法剪切",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    _ = await contentDialog.ShowAsync();
+                        ContentDialog Dialog = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Unable to cut to the specified location because the source file has been deleted",
+                            CloseButtonText = "Confirm",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                            PrimaryButtonText = "Enter",
+                            CloseButtonText = "Later",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
+                    }
+                    catch (System.Runtime.InteropServices.COMException)
+                    {
+                        ContentDialog contentDialog = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "The device has insufficient free space and the file cannot be cut.",
+                            CloseButtonText = "Confirm",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await contentDialog.ShowAsync();
+                    }
                 }
 
                 await Task.Delay(500);
@@ -201,56 +246,113 @@ namespace FileManager
             }
             else if (CopyFile != null)
             {
-                LoadingActivation(true, "正在复制");
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                {
+                    LoadingActivation(true, "正在复制");
 
-                try
-                {
-                    StorageFile NewFile = await CopyFile.CopyAsync(FileControl.ThisPage.CurrentFolder, CopyFile.Name, NameCollisionOption.GenerateUniqueName);
-                    if (FileCollection.Count > 0)
+                    try
                     {
-                        FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                        StorageFile NewFile = await CopyFile.CopyAsync(FileControl.ThisPage.CurrentFolder, CopyFile.Name, NameCollisionOption.GenerateUniqueName);
+                        if (FileCollection.Count > 0)
+                        {
+                            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                        }
+                        else
+                        {
+                            FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                        }
                     }
-                    else
+                    catch (FileNotFoundException)
                     {
-                        FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                        ContentDialog Dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "因源文件已删除，无法复制到指定位置",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
+                    }
+                    catch (System.Runtime.InteropServices.COMException)
+                    {
+                        ContentDialog contentDialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "因设备剩余空间大小不足，文件无法复制",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await contentDialog.ShowAsync();
                     }
                 }
-                catch (FileNotFoundException)
+                else
                 {
-                    ContentDialog Dialog = new ContentDialog
+                    LoadingActivation(true, "Copying");
+
+                    try
                     {
-                        Title = "错误",
-                        Content = "因源文件已删除，无法复制到指定位置",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    _ = await Dialog.ShowAsync();
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    ContentDialog dialog = new ContentDialog
-                    {
-                        Title = "错误",
-                        Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                        PrimaryButtonText = "立刻",
-                        CloseButtonText = "稍后",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                    {
-                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        StorageFile NewFile = await CopyFile.CopyAsync(FileControl.ThisPage.CurrentFolder, CopyFile.Name, NameCollisionOption.GenerateUniqueName);
+                        if (FileCollection.Count > 0)
+                        {
+                            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                        }
+                        else
+                        {
+                            FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                        }
                     }
-                }
-                catch (System.Runtime.InteropServices.COMException)
-                {
-                    ContentDialog contentDialog = new ContentDialog
+                    catch (FileNotFoundException)
                     {
-                        Title = "错误",
-                        Content = "因设备剩余空间大小不足，文件无法复制",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    _ = await contentDialog.ShowAsync();
+                        ContentDialog Dialog = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Unable to copy to the specified location because the source file has been deleted",
+                            CloseButtonText = "Confirm",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                            PrimaryButtonText = "Enter",
+                            CloseButtonText = "Later",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
+                    }
+                    catch (System.Runtime.InteropServices.COMException)
+                    {
+                        ContentDialog contentDialog = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "The device has insufficient free space and the file cannot be copy",
+                            CloseButtonText = "Confirm",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await contentDialog.ShowAsync();
+                    }
                 }
 
                 await Task.Delay(500);
@@ -280,52 +382,98 @@ namespace FileManager
         {
             var FileToDelete = GridViewControl.SelectedItem as FileSystemStorageItem;
             Restore();
-            ContentDialog contentDialog = new ContentDialog
+
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                Title = "警告",
-                PrimaryButtonText = "是",
-                CloseButtonText = "否",
-                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-            };
-
-            contentDialog.Content = "此操作将永久删除 \"" + FileToDelete.Name + " \"\r\r是否继续?";
-
-            if (await contentDialog.ShowAsync() == ContentDialogResult.Primary)
-            {
-                LoadingActivation(true, "正在删除");
-
-                try
+                ContentDialog contentDialog = new ContentDialog
                 {
-                    await FileToDelete.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    Title = "警告",
+                    PrimaryButtonText = "是",
+                    Content = "此操作将永久删除 \" " + FileToDelete.Name + " \"\r\r是否继续?",
+                    CloseButtonText = "否",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                if (await contentDialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    LoadingActivation(true, "正在删除");
 
-                    for (int i = 0; i < FileCollection.Count; i++)
+                    try
                     {
-                        if (FileCollection[i].RelativeId == FileToDelete.File.FolderRelativeId)
+                        await FileToDelete.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+
+                        for (int i = 0; i < FileCollection.Count; i++)
                         {
-                            FileCollection.RemoveAt(i);
-                            break;
+                            if (FileCollection[i].RelativeId == FileToDelete.File.FolderRelativeId)
+                            {
+                                FileCollection.RemoveAt(i);
+                                break;
+                            }
+                        }
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "RX无权删除此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
                         }
                     }
                 }
-                catch (UnauthorizedAccessException)
+            }
+            else
+            {
+                ContentDialog contentDialog = new ContentDialog
                 {
-                    ContentDialog dialog = new ContentDialog
+                    Title = "Warning",
+                    PrimaryButtonText = "Continue",
+                    Content = "This action will permanently delete \" " + FileToDelete.Name + " \"\r\rWhether to continue?",
+                    CloseButtonText = "Cancel",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                if (await contentDialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    LoadingActivation(true, "Deleting");
+
+                    try
                     {
-                        Title = "错误",
-                        Content = "RX无权删除此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                        PrimaryButtonText = "立刻",
-                        CloseButtonText = "稍后",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        await FileToDelete.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+
+                        for (int i = 0; i < FileCollection.Count; i++)
+                        {
+                            if (FileCollection[i].RelativeId == FileToDelete.File.FolderRelativeId)
+                            {
+                                FileCollection.RemoveAt(i);
+                                break;
+                            }
+                        }
+                    }
+                    catch (UnauthorizedAccessException)
                     {
-                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "RX does not have permission to delete, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                            PrimaryButtonText = "Enter",
+                            CloseButtonText = "Later",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
                     }
                 }
-
-                await Task.Delay(500);
-                LoadingActivation(false);
             }
+
+            await Task.Delay(500);
+            LoadingActivation(false);
         }
 
         /// <summary>
@@ -354,16 +502,9 @@ namespace FileManager
                     ProRing.Visibility = Visibility.Visible;
                     ProBar.Visibility = Visibility.Collapsed;
                     ProgressInfo.Text = Info + "...";
-                    Ticker.Start();
                 }
             }
-            else
-            {
-                if (!EnableProgressDisplay)
-                {
-                    Ticker.Stop();
-                }
-            }
+
             LoadingControl.IsLoading = IsLoading;
         }
 
@@ -373,43 +514,88 @@ namespace FileManager
             RenameDialog dialog = new RenameDialog(file.DisplayName, file.FileType);
             if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
-                if (dialog.DesireName == file.FileType)
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                 {
-                    ContentDialog content = new ContentDialog
+                    if (dialog.DesireName == file.FileType)
                     {
-                        Title = "错误",
-                        Content = "文件名不能为空，重命名失败",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    await content.ShowAsync();
-                    return;
-                }
+                        ContentDialog content = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "文件名不能为空，重命名失败",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        await content.ShowAsync();
+                        return;
+                    }
 
-                try
-                {
-                    await file.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
-
-                    foreach (var Item in from FileSystemStorageItem Item in FileCollection
-                                         where Item.Name == dialog.DesireName
-                                         select Item)
+                    try
                     {
-                        await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(file.Path));
+                        await file.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
+
+                        foreach (var Item in from FileSystemStorageItem Item in FileCollection
+                                             where Item.Name == dialog.DesireName
+                                             select Item)
+                        {
+                            await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(file.Path));
+                        }
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        ContentDialog Dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "RX无权重命名此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
                     }
                 }
-                catch (UnauthorizedAccessException)
+                else
                 {
-                    ContentDialog Dialog = new ContentDialog
+                    if (dialog.DesireName == file.FileType)
                     {
-                        Title = "错误",
-                        Content = "RX无权重命名此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                        PrimaryButtonText = "立刻",
-                        CloseButtonText = "稍后",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                        ContentDialog content = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "File name cannot be empty, rename failed",
+                            CloseButtonText = "Confirm",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        await content.ShowAsync();
+                        return;
+                    }
+
+                    try
                     {
-                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        await file.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
+
+                        foreach (var Item in from FileSystemStorageItem Item in FileCollection
+                                             where Item.Name == dialog.DesireName
+                                             select Item)
+                        {
+                            await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(file.Path));
+                        }
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        ContentDialog Dialog = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "RX does not have permission to rename, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                            PrimaryButtonText = "Enter",
+                            CloseButtonText = "Later",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
                     }
                 }
             }
@@ -428,13 +614,13 @@ namespace FileManager
          */
         private async void AES_Click(object sender, RoutedEventArgs e)
         {
-            var SelectedFile = (GridViewControl.SelectedItem as FileSystemStorageItem).File;
+            var SelectedFile = GridViewControl.SelectedItem as FileSystemStorageItem;
             Restore();
 
             int KeySizeRequest;
             string KeyRequest;
             bool IsDeleteRequest;
-            if (SelectedFile.FileType != ".sle")
+            if (SelectedFile.Type != ".sle")
             {
                 AESDialog Dialog = new AESDialog(true, SelectedFile.Name);
                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
@@ -450,7 +636,10 @@ namespace FileManager
                     EncryptByteBuffer = null;
                     return;
                 }
-                LoadingActivation(true, "正在加密");
+
+                LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                    ? "正在加密"
+                    : "Encrypting");
 
                 try
                 {
@@ -458,11 +647,11 @@ namespace FileManager
 
                     await Task.Run(async () =>
                     {
-                        using (var FileStream = await SelectedFile.OpenStreamForReadAsync())
+                        using (var FileStream = await SelectedFile.File.OpenStreamForReadAsync())
                         {
                             using (var TargetFileStream = await file.OpenStreamForWriteAsync())
                             {
-                                byte[] Tail = Encoding.UTF8.GetBytes("$" + KeySizeRequest + "|" + SelectedFile.FileType + "$");
+                                byte[] Tail = Encoding.UTF8.GetBytes("$" + KeySizeRequest + "|" + SelectedFile.Type + "$");
                                 byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
 
                                 if (FileStream.Length < AESCacheSize)
@@ -506,17 +695,35 @@ namespace FileManager
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    ContentDialog dialog = new ContentDialog
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Title = "错误",
-                        Content = "RX无权在此处创建加密文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                        PrimaryButtonText = "立刻",
-                        CloseButtonText = "稍后",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "RX无权在此处创建加密文件，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
+                    }
+                    else
                     {
-                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "RX does not have permission to create an encrypted file here, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                            PrimaryButtonText = "Enter",
+                            CloseButtonText = "Later",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
                     }
                 }
             }
@@ -536,10 +743,13 @@ namespace FileManager
                     return;
                 }
 
-                LoadingActivation(true, "正在解密");
+                LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                    ? "正在解密"
+                    : "Decrypting");
+
                 await Task.Run(async () =>
                 {
-                    using (var FileStream = await SelectedFile.OpenStreamForReadAsync())
+                    using (var FileStream = await SelectedFile.File.OpenStreamForReadAsync())
                     {
                         string FileType;
                         byte[] DecryptedBytes;
@@ -559,13 +769,28 @@ namespace FileManager
                         {
                             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                             {
-                                ContentDialog dialog = new ContentDialog
+                                ContentDialog dialog;
+                                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                                 {
-                                    Title = "错误",
-                                    Content = "  文件格式检验错误，文件可能已损坏",
-                                    CloseButtonText = "确定",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                                };
+                                    dialog = new ContentDialog
+                                    {
+                                        Title = "错误",
+                                        Content = "  文件格式检验错误，文件可能已损坏",
+                                        CloseButtonText = "确定",
+                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    };
+                                }
+                                else
+                                {
+                                    dialog = new ContentDialog
+                                    {
+                                        Title = "Error",
+                                        Content = "  File format validation error, file may be corrupt",
+                                        CloseButtonText = "Confirm",
+                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    };
+                                }
+
                                 LoadingActivation(false);
                                 DecryptByteBuffer = null;
                                 EncryptByteBuffer = null;
@@ -604,13 +829,28 @@ namespace FileManager
                         {
                             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                             {
-                                ContentDialog dialog = new ContentDialog
+                                ContentDialog dialog;
+                                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                                 {
-                                    Title = "错误",
-                                    Content = "  密码错误，无法解密\r\r  请重试...",
-                                    CloseButtonText = "确定",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                                };
+                                    dialog = new ContentDialog
+                                    {
+                                        Title = "错误",
+                                        Content = "  密码错误，无法解密\r\r  请重试...",
+                                        CloseButtonText = "确定",
+                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    };
+                                }
+                                else
+                                {
+                                    dialog = new ContentDialog
+                                    {
+                                        Title = "Error",
+                                        Content = "  The password is incorrect and cannot be decrypted\r\r  Please try again...",
+                                        CloseButtonText = "Confirm",
+                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    };
+                                }
+
                                 LoadingActivation(false);
                                 DecryptByteBuffer = null;
                                 EncryptByteBuffer = null;
@@ -677,17 +917,35 @@ namespace FileManager
                         }
                         catch (UnauthorizedAccessException)
                         {
-                            ContentDialog dialog = new ContentDialog
+                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                             {
-                                Title = "错误",
-                                Content = "RX无权在此处创建解密文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                                PrimaryButtonText = "立刻",
-                                CloseButtonText = "稍后",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                ContentDialog dialog = new ContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "RX无权在此处创建解密文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                                    PrimaryButtonText = "立刻",
+                                    CloseButtonText = "稍后",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                }
+                            }
+                            else
                             {
-                                _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                ContentDialog dialog = new ContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "RX does not have permission to create an decrypted file here, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                                    PrimaryButtonText = "Enter",
+                                    CloseButtonText = "Later",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                }
                             }
                         }
                     }
@@ -696,11 +954,11 @@ namespace FileManager
 
             if (IsDeleteRequest)
             {
-                await SelectedFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                await SelectedFile.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
                 for (int i = 0; i < FileCollection.Count; i++)
                 {
-                    if (FileCollection[i].RelativeId == SelectedFile.FolderRelativeId)
+                    if (FileCollection[i].RelativeId == SelectedFile.RelativeId)
                     {
                         FileCollection.RemoveAt(i);
                         break;
@@ -725,14 +983,28 @@ namespace FileManager
             {
                 if (Device.State != RadioState.On)
                 {
-                    ContentDialog dialog = new ContentDialog
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Title = "提示",
-                        Content = "请开启蓝牙开关后再试",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    _ = await dialog.ShowAsync();
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "提示",
+                            Content = "请开启蓝牙开关后再试",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "Tips",
+                            Content = "Please turn on Bluetooth and try again.",
+                            CloseButtonText = "Confirm",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
                     return;
                 }
             }
@@ -772,11 +1044,17 @@ namespace FileManager
 
                 if ((GridViewControl.SelectedItem as FileSystemStorageItem).ContentType == ContentType.File)
                 {
-                    Zip.Label = "Zip压缩";
+                    Transcode.IsEnabled = false;
+
+                    Zip.Label = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                        ? "Zip压缩"
+                        : "Zip Compression";
                     switch ((e.AddedItems.FirstOrDefault() as FileSystemStorageItem).Type)
                     {
                         case ".zip":
-                            Zip.Label = "Zip解压";
+                            Zip.Label = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                                ? "Zip解压"
+                                : "Zip Decompression";
                             break;
                         case ".mkv":
                         case ".mp4":
@@ -789,12 +1067,11 @@ namespace FileManager
                         case ".alac":
                             Transcode.IsEnabled = true;
                             break;
-                        default:
-                            Transcode.IsEnabled = false;
-                            break;
                     }
 
-                    AES.Label = (e.AddedItems.FirstOrDefault() as FileSystemStorageItem).Type == ".sle" ? "AES解密" : "AES加密";
+                    AES.Label = (e.AddedItems.FirstOrDefault() as FileSystemStorageItem).Type == ".sle"
+                        ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "AES解密" : "AES Decryption")
+                        : (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "AES加密" : "AES Encryption");
                 }
             }
         }
@@ -859,7 +1136,9 @@ namespace FileManager
 
                 if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    LoadingActivation(true, "正在压缩", true);
+                    LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                        ? "正在压缩"
+                        : "Compressing", true);
 
                     if (dialog.IsCryptionEnable)
                     {
@@ -898,7 +1177,9 @@ namespace FileManager
                         ZipDialog dialog = new ZipDialog(false);
                         if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                         {
-                            LoadingActivation(true, "正在解压", true);
+                            LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                                ? "正在解压"
+                                : "Extracting", true);
                             zipFile.Password = dialog.Password;
                         }
                         else
@@ -908,7 +1189,9 @@ namespace FileManager
                     }
                     else
                     {
-                        LoadingActivation(true, "正在解压", true);
+                        LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                            ? "正在解压"
+                            : "Extracting", true);
                     }
                     await Task.Run(async () =>
                     {
@@ -969,17 +1252,35 @@ namespace FileManager
                                 {
                                     await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                                     {
-                                        ContentDialog dialog = new ContentDialog
+                                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                                         {
-                                            Title = "错误",
-                                            Content = "RX无权在此处解压Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                                            PrimaryButtonText = "立刻",
-                                            CloseButtonText = "稍后",
-                                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                                        };
-                                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                            ContentDialog dialog = new ContentDialog
+                                            {
+                                                Title = "错误",
+                                                Content = "RX无权在此处解压Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                                                PrimaryButtonText = "立刻",
+                                                CloseButtonText = "稍后",
+                                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                            };
+                                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                            {
+                                                _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                            }
+                                        }
+                                        else
                                         {
-                                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                            ContentDialog dialog = new ContentDialog
+                                            {
+                                                Title = "错误",
+                                                Content = "RX does not have permission to extract the Zip file here, it may be that you do not have access to this file.\r\rEnter the system file manager immediately ？",
+                                                PrimaryButtonText = "Enter",
+                                                CloseButtonText = "Later",
+                                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                            };
+                                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                            {
+                                                _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                            }
                                         }
                                     });
                                 }
@@ -989,14 +1290,28 @@ namespace FileManager
                 }
                 catch (Exception e)
                 {
-                    ContentDialog dialog = new ContentDialog
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Title = "错误",
-                        Content = "解压文件时发生异常\r\r错误信息：\r\r" + e.Message,
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
-                        CloseButtonText = "确定"
-                    };
-                    _ = await dialog.ShowAsync();
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "解压文件时发生异常\r\r错误信息：\r\r" + e.Message,
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
+                            CloseButtonText = "确定"
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        ContentDialog dialog = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "An exception occurred while extracting the file\r\rError Message：\r\r" + e.Message,
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
+                            CloseButtonText = "Confirm"
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
                     return;
                 }
                 finally
@@ -1138,14 +1453,28 @@ namespace FileManager
                     }
                     catch (Exception e)
                     {
-                        ContentDialog dialog = new ContentDialog
+                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                         {
-                            Title = "错误",
-                            Content = "压缩文件时发生异常\r\r错误信息：\r\r" + e.Message,
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
-                            CloseButtonText = "确定"
-                        };
-                        await dialog.ShowAsync();
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Title = "错误",
+                                Content = "压缩文件时发生异常\r\r错误信息：\r\r" + e.Message,
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
+                                CloseButtonText = "确定"
+                            };
+                            _ = await dialog.ShowAsync();
+                        }
+                        else
+                        {
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Title = "Error",
+                                Content = "An exception occurred while compressing the file\r\rError Message：\r\r" + e.Message,
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
+                                CloseButtonText = "Confirm"
+                            };
+                            _ = await dialog.ShowAsync();
+                        }
                     }
                     finally
                     {
@@ -1157,17 +1486,35 @@ namespace FileManager
             }
             catch (UnauthorizedAccessException)
             {
-                ContentDialog dialog = new ContentDialog
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                 {
-                    Title = "错误",
-                    Content = "RX无权在此处创建Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                    PrimaryButtonText = "立刻",
-                    CloseButtonText = "稍后",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                };
-                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Title = "错误",
+                        Content = "RX无权在此处创建Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                        PrimaryButtonText = "立刻",
+                        CloseButtonText = "稍后",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                    }
+                }
+                else
                 {
-                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Title = "Error",
+                        Content = "RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rEnter the system file manager immediately ？",
+                        PrimaryButtonText = "Enter",
+                        CloseButtonText = "Later",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                    }
                 }
             }
         }
@@ -1204,17 +1551,35 @@ namespace FileManager
                         Nav.Navigate(typeof(PdfReader), ReFile.File, new DrillInNavigationTransitionInfo());
                         break;
                     default:
-                        ContentDialog dialog = new ContentDialog
+                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                         {
-                            Title = "提示",
-                            Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
-                            PrimaryButtonText = "默认应用打开",
-                            CloseButtonText = "取消",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Title = "提示",
+                                Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
+                                PrimaryButtonText = "默认应用打开",
+                                CloseButtonText = "取消",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                            {
+                                await Launcher.LaunchFileAsync(ReFile.File);
+                            }
+                        }
+                        else
                         {
-                            await Launcher.LaunchFileAsync(ReFile.File);
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Title = "Tips",
+                                Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
+                                PrimaryButtonText = "Open with default app",
+                                CloseButtonText = "Cancel",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                            {
+                                await Launcher.LaunchFileAsync(ReFile.File);
+                            }
                         }
                         break;
                 }
@@ -1244,7 +1609,9 @@ namespace FileManager
         private void GridItem_DragEnter(object sender, DragEventArgs e)
         {
             e.AcceptedOperation = DataPackageOperation.Copy;
-            e.DragUIOverride.Caption = "添加至Zip文件";
+            e.DragUIOverride.Caption = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                ? "添加至Zip文件"
+                : "Add To Zip File";
             e.DragUIOverride.IsCaptionVisible = true;
             e.DragUIOverride.IsContentVisible = true;
         }
@@ -1264,7 +1631,9 @@ namespace FileManager
         /// <returns>无</returns>
         public async Task AddFileToZipAsync(FileSystemStorageItem file)
         {
-            LoadingActivation(true, "正在执行添加操作");
+            LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                ? "正在执行添加操作"
+                : "Adding");
 
             using (var ZipFileStream = (await file.File.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
             {
@@ -1356,14 +1725,28 @@ namespace FileManager
             {
                 if (string.IsNullOrWhiteSpace(dialog.DesireName))
                 {
-                    ContentDialog content = new ContentDialog
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Title = "错误",
-                        Content = "文件夹名不能为空，重命名失败",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    await content.ShowAsync();
+                        ContentDialog content = new ContentDialog
+                        {
+                            Title = "错误",
+                            Content = "文件夹名不能为空，重命名失败",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        await content.ShowAsync();
+                    }
+                    else
+                    {
+                        ContentDialog content = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Folder name cannot be empty, rename failed",
+                            CloseButtonText = "Confirm",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        await content.ShowAsync();
+                    }
                     return;
                 }
 
@@ -1420,17 +1803,35 @@ namespace FileManager
                     }
                     catch (UnauthorizedAccessException)
                     {
-                        ContentDialog Dialog = new ContentDialog
+                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                         {
-                            Title = "错误",
-                            Content = "RX无权重命名此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
-                            PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                            ContentDialog Dialog = new ContentDialog
+                            {
+                                Title = "错误",
+                                Content = "RX无权重命名此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
+                                PrimaryButtonText = "立刻",
+                                CloseButtonText = "稍后",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                            {
+                                _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            }
+                        }
+                        else
                         {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            ContentDialog Dialog = new ContentDialog
+                            {
+                                Title = "Error",
+                                Content = "RX does not have permission to rename the folder, it may be that you do not have access to this file.\r\rEnter the system file manager immediately ？",
+                                PrimaryButtonText = "Enter",
+                                CloseButtonText = "Later",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                            {
+                                _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            }
                         }
                     }
                 }
@@ -1452,45 +1853,93 @@ namespace FileManager
             var SelectedItem = GridViewControl.SelectedItem as FileSystemStorageItem;
             Restore();
 
-            ContentDialog contentDialog = new ContentDialog
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                Title = "警告",
-                PrimaryButtonText = "是",
-                CloseButtonText = "否",
-                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
-                Content = "此操作将永久删除 \"" + SelectedItem.DisplayName + " \"\r\r是否继续?"
-            };
-
-            if ((await contentDialog.ShowAsync()) == ContentDialogResult.Primary)
-            {
-                foreach (FileSystemStorageItem Item in GridViewControl.SelectedItems)
+                ContentDialog contentDialog = new ContentDialog
                 {
-                    try
-                    {
-                        await Item.Folder.DeleteAllSubFilesAndFolders();
-                        await Item.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        ContentDialog dialog = new ContentDialog
-                        {
-                            Title = "错误",
-                            Content = "RX无权删除此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
-                            PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                        }
-                        return;
-                    }
+                    Title = "警告",
+                    PrimaryButtonText = "是",
+                    CloseButtonText = "否",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
+                    Content = "此操作将永久删除 \"" + SelectedItem.DisplayName + " \"\r\r是否继续?"
+                };
 
-                    FileCollection.Remove(Item);
-                    if (FileControl.ThisPage.CurrentNode.IsExpanded)
+                if ((await contentDialog.ShowAsync()) == ContentDialogResult.Primary)
+                {
+                    foreach (FileSystemStorageItem Item in GridViewControl.SelectedItems)
                     {
-                        FileControl.ThisPage.CurrentNode.Children.Remove(FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == Item.RelativeId).FirstOrDefault());
+                        try
+                        {
+                            await Item.Folder.DeleteAllSubFilesAndFolders();
+                            await Item.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Title = "错误",
+                                Content = "RX无权删除此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
+                                PrimaryButtonText = "立刻",
+                                CloseButtonText = "稍后",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                            {
+                                _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            }
+                            return;
+                        }
+
+                        FileCollection.Remove(Item);
+                        if (FileControl.ThisPage.CurrentNode.IsExpanded)
+                        {
+                            FileControl.ThisPage.CurrentNode.Children.Remove(FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == Item.RelativeId).FirstOrDefault());
+                        }
+                    }
+                }
+            }
+            else
+            {
+                ContentDialog contentDialog = new ContentDialog
+                {
+                    Title = "Warning",
+                    PrimaryButtonText = "Continue",
+                    CloseButtonText = "Cancel",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
+                    Content = "This action will permanently delete \" " + SelectedItem.DisplayName + " \"\r\rWhether to continue ?"
+                };
+
+                if ((await contentDialog.ShowAsync()) == ContentDialogResult.Primary)
+                {
+                    foreach (FileSystemStorageItem Item in GridViewControl.SelectedItems)
+                    {
+                        try
+                        {
+                            await Item.Folder.DeleteAllSubFilesAndFolders();
+                            await Item.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Title = "Error",
+                                Content = "RX does not have permission to delete, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                                PrimaryButtonText = "Enter",
+                                CloseButtonText = "Later",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                            {
+                                _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            }
+                            return;
+                        }
+
+                        FileCollection.Remove(Item);
+                        if (FileControl.ThisPage.CurrentNode.IsExpanded)
+                        {
+                            FileControl.ThisPage.CurrentNode.Children.Remove(FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == Item.RelativeId).FirstOrDefault());
+                        }
                     }
                 }
             }
@@ -1566,12 +2015,12 @@ namespace FileManager
             {
                 QRTeachTip.IsOpen = false;
 
-                if (e is OverflowException)
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                 {
                     ContentDialog dialog = new ContentDialog
                     {
                         Title = "错误",
-                        Content = "文件过大，无法传输",
+                        Content = "WIFI传输出现意外错误：\r" + e.Message,
                         CloseButtonText = "确定"
                     };
                     _ = await dialog.ShowAsync();
@@ -1580,9 +2029,9 @@ namespace FileManager
                 {
                     ContentDialog dialog = new ContentDialog
                     {
-                        Title = "错误",
-                        Content = "WIFI传输出现意外错误：\r" + e.Message,
-                        CloseButtonText = "确定"
+                        Title = "Error",
+                        Content = "WIFI transmission has an unexpected error：\r" + e.Message,
+                        CloseButtonText = "Confirm"
                     };
                     _ = await dialog.ShowAsync();
                 }

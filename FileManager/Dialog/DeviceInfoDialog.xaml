@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
+    x:Uid="DeviceDialog"
     CloseButtonText="确定"
     Background="{StaticResource DialogAcrylicBrush}">
 
@@ -33,18 +34,18 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
                 <Border Width="20" Height="20" Background="DeepSkyBlue"/>
-                <TextBlock Text="已用空间" Margin="5,0,0,0"/>
+                <TextBlock Text="已用空间" x:Uid="DeviceUsedSpace" Margin="5,0,0,0"/>
                 <TextBlock x:Name="UsedByte" HorizontalTextAlignment="Center" Margin="10,0,0,0" Width="180"/>
                 <TextBlock x:Name="UsedSpace" HorizontalTextAlignment="Center" Margin="5,0,0,0" Width="80"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                 <Border Width="20" Height="20" Background="LightGray"/>
-                <TextBlock Text="可用空间" Margin="5,0,0,0"/>
+                <TextBlock Text="可用空间" x:Uid="DeviceFreeSpace" Margin="5,0,0,0"/>
                 <TextBlock x:Name="FreeByte" HorizontalTextAlignment="Center" Margin="10,0,0,0" Width="180"/>
                 <TextBlock x:Name="FreeSpace" HorizontalTextAlignment="Center" Margin="5,0,0,0" Width="80"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="20,5,0,0">
-                <TextBlock Text="总计空间" Margin="5,0,0,0"/>
+                <TextBlock Text="总计空间" x:Uid="DeviceCapacity" Margin="5,0,0,0"/>
                 <TextBlock x:Name="TotalByte" HorizontalTextAlignment="Center" Margin="10,0,0,0" Width="180"/>
                 <TextBlock x:Name="TotalSpace" HorizontalTextAlignment="Center" Margin="5,0,0,0" Width="80"/>
             </StackPanel>
@@ -59,7 +60,7 @@
                                         Outline="LightGray" 
                                         Margin="0,20,0,10"/>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="磁盘类型："/>
+                <TextBlock Text="磁盘类型：" x:Uid="DeviceType"/>
                 <TextBlock x:Name="DeviceType"/>
             </StackPanel>
         </StackPanel>

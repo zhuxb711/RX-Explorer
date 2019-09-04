@@ -1,30 +1,15 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-
-// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
 
 namespace FileManager
 {
-    /// <summary>
-    /// 可用于自身或导航至 Frame 内部的空白页。
-    /// </summary>
     public sealed partial class BlueScreen : Page
     {
         public BlueScreen()
@@ -62,47 +47,95 @@ namespace FileManager
 
         public static ToastContent GenerateRestartToast()
         {
-            return new ToastContent()
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                Launch = "Restart",
-                Scenario = ToastScenario.Alarm,
-
-                Visual = new ToastVisual()
+                return new ToastContent()
                 {
-                    BindingGeneric = new ToastBindingGeneric()
+                    Launch = "Restart",
+                    Scenario = ToastScenario.Alarm,
+
+                    Visual = new ToastVisual()
                     {
-                        Children =
+                        BindingGeneric = new ToastBindingGeneric()
                         {
-                        new AdaptiveText()
-                        {
-                            Text = "需要重新启动RX文件管理器"
-                        },
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "需要重新启动RX文件管理器"
+                                },
 
-                        new AdaptiveText()
-                        {
-                            Text = "重置已完成"
-                        },
+                                new AdaptiveText()
+                                {
+                                    Text = "重置已完成"
+                                },
 
-                        new AdaptiveText()
-                        {
-                            Text = "请点击以立即重新启动RX"
+                                new AdaptiveText()
+                                {
+                                    Text = "请点击以立即重新启动RX"
+                                }
+                            }
                         }
+                    },
+
+                    Actions = new ToastActionsCustom
+                    {
+                        Buttons =
+                        {
+                            new ToastButton("立即启动","Restart")
+                            {
+                                ActivationType =ToastActivationType.Foreground
+                            },
+                            new ToastButtonDismiss("稍后")
                         }
                     }
-                },
-
-                Actions = new ToastActionsCustom
+                };
+            }
+            else
+            {
+                return new ToastContent()
                 {
-                    Buttons =
+                    Launch = "Restart",
+                    Scenario = ToastScenario.Alarm,
+
+                    Visual = new ToastVisual()
                     {
-                        new ToastButton("立即启动","Restart")
+                        BindingGeneric = new ToastBindingGeneric()
                         {
-                            ActivationType =ToastActivationType.Foreground
-                        },
-                        new ToastButtonDismiss("稍后")
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "Need to restart RX FileManager"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "Reset completed"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "Please click to restart RX now"
+                                }
+                            }
+                        }
+                    },
+
+                    Actions = new ToastActionsCustom
+                    {
+                        Buttons =
+                        {
+                            new ToastButton("Restart","Restart")
+                            {
+                                ActivationType =ToastActivationType.Foreground
+                            },
+                            new ToastButtonDismiss("Later")
+                        }
                     }
-                }
-            };
+                };
+
+            }
         }
     }
 }

@@ -15,11 +15,20 @@ namespace FileManager
             this.Device = Device;
             DeviceName.Text = Device.Name;
             Thumbnail.Source = Device.Thumbnail;
-            FreeByte.Text = Device.FreeByte.ToString("N0") + " 字节";
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            {
+                FreeByte.Text = Device.FreeByte.ToString("N0") + " 字节";
+                TotalByte.Text = Device.TotalByte.ToString("N0") + " 字节";
+                UsedByte.Text = (Device.TotalByte - Device.FreeByte).ToString("N0") + " 字节";
+            }
+            else
+            {
+                FreeByte.Text = Device.FreeByte.ToString("N0") + " bytes";
+                TotalByte.Text = Device.TotalByte.ToString("N0") + " bytes";
+                UsedByte.Text = (Device.TotalByte - Device.FreeByte).ToString("N0") + " bytes";
+            }
             FreeSpace.Text = Device.FreeSpace;
-            TotalByte.Text = Device.TotalByte.ToString("N0") + " 字节";
             TotalSpace.Text = Device.Capacity;
-            UsedByte.Text = (Device.TotalByte - Device.FreeByte).ToString("N0") + " 字节";
             UsedSpace.Text = GetSizeDescription(Device.TotalByte - Device.FreeByte);
             Loaded += DeviceInfoDialog_Loaded;
         }
@@ -29,9 +38,18 @@ namespace FileManager
             DoubleAnimation.To = Device.Percent * 100;
             Animation.Begin();
 
-            DeviceType.Text = (await KnownFolders.RemovableDevices.GetFoldersAsync()).Where((Folder) => Folder.FolderRelativeId == Device.Folder.FolderRelativeId).FirstOrDefault() != null
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            {
+                DeviceType.Text = (await KnownFolders.RemovableDevices.GetFoldersAsync()).Where((Folder) => Folder.FolderRelativeId == Device.Folder.FolderRelativeId).FirstOrDefault() != null
                 ? "可移动磁盘"
                 : "本地磁盘";
+            }
+            else
+            {
+                DeviceType.Text = (await KnownFolders.RemovableDevices.GetFoldersAsync()).Where((Folder) => Folder.FolderRelativeId == Device.Folder.FolderRelativeId).FirstOrDefault() != null
+                ? "Removable Disk"
+                : "Local Disk";
+            }
         }
 
         private string GetSizeDescription(ulong Size)

@@ -2,7 +2,6 @@
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
