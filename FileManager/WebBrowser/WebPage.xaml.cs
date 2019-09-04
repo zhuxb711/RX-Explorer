@@ -287,8 +287,16 @@ namespace FileManager
             }
             else
             {
-                ApplicationData.Current.LocalSettings.Values["WebTabMainPage"] = "https://www.baidu.com";
-                MainUrl.Text = "https://www.baidu.com";
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                {
+                    ApplicationData.Current.LocalSettings.Values["WebTabMainPage"] = "https://www.baidu.com";
+                    MainUrl.Text = "https://www.baidu.com";
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["WebTabMainPage"] = "https://www.bing.com";
+                    MainUrl.Text = "https://www.bing.com";
+                }
             }
 
             if (ApplicationData.Current.LocalSettings.Values["WebTabSpecifiedPage"] is string Specified)
