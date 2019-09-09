@@ -1,5 +1,6 @@
 ﻿using System;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Xaml;
 
@@ -17,14 +18,21 @@ namespace FileManager
                 }
                 else
                 {
-                    var Instances = AppInstance.FindOrRegisterInstanceForKey("RX_SingleInstanceFlag");
-                    if(Instances.IsCurrentInstance)
+                    try
+                    {
+                        var Instances = AppInstance.FindOrRegisterInstanceForKey("RX_SingleInstanceFlag");
+                        if (Instances.IsCurrentInstance)
+                        {
+                            Application.Start((p) => new App());
+                        }
+                        else
+                        {
+                            Instances.RedirectActivationTo();
+                        }
+                    }
+                    catch (Exception)
                     {
                         Application.Start((p) => new App());
-                    }
-                    else
-                    {
-                        Instances.RedirectActivationTo();
                     }
                 }
             }
