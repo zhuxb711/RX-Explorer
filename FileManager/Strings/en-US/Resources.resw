@@ -276,6 +276,9 @@
   <data name="LibraryExpander.Header" xml:space="preserve">
     <value>Folders</value>
   </data>
+  <data name="MultiInstace.Content" xml:space="preserve">
+    <value>Enable Multi-Instance Support</value>
+  </data>
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>Open</value>
   </data>

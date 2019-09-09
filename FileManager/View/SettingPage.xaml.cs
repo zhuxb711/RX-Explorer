@@ -33,6 +33,11 @@ namespace FileManager
             {
                 SearchNum.SelectedIndex = SearchNum.Items.IndexOf(SearchNum.Items.Where((Item) => Item.ToString().Contains(MaxNum)).FirstOrDefault());
             }
+
+            if(ApplicationData.Current.LocalSettings.Values["EnableMultiInstanceSupport"] is bool Enable)
+            {
+                MultiInstace.IsChecked = Enable;
+            }
         }
 
         private void Like_PointerEntered(object sender, PointerRoutedEventArgs e)
@@ -226,6 +231,16 @@ namespace FileManager
                     }
                 };
             }
+        }
+
+        private void MultiInstace_Checked(object sender, RoutedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["EnableMultiInstanceSupport"] = true;
+        }
+
+        private void MultiInstace_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["EnableMultiInstanceSupport"] = false;
         }
     }
 }

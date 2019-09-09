@@ -5,12 +5,14 @@
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap mp rescap">
+  xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
+  xmlns:iot2="http://schemas.microsoft.com/appx/manifest/iot/windows10/2"
+  IgnorableNamespaces="uap mp rescap desktop4 iot2">
 
   <Identity
     Name="36186RuoFan.USB"
     Publisher="CN=4FF1CB23-04BD-4F9C-A86A-B4A43196FE02"
-    Version="2.6.0.0" />
+    Version="2.6.3.0" />
 
   <mp:PhoneIdentity PhoneProductId="cb13434c-d58e-4756-a099-364235a676db" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -30,6 +32,8 @@
 
   <Applications>
     <Application Id="App"
+      desktop4:SupportsMultipleInstances="true"
+      iot2:SupportsMultipleInstances="true"
       Executable="$targetnametoken$.exe"
       EntryPoint="FileManager.App">
       <uap:VisualElements

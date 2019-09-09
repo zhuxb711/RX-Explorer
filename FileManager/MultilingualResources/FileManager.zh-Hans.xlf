@@ -806,6 +806,10 @@
           <source>Only search the current directory (faster)</source>
           <target state="translated">仅搜索当前目录(较快)</target>
         </trans-unit>
+        <trans-unit id="MultiInstace.Content" translate="yes" xml:space="preserve">
+          <source>Enable Multi-Instance Support</source>
+          <target state="translated">启用多实例支持(应用多开)</target>
+        </trans-unit>
       </group>
     </body>
   </file>
