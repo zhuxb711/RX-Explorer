@@ -612,4 +612,7 @@
   <data name="SearchFlyoutShallowRadio.Content" xml:space="preserve">
     <value>仅搜索当前目录(较快)</value>
   </data>
+  <data name="MultiInstace.Content" xml:space="preserve">
+    <value>启用多实例支持(应用多开)</value>
+  </data>
 </root>

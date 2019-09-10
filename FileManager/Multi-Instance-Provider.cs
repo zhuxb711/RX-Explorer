@@ -1,6 +1,5 @@
 ﻿using System;
 using Windows.ApplicationModel;
-using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Xaml;
 
