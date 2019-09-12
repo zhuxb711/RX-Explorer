@@ -11,11 +11,6 @@
 
     <Grid>
         <Canvas>
-            <Canvas.ChildrenTransitions>
-                <TransitionCollection>
-                    <EntranceThemeTransition IsStaggeringEnabled="True" FromVerticalOffset="200"/>
-                </TransitionCollection>
-            </Canvas.ChildrenTransitions>
             <Image Name="extendedSplashImage" Source="ms-appx:///Assets/SplashScreen.png"/>
             <TextBlock FontSize="15" Name="Display" TextAlignment="Center" Width="450" Height="50"/>
             <StackPanel Orientation="Horizontal" Name="ButtonPane" Visibility="Collapsed" Width="250">
