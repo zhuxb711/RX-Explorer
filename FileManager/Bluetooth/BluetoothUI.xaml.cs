@@ -11,6 +11,7 @@ using Windows.Foundation;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace FileManager
 {
@@ -22,6 +23,8 @@ namespace FileManager
         DeviceWatcher BluetoothWatcher = null;
         private int LastSelectIndex = -1;
         private bool IsPinConfirm = false;
+        private bool IsAdding = false;
+        private Queue<DeviceInformation> AddQueue;
         public BluetoothUI()
         {
             InitializeComponent();
@@ -47,10 +50,14 @@ namespace FileManager
             BluetoothDeviceCollection = null;
             PairedBluetoothDeviceCollection.Clear();
             PairedBluetoothDeviceCollection = null;
+            AddQueue.Clear();
+            AddQueue = null;
+            IsAdding = false;
         }
 
         private void BluetoothUI_Loaded(object sender, RoutedEventArgs e)
         {
+            AddQueue = new Queue<DeviceInformation>();
             PairedBluetoothDeviceCollection = new List<BluetoothDevice>();
             BluetoothDeviceCollection = new ObservableCollection<BluetoothList>();
             BluetoothControl.ItemsSource = BluetoothDeviceCollection;
@@ -175,7 +182,6 @@ namespace FileManager
                         }
                     }
                     catch (Exception) { }
-
                 }
             });
         }
@@ -205,20 +211,46 @@ namespace FileManager
 
         private async void BluetoothWatcher_Added(DeviceWatcher sender, DeviceInformation args)
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            try
             {
-                lock (SyncRootProvider.SyncRoot)
+                if (BluetoothDeviceCollection != null)
                 {
-                    try
+                    lock (SyncRootProvider.SyncRoot)
                     {
-                        if (BluetoothDeviceCollection != null)
+                        AddQueue.Enqueue(args);
+
+                        if (IsAdding)
                         {
-                            BluetoothDeviceCollection.Add(new BluetoothList(args));
+                            return;
+                        }
+                        IsAdding = true;
+                    }
+
+                    while (AddQueue.Count != 0)
+                    {
+                        DeviceInformation Info = AddQueue.Dequeue();
+                        using (var Thumbnail = await Info.GetGlyphThumbnailAsync())
+                        {
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                            {
+                                BitmapImage Image = new BitmapImage
+                                {
+                                    DecodePixelHeight = 30,
+                                    DecodePixelWidth = 30
+                                };
+                                await Image.SetSourceAsync(Thumbnail);
+                                BluetoothDeviceCollection.Add(new BluetoothList(Info, Image));
+                            });
                         }
                     }
-                    catch (Exception) { }
+
+                    IsAdding = false;
                 }
-            });
+            }
+            catch (Exception)
+            {
+                IsAdding = false;
+            }
         }
 
         /// <summary>

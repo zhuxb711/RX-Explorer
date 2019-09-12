@@ -286,6 +286,11 @@ namespace FileManager
 
                     UpdateTip.IsOpen = true;
                 }
+                else
+                {
+                    await Task.Delay(5000);
+                    await PinApplicationToTaskBar();
+                }
             }
             catch (Exception)
             {

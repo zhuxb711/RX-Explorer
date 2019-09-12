@@ -1154,29 +1154,10 @@ namespace FileManager
         /// 创建BluetoothList的实例
         /// </summary>
         /// <param name="DeviceInfo">蓝牙设备</param>
-        public BluetoothList(DeviceInformation DeviceInfo)
+        public BluetoothList(DeviceInformation DeviceInfo,BitmapImage Glyph)
         {
             this.DeviceInfo = DeviceInfo;
-            GetGlyphImage();
-        }
-
-        private async void GetGlyphImage()
-        {
-            BitmapImage Image = new BitmapImage
-            {
-                DecodePixelHeight = 30,
-                DecodePixelWidth = 30,
-                DecodePixelType = DecodePixelType.Logical
-            };
-
-            using (var Thumbnail = await DeviceInfo.GetGlyphThumbnailAsync())
-            {
-                await Image.SetSourceAsync(Thumbnail);
-            }
-
-            Glyph = Image;
-
-            OnPropertyChanged("Glyph");
+            this.Glyph = Glyph;
         }
     }
     #endregion
