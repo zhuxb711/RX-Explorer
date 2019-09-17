@@ -1,10 +1,12 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
+﻿using AnimationEffectProvider;
+using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
+using Windows.Foundation;
 using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -37,6 +39,8 @@ namespace FileManager
 
         public LanguageEnum CurrentLanguage { get; private set; }
 
+        private EntranceAnimationEffect EntranceEffectProvider;
+
         public MainPage()
         {
             InitializeComponent();
@@ -58,6 +62,11 @@ namespace FileManager
                     IsUSBActivate = true;
                     ActivateUSBDevicePath = Paras[1];
                 }
+            }
+            else if (e.Parameter is Rect SplashRect)
+            {
+                EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, SplashRect);
+                EntranceEffectProvider.PrepareEntranceEffect();
             }
         }
 
@@ -93,6 +102,8 @@ namespace FileManager
             SearchHistoryRecord = await SQL.GetSearchHistoryAsync();
 
             Nav.Navigate(typeof(ThisPC));
+
+            EntranceEffectProvider.StartEntranceEffect();
 
             await CheckAndInstallUpdate();
         }

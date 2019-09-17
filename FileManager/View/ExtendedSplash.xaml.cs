@@ -13,14 +13,14 @@ using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
-
 namespace FileManager
 {
     public sealed partial class ExtendedSplash : Page
     {
         internal Rect SplashImageRect;
+
         private SplashScreen Splash;
+
         public ExtendedSplash(SplashScreen Screen)
         {
             InitializeComponent();
@@ -61,7 +61,7 @@ namespace FileManager
             {
                 var rootFrame = new Frame();
                 Window.Current.Content = rootFrame;
-                rootFrame.Navigate(typeof(MainPage));
+                rootFrame.Navigate(typeof(MainPage), SplashImageRect);
             });
         }
 

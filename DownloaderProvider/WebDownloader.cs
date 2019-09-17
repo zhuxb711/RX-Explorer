@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
 using Windows.UI.Notifications;
+using Windows.UI.Xaml;
 
 namespace DownloaderProvider
 {
@@ -52,36 +53,24 @@ namespace DownloaderProvider
 
         public event EventHandler<DownloadOperator> DownloadTaskCancel;
 
-        private double percentage;
-        public double Percentage
-        {
-            get => percentage;
-            private set
-            {
-                percentage = value;
-                OnPropertyChanged("Percentage");
-            }
-        }
+        private DispatcherTimer SpeedTimer;
 
-        private string bytereceived;
-        public string ByteReceived
-        {
-            get => bytereceived;
-            private set
-            {
-                bytereceived = value;
-                OnPropertyChanged("ByteReceived");
-            }
-        }
+        private long LastByteReceivedRecord;
 
-        private string totalbytecount;
+        public double Percentage { get; private set; }
+
+        public string DownloadSpeed { get; private set; }
+
+        private long bytereceived;
+        public string ByteReceived => GetSizeDescription(bytereceived);
+
+        private long totalbytecount;
         public string TotalFileSize
         {
-            get => totalbytecount;
-            private set
+            get
             {
-                totalbytecount = " / " + (string.IsNullOrWhiteSpace(value) ? "Unknown" : value);
-                OnPropertyChanged("TotalFileSize");
+                string value = GetSizeDescription(totalbytecount);
+                return " / " + (string.IsNullOrWhiteSpace(value) ? "Unknown" : value);
             }
         }
 
@@ -130,6 +119,8 @@ namespace DownloaderProvider
             }
 
             State = DownloadState.Downloading;
+
+            SpeedTimer.Start();
 
             DownloadResult DownloadResult = await WebDownloader.DownloadFileAsync(this);
             switch (DownloadResult)
@@ -192,6 +183,7 @@ namespace DownloaderProvider
             State = DownloadState.Paused;
 
             PauseSignal.Reset();
+            SpeedTimer.Stop();
         }
 
         public void ResumeDownload()
@@ -211,6 +203,7 @@ namespace DownloaderProvider
             State = DownloadState.Downloading;
 
             PauseSignal.Set();
+            SpeedTimer.Start();
         }
 
         public ToastNotification GenerateToastNotification(ToastNotificationCategory Category)
@@ -435,6 +428,20 @@ namespace DownloaderProvider
 
             Progress = new Progress<(long, long)>();
             Progress.ProgressChanged += Progress_ProgressChanged;
+
+            SpeedTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(1000)
+            };
+            SpeedTimer.Tick += SpeedTimer_Tick;
+        }
+
+        private void SpeedTimer_Tick(object sender, object e)
+        {
+            long ByteStep = bytereceived - LastByteReceivedRecord;
+            DownloadSpeed = GetSizeDescription(ByteStep) + "/s";
+            OnPropertyChanged("DownloadSpeed");
+            LastByteReceivedRecord = bytereceived;
         }
 
         internal DownloadOperator(Uri Address, string ActualFileName, DownloadState State, string UniqueID)
@@ -447,9 +454,13 @@ namespace DownloaderProvider
 
         private void Progress_ProgressChanged(object sender, (long, long) e)
         {
-            ByteReceived = GetSizeDescription(e.Item1);
-            TotalFileSize = GetSizeDescription(e.Item2);
+            bytereceived = e.Item1;
+            totalbytecount = e.Item2;
             Percentage = Math.Ceiling(Convert.ToDouble(e.Item1 * 100 / e.Item2));
+
+            OnPropertyChanged("ByteReceived");
+            OnPropertyChanged("TotalFileSize");
+            OnPropertyChanged("Percentage");
         }
 
         public void Dispose()
@@ -463,6 +474,9 @@ namespace DownloaderProvider
             PauseSignal?.Dispose();
             CancellationToken = null;
             PauseSignal = null;
+
+            SpeedTimer.Stop();
+            SpeedTimer = null;
         }
     }
 

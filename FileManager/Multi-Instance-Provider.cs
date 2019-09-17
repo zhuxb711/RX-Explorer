@@ -13,6 +13,7 @@ namespace FileManager
             {
                 if (Enable)
                 {
+                    _ = AppInstance.FindOrRegisterInstanceForKey("RX_SingleInstanceFlag");
                     Application.Start((p) => new App());
                 }
                 else
@@ -26,7 +27,14 @@ namespace FileManager
                         }
                         else
                         {
-                            Instances.RedirectActivationTo();
+                            if (AppInstance.RecommendedInstance == null)
+                            {
+                                Instances.RedirectActivationTo();
+                            }
+                            else
+                            {
+                                AppInstance.RecommendedInstance.RedirectActivationTo();
+                            }
                         }
                     }
                     catch (Exception)

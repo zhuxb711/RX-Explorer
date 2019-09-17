@@ -1154,7 +1154,7 @@ namespace FileManager
         /// 创建BluetoothList的实例
         /// </summary>
         /// <param name="DeviceInfo">蓝牙设备</param>
-        public BluetoothList(DeviceInformation DeviceInfo,BitmapImage Glyph)
+        public BluetoothList(DeviceInformation DeviceInfo, BitmapImage Glyph)
         {
             this.DeviceInfo = DeviceInfo;
             this.Glyph = Glyph;
@@ -1663,7 +1663,7 @@ namespace FileManager
                                  {
                                      Context.Response.ContentLength64 = FileStream.Length;
                                      Context.Response.ContentType = File.ContentType;
-                                     Context.Response.AddHeader("Content-Disposition", "Attachment;filename*=UTF-8''" + File.Name);
+                                     Context.Response.AddHeader("Content-Disposition", "Attachment;filename=" + Uri.EscapeDataString(File.Name));
 
                                      try
                                      {
@@ -1734,9 +1734,11 @@ namespace FileManager
     }
     #endregion
 
+    #region 语言枚举
     public enum LanguageEnum
     {
         Chinese = 1,
         English = 2
     }
+    #endregion
 }
