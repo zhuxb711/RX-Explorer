@@ -1332,35 +1332,41 @@ namespace FileManager
             else if (!FileControl.ThisPage.CurrentNode.HasChildren)
             {
                 FileControl.ThisPage.CurrentNode.HasUnrealizedChildren = true;
-                FileControl.ThisPage.ExpenderLockerReleaseRequest = true;
                 FileControl.ThisPage.CurrentNode.IsExpanded = true;
-                await Task.Run(() =>
-                {
-                    FileControl.ThisPage.ExpandLocker.WaitOne();
-                });
             }
             else
             {
-                FileControl.ThisPage.ExpenderLockerReleaseRequest = true;
                 FileControl.ThisPage.CurrentNode.IsExpanded = true;
-                await Task.Run(() =>
-                {
-                    FileControl.ThisPage.ExpandLocker.WaitOne();
-                });
             }
 
-            TreeViewNode Node = FileControl.ThisPage.CurrentNode.Children.Where((Folder) => NewFolder.Name == (Folder.Content as StorageFolder).Name).FirstOrDefault();
             while (true)
             {
-                if (FileControl.ThisPage.FolderTree.ContainerFromNode(Node) is TreeViewItem Item)
+                TreeViewNode Node = FileControl.ThisPage.CurrentNode?.Children.Where((Folder) => NewFolder.Name == (Folder.Content as StorageFolder).Name).FirstOrDefault();
+                if (Node != null)
                 {
-                    Item.IsSelected = true;
-                    await FileControl.ThisPage.DisplayItemsInFolder(Node);
+                    while (true)
+                    {
+                        if (FileControl.ThisPage.FolderTree.ContainerFromNode(Node) is TreeViewItem Item)
+                        {
+                            Item.IsSelected = true;
+                            Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
+                            await FileControl.ThisPage.DisplayItemsInFolder(Node);
+                            break;
+                        }
+                        else
+                        {
+                            await Task.Delay(300);
+                        }
+                    }
+                    break;
+                }
+                else if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name != "FileControl")
+                {
                     break;
                 }
                 else
                 {
-                    await Task.Delay(200);
+                    await Task.Delay(500);
                 }
             }
         }
@@ -1696,24 +1702,38 @@ namespace FileManager
         {
             if (FileControl.ThisPage.CurrentNode.HasUnrealizedChildren && !FileControl.ThisPage.CurrentNode.IsExpanded)
             {
-                FileControl.ThisPage.ExpenderLockerReleaseRequest = true;
                 FileControl.ThisPage.CurrentNode.IsExpanded = true;
             }
-            else
-            {
-                FileControl.ThisPage.ExpandLocker.Set();
-            }
 
-            await Task.Run(() =>
+            while (true)
             {
-                FileControl.ThisPage.ExpandLocker.WaitOne();
-            });
-
-            var TargetNode = FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == (GridViewControl.SelectedItem as FileSystemStorageItem).RelativeId).FirstOrDefault();
-            if (TargetNode != null)
-            {
-                await FileControl.ThisPage.DisplayItemsInFolder(TargetNode);
-                (FileControl.ThisPage.FolderTree.ContainerFromNode(TargetNode) as TreeViewItem).IsSelected = true;
+                var TargetNode = FileControl.ThisPage.CurrentNode?.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == (GridViewControl.SelectedItem as FileSystemStorageItem).RelativeId).FirstOrDefault();
+                if (TargetNode != null)
+                {
+                    while (true)
+                    {
+                        if (FileControl.ThisPage.FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Container)
+                        {
+                            Container.IsSelected = true;
+                            Container.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
+                            await FileControl.ThisPage.DisplayItemsInFolder(TargetNode);
+                            break;
+                        }
+                        else
+                        {
+                            await Task.Delay(300);
+                        }
+                    }
+                    break;
+                }
+                else if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name != "FileControl")
+                {
+                    break;
+                }
+                else
+                {
+                    await Task.Delay(500);
+                }
             }
         }
 

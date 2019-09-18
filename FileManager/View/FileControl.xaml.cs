@@ -49,9 +49,8 @@ namespace FileManager
         public static FileControl ThisPage { get; private set; }
         private bool IsAdding = false;
         private CancellationTokenSource CancelToken;
+        private CancellationTokenSource FolderExpandCancel;
         private AutoResetEvent Locker;
-        public AutoResetEvent ExpandLocker;
-        public bool ExpenderLockerReleaseRequest = false;
 
         public FileControl()
         {
@@ -64,9 +63,20 @@ namespace FileManager
 
         private async void FileControl_Loaded(object sender, RoutedEventArgs e)
         {
+            if (CancelToken != null)
+            {
+                CancelToken.Dispose();
+                CancelToken = null;
+            }
+
+            if (FolderExpandCancel != null)
+            {
+                FolderExpandCancel.Dispose();
+                FolderExpandCancel = null;
+            }
+
             CancelToken = new CancellationTokenSource();
             Locker = new AutoResetEvent(false);
-            ExpandLocker = new AutoResetEvent(false);
 
             while (true)
             {
@@ -105,8 +115,8 @@ namespace FileManager
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             Locker.Dispose();
-            ExpandLocker.Dispose();
-            CancelToken.Dispose();
+
+            FolderExpandCancel.Cancel();
 
             CurrentNode = null;
 
@@ -115,7 +125,6 @@ namespace FileManager
             FolderTree.RootNodes.Clear();
             FilePresenter.ThisPage.FileCollection.Clear();
             FilePresenter.ThisPage.HasFile.Visibility = Visibility.Visible;
-
         }
 
         /// <summary>
@@ -133,6 +142,9 @@ namespace FileManager
                     HasUnrealizedChildren = SubFolders.Count != 0
                 };
                 FolderTree.RootNodes.Add(RootNode);
+
+                FolderExpandCancel = new CancellationTokenSource();
+
                 await FillTreeNode(RootNode);
             }
         }
@@ -154,26 +166,48 @@ namespace FileManager
                 return;
             }
 
-            IReadOnlyList<StorageFolder> StorageFolderList = await folder.GetFoldersAsync();
+            try
+            {
+                QueryOptions Options = new QueryOptions(CommonFileQuery.DefaultQuery, null)
+                {
+                    FolderDepth = FolderDepth.Shallow,
+                    IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                };
 
-            if (StorageFolderList.Count == 0)
+                StorageFolderQueryResult FolderQuery = folder.CreateFolderQueryWithOptions(Options);
+
+                IReadOnlyList<StorageFolder> StorageFolderList = await FolderQuery.GetFoldersAsync().AsTask(FolderExpandCancel.Token);
+
+                if (StorageFolderList.Count == 0)
+                {
+                    return;
+                }
+
+                foreach (var SubFolder in StorageFolderList)
+                {
+                    QueryOptions SubOptions = new QueryOptions(CommonFileQuery.DefaultQuery, null)
+                    {
+                        FolderDepth = FolderDepth.Shallow,
+                        IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                    };
+
+                    StorageFolderQueryResult SubFolderQuery = SubFolder.CreateFolderQueryWithOptions(SubOptions);
+                    uint Count = await SubFolderQuery.GetItemCountAsync().AsTask(FolderExpandCancel.Token);
+
+                    TreeViewNode NewNode = new TreeViewNode
+                    {
+                        Content = SubFolder,
+                        HasUnrealizedChildren = Count != 0
+                    };
+
+                    Node.Children.Add(NewNode);
+                }
+                Node.HasUnrealizedChildren = false;
+            }
+            catch (TaskCanceledException)
             {
                 return;
             }
-
-            foreach (var SubFolder in StorageFolderList)
-            {
-                IReadOnlyList<StorageFolder> SubSubStorageFolderList = await SubFolder.GetFoldersAsync();
-
-                TreeViewNode NewNode = new TreeViewNode
-                {
-                    Content = SubFolder,
-                    HasUnrealizedChildren = SubSubStorageFolderList.Count != 0
-                };
-
-                Node.Children.Add(NewNode);
-            }
-            Node.HasUnrealizedChildren = false;
         }
 
         private async void FileTree_Expanding(TreeView sender, TreeViewExpandingEventArgs args)
@@ -181,12 +215,6 @@ namespace FileManager
             if (args.Node.HasUnrealizedChildren)
             {
                 await FillTreeNode(args.Node);
-            }
-
-            if (ExpenderLockerReleaseRequest)
-            {
-                ExpenderLockerReleaseRequest = false;
-                ExpandLocker.Set();
             }
         }
 
@@ -342,12 +370,13 @@ namespace FileManager
                         if (FolderTree.ContainerFromNode(ParentNode) is TreeViewItem Item)
                         {
                             Item.IsSelected = true;
+                            Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
                             await DisplayItemsInFolder(ParentNode);
                             break;
                         }
                         else
                         {
-                            await Task.Delay(200);
+                            await Task.Delay(300);
                         }
                     }
                     CurrentNode = ParentNode;

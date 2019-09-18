@@ -159,12 +159,13 @@ namespace FileManager
                         if (FileControl.ThisPage.FolderTree.ContainerFromNode(FileControl.ThisPage.CurrentNode) is TreeViewItem Item)
                         {
                             Item.IsSelected = true;
+                            Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
                             await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode);
                             break;
                         }
                         else
                         {
-                            await Task.Delay(200);
+                            await Task.Delay(300);
                         }
                     }
                 }
@@ -176,7 +177,12 @@ namespace FileManager
                     _ = await StorageFile.GetFileFromPathAsync(RemoveFile.Path);
 
                     FileControl.ThisPage.CurrentNode = await FindFolderLocationInTree(FileControl.ThisPage.FolderTree.RootNodes[0], new PathAnalysis((await RemoveFile.File.GetParentAsync()).Path));
-                    (FileControl.ThisPage.FolderTree.ContainerFromNode(FileControl.ThisPage.CurrentNode) as TreeViewItem).IsSelected = true;
+
+                    var Container = FileControl.ThisPage.FolderTree.ContainerFromNode(FileControl.ThisPage.CurrentNode) as TreeViewItem;
+                    Container.IsSelected = true;
+                    Container.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
+                    StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
+
                     await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode);
                 }
                 catch (FileNotFoundException)
@@ -226,28 +232,54 @@ namespace FileManager
         {
             if (Node.HasUnrealizedChildren && !Node.IsExpanded)
             {
-                FileControl.ThisPage.ExpenderLockerReleaseRequest = true;
                 Node.IsExpanded = true;
             }
-            else
-            {
-                FileControl.ThisPage.ExpandLocker.Set();
-            }
-
-            await Task.Run(() =>
-            {
-                FileControl.ThisPage.ExpandLocker.WaitOne();
-            });
 
             string NextPathLevel = Analysis.NextPathLevel();
 
             if (NextPathLevel == Analysis.FullPath)
             {
-                return (Node.Content as StorageFolder).Path == NextPathLevel ? Node : Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
+                if ((Node.Content as StorageFolder).Path == NextPathLevel)
+                {
+                    return Node;
+                }
+                else
+                {
+                    while (true)
+                    {
+                        var TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
+                        if (TargetNode != null)
+                        {
+                            return TargetNode;
+                        }
+                        else
+                        {
+                            await Task.Delay(500);
+                        }
+                    }
+                }
             }
             else
             {
-                return await FindFolderLocationInTree((Node.Content as StorageFolder).Path == NextPathLevel ? Node : Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault(), Analysis);
+                if ((Node.Content as StorageFolder).Path == NextPathLevel)
+                {
+                    return await FindFolderLocationInTree(Node, Analysis);
+                }
+                else
+                {
+                    while (true)
+                    {
+                        var TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
+                        if (TargetNode != null)
+                        {
+                            return await FindFolderLocationInTree(TargetNode, Analysis);
+                        }
+                        else
+                        {
+                            await Task.Delay(500);
+                        }
+                    }
+                }
             }
         }
 
