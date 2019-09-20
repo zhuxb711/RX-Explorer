@@ -33,6 +33,7 @@ namespace FileManager
         public WebView WebBrowser = null;
         public TabViewItem ThisTab;
         private bool IsRefresh = false;
+        private DispatcherTimer SuggestionTimer;
 
         public WebPage(Uri uri = null)
         {
@@ -408,6 +409,11 @@ namespace FileManager
         private void InitializeWebView()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            SuggestionTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(500)
+            };
+            SuggestionTimer.Tick += SuggestionTimer_Tick;
 
             Gr.Children.Add(WebBrowser);
             WebBrowser.SetValue(Grid.RowProperty, 1);
@@ -425,6 +431,18 @@ namespace FileManager
             WebBrowser.SeparateProcessLost += WebBrowser_SeparateProcessLost;
             WebBrowser.NavigationFailed += WebBrowser_NavigationFailed;
             WebBrowser.UnviewableContentIdentified += WebBrowser_UnviewableContentIdentified;
+        }
+
+        private void SuggestionTimer_Tick(object sender, object e)
+        {
+            lock (SyncRootProvider.SyncRoot)
+            {
+                SuggestionTimer.Stop();
+                if (JsonConvert.DeserializeObject<WebSearchResult>(GetJsonFromWeb(AutoSuggest.Text)) is WebSearchResult SearchResult)
+                {
+                    AutoSuggest.ItemsSource = SearchResult.s;
+                }
+            }
         }
 
         private void WebBrowser_UnviewableContentIdentified(WebView sender, WebViewUnviewableContentIdentifiedEventArgs args)
@@ -732,11 +750,12 @@ namespace FileManager
 
         private void AutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput && sender.Text != "")
+            lock (SyncRootProvider.SyncRoot)
             {
-                if (JsonConvert.DeserializeObject<WebSearchResult>(GetJsonFromWeb(sender.Text)) is WebSearchResult SearchResult)
+                if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput && sender.Text != "")
                 {
-                    sender.ItemsSource = SearchResult.s;
+                    SuggestionTimer.Stop();
+                    SuggestionTimer.Start();
                 }
             }
         }

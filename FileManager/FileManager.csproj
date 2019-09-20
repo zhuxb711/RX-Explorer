@@ -22,7 +22,7 @@
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
-    <PackageCertificateThumbprint>69CFA6780C09587C20FC71E456200A9285CACF0D</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>30E2C59AA0A36702AFF73532FB5C99DC6D992345</PackageCertificateThumbprint>
     <AppInstallerUpdateFrequency>0</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
@@ -152,10 +152,10 @@
     <Compile Include="View\AboutMe.xaml.cs">
       <DependentUpon>AboutMe.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Bluetooth\BluetoothFileTransfer.xaml.cs">
+    <Compile Include="Dialog\BluetoothFileTransfer.xaml.cs">
       <DependentUpon>BluetoothFileTransfer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Bluetooth\BluetoothUI.xaml.cs">
+    <Compile Include="Dialog\BluetoothUI.xaml.cs">
       <DependentUpon>BluetoothUI.xaml</DependentUpon>
     </Compile>
     <Compile Include="ClassCollection.cs" />
@@ -214,10 +214,10 @@
     <Compile Include="View\ZipExplorer.xaml.cs">
       <DependentUpon>ZipExplorer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="WebBrowser\WebPage.xaml.cs">
+    <Compile Include="View\WebPage.xaml.cs">
       <DependentUpon>WebPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="WebBrowser\WebTab.xaml.cs">
+    <Compile Include="View\WebTab.xaml.cs">
       <DependentUpon>WebTab.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
@@ -352,11 +352,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Bluetooth\BluetoothFileTransfer.xaml">
+    <Page Include="Dialog\BluetoothFileTransfer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Bluetooth\BluetoothUI.xaml">
+    <Page Include="Dialog\BluetoothUI.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -432,11 +432,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WebBrowser\WebPage.xaml">
+    <Page Include="View\WebPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WebBrowser\WebTab.xaml">
+    <Page Include="View\WebTab.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -466,7 +466,7 @@
       <Version>5.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.2.190830001</Version>
+      <Version>2.2.190917002</Version>
     </PackageReference>
     <PackageReference Include="SharpZipLib">
       <Version>1.2.0</Version>

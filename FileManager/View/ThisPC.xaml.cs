@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.System;
@@ -506,6 +507,13 @@ namespace FileManager
         {
             DeviceGrid.SelectedIndex = -1;
             LibraryGrid.SelectedIndex = -1;
+        }
+
+        private async void StackPanel_Loaded(object sender, RoutedEventArgs e)
+        {
+            await Task.Delay(300);
+            var Story = ((StackPanel)sender).Resources["ProgressAnimation"] as Storyboard;
+            Story.Begin();
         }
     }
 }

@@ -85,8 +85,8 @@
             <NavigationView.AutoSuggestBox>
                 <AutoSuggestBox QueryIcon="Find"
                                 x:FieldModifier="public" 
-                                PlaceholderText="搜索..." 
                                 Width="200" 
+                                PlaceholderText="搜索..." 
                                 Name="GlobeSearch" 
                                 QuerySubmitted="GlobeSearch_QuerySubmitted" 
                                 TextChanged="GlobeSearch_TextChanged"

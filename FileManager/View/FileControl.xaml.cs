@@ -51,6 +51,7 @@ namespace FileManager
         private CancellationTokenSource CancelToken;
         private CancellationTokenSource FolderExpandCancel;
         private AutoResetEvent Locker;
+        private ManualResetEvent ExitLocker;
 
         public FileControl()
         {
@@ -68,14 +69,8 @@ namespace FileManager
                 CancelToken.Dispose();
                 CancelToken = null;
             }
-
-            if (FolderExpandCancel != null)
-            {
-                FolderExpandCancel.Dispose();
-                FolderExpandCancel = null;
-            }
-
             CancelToken = new CancellationTokenSource();
+
             Locker = new AutoResetEvent(false);
 
             while (true)
@@ -112,11 +107,21 @@ namespace FileManager
                 : "Search " + TargetFolder.DisplayName;
         }
 
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        protected async override void OnNavigatedFrom(NavigationEventArgs e)
         {
             Locker.Dispose();
 
             FolderExpandCancel.Cancel();
+
+            await Task.Run(() =>
+            {
+                ExitLocker.WaitOne();
+            });
+
+            ExitLocker.Dispose();
+            ExitLocker = null;
+            FolderExpandCancel.Dispose();
+            FolderExpandCancel = null;
 
             CurrentNode = null;
 
@@ -144,6 +149,7 @@ namespace FileManager
                 FolderTree.RootNodes.Add(RootNode);
 
                 FolderExpandCancel = new CancellationTokenSource();
+                ExitLocker = new ManualResetEvent(true);
 
                 await FillTreeNode(RootNode);
             }
@@ -168,6 +174,7 @@ namespace FileManager
 
             try
             {
+                ExitLocker.Reset();
                 QueryOptions Options = new QueryOptions(CommonFileQuery.DefaultQuery, null)
                 {
                     FolderDepth = FolderDepth.Shallow,
@@ -176,37 +183,61 @@ namespace FileManager
 
                 StorageFolderQueryResult FolderQuery = folder.CreateFolderQueryWithOptions(Options);
 
-                IReadOnlyList<StorageFolder> StorageFolderList = await FolderQuery.GetFoldersAsync().AsTask(FolderExpandCancel.Token);
+                uint FolderCount = await FolderQuery.GetItemCountAsync();
 
-                if (StorageFolderList.Count == 0)
+                if (FolderCount == 0)
                 {
                     return;
                 }
-
-                foreach (var SubFolder in StorageFolderList)
+                else if (FolderCount <= 50)
                 {
-                    QueryOptions SubOptions = new QueryOptions(CommonFileQuery.DefaultQuery, null)
+                    IReadOnlyList<StorageFolder> StorageFolderList = await FolderQuery.GetFoldersAsync().AsTask(FolderExpandCancel.Token);
+
+                    foreach (var SubFolder in StorageFolderList)
                     {
-                        FolderDepth = FolderDepth.Shallow,
-                        IndexerOption = IndexerOption.UseIndexerWhenAvailable
-                    };
+                        StorageFolderQueryResult SubFolderQuery = SubFolder.CreateFolderQueryWithOptions(Options);
+                        uint Count = await SubFolderQuery.GetItemCountAsync().AsTask(FolderExpandCancel.Token);
 
-                    StorageFolderQueryResult SubFolderQuery = SubFolder.CreateFolderQueryWithOptions(SubOptions);
-                    uint Count = await SubFolderQuery.GetItemCountAsync().AsTask(FolderExpandCancel.Token);
+                        TreeViewNode NewNode = new TreeViewNode
+                        {
+                            Content = SubFolder,
+                            HasUnrealizedChildren = Count != 0
+                        };
 
-                    TreeViewNode NewNode = new TreeViewNode
-                    {
-                        Content = SubFolder,
-                        HasUnrealizedChildren = Count != 0
-                    };
-
-                    Node.Children.Add(NewNode);
+                        Node.Children.Add(NewNode);
+                    }
+                    Node.HasUnrealizedChildren = false;
                 }
-                Node.HasUnrealizedChildren = false;
+                else
+                {
+                    for (uint i = 0; i < FolderCount && !FolderExpandCancel.IsCancellationRequested; i += 50)
+                    {
+                        IReadOnlyList<StorageFolder> StorageFolderList = await FolderQuery.GetFoldersAsync(i, 50).AsTask(FolderExpandCancel.Token);
+
+                        foreach (var SubFolder in StorageFolderList)
+                        {
+                            StorageFolderQueryResult SubFolderQuery = SubFolder.CreateFolderQueryWithOptions(Options);
+                            uint Count = await SubFolderQuery.GetItemCountAsync().AsTask(FolderExpandCancel.Token);
+
+                            TreeViewNode NewNode = new TreeViewNode
+                            {
+                                Content = SubFolder,
+                                HasUnrealizedChildren = Count != 0
+                            };
+
+                            Node.Children.Add(NewNode);
+                        }
+                    }
+                    Node.HasUnrealizedChildren = false;
+                }
             }
             catch (TaskCanceledException)
             {
                 return;
+            }
+            finally
+            {
+                ExitLocker.Set();
             }
         }
 
@@ -440,8 +471,18 @@ namespace FileManager
             }
         }
 
-        private void FileTree_Collapsed(TreeView sender, TreeViewCollapsedEventArgs args)
+        private async void FileTree_Collapsed(TreeView sender, TreeViewCollapsedEventArgs args)
         {
+            FolderExpandCancel.Cancel();
+
+            await Task.Run(() =>
+            {
+                ExitLocker.WaitOne();
+            });
+
+            FolderExpandCancel.Dispose();
+            FolderExpandCancel = new CancellationTokenSource();
+
             args.Node.Children.Clear();
             args.Node.HasUnrealizedChildren = true;
         }

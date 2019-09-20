@@ -28,8 +28,9 @@ namespace FileManager
         public App()
         {
             InitializeComponent();
-            Suspending += OnSuspending;
             ToastNotificationManager.History.Clear();
+            RequestedTheme = ApplicationTheme.Dark;
+            Suspending += OnSuspending;
             UnhandledException += App_UnhandledException;
         }
 

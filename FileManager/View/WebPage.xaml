@@ -84,7 +84,7 @@
                     <TextBlock Margin="0,5,0,0" Text="{x:Bind Address.AbsoluteUri}" Width="262" TextTrimming="CharacterEllipsis" FontSize="15" Foreground="Gray"/>
                     <ProgressBar Margin="0,5,0,0" Name="DownloadProgress" Value="{x:Bind Percentage,Mode=OneWay}" IsIndeterminate="False" Maximum="100" Minimum="0"/>
                     <StackPanel Margin="0,5,0,0">
-                        <TextBlock x:Name="DownloadSpeed" FontSize="14" Text="{x:Bind DownloadSpeed,Mode=OneWay}"/>
+                        <TextBlock FontSize="14" Text="{x:Bind DownloadSpeed,Mode=OneWay}"/>
                         <Grid Margin="0,-5,0,0">
                             <StackPanel Name="PercentDisplay" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                                 <TextBlock Text="{x:Bind ByteReceived,Mode=OneWay}" FontSize="14"/>

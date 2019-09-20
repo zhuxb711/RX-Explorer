@@ -175,9 +175,24 @@
                         <DataTemplate x:DataType="local:HardDeviceInfo">
                             <StackPanel Orientation="Horizontal" Width="280" Height="80">
                                 <Image VerticalAlignment="Center" IsHitTestVisible="False" Height="60" Width="60" Source="{x:Bind Thumbnail}" Stretch="Uniform"/>
-                                <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="10,0,0,0">
+                                <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="10,0,0,0" Loaded="StackPanel_Loaded">
+                                    <StackPanel.Resources>
+                                        <Storyboard x:Name="ProgressAnimation">
+                                            <DoubleAnimation Duration="0:0:0.8" 
+                                                             x:Name="DoubleAnimation"
+                                                             EnableDependentAnimation="True" 
+                                                             From="0"
+                                                             To="{x:Bind Percent}"
+                                                             Storyboard.TargetName="Pro"
+                                                             Storyboard.TargetProperty="Value">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <CircleEase EasingMode="EaseInOut"></CircleEase>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </StackPanel.Resources>
                                     <TextBlock IsHitTestVisible="False" FontSize="17" Width="200" TextTrimming="CharacterEllipsis" Text="{x:Bind Name}"/>
-                                    <ProgressBar Width="200" Height="13" IsHitTestVisible="False" Maximum="1" Minimum="0" Value="{x:Bind Percent}"/>
+                                    <ProgressBar x:Name="Pro" Width="200" Height="15" IsHitTestVisible="False" Maximum="1" Minimum="0"/>
                                     <TextBlock IsHitTestVisible="False" Width="200" FontSize="15" TextTrimming="CharacterEllipsis" Text="{x:Bind StorageSpaceDescription}"/>
                                 </StackPanel>
                             </StackPanel>
