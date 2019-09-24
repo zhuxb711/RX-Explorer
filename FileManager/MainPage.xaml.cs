@@ -12,6 +12,7 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
 using Windows.System;
+using Windows.UI;
 using Windows.UI.Notifications;
 using Windows.UI.Shell;
 using Windows.UI.StartScreen;
@@ -75,6 +76,25 @@ namespace FileManager
             if (ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] == null)
             {
                 ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] = Convert.ToString(100);
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is string Mode)
+            {
+                if (Mode != "推荐" && Mode != "Recommand")
+                {
+                    AcrylicBackgroundController.TintOpacity = Convert.ToDouble(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]);
+                    AcrylicBackgroundController.TintLuminosityOpacity = Convert.ToDouble(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]);
+                    if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color)
+                    {
+                        AcrylicBackgroundController.AcrylicColor = AcrylicBackgroundController.GetColorFromHexString(Color);
+                    }
+                }
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = CurrentLanguage == LanguageEnum.Chinese
+                            ? "推荐"
+                            : "Recommand";
             }
 
             if (CurrentLanguage == LanguageEnum.Chinese)

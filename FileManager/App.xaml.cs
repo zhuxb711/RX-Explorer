@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
@@ -28,7 +29,15 @@ namespace FileManager
         public App()
         {
             InitializeComponent();
-            ToastNotificationManager.History.Clear();
+            try
+            {
+                ToastNotificationManager.History.Clear();
+            }
+            catch (COMException)
+            {
+
+            }
+
             RequestedTheme = ApplicationTheme.Dark;
             Suspending += OnSuspending;
             UnhandledException += App_UnhandledException;

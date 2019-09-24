@@ -23,9 +23,11 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
 using Windows.Storage.Streams;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using WinRTXamlToolkit.Controls.Extensions;
 
@@ -34,11 +36,15 @@ namespace FileManager
     #region SQLite数据库
     public sealed class SQLite : IDisposable
     {
-        private SqliteConnection OLEDB = new SqliteConnection("Filename=SmartLens_SQLite.db");
+        private SqliteConnection OLEDB = new SqliteConnection("Filename=sqliteSample.db;Mode=ReadWriteCreate");
         private bool IsDisposed = false;
         private static SQLite SQL = null;
         private SQLite()
         {
+            SQLitePCL.Batteries_V2.Init();
+            SQLitePCL.raw.sqlite3_win32_set_directory(/*data directory type*/1, ApplicationData.Current.LocalFolder.Path);
+            SQLitePCL.raw.sqlite3_win32_set_directory(/*temp directory type*/2, ApplicationData.Current.TemporaryFolder.Path);
+
             OLEDB.Open();
             string Command = @"Create Table If Not Exists SearchHistory (SearchText Text Not Null);
                                Create Table If Not Exists WebFavourite (Subject Text Not Null, WebSite Text Not Null, Primary Key (WebSite));
@@ -1741,4 +1747,108 @@ namespace FileManager
         English = 2
     }
     #endregion
+
+    public static class AcrylicBackgroundController
+    {
+        public static readonly AcrylicBrush BackgroundBrush;
+        private static Slider TintOpacitySlider;
+        private static Slider LuminositySlider;
+
+        static AcrylicBackgroundController()
+        {
+            BackgroundBrush = (AcrylicBrush)Application.Current.Resources["NavigationViewTopPaneBackground"];
+        }
+
+        public static AcrylicBrush DirectAccessToAcrylicBrush() => BackgroundBrush;
+
+        public static void SetTintOpacityAndLuminositySlider(Slider TintOpacity, Slider LuminosityOpacity)
+        {
+            TintOpacitySlider = TintOpacity;
+            LuminositySlider = LuminosityOpacity;
+        }
+
+        public static double TintOpacity
+        {
+            get => BackgroundBrush.TintOpacity;
+            set
+            {
+                BackgroundBrush.TintOpacity = 1 - value;
+                if (TintOpacitySlider != null)
+                {
+                    TintOpacitySlider.Value = value;
+                }
+            }
+        }
+
+        public static double? TintLuminosityOpacity
+        {
+            get => BackgroundBrush.TintLuminosityOpacity;
+            set
+            {
+                BackgroundBrush.TintLuminosityOpacity = 1 - value;
+                if (LuminositySlider != null && value != null)
+                {
+                    LuminositySlider.Value = value.Value;
+                }
+            }
+        }
+
+        public static Color AcrylicColor
+        {
+            get => BackgroundBrush.TintColor;
+            set
+            {
+                BackgroundBrush.TintColor = value;
+            }
+        }
+
+        public static Color GetColorFromHexString(string hex)
+        {
+            hex = hex.Replace("#", string.Empty);
+
+            bool existAlpha = hex.Length == 8 || hex.Length == 4;
+            bool isDoubleHex = hex.Length == 8 || hex.Length == 6;
+
+            if (!existAlpha && hex.Length != 6 && hex.Length != 3)
+            {
+                throw new ArgumentException("输入的hex不是有效颜色");
+            }
+
+            int n = 0;
+            byte a;
+            int hexCount = isDoubleHex ? 2 : 1;
+            if (existAlpha)
+            {
+                n = hexCount;
+                a = (byte)ConvertHexToByte(hex, 0, hexCount);
+                if (!isDoubleHex)
+                {
+                    a = (byte)(a * 16 + a);
+                }
+            }
+            else
+            {
+                a = 0xFF;
+            }
+
+            var r = (byte)ConvertHexToByte(hex, n, hexCount);
+            var g = (byte)ConvertHexToByte(hex, n + hexCount, hexCount);
+            var b = (byte)ConvertHexToByte(hex, n + 2 * hexCount, hexCount);
+            if (!isDoubleHex)
+            {
+                //#FD92 = #FFDD9922
+
+                r = (byte)(r * 16 + r);
+                g = (byte)(g * 16 + g);
+                b = (byte)(b * 16 + b);
+            }
+
+            return Color.FromArgb(a, r, g, b);
+        }
+
+        private static uint ConvertHexToByte(string hex, int n, int count = 2)
+        {
+            return Convert.ToUInt32(hex.Substring(n, count), 16);
+        }
+    }
 }

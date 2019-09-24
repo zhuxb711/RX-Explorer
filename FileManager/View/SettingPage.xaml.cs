@@ -21,6 +21,7 @@ namespace FileManager
         {
             InitializeComponent();
             Version.Text = string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
+            AcrylicBackgroundController.SetTintOpacityAndLuminositySlider(TintOpacitySlider, TintLuminositySlider);
 
             for (int i = 1; i <= 10; i++)
             {
@@ -29,12 +30,28 @@ namespace FileManager
                     : "Top" + (i * 10) + "Results");
             }
 
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            {
+                UIMode.Items.Add("推荐");
+                UIMode.Items.Add("自定义");
+            }
+            else
+            {
+                UIMode.Items.Add("Recommand");
+                UIMode.Items.Add("Custom");
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is string Mode)
+            {
+                UIMode.SelectedItem = UIMode.Items.Where((Item) => Item.ToString() == Mode).FirstOrDefault();
+            }
+
             if (ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] is string MaxNum)
             {
                 SearchNum.SelectedIndex = SearchNum.Items.IndexOf(SearchNum.Items.Where((Item) => Item.ToString().Contains(MaxNum)).FirstOrDefault());
             }
 
-            if(ApplicationData.Current.LocalSettings.Values["EnableMultiInstanceSupport"] is bool Enable)
+            if (ApplicationData.Current.LocalSettings.Values["EnableMultiInstanceSupport"] is bool Enable)
             {
                 MultiInstace.IsChecked = Enable;
             }
@@ -241,6 +258,81 @@ namespace FileManager
         private void MultiInstace_Unchecked(object sender, RoutedEventArgs e)
         {
             ApplicationData.Current.LocalSettings.Values["EnableMultiInstanceSupport"] = false;
+        }
+
+        private void UIMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = UIMode.SelectedItem.ToString();
+            if (UIMode.SelectedIndex == 0)
+            {
+                CustomUIArea.Visibility = Visibility.Collapsed;
+
+                AcrylicBackgroundController.DirectAccessToAcrylicBrush().TintOpacity = 0.6;
+                AcrylicBackgroundController.TintLuminosityOpacity = null;
+                AcrylicBackgroundController.AcrylicColor = Colors.LightSlateGray;
+            }
+            else
+            {
+                CustomUIArea.Visibility = Visibility.Visible;
+
+                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] is string Luminosity)
+                {
+                    AcrylicBackgroundController.TintLuminosityOpacity = Convert.ToDouble(Luminosity);
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] = "0";
+                    AcrylicBackgroundController.TintLuminosityOpacity = 0.4;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] is string Opacity)
+                {
+                    AcrylicBackgroundController.TintOpacity = Convert.ToDouble(Opacity);
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] = "0.4";
+                    AcrylicBackgroundController.TintOpacity = 0.6;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
+                {
+                    AcrylicColorPicker.Color = AcrylicBackgroundController.GetColorFromHexString(AcrylicColor);
+                    AcrylicBackgroundController.AcrylicColor = AcrylicColorPicker.Color;
+                }
+            }
+        }
+
+        private void TintOpacitySlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] = e.NewValue.ToString();
+            AcrylicBackgroundController.TintOpacity = e.NewValue;
+        }
+
+        private void TintLuminositySlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] = e.NewValue.ToString();
+            AcrylicBackgroundController.TintLuminosityOpacity = e.NewValue;
+        }
+
+        private void AcrylicColor_Click(object sender, RoutedEventArgs e)
+        {
+            ColorPickerTeachTip.IsOpen = true;
+        }
+
+        private void ColorPickerTeachTip_Closed(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosedEventArgs args)
+        {
+            ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] = AcrylicBackgroundController.AcrylicColor.ToString();
+        }
+
+        private void TintOpacityQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            OpacityTip.IsOpen = true;
+        }
+
+        private void TintLuminosityQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            LuminosityTip.IsOpen = true;
         }
     }
 }

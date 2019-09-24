@@ -615,4 +615,37 @@
   <data name="MultiInstace.Content" xml:space="preserve">
     <value>启用多实例支持(应用多开)</value>
   </data>
+  <data name="SettingPageColorPickerTip.Title" xml:space="preserve">
+    <value>Acrylic主题色</value>
+  </data>
+  <data name="SettingPageLuminosityTip.Title" xml:space="preserve">
+    <value>背景透光度</value>
+  </data>
+  <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
+    <value>背景透光度决定了允许多少来自背景的光通过App的亚克力材质，此值越小表示Acrylic主题色占比越高，越大表示来自背景的光线占比越高</value>
+  </data>
+  <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
+    <value>调整此值可能导致内容不清晰或无法识别</value>
+  </data>
+  <data name="SettingPageOpacityTip.Title" xml:space="preserve">
+    <value>颜色透明度</value>
+  </data>
+  <data name="SettingPageOpacityTipText1.Text" xml:space="preserve">
+    <value>Acrylic主题色层透明度，此值越大表示Acrylic颜色越淡，越小则表示颜色越深</value>
+  </data>
+  <data name="SettingPageOpacityTipText2.Text" xml:space="preserve">
+    <value>'推荐'模式下此值默认为60%</value>
+  </data>
+  <data name="SettingPageThemeColorButton.Content" xml:space="preserve">
+    <value>Acrylic主题色</value>
+  </data>
+  <data name="SettingPageTintLuminositySliderHeader.Text" xml:space="preserve">
+    <value>Acrylic背景透光度</value>
+  </data>
+  <data name="SettingPageTintOpacitySliderHeader.Text" xml:space="preserve">
+    <value>Acrylic颜色透明度</value>
+  </data>
+  <data name="SettingPageUIMode.Header" xml:space="preserve">
+    <value>调整UI显示模式</value>
+  </data>
 </root>

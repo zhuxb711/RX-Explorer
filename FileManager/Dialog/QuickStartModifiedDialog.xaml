@@ -60,7 +60,7 @@
                 <Button Name="SelectIconButton" Content="选择图标" x:Uid="QuickStartChooseIcon" Click="SelectIconButton_Click"/>
                 <StackPanel Orientation="Horizontal">
                     <TextBox Name="Protocal" x:Uid="QuickStartProtocal" Margin="0,5" PlaceholderText="启动协议" Width="170" IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"/>
-                    <FontIcon Glyph="&#xE946;" Name="ProtocalIcon" Margin="10,0,0,0" PointerPressed="ProtocalIcon_PointerPressed"/>
+                    <FontIcon Glyph="&#xE9CE;" Name="ProtocalIcon" Margin="10,0,0,0" PointerPressed="ProtocalIcon_PointerPressed"/>
                 </StackPanel>
                 <TextBox HorizontalAlignment="Left" x:Uid="QuickStartDisplayName" Name="DisplayName" PlaceholderText="显示名称" Width="200"/>
             </StackPanel>

@@ -7,8 +7,7 @@
                   BackgroundSource="HostBackdrop"
                   TintColor="LightSlateGray"
                   TintOpacity="0.4" 
-                  FallbackColor="DimGray"
-                  TintTransitionDuration="1"/>
+                  FallbackColor="DimGray"/>
     <AcrylicBrush x:Key="DialogAcrylicBrush" 
                   BackgroundSource="Backdrop"
                   TintOpacity="0"

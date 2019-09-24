@@ -429,6 +429,39 @@
   <data name="SettingOther.Text" xml:space="preserve">
     <value>Other</value>
   </data>
+  <data name="SettingPageColorPickerTip.Title" xml:space="preserve">
+    <value>Acrylic theme color</value>
+  </data>
+  <data name="SettingPageLuminosityTip.Title" xml:space="preserve">
+    <value>Background transmittance</value>
+  </data>
+  <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
+    <value>The background transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.</value>
+  </data>
+  <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
+    <value>Adjusting this value may result in unclear or unrecognized content</value>
+  </data>
+  <data name="SettingPageOpacityTip.Title" xml:space="preserve">
+    <value>Color transparency</value>
+  </data>
+  <data name="SettingPageOpacityTipText1.Text" xml:space="preserve">
+    <value>Acrylic theme color layer transparency, the larger the value, the lighter the Acrylic color, the smaller the color indicates the darker the color</value>
+  </data>
+  <data name="SettingPageOpacityTipText2.Text" xml:space="preserve">
+    <value>This value defaults to 60% in 'Recommend' mode</value>
+  </data>
+  <data name="SettingPageThemeColorButton.Content" xml:space="preserve">
+    <value>Acrylic theme color</value>
+  </data>
+  <data name="SettingPageTintLuminositySliderHeader.Text" xml:space="preserve">
+    <value>Acrylic background transmittance</value>
+  </data>
+  <data name="SettingPageTintOpacitySliderHeader.Text" xml:space="preserve">
+    <value>Acrylic color transparency</value>
+  </data>
+  <data name="SettingPageUIMode.Header" xml:space="preserve">
+    <value>Adjust UI display mode</value>
+  </data>
   <data name="SettingSearchNum.Header" xml:space="preserve">
     <value>Set the maximum number of search results</value>
   </data>

@@ -810,6 +810,50 @@
           <source>Enable Multi-Instance Support</source>
           <target state="translated">启用多实例支持(应用多开)</target>
         </trans-unit>
+        <trans-unit id="SettingPageColorPickerTip.Title" translate="yes" xml:space="preserve">
+          <source>Acrylic theme color</source>
+          <target state="translated">Acrylic主题色</target>
+        </trans-unit>
+        <trans-unit id="SettingPageLuminosityTip.Title" translate="yes" xml:space="preserve">
+          <source>Background transmittance</source>
+          <target state="translated">背景透光度</target>
+        </trans-unit>
+        <trans-unit id="SettingPageLuminosityTipText1.Text" translate="yes" xml:space="preserve">
+          <source>The background transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.</source>
+          <target state="translated">背景透光度决定了允许多少来自背景的光通过App的亚克力材质，此值越小表示Acrylic主题色占比越高，越大表示来自背景的光线占比越高</target>
+        </trans-unit>
+        <trans-unit id="SettingPageLuminosityTipText2.Text" translate="yes" xml:space="preserve">
+          <source>Adjusting this value may result in unclear or unrecognized content</source>
+          <target state="translated">调整此值可能导致内容不清晰或无法识别</target>
+        </trans-unit>
+        <trans-unit id="SettingPageOpacityTip.Title" translate="yes" xml:space="preserve">
+          <source>Color transparency</source>
+          <target state="translated">颜色透明度</target>
+        </trans-unit>
+        <trans-unit id="SettingPageOpacityTipText1.Text" translate="yes" xml:space="preserve">
+          <source>Acrylic theme color layer transparency, the larger the value, the lighter the Acrylic color, the smaller the color indicates the darker the color</source>
+          <target state="translated">Acrylic主题色层透明度，此值越大表示Acrylic颜色越淡，越小则表示颜色越深</target>
+        </trans-unit>
+        <trans-unit id="SettingPageOpacityTipText2.Text" translate="yes" xml:space="preserve">
+          <source>This value defaults to 60% in 'Recommend' mode</source>
+          <target state="translated">'推荐'模式下此值默认为60%</target>
+        </trans-unit>
+        <trans-unit id="SettingPageThemeColorButton.Content" translate="yes" xml:space="preserve">
+          <source>Acrylic theme color</source>
+          <target state="translated">Acrylic主题色</target>
+        </trans-unit>
+        <trans-unit id="SettingPageTintLuminositySliderHeader.Text" translate="yes" xml:space="preserve">
+          <source>Acrylic background transmittance</source>
+          <target state="translated">Acrylic背景透光度</target>
+        </trans-unit>
+        <trans-unit id="SettingPageTintOpacitySliderHeader.Text" translate="yes" xml:space="preserve">
+          <source>Acrylic color transparency</source>
+          <target state="translated">Acrylic颜色透明度</target>
+        </trans-unit>
+        <trans-unit id="SettingPageUIMode.Header" translate="yes" xml:space="preserve">
+          <source>Adjust UI display mode</source>
+          <target state="translated">调整UI显示模式</target>
+        </trans-unit>
       </group>
     </body>
   </file>
