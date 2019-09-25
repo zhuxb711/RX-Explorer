@@ -288,6 +288,15 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\OpenCV.UWP.native.flann.0.0.2-alpha\build\native\OpenCV.UWP.native.flann.targets" Condition="Exists('..\packages\OpenCV.UWP.native.flann.0.0.2-alpha\build\native\OpenCV.UWP.native.flann.targets')" />
+    <Import Project="..\packages\OpenCV.UWP.native.features2d.0.0.2-alpha\build\native\OpenCV.UWP.native.features2d.targets" Condition="Exists('..\packages\OpenCV.UWP.native.features2d.0.0.2-alpha\build\native\OpenCV.UWP.native.features2d.targets')" />
+    <Import Project="..\packages\OpenCV.UWP.native.calib3d.0.0.2-alpha\build\native\OpenCV.UWP.native.calib3d.targets" Condition="Exists('..\packages\OpenCV.UWP.native.calib3d.0.0.2-alpha\build\native\OpenCV.UWP.native.calib3d.targets')" />
+    <Import Project="..\packages\OpenCV.UWP.native.imgcodecs.0.0.2-alpha\build\native\OpenCV.UWP.native.imgcodecs.targets" Condition="Exists('..\packages\OpenCV.UWP.native.imgcodecs.0.0.2-alpha\build\native\OpenCV.UWP.native.imgcodecs.targets')" />
+    <Import Project="..\packages\OpenCV.UWP.native.ml.0.0.2-alpha\build\native\OpenCV.UWP.native.ml.targets" Condition="Exists('..\packages\OpenCV.UWP.native.ml.0.0.2-alpha\build\native\OpenCV.UWP.native.ml.targets')" />
+    <Import Project="..\packages\OpenCV.UWP.native.objdetect.0.0.2-alpha\build\native\OpenCV.UWP.native.objdetect.targets" Condition="Exists('..\packages\OpenCV.UWP.native.objdetect.0.0.2-alpha\build\native\OpenCV.UWP.native.objdetect.targets')" />
+    <Import Project="..\packages\OpenCV.UWP.native.photo.0.0.2-alpha\build\native\OpenCV.UWP.native.photo.targets" Condition="Exists('..\packages\OpenCV.UWP.native.photo.0.0.2-alpha\build\native\OpenCV.UWP.native.photo.targets')" />
+    <Import Project="..\packages\OpenCV.UWP.native.video.0.0.2-alpha\build\native\OpenCV.UWP.native.video.targets" Condition="Exists('..\packages\OpenCV.UWP.native.video.0.0.2-alpha\build\native\OpenCV.UWP.native.video.targets')" />
+    <Import Project="..\packages\OpenCV.UWP.native.videoio.0.0.2-alpha\build\native\OpenCV.UWP.native.videoio.targets" Condition="Exists('..\packages\OpenCV.UWP.native.videoio.0.0.2-alpha\build\native\OpenCV.UWP.native.videoio.targets')" />
     <Import Project="..\packages\OpenCV.UWP.native.core.0.0.2-alpha\build\native\OpenCV.UWP.native.core.targets" Condition="Exists('..\packages\OpenCV.UWP.native.core.0.0.2-alpha\build\native\OpenCV.UWP.native.core.targets')" />
     <Import Project="..\packages\OpenCV.UWP.native.imgproc.0.0.2-alpha\build\native\OpenCV.UWP.native.imgproc.targets" Condition="Exists('..\packages\OpenCV.UWP.native.imgproc.0.0.2-alpha\build\native\OpenCV.UWP.native.imgproc.targets')" />
   </ImportGroup>
@@ -295,6 +304,15 @@
     <PropertyGroup>
       <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
     </PropertyGroup>
+    <Error Condition="!Exists('..\packages\OpenCV.UWP.native.flann.0.0.2-alpha\build\native\OpenCV.UWP.native.flann.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenCV.UWP.native.flann.0.0.2-alpha\build\native\OpenCV.UWP.native.flann.targets'))" />
+    <Error Condition="!Exists('..\packages\OpenCV.UWP.native.features2d.0.0.2-alpha\build\native\OpenCV.UWP.native.features2d.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenCV.UWP.native.features2d.0.0.2-alpha\build\native\OpenCV.UWP.native.features2d.targets'))" />
+    <Error Condition="!Exists('..\packages\OpenCV.UWP.native.calib3d.0.0.2-alpha\build\native\OpenCV.UWP.native.calib3d.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenCV.UWP.native.calib3d.0.0.2-alpha\build\native\OpenCV.UWP.native.calib3d.targets'))" />
+    <Error Condition="!Exists('..\packages\OpenCV.UWP.native.imgcodecs.0.0.2-alpha\build\native\OpenCV.UWP.native.imgcodecs.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenCV.UWP.native.imgcodecs.0.0.2-alpha\build\native\OpenCV.UWP.native.imgcodecs.targets'))" />
+    <Error Condition="!Exists('..\packages\OpenCV.UWP.native.ml.0.0.2-alpha\build\native\OpenCV.UWP.native.ml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenCV.UWP.native.ml.0.0.2-alpha\build\native\OpenCV.UWP.native.ml.targets'))" />
+    <Error Condition="!Exists('..\packages\OpenCV.UWP.native.objdetect.0.0.2-alpha\build\native\OpenCV.UWP.native.objdetect.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenCV.UWP.native.objdetect.0.0.2-alpha\build\native\OpenCV.UWP.native.objdetect.targets'))" />
+    <Error Condition="!Exists('..\packages\OpenCV.UWP.native.photo.0.0.2-alpha\build\native\OpenCV.UWP.native.photo.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenCV.UWP.native.photo.0.0.2-alpha\build\native\OpenCV.UWP.native.photo.targets'))" />
+    <Error Condition="!Exists('..\packages\OpenCV.UWP.native.video.0.0.2-alpha\build\native\OpenCV.UWP.native.video.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenCV.UWP.native.video.0.0.2-alpha\build\native\OpenCV.UWP.native.video.targets'))" />
+    <Error Condition="!Exists('..\packages\OpenCV.UWP.native.videoio.0.0.2-alpha\build\native\OpenCV.UWP.native.videoio.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenCV.UWP.native.videoio.0.0.2-alpha\build\native\OpenCV.UWP.native.videoio.targets'))" />
     <Error Condition="!Exists('..\packages\OpenCV.UWP.native.core.0.0.2-alpha\build\native\OpenCV.UWP.native.core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenCV.UWP.native.core.0.0.2-alpha\build\native\OpenCV.UWP.native.core.targets'))" />
     <Error Condition="!Exists('..\packages\OpenCV.UWP.native.imgproc.0.0.2-alpha\build\native\OpenCV.UWP.native.imgproc.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenCV.UWP.native.imgproc.0.0.2-alpha\build\native\OpenCV.UWP.native.imgproc.targets'))" />
   </Target>

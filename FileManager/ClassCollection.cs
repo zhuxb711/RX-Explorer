@@ -36,7 +36,7 @@ namespace FileManager
     #region SQLite数据库
     public sealed class SQLite : IDisposable
     {
-        private SqliteConnection OLEDB = new SqliteConnection("Filename=sqliteSample.db;Mode=ReadWriteCreate");
+        private SqliteConnection OLEDB;
         private bool IsDisposed = false;
         private static SQLite SQL = null;
         private SQLite()
@@ -45,6 +45,7 @@ namespace FileManager
             SQLitePCL.raw.sqlite3_win32_set_directory(/*data directory type*/1, ApplicationData.Current.LocalFolder.Path);
             SQLitePCL.raw.sqlite3_win32_set_directory(/*temp directory type*/2, ApplicationData.Current.TemporaryFolder.Path);
 
+            OLEDB = new SqliteConnection("Filename=RX_Sqlite.db");
             OLEDB.Open();
             string Command = @"Create Table If Not Exists SearchHistory (SearchText Text Not Null);
                                Create Table If Not Exists WebFavourite (Subject Text Not Null, WebSite Text Not Null, Primary Key (WebSite));
@@ -1748,6 +1749,7 @@ namespace FileManager
     }
     #endregion
 
+    #region 亚克力材质背景控制器
     public static class AcrylicBackgroundController
     {
         public static readonly AcrylicBrush BackgroundBrush;
@@ -1851,4 +1853,5 @@ namespace FileManager
             return Convert.ToUInt32(hex.Substring(n, count), 16);
         }
     }
+    #endregion
 }
