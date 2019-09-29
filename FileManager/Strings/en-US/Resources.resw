@@ -519,10 +519,10 @@
   <data name="UserFolderDialog.Title" xml:space="preserve">
     <value>Choose User Folder</value>
   </data>
-  <data name="UserFolderDialog.UserFolderText1" xml:space="preserve">
+  <data name="UserFolderText1.Text" xml:space="preserve">
     <value>Unable to automatically determine User folder</value>
   </data>
-  <data name="UserFolderDialog.UserFolderText2" xml:space="preserve">
+  <data name="UserFolderText2.Text" xml:space="preserve">
     <value>Please specify the user folder manually</value>
   </data>
   <data name="WebAllowDB.Header" xml:space="preserve">

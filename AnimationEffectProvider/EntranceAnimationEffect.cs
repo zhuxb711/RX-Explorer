@@ -16,23 +16,23 @@ namespace AnimationEffectProvider
 {
     public class EntranceAnimationEffect
     {
-        private readonly UIElement UI;
+        private readonly Page BasePage;
 
-        private readonly Frame Nav;
+        private readonly UIElement UIToShow;
 
         private readonly Rect SplashScreenRect;
 
-        public EntranceAnimationEffect(UIElement UI, Frame Nav, Rect SplashScreenRect)
+        public EntranceAnimationEffect(Page BasePage, UIElement UIToShow, Rect SplashScreenRect)
         {
-            this.Nav = Nav;
-            this.UI = UI;
+            this.UIToShow = UIToShow;
+            this.BasePage = BasePage;
             this.SplashScreenRect = SplashScreenRect;
-            SurfaceLoader.Initialize(ElementCompositionPreview.GetElementVisual(UI).Compositor);
+            SurfaceLoader.Initialize(ElementCompositionPreview.GetElementVisual(BasePage).Compositor);
         }
 
         public async void PrepareEntranceEffect()
         {
-            Compositor compositor = ElementCompositionPreview.GetElementVisual(UI).Compositor;
+            Compositor compositor = ElementCompositionPreview.GetElementVisual(BasePage).Compositor;
             Vector2 windowSize = new Vector2((float)Window.Current.Bounds.Width, (float)Window.Current.Bounds.Height);
 
             //1.创建ContainerVisual实例填充背景色和图片；
@@ -40,7 +40,7 @@ namespace AnimationEffectProvider
             ContainerVisual cv = compositor.CreateContainerVisual();
             cv.Size = windowSize;
             cv.CenterPoint = new Vector3(windowSize.X, windowSize.Y, 0) * 0.5f;
-            ElementCompositionPreview.SetElementChildVisual(UI, cv);
+            ElementCompositionPreview.SetElementChildVisual(BasePage, cv);
 
             //创建sprite的背景色为APP的主题色
             SpriteVisual backgroundSprite = compositor.CreateSpriteVisual();
@@ -59,7 +59,7 @@ namespace AnimationEffectProvider
 
         public void StartEntranceEffect()
         {
-            ContainerVisual container = (ContainerVisual)ElementCompositionPreview.GetElementChildVisual(UI);
+            ContainerVisual container = (ContainerVisual)ElementCompositionPreview.GetElementChildVisual(BasePage);
             Compositor compositor = container.Compositor;
 
             // 设置缩放和动画
@@ -86,8 +86,8 @@ namespace AnimationEffectProvider
             scaleUpSplashAnimation.Duration = duration;
 
             // 设置Grid的中心缩放视觉
-            Visual gridVisual = ElementCompositionPreview.GetElementVisual(Nav);
-            gridVisual.Size = new Vector2((float)Nav.ActualWidth, (float)Nav.ActualHeight);
+            Visual gridVisual = ElementCompositionPreview.GetElementVisual(UIToShow);
+            gridVisual.Size = UIToShow.ActualSize;
             gridVisual.CenterPoint = new Vector3(gridVisual.Size.X, gridVisual.Size.Y, 0) * .5f;
 
             // 创建一个视觉组，当改组所有视觉执行完后不再显示
@@ -99,7 +99,7 @@ namespace AnimationEffectProvider
 
             batch.Completed += (s, a) =>
             {
-                ElementCompositionPreview.SetElementChildVisual(UI, null);
+                ElementCompositionPreview.SetElementChildVisual(BasePage, null);
                 SurfaceLoader.Uninitialize();
             };
             batch.End();

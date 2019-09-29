@@ -381,12 +381,6 @@
   <data name="UserFolderDialog.Title" xml:space="preserve">
     <value>选择用户文件夹</value>
   </data>
-  <data name="UserFolderDialog.UserFolderText1" xml:space="preserve">
-    <value>未能自动确定用户文件夹</value>
-  </data>
-  <data name="UserFolderDialog.UserFolderText2" xml:space="preserve">
-    <value>请手动指定用户文件夹</value>
-  </data>
   <data name="ZipCRC.Label" xml:space="preserve">
     <value>CRC 完整性校验</value>
   </data>
@@ -647,5 +641,11 @@
   </data>
   <data name="SettingPageUIMode.Header" xml:space="preserve">
     <value>调整UI显示模式</value>
+  </data>
+  <data name="UserFolderText1.Text" xml:space="preserve">
+    <value>无法自动确定用户文件夹</value>
+  </data>
+  <data name="UserFolderText2.Text" xml:space="preserve">
+    <value>请手动指定用户文件夹</value>
   </data>
 </root>

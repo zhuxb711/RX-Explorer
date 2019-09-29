@@ -42,8 +42,8 @@ namespace FileManager
         private SQLite()
         {
             SQLitePCL.Batteries_V2.Init();
-            SQLitePCL.raw.sqlite3_win32_set_directory(/*data directory type*/1, ApplicationData.Current.LocalFolder.Path);
-            SQLitePCL.raw.sqlite3_win32_set_directory(/*temp directory type*/2, ApplicationData.Current.TemporaryFolder.Path);
+            SQLitePCL.raw.sqlite3_win32_set_directory(1, ApplicationData.Current.LocalFolder.Path);
+            SQLitePCL.raw.sqlite3_win32_set_directory(2, ApplicationData.Current.TemporaryFolder.Path);
 
             OLEDB = new SqliteConnection("Filename=RX_Sqlite.db");
             OLEDB.Open();

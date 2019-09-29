@@ -498,14 +498,6 @@
           <source>Choose User Folder</source>
           <target state="translated">选择用户文件夹</target>
         </trans-unit>
-        <trans-unit id="UserFolderDialog.UserFolderText1" translate="yes" xml:space="preserve">
-          <source>Unable to automatically determine User folder</source>
-          <target state="translated">未能自动确定用户文件夹</target>
-        </trans-unit>
-        <trans-unit id="UserFolderDialog.UserFolderText2" translate="yes" xml:space="preserve">
-          <source>Please specify the user folder manually</source>
-          <target state="translated">请手动指定用户文件夹</target>
-        </trans-unit>
         <trans-unit id="ZipCRC.Label" translate="yes" xml:space="preserve">
           <source>CRC integrity check</source>
           <target state="translated">CRC 完整性校验</target>
@@ -853,6 +845,14 @@
         <trans-unit id="SettingPageUIMode.Header" translate="yes" xml:space="preserve">
           <source>Adjust UI display mode</source>
           <target state="translated">调整UI显示模式</target>
+        </trans-unit>
+        <trans-unit id="UserFolderText1.Text" translate="yes" xml:space="preserve">
+          <source>Unable to automatically determine User folder</source>
+          <target state="translated">无法自动确定用户文件夹</target>
+        </trans-unit>
+        <trans-unit id="UserFolderText2.Text" translate="yes" xml:space="preserve">
+          <source>Please specify the user folder manually</source>
+          <target state="translated">请手动指定用户文件夹</target>
         </trans-unit>
       </group>
     </body>
