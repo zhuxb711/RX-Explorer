@@ -47,7 +47,7 @@ namespace FileManager
 
             OLEDB = new SqliteConnection("Filename=RX_Sqlite.db");
             OLEDB.Open();
-            string Command = @"Create Table If Not Exists SearchHistory (SearchText Text Not Null);
+            string Command = @"Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));
                                Create Table If Not Exists WebFavourite (Subject Text Not Null, WebSite Text Not Null, Primary Key (WebSite));
                                Create Table If Not Exists WebHistory (Subject Text Not Null, WebSite Text Not Null, DateTime Text Not Null, Primary Key (Subject, WebSite, DateTime));
                                Create Table If Not Exists DownloadHistory (UniqueID Text Not Null, ActualName Text Not Null, Uri Text Not Null, State Text Not Null, Primary Key(UniqueID));
@@ -68,7 +68,7 @@ namespace FileManager
 
         public async Task SetSearchHistoryAsync(string SearchText)
         {
-            using (SqliteCommand Command = new SqliteCommand("Insert Into SearchHistory Values (@Para)", OLEDB))
+            using (SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into SearchHistory Values (@Para)", OLEDB))
             {
                 _ = Command.Parameters.AddWithValue("@Para", SearchText);
                 _ = await Command.ExecuteNonQueryAsync();
@@ -170,17 +170,20 @@ namespace FileManager
             }
         }
 
-        public async Task<List<string>> GetSearchHistoryAsync()
+        public async Task<List<string>> GetRelatedSearchHistoryAsync(string Target)
         {
             List<string> HistoryList = new List<string>();
-            using (SqliteCommand Command = new SqliteCommand("Select * From SearchHistory", OLEDB))
-            using (SqliteDataReader query = await Command.ExecuteReaderAsync())
+            using (SqliteCommand Command = new SqliteCommand("Select * From SearchHistory Where SearchText Like @Target", OLEDB))
             {
-                while (query.Read())
+                _ = Command.Parameters.AddWithValue("@Target", "%" + Target + "%");
+                using (SqliteDataReader query = await Command.ExecuteReaderAsync())
                 {
-                    HistoryList.Add(query[0].ToString());
+                    while (query.Read())
+                    {
+                        HistoryList.Add(query[0].ToString());
+                    }
+                    return HistoryList;
                 }
-                return HistoryList;
             }
         }
 
@@ -214,6 +217,7 @@ namespace FileManager
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "<挂起>")]
         public async Task ClearTableAsync(string TableName)
         {
             using (SqliteCommand Command = new SqliteCommand("Delete From " + TableName, OLEDB))
@@ -1752,55 +1756,55 @@ namespace FileManager
     #region 亚克力材质背景控制器
     public static class AcrylicBackgroundController
     {
-        public static readonly AcrylicBrush BackgroundBrush;
-        private static Slider TintOpacitySlider;
-        private static Slider LuminositySlider;
+        private static AcrylicBrush BackgroundBrush;
 
         static AcrylicBackgroundController()
         {
             BackgroundBrush = (AcrylicBrush)Application.Current.Resources["NavigationViewTopPaneBackground"];
         }
 
-        public static AcrylicBrush DirectAccessToAcrylicBrush() => BackgroundBrush;
-
-        public static void SetTintOpacityAndLuminositySlider(Slider TintOpacity, Slider LuminosityOpacity)
-        {
-            TintOpacitySlider = TintOpacity;
-            LuminositySlider = LuminosityOpacity;
-        }
-
         public static double TintOpacity
         {
-            get => BackgroundBrush.TintOpacity;
+            get
+            {
+                return 1 - (double)BackgroundBrush.GetValue(AcrylicBrush.TintOpacityProperty);
+            }
             set
             {
-                BackgroundBrush.TintOpacity = 1 - value;
-                if (TintOpacitySlider != null)
-                {
-                    TintOpacitySlider.Value = value;
-                }
+                BackgroundBrush.SetValue(AcrylicBrush.TintOpacityProperty, 1 - value);
+                ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] = value.ToString("0.0");
             }
         }
 
-        public static double? TintLuminosityOpacity
+        public static double TintLuminosityOpacity
         {
-            get => BackgroundBrush.TintLuminosityOpacity;
+            get
+            {
+                return 1 - ((double?)BackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty)).GetValueOrDefault();
+            }
             set
             {
-                BackgroundBrush.TintLuminosityOpacity = 1 - value;
-                if (LuminositySlider != null && value != null)
+                if (value == -1)
                 {
-                    LuminositySlider.Value = value.Value;
+                    BackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, null);
+                }
+                else
+                {
+                    BackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, 1 - value);
+                    ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] = value.ToString("0.0");
                 }
             }
         }
 
         public static Color AcrylicColor
         {
-            get => BackgroundBrush.TintColor;
+            get
+            {
+                return (Color)BackgroundBrush.GetValue(AcrylicBrush.TintColorProperty);
+            }
             set
             {
-                BackgroundBrush.TintColor = value;
+                BackgroundBrush.SetValue(AcrylicBrush.TintColorProperty, value);
             }
         }
 
@@ -1853,5 +1857,31 @@ namespace FileManager
             return Convert.ToUInt32(hex.Substring(n, count), 16);
         }
     }
+    #endregion
+
+    #region DebugLog
+    //public static class Log
+    //{
+    //    static Log()
+    //    {
+    //        System.Diagnostics.Debug.WriteLine(ApplicationData.Current.LocalCacheFolder.Path);
+    //    }
+
+    //    public static void Write(Exception Ex)
+    //    {
+    //        string Message = Ex.Message + Environment.NewLine + Ex.StackTrace;
+    //        Write(Message);
+    //    }
+
+    //    public static void Write(string Message)
+    //    {
+    //        lock (SyncRootProvider.SyncRoot)
+    //        {
+    //            StorageFolder BaseFolder = ApplicationData.Current.LocalCacheFolder;
+    //            StorageFile TempFile = BaseFolder.CreateFileAsync("RX_Error_Message.txt", CreationCollisionOption.OpenIfExists).AsTask().Result;
+    //            FileIO.AppendTextAsync(TempFile, Message + Environment.NewLine).AsTask().Wait();
+    //        }
+    //    }
+    //}
     #endregion
 }

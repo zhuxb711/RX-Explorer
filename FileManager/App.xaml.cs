@@ -38,7 +38,6 @@ namespace FileManager
 
             }
 
-            RequestedTheme = ApplicationTheme.Dark;
             Suspending += OnSuspending;
             UnhandledException += App_UnhandledException;
         }

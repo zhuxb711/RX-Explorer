@@ -12,7 +12,6 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
 using Windows.System;
-using Windows.UI;
 using Windows.UI.Notifications;
 using Windows.UI.Shell;
 using Windows.UI.StartScreen;
@@ -28,7 +27,6 @@ namespace FileManager
     {
         private StoreContext Context;
         private IReadOnlyList<StorePackageUpdate> Updates;
-        private List<string> SearchHistoryRecord;
         public static MainPage ThisPage { get; private set; }
         public bool IsNowSearching { get; set; }
 
@@ -82,8 +80,8 @@ namespace FileManager
             {
                 if (Mode != "推荐" && Mode != "Recommand")
                 {
-                    AcrylicBackgroundController.TintOpacity = Convert.ToDouble(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]);
-                    AcrylicBackgroundController.TintLuminosityOpacity = Convert.ToDouble(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]);
+                    AcrylicBackgroundController.TintOpacity = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]);
+                    AcrylicBackgroundController.TintLuminosityOpacity = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]);
                     if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color)
                     {
                         AcrylicBackgroundController.AcrylicColor = AcrylicBackgroundController.GetColorFromHexString(Color);
@@ -119,7 +117,6 @@ namespace FileManager
             }
 
             SQLite SQL = SQLite.GetInstance();
-            SearchHistoryRecord = await SQL.GetSearchHistoryAsync();
 
             Nav.Navigate(typeof(ThisPC));
 
@@ -452,14 +449,10 @@ namespace FileManager
 
             FlyoutBase.ShowAttachedFlyout(sender);
 
-            if (!SearchHistoryRecord.Contains(args.QueryText))
-            {
-                SearchHistoryRecord.Add(args.QueryText);
-                await SQLite.GetInstance().SetSearchHistoryAsync(args.QueryText);
-            }
+            await SQLite.GetInstance().SetSearchHistoryAsync(args.QueryText);
         }
 
-        private void GlobeSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        private async void GlobeSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             if (string.IsNullOrWhiteSpace(sender.Text))
             {
@@ -471,7 +464,7 @@ namespace FileManager
             }
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                List<string> FilterResult = SearchHistoryRecord.FindAll((s) => s.Contains(sender.Text, StringComparison.OrdinalIgnoreCase));
+                List<string> FilterResult = await SQLite.GetInstance().GetRelatedSearchHistoryAsync(sender.Text);
                 if (FilterResult.Count == 0)
                 {
                     FilterResult.Add(CurrentLanguage == LanguageEnum.Chinese

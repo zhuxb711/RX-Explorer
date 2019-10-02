@@ -17,8 +17,8 @@
                               Title="Acrylic主题颜色"
                               x:Uid="SettingPageColorPickerTip"
                               Target="{x:Bind AcrylicColor}"
-                              HeroContentPlacement="Top"
-                              Closed="ColorPickerTeachTip_Closed">
+                              Closed="ColorPickerTeachTip_Closed"
+                              HeroContentPlacement="Top">
             <controls:TeachingTip.HeroContent>
                 <Image Stretch="UniformToFill" Height="130" Source="ms-appx:///Assets/ColorPickerHero.png"/>
             </controls:TeachingTip.HeroContent>
@@ -88,24 +88,24 @@
                     <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Acrylic颜色透明度" x:Uid="SettingPageTintOpacitySliderHeader"/>
+                                <TextBlock Text="Acrylic颜色不透明度" x:Uid="SettingPageTintOpacitySliderHeader"/>
                                 <Viewbox Margin="10,0,0,0" Height="15" VerticalAlignment="Bottom">
                                     <FontIcon Glyph="&#xE9CE;" Name="TintOpacityQuestion" PointerPressed="TintOpacityQuestion_PointerPressed"/>
                                 </Viewbox>
                             </StackPanel>
-                            <Slider Margin="0,5,0,0" IsThumbToolTipEnabled="False" ValueChanged="TintOpacitySlider_ValueChanged" x:Name="TintOpacitySlider" StepFrequency="0.1" Maximum="1" Minimum="0" Width="220" HorizontalAlignment="Left"/>
+                            <Slider Margin="0,5,0,0" IsThumbToolTipEnabled="False" Value="{x:Bind local:AcrylicBackgroundController.TintOpacity,Mode=TwoWay}" x:Name="TintOpacitySlider" StepFrequency="0.1" Maximum="1" Minimum="0" Width="220" HorizontalAlignment="Left"/>
                         </StackPanel>
                         <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintOpacitySlider.Value),Mode=OneWay}" Margin="5,20,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Acrylic背景透光度" x:Uid="SettingPageTintLuminositySliderHeader"/>
+                                <TextBlock Text="Acrylic背景不透光度" x:Uid="SettingPageTintLuminositySliderHeader"/>
                                 <Viewbox Margin="10,0,0,0" Height="15" VerticalAlignment="Bottom">
                                     <FontIcon Glyph="&#xE9CE;" Name="TintLuminosityQuestion" PointerPressed="TintLuminosityQuestion_PointerPressed"/>
                                 </Viewbox>
                             </StackPanel>
-                            <Slider Margin="0,5,0,0" IsThumbToolTipEnabled="False" ValueChanged="TintLuminositySlider_ValueChanged" x:Name="TintLuminositySlider" StepFrequency="0.1" Maximum="1" Minimum="0" Width="220" HorizontalAlignment="Left"/>
+                            <Slider Margin="0,5,0,0" IsThumbToolTipEnabled="False" Value="{x:Bind local:AcrylicBackgroundController.TintLuminosityOpacity,Mode=TwoWay}" x:Name="TintLuminositySlider" StepFrequency="0.1" Maximum="1" Minimum="0" Width="220" HorizontalAlignment="Left"/>
                         </StackPanel>
                         <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}" Margin="5,20,0,0" VerticalAlignment="Center"/>
                     </StackPanel>

@@ -21,7 +21,6 @@ namespace FileManager
         {
             InitializeComponent();
             Version.Text = string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
-            AcrylicBackgroundController.SetTintOpacityAndLuminositySlider(TintOpacitySlider, TintLuminositySlider);
 
             for (int i = 1; i <= 10; i++)
             {
@@ -267,8 +266,8 @@ namespace FileManager
             {
                 CustomUIArea.Visibility = Visibility.Collapsed;
 
-                AcrylicBackgroundController.DirectAccessToAcrylicBrush().TintOpacity = 0.6;
-                AcrylicBackgroundController.TintLuminosityOpacity = null;
+                AcrylicBackgroundController.TintOpacity = 0.6;
+                AcrylicBackgroundController.TintLuminosityOpacity = -1;
                 AcrylicBackgroundController.AcrylicColor = Colors.LightSlateGray;
             }
             else
@@ -277,52 +276,38 @@ namespace FileManager
 
                 if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] is string Luminosity)
                 {
-                    AcrylicBackgroundController.TintLuminosityOpacity = Convert.ToDouble(Luminosity);
+                    float Value = Convert.ToSingle(Luminosity);
+                    TintLuminositySlider.Value = Value;
+                    AcrylicBackgroundController.TintLuminosityOpacity = Value;
                 }
                 else
                 {
-                    ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] = "0";
-                    AcrylicBackgroundController.TintLuminosityOpacity = 0.4;
+                    TintLuminositySlider.Value = 0.8;
+                    AcrylicBackgroundController.TintLuminosityOpacity = 0.8;
                 }
 
                 if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] is string Opacity)
                 {
-                    AcrylicBackgroundController.TintOpacity = Convert.ToDouble(Opacity);
+                    float Value = Convert.ToSingle(Opacity);
+                    TintOpacitySlider.Value = Value;
+                    AcrylicBackgroundController.TintOpacity = Value;
                 }
                 else
                 {
-                    ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] = "0.4";
+                    TintOpacitySlider.Value = 0.6;
                     AcrylicBackgroundController.TintOpacity = 0.6;
                 }
 
                 if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
                 {
-                    AcrylicColorPicker.Color = AcrylicBackgroundController.GetColorFromHexString(AcrylicColor);
-                    AcrylicBackgroundController.AcrylicColor = AcrylicColorPicker.Color;
+                    AcrylicBackgroundController.AcrylicColor = AcrylicBackgroundController.GetColorFromHexString(AcrylicColor);
                 }
             }
-        }
-
-        private void TintOpacitySlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
-        {
-            ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] = e.NewValue.ToString();
-            AcrylicBackgroundController.TintOpacity = e.NewValue;
-        }
-
-        private void TintLuminositySlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
-        {
-            ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] = e.NewValue.ToString();
-            AcrylicBackgroundController.TintLuminosityOpacity = e.NewValue;
         }
 
         private void AcrylicColor_Click(object sender, RoutedEventArgs e)
         {
             ColorPickerTeachTip.IsOpen = true;
-        }
-
-        private void ColorPickerTeachTip_Closed(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosedEventArgs args)
-        {
-            ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] = AcrylicBackgroundController.AcrylicColor.ToString();
         }
 
         private void TintOpacityQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -333,6 +318,11 @@ namespace FileManager
         private void TintLuminosityQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             LuminosityTip.IsOpen = true;
+        }
+
+        private void ColorPickerTeachTip_Closed(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosedEventArgs args)
+        {
+            ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] = AcrylicColorPicker.Color.ToString();
         }
     }
 }

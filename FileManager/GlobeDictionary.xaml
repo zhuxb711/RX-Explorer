@@ -1,16 +1,17 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="FileManager.GlobeResource"
     xmlns:local="using:FileManager">
 
-    <AcrylicBrush x:Key="NavigationViewTopPaneBackground"
-                  BackgroundSource="HostBackdrop"
-                  TintColor="LightSlateGray"
-                  TintOpacity="0.4" 
-                  FallbackColor="DimGray"/>
     <AcrylicBrush x:Key="DialogAcrylicBrush" 
                   BackgroundSource="Backdrop"
                   TintOpacity="0"
                   TintColor="LightGray" 
                   FallbackColor="DimGray" />
+    <AcrylicBrush x:Key="NavigationViewTopPaneBackground"
+                  BackgroundSource="HostBackdrop"
+                  TintColor="LightSlateGray"
+                  TintOpacity="0.4" 
+                  FallbackColor="DimGray"/>
 </ResourceDictionary>
