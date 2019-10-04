@@ -45,12 +45,18 @@ namespace FileManager
                 TabOpenMethod.Items.Add("空白页");
                 TabOpenMethod.Items.Add("主页");
                 TabOpenMethod.Items.Add("特定页");
+                SearchEngine.Items.Add("百度");
+                SearchEngine.Items.Add("必应");
+                SearchEngine.Items.Add("谷歌");
             }
             else
             {
                 TabOpenMethod.Items.Add("Blank Page");
                 TabOpenMethod.Items.Add("Home Page");
                 TabOpenMethod.Items.Add("Specific Page");
+                SearchEngine.Items.Add("Google");
+                SearchEngine.Items.Add("Bing");
+                SearchEngine.Items.Add("Baidu");
             }
 
         //由于未知原因此处new WebView时，若选择多进程模型则可能会引发异常
@@ -352,6 +358,24 @@ namespace FileManager
                 DownloadPath.Text = Folder.Path;
             }
 
+            if (ApplicationData.Current.LocalSettings.Values["WebSearchEngine"] is string Engine)
+            {
+                SearchEngine.SelectedItem = SearchEngine.Items.Where((Item) => Item.ToString() == Engine).FirstOrDefault();
+            }
+            else
+            {
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                {
+                    ApplicationData.Current.LocalSettings.Values["WebSearchEngine"] = "百度";
+                    SearchEngine.SelectedIndex = 0;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["WebSearchEngine"] = "Google";
+                    SearchEngine.SelectedIndex = 0;
+                }
+            }
+
             //切换不同标签页时，应当同步InPrivate模式的设置
             //同时因为改变InPrivate设置将导致Toggled事件触发，因此先解除，改变后再绑定
             InPrivate.Toggled -= InPrivate_Toggled;
@@ -438,9 +462,33 @@ namespace FileManager
             lock (SyncRootProvider.SyncRoot)
             {
                 SuggestionTimer.Stop();
-                if (JsonConvert.DeserializeObject<WebSearchResult>(GetJsonFromWeb(AutoSuggest.Text)) is WebSearchResult SearchResult)
+                switch (SearchEngine.SelectedItem.ToString())
                 {
-                    AutoSuggest.ItemsSource = SearchResult.s;
+                    case "百度":
+                    case "Baidu":
+                        {
+
+                            if (JsonConvert.DeserializeObject<BaiduSearchSuggestionResult>(GetBaiduJsonFromWeb(AutoSuggest.Text)) is BaiduSearchSuggestionResult BaiduSearchResult)
+                            {
+                                AutoSuggest.ItemsSource = BaiduSearchResult.s;
+                            }
+                            break;
+                        }
+                    case "谷歌":
+                    case "Google":
+                        {
+                            AutoSuggest.ItemsSource = GetGoogleSearchResponse(AutoSuggest.Text);
+                            break;
+                        }
+                    case "必应":
+                    case "Bing":
+                        {
+                            if (JsonConvert.DeserializeObject<BingSearchSuggestionResult>(GetBingJsonFromWeb(AutoSuggest.Text)) is BingSearchSuggestionResult BingSearchResult)
+                            {
+                                AutoSuggest.ItemsSource = BingSearchResult.AS.Results.FirstOrDefault().Suggests.Select((Item) => Item.Txt);
+                            }
+                            break;
+                        }
                 }
             }
         }
@@ -713,26 +761,19 @@ namespace FileManager
             args.Handled = true;
         }
 
-        public class WebSearchResult
-        {
-            public string q { get; set; }
-            public bool p { get; set; }
-            public List<string> s { get; set; }
-        }
-
         /// <summary>
         /// 从baidu搜索建议获取建议的Json字符串
         /// </summary>
         /// <param name="Context">搜索的内容</param>
         /// <returns>Json</returns>
-        private string GetJsonFromWeb(string Context)
+        private string GetBaiduJsonFromWeb(string Context)
         {
             string url = "http://suggestion.baidu.com/su?wd=" + Context + "&cb=window.baidu.sug";
             string str;
             try
             {
                 Uri uri = new Uri(url);
-                HttpWebRequest wr = (HttpWebRequest)WebRequest.Create(uri);
+                HttpWebRequest wr = WebRequest.CreateHttp(uri);
                 Stream s = wr.GetResponse().GetResponseStream();
                 using (StreamReader sr = new StreamReader(s, Encoding.GetEncoding("GBK")))
                 {
@@ -741,11 +782,59 @@ namespace FileManager
                     str = str.Remove(str.Length - 2, 2);
                 }
             }
-            catch
+            catch (Exception)
             {
-                return "";
+                return string.Empty;
             }
             return str;
+        }
+
+        private string GetBingJsonFromWeb(string Context)
+        {
+            string url = "http://api.bing.com/qsonhs.aspx?type=cb&q=" + Context + "&cb=window.bing.sug";
+            string str;
+            try
+            {
+                Uri uri = new Uri(url);
+                HttpWebRequest wr = WebRequest.CreateHttp(uri);
+                Stream s = wr.GetResponse().GetResponseStream();
+                using (StreamReader sr = new StreamReader(s, Encoding.UTF8))
+                {
+                    str = sr.ReadToEnd();
+                    int firstindex = str.IndexOf("{");
+                    int lastindex = str.LastIndexOf("}");
+                    str = str.Substring(firstindex, lastindex - firstindex + 1);
+                }
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
+            return str;
+        }
+
+        private List<string> GetGoogleSearchResponse(string Context)
+        {
+            string url = "http://suggestqueries.google.com/complete/search?client=youtube&q=" + Context + "&jsonp=window.google.ac.h";
+            try
+            {
+                HttpWebRequest wr = WebRequest.CreateHttp(new Uri(url));
+                Stream s = wr.GetResponse().GetResponseStream();
+                using (StreamReader sr = new StreamReader(s, Encoding.UTF8))
+                {
+                    string str = sr.ReadToEnd();
+                    return str.Remove(str.LastIndexOf("{") - 2)
+                              .Substring(str.IndexOf(",") + 2)
+                              .Split(",")
+                              .Where((Item) => Item.StartsWith("["))
+                              .Select((item) => item.Replace("\"", string.Empty).Substring(1))
+                              .ToList();
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         private void AutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -1659,5 +1748,9 @@ namespace FileManager
             await SQLite.GetInstance().DeleteDownloadHistoryAsync(Operation);
         }
 
+        private void SearchEngine_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["WebSearchEngine"] = SearchEngine.SelectedItem.ToString();
+        }
     }
 }

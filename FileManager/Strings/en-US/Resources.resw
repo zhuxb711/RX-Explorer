@@ -534,6 +534,9 @@
   <data name="WebClearCache.Content" xml:space="preserve">
     <value>Clear cache and history</value>
   </data>
+  <data name="WebDefaultSearchEngine.Header" xml:space="preserve">
+    <value>Default search engine</value>
+  </data>
   <data name="WebDelete.Label" xml:space="preserve">
     <value>Delete</value>
   </data>

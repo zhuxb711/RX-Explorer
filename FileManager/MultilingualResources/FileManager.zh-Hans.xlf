@@ -854,6 +854,10 @@
           <source>Please specify the user folder manually</source>
           <target state="translated">请手动指定用户文件夹</target>
         </trans-unit>
+        <trans-unit id="WebDefaultSearchEngine.Header" translate="yes" xml:space="preserve">
+          <source>Default search engine</source>
+          <target state="translated">默认搜索引擎</target>
+        </trans-unit>
       </group>
     </body>
   </file>

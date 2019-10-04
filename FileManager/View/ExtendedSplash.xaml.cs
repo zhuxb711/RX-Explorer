@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
@@ -12,6 +13,7 @@ using Windows.UI.Core;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 
 namespace FileManager
 {
@@ -19,11 +21,15 @@ namespace FileManager
     {
         internal Rect SplashImageRect;
 
-        private SplashScreen Splash;
+        private readonly SplashScreen Splash;
+
+        private AutoResetEvent ReleaseLock;
 
         public ExtendedSplash(SplashScreen Screen)
         {
             InitializeComponent();
+
+            ReleaseLock = new AutoResetEvent(false);
 
             Window.Current.SizeChanged += Current_SizeChanged;
             Splash = Screen;
@@ -57,7 +63,10 @@ namespace FileManager
 
         private async void DismissExtendedSplash()
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High, () =>
+            ReleaseLock.Dispose();
+            ReleaseLock = null;
+
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 var rootFrame = new Frame();
                 Window.Current.Content = rootFrame;
@@ -67,6 +76,59 @@ namespace FileManager
 
         private async void Screen_Dismissed(SplashScreen sender, object args)
         {
+            string CurrentLanguageString = Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault();
+
+            if (ApplicationData.Current.LocalSettings.Values["LastStartupLanguage"] is string LastLanguageString)
+            {
+                if (CurrentLanguageString != LastLanguageString)
+                {
+                    ApplicationData.Current.LocalSettings.Values.Clear();
+                    ApplicationData.Current.LocalSettings.Values["LastStartupLanguage"] = CurrentLanguageString;
+
+                    if (CurrentLanguageString.StartsWith("zh"))
+                    {
+                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async() =>
+                        {
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Title = "提示",
+                                Content = "    自上次启动以来，系统语言设置发生了更改\r\r    语言更改:  " + LastLanguageString + " ⋙⋙⋙⋙ " + CurrentLanguageString + "\r\r    为了保证程序正常运行，RX已将所有已保存设置还原为默认值",
+                                CloseButtonText = "确定",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            _ = await dialog.ShowAsync();
+                            ReleaseLock.Set();
+                        });
+                    }
+                    else
+                    {
+                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async() =>
+                        {
+                            ContentDialog dialog = new ContentDialog
+                            {
+                                Title = "Tips",
+                                Content = "    The system language setting has changed since the last boot\r\r    Language changes:  " + LastLanguageString + " ⋙⋙⋙⋙ " + CurrentLanguageString + "\r\r    To ensure the program is running properly, RX has restored all saved settings to their default values",
+                                CloseButtonText = "Got it",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            _ = await dialog.ShowAsync();
+                            ReleaseLock.Set();
+                        });
+                    }
+                }
+                else
+                {
+                    ReleaseLock.Set();
+                }
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["LastStartupLanguage"] = CurrentLanguageString;
+                ReleaseLock.Set();
+            }
+
+            ReleaseLock.WaitOne();
+
             if (!(ApplicationData.Current.LocalSettings.Values["IsInitialQuickStart"] is bool) || !(ApplicationData.Current.LocalSettings.Values["QuickStartInitialFinished"] is bool))
             {
                 var SQL = SQLite.GetInstance();

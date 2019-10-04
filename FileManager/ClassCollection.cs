@@ -1884,4 +1884,40 @@ namespace FileManager
     //    }
     //}
     #endregion
+
+    #region 搜索建议Json解析类
+    public class BaiduSearchSuggestionResult
+    {
+        public string q { get; set; }
+        public bool p { get; set; }
+        public List<string> s { get; set; }
+    }
+
+    public class Suggests
+    {
+        public string Txt { get; set; }
+        public string Type { get; set; }
+        public string Sk { get; set; }
+        public double HCS { get; set; }
+    }
+
+    public class Results
+    {
+        public string Type { get; set; }
+        public List<Suggests> Suggests { get; set; }
+    }
+
+    public class AS
+    {
+        public string Query { get; set; }
+        public int FullResults { get; set; }
+        public List<Results> Results { get; set; }
+    }
+
+    public class BingSearchSuggestionResult
+    {
+        public AS AS { get; set; }
+    }
+
+    #endregion
 }

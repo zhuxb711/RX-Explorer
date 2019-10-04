@@ -116,8 +116,6 @@ namespace FileManager
                 };
             }
 
-            SQLite SQL = SQLite.GetInstance();
-
             Nav.Navigate(typeof(ThisPC));
 
             EntranceEffectProvider.StartEntranceEffect();

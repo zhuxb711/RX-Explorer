@@ -88,7 +88,7 @@
                     <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Acrylic颜色不透明度" x:Uid="SettingPageTintOpacitySliderHeader"/>
+                                <TextBlock Text="Acrylic颜色透明度" x:Uid="SettingPageTintOpacitySliderHeader"/>
                                 <Viewbox Margin="10,0,0,0" Height="15" VerticalAlignment="Bottom">
                                     <FontIcon Glyph="&#xE9CE;" Name="TintOpacityQuestion" PointerPressed="TintOpacityQuestion_PointerPressed"/>
                                 </Viewbox>
@@ -100,7 +100,7 @@
                     <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Acrylic背景不透光度" x:Uid="SettingPageTintLuminositySliderHeader"/>
+                                <TextBlock Text="Acrylic背景透光度" x:Uid="SettingPageTintLuminositySliderHeader"/>
                                 <Viewbox Margin="10,0,0,0" Height="15" VerticalAlignment="Bottom">
                                     <FontIcon Glyph="&#xE9CE;" Name="TintLuminosityQuestion" PointerPressed="TintLuminosityQuestion_PointerPressed"/>
                                 </Viewbox>
