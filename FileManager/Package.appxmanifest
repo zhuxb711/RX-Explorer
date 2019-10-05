@@ -12,7 +12,7 @@
   <Identity
     Name="36186RuoFan.USB"
     Publisher="CN=4FF1CB23-04BD-4F9C-A86A-B4A43196FE02"
-    Version="2.8.6.0" />
+    Version="2.9.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="cb13434c-d58e-4756-a099-364235a676db" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -73,5 +73,8 @@
     <uap:Capability Name="removableStorage"/>
     <Capability Name="internetClientServer"/>
     <DeviceCapability Name="bluetooth"/>
+    <DeviceCapability Name="location"/>
+    <DeviceCapability Name="microphone"/>
+    <DeviceCapability Name="webcam"/>
   </Capabilities>
 </Package>

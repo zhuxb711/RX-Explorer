@@ -1,4 +1,5 @@
 ﻿using DownloaderProvider;
+using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Newtonsoft.Json;
 using System;
@@ -8,8 +9,12 @@ using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
+using Windows.Devices.Geolocation;
 using Windows.Devices.Radios;
+using Windows.Media.Capture;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
 using Windows.Storage.Pickers;
@@ -23,6 +28,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace FileManager
 {
@@ -33,11 +39,15 @@ namespace FileManager
         public WebView WebBrowser = null;
         public TabViewItem ThisTab;
         private bool IsRefresh = false;
+        private bool IsPermissionProcessing = false;
         private DispatcherTimer SuggestionTimer;
+        private AutoResetEvent PermissionLocker;
+        private bool UserDenyOnToast = false;
 
         public WebPage(Uri uri = null)
         {
             InitializeComponent();
+            PermissionLocker = new AutoResetEvent(false);
             FavouriteList.ItemsSource = WebTab.ThisPage.FavouriteCollection;
             DownloadList.ItemsSource = WebDownloader.DownloadList;
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
@@ -435,7 +445,7 @@ namespace FileManager
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             SuggestionTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromMilliseconds(500)
+                Interval = TimeSpan.FromMilliseconds(800)
             };
             SuggestionTimer.Tick += SuggestionTimer_Tick;
 
@@ -448,48 +458,53 @@ namespace FileManager
             WebBrowser.ContentLoading += WebBrowser_ContentLoading;
             WebBrowser.NavigationCompleted += WebBrowser_NavigationCompleted;
             WebBrowser.NavigationStarting += WebBrowser_NavigationStarting;
-            WebBrowser.LongRunningScriptDetected += WebBrowser_LongRunningScriptDetected;
             WebBrowser.UnsafeContentWarningDisplaying += WebBrowser_UnsafeContentWarningDisplaying;
             WebBrowser.ContainsFullScreenElementChanged += WebBrowser_ContainsFullScreenElementChanged;
             WebBrowser.PermissionRequested += WebBrowser_PermissionRequested;
             WebBrowser.SeparateProcessLost += WebBrowser_SeparateProcessLost;
             WebBrowser.NavigationFailed += WebBrowser_NavigationFailed;
             WebBrowser.UnviewableContentIdentified += WebBrowser_UnviewableContentIdentified;
+            WebBrowser.LongRunningScriptDetected += WebBrowser_LongRunningScriptDetected;
         }
 
-        private void SuggestionTimer_Tick(object sender, object e)
+        private void WebBrowser_LongRunningScriptDetected(WebView sender, WebViewLongRunningScriptDetectedEventArgs args)
         {
-            lock (SyncRootProvider.SyncRoot)
+            if (args.ExecutionTime > TimeSpan.FromSeconds(15))
             {
-                SuggestionTimer.Stop();
-                switch (SearchEngine.SelectedItem.ToString())
-                {
-                    case "百度":
-                    case "Baidu":
-                        {
+                args.StopPageScriptExecution = true;
+            }
+        }
 
-                            if (JsonConvert.DeserializeObject<BaiduSearchSuggestionResult>(GetBaiduJsonFromWeb(AutoSuggest.Text)) is BaiduSearchSuggestionResult BaiduSearchResult)
-                            {
-                                AutoSuggest.ItemsSource = BaiduSearchResult.s;
-                            }
-                            break;
-                        }
-                    case "谷歌":
-                    case "Google":
+        private async void SuggestionTimer_Tick(object sender, object e)
+        {
+            SuggestionTimer.Stop();
+            switch (SearchEngine.SelectedItem.ToString())
+            {
+                case "百度":
+                case "Baidu":
+                    {
+
+                        if (JsonConvert.DeserializeObject<BaiduSearchSuggestionResult>(await GetBaiduJsonFromWeb(AutoSuggest.Text)) is BaiduSearchSuggestionResult BaiduSearchResult)
                         {
-                            AutoSuggest.ItemsSource = GetGoogleSearchResponse(AutoSuggest.Text);
-                            break;
+                            AutoSuggest.ItemsSource = BaiduSearchResult.s;
                         }
-                    case "必应":
-                    case "Bing":
+                        break;
+                    }
+                case "谷歌":
+                case "Google":
+                    {
+                        AutoSuggest.ItemsSource = await GetGoogleSearchResponse(AutoSuggest.Text);
+                        break;
+                    }
+                case "必应":
+                case "Bing":
+                    {
+                        if (JsonConvert.DeserializeObject<BingSearchSuggestionResult>(await GetBingJsonFromWeb(AutoSuggest.Text)) is BingSearchSuggestionResult BingSearchResult)
                         {
-                            if (JsonConvert.DeserializeObject<BingSearchSuggestionResult>(GetBingJsonFromWeb(AutoSuggest.Text)) is BingSearchSuggestionResult BingSearchResult)
-                            {
-                                AutoSuggest.ItemsSource = BingSearchResult.AS.Results.FirstOrDefault().Suggests.Select((Item) => Item.Txt);
-                            }
-                            break;
+                            AutoSuggest.ItemsSource = BingSearchResult.AS.Results.FirstOrDefault().Suggests.Select((Item) => Item.Txt);
                         }
-                }
+                        break;
+                    }
             }
         }
 
@@ -625,29 +640,45 @@ namespace FileManager
 
         private async void WebBrowser_NavigationFailed(object sender, WebViewNavigationFailedEventArgs e)
         {
+            StorageFile HtmlFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///WebErrorStaticPage/index.html"));
+            string HtmlContext = await FileIO.ReadTextAsync(HtmlFile);
+
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                ContentDialog dialog = new ContentDialog
+                HtmlContext = HtmlContext.Replace("@PrimaryTip", "抱歉，您访问的页面出错了")
+                                         .Replace("@SecondTip", "可能是该网页已删除或不存在或网络故障")
+                                         .Replace("@ThirdTip", "您可以尝试以下方案")
+                                         .Replace("@HomeButtonText", "返回主页")
+                                         .Replace("@DiagnoseButtonText", "网络诊断");
+
+                string HomeString = ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString();
+                if (Uri.TryCreate(HomeString, UriKind.Absolute, out Uri uri))
                 {
-                    Content = "导航失败，请检查网址或网络连接",
-                    Title = "提示",
-                    CloseButtonText = "确定",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                };
-                WebBrowser.Navigate(new Uri("about:blank"));
-                _ = await dialog.ShowAsync();
+                    WebBrowser.NavigateToString(HtmlContext.Replace("@HomePageLink", HomeString));
+                }
+                else
+                {
+                    WebBrowser.NavigateToString(HtmlContext.Replace("@HomePageLink", "about:blank"));
+                }
+
             }
             else
             {
-                ContentDialog dialog = new ContentDialog
+                HtmlContext = HtmlContext.Replace("@PrimaryTip", "Sorry, the page you visited is wrong")
+                                         .Replace("@SecondTip", "It may be that the page has been deleted or does not exist or the network is down")
+                                         .Replace("@ThirdTip", "You can try the following options")
+                                         .Replace("@HomeButtonText", "Go to home page")
+                                         .Replace("@DiagnoseButtonText", "Network diagnosis");
+
+                string HomeString = ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString();
+                if (Uri.TryCreate(HomeString, UriKind.Absolute, out Uri uri))
                 {
-                    Content = "Navigation failed, please check the URL or network connection",
-                    Title = "Tips",
-                    CloseButtonText = "Confirm",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                };
-                WebBrowser.Navigate(new Uri("about:blank"));
-                _ = await dialog.ShowAsync();
+                    WebBrowser.NavigateToString(HtmlContext.Replace("@HomePageLink", HomeString));
+                }
+                else
+                {
+                    WebBrowser.NavigateToString(HtmlContext.Replace("@HomePageLink", "about:blank"));
+                }
             }
         }
 
@@ -683,9 +714,12 @@ namespace FileManager
 
         private void WebBrowser_ContentLoading(WebView sender, WebViewContentLoadingEventArgs args)
         {
-            ThisTab.Header = WebBrowser.DocumentTitle != "" ? WebBrowser.DocumentTitle : (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "正在加载..." : "Loading...");
+            ThisTab.Header = string.IsNullOrEmpty(WebBrowser.DocumentTitle) ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "正在加载..." : "Loading...") : WebBrowser.DocumentTitle;
 
-            AutoSuggest.Text = args.Uri.ToString();
+            if (args.Uri != null && AutoSuggest.Text != args.Uri.ToString())
+            {
+                AutoSuggest.Text = args.Uri.ToString();
+            }
 
             Back.IsEnabled = WebBrowser.CanGoBack;
             Forward.IsEnabled = WebBrowser.CanGoForward;
@@ -712,7 +746,7 @@ namespace FileManager
             //多个标签页可能同时执行至此处，因此引用全局锁对象来确保线程同步
             lock (SyncRootProvider.SyncRoot)
             {
-                if (AutoSuggest.Text != "about:blank" && WebBrowser.DocumentTitle != "")
+                if (AutoSuggest.Text != "about:blank" && !string.IsNullOrEmpty(WebBrowser.DocumentTitle))
                 {
                     var HistoryItems = from Item in WebTab.ThisPage.HistoryCollection
                                        where Item.Value.WebSite == AutoSuggest.Text && Item.Key == DateTime.Today
@@ -749,7 +783,6 @@ namespace FileManager
             TabViewItem NewItem = new TabViewItem
             {
                 Header = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "空白页" : "Blank Page",
-                Icon = new SymbolIcon(Symbol.Document),
                 Content = Web
             };
             Web.ThisTab = NewItem;
@@ -766,7 +799,7 @@ namespace FileManager
         /// </summary>
         /// <param name="Context">搜索的内容</param>
         /// <returns>Json</returns>
-        private string GetBaiduJsonFromWeb(string Context)
+        private async Task<string> GetBaiduJsonFromWeb(string Context)
         {
             string url = "http://suggestion.baidu.com/su?wd=" + Context + "&cb=window.baidu.sug";
             string str;
@@ -774,7 +807,7 @@ namespace FileManager
             {
                 Uri uri = new Uri(url);
                 HttpWebRequest wr = WebRequest.CreateHttp(uri);
-                Stream s = wr.GetResponse().GetResponseStream();
+                Stream s = (await wr.GetResponseAsync()).GetResponseStream();
                 using (StreamReader sr = new StreamReader(s, Encoding.GetEncoding("GBK")))
                 {
                     str = sr.ReadToEnd();
@@ -789,7 +822,7 @@ namespace FileManager
             return str;
         }
 
-        private string GetBingJsonFromWeb(string Context)
+        private async Task<string> GetBingJsonFromWeb(string Context)
         {
             string url = "http://api.bing.com/qsonhs.aspx?type=cb&q=" + Context + "&cb=window.bing.sug";
             string str;
@@ -797,7 +830,7 @@ namespace FileManager
             {
                 Uri uri = new Uri(url);
                 HttpWebRequest wr = WebRequest.CreateHttp(uri);
-                Stream s = wr.GetResponse().GetResponseStream();
+                Stream s = (await wr.GetResponseAsync()).GetResponseStream();
                 using (StreamReader sr = new StreamReader(s, Encoding.UTF8))
                 {
                     str = sr.ReadToEnd();
@@ -813,13 +846,13 @@ namespace FileManager
             return str;
         }
 
-        private List<string> GetGoogleSearchResponse(string Context)
+        private async Task<List<string>> GetGoogleSearchResponse(string Context)
         {
             string url = "http://suggestqueries.google.com/complete/search?client=youtube&q=" + Context + "&jsonp=window.google.ac.h";
             try
             {
                 HttpWebRequest wr = WebRequest.CreateHttp(new Uri(url));
-                Stream s = wr.GetResponse().GetResponseStream();
+                Stream s = (await wr.GetResponseAsync()).GetResponseStream();
                 using (StreamReader sr = new StreamReader(s, Encoding.UTF8))
                 {
                     string str = sr.ReadToEnd();
@@ -841,7 +874,7 @@ namespace FileManager
         {
             lock (SyncRootProvider.SyncRoot)
             {
-                if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput && sender.Text != "")
+                if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput && !string.IsNullOrEmpty(sender.Text))
                 {
                     SuggestionTimer.Stop();
                     SuggestionTimer.Start();
@@ -853,7 +886,27 @@ namespace FileManager
         {
             if (args.ChosenSuggestion != null)
             {
-                WebBrowser.Navigate(new Uri(MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? ("https://www.baidu.com/s?wd=" + args.ChosenSuggestion.ToString()) : ("https://www.bing.com/search?q=" + args.ChosenSuggestion.ToString())));
+                switch (SearchEngine.SelectedItem.ToString())
+                {
+                    case "百度":
+                    case "Baidu":
+                        {
+                            WebBrowser.Navigate(new Uri("https://www.baidu.com/s?wd=" + args.ChosenSuggestion.ToString()));
+                            break;
+                        }
+                    case "谷歌":
+                    case "Google":
+                        {
+                            WebBrowser.Navigate(new Uri("https://www.google.com/search?q=" + args.ChosenSuggestion.ToString()));
+                            break;
+                        }
+                    case "必应":
+                    case "Bing":
+                        {
+                            WebBrowser.Navigate(new Uri("https://www.bing.com/search?q=" + args.ChosenSuggestion.ToString()));
+                            break;
+                        }
+                }
             }
             else
             {
@@ -864,7 +917,27 @@ namespace FileManager
                 }
                 else
                 {
-                    WebBrowser.Navigate(new Uri(MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? ("https://www.baidu.com/s?wd=" + args.QueryText) : ("https://www.bing.com/search?q=" + args.QueryText)));
+                    switch (SearchEngine.SelectedItem.ToString())
+                    {
+                        case "百度":
+                        case "Baidu":
+                            {
+                                WebBrowser.Navigate(new Uri("https://www.baidu.com/s?wd=" + args.QueryText));
+                                break;
+                            }
+                        case "谷歌":
+                        case "Google":
+                            {
+                                WebBrowser.Navigate(new Uri("https://www.google.com/search?q=" + args.QueryText));
+                                break;
+                            }
+                        case "必应":
+                        case "Bing":
+                            {
+                                WebBrowser.Navigate(new Uri("https://www.bing.com/search?q=" + args.QueryText));
+                                break;
+                            }
+                    }
                 }
             }
         }
@@ -903,7 +976,7 @@ namespace FileManager
             }
         }
 
-        private void Home_Click(object sender, RoutedEventArgs e)
+        private async void Home_Click(object sender, RoutedEventArgs e)
         {
             string HomeString = ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString();
 
@@ -913,29 +986,31 @@ namespace FileManager
             }
             else
             {
+                StorageFile HtmlFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///WebErrorStaticPage/index.html"));
+                string HtmlContext = await FileIO.ReadTextAsync(HtmlFile);
+
                 if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                 {
-                    ContentDialog dialog = new ContentDialog
-                    {
-                        Content = "导航失败，请检查网址或网络连接",
-                        Title = "提示",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    _ = dialog.ShowAsync();
+                    HtmlContext = HtmlContext.Replace("@PrimaryTip", "抱歉，您访问的页面出错了")
+                                             .Replace("@SecondTip", "可能是该网页已删除或不存在或网络故障")
+                                             .Replace("@ThirdTip", "您可以尝试以下方案")
+                                             .Replace("@HomeButtonText", "返回主页")
+                                             .Replace("@DiagnoseButtonText", "网络诊断");
+
+                    WebBrowser.NavigateToString(HtmlContext.Replace("@HomePageLink", "about:blank"));
+
                 }
                 else
                 {
-                    ContentDialog dialog = new ContentDialog
-                    {
-                        Content = "Navigation failed, please check the URL or network connection",
-                        Title = "Tips",
-                        CloseButtonText = "Confirm",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    _ = dialog.ShowAsync();
+                    HtmlContext = HtmlContext.Replace("@PrimaryTip", "Sorry, the page you visited is wrong")
+                                             .Replace("@SecondTip", "It may be that the page has been deleted or does not exist or the network is down")
+                                             .Replace("@ThirdTip", "You can try the following options")
+                                             .Replace("@HomeButtonText", "Go to home page")
+                                             .Replace("@DiagnoseButtonText", "Network diagnosis");
+
+                    WebBrowser.NavigateToString(HtmlContext.Replace("@HomePageLink", "about:blank"));
                 }
-                WebBrowser.Navigate(new Uri("about:blank"));
+
             }
         }
 
@@ -960,7 +1035,7 @@ namespace FileManager
         {
             if (ThisTab.Header.ToString() == "正在加载..." || ThisTab.Header.ToString() == "Loading...")
             {
-                ThisTab.Header = WebBrowser.DocumentTitle == "" ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "空白页" : "Blank Page") : WebBrowser.DocumentTitle;
+                ThisTab.Header = string.IsNullOrEmpty(WebBrowser.DocumentTitle) ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "空白页" : "Blank Page") : WebBrowser.DocumentTitle;
             }
 
             if (InPrivate.IsOn)
@@ -1018,35 +1093,9 @@ namespace FileManager
             Progress.IsActive = true;
             CanCancelLoading = true;
             RefreshState.Symbol = Symbol.Cancel;
-        }
-
-        private async void WebBrowser_LongRunningScriptDetected(WebView sender, WebViewLongRunningScriptDetectedEventArgs args)
-        {
-            if (args.ExecutionTime.TotalMilliseconds >= 5000)
+            if (args.Uri != null && AutoSuggest.Text != args.Uri.ToString())
             {
-                args.StopPageScriptExecution = true;
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
-                {
-                    ContentDialog dialog = new ContentDialog
-                    {
-                        Content = "检测到长时间运行的JavaScript脚本，可能会导致应用无响应，已自动终止",
-                        Title = "警告",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    _ = await dialog.ShowAsync();
-                }
-                else
-                {
-                    ContentDialog dialog = new ContentDialog
-                    {
-                        Content = "A long-running JavaScript script is detected\rWhich may cause the app to become unresponsive\rHas been automatically terminated",
-                        Title = "Warning",
-                        CloseButtonText = "Confirm",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                    };
-                    _ = await dialog.ShowAsync();
-                }
+                AutoSuggest.Text = args.Uri.ToString();
             }
         }
 
@@ -1098,160 +1147,543 @@ namespace FileManager
             }
         }
 
+        private void ShowPermissionToast()
+        {
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            {
+                ToastContent Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Reminder,
+
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "请授予RX权限..."
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "点击相应的权限"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "随后点击下方的\"我已授权\""
+                                }
+                            }
+                        }
+                    },
+
+                    Actions = new ToastActionsCustom
+                    {
+                        Buttons =
+                        {
+                            new ToastButton("我已授权","Permission")
+                            {
+                                ActivationType =ToastActivationType.Foreground
+                            },
+                            new ToastButtonDismiss("拒绝授权")
+                        }
+                    }
+                };
+
+                var Notification = new ToastNotification(Content.GetXml());
+                Notification.Activated += Notification_Activated;
+                ToastNotificationManager.CreateToastNotifier().Show(Notification);
+            }
+            else
+            {
+                ToastContent Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Reminder,
+
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "Please grant RX permission..."
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "Click the appropriate permission"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "Then click \"I have authorized\" below"
+                                }
+                            }
+                        }
+                    },
+
+                    Actions = new ToastActionsCustom
+                    {
+                        Buttons =
+                        {
+                            new ToastButton("I have authorized","Permission")
+                            {
+                                ActivationType =ToastActivationType.Foreground
+                            },
+                            new ToastButtonDismiss("Refuse authorization")
+                        }
+                    }
+                };
+
+                var Notification = new ToastNotification(Content.GetXml());
+                Notification.Activated += Notification_Activated;
+                ToastNotificationManager.CreateToastNotifier().Show(Notification);
+            }
+        }
+
+        private void Notification_Activated(ToastNotification sender, object args)
+        {
+            sender.Activated -= Notification_Activated;
+            if (args is ToastActivatedEventArgs e && e.Arguments != "Permission")
+            {
+                UserDenyOnToast = true;
+            }
+            else
+            {
+                UserDenyOnToast = false;
+            }
+            PermissionLocker.Set();
+        }
+
         private async void WebBrowser_PermissionRequested(WebView sender, WebViewPermissionRequestedEventArgs args)
         {
-            switch (args.PermissionRequest.PermissionType)
+            args.PermissionRequest.Defer();
+
+            if (IsPermissionProcessing)
             {
-                case WebViewPermissionType.Geolocation:
-                    {
-                        ContentDialog dialog;
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
-                        {
-                            dialog = new ContentDialog
-                            {
-                                Content = "网站请求获取您的精确GPS定位",
-                                Title = "权限",
-                                SecondaryButtonText = "拒绝",
-                                PrimaryButtonText = "允许",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                        }
-                        else
-                        {
-                            dialog = new ContentDialog
-                            {
-                                Content = "The website requests to get your precise GPS location",
-                                Title = "Permission",
-                                SecondaryButtonText = "Deny",
-                                PrimaryButtonText = "Allow",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                        }
-                        switch (await dialog.ShowAsync())
-                        {
-                            case ContentDialogResult.Primary:
-                                args.PermissionRequest.Allow();
-                                break;
-                            case ContentDialogResult.Secondary:
-                                args.PermissionRequest.Deny();
-                                break;
-                        }
-                        break;
-                    }
-
-                case WebViewPermissionType.WebNotifications:
-                    {
-                        ContentDialog dialog;
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
-                        {
-                            dialog = new ContentDialog
-                            {
-                                Content = "网站请求Web通知权限",
-                                Title = "权限",
-                                SecondaryButtonText = "拒绝",
-                                PrimaryButtonText = "允许",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                        }
-                        else
-                        {
-                            dialog = new ContentDialog
-                            {
-                                Content = "Website request web notification permission",
-                                Title = "Permission",
-                                SecondaryButtonText = "Deny",
-                                PrimaryButtonText = "Allow",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                        }
-
-                        switch (await dialog.ShowAsync())
-                        {
-                            case ContentDialogResult.Primary:
-                                args.PermissionRequest.Allow();
-                                break;
-                            case ContentDialogResult.Secondary:
-                                args.PermissionRequest.Deny();
-                                break;
-                        }
-                        break;
-                    }
-                case WebViewPermissionType.Media:
-                    {
-                        ContentDialog dialog;
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
-                        {
-                            dialog = new ContentDialog
-                            {
-                                Content = "网站请求媒体播放权限",
-                                Title = "权限",
-                                SecondaryButtonText = "拒绝",
-                                PrimaryButtonText = "允许",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                        }
-                        else
-                        {
-                            dialog = new ContentDialog
-                            {
-                                Content = "Website request media playback permission",
-                                Title = "Permission",
-                                SecondaryButtonText = "Deny",
-                                PrimaryButtonText = "Allow",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                        }
-                        switch (await dialog.ShowAsync())
-                        {
-                            case ContentDialogResult.Primary:
-                                args.PermissionRequest.Allow();
-                                break;
-                            case ContentDialogResult.Secondary:
-                                args.PermissionRequest.Deny();
-                                break;
-                        }
-                        break;
-                    }
-                case WebViewPermissionType.Screen:
-                    {
-                        ContentDialog dialog;
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
-                        {
-                            dialog = new ContentDialog
-                            {
-                                Content = "网站请求屏幕截图权限",
-                                Title = "权限",
-                                CloseButtonText = "拒绝",
-                                PrimaryButtonText = "允许",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                        }
-                        else
-                        {
-                            dialog = new ContentDialog
-                            {
-                                Content = "Website request screenshot permission",
-                                Title = "Permission",
-                                CloseButtonText = "Deny",
-                                PrimaryButtonText = "Allow",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                        }
-                        switch (await dialog.ShowAsync())
-                        {
-                            case ContentDialogResult.Primary:
-                                args.PermissionRequest.Allow();
-                                break;
-                            case ContentDialogResult.Secondary:
-                                args.PermissionRequest.Deny();
-                                break;
-                        }
-                        break;
-                    }
-                default:
-                    args.PermissionRequest.Deny();
-                    break;
+                return;
             }
+
+            IsPermissionProcessing = true;
+
+            foreach (var Permission in WebBrowser.DeferredPermissionRequests)
+            {
+                switch (Permission.PermissionType)
+                {
+                    case WebViewPermissionType.Geolocation:
+                        {
+                            ContentDialog dialog;
+                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            {
+                                dialog = new ContentDialog
+                                {
+                                    Content = "此网站正在请求您的精确GPS定位",
+                                    Title = "权限",
+                                    SecondaryButtonText = "拒绝",
+                                    PrimaryButtonText = "允许",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+                            else
+                            {
+                                dialog = new ContentDialog
+                                {
+                                    Content = "This site is requesting your precise GPS location",
+                                    Title = "Permission",
+                                    SecondaryButtonText = "Deny",
+                                    PrimaryButtonText = "Allow",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+                            switch (await dialog.ShowAsync())
+                            {
+                                case ContentDialogResult.Primary:
+                                    {
+                                    Location:
+                                        if (await Geolocator.RequestAccessAsync() == GeolocationAccessStatus.Allowed)
+                                        {
+                                            Permission.Allow();
+                                        }
+                                        else
+                                        {
+                                            if (UserDenyOnToast)
+                                            {
+                                                Permission.Deny();
+                                                UserDenyOnToast = false;
+                                                break;
+                                            }
+
+                                            ContentDialog LocationTips;
+                                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                                            {
+                                                LocationTips = new ContentDialog
+                                                {
+                                                    Title = "警告",
+                                                    Content = "如果您拒绝授予RX文件管理器定位权限，则此网站亦无法获得您的精确位置",
+                                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
+                                                    PrimaryButtonText = "授予权限",
+                                                    SecondaryButtonText = "仍然拒绝"
+                                                };
+                                            }
+                                            else
+                                            {
+                                                LocationTips = new ContentDialog
+                                                {
+                                                    Title = "Warning",
+                                                    Content = "If you refuse to grant RX File Manager targeting, this site will not be able to get your exact location",
+                                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
+                                                    PrimaryButtonText = "Permission",
+                                                    SecondaryButtonText = "Deny"
+                                                };
+                                            }
+                                            if (await LocationTips.ShowAsync() == ContentDialogResult.Primary)
+                                            {
+                                                await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
+                                                ShowPermissionToast();
+                                                await Task.Run(() =>
+                                                {
+                                                    PermissionLocker.WaitOne();
+                                                });
+                                                goto Location;
+                                            }
+                                            else
+                                            {
+                                                Permission.Deny();
+                                            }
+                                        }
+                                        break;
+                                    }
+                                case ContentDialogResult.Secondary:
+                                    {
+                                        Permission.Deny();
+                                        break;
+                                    }
+                            }
+                            break;
+                        }
+
+                    case WebViewPermissionType.WebNotifications:
+                        {
+                            ContentDialog dialog;
+                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            {
+                                dialog = new ContentDialog
+                                {
+                                    Content = "此网站正在请求Web通知权限",
+                                    Title = "权限",
+                                    SecondaryButtonText = "拒绝",
+                                    PrimaryButtonText = "允许",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+                            else
+                            {
+                                dialog = new ContentDialog
+                                {
+                                    Content = "This site is requesting web notification permission",
+                                    Title = "Permission",
+                                    SecondaryButtonText = "Deny",
+                                    PrimaryButtonText = "Allow",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+
+                            switch (await dialog.ShowAsync())
+                            {
+                                case ContentDialogResult.Primary:
+                                    Permission.Allow();
+                                    break;
+                                case ContentDialogResult.Secondary:
+                                    Permission.Deny();
+                                    break;
+                            }
+                            break;
+                        }
+                    case WebViewPermissionType.Media:
+                        {
+                            ContentDialog dialog;
+                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            {
+                                dialog = new ContentDialog
+                                {
+                                    Content = "此网站正在请求音视频权限",
+                                    Title = "权限",
+                                    SecondaryButtonText = "拒绝",
+                                    PrimaryButtonText = "允许",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+                            else
+                            {
+                                dialog = new ContentDialog
+                                {
+                                    Content = "This site is requesting media playback permission",
+                                    Title = "Permission",
+                                    SecondaryButtonText = "Deny",
+                                    PrimaryButtonText = "Allow",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+                            switch (await dialog.ShowAsync())
+                            {
+                                case ContentDialogResult.Primary:
+                                    {
+                                    Location:
+                                        MediaCapture Capture = null;
+                                        try
+                                        {
+                                            if (UserDenyOnToast)
+                                            {
+                                                Permission.Deny();
+                                                UserDenyOnToast = false;
+                                                break;
+                                            }
+
+                                            var Setting = new MediaCaptureInitializationSettings
+                                            {
+                                                AlwaysPlaySystemShutterSound = false,
+                                                AudioProcessing = Windows.Media.AudioProcessing.Default,
+                                                MediaCategory = MediaCategory.Media,
+                                                SharingMode = MediaCaptureSharingMode.SharedReadOnly,
+                                                MemoryPreference = MediaCaptureMemoryPreference.Auto,
+                                                StreamingCaptureMode = StreamingCaptureMode.AudioAndVideo
+                                            };
+
+                                            Capture = new MediaCapture();
+                                            await Capture.InitializeAsync(Setting);
+
+                                            Permission.Allow();
+                                        }
+                                        catch (UnauthorizedAccessException)
+                                        {
+                                            ContentDialog LocationTips;
+                                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                                            {
+                                                LocationTips = new ContentDialog
+                                                {
+                                                    Title = "警告",
+                                                    Content = "如果您拒绝授予RX文件管理器音视频权限，则此网站亦无法获得您的音视频流",
+                                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
+                                                    PrimaryButtonText = "授予权限",
+                                                    SecondaryButtonText = "仍然拒绝"
+                                                };
+                                            }
+                                            else
+                                            {
+                                                LocationTips = new ContentDialog
+                                                {
+                                                    Title = "Warning",
+                                                    Content = "If you refuse to grant RX File Manager audio and video permissions, the site will not be able to get your audio and video streams",
+                                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
+                                                    PrimaryButtonText = "Permission",
+                                                    SecondaryButtonText = "Deny"
+                                                };
+                                            }
+
+                                            if (await LocationTips.ShowAsync() == ContentDialogResult.Primary)
+                                            {
+                                                await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
+                                                ShowPermissionToast();
+                                                await Task.Run(() =>
+                                                {
+                                                    PermissionLocker.WaitOne();
+                                                });
+                                                goto Location;
+                                            }
+                                            else
+                                            {
+                                                Permission.Deny();
+                                            }
+                                        }
+                                        finally
+                                        {
+                                            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                                            {
+                                                Capture.Dispose();
+                                            });
+                                        }
+                                        break;
+                                    }
+                                case ContentDialogResult.Secondary:
+                                    {
+                                        Permission.Deny();
+                                        break;
+                                    }
+                            }
+                            break;
+                        }
+                    case WebViewPermissionType.Screen:
+                        {
+                            ContentDialog dialog;
+                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            {
+                                dialog = new ContentDialog
+                                {
+                                    Content = "此网站正在请求屏幕录制权限",
+                                    Title = "权限",
+                                    CloseButtonText = "拒绝",
+                                    PrimaryButtonText = "允许",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+                            else
+                            {
+                                dialog = new ContentDialog
+                                {
+                                    Content = "This site is requesting screen recording permission",
+                                    Title = "Permission",
+                                    CloseButtonText = "Deny",
+                                    PrimaryButtonText = "Allow",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+                            switch (await dialog.ShowAsync())
+                            {
+                                case ContentDialogResult.Primary:
+                                    {
+                                        Permission.Allow();
+                                        break;
+                                    }
+                                case ContentDialogResult.Secondary:
+                                    {
+                                        Permission.Deny();
+                                        break;
+                                    }
+                            }
+                            break;
+                        }
+                    case WebViewPermissionType.UnlimitedIndexedDBQuota:
+                        {
+                            ContentDialog dialog;
+                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            {
+                                dialog = new ContentDialog
+                                {
+                                    Content = "此网站正在请求无限制数据存储",
+                                    Title = "权限",
+                                    SecondaryButtonText = "拒绝",
+                                    PrimaryButtonText = "允许",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+                            else
+                            {
+                                dialog = new ContentDialog
+                                {
+                                    Content = "This site is requesting unlimited data storage",
+                                    Title = "Permission",
+                                    SecondaryButtonText = "Deny",
+                                    PrimaryButtonText = "Allow",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+                            switch (await dialog.ShowAsync())
+                            {
+                                case ContentDialogResult.Primary:
+                                    {
+                                        if (!WebBrowser.Settings.IsIndexedDBEnabled)
+                                        {
+                                            WebBrowser.Settings.IsIndexedDBEnabled = true;
+                                        }
+                                        Permission.Allow();
+                                        break;
+                                    }
+                                case ContentDialogResult.Secondary:
+                                    {
+                                        Permission.Deny();
+                                        break;
+                                    }
+                            }
+                            break;
+                        }
+                    case WebViewPermissionType.PointerLock:
+                        {
+                            ContentDialog dialog;
+                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            {
+                                dialog = new ContentDialog
+                                {
+                                    Content = "此网站正在请求鼠标指针锁定",
+                                    Title = "权限",
+                                    SecondaryButtonText = "拒绝",
+                                    PrimaryButtonText = "允许",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+                            else
+                            {
+                                dialog = new ContentDialog
+                                {
+                                    Content = "This site is requesting a mouse pointer lock",
+                                    Title = "Permission",
+                                    SecondaryButtonText = "Deny",
+                                    PrimaryButtonText = "Allow",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+                            switch (await dialog.ShowAsync())
+                            {
+                                case ContentDialogResult.Primary:
+                                    {
+                                        Permission.Allow();
+                                        break;
+                                    }
+                                case ContentDialogResult.Secondary:
+                                    {
+                                        Permission.Deny();
+                                        break;
+                                    }
+                            }
+                            break;
+                        }
+                    case WebViewPermissionType.ImmersiveView:
+                        {
+                            ContentDialog dialog;
+                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            {
+                                dialog = new ContentDialog
+                                {
+                                    Content = "此网站正在请求沉浸式视图模式(VR)",
+                                    Title = "权限",
+                                    SecondaryButtonText = "拒绝",
+                                    PrimaryButtonText = "允许",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+                            else
+                            {
+                                dialog = new ContentDialog
+                                {
+                                    Content = "This site is requesting immersive view mode (VR)",
+                                    Title = "Permission",
+                                    SecondaryButtonText = "Deny",
+                                    PrimaryButtonText = "Allow",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+                            switch (await dialog.ShowAsync())
+                            {
+                                case ContentDialogResult.Primary:
+                                    {
+                                        Permission.Allow();
+                                        break;
+                                    }
+                                case ContentDialogResult.Secondary:
+                                    {
+                                        Permission.Deny();
+                                        break;
+                                    }
+                            }
+                            break;
+                        }
+                }
+            }
+
+            IsPermissionProcessing = false;
         }
 
         private async void ScreenShot_Click(object sender, RoutedEventArgs e)
@@ -1309,7 +1741,7 @@ namespace FileManager
                     BluetoothFileTransfer FileTransfer = new BluetoothFileTransfer
                     {
                         StreamToSend = stream.AsStream(),
-                        FileName = WebBrowser.DocumentTitle == "" ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "屏幕截图.jpg" : "Screenshot.jpg") : (WebBrowser.DocumentTitle + ".jpg"),
+                        FileName = string.IsNullOrEmpty(WebBrowser.DocumentTitle) ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "屏幕截图.jpg" : "Screenshot.jpg") : (WebBrowser.DocumentTitle + ".jpg"),
                         UseStorageFileRatherThanStream = false
                     };
                     await FileTransfer.ShowAsync();
@@ -1386,15 +1818,17 @@ namespace FileManager
                     WebBrowser.ContentLoading -= WebBrowser_ContentLoading;
                     WebBrowser.NavigationCompleted -= WebBrowser_NavigationCompleted;
                     WebBrowser.NavigationStarting -= WebBrowser_NavigationStarting;
-                    WebBrowser.LongRunningScriptDetected -= WebBrowser_LongRunningScriptDetected;
                     WebBrowser.UnsafeContentWarningDisplaying -= WebBrowser_UnsafeContentWarningDisplaying;
                     WebBrowser.ContainsFullScreenElementChanged -= WebBrowser_ContainsFullScreenElementChanged;
                     WebBrowser.PermissionRequested -= WebBrowser_PermissionRequested;
                     WebBrowser.SeparateProcessLost -= WebBrowser_SeparateProcessLost;
                     WebBrowser.NavigationFailed -= WebBrowser_NavigationFailed;
+                    WebBrowser.LongRunningScriptDetected -= WebBrowser_LongRunningScriptDetected;
                     WebBrowser = null;
                 });
             }
+            PermissionLocker.Dispose();
+            PermissionLocker = null;
             ThisTab = null;
             InPrivate.Toggled -= InPrivate_Toggled;
             WebDownloader.DownloadList.CollectionChanged -= DownloadList_CollectionChanged;

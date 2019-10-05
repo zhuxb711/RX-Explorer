@@ -29,6 +29,7 @@ namespace FileManager
         public App()
         {
             InitializeComponent();
+
             try
             {
                 ToastNotificationManager.History.Clear();
@@ -54,7 +55,8 @@ namespace FileManager
             }
 
             string Message =
-                "\r以下是错误信息：\r\rException Code错误代码：" + e.Exception.HResult +
+                "\r版本: " + string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision) +
+                "\r\r以下是错误信息：\r\rException Code错误代码：" + e.Exception.HResult +
                 "\r\rMessage错误消息：" + e.Exception.Message +
                 "\r\rSource来源：" + (string.IsNullOrEmpty(e.Exception.Source) ? "Unknown" : e.Exception.Source) +
                 "\r\rStackTrace堆栈追踪：\r" + (string.IsNullOrEmpty(e.Exception.StackTrace) ? "Unknown" : e.Exception.StackTrace);

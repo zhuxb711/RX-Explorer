@@ -1,17 +1,21 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">	
-<link rel="stylesheet" type="text/css" href="css/error.css" />
+<link rel="stylesheet" type="text/css" href="ms-appx-web:///WebErrorStaticPage/css/error.css" />
 <title>404</title>	
 </head>
 <body>	
-	<div class="kaicz_404 container">
-		<img src="images/404.gif">
-		<h2>抱歉，您访问的页面出错了</h2>
-		<p>您可能输错了网址，或该网页已删除或不存在</p>
-		<a href="http://www.17sucai.com" class="btn btn-primary btn_blue">返回主页</a>
-	</div>
+    <div class="kaicz_404 container">
+        <img src="ms-appx-web:///WebErrorStaticPage/images/404.gif">
+        <h2>@PrimaryTip</h2>
+        <p>@SecondTip</p>
+        <p>@ThirdTip</p>
+        <div align="center">
+            <a href="@HomePageLink" style="text-align:center;display:inline-block" class="btn btn-primary btn_blue">@HomeButtonText</a>
+            <a href="ms-settings:troubleshoot" style="text-align:center;display:inline-block" class="btn btn-primary btn_blue">@DiagnoseButtonText</a>
+        </div>
+    </div>
 </body>
 </html>

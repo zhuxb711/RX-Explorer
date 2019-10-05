@@ -1,5 +1,6 @@
 ﻿using System;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Activation;
 using Windows.Storage;
 using Windows.UI.Xaml;
 
@@ -9,6 +10,11 @@ namespace FileManager
     {
         static void Main(string[] args)
         {
+            if(AppInstance.GetActivatedEventArgs() is ToastNotificationActivatedEventArgs e && e.Argument== "Permission")
+            {
+                return;
+            }
+
             if (ApplicationData.Current.LocalSettings.Values["EnableMultiInstanceSupport"] is bool Enable)
             {
                 if (Enable)
