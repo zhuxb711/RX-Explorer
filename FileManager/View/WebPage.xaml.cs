@@ -501,7 +501,7 @@ namespace FileManager
                     {
                         if (JsonConvert.DeserializeObject<BingSearchSuggestionResult>(await GetBingJsonFromWeb(AutoSuggest.Text)) is BingSearchSuggestionResult BingSearchResult)
                         {
-                            AutoSuggest.ItemsSource = BingSearchResult.AS.Results.FirstOrDefault().Suggests.Select((Item) => Item.Txt);
+                            AutoSuggest.ItemsSource = BingSearchResult.AS.Results?.FirstOrDefault()?.Suggests?.Select((Item) => Item.Txt);
                         }
                         break;
                     }
