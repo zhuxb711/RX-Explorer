@@ -783,6 +783,7 @@ namespace FileManager
             TabViewItem NewItem = new TabViewItem
             {
                 Header = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "空白页" : "Blank Page",
+                Icon = new SymbolIcon(Symbol.Document),
                 Content = Web
             };
             Web.ThisTab = NewItem;
