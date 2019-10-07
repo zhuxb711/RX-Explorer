@@ -10,9 +10,10 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="100"/>
-            <RowDefinition Height="150"/>
+            <RowDefinition Height="30"/>
             <RowDefinition Height="50"/>
+            <RowDefinition Height="150"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="80"/>
             <RowDefinition/>
             <RowDefinition Height="100"/>
@@ -23,13 +24,14 @@
             <ColumnDefinition Width="289*"/>
             <ColumnDefinition Width="21*"/>
         </Grid.ColumnDefinitions>
-        <TextBlock Text="):" FontSize="90" Grid.Column="1" Grid.Row="1"/>
-        <TextBlock Grid.Column="2" Grid.Row="1" Text="Oops..." FontSize="90"/>
-        <TextBlock x:Uid="CrashText" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Text="RX不小心崩溃了...(￣▽￣)/" FontSize="50"/>
-        <ScrollViewer Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Visible" IsVerticalScrollChainingEnabled="True" >
+        <Border x:Name="TitleBar" Background="Transparent" Grid.ColumnSpan="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        <TextBlock Text="):" FontSize="90" Grid.Column="1" Grid.Row="2"/>
+        <TextBlock Grid.Column="2" Grid.Row="2" Text="Oops..." FontSize="90"/>
+        <TextBlock x:Uid="CrashText" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Text="RX不小心崩溃了...(￣▽￣)/" FontSize="50"/>
+        <ScrollViewer Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Visible" IsVerticalScrollChainingEnabled="True" >
             <TextBlock FontSize="25" Name="Message" TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
         </ScrollViewer>
-        <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="2" HorizontalAlignment="Right">
+        <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Right">
             <Button FontSize="17" Width="130" Height="50" Content="报告给开发者" x:Uid="BlueScreenReport" Name="Report" Click="Report_Click"/>
             <Button Content="重置以恢复" Margin="15,0,0,0" FontSize="17" Width="130" Height="50" x:Uid="BlueScreenReset" Name="Reset" Click="Reset_Click"/>
         </StackPanel>

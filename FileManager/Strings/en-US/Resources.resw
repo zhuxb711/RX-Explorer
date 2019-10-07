@@ -249,6 +249,9 @@
   <data name="FileDelete.ToolTipService.ToolTip" xml:space="preserve">
     <value>Delete</value>
   </data>
+  <data name="FilePaste.Label" xml:space="preserve">
+    <value>Paste</value>
+  </data>
   <data name="FileRename.Label" xml:space="preserve">
     <value>Rename</value>
   </data>
@@ -561,8 +564,14 @@
   <data name="WebDownloadList.Text" xml:space="preserve">
     <value>Download List</value>
   </data>
+  <data name="WebDownloadListCopyLink.Label" xml:space="preserve">
+    <value>Copy link</value>
+  </data>
   <data name="WebDownloadListEmpty.Text" xml:space="preserve">
     <value>Empty</value>
+  </data>
+  <data name="WebDownloadListOpenLocation.Label" xml:space="preserve">
+    <value>Open file location</value>
   </data>
   <data name="WebDownloadPause.Content" xml:space="preserve">
     <value>Pause</value>

@@ -858,6 +858,18 @@
           <source>Default search engine</source>
           <target state="translated">默认搜索引擎</target>
         </trans-unit>
+        <trans-unit id="WebDownloadListCopyLink.Label" translate="yes" xml:space="preserve">
+          <source>Copy link</source>
+          <target state="translated">复制链接</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadListOpenLocation.Label" translate="yes" xml:space="preserve">
+          <source>Open file location</source>
+          <target state="translated">打开文件位置</target>
+        </trans-unit>
+        <trans-unit id="FilePaste.Label" translate="yes" xml:space="preserve">
+          <source>Paste</source>
+          <target state="translated">粘贴</target>
+        </trans-unit>
       </group>
     </body>
   </file>

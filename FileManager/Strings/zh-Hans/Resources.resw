@@ -651,4 +651,13 @@
   <data name="WebDefaultSearchEngine.Header" xml:space="preserve">
     <value>默认搜索引擎</value>
   </data>
+  <data name="WebDownloadListCopyLink.Label" xml:space="preserve">
+    <value>复制链接</value>
+  </data>
+  <data name="WebDownloadListOpenLocation.Label" xml:space="preserve">
+    <value>打开文件位置</value>
+  </data>
+  <data name="FilePaste.Label" xml:space="preserve">
+    <value>粘贴</value>
+  </data>
 </root>

@@ -493,12 +493,10 @@ namespace DownloaderProvider
                 throw new ArgumentNullException();
             }
 
-            StorageFolder SaveFolder = await StorageApplicationPermissions.FutureAccessList.GetItemAsync("DownloadPath") as StorageFolder;
-
-            if (SaveFolder != null)
+            if (await StorageApplicationPermissions.FutureAccessList.GetItemAsync("DownloadPath") is StorageFolder SaveFolder)
             {
                 string UniqueID = Guid.NewGuid().ToString("N");
-                StorageFile TempFile = await SaveFolder.CreateFileAsync("SmartLens_DownloadFile_" + UniqueID, CreationCollisionOption.GenerateUniqueName);
+                StorageFile TempFile = await SaveFolder.CreateFileAsync("RX_DownloadFile_" + UniqueID + ".tmp", CreationCollisionOption.GenerateUniqueName);
                 return new DownloadOperator(Address, TempFile, SaveFileName, UniqueID);
             }
             else

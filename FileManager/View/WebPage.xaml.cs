@@ -11,6 +11,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Geolocation;
 using Windows.Devices.Radios;
@@ -28,7 +29,6 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace FileManager
 {
@@ -649,6 +649,7 @@ namespace FileManager
                                          .Replace("@SecondTip", "可能是该网页已删除或不存在或网络故障")
                                          .Replace("@ThirdTip", "您可以尝试以下方案")
                                          .Replace("@HomeButtonText", "返回主页")
+                                         .Replace("@Title", "导航失败")
                                          .Replace("@DiagnoseButtonText", "网络诊断");
 
                 string HomeString = ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString();
@@ -664,10 +665,11 @@ namespace FileManager
             }
             else
             {
-                HtmlContext = HtmlContext.Replace("@PrimaryTip", "Sorry, the page you visited is wrong")
+                HtmlContext = HtmlContext.Replace("@PrimaryTip", "Sorry, the page you visited is not found")
                                          .Replace("@SecondTip", "It may be that the page has been deleted or does not exist or the network is down")
                                          .Replace("@ThirdTip", "You can try the following options")
                                          .Replace("@HomeButtonText", "Go to home page")
+                                         .Replace("@Title", "Page not found")
                                          .Replace("@DiagnoseButtonText", "Network diagnosis");
 
                 string HomeString = ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString();
@@ -996,6 +998,7 @@ namespace FileManager
                                              .Replace("@SecondTip", "可能是该网页已删除或不存在或网络故障")
                                              .Replace("@ThirdTip", "您可以尝试以下方案")
                                              .Replace("@HomeButtonText", "返回主页")
+                                             .Replace("@Title","导航失败")
                                              .Replace("@DiagnoseButtonText", "网络诊断");
 
                     WebBrowser.NavigateToString(HtmlContext.Replace("@HomePageLink", "about:blank"));
@@ -1003,10 +1006,11 @@ namespace FileManager
                 }
                 else
                 {
-                    HtmlContext = HtmlContext.Replace("@PrimaryTip", "Sorry, the page you visited is wrong")
+                    HtmlContext = HtmlContext.Replace("@PrimaryTip", "Sorry, the page you visited is not found")
                                              .Replace("@SecondTip", "It may be that the page has been deleted or does not exist or the network is down")
                                              .Replace("@ThirdTip", "You can try the following options")
                                              .Replace("@HomeButtonText", "Go to home page")
+                                             .Replace("@Title","Page not found")
                                              .Replace("@DiagnoseButtonText", "Network diagnosis");
 
                     WebBrowser.NavigateToString(HtmlContext.Replace("@HomePageLink", "about:blank"));
@@ -2148,7 +2152,7 @@ namespace FileManager
                 SuggestedStartLocation = PickerLocationId.Downloads,
                 ViewMode = PickerViewMode.List
             };
-            SavePicker.FileTypeFilter.Add(".exe");
+            SavePicker.FileTypeFilter.Add("*");
             StorageFolder SaveFolder = await SavePicker.PickSingleFolderAsync();
 
             if (SaveFolder != null)
@@ -2186,6 +2190,36 @@ namespace FileManager
         private void SearchEngine_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ApplicationData.Current.LocalSettings.Values["WebSearchEngine"] = SearchEngine.SelectedItem.ToString();
+        }
+
+        private async void DownloadList_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            if ((e.ClickedItem as DownloadOperator).State == DownloadState.AlreadyFinished)
+            {
+                StorageFolder Folder = await StorageApplicationPermissions.FutureAccessList.GetItemAsync("DownloadPath") as StorageFolder;
+                _ = await Launcher.LaunchFolderAsync(Folder);
+            }
+        }
+
+        private void DownloadList_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is DownloadOperator Context)
+            {
+                DownloadList.SelectedIndex = WebDownloader.DownloadList.IndexOf(Context);
+            }
+        }
+
+        private void CopyDownloadLink_Click(object sender, RoutedEventArgs e)
+        {
+            DataPackage Package = new DataPackage();
+            Package.SetText((DownloadList.SelectedItem as DownloadOperator).Address.AbsoluteUri);
+            Clipboard.SetContent(Package);
+        }
+
+        private async void OpenDownloadLocation_Click(object sender, RoutedEventArgs e)
+        {
+            StorageFolder Folder = await StorageApplicationPermissions.FutureAccessList.GetItemAsync("DownloadPath") as StorageFolder;
+            _ = await Launcher.LaunchFolderAsync(Folder);
         }
     }
 }

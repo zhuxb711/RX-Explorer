@@ -53,7 +53,7 @@
         </CommandBarFlyout>
 
         <CommandBarFlyout x:Name="EmptyFlyout" Placement="RightEdgeAlignedTop">
-            <AppBarButton Icon="Paste" ToolTipService.ToolTip="粘贴" Label="粘贴" IsEnabled="False" Click="Paste_Click" Name="Paste"/>
+            <AppBarButton Icon="Paste" x:Uid="FilePaste" ToolTipService.ToolTip="{x:Bind Paste.Label}" Label="粘贴" IsEnabled="False" Click="Paste_Click" Name="Paste"/>
             <CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow" Label="使用系统管理器打开" x:Uid="SystemManagerOpen" x:Name="UseSystemFileMananger" Click="UseSystemFileMananger_Click"/>
                 <AppBarButton Icon="Tag" Label="文件夹属性" x:Uid="ParentAttribute" x:Name="ParentAttribute" Click="ParentAttribute_Click"/>

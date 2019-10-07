@@ -1569,7 +1569,7 @@ namespace FileManager
                             };
                             if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                             {
-                                await Launcher.LaunchFileAsync(ReFile.File);
+                                _ = await Launcher.LaunchFileAsync(ReFile.File);
                             }
                         }
                         else
@@ -1584,7 +1584,7 @@ namespace FileManager
                             };
                             if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                             {
-                                await Launcher.LaunchFileAsync(ReFile.File);
+                                _ = await Launcher.LaunchFileAsync(ReFile.File);
                             }
                         }
                         break;

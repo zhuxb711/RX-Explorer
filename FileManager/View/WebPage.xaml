@@ -308,7 +308,16 @@
                 <Grid>
                     <StackPanel Orientation="Vertical" Margin="20,15,20,10">
                         <TextBlock Text="下载列表" x:Uid="WebDownloadList" FontSize="24"/>
-                        <ListView Margin="0,10,0,0" Name="DownloadList" ItemTemplateSelector="{StaticResource DownloadTemplateSelector}"/>
+                        <ListView Margin="0,10,0,0" Name="DownloadList" IsItemClickEnabled="True" IsRightTapEnabled="True" RightTapped="DownloadList_RightTapped" ItemClick="DownloadList_ItemClick" ItemTemplateSelector="{StaticResource DownloadTemplateSelector}">
+                            <ListView.ContextFlyout>
+                                <CommandBarFlyout Placement="RightEdgeAlignedTop">
+                                    <CommandBarFlyout.SecondaryCommands>
+                                        <AppBarButton Icon="Copy" Label="复制链接" x:Uid="WebDownloadListCopyLink" Name="CopyDownloadLink" Click="CopyDownloadLink_Click"/>
+                                        <AppBarButton Icon="BackToWindow" Label="打开文件位置" x:Uid="WebDownloadListOpenLocation" Name="OpenDownloadLocation" Click="OpenDownloadLocation_Click"/>
+                                    </CommandBarFlyout.SecondaryCommands>
+                                </CommandBarFlyout>
+                            </ListView.ContextFlyout>
+                        </ListView>
                     </StackPanel>
                     <TextBlock Name="DownloadEmptyTips" Margin="10,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" x:Uid="WebDownloadListEmpty" Text="无内容" FontSize="24"/>
                 </Grid>
