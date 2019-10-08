@@ -874,6 +874,14 @@
           <source>Donate</source>
           <target state="translated">支持开发者</target>
         </trans-unit>
+        <trans-unit id="UpdateLogDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Got it</source>
+          <target state="translated">知道了</target>
+        </trans-unit>
+        <trans-unit id="UpdateLogDialog.Title" translate="yes" xml:space="preserve">
+          <source>Recently updated</source>
+          <target state="translated">最近更新</target>
+        </trans-unit>
       </group>
     </body>
   </file>

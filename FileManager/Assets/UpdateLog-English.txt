@@ -1,0 +1,308 @@
+﻿*****
+###What's new in Ver.2.9.7.0
+
+>#####Add an internal `Recent Updates` box to display the update log
+
+>#####Solves the problem that browser favorites and history cannot be scrolled down, and solves the problem that duplicate/multi-tab records are out of sync in history.
+
+>#####Adding browser address auto-completion function, such as support for lack of protocol prefix and `www` URL identification like `www.bing.com` or `bing.com` or `192.168.1.1`
+
+>#####Search engine completion now uses asynchronous method, search is not stuck
+
+>#####Add a small button to the settings page to donate to the developer.
+
+>#####Improved the readability of some text
+
+>#####Browser file download list supports directly open download folder or right click copy download link
+
+*****
+###What's new in Ver.2.9.0.0
+
+>#####Supports the function of free downloading and following system language switching
+
+>#####Fix the browser to set the font size is inconsistent
+
+>#####Add search engine selection options, support Bing, Baidu, Google search, and support smart tips for each search engine
+
+>#####Adding 404 dynamic webpage when navigation fails
+
+>#####Improve the web rights management mechanism. In order to support webpage permission requests, RX adds the need for positioning, audio and video permissions, but only needs to be set or enabled when the webpage needs it.
+
+*****
+###What's new in Ver.2.8.4.0
+
+>#####Resolved the flashback abnormality that may be caused when the UI mode setting is changed to the custom mode or the transparency slider is changed.
+
+>#####Optimized internal implementation of search suggestion box
+
+>#####Optimized processing logic in custom UI mode
+
+*****
+###What's new in Ver.2.8.1.0
+
+>#####New setting options--"Adjust UI mode", allowing custom RX appearance, Acrylic background color, transmittance, transparency and other parameters, to create the most cool RX file manager
+
+>#####Updated the Nuget package such as SQLite database to the latest version
+
+>#####Webpage setup module animation, quick launch box icon update, etc.
+
+>#####Solved an issue that could cause an error during startup
+
+>#####Solved a problem that could cause XAML Prase Exception
+
+*****
+###What's new in Ver.2.7.6.0
+
+>#####Added animation for display of device and drive capacity bars
+
+>#####Solved the problem that the low-end device may crash during the process of entering the drive
+
+>#####Optimized the performance of the left file directory tree when expanding, using progressive expansion for very large folders to avoid the problem of too long expansion time
+
+>#####Solved the problem that if the file directory is re-folded during the expansion process, the search and addition of the folder will not stop.
+
+>#####Unified interface style, updated dependent components
+
+*****
+###What's new in Ver.2.7.3.0
+
+>#####Optimize and improve the expansion speed of the folder directory tree on the left side of file management
+
+>#####Solved the problem that the folder folder tree on the left side missed the existing folder in some cases, which will invalidate the function of "open file location"
+
+>#####Optimized file/folder path finding logic. For folders with a large number of subfolders, you can open the file location without waiting for it to fully expand.
+
+>#####Solved the problem that the selected item does not appear in the visible range when the left folder tree is automatically selected, and now it will automatically scroll to the middle.
+
+>#####Resolved an issue where folder traversal does not automatically stop when opening a very large folder and immediately returns to the main page of the drive, which will cause the RX file manager to become unresponsive
+
+*****
+###What's new in Ver.2.7.0.0
+
+>#####When the WIFI file sharing is solved, if the file name has illegal characters (such as "+"), the file cannot be shared.
+
+>#####Optimized multi-instance startup logic, now you don’t need to restart the application to make multi-instance settings take effect
+
+>#####Browser loading progress bar and other components add animation effects, there will be an animation transition when appearing/disappearing
+
+>#####Browser download function added download speed display
+
+>#####New App Launch Effect
+
+*****
+###What's new in Ver.2.6.5.0
+
+>#####Solved the problem that the PIN icon prompt and rating prompt cannot be displayed when starting up for the first time after installation
+
+>#####Solved the problem that may cause blue screen Opoos when clicking into the Bluetooth sharing module
+
+*****
+###What's new in Ver.2.6.3.0
+
+>#####Add new application support, RX now supports multi-instance or single instance mode switching operation
+
+*****
+###What's new in Ver.2.6.0.0
+
+>#####Support Chinese and English bilingual, add multiple English-speaking countries
+
+>#####Reinstall RX after switching languages
+
+>#####Updated the store description and display image
+
+*****
+###What's new in Ver.2.5.2.0
+
+>#####Optimized WIFI file sharing processing mechanism, greatly reducing memory usage and increasing file transfer speed
+
+>#####WIFI file sharing can now transfer very large files without exhausting memory
+
+*****
+###What's new in Ver.2.5.0.0
+
+>#####Add a dedicated right-click menu in the blank area of ​​file management, support the system file manager to open directly at a specific location
+
+>#####Delete the multi-select function, use less and handle complex
+
+>#####Delete the menu bar left at the top (originally prepared for devices that do not support 1903)
+
+>#####Support to view folder properties directly in the file directory tree on the left
+
+*****
+###What's new in Ver.2.4.8.0
+
+>#####Solved the problem of quick startup and popular website disappear after 2.4.5.0 version update, but need to reset the previously customized icon after fixing this problem
+
+>#####Solved the problem of not automatically hiding long fields when the name of the quick launch area is too long
+
+>#####Optimized the quick launch area edit box and added hints related to the startup protocol
+
+*****
+###What's new in Ver.2.4.5.0
+
+>#####Solved the problem that will cause a crash when changing the quick start image
+
+>#####The expansion and folding of library files and drives will now be pushed away from each other instead of the previous fixed position
+
+>#####The scope of the search function is further refined, and it will change the search area as the current folder changes.
+
+*****
+###What's new in Ver.2.4.2.0
+
+>#####Solved the problem that the system could not find the specified file or denied access (from VS occasionally missing the necessary files)
+
+>#####Solved the problem that will crash when deleting the project of the quick launch bar
+
+>#####Solved the problem that the default quick launch bar icon processing and saving replacement logic are too complicated
+
+>#####A new restore button in the blue screen error interface allows the user to immediately clear and restore the program, which can solve some problems.
+
+*****
+###What's new in Ver.2.4.0.0
+
+>#####Optimized the interface displayed when you open the U disk and open it with RX file manager.
+
+>#####Additional settings: Restore and initialize
+
+>#####Fixed null value judgment error in editing quick start and popular website dialog box
+
+>#####Added animation effects to the initialization permission page
+
+>#####Solved the upgrade prompt and the rating tips may be stacked
+
+*****
+###What's new in Ver.2.3.7.0
+
+>#####Solved the problem that RX will crash when modifying, renaming, creating, and deleting files and folders that require administrator privileges.
+
+>#####Solve the problem that the progress bar of the pressure file does not disappear after the decompression is completed
+
+>#####Changed brand new icon
+
+*****
+###What's new in Ver.2.3.5.0
+
+>#####Update the latest UWP framework
+
+>#####Updated the unique address generation logic shared by WIFI, and will not generate too long address now.
+
+>#####When adding WIFI sharing, make an error message for access to invalid links
+
+*****
+###What's new in Ver.2.3.0.0
+
+>#####Add WIFI file sharing function and share with Bluetooth
+
+>#####Solved the problem that the file without name does not display the suffix
+
+>#####Add blue screen function. If RX is abnormal, this function can capture some abnormal information. Users can submit it to the developer manually to better improve RX file manager.
+
+*****
+###What's new in Ver.2.2.0.0
+
+>#####Adding drive attribute viewing function
+
+>#####Other Logo Updates
+
+*****
+###What's new in Ver.2.1.5.0
+
+>#####Fixed the problem that the browser module pop-up window is not uniform
+
+>#####Updated compression components
+
+>#####Support to pop up more web permission requests
+
+*****
+###What's new in Ver.2.1.0.0
+
+>#####Fixed many problems in Ver.2.0.0.0
+
+>#####The display of files is incrementally loaded and supports displaying a large number of files.
+
+>#####Because the root of the file tracker no longer exists, remove the file tracking function
+
+*****
+###What's new in Ver.2.0.0.0
+
+>#####Comprehensive and optimized interface display, the interface is more beautiful, more textured
+
+>#####Upgraded to pure disk management function by simple USB management function, more powerful
+
+>#####Built-in browser function to quickly open web links
+
+>#####Support folders and files are displayed at the same time
+
+>#####File Tracking System only works for USB devices
+
+>#####Many minor improvements
+
+*****
+###What's new in Ver.1.4.0.0
+
+>#####Interface improvement, high texture background
+
+>#####The side navigation bar changes to the top navigation bar
+
+>#####Solved the problem that the search interface does not exit after deleting the contents of the search box
+
+>#####Resolved the problem that the file manager could not open the file location after entering the search interface and then inserting the U disk.
+
+>#####Adding a lot of interface animation effects
+
+*****
+###What's new in Ver.1.3.5.0
+
+>#####Solved the problem of clearing the search box and the search interface does not disappear
+
+>#####Using a new algorithm to improve the performance of the "open file location" option of the search list in response to complex file structures
+
+*****
+###What's new in Ver.1.3.3.0
+
+>#####Solved the problem of delaying the search page when searching for large drives
+
+>#####Algorithm improvement, greatly improving file search efficiency
+
+>#####Delete the option to set "Delete to Recycle Bin"
+
+>#####Add settings "Search result display entry" option
+
+*****
+###What's new in Ver.1.3.0.0
+
+>#####Solved the problem that the return key is disabled due to architectural changes
+
+>#####Solved the problem of not being able to rename a folder that does not contain subfolders
+
+>#####Add file search function
+
+>#####Thanks to the architecture adjustment, the speed of displaying files in the folder is greatly improved.
+
+*****
+###What's new in Ver.1.2.5.0
+
+>#####Add the left navigation bar, the interface is more layered
+
+>#####Add a setting interface to allow opening and closing of the file tracking system, etc.
+
+>#####Other minor problem fixing
+
+*****
+###What's new in Ver.1.2.0.0
+
+>#####Solved the file-free prompt that flashed when the USB switch folder
+
+>#####Because the file tracking system searches for large folders for too long, the change strategy is: Prevent the file tracking system from tracking the changes caused by the program, and the changes are manually refreshed by the program. This improvement will greatly enhance the USB file operation. speed.
+
+>#####Optimized the performance when renaming folders, now the name of the expanded folder will not be automatically folded
+
+>#####Resolved an issue where two identical folder names appeared after expanding the collapsed folder again after using the "New Folder Options" for the folder in the collapsed state
+
+>#####Resolved an issue where renaming a folder that is in an expanded state, unless it is refolded and expanded, all operations on its subfolders will raise an exception.
+
+>#####Solved the problem of selecting "Extract to current folder" in Zip compression view interface, do not return and directly delete the extracted folder, and select "Extract to current folder" again, then extract the folder does not appear The problem
+
+>#####Solved the problem that when the folder that is displaying the file on the right is deleted, the file on the right side will not be cleared after the folder is deleted.
+
+>#####Other optimization

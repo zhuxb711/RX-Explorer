@@ -120,6 +120,20 @@ namespace FileManager
 
             EntranceEffectProvider.StartEntranceEffect();
 
+            if (ApplicationData.Current.LocalSettings.Values["LastRunVersion"] is string Version)
+            {
+                var VersionSplit = Version.Split(".").Select((Item) => ushort.Parse(Item));
+                if (VersionSplit.ElementAt(0) < Package.Current.Id.Version.Major || VersionSplit.ElementAt(1) < Package.Current.Id.Version.Minor || VersionSplit.ElementAt(2) < Package.Current.Id.Version.Build || VersionSplit.ElementAt(3) < Package.Current.Id.Version.Revision)
+                {
+                    WhatIsNew Dialog = new WhatIsNew();
+                    await Dialog.ShowAsync();
+                }
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["LastRunVersion"] = string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
+            }
+
             await CheckAndInstallUpdate();
         }
 

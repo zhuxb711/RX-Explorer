@@ -510,6 +510,12 @@
   <data name="TranscodeQuality.Header" xml:space="preserve">
     <value>Quality</value>
   </data>
+  <data name="UpdateLogDialog.CloseButtonText" xml:space="preserve">
+    <value>Got it</value>
+  </data>
+  <data name="UpdateLogDialog.Title" xml:space="preserve">
+    <value>Recently updated</value>
+  </data>
   <data name="UpdateTip.ActionButtonContent" xml:space="preserve">
     <value>Update Now</value>
   </data>

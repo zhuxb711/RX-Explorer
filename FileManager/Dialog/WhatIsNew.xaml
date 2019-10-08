@@ -1,0 +1,21 @@
+﻿<ContentDialog xmlns:my="using:Microsoft.Toolkit.Uwp.UI.Controls" 
+    x:Class="FileManager.WhatIsNew"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{StaticResource DialogAcrylicBrush}"
+    x:Uid="UpdateLogDialog"
+    Title="最近更新"
+    CloseButtonText="知道了">
+
+    <Grid>
+        <ScrollViewer VerticalScrollMode="Enabled" IsVerticalScrollChainingEnabled="True">
+            <my:MarkdownTextBlock x:Name="MarkDown"
+                                  Header3Foreground="{ThemeResource SystemControlForegroundAccentBrush}"
+                                  Background="Transparent"
+                                  SchemeList="companyportal,randomscheme"/>
+        </ScrollViewer>
+    </Grid>
+</ContentDialog>

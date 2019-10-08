@@ -663,4 +663,10 @@
   <data name="SettingSupportDeveloper.Content" xml:space="preserve">
     <value>支持开发者</value>
   </data>
+  <data name="UpdateLogDialog.CloseButtonText" xml:space="preserve">
+    <value>知道了</value>
+  </data>
+  <data name="UpdateLogDialog.Title" xml:space="preserve">
+    <value>最近更新</value>
+  </data>
 </root>

@@ -22,7 +22,7 @@
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
-    <PackageCertificateThumbprint>352CBF73AE8A35953960DD0F85D75B76D99B63BC</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>5ECB9FCD5AB53593E4DB6F2B97D76E6B8EAB4EB4</PackageCertificateThumbprint>
     <AppInstallerUpdateFrequency>0</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
@@ -137,6 +137,9 @@
     <SuppressPseudoWarning Condition="'$(Configuration)' == 'Debug'">true</SuppressPseudoWarning>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Dialog\WhatIsNew.xaml.cs">
+      <DependentUpon>WhatIsNew.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Multi-Instance-Provider.cs" />
     <Compile Include="View\BlueScreen.xaml.cs">
       <DependentUpon>BlueScreen.xaml</DependentUpon>
@@ -231,6 +234,8 @@
     <Content Include="Assets\Add.png" />
     <Content Include="Assets\AddImage.png" />
     <Content Include="Assets\ColorPickerHero.png" />
+    <Content Include="Assets\UpdateLog-Chinese.txt" />
+    <Content Include="Assets\UpdateLog-English.txt" />
     <Content Include="HotWebImage\Baidu.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -343,6 +348,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Dialog\WhatIsNew.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="GlobeDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
