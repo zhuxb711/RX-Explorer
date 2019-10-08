@@ -155,7 +155,6 @@ namespace FileManager
                         }
                         else
                         {
-
                             foreach (KeyValuePair<DateTime, WebSiteItem> New in e.NewItems)
                             {
                                 TreeNode.First().Children.Insert(0, new TreeViewNode
@@ -166,7 +165,6 @@ namespace FileManager
                                 });
                                 SQLite.GetInstance().SetWebHistoryList(New);
                             }
-
                         }
                     }
                 }

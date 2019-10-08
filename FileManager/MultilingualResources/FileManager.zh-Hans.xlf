@@ -870,6 +870,10 @@
           <source>Paste</source>
           <target state="translated">粘贴</target>
         </trans-unit>
+        <trans-unit id="SettingSupportDeveloper.Content" translate="yes" xml:space="preserve">
+          <source>Donate</source>
+          <target state="translated">支持开发者</target>
+        </trans-unit>
       </group>
     </body>
   </file>

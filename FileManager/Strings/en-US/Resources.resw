@@ -468,6 +468,9 @@
   <data name="SettingSearchNum.Header" xml:space="preserve">
     <value>Set the maximum number of search results</value>
   </data>
+  <data name="SettingSupportDeveloper.Content" xml:space="preserve">
+    <value>Donate</value>
+  </data>
   <data name="SettingVersion.Text" xml:space="preserve">
     <value>Version</value>
   </data>

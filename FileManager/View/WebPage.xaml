@@ -12,6 +12,10 @@
     Background="{StaticResource NavigationViewTopPaneBackground}">
 
     <Page.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="IsSpellCheckEnabled" Value="False"/>
+        </Style>
+        
         <Style TargetType="TreeView">
             <Setter Property="IsTabStop" Value="False"/>
             <Setter Property="Template">
@@ -81,7 +85,7 @@
             <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="{x:Bind ActualFileName}" TextTrimming="CharacterEllipsis" Width="262" FontSize="17"/>
-                    <TextBlock Margin="0,5,0,0" Text="{x:Bind Address.AbsoluteUri}" Width="262" TextTrimming="CharacterEllipsis" FontSize="15" Foreground="Gray"/>
+                    <TextBlock Margin="0,5,0,0" Text="{x:Bind Address.AbsoluteUri}" Width="262" TextTrimming="CharacterEllipsis" FontSize="15" Foreground="LightGray"/>
                     <ProgressBar Margin="0,5,0,0" Name="DownloadProgress" Value="{x:Bind Percentage,Mode=OneWay}" IsIndeterminate="False" Maximum="100" Minimum="0"/>
                     <StackPanel Margin="0,5,0,0">
                         <TextBlock FontSize="14" Text="{x:Bind DownloadSpeed,Mode=OneWay}"/>
@@ -107,7 +111,7 @@
             <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="{x:Bind ActualFileName}" TextTrimming="CharacterEllipsis" Width="262" FontSize="17"/>
-                    <TextBlock Margin="0,5,0,0" Text="{x:Bind Address.AbsoluteUri}" Width="262" TextTrimming="CharacterEllipsis" FontSize="15" Foreground="Gray"/>
+                    <TextBlock Margin="0,5,0,0" Text="{x:Bind Address.AbsoluteUri}" Width="262" TextTrimming="CharacterEllipsis" FontSize="15" Foreground="LightGray"/>
                     <TextBlock FontSize="15" Margin="0,5,0,0" Text="下载出错" x:Uid="WebDownloadErrorText" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </StackPanel>
                 <Viewbox Width="15" Height="15" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,0,0">
@@ -120,7 +124,7 @@
             <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="{x:Bind ActualFileName}" TextTrimming="CharacterEllipsis" Width="262" FontSize="17"/>
-                    <TextBlock Margin="0,5,0,0" Text="{x:Bind Address.AbsoluteUri}" Width="262" TextTrimming="CharacterEllipsis" FontSize="15" Foreground="Gray"/>
+                    <TextBlock Margin="0,5,0,0" Text="{x:Bind Address.AbsoluteUri}" Width="262" TextTrimming="CharacterEllipsis" FontSize="15" Foreground="LightGray"/>
                     <TextBlock FontSize="15" Margin="0,5,0,0" Text="下载完成" x:Uid="WebDownloadCompleteText" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </StackPanel>
                 <Viewbox Width="15" Height="15" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,0,0">
@@ -133,7 +137,7 @@
             <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="{x:Bind ActualFileName}" TextTrimming="CharacterEllipsis" Width="262" FontSize="17"/>
-                    <TextBlock Margin="0,5,0,0" Text="{x:Bind Address.AbsoluteUri}" Width="262" TextTrimming="CharacterEllipsis" FontSize="15" Foreground="Gray"/>
+                    <TextBlock Margin="0,5,0,0" Text="{x:Bind Address.AbsoluteUri}" Width="262" TextTrimming="CharacterEllipsis" FontSize="15" Foreground="LightGray"/>
                     <TextBlock FontSize="15" Margin="0,5,0,0" Text="取消下载" x:Uid="WebDownloadCancelText" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </StackPanel>
                 <Viewbox Width="15" Height="15" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,0,0">
@@ -146,7 +150,7 @@
             <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="{x:Bind ActualFileName}" TextTrimming="CharacterEllipsis" Width="262" FontSize="17"/>
-                    <TextBlock Margin="0,5,0,0" Text="{x:Bind Address.AbsoluteUri}" Width="262" TextTrimming="CharacterEllipsis" FontSize="15" Foreground="Gray"/>
+                    <TextBlock Margin="0,5,0,0" Text="{x:Bind Address.AbsoluteUri}" Width="262" TextTrimming="CharacterEllipsis" FontSize="15" Foreground="LightGray"/>
                     <Grid Margin="0,5,0,0">
                         <TextBlock FontSize="15" Text="下载暂停" x:Uid="WebDownloadPauseText" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -229,18 +233,18 @@
                 <SymbolIcon Symbol="Refresh" Name="RefreshState"/>
             </Button>
             <ProgressRing Grid.Column="4" Name="Progress" Height="25" Width="25"/>
-            <AutoSuggestBox 
-                        Grid.Column="5"
-                        x:Uid="WebSuggestBox"
-                        VerticalAlignment="Center"
-                        HorizontalAlignment="Stretch"
-                        Name="AutoSuggest"
-                        QueryIcon="Find" 
-                        x:FieldModifier="public"
-                        PlaceholderText="搜索或输入网址" 
-                        TextChanged="AutoSuggestBox_TextChanged" 
-                        QuerySubmitted="AutoSuggestBox_QuerySubmitted"
-                        BorderBrush="{ThemeResource SystemControlBackgroundListMediumRevealBorderBrush}"/>
+            <AutoSuggestBox Grid.Column="5"
+                            x:Uid="WebSuggestBox"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Stretch"
+                            Name="AutoSuggest"
+                            QueryIcon="Find" 
+                            x:FieldModifier="public"
+                            PlaceholderText="搜索或输入网址" 
+                            TextChanged="AutoSuggestBox_TextChanged" 
+                            QuerySubmitted="AutoSuggestBox_QuerySubmitted"
+                            BorderBrush="{ThemeResource SystemControlBackgroundListMediumRevealBorderBrush}">
+            </AutoSuggestBox>
             <Viewbox Grid.Column="5" HorizontalAlignment="Right" Margin="0,0,30,3" Height="16">
                 <SymbolIcon Name="Favourite" x:FieldModifier="public" Symbol="OutlineStar" PointerExited="Favourite_PointerExited" PointerPressed="Favourite_PointerPressed" PointerEntered="Favourite_PointerEntered">
                     <FlyoutBase.AttachedFlyout>
@@ -350,7 +354,7 @@
                         <Grid Margin="0,25,0,0">
                             <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
                                 <TextBlock FontSize="16" x:Uid="WebDonwloadLoaction" Text="默认下载位置"/>
-                                <TextBlock FontSize="16" Name="DownloadPath" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Width="260" Foreground="Gray" Margin="0,8,0,0"/>
+                                <TextBlock FontSize="16" Name="DownloadPath" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Width="260" Foreground="LightGray" Margin="0,8,0,0"/>
                             </StackPanel>
                             <Button HorizontalAlignment="Right" x:Uid="WebExplorerButton" FontSize="16" Name="SetDownloadPathButton" Click="SetDownloadPathButton_Click" Content="浏览" Style="{ThemeResource ButtonRevealStyle}" Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"/>
                         </Grid>
@@ -388,6 +392,10 @@
                 <Pivot Name="PivotControl" x:FieldModifier="public">
                     <PivotItem Header="收藏夹" FontSize="24" x:Uid="WebFavouriteListTitle">
                         <Grid Margin="-20,0,0,0" >
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
                             <StackPanel Orientation="Vertical">
                                 <TextBlock FontSize="13" Text="清除所有标签" x:Uid="WebFavouriteClear" HorizontalAlignment="Right" Margin="20,0,0,0" PointerPressed="TextBlock_PointerPressed" Foreground="DeepSkyBlue" TextDecorations="Underline">
                                     <FlyoutBase.AttachedFlyout>
@@ -403,38 +411,43 @@
                                     </FlyoutBase.AttachedFlyout>
                                 </TextBlock>
                                 <Line Margin="20,5,0,0" X1="0" X2="320" Y1="3" Y2="3" Stroke="Gray" StrokeThickness="2"/>
-                                <ListView Margin="15,10,0,0" 
+                            </StackPanel>
+                            <ListView Margin="15,10,0,0" 
+                                      Grid.Row="1"
                                       RightTapped="FavouriteList_RightTapped" 
                                       IsItemClickEnabled="True" 
                                       Name="FavouriteList" 
                                       ItemClick="FavouriteList_ItemClick"
                                       SelectionChanged="FavouriteList_SelectionChanged"
                                       x:FieldModifier="public">
-                                    <ListView.ItemTemplate>
-                                        <DataTemplate x:DataType="local:WebSiteItem">
-                                            <StackPanel Orientation="Horizontal">
-                                                <Viewbox VerticalAlignment="Center" Margin="0,0,5,0" Width="16">
-                                                    <SymbolIcon Symbol="OutlineStar"/>
-                                                </Viewbox>
-                                                <TextBlock Margin="5,0,0,0" Text="{x:Bind Path=Subject}" FontSize="15" ToolTipService.Placement="Top" ToolTipService.ToolTip="{x:Bind Path=WebSite}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Width="290"/>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ListView.ItemTemplate>
-                                    <ListView.ContextFlyout>
-                                        <CommandBarFlyout x:Name="CommandsFlyout" Placement="RightEdgeAlignedTop">
-                                            <CommandBarFlyout.SecondaryCommands>
-                                                <AppBarButton Name="Delete" x:Uid="WebFavouriteFlyoutDelete" x:FieldModifier="public" Icon="Delete" Label="删除" Click="Delete_Click"/>
-                                            </CommandBarFlyout.SecondaryCommands>
-                                        </CommandBarFlyout>
-                                    </ListView.ContextFlyout>
-                                </ListView>
-                            </StackPanel>
-                            <TextBlock Name="FavEmptyTips" x:Uid="WevFavEmptyTip" Margin="20,0,0,0" x:FieldModifier="public" HorizontalAlignment="Center" VerticalAlignment="Center" Text="无内容" FontSize="24"/>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="local:WebSiteItem">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Viewbox VerticalAlignment="Center" Margin="0,0,5,0" Width="16">
+                                                <SymbolIcon Symbol="OutlineStar"/>
+                                            </Viewbox>
+                                            <TextBlock Margin="5,0,0,0" Text="{x:Bind Path=Subject}" FontSize="15" ToolTipService.Placement="Top" ToolTipService.ToolTip="{x:Bind Path=WebSite}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Width="290"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                                <ListView.ContextFlyout>
+                                    <CommandBarFlyout x:Name="CommandsFlyout" Placement="RightEdgeAlignedTop">
+                                        <CommandBarFlyout.SecondaryCommands>
+                                            <AppBarButton Name="Delete" x:Uid="WebFavouriteFlyoutDelete" x:FieldModifier="public" Icon="Delete" Label="删除" Click="Delete_Click"/>
+                                        </CommandBarFlyout.SecondaryCommands>
+                                    </CommandBarFlyout>
+                                </ListView.ContextFlyout>
+                            </ListView>
+                            <TextBlock Grid.RowSpan="2" Name="FavEmptyTips" x:Uid="WevFavEmptyTip" Margin="20,0,0,0" x:FieldModifier="public" HorizontalAlignment="Center" VerticalAlignment="Center" Text="无内容" FontSize="24"/>
                         </Grid>
                     </PivotItem>
                     <PivotItem Header="历史记录" FontSize="24" x:Uid="WebHistoryTitle">
-                        <Grid Margin="-20,0,0,0" >
-                            <StackPanel Orientation="Vertical">
+                        <Grid Margin="-20,0,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Vertical" Grid.Row="0">
                                 <TextBlock FontSize="13" Text="清除历史记录" x:Uid="WebHistoryClear" PointerPressed="TextBlock_PointerPressed" HorizontalAlignment="Right" Margin="20,0,0,0" Foreground="DeepSkyBlue" TextDecorations="Underline">
                                     <FlyoutBase.AttachedFlyout>
                                         <Flyout x:Name="ClearHistoryFly" Placement="BottomEdgeAlignedRight">
@@ -449,9 +462,9 @@
                                     </FlyoutBase.AttachedFlyout>
                                 </TextBlock>
                                 <Line Margin="20,5,0,0" X1="0" X2="350" Y1="3" Y2="3" Stroke="Gray" StrokeThickness="2"/>
-                                <TreeView Margin="0,15,0,0" x:FieldModifier="public" Name="HistoryTree" ItemInvoked="HistoryTree_ItemInvoked" IsTapEnabled="True"/>
                             </StackPanel>
-                            <TextBlock Margin="20,0,0,0" Name="HistoryEmptyTips" x:Uid="WebHistoryEmptyTip" x:FieldModifier="public" HorizontalAlignment="Center" VerticalAlignment="Center" Text="无内容" FontSize="24"/>
+                            <TreeView Grid.Row="1" x:FieldModifier="public" Name="HistoryTree" ItemInvoked="HistoryTree_ItemInvoked" IsTapEnabled="True"/>
+                            <TextBlock Grid.RowSpan="2" Margin="20,0,0,0" Name="HistoryEmptyTips" x:Uid="WebHistoryEmptyTip" x:FieldModifier="public" HorizontalAlignment="Center" VerticalAlignment="Center" Text="无内容" FontSize="24"/>
                         </Grid>
                     </PivotItem>
                 </Pivot>

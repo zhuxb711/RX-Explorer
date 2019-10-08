@@ -1446,7 +1446,7 @@ namespace FileManager
         {
             get
             {
-                if ((Subject == "今天" || Subject == "昨天" || Subject == "更早") && WebSite == string.Empty)
+                if ((Subject == "今天" || Subject == "昨天" || Subject == "更早") && string.IsNullOrEmpty(WebSite))
                 {
                     return Visibility.Collapsed;
                 }
@@ -1464,7 +1464,7 @@ namespace FileManager
         {
             get
             {
-                if ((Subject == "今天" || Subject == "昨天" || Subject == "更早") && WebSite == string.Empty)
+                if ((Subject == "今天" || Subject == "昨天" || Subject == "更早") && string.IsNullOrEmpty(WebSite))
                 {
                     return 18;
                 }

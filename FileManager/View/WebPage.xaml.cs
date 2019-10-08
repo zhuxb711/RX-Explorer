@@ -258,27 +258,23 @@ namespace FileManager
             }
             else
             {
-                //寻找分类标题为“今天”的节点，与HistoryCollection内的数量进行比对，若不同则发生了变动
                 var TreeNodes = from Item in HistoryTree.RootNodes
                                 let Subject = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "今天" : "Today"
                                 where (Item.Content as WebSiteItem).Subject == Subject
                                 select Item;
-                if (TreeNodes.Count() > 0)
+                var TodayNode = TreeNodes.FirstOrDefault();
+                if (TodayNode != null)
                 {
-                    var Node = TreeNodes.First();
-                    if (Node.Children.Count != WebTab.ThisPage.HistoryCollection.Count)
-                    {
-                        Node.Children.Clear();
+                    TodayNode.Children.Clear();
 
-                        foreach (var HistoryItem in WebTab.ThisPage.HistoryCollection)
+                    foreach (var HistoryItem in WebTab.ThisPage.HistoryCollection)
+                    {
+                        TodayNode.Children.Add(new TreeViewNode
                         {
-                            Node.Children.Add(new TreeViewNode
-                            {
-                                Content = HistoryItem.Value,
-                                HasUnrealizedChildren = false,
-                                IsExpanded = false
-                            });
-                        }
+                            Content = HistoryItem.Value,
+                            HasUnrealizedChildren = false,
+                            IsExpanded = false
+                        });
                     }
                 }
             }
@@ -445,7 +441,7 @@ namespace FileManager
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             SuggestionTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromMilliseconds(800)
+                Interval = TimeSpan.FromMilliseconds(600)
             };
             SuggestionTimer.Tick += SuggestionTimer_Tick;
 
@@ -483,25 +479,33 @@ namespace FileManager
                 case "百度":
                 case "Baidu":
                     {
-
-                        if (JsonConvert.DeserializeObject<BaiduSearchSuggestionResult>(await GetBaiduJsonFromWeb(AutoSuggest.Text)) is BaiduSearchSuggestionResult BaiduSearchResult)
+                        if (!string.IsNullOrEmpty(AutoSuggest.Text))
                         {
-                            AutoSuggest.ItemsSource = BaiduSearchResult.s;
+                            if (JsonConvert.DeserializeObject<BaiduSearchSuggestionResult>(await GetBaiduJsonFromWeb(AutoSuggest.Text)) is BaiduSearchSuggestionResult BaiduSearchResult)
+                            {
+                                AutoSuggest.ItemsSource = BaiduSearchResult.s;
+                            }
                         }
                         break;
                     }
                 case "谷歌":
                 case "Google":
                     {
-                        AutoSuggest.ItemsSource = await GetGoogleSearchResponse(AutoSuggest.Text);
+                        if (!string.IsNullOrEmpty(AutoSuggest.Text))
+                        {
+                            AutoSuggest.ItemsSource = await GetGoogleSearchResponse(AutoSuggest.Text);
+                        }
                         break;
                     }
                 case "必应":
                 case "Bing":
                     {
-                        if (JsonConvert.DeserializeObject<BingSearchSuggestionResult>(await GetBingJsonFromWeb(AutoSuggest.Text)) is BingSearchSuggestionResult BingSearchResult)
+                        if (!string.IsNullOrEmpty(AutoSuggest.Text))
                         {
-                            AutoSuggest.ItemsSource = BingSearchResult.AS.Results?.FirstOrDefault()?.Suggests?.Select((Item) => Item.Txt);
+                            if (JsonConvert.DeserializeObject<BingSearchSuggestionResult>(await GetBingJsonFromWeb(AutoSuggest.Text)) is BingSearchSuggestionResult BingSearchResult)
+                            {
+                                AutoSuggest.ItemsSource = BingSearchResult.AS.Results?.FirstOrDefault()?.Suggests?.Select((Item) => Item.Txt);
+                            }
                         }
                         break;
                     }
@@ -649,7 +653,7 @@ namespace FileManager
                                          .Replace("@SecondTip", "可能是该网页已删除或不存在或网络故障")
                                          .Replace("@ThirdTip", "您可以尝试以下方案")
                                          .Replace("@HomeButtonText", "返回主页")
-                                         .Replace("@Title", "导航失败")
+                                         .Replace("@Title", "错误：导航失败")
                                          .Replace("@DiagnoseButtonText", "网络诊断");
 
                 string HomeString = ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString();
@@ -669,7 +673,7 @@ namespace FileManager
                                          .Replace("@SecondTip", "It may be that the page has been deleted or does not exist or the network is down")
                                          .Replace("@ThirdTip", "You can try the following options")
                                          .Replace("@HomeButtonText", "Go to home page")
-                                         .Replace("@Title", "Page not found")
+                                         .Replace("@Title", "Error: Page not found")
                                          .Replace("@DiagnoseButtonText", "Network diagnosis");
 
                 string HomeString = ApplicationData.Current.LocalSettings.Values["WebTabMainPage"].ToString();
@@ -716,9 +720,14 @@ namespace FileManager
 
         private void WebBrowser_ContentLoading(WebView sender, WebViewContentLoadingEventArgs args)
         {
+            if (args.Uri == null)
+            {
+                return;
+            }
+
             ThisTab.Header = string.IsNullOrEmpty(WebBrowser.DocumentTitle) ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "正在加载..." : "Loading...") : WebBrowser.DocumentTitle;
 
-            if (args.Uri != null && AutoSuggest.Text != args.Uri.ToString())
+            if (AutoSuggest.Text != args.Uri.ToString())
             {
                 AutoSuggest.Text = args.Uri.ToString();
             }
@@ -750,29 +759,33 @@ namespace FileManager
             {
                 if (AutoSuggest.Text != "about:blank" && !string.IsNullOrEmpty(WebBrowser.DocumentTitle))
                 {
-                    var HistoryItems = from Item in WebTab.ThisPage.HistoryCollection
-                                       where Item.Value.WebSite == AutoSuggest.Text && Item.Key == DateTime.Today
-                                       select Item;
-                    for (int i = 0; i < HistoryItems.Count(); i++)
+                    var HistoryItems = WebTab.ThisPage.HistoryCollection.Where((Item) => Item.Key == DateTime.Today && Item.Value.WebSite == args.Uri.ToString()).ToList();
+
+                    foreach (var HistoryItem in HistoryItems)
                     {
-                        var HistoryItem = HistoryItems.ElementAt(i);
                         if (!HistoryItem.Key.Equals(default))
                         {
-                            foreach (var (RootNode, InnerNode) in from RootNode in HistoryTree.RootNodes
-                                                                  let Subject = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "今天" : "Today"
-                                                                  where (RootNode.Content as WebSiteItem).Subject == Subject
-                                                                  from InnerNode in RootNode.Children
-                                                                  where (InnerNode.Content as WebSiteItem).WebSite == HistoryItem.Value.WebSite
-                                                                  select (RootNode, InnerNode))
+                            TreeViewNode TodayNode = null;
+                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                             {
-                                RootNode.Children.Remove(InnerNode);
+                                TodayNode = HistoryTree.RootNodes.Where((Node) => (Node.Content as WebSiteItem).Subject == "今天").FirstOrDefault();
+                            }
+                            else
+                            {
+                                TodayNode = HistoryTree.RootNodes.Where((Node) => (Node.Content as WebSiteItem).Subject == "Today").FirstOrDefault();
+                            }
+
+                            var RepeatNodes = TodayNode.Children.Where((Item) => (Item.Content as WebSiteItem).WebSite == HistoryItem.Value.WebSite).ToList();
+                            foreach (var RepeatNode in RepeatNodes)
+                            {
+                                TodayNode.Children.Remove(RepeatNode);
                                 WebTab.ThisPage.HistoryCollection.Remove(HistoryItem);
                                 SQLite.GetInstance().DeleteWebHistory(HistoryItem);
                             }
                         }
                     }
 
-                    WebTab.ThisPage.HistoryCollection.Insert(0, new KeyValuePair<DateTime, WebSiteItem>(DateTime.Today, new WebSiteItem(WebBrowser.DocumentTitle, AutoSuggest.Text)));
+                    WebTab.ThisPage.HistoryCollection.Insert(0, new KeyValuePair<DateTime, WebSiteItem>(DateTime.Today, new WebSiteItem(WebBrowser.DocumentTitle, args.Uri.ToString())));
                 }
             }
         }
@@ -805,48 +818,44 @@ namespace FileManager
         private async Task<string> GetBaiduJsonFromWeb(string Context)
         {
             string url = "http://suggestion.baidu.com/su?wd=" + Context + "&cb=window.baidu.sug";
-            string str;
             try
             {
-                Uri uri = new Uri(url);
-                HttpWebRequest wr = WebRequest.CreateHttp(uri);
-                Stream s = (await wr.GetResponseAsync()).GetResponseStream();
-                using (StreamReader sr = new StreamReader(s, Encoding.GetEncoding("GBK")))
+                HttpWebRequest Request = WebRequest.CreateHttp(new Uri(url));
+                Stream ResponseStream = (await Request.GetResponseAsync()).GetResponseStream();
+                using (StreamReader Reader = new StreamReader(ResponseStream, Encoding.GetEncoding("GBK")))
                 {
-                    str = sr.ReadToEnd();
-                    str = str.Remove(0, 17);
-                    str = str.Remove(str.Length - 2, 2);
+                    string Result = await Reader.ReadToEndAsync();
+                    Result = Result.Remove(0, 17);
+                    Result = Result.Remove(Result.Length - 2, 2);
+                    return Result;
                 }
             }
             catch (Exception)
             {
                 return string.Empty;
             }
-            return str;
         }
 
         private async Task<string> GetBingJsonFromWeb(string Context)
         {
             string url = "http://api.bing.com/qsonhs.aspx?type=cb&q=" + Context + "&cb=window.bing.sug";
-            string str;
             try
             {
-                Uri uri = new Uri(url);
-                HttpWebRequest wr = WebRequest.CreateHttp(uri);
-                Stream s = (await wr.GetResponseAsync()).GetResponseStream();
-                using (StreamReader sr = new StreamReader(s, Encoding.UTF8))
+                HttpWebRequest Request = WebRequest.CreateHttp(new Uri(url));
+                Stream ResponseStream = (await Request.GetResponseAsync()).GetResponseStream();
+                using (StreamReader Reader = new StreamReader(ResponseStream, Encoding.UTF8))
                 {
-                    str = sr.ReadToEnd();
-                    int firstindex = str.IndexOf("{");
-                    int lastindex = str.LastIndexOf("}");
-                    str = str.Substring(firstindex, lastindex - firstindex + 1);
+                    string Result = await Reader.ReadToEndAsync();
+                    int firstindex = Result.IndexOf("{");
+                    int lastindex = Result.LastIndexOf("}");
+                    Result = Result.Substring(firstindex, lastindex - firstindex + 1);
+                    return Result;
                 }
             }
             catch (Exception)
             {
                 return string.Empty;
             }
-            return str;
         }
 
         private async Task<List<string>> GetGoogleSearchResponse(string Context)
@@ -854,11 +863,11 @@ namespace FileManager
             string url = "http://suggestqueries.google.com/complete/search?client=youtube&q=" + Context + "&jsonp=window.google.ac.h";
             try
             {
-                HttpWebRequest wr = WebRequest.CreateHttp(new Uri(url));
-                Stream s = (await wr.GetResponseAsync()).GetResponseStream();
-                using (StreamReader sr = new StreamReader(s, Encoding.UTF8))
+                HttpWebRequest Request = WebRequest.CreateHttp(new Uri(url));
+                Stream ResponseStream = (await Request.GetResponseAsync()).GetResponseStream();
+                using (StreamReader Reader = new StreamReader(ResponseStream, Encoding.UTF8))
                 {
-                    string str = sr.ReadToEnd();
+                    string str = await Reader.ReadToEndAsync();
                     return str.Remove(str.LastIndexOf("{") - 2)
                               .Substring(str.IndexOf(",") + 2)
                               .Split(",")
@@ -887,6 +896,8 @@ namespace FileManager
 
         private void AutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
+            SuggestionTimer.Stop();
+
             if (args.ChosenSuggestion != null)
             {
                 switch (SearchEngine.SelectedItem.ToString())
@@ -913,10 +924,43 @@ namespace FileManager
             }
             else
             {
-                //尝试创建搜索框键入内容的Uri，若创建失败则并非网址
-                if (Uri.TryCreate(args.QueryText, UriKind.Absolute, out Uri uri))
+                string EnterUrl = args.QueryText;
+
+                if ((EnterUrl.Contains("/") && IPAddress.TryParse(string.Concat(EnterUrl.Take(EnterUrl.IndexOf("/"))), out _)) || (!EnterUrl.Contains("/") && IPAddress.TryParse(EnterUrl, out _)))
                 {
-                    WebBrowser.Navigate(uri);
+                    EnterUrl = "http://" + EnterUrl;
+                }
+                else if (EnterUrl.StartsWith("http://"))
+                {
+                    string Sub = EnterUrl.Substring(7);
+                    if ((!Sub.Contains("/") || !IPAddress.TryParse(string.Concat(Sub.Take(Sub.IndexOf("/"))), out _)) && (Sub.Contains("/") || !IPAddress.TryParse(Sub, out _)) && !Sub.StartsWith("www."))
+                    {
+                        EnterUrl = EnterUrl.Insert(7, "www.");
+                    }
+                }
+                else if (EnterUrl.StartsWith("https://"))
+                {
+                    string Sub = EnterUrl.Substring(8);
+                    if ((!Sub.Contains("/") || !IPAddress.TryParse(string.Concat(Sub.Take(Sub.IndexOf("/"))), out _)) && (Sub.Contains("/") || !IPAddress.TryParse(Sub, out _)) && !Sub.StartsWith("www."))
+                    {
+                        EnterUrl = EnterUrl.Insert(8, "www.");
+                    }
+                }
+
+                if (Uri.TryCreate(EnterUrl, UriKind.Absolute, out Uri NormalUrl))
+                {
+                    WebBrowser.Navigate(NormalUrl);
+                }
+                else if (EnterUrl.Contains(".") && Uri.CheckHostName(EnterUrl) == UriHostNameType.Dns)
+                {
+                    if (EnterUrl.StartsWith("www."))
+                    {
+                        WebBrowser.Navigate(new Uri("http://" + EnterUrl));
+                    }
+                    else
+                    {
+                        WebBrowser.Navigate(new Uri("http://www." + EnterUrl));
+                    }
                 }
                 else
                 {
@@ -998,7 +1042,7 @@ namespace FileManager
                                              .Replace("@SecondTip", "可能是该网页已删除或不存在或网络故障")
                                              .Replace("@ThirdTip", "您可以尝试以下方案")
                                              .Replace("@HomeButtonText", "返回主页")
-                                             .Replace("@Title","导航失败")
+                                             .Replace("@Title", "错误：导航失败")
                                              .Replace("@DiagnoseButtonText", "网络诊断");
 
                     WebBrowser.NavigateToString(HtmlContext.Replace("@HomePageLink", "about:blank"));
@@ -1010,7 +1054,7 @@ namespace FileManager
                                              .Replace("@SecondTip", "It may be that the page has been deleted or does not exist or the network is down")
                                              .Replace("@ThirdTip", "You can try the following options")
                                              .Replace("@HomeButtonText", "Go to home page")
-                                             .Replace("@Title","Page not found")
+                                             .Replace("@Title", "Error: Page not found")
                                              .Replace("@DiagnoseButtonText", "Network diagnosis");
 
                     WebBrowser.NavigateToString(HtmlContext.Replace("@HomePageLink", "about:blank"));
@@ -1054,31 +1098,35 @@ namespace FileManager
             {
                 lock (SyncRootProvider.SyncRoot)
                 {
-                    if (AutoSuggest.Text != "about:blank" && WebBrowser.DocumentTitle != "")
+                    if (AutoSuggest.Text != "about:blank" && !string.IsNullOrEmpty(WebBrowser.DocumentTitle))
                     {
-                        var HistoryItems = from Item in WebTab.ThisPage.HistoryCollection
-                                           where Item.Value.WebSite == AutoSuggest.Text && Item.Key == DateTime.Today
-                                           select Item;
-                        for (int i = 0; i < HistoryItems.Count(); i++)
+                        var HistoryItems = WebTab.ThisPage.HistoryCollection.Where((Item) => Item.Key == DateTime.Today && Item.Value.WebSite == args.Uri.ToString()).ToList();
+
+                        foreach (var HistoryItem in HistoryItems)
                         {
-                            var HistoryItem = HistoryItems.ElementAt(i);
                             if (!HistoryItem.Key.Equals(default))
                             {
-                                foreach (var (RootNode, InnerNode) in from RootNode in HistoryTree.RootNodes
-                                                                      let Subject = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "今天" : "Today"
-                                                                      where (RootNode.Content as WebSiteItem).Subject == Subject
-                                                                      from InnerNode in RootNode.Children
-                                                                      where (InnerNode.Content as WebSiteItem).WebSite == HistoryItem.Value.WebSite
-                                                                      select (RootNode, InnerNode))
+                                TreeViewNode TodayNode = null;
+                                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                                 {
-                                    RootNode.Children.Remove(InnerNode);
+                                    TodayNode = HistoryTree.RootNodes.Where((Node) => (Node.Content as WebSiteItem).Subject == "今天").FirstOrDefault();
+                                }
+                                else
+                                {
+                                    TodayNode = HistoryTree.RootNodes.Where((Node) => (Node.Content as WebSiteItem).Subject == "Today").FirstOrDefault();
+                                }
+
+                                var RepeatNodes = TodayNode.Children.Where((Item) => (Item.Content as WebSiteItem).WebSite == HistoryItem.Value.WebSite).ToList();
+                                foreach (var RepeatNode in RepeatNodes)
+                                {
+                                    TodayNode.Children.Remove(RepeatNode);
                                     WebTab.ThisPage.HistoryCollection.Remove(HistoryItem);
                                     SQLite.GetInstance().DeleteWebHistory(HistoryItem);
                                 }
                             }
                         }
 
-                        WebTab.ThisPage.HistoryCollection.Insert(0, new KeyValuePair<DateTime, WebSiteItem>(DateTime.Today, new WebSiteItem(WebBrowser.DocumentTitle, AutoSuggest.Text)));
+                        WebTab.ThisPage.HistoryCollection.Insert(0, new KeyValuePair<DateTime, WebSiteItem>(DateTime.Today, new WebSiteItem(WebBrowser.DocumentTitle, args.Uri.ToString())));
                     }
                 }
                 IsRefresh = false;

@@ -15,7 +15,6 @@
                       IsCloseButtonOverlay="True"
                       CanDragItems="False"
                       CanReorderItems="False"
-                      CanDrag="False"
                       Name="TabControl"
                       x:FieldModifier="Public"
                       TabClosing="TabControl_TabClosing"

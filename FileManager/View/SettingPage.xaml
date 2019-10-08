@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:FileManager"
     xmlns:sys="using:System"
+    xmlns:model="using:Windows.ApplicationModel"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:Microsoft.UI.Xaml.Controls"
@@ -136,7 +137,8 @@
                         <TextBlock Margin="5,0,0,0" x:Uid="SettingLike" Name="LikeText" VerticalAlignment="Center" FontSize="16" Text="给App点赞"/>
                     </StackPanel>
                 </Border>
-                <HyperlinkButton Name="Link" Click="Link_Click" Margin="0,20,0,0" x:Uid="SettingAbout" Content="关于开发者→→" FontSize="16"/>
+                <Button Style="{ThemeResource ButtonRevealStyle}" x:Name="Donation" Margin="0,20,0,0" Content="支持开发者" x:Uid="SettingSupportDeveloper" Click="Donation_Click"/>
+                <Button Style="{ThemeResource ButtonRevealStyle}" Name="Link" Click="Link_Click" Margin="0,20,0,0" x:Uid="SettingAbout" Content="关于开发者→→"/>
             </StackPanel>
         </ScrollViewer>
     </Grid>

@@ -660,4 +660,7 @@
   <data name="FilePaste.Label" xml:space="preserve">
     <value>粘贴</value>
   </data>
+  <data name="SettingSupportDeveloper.Content" xml:space="preserve">
+    <value>支持开发者</value>
+  </data>
 </root>
