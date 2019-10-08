@@ -194,7 +194,7 @@ namespace FileManager
 
             PinTip.Closed += async (s, e) =>
             {
-                await Task.Delay(20000);
+                await Task.Delay(60000);
                 RequestRateApplication();
             };
 
