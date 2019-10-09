@@ -1,4 +1,21 @@
 ﻿*****
+###What's new in Ver.3.0.0.0
+
+>#####Improved the detection method of file system access rights, and solved the compatibility on the C disk device.
+
+>#####Improved the way to detect the existence of disk drive letters, solved the problem of missing partitions on devices with a large number of disk partitions, and greatly improved the detection efficiency.
+
+>#####Adding a removable disk (eg USB device) for detection, removable disk insertion and removable will be synchronized to the RX interface
+
+>#####Unified multi-instance mode, when you plug in a USB device and start RX through the system prompt, it will cause a crash.
+
+>#####Fixed an issue that caused a crash when trying to click the "Add" button in the Quick Launch Bar and the Popular Page Bar
+
+>#####This version starts, multi-instance mode is no longer initialized and enabled
+
+>##### Optimized the interface effect of some places
+
+*****
 ###What's new in Ver.2.9.7.0
 
 >#####Add an internal `Recent Updates` box to display the update log

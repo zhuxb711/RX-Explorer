@@ -943,6 +943,26 @@ namespace FileManager
     #region 扩展方法类
     public static class Extention
     {
+        public static T FindChildOfType<T>(this DependencyObject root) where T : class
+        {
+            Queue<DependencyObject> ObjectQueue = new Queue<DependencyObject>();
+            ObjectQueue.Enqueue(root);
+            while (ObjectQueue.Count > 0)
+            {
+                DependencyObject Current = ObjectQueue.Dequeue();
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(Current); i++)
+                {
+                    var ChildObject = VisualTreeHelper.GetChild(Current, i);
+                    if (ChildObject is T TypedChild)
+                    {
+                        return TypedChild;
+                    }
+                    ObjectQueue.Enqueue(ChildObject);
+                }
+            }
+            return null;
+        }
+
         public static async Task UpdateAllSubNodeFolder(this TreeViewNode ParentNode)
         {
             StorageFolder ParentFolder = ParentNode.Content as StorageFolder;

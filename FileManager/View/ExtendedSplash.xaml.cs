@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -209,7 +210,7 @@ namespace FileManager
         {
             try
             {
-                _ = await StorageFolder.GetFolderFromPathAsync("C:\\");
+                _ = await StorageFolder.GetFolderFromPathAsync(Directory.GetLogicalDrives().FirstOrDefault());
                 return true;
             }
             catch (UnauthorizedAccessException)

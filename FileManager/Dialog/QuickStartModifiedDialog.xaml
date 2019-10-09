@@ -36,7 +36,7 @@
             x:Name="ExistTip"      
 	        Title="Tips"      
             PreferredPlacement="TopRight"
-            Target="{x:Bind Name}"
+            Target="{x:Bind DisplayName}"
 	        IsLightDismissEnabled="True"
             x:Uid="QuickStartExistTip"
             Subtitle="该名称已存在，无法重复添加">

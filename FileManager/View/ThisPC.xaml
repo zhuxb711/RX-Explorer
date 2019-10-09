@@ -48,7 +48,7 @@
             </Grid.RowDefinitions>
             <Grid.ChildrenTransitions>
                 <TransitionCollection>
-                    <PaneThemeTransition Edge="Left"/>
+                    <PaneThemeTransition Edge="Right"/>
                 </TransitionCollection>
             </Grid.ChildrenTransitions>
             <StackPanel>
@@ -175,7 +175,7 @@
                         <DataTemplate x:DataType="local:HardDeviceInfo">
                             <StackPanel Orientation="Horizontal" Width="280" Height="80">
                                 <Image VerticalAlignment="Center" IsHitTestVisible="False" Height="60" Width="60" Source="{x:Bind Thumbnail}" Stretch="Uniform"/>
-                                <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="10,0,0,0" Loaded="StackPanel_Loaded">
+                                <StackPanel VerticalAlignment="Center" Orientation="Vertical" Margin="10,0,0,0" Loaded="StackPanel_Loaded" Unloaded="StackPanel_Unloaded">
                                     <StackPanel.Resources>
                                         <Storyboard x:Name="ProgressAnimation">
                                             <DoubleAnimation Duration="0:0:0.8" 
@@ -213,6 +213,7 @@
                     </GridView.ItemsPanel>
                     <GridView.ItemContainerTransitions>
                         <TransitionCollection>
+                            <AddDeleteThemeTransition/>
                             <EntranceThemeTransition IsStaggeringEnabled="True"/>
                         </TransitionCollection>
                     </GridView.ItemContainerTransitions>

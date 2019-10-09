@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
+using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.UI;
@@ -123,10 +125,6 @@ namespace FileManager
 
                 if (Window.Current.Content is Frame)
                 {
-                    StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(args.Files.FirstOrDefault().Path);
-                    BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-                    ThisPC.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
                     if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name == "FileControl")
                     {
                         MainPage.ThisPage.Nav.GoBack();
@@ -141,7 +139,7 @@ namespace FileManager
                 {
                     try
                     {
-                        _ = await StorageFolder.GetFolderFromPathAsync("C:\\");
+                        _ = await StorageFolder.GetFolderFromPathAsync(Directory.GetLogicalDrives().FirstOrDefault());
                     }
                     catch (UnauthorizedAccessException)
                     {
@@ -151,7 +149,7 @@ namespace FileManager
 
                     Frame rootFrame = new Frame();
                     Window.Current.Content = rootFrame;
-                    rootFrame.Navigate(typeof(MainPage), "USBActivate||" + args.Files.FirstOrDefault().Path);
+                    rootFrame.Navigate(typeof(MainPage), new Tuple<string, Rect>("USBActivate||" + args.Files.FirstOrDefault().Path, args.SplashScreen.ImageLocation));
                 }
 
                 Window.Current.Activate();

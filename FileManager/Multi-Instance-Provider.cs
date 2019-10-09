@@ -51,7 +51,7 @@ namespace FileManager
             }
             else
             {
-                ApplicationData.Current.LocalSettings.Values["EnableMultiInstanceSupport"] = true;
+                ApplicationData.Current.LocalSettings.Values["EnableMultiInstanceSupport"] = false;
 
                 Application.Start((p) => new App());
             }

@@ -2,10 +2,12 @@
 using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
+using Windows.Devices.Enumeration;
 using Windows.Foundation;
 using Windows.Services.Store;
 using Windows.Storage;
@@ -26,8 +28,11 @@ namespace FileManager
     public sealed partial class MainPage : Page
     {
         private StoreContext Context;
+
         private IReadOnlyList<StorePackageUpdate> Updates;
+
         public static MainPage ThisPage { get; private set; }
+
         public bool IsNowSearching { get; set; }
 
         private Dictionary<Type, string> PageDictionary;
@@ -40,6 +45,8 @@ namespace FileManager
 
         private EntranceAnimationEffect EntranceEffectProvider;
 
+        private DeviceWatcher PortalDeviceWatcher;
+
         public MainPage()
         {
             InitializeComponent();
@@ -49,18 +56,32 @@ namespace FileManager
             CurrentLanguage = Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh")
                 ? LanguageEnum.Chinese
                 : LanguageEnum.English;
+            Application.Current.Resuming += Current_Resuming;
+            Application.Current.Suspending += Current_Suspending;
+        }
+
+        private void Current_Suspending(object sender, SuspendingEventArgs e)
+        {
+            PortalDeviceWatcher.Stop();
+        }
+
+        private void Current_Resuming(object sender, object e)
+        {
+            PortalDeviceWatcher.Start();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is string Parameter)
+            if (e.Parameter is Tuple<string, Rect> Parameter)
             {
-                string[] Paras = Parameter.Split("||");
+                string[] Paras = Parameter.Item1.Split("||");
                 if (Paras[0] == "USBActivate")
                 {
                     IsUSBActivate = true;
                     ActivateUSBDevicePath = Paras[1];
                 }
+                EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, Parameter.Item2);
+                EntranceEffectProvider.PrepareEntranceEffect();
             }
             else if (e.Parameter is Rect SplashRect)
             {
@@ -71,6 +92,11 @@ namespace FileManager
 
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
+            PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
+            PortalDeviceWatcher.Added += PortalDeviceWatcher_Added;
+            PortalDeviceWatcher.Removed += PortalDeviceWatcher_Removed;
+            PortalDeviceWatcher.Start();
+
             if (ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] == null)
             {
                 ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] = Convert.ToString(100);
@@ -135,6 +161,46 @@ namespace FileManager
             }
 
             await CheckAndInstallUpdate();
+        }
+
+        private async void PortalDeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
+        {
+            if (ThisPC.ThisPage == null)
+            {
+                return;
+            }
+
+            var CurrentDrives = Directory.GetLogicalDrives();
+            var RemovedDriveList = ThisPC.ThisPage.HardDeviceList.SkipWhile((RemoveItem) => CurrentDrives.Any((Item) => Item == RemoveItem.Folder.Path));
+
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                for (int i = 0; i < RemovedDriveList.Count(); i++)
+                {
+                    ThisPC.ThisPage.HardDeviceList.Remove(RemovedDriveList.ElementAt(i));
+                }
+            });
+        }
+
+        private async void PortalDeviceWatcher_Added(DeviceWatcher sender, DeviceInformation args)
+        {
+            if (ThisPC.ThisPage == null)
+            {
+                return;
+            }
+
+            var NewDriveAddedList = Directory.GetLogicalDrives().SkipWhile((NewItem) => ThisPC.ThisPage.HardDeviceList.Any((Item) => Item.Folder.Path == NewItem));
+            foreach (string DriveRootPath in NewDriveAddedList)
+            {
+                StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
+                BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                {
+                    ThisPC.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
+                });
+            }
         }
 
         private void Nav_Navigated(object sender, NavigationEventArgs e)

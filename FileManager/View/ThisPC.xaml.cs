@@ -340,26 +340,20 @@ namespace FileManager
                 }
             }
 
-            for (int i = 67; i <= 78; i++)
+            foreach (string DriveRootPath in Directory.GetLogicalDrives())
             {
-                try
-                {
-                    var Device = await StorageFolder.GetFolderFromPathAsync((char)i + ":\\");
-                    BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+                var Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
+                BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
 
-                    HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
-                }
-                catch (Exception)
-                {
-                    continue;
-                }
+                HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
             }
 
             if (MainPage.ThisPage.IsUSBActivate && !string.IsNullOrWhiteSpace(MainPage.ThisPage.ActivateUSBDevicePath))
             {
                 MainPage.ThisPage.IsUSBActivate = false;
                 var HardDevice = HardDeviceList.Where((Device) => Device.Folder.Path == MainPage.ThisPage.ActivateUSBDevicePath).FirstOrDefault();
+                await Task.Delay(1000);
                 MainPage.ThisPage.Nav.Navigate(typeof(FileControl), HardDevice.Folder, new DrillInNavigationTransitionInfo());
             }
         }
@@ -489,7 +483,7 @@ namespace FileManager
 
         private void DeviceGrid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (!((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Context))
+            if (!((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo))
             {
                 DeviceGrid.SelectedIndex = -1;
             }
@@ -497,7 +491,7 @@ namespace FileManager
 
         private void LibraryGrid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (!((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Context))
+            if (!((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder))
             {
                 LibraryGrid.SelectedIndex = -1;
             }
@@ -514,6 +508,11 @@ namespace FileManager
             await Task.Delay(300);
             var Story = ((StackPanel)sender).Resources["ProgressAnimation"] as Storyboard;
             Story.Begin();
+        }
+
+        private void StackPanel_Unloaded(object sender, RoutedEventArgs e)
+        {
+            ((StackPanel)sender).FindChildOfType<ProgressBar>().Value = 0;
         }
     }
 }
