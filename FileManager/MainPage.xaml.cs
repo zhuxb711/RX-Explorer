@@ -62,7 +62,7 @@ namespace FileManager
 
         private void Current_Suspending(object sender, SuspendingEventArgs e)
         {
-            PortalDeviceWatcher.Stop();
+            PortalDeviceWatcher?.Stop();
         }
 
         private void Current_Resuming(object sender, object e)
@@ -158,9 +158,13 @@ namespace FileManager
             else
             {
                 ApplicationData.Current.LocalSettings.Values["LastRunVersion"] = string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
+                WhatIsNew Dialog = new WhatIsNew();
+                await Dialog.ShowAsync();
             }
 
+#if !DEBUG
             await CheckAndInstallUpdate();
+#endif
         }
 
         private async void PortalDeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
@@ -170,7 +174,9 @@ namespace FileManager
                 return;
             }
 
-            var CurrentDrives = Directory.GetLogicalDrives();
+            var CurrentDrives = DriveInfo.GetDrives().TakeWhile((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                                                     .GroupBy((Item) => Item.Name)
+                                                     .Select((Group) => Group.FirstOrDefault().Name);
             var RemovedDriveList = ThisPC.ThisPage.HardDeviceList.SkipWhile((RemoveItem) => CurrentDrives.Any((Item) => Item == RemoveItem.Folder.Path));
 
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
@@ -189,7 +195,10 @@ namespace FileManager
                 return;
             }
 
-            var NewDriveAddedList = Directory.GetLogicalDrives().SkipWhile((NewItem) => ThisPC.ThisPage.HardDeviceList.Any((Item) => Item.Folder.Path == NewItem));
+            var NewDriveAddedList = DriveInfo.GetDrives().TakeWhile((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                                                         .GroupBy((Item) => Item.Name)
+                                                         .Select((Group) => Group.FirstOrDefault().Name)
+                                                         .SkipWhile((NewItem) => ThisPC.ThisPage.HardDeviceList.Any((Item) => Item.Folder.Path == NewItem));
             foreach (string DriveRootPath in NewDriveAddedList)
             {
                 StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
@@ -324,7 +333,7 @@ namespace FileManager
                         {
                             IProgress<StorePackageUpdateStatus> DownloadProgress = new Progress<StorePackageUpdateStatus>((Status) =>
                             {
-                                if (Status.PackageDownloadProgress > 0.8)
+                                if (Status.PackageDownloadProgress > 1)
                                 {
                                     return;
                                 }
@@ -334,13 +343,13 @@ namespace FileManager
                                 {
                                     SequenceNumber = 0
                                 };
-                                data.Values["ProgressValue"] = (Status.PackageDownloadProgress * 1.25).ToString("0.##");
-                                data.Values["ProgressString"] = Math.Ceiling(Status.PackageDownloadProgress * 125).ToString() + "%";
+                                data.Values["ProgressValue"] = Status.PackageDownloadProgress.ToString("0.##");
+                                data.Values["ProgressString"] = Convert.ToUInt16(Math.Ceiling(Status.PackageDownloadProgress * 100)).ToString() + "%";
 
                                 ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
                             });
 
-                            StorePackageUpdateResult DownloadResult = await Context.TrySilentDownloadAndInstallStorePackageUpdatesAsync(Updates).AsTask(DownloadProgress);
+                            StorePackageUpdateResult DownloadResult = await Context.TrySilentDownloadStorePackageUpdatesAsync(Updates).AsTask(DownloadProgress);
 
                             if (DownloadResult.OverallState == StorePackageUpdateState.Completed)
                             {
@@ -355,7 +364,7 @@ namespace FileManager
                         {
                             IProgress<StorePackageUpdateStatus> DownloadProgress = new Progress<StorePackageUpdateStatus>((Status) =>
                             {
-                                if (Status.PackageDownloadProgress > 0.8)
+                                if (Status.PackageDownloadProgress > 1)
                                 {
                                     return;
                                 }
@@ -365,13 +374,13 @@ namespace FileManager
                                 {
                                     SequenceNumber = 0
                                 };
-                                data.Values["ProgressValue"] = (Status.PackageDownloadProgress * 1.25).ToString("0.##");
-                                data.Values["ProgressString"] = Math.Ceiling(Status.PackageDownloadProgress * 125).ToString() + "%";
+                                data.Values["ProgressValue"] = Status.PackageDownloadProgress.ToString("0.##");
+                                data.Values["ProgressString"] = Convert.ToUInt16(Math.Ceiling(Status.PackageDownloadProgress * 100)).ToString() + "%";
 
                                 ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
                             });
 
-                            StorePackageUpdateResult DownloadResult = await Context.RequestDownloadAndInstallStorePackageUpdatesAsync(Updates).AsTask(DownloadProgress);
+                            StorePackageUpdateResult DownloadResult = await Context.RequestDownloadStorePackageUpdatesAsync(Updates).AsTask(DownloadProgress);
 
                             if (DownloadResult.OverallState == StorePackageUpdateState.Completed)
                             {

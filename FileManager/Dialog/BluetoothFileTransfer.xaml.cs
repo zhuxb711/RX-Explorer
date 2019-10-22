@@ -9,7 +9,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace FileManager
 {
-    public sealed partial class BluetoothFileTransfer : ContentDialog
+    public sealed partial class BluetoothFileTransfer : QueueContentDialog
     {
         public Stream StreamToSend { private get; set; }
         public StorageFile FileToSend { private get; set; }
@@ -204,7 +204,7 @@ namespace FileManager
             });
         }
 
-        private async void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private async void QueueContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             var Deferral = args.GetDeferral();
 

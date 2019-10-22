@@ -88,10 +88,10 @@ namespace FileManager
                 }
                 catch (FileNotFoundException)
                 {
-                    ContentDialog Tips;
+                    QueueContentDialog Tips;
                     if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Tips = new ContentDialog
+                        Tips = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "无法正确解析用户文件夹，可能已经被移动或不存在\r是否要重新选择用户文件夹",
@@ -102,7 +102,7 @@ namespace FileManager
                     }
                     else
                     {
-                        Tips = new ContentDialog
+                        Tips = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "Unable to parse user folder correctly，the folder may have been moved or does not exist\rDo you want to manually specify a user folder ?",
@@ -118,7 +118,7 @@ namespace FileManager
                         IReadOnlyList<StorageFolder> Users = await UserFolder.GetFoldersAsync();
                         IEnumerable<StorageFolder> PotentialUsers = Users.Where((Folder) => Folder.Name != "Public");
 
-                    FLAG1:
+FLAG1:
                         UserFolderDialog dialog = new UserFolderDialog(PotentialUsers);
                         _ = await dialog.ShowAsync();
 
@@ -153,10 +153,10 @@ namespace FileManager
                         }
                         catch (FileNotFoundException)
                         {
-                            ContentDialog Tip;
+                            QueueContentDialog Tip;
                             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                             {
-                                Tip = new ContentDialog
+                                Tip = new QueueContentDialog
                                 {
                                     Title = "错误",
                                     Content = "无法正确解析用户文件夹\r请重新检查用户文件夹选择是否正确",
@@ -167,7 +167,7 @@ namespace FileManager
                             }
                             else
                             {
-                                Tip = new ContentDialog
+                                Tip = new QueueContentDialog
                                 {
                                     Title = "Error",
                                     Content = "Unable to parse user folder correctly\rPlease re-check if the user folder is selected correctly",
@@ -192,7 +192,7 @@ namespace FileManager
 
                 if (PotentialUsers.Count() > 1)
                 {
-                FLAG:
+FLAG:
                     UserFolderDialog dialog = new UserFolderDialog(PotentialUsers);
                     _ = await dialog.ShowAsync();
 
@@ -227,10 +227,10 @@ namespace FileManager
                     }
                     catch (FileNotFoundException)
                     {
-                        ContentDialog Tips;
+                        QueueContentDialog Tips;
                         if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                         {
-                            Tips = new ContentDialog
+                            Tips = new QueueContentDialog
                             {
                                 Title = "错误",
                                 Content = "无法正确解析用户文件夹\r请重新检查用户文件夹选择是否正确",
@@ -241,7 +241,7 @@ namespace FileManager
                         }
                         else
                         {
-                            Tips = new ContentDialog
+                            Tips = new QueueContentDialog
                             {
                                 Title = "Error",
                                 Content = "Unable to parse user folder correctly\rPlease re-check if the user folder is selected correctly",
@@ -289,10 +289,10 @@ namespace FileManager
                     }
                     catch (FileNotFoundException)
                     {
-                        ContentDialog Tips;
+                        QueueContentDialog Tips;
                         if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                         {
-                            Tips = new ContentDialog
+                            Tips = new QueueContentDialog
                             {
                                 Title = "错误",
                                 Content = "无法正确解析用户文件夹中的部分库文件夹\r可能已经被移动或不存在",
@@ -302,7 +302,7 @@ namespace FileManager
                         }
                         else
                         {
-                            Tips = new ContentDialog
+                            Tips = new QueueContentDialog
                             {
                                 Title = "Error",
                                 Content = "Some library folders in the user folder cannot be parsed correctly\rThe folder may have been moved or does not exist",
@@ -315,10 +315,10 @@ namespace FileManager
                 }
                 else
                 {
-                    ContentDialog Tips;
+                    QueueContentDialog Tips;
                     if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Tips = new ContentDialog
+                        Tips = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "无法正确解析用户文件夹，仅存在公用文件夹\r库文件夹无法正确显示",
@@ -328,7 +328,7 @@ namespace FileManager
                     }
                     else
                     {
-                        Tips = new ContentDialog
+                        Tips = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "Unable to parse user folder correctly, Only public folders exist\rLibrary folder does not display correctly",
@@ -340,7 +340,10 @@ namespace FileManager
                 }
             }
 
-            foreach (string DriveRootPath in Directory.GetLogicalDrives())
+            foreach (string DriveRootPath in DriveInfo.GetDrives()
+                                                      .TakeWhile((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                                                      .GroupBy((Item) => Item.Name)
+                                                      .Select((Group) => Group.FirstOrDefault().Name))
             {
                 var Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
                 BasicProperties Properties = await Device.GetBasicPropertiesAsync();

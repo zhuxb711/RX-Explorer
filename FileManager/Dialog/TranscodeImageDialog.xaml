@@ -1,0 +1,98 @@
+﻿<ContentDialog
+    x:Class="FileManager.TranscodeImageDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FileManager"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d"
+    x:Uid="TranscodeImageDialog"
+    Title="转码"
+    PrimaryButtonText="确定"
+    CloseButtonText="取消"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    Background="{StaticResource DialogAcrylicBrush}">
+
+    <ContentDialog.Resources>
+        <controls:TeachingTip x:Name="SaveErrorTip"
+                              x:Uid="TranscodeImageDialogTips"
+                              Title="提示"
+                              Subtitle="请指定保存位置"
+                              IsLightDismissEnabled="True"
+                              Target="{x:Bind SavePositionButton}" />
+    </ContentDialog.Resources>
+    
+    <Grid>
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <AddDeleteThemeTransition />
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
+        <StackPanel Margin="0,10,0,0">
+            <Button Content="选择保存位置" 
+                    x:Uid="TranscodeImageDialogPickLocationButton"
+                    Style="{ThemeResource ButtonRevealStyle}"
+                    Name="SavePositionButton"
+                    Click="SavePositionButton_Click"/>
+            <ComboBox Header="目标格式"
+                      Name="Format"
+                      x:Uid="TranscodeImageDialogFormat"
+                      SelectedIndex="0"
+                      Width="200"
+                      Margin="0,15,0,0"
+                      SelectionChanged="Format_SelectionChanged"
+                      Background="{StaticResource ComboBoxDisabledBackgroundThemeBrush}">
+                <x:String>PNG (.png)</x:String>
+                <x:String>JPEG (.jpg)</x:String>
+                <x:String>BMP (.bmp)</x:String>
+                <x:String>HEIF (.heic)</x:String>
+                <x:String>GIF (.gif)</x:String>
+                <x:String>TIFF (.tiff)</x:String>
+            </ComboBox>
+            <CheckBox Content="启用图片缩放"
+                      x:Uid="TranscodeImageDialogEnableScale"
+                      IsChecked="{x:Bind IsEnbaleScale,Mode=TwoWay}"
+                      Margin="0,15,0,0" 
+                      FontSize="15"
+                      Name="ScaleEnable"/>
+            <StackPanel Visibility="{x:Bind ScaleEnable.IsChecked,Mode=OneWay}"
+                        Margin="0,15,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <ComboBox Header="缩放百分比"
+                              x:Uid="TranscodeImageDialogScale"
+                              Name="ScaleCombo"
+                              Width="140"
+                              SelectionChanged="ScaleCombo_SelectionChanged"
+                              Background="{StaticResource ComboBoxDisabledBackgroundThemeBrush}">
+                        <x:String>100%</x:String>
+                        <x:String>90%</x:String>
+                        <x:String>80%</x:String>
+                        <x:String>70%</x:String>
+                        <x:String>60%</x:String>
+                        <x:String>50%</x:String>
+                        <x:String>40%</x:String>
+                        <x:String>30%</x:String>
+                        <x:String>20%</x:String>
+                        <x:String>10%</x:String>
+                    </ComboBox>
+                    <ComboBox Header="缩放模式"
+                              x:Uid="TranscodeImageDialogZoomMode"
+                              Width="140"
+                              Margin="10,0,0,0"
+                              SelectedIndex="0"
+                              Name="ScaleMode"
+                              SelectionChanged="ScaleMode_SelectionChanged"
+                              Background="{StaticResource ComboBoxDisabledBackgroundThemeBrush}">
+                        <x:String>Fant</x:String>
+                        <x:String>Cubic</x:String>
+                        <x:String>Linear</x:String>
+                        <x:String>NearestNeighbor</x:String>
+                    </ComboBox>
+                </StackPanel>
+                <TextBlock Margin="0,10,0,0"
+                           Name="PreviewText"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</ContentDialog>

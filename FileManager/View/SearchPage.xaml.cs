@@ -129,7 +129,7 @@ namespace FileManager
                 {
                     if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        ContentDialog dialog = new ContentDialog
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "无法定位文件夹，该文件夹可能已被删除或移动",
@@ -140,7 +140,7 @@ namespace FileManager
                     }
                     else
                     {
-                        ContentDialog dialog = new ContentDialog
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "Unable to locate folder, which may have been deleted or moved",
@@ -189,7 +189,7 @@ namespace FileManager
                 {
                     if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        ContentDialog dialog = new ContentDialog
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "无法定位文件，该文件可能已被删除或移动",
@@ -200,7 +200,7 @@ namespace FileManager
                     }
                     else
                     {
-                        ContentDialog dialog = new ContentDialog
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "Unable to locate file, which may have been deleted or moved",

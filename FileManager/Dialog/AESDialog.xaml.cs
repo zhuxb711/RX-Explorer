@@ -3,7 +3,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace FileManager
 {
-    public sealed partial class AESDialog : ContentDialog
+    public sealed partial class AESDialog : QueueContentDialog
     {
         public string Key { get; set; }
 
@@ -43,7 +43,7 @@ namespace FileManager
             }
         }
 
-        private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             if (IsEncrypt)
             {

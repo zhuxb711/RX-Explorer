@@ -5,7 +5,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace FileManager
 {
-    public sealed partial class UserFolderDialog : ContentDialog
+    public sealed partial class UserFolderDialog : QueueContentDialog
     {
         public UserFolderDialog(IEnumerable<StorageFolder> PotentialUsers)
         {
@@ -16,7 +16,7 @@ namespace FileManager
 
         public StorageFolder Result { get; private set; }
 
-        private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             Result = UserCombo.SelectedItem as StorageFolder;
         }

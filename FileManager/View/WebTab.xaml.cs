@@ -185,7 +185,7 @@ namespace FileManager
                         }
                         else
                         {
-                            ContentDialog dialog = new ContentDialog
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
                                 Content = "导航失败，请检查网址或网络连接",
                                 Title = "提示",
@@ -205,7 +205,7 @@ namespace FileManager
                         }
                         else
                         {
-                            ContentDialog dialog = new ContentDialog
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
                                 Content = "Navigation failed, please check the URL or network connection",
                                 Title = "Tips",
@@ -225,7 +225,7 @@ namespace FileManager
                         }
                         else
                         {
-                            ContentDialog dialog = new ContentDialog
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
                                 Content = "导航失败，请检查网址或网络连接",
                                 Title = "提示",
@@ -245,7 +245,7 @@ namespace FileManager
                         }
                         else
                         {
-                            ContentDialog dialog = new ContentDialog
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
                                 Content = "Navigation failed, please check the URL or network connection",
                                 Title = "Tips",
@@ -306,7 +306,7 @@ namespace FileManager
                         }
                         else
                         {
-                            ContentDialog dialog = new ContentDialog
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
                                 Content = "导航失败，请检查网址或网络连接",
                                 Title = "提示",
@@ -326,7 +326,7 @@ namespace FileManager
                         }
                         else
                         {
-                            ContentDialog dialog = new ContentDialog
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
                                 Content = "Navigation failed, please check the URL or network connection",
                                 Title = "Tips",
@@ -346,7 +346,7 @@ namespace FileManager
                         }
                         else
                         {
-                            ContentDialog dialog = new ContentDialog
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
                                 Content = "导航失败，请检查网址或网络连接",
                                 Title = "提示",
@@ -366,7 +366,7 @@ namespace FileManager
                         }
                         else
                         {
-                            ContentDialog dialog = new ContentDialog
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
                                 Content = "Navigation failed, please check the URL or network connection",
                                 Title = "Tips",

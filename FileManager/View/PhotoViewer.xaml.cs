@@ -1,12 +1,18 @@
-﻿using System;
+﻿using AnimationEffectProvider;
+using Microsoft.Toolkit.Uwp.UI.Animations;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Windows.Foundation;
+using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
@@ -15,9 +21,16 @@ namespace FileManager
 {
     public sealed partial class PhotoViewer : Page
     {
-        ObservableCollection<PhotoDisplaySupport> PhotoCollection;
+        ObservableCollection<PhotoDisplaySupport> PhotoCollection = new ObservableCollection<PhotoDisplaySupport>();
+        StorageFileQueryResult QueryResult;
+        AnimationFlipViewBehavior Behavior = new AnimationFlipViewBehavior();
+        Dictionary<int, (double, double)> ZoomOffsetMap = new Dictionary<int, (double, double)>(4);
         string SelectedPhotoID;
-        StorageFile DisplayFile;
+        int LastSelectIndex;
+        double OriginHorizonOffset;
+        double OriginVerticalOffset;
+        Point OriginMousePosition;
+        bool IsNavigateToCropperPage = false;
 
         public PhotoViewer()
         {
@@ -27,42 +40,55 @@ namespace FileManager
 
         private async void PhotoViewer_Loaded(object sender, RoutedEventArgs e)
         {
-            PhotoCollection = new ObservableCollection<PhotoDisplaySupport>();
-            ImageList.ItemsSource = PhotoCollection;
+            if (IsNavigateToCropperPage)
+            {
+                IsNavigateToCropperPage = false;
+                await PhotoCollection[Flip.SelectedIndex].UpdateImage();
+                return;
+            }
+
+            LoadingControl.IsLoading = true;
+
+            Behavior.Attach(Flip);
 
             QueryOptions Options = new QueryOptions(CommonFileQuery.DefaultQuery, null)
             {
                 FolderDepth = FolderDepth.Shallow,
-                IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                IndexerOption = IndexerOption.UseIndexerWhenAvailable,
+                ApplicationSearchFilter = "System.Kind:=System.Kind#Picture"
             };
+            Options.SetThumbnailPrefetch(ThumbnailMode.SingleItem, 200, ThumbnailOptions.UseCurrentScale);
+            QueryResult = FileControl.ThisPage.CurrentFolder.CreateFileQueryWithOptions(Options);
 
-            Options.SetThumbnailPrefetch(ThumbnailMode.PicturesView, 250, ThumbnailOptions.ResizeThumbnail);
-
-            StorageFileQueryResult QueryResult = FileControl.ThisPage.CurrentFolder.CreateFileQueryWithOptions(Options);
+            ProBar.Maximum = await QueryResult.GetItemCountAsync();
+            ProBar.Value = 0;
 
             var FileCollection = await QueryResult.GetFilesAsync();
-
-            PhotoDisplaySupport SelectedPhoto = null;
-
-            foreach (StorageFile File in FileCollection.Where(File => File.FileType == ".png" || File.FileType == ".jpg" || File.FileType == ".jpeg" || File.FileType == ".bmp").Select(File => File))
+            foreach (var File in FileCollection)
             {
-                using (var Thumbnail = await File.GetThumbnailAsync(ThumbnailMode.PicturesView))
+                using (StorageItemThumbnail ThumbnailStream = await File.GetThumbnailAsync(ThumbnailMode.SingleItem))
                 {
-                    PhotoCollection.Add(new PhotoDisplaySupport(Thumbnail, File));
-                }
+                    BitmapImage ImageSource = new BitmapImage();
+                    await ImageSource.SetSourceAsync(ThumbnailStream);
+                    PhotoCollection.Add(new PhotoDisplaySupport(ImageSource, File));
 
-                if (File.FolderRelativeId == SelectedPhotoID)
-                {
-                    SelectedPhoto = PhotoCollection.Last();
+                    ProBar.Value++;
+
+                    if (File.FolderRelativeId == SelectedPhotoID)
+                    {
+                        Flip.SelectedIndex = PhotoCollection.Count - 1;
+                        LastSelectIndex = Flip.SelectedIndex;
+                    }
                 }
             }
 
-            await Task.Delay(800);
-            ImageList.ScrollIntoViewSmoothly(SelectedPhoto, ScrollIntoViewAlignment.Leading);
-            ImageList.SelectedItem = SelectedPhoto;
+            Flip.SelectionChanged += Flip_SelectionChanged;
 
             await Task.Delay(500);
-            ChangeDisplayImage(ImageList.SelectedItem as PhotoDisplaySupport);
+            await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmap();
+
+            LoadingControl.IsLoading = false;
+            OpacityAnimation.Begin();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -75,61 +101,252 @@ namespace FileManager
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            if (IsNavigateToCropperPage)
+            {
+                return;
+            }
+
+            Flip.Opacity = 0;
+            Behavior.Detach();
             PhotoCollection.Clear();
-            PhotoCollection = null;
+            ZoomOffsetMap.Clear();
             SelectedPhotoID = string.Empty;
-            DisplayImage.Source = null;
-            FileName.Text = "";
-            DisplayFile = null;
+            Flip.SelectionChanged -= Flip_SelectionChanged;
+            QueryResult = null;
         }
 
-        private void ImageList_ItemClick(object sender, ItemClickEventArgs e)
+        private async void Flip_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var SelectedPhoto = e.ClickedItem as PhotoDisplaySupport;
-            if (SelectedPhoto.PhotoFile.FolderRelativeId != SelectedPhotoID)
+            PhotoDisplaySupport Photo = null;
+            if (Interlocked.Exchange(ref Photo, Flip.SelectedItem as PhotoDisplaySupport) == null && Photo != null)
             {
-                ChangeDisplayImage(SelectedPhoto);
+                if (LastSelectIndex > Flip.SelectedIndex)
+                {
+                    _ = Flip.ContainerFromIndex(Flip.SelectedIndex + 1).FindChildOfType<ScrollViewer>()?.ChangeView(null, null, 1);
+                }
+                else
+                {
+                    if (Flip.SelectedIndex > 0)
+                    {
+                        _ = Flip.ContainerFromIndex(Flip.SelectedIndex - 1).FindChildOfType<ScrollViewer>()?.ChangeView(null, null, 1);
+                    }
+                }
+                await Photo.ReplaceThumbnailBitmap();
+                Behavior.InitAnimation(InitOption.AroundImage);
+                LastSelectIndex = Flip.SelectedIndex;
+                ZoomOffsetMap.Clear();
             }
         }
 
-        /// <summary>
-        /// 使用动画效果更改当前显示的图片
-        /// </summary>
-        /// <param name="e">需要显示的图片</param>
-        private void ChangeDisplayImage(PhotoDisplaySupport e)
+        private void ScrollViewerMain_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
-            FileName.Text = e.FileName;
-            DisplayFile = e.PhotoFile;
-            DisplayImage.Opacity = 0;
-
-            Image image = ((ImageList.ContainerFromItem(e) as ListViewItem).ContentTemplateRoot as FrameworkElement).FindName("Photo") as Image;
-            ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("PhotoAnimation", image).Configuration = new BasicConnectedAnimationConfiguration();
-
-            ConnectedAnimationService.GetForCurrentView().DefaultDuration = TimeSpan.FromMilliseconds(600);
-
-            FadeOut.Begin();
-            SelectedPhotoID = e.PhotoFile.FolderRelativeId;
+            if (e.PointerDeviceType != Windows.Devices.Input.PointerDeviceType.Touch)
+            {
+                ScrollViewer Viewer = (ScrollViewer)sender;
+                Point TapPoint = e.GetPosition(Viewer);
+                if (Math.Abs(Viewer.ZoomFactor - 1.0) < 1E-06)
+                {
+                    var ImageInSide = Viewer.FindChildOfType<Image>();
+                    _ = Viewer.ChangeView(TapPoint.X, TapPoint.Y - (Viewer.ActualHeight - ImageInSide.ActualHeight), 2);
+                }
+                else
+                {
+                    _ = Viewer.ChangeView(null, null, 1);
+                }
+            }
         }
 
-        private async void FadeOut_Completed(object sender, object e)
+        private void ScrollViewerMain_PointerMoved(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            using (var stream = await DisplayFile.OpenAsync(FileAccessMode.Read))
+            ScrollViewer Viewer = (ScrollViewer)sender;
+
+            if (Viewer.ZoomFactor != 1 && e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                var bitmap = new BitmapImage();
-                DisplayImage.Source = bitmap;
-                await bitmap.SetSourceAsync(stream);
+                var Point = e.GetCurrentPoint(Viewer);
+                if (Point.Properties.IsLeftButtonPressed)
+                {
+                    var Position = Point.Position;
+
+                    Viewer.ChangeView(OriginHorizonOffset + (OriginMousePosition.X - Position.X), OriginVerticalOffset + (OriginMousePosition.Y - Position.Y), null);
+                }
+            }
+        }
+
+        private void ScrollViewerMain_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            ScrollViewer Viewer = (ScrollViewer)sender;
+
+            if (Viewer.ZoomFactor != 1 && e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
+            {
+                Window.Current.CoreWindow.PointerCursor = new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Hand, 0);
+                var Point = e.GetCurrentPoint(Viewer);
+                if (Point.Properties.IsLeftButtonPressed)
+                {
+                    OriginMousePosition = Point.Position;
+                    OriginHorizonOffset = Viewer.HorizontalOffset;
+                    OriginVerticalOffset = Viewer.VerticalOffset;
+                }
+            }
+        }
+
+        private void ScrollViewerMain_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            Window.Current.CoreWindow.PointerCursor = new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 0);
+        }
+
+        private async void ImageRotate_Click(object sender, RoutedEventArgs e)
+        {
+            PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
+            ScrollViewer Viewer = Flip.ContainerFromItem(Item).FindChildOfType<ScrollViewer>();
+
+            Viewer.RenderTransformOrigin = new Point(0.5, 0.5);
+            await Viewer.Rotate(Item.RotateAngle += 90).StartAsync();
+        }
+
+        private async void TranscodeImage_Click(object sender, RoutedEventArgs e)
+        {
+            StorageFile OriginFile = PhotoCollection[Flip.SelectedIndex].PhotoFile;
+            using (var OriginStream = await OriginFile.OpenAsync(FileAccessMode.Read))
+            {
+                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
+                TranscodeImageDialog Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
+                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    TranscodeLoadingControl.IsLoading = true;
+                    using (var TargetStream = await Dialog.TargetFile.OpenAsync(FileAccessMode.ReadWrite))
+                    using (var TranscodeImage = await Decoder.GetSoftwareBitmapAsync())
+                    {
+                        BitmapEncoder Encoder = null;
+                        switch (Dialog.TargetFile.FileType)
+                        {
+                            case ".png":
+                                Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, TargetStream);
+                                break;
+                            case ".jpg":
+                                Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, TargetStream);
+                                break;
+                            case ".bmp":
+                                Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.BmpEncoderId, TargetStream);
+                                break;
+                            case ".heic":
+                                Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.HeifEncoderId, TargetStream);
+                                break;
+                            case ".gif":
+                                Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.GifEncoderId, TargetStream);
+                                break;
+                            case ".tiff":
+                                Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.TiffEncoderId, TargetStream);
+                                break;
+                            default:
+                                throw new InvalidOperationException("Unsupport image format");
+                        }
+
+                        if (Dialog.IsEnbaleScale)
+                        {
+                            Encoder.BitmapTransform.ScaledWidth = Dialog.ScaleWidth;
+                            Encoder.BitmapTransform.ScaledHeight = Dialog.ScaleHeight;
+                            Encoder.BitmapTransform.InterpolationMode = Dialog.InterpolationMode;
+                        }
+
+                        Encoder.SetSoftwareBitmap(TranscodeImage);
+                        Encoder.IsThumbnailGenerated = true;
+                        try
+                        {
+                            await Encoder.FlushAsync();
+                        }
+                        catch (Exception err)
+                        {
+                            if (err.HResult == unchecked((int)0x88982F81))
+                            {
+                                Encoder.IsThumbnailGenerated = false;
+                                await Encoder.FlushAsync();
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+                    }
+                    await Task.Delay(500);
+                    TranscodeLoadingControl.IsLoading = false;
+                }
+            }
+        }
+
+        private async void Delete_Click(object sender, RoutedEventArgs e)
+        {
+            QueueContentDialog Dialog;
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            {
+                Dialog = new QueueContentDialog
+                {
+                    Title = "警告",
+                    Content = "此操作将永久删除该图像文件",
+                    PrimaryButtonText = "继续",
+                    CloseButtonText = "取消",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+            }
+            else
+            {
+                Dialog = new QueueContentDialog
+                {
+                    Title = "Warning",
+                    Content = "This action will permanently delete the image file",
+                    PrimaryButtonText = "Continue",
+                    CloseButtonText = "Cancel",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
             }
 
-            try
+            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
-                ConnectedAnimation animation = ConnectedAnimationService.GetForCurrentView().GetAnimation("PhotoAnimation");
-                animation?.TryStart(DisplayImage);
+                PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
+                await Item.PhotoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                PhotoCollection.Remove(Item);
+                Behavior.InitAnimation(InitOption.Full);
             }
-            catch (Exception) { }
-            finally
+        }
+
+        private void Adjust_Click(object sender, RoutedEventArgs e)
+        {
+            IsNavigateToCropperPage = true;
+            FileControl.ThisPage.Nav.Navigate(typeof(CropperPage), Flip.SelectedItem, new DrillInNavigationTransitionInfo());
+        }
+
+        private void ZoomSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            if (e.OldValue != 0)
             {
-                FadeIn.Begin();
-                DisplayImage.Opacity = 1;
+                var Viewer = Flip.ContainerFromIndex(Flip.SelectedIndex).FindChildOfType<ScrollViewer>();
+
+                var Index = (int)Math.Round(e.NewValue, MidpointRounding.AwayFromZero);
+                if (ZoomOffsetMap.ContainsKey(Index))
+                {
+                    Viewer.ChangeView(ZoomOffsetMap[Index].Item1, ZoomOffsetMap[Index].Item2, Convert.ToSingle(e.NewValue));
+                }
+                else
+                {
+                    var ImageInSide = Viewer.FindChildOfType<Image>();
+
+                    var HorizontalOffset = Viewer.HorizontalOffset + Viewer.ViewportWidth / 2;
+                    var VerticalOffset = Viewer.VerticalOffset + Viewer.ViewportHeight / 2 - (Viewer.ActualHeight - ImageInSide.ActualHeight) / 2;
+
+                    ZoomOffsetMap.Add(Index, (HorizontalOffset, VerticalOffset));
+
+                    Viewer.ChangeView(HorizontalOffset, VerticalOffset, Convert.ToSingle(e.NewValue));
+                }
+            }
+        }
+
+        private void ZoomSlider_Loading(FrameworkElement sender, object args)
+        {
+            var Viewer = Flip.ContainerFromIndex(Flip.SelectedIndex).FindChildOfType<ScrollViewer>();
+            if (Math.Abs(ZoomSlider.Value - Viewer.ZoomFactor) > 1E-06)
+            {
+                ZoomSlider.ValueChanged -= ZoomSlider_ValueChanged;
+                ZoomSlider.Value = Math.Round(Viewer.ZoomFactor, MidpointRounding.AwayFromZero);
+                ZoomSlider.ValueChanged += ZoomSlider_ValueChanged;
             }
         }
     }

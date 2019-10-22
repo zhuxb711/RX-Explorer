@@ -1,4 +1,4 @@
-﻿<ContentDialog
+﻿<local:QueueContentDialog
     x:Class="FileManager.QuickStartModifiedDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -12,9 +12,9 @@
     Title="自定义区域"
     PrimaryButtonText="确定"
     CloseButtonText="取消"
-    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+    PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
-    <ContentDialog.Resources>
+    <local:QueueContentDialog.Resources>
         <controls:TeachingTip 
             x:Name="EmptyTip"      
 	        Title="Tips"      
@@ -51,7 +51,7 @@
             Subtitle="协议参考">
             <HyperlinkButton x:Uid="QuickStartLink" Content="Win10_UWP应用启动命令大全-IT之家" NavigateUri="https://www.ithome.com/html/win10/295999.htm"/>
         </controls:TeachingTip>
-    </ContentDialog.Resources>
+    </local:QueueContentDialog.Resources>
 
     <Grid>
         <StackPanel Orientation="Horizontal">
@@ -66,4 +66,4 @@
             </StackPanel>
         </StackPanel>
     </Grid>
-</ContentDialog>
+</local:QueueContentDialog>

@@ -5,7 +5,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace FileManager
 {
-    public sealed partial class WhatIsNew : ContentDialog
+    public sealed partial class WhatIsNew : QueueContentDialog
     {
         public WhatIsNew()
         {

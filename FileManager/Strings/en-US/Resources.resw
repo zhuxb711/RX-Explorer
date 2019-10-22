@@ -213,6 +213,45 @@
   <data name="CrashText.Text" xml:space="preserve">
     <value>RX Crashed Accidentally...(￣▽￣)/</value>
   </data>
+  <data name="CropperPageAlphaSlider.Header" xml:space="preserve">
+    <value>Contrast</value>
+  </data>
+  <data name="CropperPageAspButton.Text" xml:space="preserve">
+    <value>Aspect ratio</value>
+  </data>
+  <data name="CropperPageBackButton.Content" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="CropperPageBetaSlider.Header" xml:space="preserve">
+    <value>Brightness</value>
+  </data>
+  <data name="CropperPageCropperOptionTitle.Text" xml:space="preserve">
+    <value>Cropping options</value>
+  </data>
+  <data name="CropperPageFilterTitle.Text" xml:space="preserve">
+    <value>Image Filter</value>
+  </data>
+  <data name="CropperPageFlipButton.Text" xml:space="preserve">
+    <value>Flip</value>
+  </data>
+  <data name="CropperPageImageAdjustTitle.Text" xml:space="preserve">
+    <value>Adjust image</value>
+  </data>
+  <data name="CropperPageResetButton.Text" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="CropperPageRotateButton.Text" xml:space="preserve">
+    <value>Rotate</value>
+  </data>
+  <data name="CropperPageSaveAsButton.Text" xml:space="preserve">
+    <value>Save as</value>
+  </data>
+  <data name="CropperPageSaveButton.Text" xml:space="preserve">
+    <value>Overwrite and save</value>
+  </data>
+  <data name="CropperPageSavingTips.Text" xml:space="preserve">
+    <value>Saving</value>
+  </data>
   <data name="DeviceAttribute.Label" xml:space="preserve">
     <value>Properties</value>
   </data>
@@ -290,6 +329,27 @@
   </data>
   <data name="PermissionButton.Content" xml:space="preserve">
     <value>Permission</value>
+  </data>
+  <data name="PhotoViewerAdjustButton.Label" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="PhotoViewerDeleteButton.Label" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="PhotoViewerLoadingCache.Text" xml:space="preserve">
+    <value>Loading image cache...</value>
+  </data>
+  <data name="PhotoViewerRotateButton.Label" xml:space="preserve">
+    <value>Rotation</value>
+  </data>
+  <data name="PhotoViewerSaveTips.Text" xml:space="preserve">
+    <value>Saving...</value>
+  </data>
+  <data name="PhotoViewerTranscodeButton.Label" xml:space="preserve">
+    <value>Transcode</value>
+  </data>
+  <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
+    <value>Zoom</value>
   </data>
   <data name="PinTip.ActionButtonContent" xml:space="preserve">
     <value>Now</value>
@@ -426,6 +486,15 @@
   <data name="SettingClearHistory.Content" xml:space="preserve">
     <value>Clear search history</value>
   </data>
+  <data name="SettingClearHistoryFlyoutCancelButton.Content" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="SettingClearHistoryFlyoutContent.Text" xml:space="preserve">
+    <value>Search history will be cleared, continue or not?</value>
+  </data>
+  <data name="SettingClearHistoryFlyoutContinueButton.Content" xml:space="preserve">
+    <value>Continue</value>
+  </data>
   <data name="SettingLike.Text" xml:space="preserve">
     <value>Like the app</value>
   </data>
@@ -471,6 +540,9 @@
   <data name="SettingSupportDeveloper.Content" xml:space="preserve">
     <value>Donate</value>
   </data>
+  <data name="SettingUpdateLogButton.Content" xml:space="preserve">
+    <value>View update log</value>
+  </data>
   <data name="SettingVersion.Text" xml:space="preserve">
     <value>Version</value>
   </data>
@@ -506,6 +578,36 @@
   </data>
   <data name="TranscodeFormat.Header" xml:space="preserve">
     <value>Conversion format</value>
+  </data>
+  <data name="TranscodeImageDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="TranscodeImageDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="TranscodeImageDialog.Title" xml:space="preserve">
+    <value>Transcode</value>
+  </data>
+  <data name="TranscodeImageDialogEnableScale.Content" xml:space="preserve">
+    <value>Enable zoom</value>
+  </data>
+  <data name="TranscodeImageDialogFormat.Header" xml:space="preserve">
+    <value>Target format</value>
+  </data>
+  <data name="TranscodeImageDialogPickLocationButton.Content" xml:space="preserve">
+    <value>Save location</value>
+  </data>
+  <data name="TranscodeImageDialogScale.Header" xml:space="preserve">
+    <value>Proportion</value>
+  </data>
+  <data name="TranscodeImageDialogTips.Subtitle" xml:space="preserve">
+    <value>Please specify a save location</value>
+  </data>
+  <data name="TranscodeImageDialogTips.Title" xml:space="preserve">
+    <value>Tips</value>
+  </data>
+  <data name="TranscodeImageDialogZoomMode.Header" xml:space="preserve">
+    <value>Zoom Mode</value>
   </data>
   <data name="TranscodeQuality.Header" xml:space="preserve">
     <value>Quality</value>

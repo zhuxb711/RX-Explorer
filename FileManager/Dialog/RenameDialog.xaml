@@ -1,4 +1,4 @@
-﻿<ContentDialog
+﻿<local:QueueContentDialog
     x:Class="FileManager.RenameDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -10,7 +10,7 @@
     Title="重命名"
     CloseButtonText="取消"
     PrimaryButtonText="确定"
-    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick"
     Background="{StaticResource DialogAcrylicBrush}">
 
     <Grid>
@@ -20,4 +20,4 @@
             <TextBlock Name="Preview" FontSize="18" Width="300" TextWrapping="Wrap"/>
         </StackPanel>
     </Grid>
-</ContentDialog>
+</local:QueueContentDialog>

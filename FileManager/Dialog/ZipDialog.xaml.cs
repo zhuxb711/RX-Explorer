@@ -4,7 +4,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace FileManager
 {
-    public sealed partial class ZipDialog : ContentDialog
+    public sealed partial class ZipDialog : QueueContentDialog
     {
         /// <summary>
         /// 获取文件名
@@ -70,7 +70,7 @@ namespace FileManager
             };
         }
 
-        private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             if (IsZip)
             {

@@ -340,7 +340,7 @@
         </trans-unit>
         <trans-unit id="DeviceCapacity.Text" translate="yes" xml:space="preserve">
           <source>Capacity</source>
-          <target state="translated">容量</target>
+          <target state="translated">总计空间</target>
         </trans-unit>
         <trans-unit id="DeviceDialog.CloseButtonText" translate="yes" xml:space="preserve">
           <source>Confirm</source>
@@ -881,6 +881,142 @@
         <trans-unit id="UpdateLogDialog.Title" translate="yes" xml:space="preserve">
           <source>Recently updated</source>
           <target state="translated">最近更新</target>
+        </trans-unit>
+        <trans-unit id="CropperPageAlphaSlider.Header" translate="yes" xml:space="preserve">
+          <source>Contrast</source>
+          <target state="translated">对比度</target>
+        </trans-unit>
+        <trans-unit id="CropperPageAspButton.Text" translate="yes" xml:space="preserve">
+          <source>Aspect ratio</source>
+          <target state="translated">纵横比</target>
+        </trans-unit>
+        <trans-unit id="CropperPageBackButton.Content" translate="yes" xml:space="preserve">
+          <source>Back</source>
+          <target state="translated">返回</target>
+        </trans-unit>
+        <trans-unit id="CropperPageBetaSlider.Header" translate="yes" xml:space="preserve">
+          <source>Brightness</source>
+          <target state="translated">亮度</target>
+        </trans-unit>
+        <trans-unit id="CropperPageCropperOptionTitle.Text" translate="yes" xml:space="preserve">
+          <source>Cropping options</source>
+          <target state="translated">裁剪选项</target>
+        </trans-unit>
+        <trans-unit id="CropperPageFilterTitle.Text" translate="yes" xml:space="preserve">
+          <source>Image Filter</source>
+          <target state="translated">图像滤镜</target>
+        </trans-unit>
+        <trans-unit id="CropperPageFlipButton.Text" translate="yes" xml:space="preserve">
+          <source>Flip</source>
+          <target state="translated">翻转</target>
+        </trans-unit>
+        <trans-unit id="CropperPageImageAdjustTitle.Text" translate="yes" xml:space="preserve">
+          <source>Adjust image</source>
+          <target state="translated">图像调整</target>
+        </trans-unit>
+        <trans-unit id="CropperPageResetButton.Text" translate="yes" xml:space="preserve">
+          <source>Reset</source>
+          <target state="translated">重置操作</target>
+        </trans-unit>
+        <trans-unit id="CropperPageRotateButton.Text" translate="yes" xml:space="preserve">
+          <source>Rotate</source>
+          <target state="translated">旋转</target>
+        </trans-unit>
+        <trans-unit id="CropperPageSaveAsButton.Text" translate="yes" xml:space="preserve">
+          <source>Save as</source>
+          <target state="translated">保存副本</target>
+        </trans-unit>
+        <trans-unit id="CropperPageSaveButton.Text" translate="yes" xml:space="preserve">
+          <source>Overwrite and save</source>
+          <target state="translated">覆盖并保存</target>
+        </trans-unit>
+        <trans-unit id="CropperPageSavingTips.Text" translate="yes" xml:space="preserve">
+          <source>Saving</source>
+          <target state="translated">正在保存...</target>
+        </trans-unit>
+        <trans-unit id="PhotoViewerAdjustButton.Label" translate="yes" xml:space="preserve">
+          <source>Edit</source>
+          <target state="translated">编辑</target>
+        </trans-unit>
+        <trans-unit id="PhotoViewerDeleteButton.Label" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="translated">删除</target>
+        </trans-unit>
+        <trans-unit id="PhotoViewerLoadingCache.Text" translate="yes" xml:space="preserve">
+          <source>Loading image cache...</source>
+          <target state="translated">正在加载图像缓存...</target>
+        </trans-unit>
+        <trans-unit id="PhotoViewerRotateButton.Label" translate="yes" xml:space="preserve">
+          <source>Rotation</source>
+          <target state="translated">旋转</target>
+        </trans-unit>
+        <trans-unit id="PhotoViewerSaveTips.Text" translate="yes" xml:space="preserve">
+          <source>Saving...</source>
+          <target state="translated">保存中...</target>
+        </trans-unit>
+        <trans-unit id="PhotoViewerTranscodeButton.Label" translate="yes" xml:space="preserve">
+          <source>Transcode</source>
+          <target state="translated">转码</target>
+        </trans-unit>
+        <trans-unit id="PhotoViewerZoomButton.Label" translate="yes" xml:space="preserve">
+          <source>Zoom</source>
+          <target state="translated">缩放</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialog.Title" translate="yes" xml:space="preserve">
+          <source>Transcode</source>
+          <target state="translated">转码</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialogEnableScale.Content" translate="yes" xml:space="preserve">
+          <source>Enable zoom</source>
+          <target state="translated">启用图片缩放</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialogFormat.Header" translate="yes" xml:space="preserve">
+          <source>Target format</source>
+          <target state="translated">目标格式</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialogPickLocationButton.Content" translate="yes" xml:space="preserve">
+          <source>Save location</source>
+          <target state="translated">选择保存位置</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialogScale.Header" translate="yes" xml:space="preserve">
+          <source>Proportion</source>
+          <target state="translated">缩放百分比</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialogTips.Subtitle" translate="yes" xml:space="preserve">
+          <source>Please specify a save location</source>
+          <target state="translated">请指定保存位置</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialogTips.Title" translate="yes" xml:space="preserve">
+          <source>Tips</source>
+          <target state="translated">提示</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialogZoomMode.Header" translate="yes" xml:space="preserve">
+          <source>Zoom Mode</source>
+          <target state="translated">缩放模式</target>
+        </trans-unit>
+        <trans-unit id="SettingUpdateLogButton.Content" translate="yes" xml:space="preserve">
+          <source>View update log</source>
+          <target state="translated">查看更新日志</target>
+        </trans-unit>
+        <trans-unit id="SettingClearHistoryFlyoutCancelButton.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="SettingClearHistoryFlyoutContent.Text" translate="yes" xml:space="preserve">
+          <source>Search history will be cleared, continue or not?</source>
+          <target state="translated">搜索历史记录将被清除，是否继续？</target>
+        </trans-unit>
+        <trans-unit id="SettingClearHistoryFlyoutContinueButton.Content" translate="yes" xml:space="preserve">
+          <source>Continue</source>
+          <target state="translated">继续</target>
         </trans-unit>
       </group>
     </body>

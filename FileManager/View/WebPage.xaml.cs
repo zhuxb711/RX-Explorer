@@ -692,7 +692,7 @@ namespace FileManager
         {
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                ContentDialog dialog = new ContentDialog
+                QueueContentDialog dialog = new QueueContentDialog
                 {
                     Content = "浏览器进程意外终止\r将自动重启并返回主页",
                     Title = "提示",
@@ -703,7 +703,7 @@ namespace FileManager
             }
             else
             {
-                ContentDialog dialog = new ContentDialog
+                QueueContentDialog dialog = new QueueContentDialog
                 {
                     Content = "Browser process terminated unexpectedly\rWe will automatically restart and return to the home page",
                     Title = "Tips",
@@ -1156,7 +1156,7 @@ namespace FileManager
         {
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                ContentDialog dialog = new ContentDialog
+                QueueContentDialog dialog = new QueueContentDialog
                 {
                     Content = "SmartScreen将该页面标记为不安全",
                     Title = "警告",
@@ -1171,7 +1171,7 @@ namespace FileManager
             }
             else
             {
-                ContentDialog dialog = new ContentDialog
+                QueueContentDialog dialog = new QueueContentDialog
                 {
                     Content = "SmartScreen marks the page as unsafe",
                     Title = "Warning",
@@ -1329,10 +1329,10 @@ namespace FileManager
                 {
                     case WebViewPermissionType.Geolocation:
                         {
-                            ContentDialog dialog;
+                            QueueContentDialog dialog;
                             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                             {
-                                dialog = new ContentDialog
+                                dialog = new QueueContentDialog
                                 {
                                     Content = "此网站正在请求您的精确GPS定位",
                                     Title = "权限",
@@ -1343,7 +1343,7 @@ namespace FileManager
                             }
                             else
                             {
-                                dialog = new ContentDialog
+                                dialog = new QueueContentDialog
                                 {
                                     Content = "This site is requesting your precise GPS location",
                                     Title = "Permission",
@@ -1370,10 +1370,10 @@ namespace FileManager
                                                 break;
                                             }
 
-                                            ContentDialog LocationTips;
+                                            QueueContentDialog LocationTips;
                                             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                                             {
-                                                LocationTips = new ContentDialog
+                                                LocationTips = new QueueContentDialog
                                                 {
                                                     Title = "警告",
                                                     Content = "如果您拒绝授予RX文件管理器定位权限，则此网站亦无法获得您的精确位置",
@@ -1384,7 +1384,7 @@ namespace FileManager
                                             }
                                             else
                                             {
-                                                LocationTips = new ContentDialog
+                                                LocationTips = new QueueContentDialog
                                                 {
                                                     Title = "Warning",
                                                     Content = "If you refuse to grant RX File Manager targeting, this site will not be able to get your exact location",
@@ -1421,10 +1421,10 @@ namespace FileManager
 
                     case WebViewPermissionType.WebNotifications:
                         {
-                            ContentDialog dialog;
+                            QueueContentDialog dialog;
                             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                             {
-                                dialog = new ContentDialog
+                                dialog = new QueueContentDialog
                                 {
                                     Content = "此网站正在请求Web通知权限",
                                     Title = "权限",
@@ -1435,7 +1435,7 @@ namespace FileManager
                             }
                             else
                             {
-                                dialog = new ContentDialog
+                                dialog = new QueueContentDialog
                                 {
                                     Content = "This site is requesting web notification permission",
                                     Title = "Permission",
@@ -1458,10 +1458,10 @@ namespace FileManager
                         }
                     case WebViewPermissionType.Media:
                         {
-                            ContentDialog dialog;
+                            QueueContentDialog dialog;
                             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                             {
-                                dialog = new ContentDialog
+                                dialog = new QueueContentDialog
                                 {
                                     Content = "此网站正在请求音视频权限",
                                     Title = "权限",
@@ -1472,7 +1472,7 @@ namespace FileManager
                             }
                             else
                             {
-                                dialog = new ContentDialog
+                                dialog = new QueueContentDialog
                                 {
                                     Content = "This site is requesting media playback permission",
                                     Title = "Permission",
@@ -1513,10 +1513,10 @@ namespace FileManager
                                         }
                                         catch (UnauthorizedAccessException)
                                         {
-                                            ContentDialog LocationTips;
+                                            QueueContentDialog LocationTips;
                                             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                                             {
-                                                LocationTips = new ContentDialog
+                                                LocationTips = new QueueContentDialog
                                                 {
                                                     Title = "警告",
                                                     Content = "如果您拒绝授予RX文件管理器音视频权限，则此网站亦无法获得您的音视频流",
@@ -1527,7 +1527,7 @@ namespace FileManager
                                             }
                                             else
                                             {
-                                                LocationTips = new ContentDialog
+                                                LocationTips = new QueueContentDialog
                                                 {
                                                     Title = "Warning",
                                                     Content = "If you refuse to grant RX File Manager audio and video permissions, the site will not be able to get your audio and video streams",
@@ -1571,10 +1571,10 @@ namespace FileManager
                         }
                     case WebViewPermissionType.Screen:
                         {
-                            ContentDialog dialog;
+                            QueueContentDialog dialog;
                             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                             {
-                                dialog = new ContentDialog
+                                dialog = new QueueContentDialog
                                 {
                                     Content = "此网站正在请求屏幕录制权限",
                                     Title = "权限",
@@ -1585,7 +1585,7 @@ namespace FileManager
                             }
                             else
                             {
-                                dialog = new ContentDialog
+                                dialog = new QueueContentDialog
                                 {
                                     Content = "This site is requesting screen recording permission",
                                     Title = "Permission",
@@ -1611,10 +1611,10 @@ namespace FileManager
                         }
                     case WebViewPermissionType.UnlimitedIndexedDBQuota:
                         {
-                            ContentDialog dialog;
+                            QueueContentDialog dialog;
                             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                             {
-                                dialog = new ContentDialog
+                                dialog = new QueueContentDialog
                                 {
                                     Content = "此网站正在请求无限制数据存储",
                                     Title = "权限",
@@ -1625,7 +1625,7 @@ namespace FileManager
                             }
                             else
                             {
-                                dialog = new ContentDialog
+                                dialog = new QueueContentDialog
                                 {
                                     Content = "This site is requesting unlimited data storage",
                                     Title = "Permission",
@@ -1655,10 +1655,10 @@ namespace FileManager
                         }
                     case WebViewPermissionType.PointerLock:
                         {
-                            ContentDialog dialog;
+                            QueueContentDialog dialog;
                             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                             {
-                                dialog = new ContentDialog
+                                dialog = new QueueContentDialog
                                 {
                                     Content = "此网站正在请求鼠标指针锁定",
                                     Title = "权限",
@@ -1669,7 +1669,7 @@ namespace FileManager
                             }
                             else
                             {
-                                dialog = new ContentDialog
+                                dialog = new QueueContentDialog
                                 {
                                     Content = "This site is requesting a mouse pointer lock",
                                     Title = "Permission",
@@ -1695,10 +1695,10 @@ namespace FileManager
                         }
                     case WebViewPermissionType.ImmersiveView:
                         {
-                            ContentDialog dialog;
+                            QueueContentDialog dialog;
                             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                             {
-                                dialog = new ContentDialog
+                                dialog = new QueueContentDialog
                                 {
                                     Content = "此网站正在请求沉浸式视图模式(VR)",
                                     Title = "权限",
@@ -1709,7 +1709,7 @@ namespace FileManager
                             }
                             else
                             {
-                                dialog = new ContentDialog
+                                dialog = new QueueContentDialog
                                 {
                                     Content = "This site is requesting immersive view mode (VR)",
                                     Title = "Permission",
@@ -1745,7 +1745,7 @@ namespace FileManager
             {
                 if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                 {
-                    ContentDialog dialog = new ContentDialog
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
                         Content = "蓝牙功能尚未开启，是否前往设置开启？",
                         Title = "提示",
@@ -1760,7 +1760,7 @@ namespace FileManager
                 }
                 else
                 {
-                    ContentDialog dialog = new ContentDialog
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
                         Content = "Bluetooth is not turned on, go to setting to enable？",
                         Title = "Tips",
@@ -1813,7 +1813,7 @@ namespace FileManager
 
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                ContentDialog dialog = new ContentDialog
+                QueueContentDialog dialog = new QueueContentDialog
                 {
                     Content = "所有缓存和历史记录数据均已清空",
                     Title = "提示",
@@ -1824,7 +1824,7 @@ namespace FileManager
             }
             else
             {
-                ContentDialog dialog = new ContentDialog
+                QueueContentDialog dialog = new QueueContentDialog
                 {
                     Content = "All cache and history data has being cleared",
                     Title = "Tips",
@@ -1839,7 +1839,7 @@ namespace FileManager
         {
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                ContentDialog dialog = new ContentDialog
+                QueueContentDialog dialog = new QueueContentDialog
                 {
                     Content = "RX管理器内置浏览器\r\r具备SmartScreen保护和完整权限控制\r\r基于Microsoft Edge内核的轻型浏览器",
                     Title = "关于",
@@ -1850,7 +1850,7 @@ namespace FileManager
             }
             else
             {
-                ContentDialog dialog = new ContentDialog
+                QueueContentDialog dialog = new QueueContentDialog
                 {
                     Content = "RX Manager built-in browser\r\rSmartScreen protection and full access control\r\rLightweight browser based on Microsoft Edge kernel",
                     Title = "About",

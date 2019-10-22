@@ -15,7 +15,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace FileManager
 {
-    public sealed partial class BluetoothUI : ContentDialog
+    public sealed partial class BluetoothUI : QueueContentDialog
     {
         ObservableCollection<BluetoothList> BluetoothDeviceCollection;
         List<BluetoothDevice> PairedBluetoothDeviceCollection;
@@ -65,7 +65,7 @@ namespace FileManager
             CreateBluetoothWatcher();
         }
 
-        private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private async void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             var Deferral = args.GetDeferral();
 

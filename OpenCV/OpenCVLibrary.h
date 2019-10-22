@@ -15,8 +15,27 @@ namespace OpenCV
 	public ref class OpenCVLibrary sealed
 	{
 	public:
-		static void ExtendBitmapBorder(SoftwareBitmap^ input, SoftwareBitmap^ output, Color Colors, int Top, int Left, int Right, int Bottom);
+		static void ExtendImageBorder(SoftwareBitmap^ input, SoftwareBitmap^ output, Color Colors, int Top, int Left, int Right, int Bottom);
 
+		static void RotateEffect(SoftwareBitmap^ input, SoftwareBitmap^ output, int Angle);
+
+		static void FlipEffect(SoftwareBitmap^ input, SoftwareBitmap^ output, bool FlipByX);
+
+		static void AdjustBrightnessContrast(SoftwareBitmap^ input, SoftwareBitmap^ output, double Alpha, double Beta);
+
+		static void InvertEffect(SoftwareBitmap^ input, SoftwareBitmap^ output);
+
+		static void GenenateResizedThumbnail(SoftwareBitmap^ input, SoftwareBitmap^ output, int Height, int Width);
+
+		static void ThresholdEffect(SoftwareBitmap^ input, SoftwareBitmap^ output);
+
+		static void SketchEffect(SoftwareBitmap^ input, SoftwareBitmap^ output);
+
+		static void GaussianBlurEffect(SoftwareBitmap^ input, SoftwareBitmap^ output);
+
+		static void SepiaEffect(SoftwareBitmap^ input, SoftwareBitmap^ output);
+
+		static void OilPaintingEffect(SoftwareBitmap^ input, SoftwareBitmap^ output);
 	private:
 		OpenCVLibrary();
 

@@ -1,4 +1,4 @@
-﻿<ContentDialog
+﻿<local:QueueContentDialog
     x:Class="FileManager.UserFolderDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -10,7 +10,7 @@
     Title="选择用户文件夹"
     PrimaryButtonText="确定"
     x:Uid="UserFolderDialog"
-    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+    PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
     <Grid>
         <StackPanel>
@@ -19,4 +19,4 @@
             <ComboBox Width="200" Name="UserCombo" DisplayMemberPath="Name"/>
         </StackPanel>
     </Grid>
-</ContentDialog>
+</local:QueueContentDialog>

@@ -354,10 +354,10 @@ namespace FileManager
                 return;
             }
 
-            ContentDialog contentDialog;
+            QueueContentDialog QueueContenDialog;
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                contentDialog = new ContentDialog
+                QueueContenDialog = new QueueContentDialog
                 {
                     Title = "警告",
                     Content = "    此操作将永久删除该文件夹内的所有内容\r\r    是否继续？",
@@ -368,7 +368,7 @@ namespace FileManager
             }
             else
             {
-                contentDialog = new ContentDialog
+                QueueContenDialog = new QueueContentDialog
                 {
                     Title = "Warning",
                     Content = "    This will permanently delete everything in the folder\r\r    Whether to continue ？",
@@ -378,7 +378,7 @@ namespace FileManager
                 };
             }
 
-            if (await contentDialog.ShowAsync() == ContentDialogResult.Primary)
+            if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
             {
                 try
                 {
@@ -414,10 +414,10 @@ namespace FileManager
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    ContentDialog dialog;
+                    QueueContentDialog dialog;
                     if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        dialog = new ContentDialog
+                        dialog = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "RX无权删除此文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
@@ -428,7 +428,7 @@ namespace FileManager
                     }
                     else
                     {
-                        dialog = new ContentDialog
+                        dialog = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "RX does not have permission to delete this folder, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
@@ -445,10 +445,10 @@ namespace FileManager
                 }
                 catch (Exception)
                 {
-                    ContentDialog Dialog;
+                    QueueContentDialog Dialog;
                     if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Dialog = new ContentDialog
+                        Dialog = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "删除文件夹时出现错误",
@@ -458,7 +458,7 @@ namespace FileManager
                     }
                     else
                     {
-                        Dialog = new ContentDialog
+                        Dialog = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "An error occurred while deleting the folder",
@@ -526,7 +526,7 @@ namespace FileManager
                 {
                     if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        ContentDialog content = new ContentDialog
+                        QueueContentDialog content = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "文件夹名不能为空，重命名失败",
@@ -537,7 +537,7 @@ namespace FileManager
                     }
                     else
                     {
-                        ContentDialog content = new ContentDialog
+                        QueueContentDialog content = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "Folder name cannot be empty, rename failed",
@@ -598,10 +598,10 @@ namespace FileManager
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    ContentDialog dialog;
+                    QueueContentDialog dialog;
                     if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        dialog = new ContentDialog
+                        dialog = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "RX无权重命名此文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
@@ -612,7 +612,7 @@ namespace FileManager
                     }
                     else
                     {
-                        dialog = new ContentDialog
+                        dialog = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "RX does not have permission to rename this folder, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
@@ -656,10 +656,10 @@ namespace FileManager
             }
             catch (UnauthorizedAccessException)
             {
-                ContentDialog dialog;
+                QueueContentDialog dialog;
                 if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                 {
-                    dialog = new ContentDialog
+                    dialog = new QueueContentDialog
                     {
                         Title = "错误",
                         Content = "RX无权在此创建文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
@@ -670,7 +670,7 @@ namespace FileManager
                 }
                 else
                 {
-                    dialog = new ContentDialog
+                    dialog = new QueueContentDialog
                     {
                         Title = "Error",
                         Content = "RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",

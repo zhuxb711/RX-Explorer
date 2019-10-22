@@ -17,12 +17,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
+using Windows.Graphics.Imaging;
 using Windows.Networking;
 using Windows.Networking.Connectivity;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
-using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -823,12 +823,12 @@ namespace FileManager
     /// <summary>
     /// 为图片查看提供支持
     /// </summary>
-    public sealed class PhotoDisplaySupport
+    public sealed class PhotoDisplaySupport : INotifyPropertyChanged
     {
         /// <summary>
         /// 获取Bitmap图片对象
         /// </summary>
-        public BitmapImage Bitmap { get; private set; }
+        public BitmapImage BitmapSource { get; private set; }
 
         /// <summary>
         /// 获取Photo文件名称
@@ -841,21 +841,164 @@ namespace FileManager
             }
         }
 
+        private bool IsThumbnailPicture = true;
+
+        public int RotateAngle { get; set; } = 0;
+
         /// <summary>
         /// 获取Photo的StorageFile对象
         /// </summary>
         public StorageFile PhotoFile { get; private set; }
 
-        /// <summary>
-        /// 创建PhotoDisplaySupport的实例
-        /// </summary>
-        /// <param name="stream">缩略图的流</param>
-        /// <param name="File">图片文件</param>
-        public PhotoDisplaySupport(IRandomAccessStream stream, StorageFile File)
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public PhotoDisplaySupport(BitmapImage ImageSource, StorageFile File)
         {
-            Bitmap = new BitmapImage();
-            Bitmap.SetSource(stream);
+            BitmapSource = ImageSource;
             PhotoFile = File;
+        }
+
+        public async Task ReplaceThumbnailBitmap()
+        {
+            if (IsThumbnailPicture)
+            {
+                IsThumbnailPicture = false;
+                using (var Stream = await PhotoFile.OpenAsync(FileAccessMode.Read))
+                {
+                    await BitmapSource.SetSourceAsync(Stream);
+                }
+                OnPropertyChanged("BitmapSource");
+            }
+        }
+
+        public async Task UpdateImage()
+        {
+            using (var Stream = await PhotoFile.OpenAsync(FileAccessMode.Read))
+            {
+                await BitmapSource.SetSourceAsync(Stream);
+            }
+            OnPropertyChanged("BitmapSource");
+        }
+
+        public async Task<SoftwareBitmap> GenerateImageWithRotation()
+        {
+            using (var stream = await PhotoFile.OpenAsync(FileAccessMode.Read))
+            {
+                BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
+
+                switch (RotateAngle % 360)
+                {
+                    case 0:
+                        {
+                            return await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+                        }
+                    case 90:
+                        {
+                            using (var Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                            {
+                                SoftwareBitmap Processed = new SoftwareBitmap(BitmapPixelFormat.Bgra8, Origin.PixelHeight, Origin.PixelWidth, BitmapAlphaMode.Premultiplied);
+                                OpenCV.OpenCVLibrary.RotateEffect(Origin, Processed, 90);
+                                return Processed;
+                            }
+                        }
+                    case 180:
+                        {
+                            var Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+                            OpenCV.OpenCVLibrary.RotateEffect(Origin, Origin, 180);
+                            return Origin;
+                        }
+                    case 270:
+                        {
+                            using (var Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                            {
+                                SoftwareBitmap Processed = new SoftwareBitmap(BitmapPixelFormat.Bgra8, Origin.PixelHeight, Origin.PixelWidth, BitmapAlphaMode.Premultiplied);
+                                OpenCV.OpenCVLibrary.RotateEffect(Origin, Processed, -90);
+                                return Processed;
+                            }
+                        }
+                    default:
+                        {
+                            return null;
+                        }
+                }
+            }
+        }
+
+        private void OnPropertyChanged(string Name)
+        {
+            if (!string.IsNullOrEmpty(Name))
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(Name));
+            }
+        }
+    }
+    #endregion
+
+    #region 图片查看器相关
+    public enum FilterType
+    {
+        Origin = 0,
+        Invert = 1,
+        Gray = 2,
+        Threshold = 4,
+        Sketch = 8,
+        GaussianBlur = 16,
+        Sepia = 32,
+        OilPainting = 64
+    }
+
+    public sealed class FilterItem : IDisposable
+    {
+        public string Text { get; private set; }
+
+        public FilterType Type { get; private set; }
+
+        public SoftwareBitmapSource Bitmap { get; private set; }
+
+        private bool IsDisposed = false;
+
+        public FilterItem(SoftwareBitmapSource Bitmap, string Text, FilterType Type)
+        {
+            this.Bitmap = Bitmap;
+            this.Text = Text;
+            this.Type = Type;
+        }
+
+        public void Dispose()
+        {
+            if (!IsDisposed)
+            {
+                IsDisposed = true;
+                Bitmap.Dispose();
+            }
+        }
+    }
+
+    public sealed class AlphaSliderValueConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            int Value = System.Convert.ToInt32(((double)value - 1) * 100);
+            return Value > 0 ? ("+" + Value) : Value.ToString();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class BetaSliderValueConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            int Value = System.Convert.ToInt32(value);
+            return Value > 0 ? ("+" + Value) : Value.ToString();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
         }
     }
     #endregion
@@ -950,14 +1093,17 @@ namespace FileManager
             while (ObjectQueue.Count > 0)
             {
                 DependencyObject Current = ObjectQueue.Dequeue();
-                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(Current); i++)
+                if (Current != null)
                 {
-                    var ChildObject = VisualTreeHelper.GetChild(Current, i);
-                    if (ChildObject is T TypedChild)
+                    for (int i = 0; i < VisualTreeHelper.GetChildrenCount(Current); i++)
                     {
-                        return TypedChild;
+                        var ChildObject = VisualTreeHelper.GetChild(Current, i);
+                        if (ChildObject is T TypedChild)
+                        {
+                            return TypedChild;
+                        }
+                        ObjectQueue.Enqueue(ChildObject);
                     }
-                    ObjectQueue.Enqueue(ChildObject);
                 }
             }
             return null;
@@ -1939,5 +2085,24 @@ namespace FileManager
         public AS AS { get; set; }
     }
 
+    #endregion
+
+    #region ContentDialog队列实现
+    public class QueueContentDialog : ContentDialog
+    {
+        private static readonly AutoResetEvent Locker = new AutoResetEvent(true);
+
+        public new async Task<ContentDialogResult> ShowAsync()
+        {
+            await Task.Run(() =>
+            {
+                Locker.WaitOne();
+            });
+
+            var Result = await base.ShowAsync();
+            Locker.Set();
+            return Result;
+        }
+    }
     #endregion
 }

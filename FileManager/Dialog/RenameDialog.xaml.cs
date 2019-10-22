@@ -2,7 +2,7 @@
 
 namespace FileManager
 {
-    public sealed partial class RenameDialog : ContentDialog
+    public sealed partial class RenameDialog : QueueContentDialog
     {
         public RenameDialog(string FileDisplayName, string Type)
         {
@@ -33,7 +33,7 @@ namespace FileManager
             Preview.Text = FileName + "\r⋙⋙   ⋙⋙   ⋙⋙\r" + Text.Text + Type;
         }
 
-        private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             DesireName = Text.Text + Type;
         }

@@ -91,7 +91,7 @@ namespace FileManager
 
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                ContentDialog dialog = new ContentDialog
+                QueueContentDialog dialog = new QueueContentDialog
                 {
                     Title = "提示",
                     Content = "搜索历史记录清理完成",
@@ -102,7 +102,7 @@ namespace FileManager
             }
             else
             {
-                ContentDialog dialog = new ContentDialog
+                QueueContentDialog dialog = new QueueContentDialog
                 {
                     Title = "Tips",
                     Content = "Search history cleanup completed",
@@ -122,7 +122,7 @@ namespace FileManager
         {
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                ContentDialog dialog = new ContentDialog
+                QueueContentDialog dialog = new QueueContentDialog
                 {
                     Title = "警告",
                     Content = " 此操作将完全初始化RX文件管理器，包括：\r\r     • 清除全部数据存储\r\r     • 还原所有应用设置\r\r     • RX文件管理器将自动关闭\r\r 您需要按提示重新启动",
@@ -140,7 +140,7 @@ namespace FileManager
             }
             else
             {
-                ContentDialog dialog = new ContentDialog
+                QueueContentDialog dialog = new QueueContentDialog
                 {
                     Title = "Warning",
                     Content = " This will fully initialize the RX FileManager，Including：\r\r     • Clear all data\r\r     • Restore all app settings\r\r     • RX FileManager will automatically close\r\r You need to restart as prompted",
@@ -330,7 +330,7 @@ namespace FileManager
         {
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                ContentDialog dialog = new ContentDialog
+                QueueContentDialog dialog = new QueueContentDialog
                 {
                     Title = "支持",
                     Content = "开发者开发RX文件管理器花费了大量精力\r" +
@@ -356,7 +356,7 @@ namespace FileManager
                             {
                                 case StorePurchaseStatus.Succeeded:
                                     {
-                                        ContentDialog contentDialog = new ContentDialog
+                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                                         {
                                             Title = "感谢",
                                             Content = "感谢您的支持，我们将努力将RX做得越来越好q(≧▽≦q)\r\r" +
@@ -369,12 +369,12 @@ namespace FileManager
                                             CloseButtonText = "朕知道了",
                                             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                                         };
-                                        _ = await contentDialog.ShowAsync();
+                                        _ = await QueueContenDialog.ShowAsync();
                                         break;
                                     }
                                 case StorePurchaseStatus.AlreadyPurchased:
                                     {
-                                        ContentDialog contentDialog = new ContentDialog
+                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                                         {
                                             Title = "再次感谢",
                                             Content = "您已为RX支持过一次了，您的心意开发者已心领\r\r" +
@@ -384,12 +384,12 @@ namespace FileManager
                                             CloseButtonText = "朕知道了",
                                             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                                         };
-                                        _ = await contentDialog.ShowAsync();
+                                        _ = await QueueContenDialog.ShowAsync();
                                         break;
                                     }
                                 case StorePurchaseStatus.NotPurchased:
                                     {
-                                        ContentDialog contentDialog = new ContentDialog
+                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                                         {
                                             Title = "感谢",
                                             Content = "无论支持与否，RX始终如一\r\r" +
@@ -398,19 +398,19 @@ namespace FileManager
                                             CloseButtonText = "朕知道了",
                                             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                                         };
-                                        _ = await contentDialog.ShowAsync();
+                                        _ = await QueueContenDialog.ShowAsync();
                                         break;
                                     }
                                 default:
                                     {
-                                        ContentDialog contentDialog = new ContentDialog
+                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                                         {
                                             Title = "抱歉",
                                             Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
                                             CloseButtonText = "朕知道了",
                                             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                                         };
-                                        _ = await contentDialog.ShowAsync();
+                                        _ = await QueueContenDialog.ShowAsync();
                                         break;
                                     }
                             }
@@ -418,20 +418,20 @@ namespace FileManager
                     }
                     else
                     {
-                        ContentDialog contentDialog = new ContentDialog
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                         {
                             Title = "抱歉",
                             Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
                             CloseButtonText = "朕知道了",
                             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                         };
-                        _ = await contentDialog.ShowAsync();
+                        _ = await QueueContenDialog.ShowAsync();
                     }
                 }
             }
             else
             {
-                ContentDialog dialog = new ContentDialog
+                QueueContentDialog dialog = new QueueContentDialog
                 {
                     Title = "Donation",
                     Content = "It takes a lot of effort for developers to develop RX file manager\r" +
@@ -457,7 +457,7 @@ namespace FileManager
                             {
                                 case StorePurchaseStatus.Succeeded:
                                     {
-                                        ContentDialog contentDialog = new ContentDialog
+                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                                         {
                                             Title = "Appreciation",
                                             Content = "Thank you for your support, we will work hard to make RX better and better q(≧▽≦q)\r\r" +
@@ -470,12 +470,12 @@ namespace FileManager
                                             CloseButtonText = "朕知道了",
                                             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                                         };
-                                        _ = await contentDialog.ShowAsync();
+                                        _ = await QueueContenDialog.ShowAsync();
                                         break;
                                     }
                                 case StorePurchaseStatus.AlreadyPurchased:
                                     {
-                                        ContentDialog contentDialog = new ContentDialog
+                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                                         {
                                             Title = "Thanks again",
                                             Content = "You have already supported RX once, thank you very much\r\r" +
@@ -485,12 +485,12 @@ namespace FileManager
                                             CloseButtonText = "Got it",
                                             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                                         };
-                                        _ = await contentDialog.ShowAsync();
+                                        _ = await QueueContenDialog.ShowAsync();
                                         break;
                                     }
                                 case StorePurchaseStatus.NotPurchased:
                                     {
-                                        ContentDialog contentDialog = new ContentDialog
+                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                                         {
                                             Title = "Appreciation",
                                             Content = "Whether supported or not, RX is always the same\r\r" +
@@ -499,19 +499,19 @@ namespace FileManager
                                             CloseButtonText = "Got it",
                                             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                                         };
-                                        _ = await contentDialog.ShowAsync();
+                                        _ = await QueueContenDialog.ShowAsync();
                                         break;
                                     }
                                 default:
                                     {
-                                        ContentDialog contentDialog = new ContentDialog
+                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                                         {
                                             Title = "Sorry",
                                             Content = "Unable to open support page due to Microsoft Store or network, please try again later",
                                             CloseButtonText = "Got it",
                                             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                                         };
-                                        _ = await contentDialog.ShowAsync();
+                                        _ = await QueueContenDialog.ShowAsync();
                                         break;
                                     }
                             }
@@ -519,17 +519,23 @@ namespace FileManager
                     }
                     else
                     {
-                        ContentDialog contentDialog = new ContentDialog
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                         {
                             Title = "Sorry",
                             Content = "Unable to open support page due to Microsoft Store or network, please try again later",
                             CloseButtonText = "Got it",
                             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                         };
-                        _ = await contentDialog.ShowAsync();
+                        _ = await QueueContenDialog.ShowAsync();
                     }
                 }
             }
+        }
+
+        private async void UpdateLogLink_Click(object sender, RoutedEventArgs e)
+        {
+            WhatIsNew Dialog = new WhatIsNew();
+            await Dialog.ShowAsync();
         }
     }
 }

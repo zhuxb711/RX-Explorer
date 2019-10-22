@@ -1,4 +1,6 @@
-﻿<ContentDialog xmlns:my="using:Microsoft.Toolkit.Uwp.UI.Controls" 
+﻿<filemanager:QueueContentDialog
+    xmlns:filemanager="using:FileManager"
+    xmlns:my="using:Microsoft.Toolkit.Uwp.UI.Controls" 
     x:Class="FileManager.WhatIsNew"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -18,4 +20,4 @@
                                   SchemeList="companyportal,randomscheme"/>
         </ScrollViewer>
     </Grid>
-</ContentDialog>
+</filemanager:QueueContentDialog>

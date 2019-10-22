@@ -1,4 +1,4 @@
-﻿<ContentDialog
+﻿<local:QueueContentDialog
     x:Class="FileManager.AESDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -10,7 +10,7 @@
     x:Uid="AESDialog"
     CloseButtonText="取消"
     PrimaryButtonText="确定"
-    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick"
     Background="{StaticResource DialogAcrylicBrush}">
     
     <Grid>
@@ -30,4 +30,4 @@
             <CheckBox Content="加密完成后删除源文件" x:Uid="AESCheckBox" Name="Check" IsChecked="{x:Bind IsDeleteChecked,Mode=TwoWay}"/>
         </StackPanel>
     </Grid>
-</ContentDialog>
+</local:QueueContentDialog>

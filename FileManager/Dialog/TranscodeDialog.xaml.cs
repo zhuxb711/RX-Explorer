@@ -12,7 +12,7 @@ using Windows.UI.Xaml.Media;
 
 namespace FileManager
 {
-    public sealed partial class TranscodeDialog : ContentDialog
+    public sealed partial class TranscodeDialog : QueueContentDialog
     {
         public StorageFile SourceFile { get; set; }
         MediaProcessingTrigger ProcessingTrigger;
@@ -307,7 +307,7 @@ namespace FileManager
             }
         }
 
-        private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private async void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             if (SourceFile == null)
             {
@@ -322,7 +322,7 @@ namespace FileManager
             {
                 if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                 {
-                    ContentDialog dialog = new ContentDialog
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = "错误",
                         Content = "RX无权在此处创建转码文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
@@ -337,7 +337,7 @@ namespace FileManager
                 }
                 else
                 {
-                    ContentDialog dialog = new ContentDialog
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = "Error",
                         Content = "RX does not have permission to create transcode file, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",

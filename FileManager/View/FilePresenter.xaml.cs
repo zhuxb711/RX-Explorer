@@ -150,7 +150,7 @@ namespace FileManager
                     }
                     catch (FileNotFoundException)
                     {
-                        ContentDialog Dialog = new ContentDialog
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "因源文件已删除，无法剪切到指定位置",
@@ -161,7 +161,7 @@ namespace FileManager
                     }
                     catch (UnauthorizedAccessException)
                     {
-                        ContentDialog dialog = new ContentDialog
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
@@ -176,14 +176,14 @@ namespace FileManager
                     }
                     catch (System.Runtime.InteropServices.COMException)
                     {
-                        ContentDialog contentDialog = new ContentDialog
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "因设备剩余空间大小不足，文件无法剪切",
                             CloseButtonText = "确定",
                             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                         };
-                        _ = await contentDialog.ShowAsync();
+                        _ = await QueueContenDialog.ShowAsync();
                     }
                 }
                 else
@@ -204,7 +204,7 @@ namespace FileManager
                     }
                     catch (FileNotFoundException)
                     {
-                        ContentDialog Dialog = new ContentDialog
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "Unable to cut to the specified location because the source file has been deleted",
@@ -215,7 +215,7 @@ namespace FileManager
                     }
                     catch (UnauthorizedAccessException)
                     {
-                        ContentDialog dialog = new ContentDialog
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
@@ -230,14 +230,14 @@ namespace FileManager
                     }
                     catch (System.Runtime.InteropServices.COMException)
                     {
-                        ContentDialog contentDialog = new ContentDialog
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "The device has insufficient free space and the file cannot be cut.",
                             CloseButtonText = "Confirm",
                             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                         };
-                        _ = await contentDialog.ShowAsync();
+                        _ = await QueueContenDialog.ShowAsync();
                     }
                 }
 
@@ -264,7 +264,7 @@ namespace FileManager
                     }
                     catch (FileNotFoundException)
                     {
-                        ContentDialog Dialog = new ContentDialog
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "因源文件已删除，无法复制到指定位置",
@@ -275,7 +275,7 @@ namespace FileManager
                     }
                     catch (UnauthorizedAccessException)
                     {
-                        ContentDialog dialog = new ContentDialog
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
@@ -290,14 +290,14 @@ namespace FileManager
                     }
                     catch (System.Runtime.InteropServices.COMException)
                     {
-                        ContentDialog contentDialog = new ContentDialog
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "因设备剩余空间大小不足，文件无法复制",
                             CloseButtonText = "确定",
                             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                         };
-                        _ = await contentDialog.ShowAsync();
+                        _ = await QueueContenDialog.ShowAsync();
                     }
                 }
                 else
@@ -318,7 +318,7 @@ namespace FileManager
                     }
                     catch (FileNotFoundException)
                     {
-                        ContentDialog Dialog = new ContentDialog
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "Unable to copy to the specified location because the source file has been deleted",
@@ -329,7 +329,7 @@ namespace FileManager
                     }
                     catch (UnauthorizedAccessException)
                     {
-                        ContentDialog dialog = new ContentDialog
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
@@ -344,14 +344,14 @@ namespace FileManager
                     }
                     catch (System.Runtime.InteropServices.COMException)
                     {
-                        ContentDialog contentDialog = new ContentDialog
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "The device has insufficient free space and the file cannot be copy",
                             CloseButtonText = "Confirm",
                             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                         };
-                        _ = await contentDialog.ShowAsync();
+                        _ = await QueueContenDialog.ShowAsync();
                     }
                 }
 
@@ -385,7 +385,7 @@ namespace FileManager
 
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                ContentDialog contentDialog = new ContentDialog
+                QueueContentDialog QueueContenDialog = new QueueContentDialog
                 {
                     Title = "警告",
                     PrimaryButtonText = "是",
@@ -393,7 +393,7 @@ namespace FileManager
                     CloseButtonText = "否",
                     Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                 };
-                if (await contentDialog.ShowAsync() == ContentDialogResult.Primary)
+                if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
                 {
                     LoadingActivation(true, "正在删除");
 
@@ -412,7 +412,7 @@ namespace FileManager
                     }
                     catch (UnauthorizedAccessException)
                     {
-                        ContentDialog dialog = new ContentDialog
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "RX无权删除此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
@@ -429,7 +429,7 @@ namespace FileManager
             }
             else
             {
-                ContentDialog contentDialog = new ContentDialog
+                QueueContentDialog QueueContenDialog = new QueueContentDialog
                 {
                     Title = "Warning",
                     PrimaryButtonText = "Continue",
@@ -437,7 +437,7 @@ namespace FileManager
                     CloseButtonText = "Cancel",
                     Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                 };
-                if (await contentDialog.ShowAsync() == ContentDialogResult.Primary)
+                if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
                 {
                     LoadingActivation(true, "Deleting");
 
@@ -456,7 +456,7 @@ namespace FileManager
                     }
                     catch (UnauthorizedAccessException)
                     {
-                        ContentDialog dialog = new ContentDialog
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "RX does not have permission to delete, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
@@ -518,7 +518,7 @@ namespace FileManager
                 {
                     if (dialog.DesireName == file.FileType)
                     {
-                        ContentDialog content = new ContentDialog
+                        QueueContentDialog content = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "文件名不能为空，重命名失败",
@@ -542,7 +542,7 @@ namespace FileManager
                     }
                     catch (UnauthorizedAccessException)
                     {
-                        ContentDialog Dialog = new ContentDialog
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "RX无权重命名此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
@@ -560,7 +560,7 @@ namespace FileManager
                 {
                     if (dialog.DesireName == file.FileType)
                     {
-                        ContentDialog content = new ContentDialog
+                        QueueContentDialog content = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "File name cannot be empty, rename failed",
@@ -584,7 +584,7 @@ namespace FileManager
                     }
                     catch (UnauthorizedAccessException)
                     {
-                        ContentDialog Dialog = new ContentDialog
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "RX does not have permission to rename, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
@@ -697,7 +697,7 @@ namespace FileManager
                 {
                     if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        ContentDialog dialog = new ContentDialog
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "RX无权在此处创建加密文件，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
@@ -712,7 +712,7 @@ namespace FileManager
                     }
                     else
                     {
-                        ContentDialog dialog = new ContentDialog
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "RX does not have permission to create an encrypted file here, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
@@ -769,10 +769,10 @@ namespace FileManager
                         {
                             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                             {
-                                ContentDialog dialog;
+                                QueueContentDialog dialog;
                                 if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                                 {
-                                    dialog = new ContentDialog
+                                    dialog = new QueueContentDialog
                                     {
                                         Title = "错误",
                                         Content = "  文件格式检验错误，文件可能已损坏",
@@ -782,7 +782,7 @@ namespace FileManager
                                 }
                                 else
                                 {
-                                    dialog = new ContentDialog
+                                    dialog = new QueueContentDialog
                                     {
                                         Title = "Error",
                                         Content = "  File format validation error, file may be corrupt",
@@ -829,10 +829,10 @@ namespace FileManager
                         {
                             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                             {
-                                ContentDialog dialog;
+                                QueueContentDialog dialog;
                                 if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                                 {
-                                    dialog = new ContentDialog
+                                    dialog = new QueueContentDialog
                                     {
                                         Title = "错误",
                                         Content = "  密码错误，无法解密\r\r  请重试...",
@@ -842,7 +842,7 @@ namespace FileManager
                                 }
                                 else
                                 {
-                                    dialog = new ContentDialog
+                                    dialog = new QueueContentDialog
                                     {
                                         Title = "Error",
                                         Content = "  The password is incorrect and cannot be decrypted\r\r  Please try again...",
@@ -919,7 +919,7 @@ namespace FileManager
                         {
                             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                             {
-                                ContentDialog dialog = new ContentDialog
+                                QueueContentDialog dialog = new QueueContentDialog
                                 {
                                     Title = "错误",
                                     Content = "RX无权在此处创建解密文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
@@ -934,7 +934,7 @@ namespace FileManager
                             }
                             else
                             {
-                                ContentDialog dialog = new ContentDialog
+                                QueueContentDialog dialog = new QueueContentDialog
                                 {
                                     Title = "Error",
                                     Content = "RX does not have permission to create an decrypted file here, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
@@ -985,7 +985,7 @@ namespace FileManager
                 {
                     if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        ContentDialog dialog = new ContentDialog
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "提示",
                             Content = "请开启蓝牙开关后再试",
@@ -996,7 +996,7 @@ namespace FileManager
                     }
                     else
                     {
-                        ContentDialog dialog = new ContentDialog
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "Tips",
                             Content = "Please turn on Bluetooth and try again.",
@@ -1254,7 +1254,7 @@ namespace FileManager
                                     {
                                         if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                                         {
-                                            ContentDialog dialog = new ContentDialog
+                                            QueueContentDialog dialog = new QueueContentDialog
                                             {
                                                 Title = "错误",
                                                 Content = "RX无权在此处解压Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
@@ -1269,7 +1269,7 @@ namespace FileManager
                                         }
                                         else
                                         {
-                                            ContentDialog dialog = new ContentDialog
+                                            QueueContentDialog dialog = new QueueContentDialog
                                             {
                                                 Title = "错误",
                                                 Content = "RX does not have permission to extract the Zip file here, it may be that you do not have access to this file.\r\rEnter the system file manager immediately ？",
@@ -1292,7 +1292,7 @@ namespace FileManager
                 {
                     if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        ContentDialog dialog = new ContentDialog
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "解压文件时发生异常\r\r错误信息：\r\r" + e.Message,
@@ -1303,7 +1303,7 @@ namespace FileManager
                     }
                     else
                     {
-                        ContentDialog dialog = new ContentDialog
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "An exception occurred while extracting the file\r\rError Message：\r\r" + e.Message,
@@ -1461,7 +1461,7 @@ namespace FileManager
                     {
                         if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                         {
-                            ContentDialog dialog = new ContentDialog
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
                                 Title = "错误",
                                 Content = "压缩文件时发生异常\r\r错误信息：\r\r" + e.Message,
@@ -1472,7 +1472,7 @@ namespace FileManager
                         }
                         else
                         {
-                            ContentDialog dialog = new ContentDialog
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
                                 Title = "Error",
                                 Content = "An exception occurred while compressing the file\r\rError Message：\r\r" + e.Message,
@@ -1494,7 +1494,7 @@ namespace FileManager
             {
                 if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                 {
-                    ContentDialog dialog = new ContentDialog
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = "错误",
                         Content = "RX无权在此处创建Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
@@ -1509,7 +1509,7 @@ namespace FileManager
                 }
                 else
                 {
-                    ContentDialog dialog = new ContentDialog
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = "Error",
                         Content = "RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rEnter the system file manager immediately ？",
@@ -1559,7 +1559,7 @@ namespace FileManager
                     default:
                         if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                         {
-                            ContentDialog dialog = new ContentDialog
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
                                 Title = "提示",
                                 Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
@@ -1574,7 +1574,7 @@ namespace FileManager
                         }
                         else
                         {
-                            ContentDialog dialog = new ContentDialog
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
                                 Title = "Tips",
                                 Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
@@ -1747,7 +1747,7 @@ namespace FileManager
                 {
                     if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        ContentDialog content = new ContentDialog
+                        QueueContentDialog content = new QueueContentDialog
                         {
                             Title = "错误",
                             Content = "文件夹名不能为空，重命名失败",
@@ -1758,7 +1758,7 @@ namespace FileManager
                     }
                     else
                     {
-                        ContentDialog content = new ContentDialog
+                        QueueContentDialog content = new QueueContentDialog
                         {
                             Title = "Error",
                             Content = "Folder name cannot be empty, rename failed",
@@ -1825,7 +1825,7 @@ namespace FileManager
                     {
                         if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                         {
-                            ContentDialog Dialog = new ContentDialog
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
                                 Title = "错误",
                                 Content = "RX无权重命名此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
@@ -1840,7 +1840,7 @@ namespace FileManager
                         }
                         else
                         {
-                            ContentDialog Dialog = new ContentDialog
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
                                 Title = "Error",
                                 Content = "RX does not have permission to rename the folder, it may be that you do not have access to this file.\r\rEnter the system file manager immediately ？",
@@ -1875,7 +1875,7 @@ namespace FileManager
 
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                ContentDialog contentDialog = new ContentDialog
+                QueueContentDialog QueueContenDialog = new QueueContentDialog
                 {
                     Title = "警告",
                     PrimaryButtonText = "是",
@@ -1884,7 +1884,7 @@ namespace FileManager
                     Content = "此操作将永久删除 \"" + SelectedItem.DisplayName + " \"\r\r是否继续?"
                 };
 
-                if ((await contentDialog.ShowAsync()) == ContentDialogResult.Primary)
+                if ((await QueueContenDialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
                     foreach (FileSystemStorageItem Item in GridViewControl.SelectedItems)
                     {
@@ -1895,7 +1895,7 @@ namespace FileManager
                         }
                         catch (UnauthorizedAccessException)
                         {
-                            ContentDialog dialog = new ContentDialog
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
                                 Title = "错误",
                                 Content = "RX无权删除此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
@@ -1920,7 +1920,7 @@ namespace FileManager
             }
             else
             {
-                ContentDialog contentDialog = new ContentDialog
+                QueueContentDialog QueueContenDialog = new QueueContentDialog
                 {
                     Title = "Warning",
                     PrimaryButtonText = "Continue",
@@ -1929,7 +1929,7 @@ namespace FileManager
                     Content = "This action will permanently delete \" " + SelectedItem.DisplayName + " \"\r\rWhether to continue ?"
                 };
 
-                if ((await contentDialog.ShowAsync()) == ContentDialogResult.Primary)
+                if ((await QueueContenDialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
                     foreach (FileSystemStorageItem Item in GridViewControl.SelectedItems)
                     {
@@ -1940,7 +1940,7 @@ namespace FileManager
                         }
                         catch (UnauthorizedAccessException)
                         {
-                            ContentDialog dialog = new ContentDialog
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
                                 Title = "Error",
                                 Content = "RX does not have permission to delete, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
@@ -2002,7 +2002,7 @@ namespace FileManager
             using (SoftwareBitmap PreTransImage = SoftwareBitmap.CreateCopyFromBuffer(Bitmap.PixelBuffer, BitmapPixelFormat.Bgra8, 250, 250))
             using (SoftwareBitmap TransferImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 400, 250, BitmapAlphaMode.Premultiplied))
             {
-                OpenCVLibrary.ExtendBitmapBorder(PreTransImage, TransferImage, Colors.White, 0, 75, 75, 0);
+                OpenCVLibrary.ExtendImageBorder(PreTransImage, TransferImage, Colors.White, 0, 75, 75, 0);
                 SoftwareBitmapSource Source = new SoftwareBitmapSource();
                 QRImage.Source = Source;
                 await Source.SetBitmapAsync(TransferImage);
@@ -2037,7 +2037,7 @@ namespace FileManager
 
                 if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                 {
-                    ContentDialog dialog = new ContentDialog
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = "错误",
                         Content = "WIFI传输出现意外错误：\r" + e.Message,
@@ -2047,7 +2047,7 @@ namespace FileManager
                 }
                 else
                 {
-                    ContentDialog dialog = new ContentDialog
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = "Error",
                         Content = "WIFI transmission has an unexpected error：\r" + e.Message,

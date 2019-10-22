@@ -1,4 +1,18 @@
-﻿*****
+﻿###What's new in Ver.3.1.0.0
+
+>#####Comprehensively improved the picture viewer module, now supports image rotation, flipping, zooming, cropping, brightness, contrast, filters, etc.
+
+>#####Image viewer supports direct transcoding image file format
+
+>#####Solved the problem that multiple prompt windows will cause RX to crash when popping up at the same time
+
+>#####Solved the problem of incorrectly adding drive letters such as CD-ROM, unpartitioned space, unknown drive, etc. when RX detects the drive letter. Now RX only detects four types of "local disk", "removable disk", "network disk" and "memory disk"
+
+>#####Solved the problem that RX displays multiple duplicate disks in some cases
+
+>#####Solved the problem that the update log does not pop up after a new installation
+
+*****
 ###What's new in Ver.3.0.0.0
 
 >#####Improved the detection method of file system access rights, and solved the compatibility on the C disk device.

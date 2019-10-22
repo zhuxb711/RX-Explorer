@@ -1,4 +1,4 @@
-﻿<ContentDialog
+﻿<local:QueueContentDialog
     x:Class="FileManager.ZipDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -10,11 +10,11 @@
     PrimaryButtonText="确定"
     CloseButtonText="取消"
     x:Uid="ZipDialog"
-    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick"
     Background="{StaticResource DialogAcrylicBrush}">
-    <ContentDialog.Resources>
+    <local:QueueContentDialog.Resources>
         <local:ZipCryptConverter x:Key="ZipConverter" />
-    </ContentDialog.Resources>
+    </local:QueueContentDialog.Resources>
 
     <StackPanel>
         <TextBox Header="文件名" x:Uid="ZipDialogName" Text="新建压缩文件.zip" Name="FName"/>
@@ -38,4 +38,4 @@
         </Grid>
         <CheckBox x:Uid="ZipDialogCheckBox" Content="启用Zip加密" Name="EnableCryption"/>
     </StackPanel>
-</ContentDialog>
+</local:QueueContentDialog>

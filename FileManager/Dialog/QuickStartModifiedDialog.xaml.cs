@@ -9,7 +9,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace FileManager
 {
-    public sealed partial class QuickStartModifiedDialog : ContentDialog
+    public sealed partial class QuickStartModifiedDialog : QueueContentDialog
     {
         public QuickStartModifiedDialog(QuickStartType Type, QuickStartItem Item = null)
         {
@@ -57,7 +57,7 @@ namespace FileManager
         private bool IsSelectedImage = false;
         private StorageFile ImageFile;
 
-        private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private async void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             var Deferral = args.GetDeferral();
 

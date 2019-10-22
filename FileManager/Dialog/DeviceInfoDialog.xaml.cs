@@ -6,7 +6,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace FileManager
 {
-    public sealed partial class DeviceInfoDialog : ContentDialog
+    public sealed partial class DeviceInfoDialog : QueueContentDialog
     {
         HardDeviceInfo Device;
         public DeviceInfoDialog(HardDeviceInfo Device)

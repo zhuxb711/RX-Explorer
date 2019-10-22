@@ -262,7 +262,7 @@
     <value>搜索中</value>
   </data>
   <data name="DeviceCapacity.Text" xml:space="preserve">
-    <value>容量</value>
+    <value>总计空间</value>
   </data>
   <data name="DeviceDialog.CloseButtonText" xml:space="preserve">
     <value>确定</value>
@@ -668,5 +668,107 @@
   </data>
   <data name="UpdateLogDialog.Title" xml:space="preserve">
     <value>最近更新</value>
+  </data>
+  <data name="CropperPageAlphaSlider.Header" xml:space="preserve">
+    <value>对比度</value>
+  </data>
+  <data name="CropperPageAspButton.Text" xml:space="preserve">
+    <value>纵横比</value>
+  </data>
+  <data name="CropperPageBackButton.Content" xml:space="preserve">
+    <value>返回</value>
+  </data>
+  <data name="CropperPageBetaSlider.Header" xml:space="preserve">
+    <value>亮度</value>
+  </data>
+  <data name="CropperPageCropperOptionTitle.Text" xml:space="preserve">
+    <value>裁剪选项</value>
+  </data>
+  <data name="CropperPageFilterTitle.Text" xml:space="preserve">
+    <value>图像滤镜</value>
+  </data>
+  <data name="CropperPageFlipButton.Text" xml:space="preserve">
+    <value>翻转</value>
+  </data>
+  <data name="CropperPageImageAdjustTitle.Text" xml:space="preserve">
+    <value>图像调整</value>
+  </data>
+  <data name="CropperPageResetButton.Text" xml:space="preserve">
+    <value>重置操作</value>
+  </data>
+  <data name="CropperPageRotateButton.Text" xml:space="preserve">
+    <value>旋转</value>
+  </data>
+  <data name="CropperPageSaveAsButton.Text" xml:space="preserve">
+    <value>保存副本</value>
+  </data>
+  <data name="CropperPageSaveButton.Text" xml:space="preserve">
+    <value>覆盖并保存</value>
+  </data>
+  <data name="CropperPageSavingTips.Text" xml:space="preserve">
+    <value>正在保存...</value>
+  </data>
+  <data name="PhotoViewerAdjustButton.Label" xml:space="preserve">
+    <value>编辑</value>
+  </data>
+  <data name="PhotoViewerDeleteButton.Label" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="PhotoViewerLoadingCache.Text" xml:space="preserve">
+    <value>正在加载图像缓存...</value>
+  </data>
+  <data name="PhotoViewerRotateButton.Label" xml:space="preserve">
+    <value>旋转</value>
+  </data>
+  <data name="PhotoViewerSaveTips.Text" xml:space="preserve">
+    <value>保存中...</value>
+  </data>
+  <data name="PhotoViewerTranscodeButton.Label" xml:space="preserve">
+    <value>转码</value>
+  </data>
+  <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
+    <value>缩放</value>
+  </data>
+  <data name="TranscodeImageDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="TranscodeImageDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="TranscodeImageDialog.Title" xml:space="preserve">
+    <value>转码</value>
+  </data>
+  <data name="TranscodeImageDialogEnableScale.Content" xml:space="preserve">
+    <value>启用图片缩放</value>
+  </data>
+  <data name="TranscodeImageDialogFormat.Header" xml:space="preserve">
+    <value>目标格式</value>
+  </data>
+  <data name="TranscodeImageDialogPickLocationButton.Content" xml:space="preserve">
+    <value>选择保存位置</value>
+  </data>
+  <data name="TranscodeImageDialogScale.Header" xml:space="preserve">
+    <value>缩放百分比</value>
+  </data>
+  <data name="TranscodeImageDialogTips.Subtitle" xml:space="preserve">
+    <value>请指定保存位置</value>
+  </data>
+  <data name="TranscodeImageDialogTips.Title" xml:space="preserve">
+    <value>提示</value>
+  </data>
+  <data name="TranscodeImageDialogZoomMode.Header" xml:space="preserve">
+    <value>缩放模式</value>
+  </data>
+  <data name="SettingUpdateLogButton.Content" xml:space="preserve">
+    <value>查看更新日志</value>
+  </data>
+  <data name="SettingClearHistoryFlyoutCancelButton.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="SettingClearHistoryFlyoutContent.Text" xml:space="preserve">
+    <value>搜索历史记录将被清除，是否继续？</value>
+  </data>
+  <data name="SettingClearHistoryFlyoutContinueButton.Content" xml:space="preserve">
+    <value>继续</value>
   </data>
 </root>

@@ -1,62 +1,133 @@
-﻿<Page
-    x:Class="FileManager.FilePresenter"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:FileManager"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:controls1="using:Microsoft.UI.Xaml.Controls"
-    mc:Ignorable="d"
-    NavigationCacheMode="Required"
-    Background="{StaticResource NavigationViewTopPaneBackground}">
+﻿<Page x:Class="FileManager.FilePresenter"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:FileManager"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:controls1="using:Microsoft.UI.Xaml.Controls"
+      mc:Ignorable="d"
+      NavigationCacheMode="Required"
+      Background="{StaticResource NavigationViewTopPaneBackground}">
 
     <Page.Resources>
         <local:SizeDisplayConverter x:Key="StateConverter" />
 
-        <CommandBarFlyout x:Name="CommandsFlyout" Placement="RightEdgeAlignedTop">
-            <AppBarButton Icon="Copy" ToolTipService.ToolTip="复制" Name="Copy" x:Uid="FileCopy" Click="Copy_Click"/>
-            <AppBarButton Icon="Cut" ToolTipService.ToolTip="剪切" x:Uid="FileCut" Click="Cut_Click" Name="Cut"/>
-            <AppBarButton Icon="Delete" ToolTipService.ToolTip="删除" x:Uid="FileDelete" x:Name="DeleteButton" Click="Delete_Click"/>
+        <CommandBarFlyout x:Name="CommandsFlyout"
+                          Placement="RightEdgeAlignedTop">
+            <AppBarButton Icon="Copy"
+                          ToolTipService.ToolTip="复制"
+                          Name="Copy"
+                          x:Uid="FileCopy"
+                          Click="Copy_Click" />
+            <AppBarButton Icon="Cut"
+                          ToolTipService.ToolTip="剪切"
+                          x:Uid="FileCut"
+                          Click="Cut_Click"
+                          Name="Cut" />
+            <AppBarButton Icon="Delete"
+                          ToolTipService.ToolTip="删除"
+                          x:Uid="FileDelete"
+                          x:Name="DeleteButton"
+                          Click="Delete_Click" />
             <CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Edit" Label="重命名" x:Uid="FileRename" Click="Rename_Click"/>
-                <AppBarButton Icon="ProtectedDocument" x:Uid="FileAES" Name="AES" Label="AES加密" Click="AES_Click"/>
-                <AppBarButton Icon="Share" x:Uid="FileShare" Label="共享">
+                <AppBarButton Icon="Edit"
+                              Label="重命名"
+                              x:Uid="FileRename"
+                              Click="Rename_Click" />
+                <AppBarButton Icon="ProtectedDocument"
+                              x:Uid="FileAES"
+                              Name="AES"
+                              Label="AES加密"
+                              Click="AES_Click" />
+                <AppBarButton Icon="Share"
+                              x:Uid="FileShare"
+                              Label="共享">
                     <AppBarButton.Flyout>
                         <MenuFlyout Placement="Right">
-                            <MenuFlyoutItem Text="WIFI共享" x:Uid="WIFIShare" Name="WIFIShare" Click="WIFIShare_Click">
+                            <MenuFlyoutItem Text="WIFI共享"
+                                            x:Uid="WIFIShare"
+                                            Name="WIFIShare"
+                                            Click="WIFIShare_Click">
                                 <MenuFlyoutItem.Icon>
-                                    <FontIcon Glyph="&#xE701;"/>
+                                    <FontIcon Glyph="&#xE701;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
-                            <MenuFlyoutItem Text="蓝牙共享" x:Uid="BluetoothShare" Click="BluetoothShare_Click">
+                            <MenuFlyoutItem Text="蓝牙共享"
+                                            x:Uid="BluetoothShare"
+                                            Click="BluetoothShare_Click">
                                 <MenuFlyoutItem.Icon>
-                                    <FontIcon Glyph="&#xE702;"/>
+                                    <FontIcon Glyph="&#xE702;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
-                <AppBarButton Icon="Bookmarks" x:Name="Zip" x:Uid="Zip" Label="Zip压缩" Click="Zip_Click"/>
-                <AppBarButton Icon="Switch" Name="Transcode" x:Uid="Transcode" Label="媒体转码" IsEnabled="False" Click="Transcode_Click"/>
-                <AppBarButton Icon="Tag" Name="Attribute" x:Uid="FileAttribute" Label="属性" Click="Attribute_Click"/>
+                <AppBarButton Icon="Bookmarks"
+                              x:Name="Zip"
+                              x:Uid="Zip"
+                              Label="Zip压缩"
+                              Click="Zip_Click" />
+                <AppBarButton Icon="Switch"
+                              Name="Transcode"
+                              x:Uid="Transcode"
+                              Label="媒体转码"
+                              IsEnabled="False"
+                              Click="Transcode_Click" />
+                <AppBarButton Icon="Tag"
+                              Name="Attribute"
+                              x:Uid="FileAttribute"
+                              Label="属性"
+                              Click="Attribute_Click" />
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
-        <CommandBarFlyout x:Name="FolderFlyout" Placement="RightEdgeAlignedTop">
+        <CommandBarFlyout x:Name="FolderFlyout"
+                          Placement="RightEdgeAlignedTop">
             <CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="BackToWindow" Label="打开" x:Uid="FolderOpen" x:Name="FolderOpen" Click="FolderOpen_Click"/>
-                <AppBarButton Icon="Edit" Label="重命名" x:Uid="FolderRename" x:Name="FolderRename" Click="FolderRename_Click"/>
-                <AppBarButton Icon="Delete" Label="删除" x:Uid="FolderDelete" x:Name="FolderDelete" Click="FolderDelete_Click"/>
-                <AppBarButton Icon="Tag" Label="属性" x:Uid="FolderAttribute" x:Name="FolderAttribute" Click="FolderAttribute_Click"/>
+                <AppBarButton Icon="BackToWindow"
+                              Label="打开"
+                              x:Uid="FolderOpen"
+                              x:Name="FolderOpen"
+                              Click="FolderOpen_Click" />
+                <AppBarButton Icon="Edit"
+                              Label="重命名"
+                              x:Uid="FolderRename"
+                              x:Name="FolderRename"
+                              Click="FolderRename_Click" />
+                <AppBarButton Icon="Delete"
+                              Label="删除"
+                              x:Uid="FolderDelete"
+                              x:Name="FolderDelete"
+                              Click="FolderDelete_Click" />
+                <AppBarButton Icon="Tag"
+                              Label="属性"
+                              x:Uid="FolderAttribute"
+                              x:Name="FolderAttribute"
+                              Click="FolderAttribute_Click" />
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
-        <CommandBarFlyout x:Name="EmptyFlyout" Placement="RightEdgeAlignedTop">
-            <AppBarButton Icon="Paste" x:Uid="FilePaste" ToolTipService.ToolTip="{x:Bind Paste.Label}" Label="粘贴" IsEnabled="False" Click="Paste_Click" Name="Paste"/>
+        <CommandBarFlyout x:Name="EmptyFlyout"
+                          Placement="RightEdgeAlignedTop">
+            <AppBarButton Icon="Paste"
+                          x:Uid="FilePaste"
+                          ToolTipService.ToolTip="{x:Bind Paste.Label}"
+                          Label="粘贴"
+                          IsEnabled="False"
+                          Click="Paste_Click"
+                          Name="Paste" />
             <CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="BackToWindow" Label="使用系统管理器打开" x:Uid="SystemManagerOpen" x:Name="UseSystemFileMananger" Click="UseSystemFileMananger_Click"/>
-                <AppBarButton Icon="Tag" Label="文件夹属性" x:Uid="ParentAttribute" x:Name="ParentAttribute" Click="ParentAttribute_Click"/>
+                <AppBarButton Icon="BackToWindow"
+                              Label="使用系统管理器打开"
+                              x:Uid="SystemManagerOpen"
+                              x:Name="UseSystemFileMananger"
+                              Click="UseSystemFileMananger_Click" />
+                <AppBarButton Icon="Tag"
+                              Label="文件夹属性"
+                              x:Uid="ParentAttribute"
+                              x:Name="ParentAttribute"
+                              Click="ParentAttribute_Click" />
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
@@ -65,16 +136,16 @@
     <Grid AllowDrop="True">
         <Grid.Transitions>
             <TransitionCollection>
-                <PaneThemeTransition Edge="Right"/>
+                <PaneThemeTransition Edge="Right" />
             </TransitionCollection>
         </Grid.Transitions>
-        <GridView Name="GridViewControl" 
+        <GridView Name="GridViewControl"
                   Margin="5,0,0,0"
-                  HorizontalAlignment="Stretch" 
-                  VerticalAlignment="Stretch" 
-                  PointerPressed="GridViewControl_PointerPressed" 
-                  RightTapped="GridViewControl_RightTapped" 
-                  SelectionChanged="GridViewControl_SelectionChanged" 
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  PointerPressed="GridViewControl_PointerPressed"
+                  RightTapped="GridViewControl_RightTapped"
+                  SelectionChanged="GridViewControl_SelectionChanged"
                   SelectionMode="Single"
                   CanDrag="True"
                   CanReorderItems="False"
@@ -90,19 +161,39 @@
                   DragItemsStarting="GridViewControl_DragItemsStarting">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="local:FileSystemStorageItem">
-                    <StackPanel Width="250" Padding="12" Orientation="Horizontal" AllowDrop="True">
-                        <Image IsHitTestVisible="False" VerticalAlignment="Center" Stretch="Uniform" Source="{x:Bind Thumbnail,Mode=OneWay}" Margin="0,5,5,0" Height="60" Width="60"/>
-                        <StackPanel AllowDrop="True" Orientation="Vertical">
-                            <TextBlock IsHitTestVisible="False" Text="{x:Bind DisplayName,Mode=OneWay}" FontSize="17" Width="170" TextTrimming="CharacterEllipsis"/>
-                            <TextBlock IsHitTestVisible="False" Text="{x:Bind DisplayType}" FontSize="15"/>
-                            <TextBlock IsHitTestVisible="False" Text="{x:Bind Size,Mode=OneWay}" Visibility="{x:Bind Folder,Converter={StaticResource StateConverter}}" FontSize="15"/>
+                    <StackPanel Width="250"
+                                Padding="12"
+                                Orientation="Horizontal"
+                                AllowDrop="True">
+                        <Image IsHitTestVisible="False"
+                               VerticalAlignment="Center"
+                               Stretch="Uniform"
+                               Source="{x:Bind Thumbnail,Mode=OneWay}"
+                               Margin="0,5,5,0"
+                               Height="60"
+                               Width="60" />
+                        <StackPanel AllowDrop="True"
+                                    Orientation="Vertical">
+                            <TextBlock IsHitTestVisible="False"
+                                       Text="{x:Bind DisplayName,Mode=OneWay}"
+                                       FontSize="17"
+                                       Width="170"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock IsHitTestVisible="False"
+                                       Text="{x:Bind DisplayType}"
+                                       FontSize="15" />
+                            <TextBlock IsHitTestVisible="False"
+                                       Text="{x:Bind Size,Mode=OneWay}"
+                                       Visibility="{x:Bind Folder,Converter={StaticResource StateConverter}}"
+                                       FontSize="15" />
                         </StackPanel>
                     </StackPanel>
                 </DataTemplate>
             </GridView.ItemTemplate>
             <GridView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <ItemsWrapGrid MaximumRowsOrColumns="6" Orientation="Horizontal" HorizontalAlignment="Stretch"/>
+                    <ItemsWrapGrid Orientation="Horizontal"
+                                   HorizontalAlignment="Stretch" />
                 </ItemsPanelTemplate>
             </GridView.ItemsPanel>
             <GridView.ItemContainerTransitions>
@@ -111,7 +202,15 @@
                 </TransitionCollection>
             </GridView.ItemContainerTransitions>
         </GridView>
-        <TextBlock Name="HasFile" x:FieldModifier="public" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" x:Uid="HasFile" Text="无文件" FontSize="25" Visibility="Visible"/>
+        <TextBlock Name="HasFile"
+                   x:FieldModifier="public"
+                   Grid.RowSpan="2"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   x:Uid="HasFile"
+                   Text="无文件"
+                   FontSize="25"
+                   Visibility="Visible" />
         <controls1:TeachingTip PreferredPlacement="Auto"
                                Title="WIFI分享"
                                x:Uid="WIFIShareTip"
@@ -119,31 +218,59 @@
                                Closed="QRTeachTip_Closed"
                                Name="QRTeachTip">
             <controls1:TeachingTip.HeroContent>
-                <Image Stretch="UniformToFill" Name="QRImage"/>
+                <Image Stretch="UniformToFill"
+                       Name="QRImage" />
             </controls1:TeachingTip.HeroContent>
             <controls1:TeachingTip.Content>
                 <StackPanel HorizontalAlignment="Center">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBox VerticalAlignment="Center" Name="QRText" x:Uid="QRText" IsSpellCheckEnabled="False" IsReadOnly="True" Header="复制此链接至浏览器即可下载" Width="245"/>
-                        <Button VerticalAlignment="Bottom" Margin="5,0,0,0" Name="CopyLinkButton" Click="CopyLinkButton_Click">
-                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8C8;"/>
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
+                        <TextBox VerticalAlignment="Center"
+                                 Name="QRText"
+                                 x:Uid="QRText"
+                                 IsSpellCheckEnabled="False"
+                                 IsReadOnly="True"
+                                 Header="复制此链接至浏览器即可下载"
+                                 Width="245" />
+                        <Button VerticalAlignment="Bottom"
+                                Margin="5,0,0,0"
+                                Name="CopyLinkButton"
+                                Click="CopyLinkButton_Click">
+                            <FontIcon FontFamily="Segoe MDL2 Assets"
+                                      Glyph="&#xE8C8;" />
                         </Button>
                     </StackPanel>
-                    <TextBlock Margin="0,10,0,0" x:Uid="WIFIShareText" Text="传输过程中请勿关闭此窗口，否则将停止分享"/>
+                    <TextBlock Margin="0,10,0,0"
+                               x:Uid="WIFIShareText"
+                               Text="传输过程中请勿关闭此窗口，否则将停止分享" />
                 </StackPanel>
             </controls1:TeachingTip.Content>
         </controls1:TeachingTip>
-        <controls:Loading x:Name="LoadingControl" IsLoading="False" Grid.Column="2" Grid.RowSpan="2">
+        <controls:Loading x:Name="LoadingControl"
+                          IsLoading="False"
+                          Grid.Column="2"
+                          Grid.RowSpan="2">
             <controls:Loading.Background>
-                <SolidColorBrush Color="Black" Opacity="0.5"/>
+                <SolidColorBrush Color="Black"
+                                 Opacity="0.5" />
             </controls:Loading.Background>
-            <StackPanel Orientation="Horizontal" Padding="12">
+            <StackPanel Orientation="Horizontal"
+                        Padding="12">
                 <Grid Margin="0,0,15,0">
-                    <ProgressRing Name="ProRing" IsActive="True" Foreground="White" Height="30" Width="30" />
+                    <ProgressRing Name="ProRing"
+                                  IsActive="True"
+                                  Foreground="White"
+                                  Height="30"
+                                  Width="30" />
                 </Grid>
                 <StackPanel>
-                    <TextBlock Name="ProgressInfo" FontSize="25" Foreground="White" VerticalAlignment="Center" TextAlignment="Center"/>
-                    <ProgressBar Name="ProBar" Margin="0,10,0,0"/>
+                    <TextBlock Name="ProgressInfo"
+                               FontSize="25"
+                               Foreground="White"
+                               VerticalAlignment="Center"
+                               TextAlignment="Center" />
+                    <ProgressBar Name="ProBar"
+                                 Margin="0,10,0,0" />
                 </StackPanel>
             </StackPanel>
         </controls:Loading>

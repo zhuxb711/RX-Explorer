@@ -1,4 +1,4 @@
-﻿<ContentDialog
+﻿<local:QueueContentDialog
     x:Class="FileManager.BluetoothFileTransfer"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -9,11 +9,11 @@
     Title="正在初始化"
     x:Uid="BluetoothTranfer"
     SecondaryButtonText="中止"
-    SecondaryButtonClick="ContentDialog_SecondaryButtonClick"
+    SecondaryButtonClick="QueueContentDialog_SecondaryButtonClick"
     Background="{StaticResource DialogAcrylicBrush}">
 
     <StackPanel Orientation="Vertical">
         <ProgressBar Name="ProgressControl" Height="15"/>
         <TextBlock HorizontalAlignment="Left" Name="ProgressText" Width="270" TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
     </StackPanel>
-</ContentDialog>
+</local:QueueContentDialog>

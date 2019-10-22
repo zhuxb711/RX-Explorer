@@ -5,7 +5,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace FileManager
 {
-    public sealed partial class AttributeDialog : ContentDialog, INotifyPropertyChanged
+    public sealed partial class AttributeDialog : QueueContentDialog, INotifyPropertyChanged
     {
         public string FileName { get; private set; }
 
