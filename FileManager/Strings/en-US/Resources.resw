@@ -288,6 +288,9 @@
   <data name="FileDelete.ToolTipService.ToolTip" xml:space="preserve">
     <value>Delete</value>
   </data>
+  <data name="FileOpen" xml:space="preserve">
+    <value>Open</value>
+  </data>
   <data name="FilePaste.Label" xml:space="preserve">
     <value>Paste</value>
   </data>

@@ -31,6 +31,11 @@
                           x:Name="DeleteButton"
                           Click="Delete_Click" />
             <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="BackToWindow"
+                              Label="打开"
+                              x:Uid="FileOpen"
+                              x:Name="FileOpen"
+                              Click="FileOpen_Click"/>
                 <AppBarButton Icon="Edit"
                               Label="重命名"
                               x:Uid="FileRename"

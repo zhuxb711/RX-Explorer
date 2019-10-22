@@ -2081,6 +2081,73 @@ namespace FileManager
             AttributeDialog Dialog = new AttributeDialog(FileControl.ThisPage.CurrentFolder);
             _ = await Dialog.ShowAsync();
         }
+
+        private async void FileOpen_Click(object sender, RoutedEventArgs e)
+        {
+            if (GridViewControl.SelectedItem is FileSystemStorageItem ReFile && ReFile.ContentType == ContentType.File)
+            {
+                switch (ReFile.File.FileType)
+                {
+                    case ".zip":
+                        Nav.Navigate(typeof(ZipExplorer), ReFile, new DrillInNavigationTransitionInfo());
+                        break;
+                    case ".jpg":
+                    case ".png":
+                    case ".bmp":
+                        Nav.Navigate(typeof(PhotoViewer), ReFile.File.FolderRelativeId, new DrillInNavigationTransitionInfo());
+                        break;
+                    case ".mkv":
+                    case ".mp4":
+                    case ".mp3":
+                    case ".flac":
+                    case ".wma":
+                    case ".wmv":
+                    case ".m4a":
+                    case ".mov":
+                    case ".alac":
+                        Nav.Navigate(typeof(MediaPlayer), ReFile.File, new DrillInNavigationTransitionInfo());
+                        break;
+                    case ".txt":
+                        Nav.Navigate(typeof(TextViewer), ReFile, new DrillInNavigationTransitionInfo());
+                        break;
+                    case ".pdf":
+                        Nav.Navigate(typeof(PdfReader), ReFile.File, new DrillInNavigationTransitionInfo());
+                        break;
+                    default:
+                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = "提示",
+                                Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
+                                PrimaryButtonText = "默认应用打开",
+                                CloseButtonText = "取消",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                            {
+                                _ = await Launcher.LaunchFileAsync(ReFile.File);
+                            }
+                        }
+                        else
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = "Tips",
+                                Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
+                                PrimaryButtonText = "Open with default app",
+                                CloseButtonText = "Cancel",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                            {
+                                _ = await Launcher.LaunchFileAsync(ReFile.File);
+                            }
+                        }
+                        break;
+                }
+            }
+        }
     }
 }
 

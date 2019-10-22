@@ -771,4 +771,7 @@
   <data name="SettingClearHistoryFlyoutContinueButton.Content" xml:space="preserve">
     <value>继续</value>
   </data>
+  <data name="FileOpen" xml:space="preserve">
+    <value>打开</value>
+  </data>
 </root>
