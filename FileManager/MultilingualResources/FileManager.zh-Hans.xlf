@@ -1022,6 +1022,14 @@
           <source>Open</source>
           <target state="translated">打开</target>
         </trans-unit>
+        <trans-unit id="CropperPageAutoOptimizeButton.Text" translate="yes" xml:space="preserve">
+          <source>Auto Optimize</source>
+          <target state="translated">自动优化</target>
+        </trans-unit>
+        <trans-unit id="CropperPageHistogram.Text" translate="yes" xml:space="preserve">
+          <source>Color distribution</source>
+          <target state="translated">色阶分布</target>
+        </trans-unit>
       </group>
     </body>
   </file>

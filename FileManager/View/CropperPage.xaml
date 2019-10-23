@@ -19,6 +19,11 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <AddDeleteThemeTransition />
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
         <controls:ImageCropper Name="Cropper"
                                CropShape="Rectangular"
                                ThumbPlacement="Corners"
@@ -144,6 +149,25 @@
                           StrokeThickness="2"
                           Stroke="DarkGray" />
 
+                    <Button Style="{ThemeResource ButtonRevealStyle}"
+                            Background="{ThemeResource ButtonPointerOverBackgroundThemeBrush}"
+                            HorizontalAlignment="Center"
+                            Name="AutoOptimizeButton"
+                            Margin="0,10,0,0"
+                            Width="260"
+                            Height="40"
+                            Click="AutoOptimizeButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Height="14"
+                                     Margin="0,2,0,0">
+                                <FontIcon Glyph="&#xEBD2;"/>
+                            </Viewbox>
+                            <TextBlock Margin="5,0,0,0"
+                                       x:Uid="CropperPageAutoOptimizeButton"
+                                       Text="自动优化"/>
+                        </StackPanel>
+                    </Button>
+
                     <Slider x:Name="AlphaSlider"
                             ThumbToolTipValueConverter="{StaticResource AlphaSliderConverter}"
                             Maximum="2"
@@ -180,9 +204,7 @@
                           Stroke="DarkGray" />
 
                     <GridView x:Name="FilterGrid"
-                              IsItemClickEnabled="True"
                               ItemsSource="{x:Bind FilterCollection}"
-                              ItemClick="FilterGrid_ItemClick"
                               HorizontalAlignment="Center"
                               Width="260"
                               Margin="0,20,0,0">
@@ -216,6 +238,24 @@
                             </TransitionCollection>
                         </GridView.ItemContainerTransitions>
                     </GridView>
+
+                    <TextBlock Text="色阶分布"
+                               x:Uid="CropperPageHistogram"
+                               FontSize="20"
+                               Margin="0,30,0,0"
+                               HorizontalAlignment="Center" />
+                    <Line X1="10"
+                          X2="290"
+                          Y1="10"
+                          Y2="10"
+                          StrokeThickness="2"
+                          Stroke="DarkGray" />
+                    <Image Margin="0,20,0,0"
+                           Width="250"
+                           Height="250"
+                           Name="HistogramImage"
+                           Stretch="Uniform" />
+
                 </StackPanel>
             </ScrollViewer>
             <StackPanel HorizontalAlignment="Center"
@@ -262,7 +302,7 @@
                           Grid.ColumnSpan="2">
             <controls:Loading.Background>
                 <SolidColorBrush Color="Black"
-                                 Opacity="0.7" />
+                                 Opacity="0.55" />
             </controls:Loading.Background>
             <StackPanel Orientation="Horizontal"
                         Padding="12">

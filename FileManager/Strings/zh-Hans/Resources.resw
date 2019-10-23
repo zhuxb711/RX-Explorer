@@ -774,4 +774,10 @@
   <data name="FileOpen" xml:space="preserve">
     <value>打开</value>
   </data>
+  <data name="CropperPageAutoOptimizeButton.Text" xml:space="preserve">
+    <value>自动优化</value>
+  </data>
+  <data name="CropperPageHistogram.Text" xml:space="preserve">
+    <value>色阶分布</value>
+  </data>
 </root>

@@ -36,8 +36,20 @@ namespace OpenCV
 		static void SepiaEffect(SoftwareBitmap^ input, SoftwareBitmap^ output);
 
 		static void OilPaintingEffect(SoftwareBitmap^ input, SoftwareBitmap^ output);
+
+		static void CalculateHistogram(SoftwareBitmap^ input, SoftwareBitmap^ output);
+
+		static void AutoColorLevel(SoftwareBitmap^ input, SoftwareBitmap^ output);
+
+		static void AutoWhiteBalance(SoftwareBitmap^ input, SoftwareBitmap^ output);
+
+		static void MosaicEffect(SoftwareBitmap^ input, SoftwareBitmap^ output);
 	private:
 		OpenCVLibrary();
+
+		static Mat RGB2YCbCr(Mat src);
+
+		static Mat YCbCr2RGB(Mat src);
 
 		static bool GetPointerToPixelData(SoftwareBitmap^ bitmap, unsigned char** pPixelData, unsigned int* capacity);
 

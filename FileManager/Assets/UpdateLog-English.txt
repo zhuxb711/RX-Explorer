@@ -1,4 +1,10 @@
-﻿###What's new in Ver.3.1.0.0
+﻿###What's new in Ver.3.1.5.0
+
+>#####Image viewer adds "automatic optimization" function and new filter "mosaic"
+
+>#####Add real-time "gradation distribution" analysis function when editing pictures
+
+###What's new in Ver.3.1.0.0
 
 >#####Comprehensively improved the picture viewer module, now supports image rotation, flipping, zooming, cropping, brightness, contrast, filters, etc.
 

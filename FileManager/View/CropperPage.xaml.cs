@@ -9,7 +9,6 @@ using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
@@ -91,6 +90,11 @@ namespace FileManager
             SoftwareBitmapSource Source8 = new SoftwareBitmapSource();
             await Source8.SetBitmapAsync(Bitmap8);
 
+            SoftwareBitmap Bitmap9 = SoftwareBitmap.Copy(Bitmap1);
+            OpenCV.OpenCVLibrary.MosaicEffect(Bitmap9, Bitmap9);
+            SoftwareBitmapSource Source9 = new SoftwareBitmapSource();
+            await Source9.SetBitmapAsync(Bitmap9);
+
             SoftwareBitmap Bitmap5 = SoftwareBitmap.Copy(Bitmap1);
             WriteableBitmap WBitmap2 = new WriteableBitmap(Bitmap5.PixelWidth, Bitmap5.PixelHeight);
             Bitmap5.CopyToBuffer(WBitmap2.PixelBuffer);
@@ -108,6 +112,7 @@ namespace FileManager
             OpenCV.OpenCVLibrary.OilPaintingEffect(Bitmap7, Bitmap7);
             SoftwareBitmapSource Source7 = new SoftwareBitmapSource();
             await Source7.SetBitmapAsync(Bitmap7);
+
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
                 FilterCollection.Add(new FilterItem(Source1, "原图", FilterType.Origin));
@@ -115,6 +120,7 @@ namespace FileManager
                 FilterCollection.Add(new FilterItem(Source3, "灰度", FilterType.Gray));
                 FilterCollection.Add(new FilterItem(Source4, "黑白", FilterType.Threshold));
                 FilterCollection.Add(new FilterItem(Source8, "怀旧", FilterType.Sepia));
+                FilterCollection.Add(new FilterItem(Source9, "马赛克", FilterType.Mosaic));
                 FilterCollection.Add(new FilterItem(Source5, "素描", FilterType.Sketch));
                 FilterCollection.Add(new FilterItem(Source6, "模糊", FilterType.GaussianBlur));
                 FilterCollection.Add(new FilterItem(Source7, "油画", FilterType.OilPainting));
@@ -126,12 +132,20 @@ namespace FileManager
                 FilterCollection.Add(new FilterItem(Source3, "Gray", FilterType.Gray));
                 FilterCollection.Add(new FilterItem(Source4, "Binary", FilterType.Threshold));
                 FilterCollection.Add(new FilterItem(Source8, "Sepia", FilterType.Sepia));
+                FilterCollection.Add(new FilterItem(Source9, "Mosaic", FilterType.Mosaic));
                 FilterCollection.Add(new FilterItem(Source5, "Sketch", FilterType.Sketch));
                 FilterCollection.Add(new FilterItem(Source6, "Blurry", FilterType.GaussianBlur));
                 FilterCollection.Add(new FilterItem(Source7, "OilPainting", FilterType.OilPainting));
             }
 
             FilterGrid.SelectedIndex = 0;
+            FilterGrid.SelectionChanged += FilterGrid_SelectionChanged;
+
+            SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied);
+            OpenCV.OpenCVLibrary.CalculateHistogram(OriginImage, Histogram);
+            SoftwareBitmapSource Source = new SoftwareBitmapSource();
+            await Source.SetBitmapAsync(Histogram);
+            HistogramImage.Source = Source;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -147,6 +161,8 @@ namespace FileManager
             OriginBackupImage = null;
             OriginImage = null;
             OriginFile = null;
+            HistogramImage.Source = null;
+            FilterGrid.SelectionChanged -= FilterGrid_SelectionChanged;
 
             foreach (FilterItem Item in FilterCollection)
             {
@@ -241,6 +257,14 @@ namespace FileManager
             OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
             Cropper.Source = WBitmap;
 
+            using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+            {
+                OpenCV.OpenCVLibrary.CalculateHistogram(OriginImage, Histogram);
+                WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
+                Histogram.CopyToBuffer(HBitmap.PixelBuffer);
+                HistogramImage.Source = HBitmap;
+            }
+
             FilterImage?.Dispose();
             FilterImage = null;
             FilterBackupImage?.Dispose();
@@ -248,9 +272,9 @@ namespace FileManager
 
             AlphaSlider.ValueChanged -= AlphaSlider_ValueChanged;
             BetaSlider.ValueChanged -= BetaSlider_ValueChanged;
-            FilterGrid.IsItemClickEnabled = false;
+            FilterGrid.SelectionChanged -= FilterGrid_SelectionChanged;
             FilterGrid.SelectedIndex = 0;
-            FilterGrid.IsItemClickEnabled = true;
+            FilterGrid.SelectionChanged += FilterGrid_SelectionChanged;
             AlphaSlider.Value = 1;
             BetaSlider.Value = 0;
             AlphaSlider.ValueChanged += AlphaSlider_ValueChanged;
@@ -405,6 +429,14 @@ namespace FileManager
                     WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
                     OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
                     Cropper.Source = WBitmap;
+
+                    using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+                    {
+                        OpenCV.OpenCVLibrary.CalculateHistogram(OriginImage, Histogram);
+                        WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
+                        Histogram.CopyToBuffer(HBitmap.PixelBuffer);
+                        HistogramImage.Source = HBitmap;
+                    }
                 }
                 else
                 {
@@ -412,6 +444,14 @@ namespace FileManager
                     WriteableBitmap WBitmap = new WriteableBitmap(FilterImage.PixelWidth, FilterImage.PixelHeight);
                     FilterImage.CopyToBuffer(WBitmap.PixelBuffer);
                     Cropper.Source = WBitmap;
+
+                    using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+                    {
+                        OpenCV.OpenCVLibrary.CalculateHistogram(FilterImage, Histogram);
+                        WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
+                        Histogram.CopyToBuffer(HBitmap.PixelBuffer);
+                        HistogramImage.Source = HBitmap;
+                    }
                 }
             }
         }
@@ -427,6 +467,14 @@ namespace FileManager
                     WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
                     OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
                     Cropper.Source = WBitmap;
+
+                    using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+                    {
+                        OpenCV.OpenCVLibrary.CalculateHistogram(OriginImage, Histogram);
+                        WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
+                        Histogram.CopyToBuffer(HBitmap.PixelBuffer);
+                        HistogramImage.Source = HBitmap;
+                    }
                 }
                 else
                 {
@@ -434,13 +482,59 @@ namespace FileManager
                     WriteableBitmap WBitmap = new WriteableBitmap(FilterImage.PixelWidth, FilterImage.PixelHeight);
                     FilterImage.CopyToBuffer(WBitmap.PixelBuffer);
                     Cropper.Source = WBitmap;
+
+                    using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+                    {
+                        OpenCV.OpenCVLibrary.CalculateHistogram(FilterImage, Histogram);
+                        WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
+                        Histogram.CopyToBuffer(HBitmap.PixelBuffer);
+                        HistogramImage.Source = HBitmap;
+                    }
                 }
             }
         }
 
-        private void FilterGrid_ItemClick(object sender, ItemClickEventArgs e)
+        private void AutoOptimizeButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            if (e.ClickedItem is FilterItem Item)
+            if (FilterImage != null)
+            {
+                FilterImage.Dispose();
+                FilterImage = null;
+                FilterBackupImage.Dispose();
+                FilterBackupImage = null;
+            }
+
+            AlphaSlider.ValueChanged -= AlphaSlider_ValueChanged;
+            BetaSlider.ValueChanged -= BetaSlider_ValueChanged;
+            AlphaSlider.Value = 1;
+            BetaSlider.Value = 0;
+            AlphaSlider.ValueChanged += AlphaSlider_ValueChanged;
+            BetaSlider.ValueChanged += BetaSlider_ValueChanged;
+
+            FilterImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, OriginImage.PixelWidth, OriginImage.PixelHeight, BitmapAlphaMode.Premultiplied);
+
+            OpenCV.OpenCVLibrary.AutoColorLevel(OriginImage, FilterImage);
+            OpenCV.OpenCVLibrary.AutoWhiteBalance(FilterImage, FilterImage);
+
+            FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
+            WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
+            FilterImage.CopyToBuffer(WBitmap.PixelBuffer);
+            Cropper.Source = WBitmap;
+
+            using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+            {
+                OpenCV.OpenCVLibrary.CalculateHistogram(FilterImage, Histogram);
+                WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
+                Histogram.CopyToBuffer(HBitmap.PixelBuffer);
+                HistogramImage.Source = HBitmap;
+            }
+
+            ResetButton.IsEnabled = true;
+        }
+
+        private void FilterGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (FilterGrid.SelectedItem is FilterItem Item)
             {
                 if (FilterImage != null)
                 {
@@ -466,7 +560,16 @@ namespace FileManager
 
                             Cropper.Source = WBitmap;
 
-                            break;
+                            using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+                            {
+                                OpenCV.OpenCVLibrary.CalculateHistogram(OriginImage, Histogram);
+                                WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
+                                Histogram.CopyToBuffer(HBitmap.PixelBuffer);
+                                HistogramImage.Source = HBitmap;
+                            }
+
+                            ResetButton.IsEnabled = true;
+                            return;
                         }
                     case FilterType.Invert:
                         {
@@ -553,7 +656,27 @@ namespace FileManager
 
                             break;
                         }
+                    case FilterType.Mosaic:
+                        {
+                            FilterImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, OriginImage.PixelWidth, OriginImage.PixelHeight, BitmapAlphaMode.Premultiplied);
+                            OpenCV.OpenCVLibrary.MosaicEffect(OriginImage, FilterImage);
+                            FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
+                            WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
+                            FilterImage.CopyToBuffer(WBitmap.PixelBuffer);
+                            Cropper.Source = WBitmap;
+
+                            break;
+                        }
                 }
+
+                using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+                {
+                    OpenCV.OpenCVLibrary.CalculateHistogram(FilterImage, Histogram);
+                    WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
+                    Histogram.CopyToBuffer(HBitmap.PixelBuffer);
+                    HistogramImage.Source = HBitmap;
+                }
+
                 ResetButton.IsEnabled = true;
             }
         }

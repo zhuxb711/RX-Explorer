@@ -944,7 +944,8 @@ namespace FileManager
         Sketch = 8,
         GaussianBlur = 16,
         Sepia = 32,
-        OilPainting = 64
+        Mosaic=64,
+        OilPainting = 128
     }
 
     public sealed class FilterItem : IDisposable

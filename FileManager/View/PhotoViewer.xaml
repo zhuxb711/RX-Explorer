@@ -102,7 +102,7 @@
                           Grid.RowSpan="2">
             <controls:Loading.Background>
                 <SolidColorBrush Color="Black"
-                                 Opacity="0.7" />
+                                 Opacity="0.55" />
             </controls:Loading.Background>
             <StackPanel Orientation="Horizontal"
                         Padding="12">
@@ -123,7 +123,7 @@
                           Grid.RowSpan="2">
             <controls:Loading.Background>
                 <SolidColorBrush Color="Black"
-                                 Opacity="0.7" />
+                                 Opacity="0.55" />
             </controls:Loading.Background>
             <StackPanel Orientation="Horizontal"
                         Padding="12">

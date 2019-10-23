@@ -219,6 +219,9 @@
   <data name="CropperPageAspButton.Text" xml:space="preserve">
     <value>Aspect ratio</value>
   </data>
+  <data name="CropperPageAutoOptimizeButton.Text" xml:space="preserve">
+    <value>Auto Optimize</value>
+  </data>
   <data name="CropperPageBackButton.Content" xml:space="preserve">
     <value>Back</value>
   </data>
@@ -233,6 +236,9 @@
   </data>
   <data name="CropperPageFlipButton.Text" xml:space="preserve">
     <value>Flip</value>
+  </data>
+  <data name="CropperPageHistogram.Text" xml:space="preserve">
+    <value>Color distribution</value>
   </data>
   <data name="CropperPageImageAdjustTitle.Text" xml:space="preserve">
     <value>Adjust image</value>
