@@ -780,4 +780,55 @@
   <data name="CropperPageHistogram.Text" xml:space="preserve">
     <value>色阶分布</value>
   </data>
+  <data name="SystemInfoDialog.CloseButtonText" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="SystemInfoDialog.Title" xml:space="preserve">
+    <value>系统信息</value>
+  </data>
+  <data name="SystemInfoDialogBasicInfo.Text" xml:space="preserve">
+    <value>基本信息</value>
+  </data>
+  <data name="SystemInfoDialogCPUArchitecture.Text" xml:space="preserve">
+    <value>CPU架构</value>
+  </data>
+  <data name="SystemInfoDialogCPUCache.Text" xml:space="preserve">
+    <value>CPU缓存</value>
+  </data>
+  <data name="SystemInfoDialogCPUCore.Text" xml:space="preserve">
+    <value>CPU核心</value>
+  </data>
+  <data name="SystemInfoDialogCPUFeature.Text" xml:space="preserve">
+    <value>CPU特性</value>
+  </data>
+  <data name="SystemInfoDialogCPUInfo.Text" xml:space="preserve">
+    <value>CPU信息</value>
+  </data>
+  <data name="SystemInfoDialogCPUModel.Text" xml:space="preserve">
+    <value>CPU型号</value>
+  </data>
+  <data name="SystemInfoDialogDeivceModel.Text" xml:space="preserve">
+    <value>设备型号</value>
+  </data>
+  <data name="SystemInfoDialogDeviceName.Text" xml:space="preserve">
+    <value>设备名称</value>
+  </data>
+  <data name="SystemInfoDialogGPUInfo.Text" xml:space="preserve">
+    <value>GPU信息</value>
+  </data>
+  <data name="SystemInfoDialogManufacturer.Text" xml:space="preserve">
+    <value>制造商</value>
+  </data>
+  <data name="SystemInfoDialogMemoryInfo.Text" xml:space="preserve">
+    <value>内存信息</value>
+  </data>
+  <data name="SystemInfoDialogWindowsLanguage.Text" xml:space="preserve">
+    <value>Windows语言</value>
+  </data>
+  <data name="SystemInfoDialogWindowsVersion.Text" xml:space="preserve">
+    <value>Windows版本</value>
+  </data>
+  <data name="SettingSystemInfo.Content" xml:space="preserve">
+    <value>查看系统信息</value>
+  </data>
 </root>

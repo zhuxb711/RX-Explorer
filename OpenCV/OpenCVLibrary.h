@@ -44,8 +44,11 @@ namespace OpenCV
 		static void AutoWhiteBalance(SoftwareBitmap^ input, SoftwareBitmap^ output);
 
 		static void MosaicEffect(SoftwareBitmap^ input, SoftwareBitmap^ output);
+		
 	private:
 		OpenCVLibrary();
+
+		static void Initialize();
 
 		static Mat RGB2YCbCr(Mat src);
 

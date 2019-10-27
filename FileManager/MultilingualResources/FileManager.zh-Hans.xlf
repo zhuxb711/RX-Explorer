@@ -1030,6 +1030,74 @@
           <source>Color distribution</source>
           <target state="translated">色阶分布</target>
         </trans-unit>
+        <trans-unit id="SystemInfoDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Close</source>
+          <target state="translated">关闭</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialog.Title" translate="yes" xml:space="preserve">
+          <source>System Information</source>
+          <target state="translated">系统信息</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogBasicInfo.Text" translate="yes" xml:space="preserve">
+          <source>Basic information</source>
+          <target state="translated">基本信息</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogCPUArchitecture.Text" translate="yes" xml:space="preserve">
+          <source>CPU architecture</source>
+          <target state="translated">CPU架构</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogCPUCache.Text" translate="yes" xml:space="preserve">
+          <source>CPU Cache</source>
+          <target state="translated">CPU缓存</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogCPUCore.Text" translate="yes" xml:space="preserve">
+          <source>CPU Core</source>
+          <target state="translated">CPU核心</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogCPUFeature.Text" translate="yes" xml:space="preserve">
+          <source>CPU feature</source>
+          <target state="translated">CPU特性</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogCPUInfo.Text" translate="yes" xml:space="preserve">
+          <source>CPU information</source>
+          <target state="translated">CPU信息</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogCPUModel.Text" translate="yes" xml:space="preserve">
+          <source>CPU model</source>
+          <target state="translated">CPU型号</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogDeivceModel.Text" translate="yes" xml:space="preserve">
+          <source>Device model</source>
+          <target state="translated">设备型号</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogDeviceName.Text" translate="yes" xml:space="preserve">
+          <source>Device name</source>
+          <target state="translated">设备名称</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogGPUInfo.Text" translate="yes" xml:space="preserve">
+          <source>GPU information</source>
+          <target state="translated">GPU信息</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogManufacturer.Text" translate="yes" xml:space="preserve">
+          <source>Manufacturer</source>
+          <target state="translated">制造商</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogMemoryInfo.Text" translate="yes" xml:space="preserve">
+          <source>Memory information</source>
+          <target state="translated">内存信息</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogWindowsLanguage.Text" translate="yes" xml:space="preserve">
+          <source>Windows language</source>
+          <target state="translated">Windows语言</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogWindowsVersion.Text" translate="yes" xml:space="preserve">
+          <source>Windows version</source>
+          <target state="translated">Windows版本</target>
+        </trans-unit>
+        <trans-unit id="SettingSystemInfo.Content" translate="yes" xml:space="preserve">
+          <source>System Information</source>
+          <target state="translated">查看系统信息</target>
+        </trans-unit>
       </group>
     </body>
   </file>

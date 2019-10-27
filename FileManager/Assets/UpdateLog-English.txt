@@ -1,9 +1,24 @@
-﻿###What's new in Ver.3.1.5.0
+﻿*****
+###What's new in Ver.3.1.7.0
+
+>#####Setting page to add system information viewing function
+
+>>#####Support to view system information, CPU information, memory information, GPU information, etc.
+
+>>#####If the CPU is Arm processor, the system information viewing function will not be enabled.
+
+>#####Resolved the issue of delays when clicking the View System Log button
+
+>#####Solved the problem that the language of the error report message cannot be changed following the system language
+
+*****
+###What's new in Ver.3.1.5.0
 
 >#####Image viewer adds "automatic optimization" function and new filter "mosaic"
 
 >#####Add real-time "gradation distribution" analysis function when editing pictures
 
+*****
 ###What's new in Ver.3.1.0.0
 
 >#####Comprehensively improved the picture viewer module, now supports image rotation, flipping, zooming, cropping, brightness, contrast, filters, etc.

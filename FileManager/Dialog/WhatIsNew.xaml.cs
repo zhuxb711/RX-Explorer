@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.UI.Xaml.Controls;
 
 namespace FileManager
 {
@@ -13,24 +11,18 @@ namespace FileManager
             Init();
         }
 
-        private async void Init()
+        private void Init()
         {
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese.txt"));
-                MarkDown.Text = await FileIO.ReadTextAsync(UpdateFile);
+                StorageFile UpdateFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese.txt")).AsTask().Result;
+                MarkDown.Text = FileIO.ReadTextAsync(UpdateFile).AsTask().Result;
             }
             else
             {
-                StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-English.txt"));
-                MarkDown.Text = await FileIO.ReadTextAsync(UpdateFile);
+                StorageFile UpdateFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-English.txt")).AsTask().Result;
+                MarkDown.Text = FileIO.ReadTextAsync(UpdateFile).AsTask().Result;
             }
-        }
-
-        public new async Task ShowAsync()
-        {
-            await Task.Delay(2000);
-            _ = await base.ShowAsync();
         }
     }
 }

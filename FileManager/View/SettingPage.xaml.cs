@@ -13,7 +13,6 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 
-
 namespace FileManager
 {
     public sealed partial class SettingPage : Page
@@ -536,6 +535,39 @@ namespace FileManager
         {
             WhatIsNew Dialog = new WhatIsNew();
             await Dialog.ShowAsync();
+        }
+
+        private async void SystemInfoButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (Package.Current.Id.Architecture == ProcessorArchitecture.X64 || Package.Current.Id.Architecture == ProcessorArchitecture.X86)
+            {
+                SystemInfoDialog dialog = new SystemInfoDialog();
+                await dialog.ShowAsync();
+            }
+            else
+            {
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = "抱歉",
+                        Content = "系统信息窗口所依赖的部分组件仅支持在X86或X64处理器上实现\rARM处理器暂不支持，因此无法打开此窗口",
+                        CloseButtonText = "知道了"
+                    };
+                    await dialog.ShowAsync();
+                }
+                else
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = "Sorry",
+                        Content = "Some components that the system information dialog depends on only support X86 or X64 processors\rUnsupport ARM processor for now, so this dialog will not be opened",
+                        CloseButtonText = "Got it"
+                    };
+                    await dialog.ShowAsync();
+                }
+            }
+
         }
     }
 }

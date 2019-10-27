@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
@@ -29,9 +30,20 @@ namespace FileManager
 
         private async Task SendEmailAsync(string messageBody)
         {
-            messageBody="版本: " + string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision) +
-                        messageBody +
-                        "\r\r问题复现方法：(可选)\r1、\r\r2、\r\r3、\r";
+            if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
+            {
+                messageBody = "版本: "
+                            + string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)
+                            + messageBody
+                            + "\r\r问题复现方法：(推荐)\r1、\r\r2、\r\r3、\r";
+            }
+            else
+            {
+                messageBody = "Version: "
+                            + string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)
+                            + messageBody
+                            + "\r\rProblem recurrence method：(Recommand)\r1、\r\r2、\r\r3、\r";
+            }
 
             messageBody = Uri.EscapeDataString(messageBody);
             string url = "mailto:zhuxb711@yeah.net?subject=RX_BugReport&body=" + messageBody;

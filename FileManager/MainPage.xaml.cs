@@ -152,6 +152,7 @@ namespace FileManager
                 if (VersionSplit.ElementAt(0) < Package.Current.Id.Version.Major || VersionSplit.ElementAt(1) < Package.Current.Id.Version.Minor || VersionSplit.ElementAt(2) < Package.Current.Id.Version.Build || VersionSplit.ElementAt(3) < Package.Current.Id.Version.Revision)
                 {
                     WhatIsNew Dialog = new WhatIsNew();
+                    await Task.Delay(2000);
                     await Dialog.ShowAsync();
                 }
             }
@@ -159,6 +160,7 @@ namespace FileManager
             {
                 ApplicationData.Current.LocalSettings.Values["LastRunVersion"] = string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
                 WhatIsNew Dialog = new WhatIsNew();
+                await Task.Delay(2000);
                 await Dialog.ShowAsync();
             }
 

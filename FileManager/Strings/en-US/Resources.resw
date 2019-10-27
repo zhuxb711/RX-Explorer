@@ -549,11 +549,62 @@
   <data name="SettingSupportDeveloper.Content" xml:space="preserve">
     <value>Donate</value>
   </data>
+  <data name="SettingSystemInfo.Content" xml:space="preserve">
+    <value>System Information</value>
+  </data>
   <data name="SettingUpdateLogButton.Content" xml:space="preserve">
     <value>View update log</value>
   </data>
   <data name="SettingVersion.Text" xml:space="preserve">
     <value>Version</value>
+  </data>
+  <data name="SystemInfoDialog.CloseButtonText" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="SystemInfoDialog.Title" xml:space="preserve">
+    <value>System Information</value>
+  </data>
+  <data name="SystemInfoDialogBasicInfo.Text" xml:space="preserve">
+    <value>Basic information</value>
+  </data>
+  <data name="SystemInfoDialogCPUArchitecture.Text" xml:space="preserve">
+    <value>CPU architecture</value>
+  </data>
+  <data name="SystemInfoDialogCPUCache.Text" xml:space="preserve">
+    <value>CPU Cache</value>
+  </data>
+  <data name="SystemInfoDialogCPUCore.Text" xml:space="preserve">
+    <value>CPU Core</value>
+  </data>
+  <data name="SystemInfoDialogCPUFeature.Text" xml:space="preserve">
+    <value>CPU feature</value>
+  </data>
+  <data name="SystemInfoDialogCPUInfo.Text" xml:space="preserve">
+    <value>CPU information</value>
+  </data>
+  <data name="SystemInfoDialogCPUModel.Text" xml:space="preserve">
+    <value>CPU model</value>
+  </data>
+  <data name="SystemInfoDialogDeivceModel.Text" xml:space="preserve">
+    <value>Device model</value>
+  </data>
+  <data name="SystemInfoDialogDeviceName.Text" xml:space="preserve">
+    <value>Device name</value>
+  </data>
+  <data name="SystemInfoDialogGPUInfo.Text" xml:space="preserve">
+    <value>GPU information</value>
+  </data>
+  <data name="SystemInfoDialogManufacturer.Text" xml:space="preserve">
+    <value>Manufacturer</value>
+  </data>
+  <data name="SystemInfoDialogMemoryInfo.Text" xml:space="preserve">
+    <value>Memory information</value>
+  </data>
+  <data name="SystemInfoDialogWindowsLanguage.Text" xml:space="preserve">
+    <value>Windows language</value>
+  </data>
+  <data name="SystemInfoDialogWindowsVersion.Text" xml:space="preserve">
+    <value>Windows version</value>
   </data>
   <data name="SystemManagerOpen.Label" xml:space="preserve">
     <value>Use System File Explorer Open</value>

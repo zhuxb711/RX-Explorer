@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -8,7 +7,6 @@ using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 using Windows.UI;
 using Windows.UI.Notifications;
 using Windows.UI.ViewManagement;
@@ -56,13 +54,26 @@ namespace FileManager
                 Window.Current.Content = rootFrame;
             }
 
-            string Message =
+            if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
+            {
+                string Message =
                 "\r\r以下是错误信息：\r\rException Code错误代码：" + e.Exception.HResult +
                 "\r\rMessage错误消息：" + e.Exception.Message +
                 "\r\rSource来源：" + (string.IsNullOrEmpty(e.Exception.Source) ? "Unknown" : e.Exception.Source) +
                 "\r\rStackTrace堆栈追踪：" + (string.IsNullOrEmpty(e.Exception.StackTrace) ? "Unknown" : e.Exception.StackTrace);
 
-            rootFrame.Navigate(typeof(BlueScreen), Message);
+                rootFrame.Navigate(typeof(BlueScreen), Message);
+            }
+            else
+            {
+                string Message =
+                "\r\rThe following is the error message：\r\rException Code：" + e.Exception.HResult +
+                "\r\rMessage：" + e.Exception.Message +
+                "\r\rSource：" + (string.IsNullOrEmpty(e.Exception.Source) ? "Unknown" : e.Exception.Source) +
+                "\r\rStackTrace：" + (string.IsNullOrEmpty(e.Exception.StackTrace) ? "Unknown" : e.Exception.StackTrace);
+
+                rootFrame.Navigate(typeof(BlueScreen), Message);
+            }
 
             e.Handled = true;
         }

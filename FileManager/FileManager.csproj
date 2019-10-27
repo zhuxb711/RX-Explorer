@@ -21,7 +21,7 @@
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
     <PackageCertificateThumbprint>5ECB9FCD5AB53593E4DB6F2B97D76E6B8EAB4EB4</PackageCertificateThumbprint>
     <AppInstallerUpdateFrequency>0</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
@@ -137,6 +137,9 @@
     <SuppressPseudoWarning Condition="'$(Configuration)' == 'Debug'">true</SuppressPseudoWarning>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Dialog\SystemInfoDialog.xaml.cs">
+      <DependentUpon>SystemInfoDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\TranscodeImageDialog.xaml.cs">
       <DependentUpon>TranscodeImageDialog.xaml</DependentUpon>
     </Compile>
@@ -355,6 +358,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Dialog\SystemInfoDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialog\TranscodeImageDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -503,6 +510,9 @@
     <PackageReference Include="Microsoft.UI.Xaml">
       <Version>2.2.190917002</Version>
     </PackageReference>
+    <PackageReference Include="OpenCV.UWP.native.imgproc">
+      <Version>0.0.2-alpha</Version>
+    </PackageReference>
     <PackageReference Include="SharpZipLib">
       <Version>1.2.0</Version>
     </PackageReference>
@@ -538,6 +548,10 @@
     <ProjectReference Include="..\OpenCV\OpenCV.vcxproj">
       <Project>{f9be798f-758f-41d2-be7e-24614ffa696f}</Project>
       <Name>OpenCV</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SystemInformationProvider\SystemInformationProvider.vcxproj">
+      <Project>{b7beef6e-1f7f-43b6-a1ec-f447b3f995df}</Project>
+      <Name>SystemInformationProvider</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

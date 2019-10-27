@@ -1,10 +1,16 @@
 ﻿#include "pch.h"
 #include "OpenCVLibrary.h"
 #include "MemoryBuffer.h"
+#include <opencv2\imgproc\types_c.h>
+#include <iostream>
+#include <string>  
+#include <windows.h>
 #define PI 3.1415926
 
 using namespace OpenCV;
 using namespace Platform;
+
+static bool IsInitialized = false;
 
 const float YCbCrYRF = 0.299F;              // RGB转YCbCr的系数(浮点类型）
 const float YCbCrYGF = 0.587F;
@@ -51,6 +57,14 @@ const int RGBBCrI = (int)(RGBBCrF * (1 << Shift) + 0.5);
 
 OpenCVLibrary::OpenCVLibrary()
 {
+}
+
+void OpenCV::OpenCVLibrary::Initialize()
+{
+	if (!useOptimized())
+	{
+		setUseOptimized(true);
+	}
 }
 
 Mat OpenCV::OpenCVLibrary::RGB2YCbCr(Mat src)
@@ -650,6 +664,12 @@ bool OpenCVLibrary::GetPointerToPixelData(SoftwareBitmap^ bitmap, unsigned char*
 
 bool OpenCVLibrary::TryConvert(SoftwareBitmap^ from, Mat& convertedMat)
 {
+	if (!IsInitialized)
+	{
+		Initialize();
+		IsInitialized = true;
+	}
+
 	unsigned char* pPixels = nullptr;
 	unsigned int capacity = 0;
 	if (!GetPointerToPixelData(from, &pPixels, &capacity))
