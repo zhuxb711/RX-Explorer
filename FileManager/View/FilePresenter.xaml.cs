@@ -44,6 +44,8 @@ namespace FileManager
         const int AESCacheSize = 1048576;
         byte[] EncryptByteBuffer;
         byte[] DecryptByteBuffer;
+        FileSystemStorageItem DoubleTabTarget = null;
+
 
         public FilePresenter()
         {
@@ -1527,67 +1529,112 @@ namespace FileManager
 
         private async void GridViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem ReFile && ReFile.ContentType == ContentType.File)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem ReFile)
             {
-                switch (ReFile.File.FileType)
+                if (Interlocked.Exchange(ref DoubleTabTarget, ReFile) == null)
                 {
-                    case ".zip":
-                        Nav.Navigate(typeof(ZipExplorer), ReFile, new DrillInNavigationTransitionInfo());
-                        break;
-                    case ".jpg":
-                    case ".png":
-                    case ".bmp":
-                        Nav.Navigate(typeof(PhotoViewer), ReFile.File.FolderRelativeId, new DrillInNavigationTransitionInfo());
-                        break;
-                    case ".mkv":
-                    case ".mp4":
-                    case ".mp3":
-                    case ".flac":
-                    case ".wma":
-                    case ".wmv":
-                    case ".m4a":
-                    case ".mov":
-                    case ".alac":
-                        Nav.Navigate(typeof(MediaPlayer), ReFile.File, new DrillInNavigationTransitionInfo());
-                        break;
-                    case ".txt":
-                        Nav.Navigate(typeof(TextViewer), ReFile, new DrillInNavigationTransitionInfo());
-                        break;
-                    case ".pdf":
-                        Nav.Navigate(typeof(PdfReader), ReFile.File, new DrillInNavigationTransitionInfo());
-                        break;
-                    default:
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (DoubleTabTarget.ContentType == ContentType.File)
+                    {
+                        switch (DoubleTabTarget.File.FileType)
                         {
-                            QueueContentDialog dialog = new QueueContentDialog
+                            case ".zip":
+                                Nav.Navigate(typeof(ZipExplorer), DoubleTabTarget, new DrillInNavigationTransitionInfo());
+                                break;
+                            case ".jpg":
+                            case ".png":
+                            case ".bmp":
+                                Nav.Navigate(typeof(PhotoViewer), DoubleTabTarget.File.FolderRelativeId, new DrillInNavigationTransitionInfo());
+                                break;
+                            case ".mkv":
+                            case ".mp4":
+                            case ".mp3":
+                            case ".flac":
+                            case ".wma":
+                            case ".wmv":
+                            case ".m4a":
+                            case ".mov":
+                            case ".alac":
+                                Nav.Navigate(typeof(MediaPlayer), DoubleTabTarget.File, new DrillInNavigationTransitionInfo());
+                                break;
+                            case ".txt":
+                                Nav.Navigate(typeof(TextViewer), DoubleTabTarget, new DrillInNavigationTransitionInfo());
+                                break;
+                            case ".pdf":
+                                Nav.Navigate(typeof(PdfReader), DoubleTabTarget.File, new DrillInNavigationTransitionInfo());
+                                break;
+                            default:
+                                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                                {
+                                    QueueContentDialog dialog = new QueueContentDialog
+                                    {
+                                        Title = "提示",
+                                        Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
+                                        PrimaryButtonText = "默认应用打开",
+                                        CloseButtonText = "取消",
+                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    };
+                                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                    {
+                                        _ = await Launcher.LaunchFileAsync(DoubleTabTarget.File);
+                                    }
+                                }
+                                else
+                                {
+                                    QueueContentDialog dialog = new QueueContentDialog
+                                    {
+                                        Title = "Tips",
+                                        Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
+                                        PrimaryButtonText = "Open with default app",
+                                        CloseButtonText = "Cancel",
+                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    };
+                                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                    {
+                                        _ = await Launcher.LaunchFileAsync(DoubleTabTarget.File);
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        if (FileControl.ThisPage.CurrentNode.HasUnrealizedChildren && !FileControl.ThisPage.CurrentNode.IsExpanded)
+                        {
+                            FileControl.ThisPage.CurrentNode.IsExpanded = true;
+                        }
+
+                        while (true)
+                        {
+                            TreeViewNode TargetNode = FileControl.ThisPage.CurrentNode?.Children.Where((Node) => (Node.Content as StorageFolder).Name == DoubleTabTarget.Name).FirstOrDefault();
+                            if (TargetNode != null)
                             {
-                                Title = "提示",
-                                Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
-                                PrimaryButtonText = "默认应用打开",
-                                CloseButtonText = "取消",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                while (true)
+                                {
+                                    if (FileControl.ThisPage.FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Container)
+                                    {
+                                        Container.IsSelected = true;
+                                        Container.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
+                                        _ = FileControl.ThisPage.DisplayItemsInFolder(TargetNode);
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        await Task.Delay(300);
+                                    }
+                                }
+                                break;
+                            }
+                            else if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name != "FileControl")
                             {
-                                _ = await Launcher.LaunchFileAsync(ReFile.File);
+                                break;
+                            }
+                            else
+                            {
+                                await Task.Delay(300);
                             }
                         }
-                        else
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "Tips",
-                                Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
-                                PrimaryButtonText = "Open with default app",
-                                CloseButtonText = "Cancel",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                _ = await Launcher.LaunchFileAsync(ReFile.File);
-                            }
-                        }
-                        break;
+                    }
+                    Interlocked.Exchange(ref DoubleTabTarget, null);
                 }
             }
         }
@@ -1707,7 +1754,7 @@ namespace FileManager
 
             while (true)
             {
-                var TargetNode = FileControl.ThisPage.CurrentNode?.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == (GridViewControl.SelectedItem as FileSystemStorageItem).RelativeId).FirstOrDefault();
+                var TargetNode = FileControl.ThisPage.CurrentNode?.Children.Where((Node) => (Node.Content as StorageFolder).Name == (GridViewControl.SelectedItem as FileSystemStorageItem).Name).FirstOrDefault();
                 if (TargetNode != null)
                 {
                     while (true)
@@ -1732,7 +1779,7 @@ namespace FileManager
                 }
                 else
                 {
-                    await Task.Delay(500);
+                    await Task.Delay(300);
                 }
             }
         }

@@ -1098,6 +1098,10 @@
           <source>System Information</source>
           <target state="translated">查看系统信息</target>
         </trans-unit>
+        <trans-unit id="SystemInfoDialogNetwork.Text" translate="yes" xml:space="preserve">
+          <source>Network Information</source>
+          <target state="translated">网络信息</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -1,4 +1,17 @@
 ﻿*****
+###What's new in Ver.3.2.0.0
+
+>#####Adjusted some UI interface elements in the file display module and search module
+
+>#####Optimize the enumeration and display speed of files in folders
+
+>#####Solved some problems, now you can double-click the folder to enter directly, the operation is more intuitive
+
+>#####Updated the search box display effect and solved the problem that the prompt text exceeded the search box.
+
+>#####System information module adds network device information viewing function
+
+*****
 ###What's new in Ver.3.1.7.0
 
 >#####Setting page to add system information viewing function

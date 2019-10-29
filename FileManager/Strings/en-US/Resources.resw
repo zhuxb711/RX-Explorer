@@ -600,6 +600,9 @@
   <data name="SystemInfoDialogMemoryInfo.Text" xml:space="preserve">
     <value>Memory information</value>
   </data>
+  <data name="SystemInfoDialogNetwork.Text" xml:space="preserve">
+    <value>Network Information</value>
+  </data>
   <data name="SystemInfoDialogWindowsLanguage.Text" xml:space="preserve">
     <value>Windows language</value>
   </data>

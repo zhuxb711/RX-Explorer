@@ -42,7 +42,7 @@ namespace FileManager
 
         private async void OnFirstLoad()
         {
-            foreach (var Item in await SQLite.GetInstance().GetQuickStartItemAsync())
+            foreach (var Item in await SQLite.Current.GetQuickStartItemAsync())
             {
                 if (Item.Key == QuickStartType.Application)
                 {
@@ -405,7 +405,7 @@ FLAG:
 
         private async void AppDelete_Click(object sender, RoutedEventArgs e)
         {
-            await SQLite.GetInstance().DeleteQuickStartItemAsync(CurrenItem);
+            await SQLite.Current.DeleteQuickStartItemAsync(CurrenItem);
             QuickStartList.Remove(CurrenItem);
         }
 
@@ -423,7 +423,7 @@ FLAG:
 
         private async void WebDelete_Click(object sender, RoutedEventArgs e)
         {
-            await SQLite.GetInstance().DeleteQuickStartItemAsync(CurrenItem);
+            await SQLite.Current.DeleteQuickStartItemAsync(CurrenItem);
             HotWebList.Remove(CurrenItem);
         }
 

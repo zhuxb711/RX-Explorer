@@ -580,7 +580,7 @@ namespace FileManager
 
                 Operation.StartDownload();
 
-                await SQLite.GetInstance().SetDownloadHistoryAsync(Operation);
+                await SQLite.Current.SetDownloadHistoryAsync(Operation);
             };
             stackPanel.Children.Add(SaveConfirmButton);
 
@@ -605,7 +605,7 @@ namespace FileManager
 
         private async void Operation_DownloadTaskCancel(object sender, DownloadOperator e)
         {
-            await SQLite.GetInstance().UpdateDownloadHistoryAsync(e);
+            await SQLite.Current.UpdateDownloadHistoryAsync(e);
 
             ToastNotificationManager.CreateToastNotifier().Show(e.GenerateToastNotification(ToastNotificationCategory.TaskCancel));
 
@@ -616,7 +616,7 @@ namespace FileManager
 
         private async void Operation_DownloadErrorDetected(object sender, DownloadOperator e)
         {
-            await SQLite.GetInstance().UpdateDownloadHistoryAsync(e);
+            await SQLite.Current.UpdateDownloadHistoryAsync(e);
 
             ListViewItem Item = DownloadList.ContainerFromItem(e) as ListViewItem;
             Item.ContentTemplate = DownloadErrorTemplate;
@@ -630,7 +630,7 @@ namespace FileManager
 
         private async void Operation_DownloadSucceed(object sender, DownloadOperator e)
         {
-            await SQLite.GetInstance().UpdateDownloadHistoryAsync(e);
+            await SQLite.Current.UpdateDownloadHistoryAsync(e);
 
             ListViewItem Item = DownloadList.ContainerFromItem(e) as ListViewItem;
             Item.ContentTemplate = DownloadCompleteTemplate;
@@ -780,7 +780,7 @@ namespace FileManager
                             {
                                 TodayNode.Children.Remove(RepeatNode);
                                 WebTab.ThisPage.HistoryCollection.Remove(HistoryItem);
-                                SQLite.GetInstance().DeleteWebHistory(HistoryItem);
+                                SQLite.Current.DeleteWebHistory(HistoryItem);
                             }
                         }
                     }
@@ -1121,7 +1121,7 @@ namespace FileManager
                                 {
                                     TodayNode.Children.Remove(RepeatNode);
                                     WebTab.ThisPage.HistoryCollection.Remove(HistoryItem);
-                                    SQLite.GetInstance().DeleteWebHistory(HistoryItem);
+                                    SQLite.Current.DeleteWebHistory(HistoryItem);
                                 }
                             }
                         }
@@ -1807,7 +1807,7 @@ namespace FileManager
             TipsFly.Hide();
 
             await WebView.ClearTemporaryWebDataAsync();
-            await SQLite.GetInstance().ClearTableAsync("WebHistory");
+            await SQLite.Current.ClearTableAsync("WebHistory");
             WebTab.ThisPage.HistoryCollection.Clear();
             HistoryTree.RootNodes.Clear();
 
@@ -1929,7 +1929,7 @@ namespace FileManager
                     WebTab.ThisPage.FavouriteCollection.Remove(FavItem);
                     WebTab.ThisPage.FavouriteDictionary.Remove(FavItem.WebSite);
 
-                    await SQLite.GetInstance().DeleteWebFavouriteListAsync(FavItem);
+                    await SQLite.Current.DeleteWebFavouriteListAsync(FavItem);
                 }
             }
             else
@@ -2043,7 +2043,7 @@ namespace FileManager
                 WebTab.ThisPage.FavouriteCollection.Add(FavItem);
                 WebTab.ThisPage.FavouriteDictionary.Add(AutoSuggest.Text, FavItem);
 
-                await SQLite.GetInstance().SetWebFavouriteListAsync(FavItem);
+                await SQLite.Current.SetWebFavouriteListAsync(FavItem);
             }
 
         }
@@ -2082,7 +2082,7 @@ namespace FileManager
             WebTab.ThisPage.FavouriteCollection.Remove(FavItem);
             WebTab.ThisPage.FavouriteDictionary.Remove(FavItem.WebSite);
 
-            await SQLite.GetInstance().DeleteWebFavouriteListAsync(FavItem);
+            await SQLite.Current.DeleteWebFavouriteListAsync(FavItem);
         }
 
         private void FavouriteList_ItemClick(object sender, ItemClickEventArgs e)
@@ -2126,7 +2126,7 @@ namespace FileManager
             if ((sender as Button).Name == "ClearFav")
             {
                 ClearFavFly.Hide();
-                await SQLite.GetInstance().ClearTableAsync("WebFavourite");
+                await SQLite.Current.ClearTableAsync("WebFavourite");
 
                 foreach (var Web in from Tab in WebTab.ThisPage.TabCollection
                                     let Web = Tab.Content as WebPage
@@ -2144,7 +2144,7 @@ namespace FileManager
             else
             {
                 ClearHistoryFly.Hide();
-                await SQLite.GetInstance().ClearTableAsync("WebHistory");
+                await SQLite.Current.ClearTableAsync("WebHistory");
                 WebTab.ThisPage.HistoryCollection.Clear();
                 HistoryTree.RootNodes.Clear();
             }
@@ -2232,7 +2232,7 @@ namespace FileManager
 
             WebDownloader.DownloadList.RemoveAt(DownloadList.SelectedIndex);
 
-            await SQLite.GetInstance().DeleteDownloadHistoryAsync(Operation);
+            await SQLite.Current.DeleteDownloadHistoryAsync(Operation);
         }
 
         private void SearchEngine_SelectionChanged(object sender, SelectionChangedEventArgs e)

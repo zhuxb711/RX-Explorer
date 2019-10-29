@@ -166,19 +166,20 @@
                   DragItemsStarting="GridViewControl_DragItemsStarting">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="local:FileSystemStorageItem">
-                    <StackPanel Width="250"
-                                Padding="12"
+                    <StackPanel Width="240"
+                                Padding="10"
                                 Orientation="Horizontal"
                                 AllowDrop="True">
                         <Image IsHitTestVisible="False"
                                VerticalAlignment="Center"
                                Stretch="Uniform"
                                Source="{x:Bind Thumbnail,Mode=OneWay}"
-                               Margin="0,5,5,0"
                                Height="60"
                                Width="60" />
                         <StackPanel AllowDrop="True"
-                                    Orientation="Vertical">
+                                    Orientation="Vertical"
+                                    VerticalAlignment="Top"
+                                    Margin="5,2,0,0">
                             <TextBlock IsHitTestVisible="False"
                                        Text="{x:Bind DisplayName,Mode=OneWay}"
                                        FontSize="17"
@@ -186,11 +187,11 @@
                                        TextTrimming="CharacterEllipsis" />
                             <TextBlock IsHitTestVisible="False"
                                        Text="{x:Bind DisplayType}"
-                                       FontSize="15" />
+                                       FontSize="14" />
                             <TextBlock IsHitTestVisible="False"
                                        Text="{x:Bind Size,Mode=OneWay}"
                                        Visibility="{x:Bind Folder,Converter={StaticResource StateConverter}}"
-                                       FontSize="15" />
+                                       FontSize="14" />
                         </StackPanel>
                     </StackPanel>
                 </DataTemplate>

@@ -34,9 +34,9 @@ namespace FileManager
 
         private async void OnFirstLoad()
         {
-            await SQLite.GetInstance().GetDownloadHistoryAsync();
+            await SQLite.Current.GetDownloadHistoryAsync();
 
-            var FavList = await SQLite.GetInstance().GetWebFavouriteListAsync();
+            var FavList = await SQLite.Current.GetWebFavouriteListAsync();
 
             if (FavList.Count > 0)
             {
@@ -54,7 +54,7 @@ namespace FileManager
                 FavouriteDictionary = new Dictionary<string, WebSiteItem>();
             }
 
-            var HistoryList = await SQLite.GetInstance().GetWebHistoryListAsync();
+            var HistoryList = await SQLite.Current.GetWebHistoryListAsync();
 
             if (HistoryList.Count > 0)
             {
@@ -149,7 +149,7 @@ namespace FileManager
                                     IsExpanded = false
                                 });
 
-                                SQLite.GetInstance().SetWebHistoryList(New);
+                                SQLite.Current.SetWebHistoryList(New);
                             }
 
                         }
@@ -163,7 +163,7 @@ namespace FileManager
                                     HasUnrealizedChildren = false,
                                     IsExpanded = false
                                 });
-                                SQLite.GetInstance().SetWebHistoryList(New);
+                                SQLite.Current.SetWebHistoryList(New);
                             }
                         }
                     }

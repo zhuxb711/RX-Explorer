@@ -538,7 +538,7 @@ namespace FileManager
 
             FlyoutBase.ShowAttachedFlyout(sender);
 
-            await SQLite.GetInstance().SetSearchHistoryAsync(args.QueryText);
+            await SQLite.Current.SetSearchHistoryAsync(args.QueryText);
         }
 
         private async void GlobeSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -553,7 +553,7 @@ namespace FileManager
             }
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                List<string> FilterResult = await SQLite.GetInstance().GetRelatedSearchHistoryAsync(sender.Text);
+                List<string> FilterResult = await SQLite.Current.GetRelatedSearchHistoryAsync(sender.Text);
                 if (FilterResult.Count == 0)
                 {
                     FilterResult.Add(CurrentLanguage == LanguageEnum.Chinese
@@ -620,6 +620,7 @@ namespace FileManager
             }
 
             Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 60, ThumbnailOptions.ResizeThumbnail);
+            Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.FileName", "System.Size", "System.DateModified" });
 
             if (FileControl.ThisPage.Nav.CurrentSourcePageType.Name != "SearchPage")
             {

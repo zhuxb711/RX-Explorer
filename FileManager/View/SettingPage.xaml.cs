@@ -2,10 +2,12 @@
 using System;
 using System.Linq;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Core;
 using Windows.Services.Store;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -86,7 +88,7 @@ namespace FileManager
         private async void FlyoutContinue_Click(object sender, RoutedEventArgs e)
         {
             ConfirmFly.Hide();
-            await SQLite.GetInstance().ClearSearchHistoryRecord();
+            await SQLite.Current.ClearSearchHistoryRecord();
 
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
@@ -131,7 +133,7 @@ namespace FileManager
                 };
                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    SQLite.GetInstance().Dispose();
+                    SQLite.Current.Dispose();
                     await ApplicationData.Current.ClearAsync();
                     ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(GenerateRestartToast().GetXml()));
                     Application.Current.Exit();
@@ -149,7 +151,7 @@ namespace FileManager
                 };
                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
-                    SQLite.GetInstance().Dispose();
+                    SQLite.Current.Dispose();
                     await ApplicationData.Current.ClearAsync();
                     ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(GenerateRestartToast().GetXml()));
                     Application.Current.Exit();

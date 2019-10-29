@@ -58,11 +58,14 @@ namespace FileManager
             }
         }
 
-        public static SQLite GetInstance()
+        public static SQLite Current
         {
-            lock (SyncRootProvider.SyncRoot)
+            get
             {
-                return SQL ?? (SQL = new SQLite());
+                lock (SyncRootProvider.SyncRoot)
+                {
+                    return SQL ?? (SQL = new SQLite());
+                }
             }
         }
 

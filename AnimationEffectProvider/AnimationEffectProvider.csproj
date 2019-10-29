@@ -126,6 +126,11 @@
     <EmbeddedResource Include="Properties\AnimationEffectProvider.rd.xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Net.Compilers">
+      <Version>3.3.1</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.9</Version>
     </PackageReference>
@@ -133,7 +138,7 @@
       <Version>2.0.1</Version>
     </PackageReference>
     <PackageReference Include="Win2D.uwp">
-      <Version>1.23.0</Version>
+      <Version>1.24.0</Version>
     </PackageReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

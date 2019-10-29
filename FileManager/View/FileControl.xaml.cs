@@ -31,9 +31,20 @@ namespace FileManager
                 currentnode = value;
                 if (currentnode != null)
                 {
+                    var Folder = currentnode.Content as StorageFolder;
+                    string PlaceText;
+                    if (Folder.DisplayName.Length > 18)
+                    {
+                        PlaceText = Folder.DisplayName.Substring(0, 18) + "...";
+                    }
+                    else
+                    {
+                        PlaceText = Folder.DisplayName;
+                    }
+
                     MainPage.ThisPage.GlobeSearch.PlaceholderText = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
-                         ? "搜索 " + (currentnode.Content as StorageFolder).DisplayName
-                         : "Search " + (currentnode.Content as StorageFolder).DisplayName;
+                         ? "搜索 " + PlaceText
+                         : "Search " + PlaceText;
                 }
             }
         }
@@ -102,9 +113,19 @@ namespace FileManager
             InitializeTreeView(TargetFolder);
 
             MainPage.ThisPage.GlobeSearch.Visibility = Visibility.Visible;
+
+            string PlaceText;
+            if (TargetFolder.DisplayName.Length > 18)
+            {
+                PlaceText = TargetFolder.DisplayName.Substring(0, 18) + "...";
+            }
+            else
+            {
+                PlaceText = TargetFolder.DisplayName;
+            }
             MainPage.ThisPage.GlobeSearch.PlaceholderText = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
-                ? "搜索 " + TargetFolder.DisplayName
-                : "Search " + TargetFolder.DisplayName;
+                ? "搜索 " + PlaceText
+                : "Search " + PlaceText;
         }
 
         protected async override void OnNavigatedFrom(NavigationEventArgs e)
@@ -180,6 +201,7 @@ namespace FileManager
                     FolderDepth = FolderDepth.Shallow,
                     IndexerOption = IndexerOption.UseIndexerWhenAvailable
                 };
+                Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FolderNameDisplay" });
 
                 StorageFolderQueryResult FolderQuery = folder.CreateFolderQueryWithOptions(Options);
 
@@ -309,6 +331,7 @@ namespace FileManager
                 };
 
                 Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 60, ThumbnailOptions.ResizeThumbnail);
+                Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.FileName", "System.Size", "System.DateModified" });
 
                 StorageItemQueryResult ItemQuery = folder.CreateItemQueryWithOptions(Options);
 
@@ -336,7 +359,7 @@ namespace FileManager
                 }
             }
 
-        FLAG:
+FLAG:
             if (CancelToken.IsCancellationRequested)
             {
                 Locker.Set();
@@ -360,7 +383,7 @@ namespace FileManager
                 QueueContenDialog = new QueueContentDialog
                 {
                     Title = "警告",
-                    Content = "    此操作将永久删除该文件夹内的所有内容\r\r    是否继续？",
+                    Content = "此操作将永久删除该文件夹内的所有内容\r\r是否继续？",
                     PrimaryButtonText = "继续",
                     CloseButtonText = "取消",
                     Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
@@ -371,7 +394,7 @@ namespace FileManager
                 QueueContenDialog = new QueueContentDialog
                 {
                     Title = "Warning",
-                    Content = "    This will permanently delete everything in the folder\r\r    Whether to continue ？",
+                    Content = "This will permanently delete everything in the folder\r\rWhether to continue ？",
                     PrimaryButtonText = "Continue",
                     CloseButtonText = "Cancel",
                     Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush

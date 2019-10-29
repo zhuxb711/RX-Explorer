@@ -501,6 +501,9 @@
     <PackageReference Include="Microsoft.Toolkit.Uwp">
       <Version>5.1.1</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Connectivity">
+      <Version>5.1.1</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications">
       <Version>5.1.1</Version>
     </PackageReference>

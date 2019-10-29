@@ -132,7 +132,7 @@ namespace FileManager
 
             if (!(ApplicationData.Current.LocalSettings.Values["IsInitialQuickStart"] is bool) || !(ApplicationData.Current.LocalSettings.Values["QuickStartInitialFinished"] is bool))
             {
-                var SQL = SQLite.GetInstance();
+                var SQL = SQLite.Current;
                 await SQL.ClearTableAsync("QuickStart");
                 ApplicationData.Current.LocalSettings.Values["IsInitialQuickStart"] = true;
 

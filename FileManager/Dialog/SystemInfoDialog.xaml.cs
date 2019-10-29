@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using SystemInformationProvider;
 using Windows.ApplicationModel;
 using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.System;
+using Windows.System.Profile;
 using Windows.System.UserProfile;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -193,7 +195,10 @@ namespace FileManager
 
             EasClientDeviceInformation EAS = new EasClientDeviceInformation();
             SystemManufacturer = EAS.SystemManufacturer;
-            WindowsVersion = "Windows 10 " + Environment.OSVersion.Version.ToString();
+
+            ulong Version = ulong.Parse(AnalyticsInfo.VersionInfo.DeviceFamilyVersion);
+            WindowsVersion = "Windows 10  " + $"{Version >> 48 & 0xFFFF}.{Version >> 32 & 0xFFFF}.{Version >> 16 & 0xFFFF}.{Version & 0xFFFF}";
+
             DeviceName = EAS.FriendlyName;
             DeviceModel = string.IsNullOrEmpty(EAS.SystemProductName) ? "Unknown" : EAS.SystemProductName;
 
@@ -256,6 +261,169 @@ namespace FileManager
                     GPUMemoryBlock.SetValue(Grid.ColumnProperty, 1);
                     GPUGrid.Children.Add(GPUMemoryBlock);
                 }
+            }
+
+            var Interfaces = NetworkInterface.GetAllNetworkInterfaces().Where(Inter => (Inter.NetworkInterfaceType == NetworkInterfaceType.Ethernet || Inter.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
+                                                                                       && Inter.OperationalStatus == OperationalStatus.Up);
+            for (int i = 0; i < Interfaces.Count(); i++)
+            {
+                var Interface = Interfaces.ElementAt(i);
+
+                var IPProperties = Interface.GetIPProperties();
+                var PhysicalAddress = Interface.GetPhysicalAddress();
+
+                if (NetworkGrid.RowDefinitions.Count == 0)
+                {
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                }
+                else
+                {
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                }
+
+                TextBlock AdapterDescriptionBlock = new TextBlock
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "网络适配器" : "Network Adapter"
+                };
+                AdapterDescriptionBlock.SetValue(Grid.RowProperty, i * 8);
+                AdapterDescriptionBlock.SetValue(Grid.ColumnProperty, 0);
+                NetworkGrid.Children.Add(AdapterDescriptionBlock);
+
+                TextBlock AdapterBlock = new TextBlock
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = string.IsNullOrEmpty(Interface.Description) ? "Unknown" : Interface.Description
+                };
+                AdapterBlock.SetValue(Grid.RowProperty, i * 8);
+                AdapterBlock.SetValue(Grid.ColumnProperty, 1);
+                NetworkGrid.Children.Add(AdapterBlock);
+
+                TextBlock IPv4DescriptionBlock = new TextBlock
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = "IPv4"
+                };
+                IPv4DescriptionBlock.SetValue(Grid.RowProperty, i * 8 + 1);
+                IPv4DescriptionBlock.SetValue(Grid.ColumnProperty, 0);
+                NetworkGrid.Children.Add(IPv4DescriptionBlock);
+
+                var IPv4 = IPProperties.UnicastAddresses.FirstOrDefault((IP) => IP.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                TextBlock IPv4AddressBlock = new TextBlock
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = IPv4 == null ? "Unknown" : IPv4.Address.ToString()
+                };
+                IPv4AddressBlock.SetValue(Grid.RowProperty, i * 8 + 1);
+                IPv4AddressBlock.SetValue(Grid.ColumnProperty, 1);
+                NetworkGrid.Children.Add(IPv4AddressBlock);
+
+                TextBlock IPv6DescriptionBlock = new TextBlock
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = "IPv6"
+                };
+                IPv6DescriptionBlock.SetValue(Grid.RowProperty, i * 8 + 2);
+                IPv6DescriptionBlock.SetValue(Grid.ColumnProperty, 0);
+                NetworkGrid.Children.Add(IPv6DescriptionBlock);
+
+                var IPv6 = IPProperties.UnicastAddresses.FirstOrDefault((IP) => IP.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6);
+                TextBlock IPv6AddressBlock = new TextBlock
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = IPv6 == null ? "Unknown" : IPv6.Address.ToString()
+                };
+                IPv6AddressBlock.SetValue(Grid.RowProperty, i * 8 + 2);
+                IPv6AddressBlock.SetValue(Grid.ColumnProperty, 1);
+                NetworkGrid.Children.Add(IPv6AddressBlock);
+
+                TextBlock GatewayDescriptionBlock = new TextBlock
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "网关" : "Gateway"
+                };
+                GatewayDescriptionBlock.SetValue(Grid.RowProperty, i * 8 + 3);
+                GatewayDescriptionBlock.SetValue(Grid.ColumnProperty, 0);
+                NetworkGrid.Children.Add(GatewayDescriptionBlock);
+
+                var Gateway = IPProperties.GatewayAddresses.FirstOrDefault();
+                TextBlock GatewayAddressBlock = new TextBlock
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = Gateway == null ? "Unknown" : Gateway.Address.ToString()
+                };
+                GatewayAddressBlock.SetValue(Grid.RowProperty, i * 8 + 3);
+                GatewayAddressBlock.SetValue(Grid.ColumnProperty, 1);
+                NetworkGrid.Children.Add(GatewayAddressBlock);
+
+                TextBlock MACDescriptionBlock = new TextBlock
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = "MAC"
+                };
+                MACDescriptionBlock.SetValue(Grid.RowProperty, i * 8 + 4);
+                MACDescriptionBlock.SetValue(Grid.ColumnProperty, 0);
+                NetworkGrid.Children.Add(MACDescriptionBlock);
+
+                TextBlock MACAddressBlock = new TextBlock
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = PhysicalAddress == null ? "Unknown" : string.Join(":", Enumerable.Range(0, 6).Select(j => PhysicalAddress.ToString().Substring(j * 2, 2)))
+                };
+                MACAddressBlock.SetValue(Grid.RowProperty, i * 8 + 4);
+                MACAddressBlock.SetValue(Grid.ColumnProperty, 1);
+                NetworkGrid.Children.Add(MACAddressBlock);
+
+                TextBlock PrimaryDNSDescriptionBlock = new TextBlock
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "主DNS服务器" : "Primary DNS Server"
+                };
+                PrimaryDNSDescriptionBlock.SetValue(Grid.RowProperty, i * 8 + 5);
+                PrimaryDNSDescriptionBlock.SetValue(Grid.ColumnProperty, 0);
+                NetworkGrid.Children.Add(PrimaryDNSDescriptionBlock);
+
+                var PDNS = IPProperties.DnsAddresses.FirstOrDefault();
+                TextBlock PrimaryDNSAddressBlock = new TextBlock
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = PDNS == null ? "Unknown" : PDNS.ToString()
+                };
+                PrimaryDNSAddressBlock.SetValue(Grid.RowProperty, i * 8 + 5);
+                PrimaryDNSAddressBlock.SetValue(Grid.ColumnProperty, 1);
+                NetworkGrid.Children.Add(PrimaryDNSAddressBlock);
+
+                TextBlock SecondaryDNSDescriptionBlock = new TextBlock
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "副DNS服务器" : "Secondary DNS server"
+                };
+                SecondaryDNSDescriptionBlock.SetValue(Grid.RowProperty, i * 8 + 6);
+                SecondaryDNSDescriptionBlock.SetValue(Grid.ColumnProperty, 0);
+                NetworkGrid.Children.Add(SecondaryDNSDescriptionBlock);
+
+                var SDNS = IPProperties.DnsAddresses.Skip(1);
+                TextBlock SecondaryDNSAddressBlock = new TextBlock
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = SDNS.Count() == 0 ? "Unknown" : SDNS.FirstOrDefault().ToString()
+                };
+                SecondaryDNSAddressBlock.SetValue(Grid.RowProperty, i * 8 + 6);
+                SecondaryDNSAddressBlock.SetValue(Grid.ColumnProperty, 1);
+                NetworkGrid.Children.Add(SecondaryDNSAddressBlock);
             }
         }
     }

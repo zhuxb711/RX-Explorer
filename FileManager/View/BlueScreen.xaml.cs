@@ -57,7 +57,7 @@ namespace FileManager
 
         private async void Reset_Click(object sender, RoutedEventArgs e)
         {
-            SQLite.GetInstance().Dispose();
+            SQLite.Current.Dispose();
             await ApplicationData.Current.ClearAsync();
             ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(GenerateRestartToast().GetXml()));
             Application.Current.Exit();
