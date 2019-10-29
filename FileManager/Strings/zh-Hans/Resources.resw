@@ -148,7 +148,7 @@
     <value>复制此链接至浏览器即可下载</value>
   </data>
   <data name="SearchHasItem.Text" xml:space="preserve">
-    <value>无结果</value>
+    <value>无法搜索到任何文件</value>
   </data>
   <data name="SearchLocation.Label" xml:space="preserve">
     <value>打开所在位置</value>

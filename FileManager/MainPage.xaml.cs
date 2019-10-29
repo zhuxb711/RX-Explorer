@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -602,7 +603,7 @@ namespace FileManager
             QueryOptions Options;
             if ((bool)ShallowRadio.IsChecked)
             {
-                Options = new QueryOptions(CommonFileQuery.OrderByName, null)
+                Options = new QueryOptions(CommonFileQuery.DefaultQuery, null)
                 {
                     FolderDepth = FolderDepth.Shallow,
                     IndexerOption = IndexerOption.UseIndexerWhenAvailable,
@@ -611,7 +612,7 @@ namespace FileManager
             }
             else
             {
-                Options = new QueryOptions(CommonFileQuery.OrderByName, null)
+                Options = new QueryOptions(CommonFileQuery.DefaultQuery, null)
                 {
                     FolderDepth = FolderDepth.Deep,
                     IndexerOption = IndexerOption.UseIndexerWhenAvailable,
@@ -637,6 +638,26 @@ namespace FileManager
         private void SearchCancel_Click(object sender, RoutedEventArgs e)
         {
             SearchFlyout.Hide();
+        }
+
+        private void SearchFlyout_Opened(object sender, object e)
+        {
+            _ = SearchConfirm.Focus(FocusState.Programmatic);
+        }
+
+        private async void GlobeSearch_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(GlobeSearch.Text))
+            {
+                List<string> FilterResult = await SQLite.Current.GetRelatedSearchHistoryAsync(string.Empty);
+                if (FilterResult.Count == 0)
+                {
+                    FilterResult.Add(CurrentLanguage == LanguageEnum.Chinese
+                                        ? "无建议"
+                                        : "No Result");
+                }
+                GlobeSearch.ItemsSource = FilterResult;
+            }
         }
     }
 }

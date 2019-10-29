@@ -1,4 +1,23 @@
 ﻿*****
+###What's new in Ver.3.2.2.0
+
+>#####Bug fix
+
+>>#####Improved the file path indexing algorithm, which solves the problem that clicking “Open File Location” is invalid after searching in “Folder and Library”
+
+>#####Performance optimization
+
+>>#####Slightly improved the rendering speed of search results
+
+>#####Improved the interaction behavior of the search box
+
+>>#####Now click on the search box to display history without waiting for input
+
+>>#####Solved the problem that the search confirm button is not selected by default
+
+>>#####If there are no search results, the result list will no longer be hidden
+
+*****
 ###What's new in Ver.3.2.0.0
 
 >#####Adjusted some UI interface elements in the file display module and search module

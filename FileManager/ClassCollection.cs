@@ -947,7 +947,7 @@ namespace FileManager
         Sketch = 8,
         GaussianBlur = 16,
         Sepia = 32,
-        Mosaic=64,
+        Mosaic = 64,
         OilPainting = 128
     }
 
@@ -1387,23 +1387,24 @@ namespace FileManager
 
         private Queue<string> PathQueue;
 
-        private string CurrentLevel = string.Empty;
+        private string CurrentLevel;
 
-        public PathAnalysis(string FullPath)
+        public PathAnalysis(string FullPath, string CurrentPath)
         {
             this.FullPath = FullPath;
 
-            string[] Split = FullPath.Split("\\", StringSplitOptions.RemoveEmptyEntries);
-            Split[0] = Split[0] + "\\";
+            CurrentLevel = CurrentPath;
 
-            PathQueue = new Queue<string>(Split.Take(2).Concat(Split.Skip(2).Select((Item) => "\\" + Item)));
+            string[] Split = FullPath.Replace(CurrentPath, string.Empty).Split("\\", StringSplitOptions.RemoveEmptyEntries);
+
+            PathQueue = new Queue<string>(Split);
         }
 
         public string NextPathLevel()
         {
             if (PathQueue.Count != 0)
             {
-                return CurrentLevel += PathQueue.Dequeue();
+                return CurrentLevel = Path.Combine(CurrentLevel, PathQueue.Dequeue());
             }
             else
             {

@@ -2195,6 +2195,11 @@ namespace FileManager
                 }
             }
         }
+
+        private void QRText_GotFocus(object sender, RoutedEventArgs e)
+        {
+            ((TextBox)sender).SelectAll();
+        }
     }
 }
 

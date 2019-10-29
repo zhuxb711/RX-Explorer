@@ -136,6 +136,42 @@
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
+        <controls1:TeachingTip PreferredPlacement="Auto"
+                               Title="WIFI分享"
+                               x:Uid="WIFIShareTip"
+                               HeroContentPlacement="Auto"
+                               Closed="QRTeachTip_Closed"
+                               x:Name="QRTeachTip">
+            <controls1:TeachingTip.HeroContent>
+                <Image Stretch="UniformToFill"
+                       Name="QRImage" />
+            </controls1:TeachingTip.HeroContent>
+            <controls1:TeachingTip.Content>
+                <StackPanel HorizontalAlignment="Center">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
+                        <TextBox VerticalAlignment="Center"
+                                 Name="QRText"
+                                 x:Uid="QRText"
+                                 IsSpellCheckEnabled="False"
+                                 IsReadOnly="True"
+                                 Header="复制此链接至浏览器即可下载"
+                                 GotFocus="QRText_GotFocus"
+                                 Width="245" />
+                        <Button VerticalAlignment="Bottom"
+                                Margin="5,0,0,0"
+                                Name="CopyLinkButton"
+                                Click="CopyLinkButton_Click">
+                            <FontIcon FontFamily="Segoe MDL2 Assets"
+                                      Glyph="&#xE8C8;" />
+                        </Button>
+                    </StackPanel>
+                    <TextBlock Margin="0,10,0,0"
+                               x:Uid="WIFIShareText"
+                               Text="传输过程中请勿关闭此窗口，否则将停止分享" />
+                </StackPanel>
+            </controls1:TeachingTip.Content>
+        </controls1:TeachingTip>
     </Page.Resources>
 
     <Grid AllowDrop="True">
@@ -217,41 +253,6 @@
                    Text="无文件"
                    FontSize="25"
                    Visibility="Visible" />
-        <controls1:TeachingTip PreferredPlacement="Auto"
-                               Title="WIFI分享"
-                               x:Uid="WIFIShareTip"
-                               HeroContentPlacement="Auto"
-                               Closed="QRTeachTip_Closed"
-                               Name="QRTeachTip">
-            <controls1:TeachingTip.HeroContent>
-                <Image Stretch="UniformToFill"
-                       Name="QRImage" />
-            </controls1:TeachingTip.HeroContent>
-            <controls1:TeachingTip.Content>
-                <StackPanel HorizontalAlignment="Center">
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center">
-                        <TextBox VerticalAlignment="Center"
-                                 Name="QRText"
-                                 x:Uid="QRText"
-                                 IsSpellCheckEnabled="False"
-                                 IsReadOnly="True"
-                                 Header="复制此链接至浏览器即可下载"
-                                 Width="245" />
-                        <Button VerticalAlignment="Bottom"
-                                Margin="5,0,0,0"
-                                Name="CopyLinkButton"
-                                Click="CopyLinkButton_Click">
-                            <FontIcon FontFamily="Segoe MDL2 Assets"
-                                      Glyph="&#xE8C8;" />
-                        </Button>
-                    </StackPanel>
-                    <TextBlock Margin="0,10,0,0"
-                               x:Uid="WIFIShareText"
-                               Text="传输过程中请勿关闭此窗口，否则将停止分享" />
-                </StackPanel>
-            </controls1:TeachingTip.Content>
-        </controls1:TeachingTip>
         <controls:Loading x:Name="LoadingControl"
                           IsLoading="False"
                           Grid.Column="2"

@@ -188,7 +188,7 @@
         </trans-unit>
         <trans-unit id="SearchHasItem.Text" translate="yes" xml:space="preserve">
           <source>No Result</source>
-          <target state="translated">无结果</target>
+          <target state="translated">无法搜索到任何文件</target>
         </trans-unit>
         <trans-unit id="SearchLocation.Label" translate="yes" xml:space="preserve">
           <source>Open Location</source>

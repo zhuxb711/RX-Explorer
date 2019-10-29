@@ -51,7 +51,6 @@ namespace FileManager
             uint MaxSearchNum = uint.Parse(ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] as string);
 
             HasItem.Visibility = Visibility.Collapsed;
-            SearchResultList.Visibility = Visibility.Visible;
 
             LoadingControl.IsLoading = true;
             IReadOnlyList<IStorageItem> SearchItems = null;
@@ -76,7 +75,7 @@ namespace FileManager
             }
             finally
             {
-                Cancellation.Dispose();
+                Cancellation?.Dispose();
                 Cancellation = null;
             }
 
@@ -87,15 +86,10 @@ namespace FileManager
             if (SearchItems.Count == 0)
             {
                 HasItem.Visibility = Visibility.Visible;
-                SearchResultList.Visibility = Visibility.Collapsed;
             }
             else
             {
-                List<IStorageItem> SortResult = new List<IStorageItem>(SearchItems.Count);
-                SortResult.AddRange(SearchItems.Where((Item) => Item.IsOfType(StorageItemTypes.Folder)));
-                SortResult.AddRange(SearchItems.Where((Item) => Item.IsOfType(StorageItemTypes.File)));
-
-                foreach (var Item in SortResult)
+                foreach (var Item in SearchItems)
                 {
                     var Size = await Item.GetSizeDescriptionAsync();
                     var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
@@ -124,7 +118,8 @@ namespace FileManager
 
             if (RemoveFile.ContentType == ContentType.Folder)
             {
-                TreeViewNode TargetNode = await FindFolderLocationInTree(FileControl.ThisPage.FolderTree.RootNodes[0], new PathAnalysis(RemoveFile.Folder.Path));
+                var RootNode = FileControl.ThisPage.FolderTree.RootNodes[0];
+                TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(RemoveFile.Folder.Path, (RootNode.Content as StorageFolder).Path));
                 if (TargetNode == null)
                 {
                     if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
@@ -176,7 +171,8 @@ namespace FileManager
                 {
                     _ = await StorageFile.GetFileFromPathAsync(RemoveFile.Path);
 
-                    FileControl.ThisPage.CurrentNode = await FindFolderLocationInTree(FileControl.ThisPage.FolderTree.RootNodes[0], new PathAnalysis((await RemoveFile.File.GetParentAsync()).Path));
+                    var RootNode = FileControl.ThisPage.FolderTree.RootNodes[0];
+                    FileControl.ThisPage.CurrentNode = await FindFolderLocationInTree(RootNode, new PathAnalysis((await RemoveFile.File.GetParentAsync()).Path, (RootNode.Content as StorageFolder).Path));
 
                     var Container = FileControl.ThisPage.FolderTree.ContainerFromNode(FileControl.ThisPage.CurrentNode) as TreeViewItem;
                     Container.IsSelected = true;

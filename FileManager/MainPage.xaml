@@ -1,67 +1,68 @@
-﻿<Page
-    x:Class="FileManager.MainPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:FileManager"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
-    mc:Ignorable="d"
-    Background="{StaticResource NavigationViewTopPaneBackground}">
-    
+﻿<Page x:Class="FileManager.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:FileManager"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+      mc:Ignorable="d"
+      Background="{StaticResource NavigationViewTopPaneBackground}">
+
     <Page.Resources>
-        <controls:TeachingTip 
-            x:Name="UpdateTip"
-            x:Uid="UpdateTip"
-            Grid.Row="1"
-	        Title="更新可用"
-	        PreferredPlacement="Bottom"                                              
-	        IsLightDismissEnabled="True"
-	        ActionButtonContent="即刻更新"
-	        CloseButtonContent="稍后提示">
+        <controls:TeachingTip x:Name="UpdateTip"
+                              x:Uid="UpdateTip"
+                              Grid.Row="1"
+                              Title="更新可用"
+                              PreferredPlacement="Bottom"
+                              IsLightDismissEnabled="True"
+                              ActionButtonContent="即刻更新"
+                              CloseButtonContent="稍后提示">
         </controls:TeachingTip>
-        <controls:TeachingTip
-            x:Name="PinTip"
-            x:Uid="PinTip"
-            Grid.Row="1"
-            Title="更快捷的启动"
-            PreferredPlacement="Bottom"
-            IsLightDismissEnabled="False"
-            ActionButtonContent="一键固定"
-            CloseButtonContent="关闭提示">
+        <controls:TeachingTip x:Name="PinTip"
+                              x:Uid="PinTip"
+                              Grid.Row="1"
+                              Title="更快捷的启动"
+                              PreferredPlacement="Bottom"
+                              IsLightDismissEnabled="False"
+                              ActionButtonContent="一键固定"
+                              CloseButtonContent="关闭提示">
         </controls:TeachingTip>
-        <controls:TeachingTip 
-            x:Name="RateTip"      
-            x:Uid="RateTip"
-            Grid.Row="1"
-	        Title="请为此App评分"
-	        PreferredPlacement="Bottom"                                              
-	        IsLightDismissEnabled="False"
-            Subtitle="您的评分很重要，请花一两分钟评价一下App吧！"
-	        ActionButtonContent="评分"
-	        CloseButtonContent="稍后">
+        <controls:TeachingTip x:Name="RateTip"
+                              x:Uid="RateTip"
+                              Grid.Row="1"
+                              Title="请为此App评分"
+                              PreferredPlacement="Bottom"
+                              IsLightDismissEnabled="False"
+                              Subtitle="您的评分很重要，请花一两分钟评价一下App吧！"
+                              ActionButtonContent="评分"
+                              CloseButtonContent="稍后">
         </controls:TeachingTip>
-        <controls:TeachingTip 
-            x:Name="SearchTip"   
-            x:Uid="SearchTip"
-            Grid.Row="1"
-	        Title="Tips"
-	        Target="{x:Bind GlobeSearch}"          
-            PreferredPlacement="BottomRight"
-	        IsLightDismissEnabled="True"
-            Subtitle="清空这个搜索框或点击任意文件夹即可退出搜索状态哦！"
-	        CloseButtonContent="知道啦">
+        <controls:TeachingTip x:Name="SearchTip"
+                              x:Uid="SearchTip"
+                              Grid.Row="1"
+                              Title="Tips"
+                              Target="{x:Bind GlobeSearch}"
+                              PreferredPlacement="BottomRight"
+                              IsLightDismissEnabled="True"
+                              Subtitle="清空这个搜索框或点击任意文件夹即可退出搜索状态哦！"
+                              CloseButtonContent="知道啦">
         </controls:TeachingTip>
     </Page.Resources>
-    
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Border x:Name="TitleBar" Background="{StaticResource NavigationViewTopPaneBackground}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <TextBlock x:Uid="AppName" Margin="10,0,0,0" VerticalAlignment="Center" Text="RX文件管理器"/>
+        <Border x:Name="TitleBar"
+                Background="{StaticResource NavigationViewTopPaneBackground}"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch">
+            <TextBlock x:Uid="AppName"
+                       Margin="10,0,0,0"
+                       VerticalAlignment="Center"
+                       Text="RX文件管理器" />
         </Border>
         <NavigationView Grid.Row="1"
                         Name="NavView"
@@ -71,35 +72,65 @@
                         x:FieldModifier="public"
                         ItemInvoked="NavView_ItemInvoked">
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="这台电脑" x:Uid="ThisPC" IsSelected="True">
+                <NavigationViewItem Content="这台电脑"
+                                    x:Uid="ThisPC"
+                                    IsSelected="True">
                     <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8CC;" />
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xE8CC;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="浏览器" x:Uid="Browser" IsSelected="True">
+                <NavigationViewItem Content="浏览器"
+                                    x:Uid="Browser"
+                                    IsSelected="True">
                     <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE909;" />
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xE909;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
             <NavigationView.AutoSuggestBox>
                 <AutoSuggestBox QueryIcon="Find"
-                                x:FieldModifier="public" 
-                                Width="200" 
-                                PlaceholderText="搜索..." 
-                                Name="GlobeSearch" 
-                                QuerySubmitted="GlobeSearch_QuerySubmitted" 
+                                x:FieldModifier="public"
+                                Width="200"
+                                PlaceholderText="搜索..."
+                                Name="GlobeSearch"
+                                GotFocus="GlobeSearch_GotFocus"
+                                QuerySubmitted="GlobeSearch_QuerySubmitted"
                                 TextChanged="GlobeSearch_TextChanged"
                                 UpdateTextOnSelect="True"
                                 Visibility="Collapsed">
                     <FlyoutBase.AttachedFlyout>
-                        <Flyout Placement="BottomEdgeAlignedRight" x:Name="SearchFlyout">
+                        <Flyout Placement="BottomEdgeAlignedRight"
+                                x:Name="SearchFlyout"
+                                Opened="SearchFlyout_Opened">
                             <StackPanel>
-                                <RadioButton Name="ShallowRadio" Width="200" x:Uid="SearchFlyoutShallowRadio" Content="仅搜索当前目录(较快)" Tag="Shallow" IsChecked="True" GroupName="Search"/>
-                                <RadioButton Name="DeepRadio" Width="200" Margin="0,5,0,0" x:Uid="SearchFlyoutDeepRadio" Content="深度搜索全部目录(较慢)" Tag="Deep" GroupName="Search"/>
-                                <StackPanel Margin="0,5,0,0" Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <Button Content="搜索" x:Uid="SearchFlyoutConfirm" Name="SearchConfirm" Click="SearchConfirm_Click"/>
-                                    <Button Content="取消" x:Uid="SearchFlyoutCancel" Name="SearchCancel" Margin="10,0,0,0" Click="SearchCancel_Click"/>
+                                <RadioButton Name="ShallowRadio"
+                                             Width="200"
+                                             x:Uid="SearchFlyoutShallowRadio"
+                                             Content="仅搜索当前目录(较快)"
+                                             Tag="Shallow"
+                                             IsChecked="True"
+                                             GroupName="Search" />
+                                <RadioButton Name="DeepRadio"
+                                             Width="200"
+                                             Margin="0,5,0,0"
+                                             x:Uid="SearchFlyoutDeepRadio"
+                                             Content="深度搜索全部目录(较慢)"
+                                             Tag="Deep"
+                                             GroupName="Search" />
+                                <StackPanel Margin="0,5,0,0"
+                                            Orientation="Horizontal"
+                                            HorizontalAlignment="Right">
+                                    <Button Content="搜索"
+                                            x:Uid="SearchFlyoutConfirm"
+                                            Name="SearchConfirm"
+                                            Click="SearchConfirm_Click" />
+                                    <Button Content="取消"
+                                            x:Uid="SearchFlyoutCancel"
+                                            Name="SearchCancel"
+                                            Margin="10,0,0,0"
+                                            Click="SearchCancel_Click" />
                                 </StackPanel>
                             </StackPanel>
                         </Flyout>
@@ -107,7 +138,11 @@
                 </AutoSuggestBox>
             </NavigationView.AutoSuggestBox>
             <NavigationView.Content>
-                <Frame Name="Nav" Navigating="Nav_Navigating" Navigated="Nav_Navigated" x:FieldModifier="public" Grid.Row="1"/>
+                <Frame Name="Nav"
+                       Navigating="Nav_Navigating"
+                       Navigated="Nav_Navigated"
+                       x:FieldModifier="public"
+                       Grid.Row="1" />
             </NavigationView.Content>
         </NavigationView>
     </Grid>
