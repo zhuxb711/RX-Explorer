@@ -39,7 +39,6 @@ namespace FileManager
         StorageFile CutFile;
         AutoResetEvent AESControl;
         Frame Nav;
-        Queue<StorageFile> AddToZipQueue;
         WiFiShareProvider WiFiProvider;
         const int AESCacheSize = 1048576;
         byte[] EncryptByteBuffer;
@@ -92,13 +91,11 @@ namespace FileManager
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             Nav = e.Parameter as Frame;
-            AddToZipQueue = new Queue<StorageFile>();
             AESControl = new AutoResetEvent(false);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            AddToZipQueue = null;
             AESControl?.Dispose();
         }
 
@@ -1323,52 +1320,61 @@ namespace FileManager
                 }
             }
 
-            if (FileControl.ThisPage.CurrentNode.IsExpanded)
+            TreeViewNode CurrentNode = null;
+            if (FileControl.ThisPage.CurrentNode.Children.All((Node) => (Node.Content as StorageFolder).Name != NewFolder.Name))
             {
-                FileControl.ThisPage.CurrentNode.Children.Add(new TreeViewNode
+                if (FileControl.ThisPage.CurrentNode.IsExpanded || !FileControl.ThisPage.CurrentNode.HasChildren)
                 {
-                    Content = await FileControl.ThisPage.CurrentFolder.GetFolderAsync(NewFolder.Name),
-                    HasUnrealizedChildren = false
-                });
-            }
-            else if (!FileControl.ThisPage.CurrentNode.HasChildren)
-            {
-                FileControl.ThisPage.CurrentNode.HasUnrealizedChildren = true;
+                    CurrentNode = new TreeViewNode
+                    {
+                        Content = await FileControl.ThisPage.CurrentFolder.GetFolderAsync(NewFolder.Name),
+                        HasUnrealizedChildren = false
+                    };
+                    FileControl.ThisPage.CurrentNode.Children.Add(CurrentNode);
+                }
                 FileControl.ThisPage.CurrentNode.IsExpanded = true;
             }
+
+            if (CurrentNode == null)
+            {
+                while (true)
+                {
+                    if (FileControl.ThisPage.CurrentNode.Children.Where((Item) => (Item.Content as StorageFolder).Name == NewFolder.Name).FirstOrDefault() is TreeViewNode TargetNode)
+                    {
+                        await SetSelectedNodeInTreeAsync(TargetNode);
+                        break;
+                    }
+                    else
+                    {
+                        await Task.Delay(200);
+                    }
+                }
+            }
             else
+            {
+                await SetSelectedNodeInTreeAsync(CurrentNode);
+            }
+        }
+
+        private async Task SetSelectedNodeInTreeAsync(TreeViewNode Node)
+        {
+            if (!FileControl.ThisPage.CurrentNode.IsExpanded)
             {
                 FileControl.ThisPage.CurrentNode.IsExpanded = true;
             }
 
             while (true)
             {
-                TreeViewNode Node = FileControl.ThisPage.CurrentNode?.Children.Where((Folder) => NewFolder.Name == (Folder.Content as StorageFolder).Name).FirstOrDefault();
-                if (Node != null)
+                if (FileControl.ThisPage.FolderTree.ContainerFromNode(Node) is TreeViewItem Item)
                 {
-                    while (true)
-                    {
-                        if (FileControl.ThisPage.FolderTree.ContainerFromNode(Node) is TreeViewItem Item)
-                        {
-                            Item.IsSelected = true;
-                            Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                            await FileControl.ThisPage.DisplayItemsInFolder(Node);
-                            break;
-                        }
-                        else
-                        {
-                            await Task.Delay(300);
-                        }
-                    }
-                    break;
-                }
-                else if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name != "FileControl")
-                {
+                    Item.IsSelected = true;
+                    Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
+                    await FileControl.ThisPage.DisplayItemsInFolder(Node);
                     break;
                 }
                 else
                 {
-                    await Task.Delay(500);
+                    await Task.Delay(200);
                 }
             }
         }
@@ -1639,91 +1645,6 @@ namespace FileManager
             }
         }
 
-        private void GridViewControl_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
-        {
-            foreach (var GridItem in from File in FileCollection
-                                     where File.Type == ".zip"
-                                     let GridItem = GridViewControl.ContainerFromItem(File) as GridViewItem
-                                     select GridItem)
-            {
-                GridItem.AllowDrop = true;
-                GridItem.DragEnter += GridItem_DragEnter;
-                GridItem.Drop += GridItem_Drop;
-
-                ZipCollection.Add(GridItem);
-            }
-            AddToZipQueue?.Clear();
-            foreach (FileSystemStorageItem item in e.Items)
-            {
-                AddToZipQueue?.Enqueue(item.File);
-            }
-        }
-
-        private void GridItem_DragEnter(object sender, DragEventArgs e)
-        {
-            e.AcceptedOperation = DataPackageOperation.Copy;
-            e.DragUIOverride.Caption = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
-                ? "添加至Zip文件"
-                : "Add To Zip File";
-            e.DragUIOverride.IsCaptionVisible = true;
-            e.DragUIOverride.IsContentVisible = true;
-        }
-
-        private async void GridItem_Drop(object sender, DragEventArgs e)
-        {
-            if ((e.OriginalSource as GridViewItem).Content is FileSystemStorageItem file)
-            {
-                await AddFileToZipAsync(file);
-            }
-        }
-
-        /// <summary>
-        /// 向ZIP文件添加新文件
-        /// </summary>
-        /// <param name="file">待添加的文件</param>
-        /// <returns>无</returns>
-        public async Task AddFileToZipAsync(FileSystemStorageItem file)
-        {
-            LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
-                ? "正在执行添加操作"
-                : "Adding");
-
-            using (var ZipFileStream = (await file.File.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
-            {
-                ZipFile zipFile = new ZipFile(ZipFileStream);
-                try
-                {
-                    await Task.Run(async () =>
-                    {
-                        while (AddToZipQueue.Count > 0)
-                        {
-                            zipFile.BeginUpdate();
-
-                            StorageFile ToAddFile = AddToZipQueue.Dequeue();
-                            using (var filestream = await ToAddFile.OpenStreamForReadAsync())
-                            {
-                                CustomStaticDataSource CSD = new CustomStaticDataSource();
-                                CSD.SetStream(filestream);
-                                zipFile.Add(CSD, ToAddFile.Name);
-                                zipFile.CommitUpdate();
-                            }
-                        }
-                    });
-
-                }
-                finally
-                {
-                    zipFile.IsStreamOwner = false;
-                    zipFile.Close();
-                }
-            }
-
-            await file.SizeUpdateRequested();
-
-            await Task.Delay(500);
-            LoadingActivation(false);
-        }
-
         private async void Transcode_Click(object sender, RoutedEventArgs e)
         {
             StorageFile file = (GridViewControl.SelectedItem as FileSystemStorageItem).File;
@@ -1732,17 +1653,6 @@ namespace FileManager
                 SourceFile = file
             };
             await dialog.ShowAsync();
-        }
-
-        private void GridViewControl_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
-        {
-            foreach (var GridItem in ZipCollection)
-            {
-                GridItem.AllowDrop = false;
-                GridItem.DragEnter -= GridItem_DragEnter;
-                GridItem.Drop -= GridItem_Drop;
-            }
-            ZipCollection.Clear();
         }
 
         private async void FolderOpen_Click(object sender, RoutedEventArgs e)
@@ -1961,6 +1871,13 @@ namespace FileManager
                         if (FileControl.ThisPage.CurrentNode.IsExpanded)
                         {
                             FileControl.ThisPage.CurrentNode.Children.Remove(FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == Item.RelativeId).FirstOrDefault());
+                        }
+                        else
+                        {
+                            if((await FileControl.ThisPage.CurrentFolder.GetFoldersAsync()).Count==0)
+                            {
+                                FileControl.ThisPage.CurrentNode.HasUnrealizedChildren = false;
+                            }
                         }
                     }
                 }
@@ -2199,6 +2116,28 @@ namespace FileManager
         private void QRText_GotFocus(object sender, RoutedEventArgs e)
         {
             ((TextBox)sender).SelectAll();
+        }
+
+        private async void AddToLibray_Click(object sender, RoutedEventArgs e)
+        {
+            StorageFolder folder = (GridViewControl.SelectedItem as FileSystemStorageItem).Folder;
+            if (ThisPC.ThisPage.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
+            {
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = "提示",
+                    Content = "此文件夹已经添加到主界面了，不能重复添加哦",
+                    CloseButtonText = "知道了",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                _ = await dialog.ShowAsync();
+            }
+            else
+            {
+                BitmapImage Thumbnail = await folder.GetThumbnailBitmapAsync();
+                ThisPC.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, Thumbnail, LibrarySource.UserAdded));
+                await SQLite.Current.SetFolderLibraryAsync(folder.Path);
+            }
         }
     }
 }

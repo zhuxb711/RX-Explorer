@@ -51,7 +51,8 @@ namespace FileManager
                                Create Table If Not Exists WebFavourite (Subject Text Not Null, WebSite Text Not Null, Primary Key (WebSite));
                                Create Table If Not Exists WebHistory (Subject Text Not Null, WebSite Text Not Null, DateTime Text Not Null, Primary Key (Subject, WebSite, DateTime));
                                Create Table If Not Exists DownloadHistory (UniqueID Text Not Null, ActualName Text Not Null, Uri Text Not Null, State Text Not Null, Primary Key(UniqueID));
-                               Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type))";
+                               Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
+                               Create Table If Not Exists FolderLibrary (Path Text Not Null, Primary Key (Path));";
             using (SqliteCommand CreateTable = new SqliteCommand(Command, OLEDB))
             {
                 _ = CreateTable.ExecuteNonQuery();
@@ -66,6 +67,38 @@ namespace FileManager
                 {
                     return SQL ?? (SQL = new SQLite());
                 }
+            }
+        }
+
+        public async Task<List<string>> GetFolderLibraryAsync()
+        {
+            List<string> FolderPath = new List<string>();
+            using (SqliteCommand Command = new SqliteCommand("Select * From FolderLibrary", OLEDB))
+            using (SqliteDataReader query = await Command.ExecuteReaderAsync())
+            {
+                while (query.Read())
+                {
+                    FolderPath.Add(query[0].ToString());
+                }
+                return FolderPath;
+            }
+        }
+
+        public async Task DeleteFolderLibraryAsync(string Path)
+        {
+            using (SqliteCommand Command = new SqliteCommand("Delete From FolderLibrary Where Path = @Path", OLEDB))
+            {
+                _ = Command.Parameters.AddWithValue("@Path", Path);
+                _ = await Command.ExecuteNonQueryAsync();
+            }
+        }
+
+        public async Task SetFolderLibraryAsync(string Path)
+        {
+            using (SqliteCommand Command = new SqliteCommand("Insert Into FolderLibrary Values (@Path)", OLEDB))
+            {
+                _ = Command.Parameters.AddWithValue("@Path", Path);
+                _ = await Command.ExecuteNonQueryAsync();
             }
         }
 
@@ -565,30 +598,81 @@ namespace FileManager
         /// </summary>
         public string IsCrypted { get; private set; }
 
+        public string FullName { get; private set; }
+
         /// <summary>
         /// 创建ZipFileDisplay的实例
         /// </summary>
-        /// <param name="Name">文件名称</param>
-        /// <param name="Type">文件类型</param>
-        /// <param name="CompresionSize">压缩后大小</param>
-        /// <param name="ActualSize">实际大小</param>
-        /// <param name="Time">修改时间</param>
-        /// <param name="IsCrypted">加密描述</param>
-        public ZipFileDisplay(string Name, string Type, string CompresionSize, string ActualSize, string Time, bool IsCrypted)
+        public ZipFileDisplay(ZipEntry Entry)
         {
-            this.CompresionSize = CompresionSize;
-            this.Name = Name;
-            this.Time = Time;
-            this.Type = Type;
-            this.ActualSize = ActualSize;
-            if (IsCrypted)
+            FullName = Entry.Name;
+
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
-                this.IsCrypted = "密码保护：是";
+                CompresionSize = "压缩大小：" + GetSize(Entry.CompressedSize);
+                ActualSize = "解压大小：" + GetSize(Entry.Size);
+                Time = "创建时间：" + Entry.DateTime.ToString("F");
+
+                int index = FullName.LastIndexOf(".");
+                if (index != -1)
+                {
+                    Name = Path.GetFileNameWithoutExtension(FullName);
+                    Type = Path.GetExtension(FullName).Substring(1).ToUpper() + "文件";
+                }
+                else
+                {
+                    Name = FullName;
+                    Type = "未知文件类型";
+                }
+
+                if (Entry.IsCrypted)
+                {
+                    IsCrypted = "密码保护：是";
+                }
+                else
+                {
+                    IsCrypted = "密码保护：否";
+                }
             }
             else
             {
-                this.IsCrypted = "密码保护：否";
+                CompresionSize = "Compressed：" + GetSize(Entry.CompressedSize);
+                ActualSize = "ActualSize：" + GetSize(Entry.Size);
+                Time = "Created：" + Entry.DateTime.ToString("F");
+
+                int index = FullName.LastIndexOf(".");
+                if (index != -1)
+                {
+                    Name = Path.GetFileNameWithoutExtension(FullName);
+                    Type = Path.GetExtension(FullName).Substring(1).ToUpper() + "File";
+                }
+                else
+                {
+                    Name = FullName;
+                    Type = "Unknown Type";
+                }
+
+                if (Entry.IsCrypted)
+                {
+                    IsCrypted = "Encrypted：True";
+                }
+                else
+                {
+                    IsCrypted = "Encrypted：False";
+                }
             }
+        }
+
+        /// <summary>
+        /// 获取文件大小的描述
+        /// </summary>
+        /// <param name="Size">大小</param>
+        /// <returns>大小描述</returns>
+        private string GetSize(long Size)
+        {
+            return Size / 1024f < 1024 ? Math.Round(Size / 1024f, 2).ToString() + " KB" :
+            (Size / 1048576f >= 1024 ? Math.Round(Size / 1073741824f, 2).ToString() + " GB" :
+            Math.Round(Size / 1048576f, 2).ToString() + " MB");
         }
     }
     #endregion
@@ -1439,6 +1523,21 @@ namespace FileManager
 
         public string FreeSpace { get; private set; }
 
+        public SolidColorBrush ProgressBarForeground
+        {
+            get
+            {
+                if (Percent >= 0.8)
+                {
+                    return new SolidColorBrush(Colors.Red);
+                }
+                else
+                {
+                    return new SolidColorBrush((Color)Application.Current.Resources["SystemAccentColor"]);
+                }
+            }
+        }
+
         public string StorageSpaceDescription
         {
             get
@@ -1456,12 +1555,7 @@ namespace FileManager
 
         public HardDeviceInfo(StorageFolder Device, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve)
         {
-            if (Device == null)
-            {
-                throw new FileNotFoundException();
-            }
-
-            Folder = Device;
+            Folder = Device ?? throw new FileNotFoundException();
             this.Thumbnail = Thumbnail;
 
             TotalByte = (ulong)PropertiesRetrieve["System.Capacity"];
@@ -1480,6 +1574,12 @@ namespace FileManager
         }
     }
 
+    public enum LibrarySource
+    {
+        SystemBase = 0,
+        UserAdded = 1
+    }
+
     public sealed class LibraryFolder
     {
         public string Name { get; private set; }
@@ -1496,7 +1596,9 @@ namespace FileManager
             }
         }
 
-        public LibraryFolder(StorageFolder Folder, BitmapImage Thumbnail)
+        public LibrarySource Source { get; private set; }
+
+        public LibraryFolder(StorageFolder Folder, BitmapImage Thumbnail, LibrarySource Source)
         {
             if (Folder == null)
             {
@@ -1506,6 +1608,7 @@ namespace FileManager
             Name = Folder.Name;
             this.Thumbnail = Thumbnail;
             this.Folder = Folder;
+            this.Source = Source;
         }
     }
     #endregion

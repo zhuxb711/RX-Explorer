@@ -51,7 +51,7 @@ namespace FileManager
 
             Behavior.Attach(Flip);
 
-            QueryOptions Options = new QueryOptions(CommonFileQuery.DefaultQuery, null)
+            QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
             {
                 FolderDepth = FolderDepth.Shallow,
                 IndexerOption = IndexerOption.UseIndexerWhenAvailable,

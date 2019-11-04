@@ -1,4 +1,29 @@
 ﻿*****
+###What's new in Ver.3.2.5.0
+
+>#####Interface optimization
+
+>>#####Improved the homepage text size
+
+>>#####Fixed issue where "Folder and Library" and "Device and Drive" are not aligned
+
+>>#####Fixed a problem where some content failed to change according to system language
+
+>#####Function update
+
+>>#####Add custom "folders and libraries" function, allowing folders to be fixed to the homepage for quick access
+
+>>#####Optimized the Zip file viewer interface to adjust the trigger mechanism of Zip related functions
+
+>>#####Optimized the logic of Zip plus decompression algorithm, faster
+
+>#####Bug fix
+
+>>#####Solved the problem of incorrectly creating folders after Zip unpacking
+
+>>#####Solved the problem that Zip does not automatically jump to the unzipped folder after decompression
+
+*****
 ###What's new in Ver.3.2.2.0
 
 >#####Bug fix

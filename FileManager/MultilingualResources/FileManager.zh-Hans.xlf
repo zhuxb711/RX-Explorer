@@ -502,14 +502,6 @@
           <source>CRC integrity check</source>
           <target state="translated">CRC 完整性校验</target>
         </trans-unit>
-        <trans-unit id="ZipCRCComplete.Text" translate="yes" xml:space="preserve">
-          <source>Complete (Slower)</source>
-          <target state="translated">完整 (较慢)</target>
-        </trans-unit>
-        <trans-unit id="ZipCRCSimple.Text" translate="yes" xml:space="preserve">
-          <source>Simple (Faster)</source>
-          <target state="translated">简单 (较快)</target>
-        </trans-unit>
         <trans-unit id="ZipDecompression.Label" translate="yes" xml:space="preserve">
           <source>Extract</source>
           <target state="translated">解压到当前目录</target>
@@ -1101,6 +1093,35 @@
         <trans-unit id="SystemInfoDialogNetwork.Text" translate="yes" xml:space="preserve">
           <source>Network Information</source>
           <target state="translated">网络信息</target>
+        </trans-unit>
+        <trans-unit id="PinToLibrary.Label" translate="yes" xml:space="preserve">
+          <source>Pin to homepage</source>
+          <target state="translated">固定至主界面</target>
+        </trans-unit>
+        <trans-unit id="LibraryCancelButton.Label" translate="yes" xml:space="preserve">
+          <source>Unpin</source>
+          <target state="translated">取消固定</target>
+        </trans-unit>
+        <trans-unit id="LibraryOpenButton.Label" translate="yes" xml:space="preserve">
+          <source>Open</source>
+          <target state="translated">打开</target>
+        </trans-unit>
+        <trans-unit id="FileControlAttribute.Label" translate="yes" xml:space="preserve">
+          <source>Properties</source>
+          <target state="needs-review-translation">属性</target>
+          <note from="MultilingualUpdate" annotates="source" priority="2">Please verify the translation’s accuracy as the source string was updated after it was translated.</note>
+        </trans-unit>
+        <trans-unit id="FileControlCreateFolder.Label" translate="yes" xml:space="preserve">
+          <source>New folder</source>
+          <target state="translated">新建文件夹</target>
+        </trans-unit>
+        <trans-unit id="FileControlDeleteFolder.Label" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="translated">删除</target>
+        </trans-unit>
+        <trans-unit id="FileControlRenameFolder.Label" translate="yes" xml:space="preserve">
+          <source>Rename</source>
+          <target state="translated">重命名</target>
         </trans-unit>
       </group>
     </body>

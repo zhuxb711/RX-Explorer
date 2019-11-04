@@ -68,6 +68,33 @@
                               Click="WebDelete_Click" />
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
+
+        <CommandBarFlyout x:Name="UserLibraryFlyout"
+                          Placement="RightEdgeAlignedTop">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="BackToWindow"
+                              Label="打开"
+                              x:Uid="LibraryOpenButton"
+                              Click="OpenUserLibrary_Click"
+                              x:Name="OpenUserLibrary"/>
+                <AppBarButton Icon="Cancel"
+                              Name="RemovePin"
+                              x:Uid="LibraryCancelButton"
+                              Label="取消固定"
+                              Click="RemovePin_Click"/>
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
+
+        <CommandBarFlyout x:Name="SystemLibraryFlyout"
+                          Placement="RightEdgeAlignedTop">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="BackToWindow"
+                              Label="打开"
+                              x:Uid="LibraryOpenButton"
+                              Click="OpenSystemLibrary_Click"
+                              x:Name="OpenSystemLibrary" />
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
     </Page.Resources>
 
     <Grid Background="Transparent"
@@ -188,6 +215,8 @@
                           Name="LibraryGrid"
                           IsItemClickEnabled="True"
                           IsDoubleTapEnabled="True"
+                          IsRightTapEnabled="True"
+                          RightTapped="LibraryGrid_RightTapped"
                           PointerPressed="LibraryGrid_PointerPressed"
                           DoubleTapped="LibraryGrid_DoubleTapped">
 
@@ -204,13 +233,15 @@
                                 <StackPanel Orientation="Vertical"
                                             Margin="10,3,0,0">
                                     <TextBlock IsHitTestVisible="False"
-                                               FontSize="17"
-                                               Width="150"
+                                               FontSize="16"
+                                               Width="125"
+                                               HorizontalAlignment="Left"
                                                TextTrimming="CharacterEllipsis"
                                                Text="{x:Bind Name}" />
                                     <TextBlock IsHitTestVisible="False"
-                                               Width="150"
-                                               FontSize="15"
+                                               Width="125"
+                                               FontSize="14"
+                                               HorizontalAlignment="Left"
                                                TextTrimming="CharacterEllipsis"
                                                Text="{x:Bind DisplayType}" />
                                 </StackPanel>
@@ -238,6 +269,7 @@
                                ExpandDirection="Down"
                                VerticalContentAlignment="Top"
                                Header="设备和驱动器"
+                               Margin="5"
                                x:Uid="DeviceExpander">
                 <GridView Margin="0,20,0,0"
                           Name="DeviceGrid"
@@ -251,8 +283,8 @@
                     <GridView.ItemTemplate>
                         <DataTemplate x:DataType="local:HardDeviceInfo">
                             <StackPanel Orientation="Horizontal"
-                                        Width="275"
-                                        Height="75">
+                                        HorizontalAlignment="Center"
+                                        Padding="10">
                                 <Image VerticalAlignment="Center"
                                        IsHitTestVisible="False"
                                        Height="55"
@@ -286,13 +318,14 @@
                                                Text="{x:Bind Name}" />
                                     <ProgressBar x:Name="Pro"
                                                  Width="200"
-                                                 Height="15"
+                                                 Height="14"
+                                                 Foreground="{x:Bind ProgressBarForeground}"
                                                  IsHitTestVisible="False"
                                                  Maximum="1"
                                                  Minimum="0" />
                                     <TextBlock IsHitTestVisible="False"
                                                Width="200"
-                                               FontSize="15"
+                                               FontSize="14"
                                                TextTrimming="CharacterEllipsis"
                                                Text="{x:Bind StorageSpaceDescription}" />
                                 </StackPanel>

@@ -285,6 +285,18 @@
   <data name="FileAttribute.Label" xml:space="preserve">
     <value>Properties</value>
   </data>
+  <data name="FileControlAttribute.Label" xml:space="preserve">
+    <value>Properties</value>
+  </data>
+  <data name="FileControlCreateFolder.Label" xml:space="preserve">
+    <value>New folder</value>
+  </data>
+  <data name="FileControlDeleteFolder.Label" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="FileControlRenameFolder.Label" xml:space="preserve">
+    <value>Rename</value>
+  </data>
   <data name="FileCopy.ToolTipService.ToolTip" xml:space="preserve">
     <value>Copy</value>
   </data>
@@ -324,8 +336,14 @@
   <data name="HotWebTitle.Text" xml:space="preserve">
     <value>Popular Website</value>
   </data>
+  <data name="LibraryCancelButton.Label" xml:space="preserve">
+    <value>Unpin</value>
+  </data>
   <data name="LibraryExpander.Header" xml:space="preserve">
     <value>Folders</value>
+  </data>
+  <data name="LibraryOpenButton.Label" xml:space="preserve">
+    <value>Open</value>
   </data>
   <data name="MultiInstace.Content" xml:space="preserve">
     <value>Enable Multi-Instance Support</value>
@@ -368,6 +386,9 @@
   </data>
   <data name="PinTip.Title" xml:space="preserve">
     <value>Launch Faster</value>
+  </data>
+  <data name="PinToLibrary.Label" xml:space="preserve">
+    <value>Pin to homepage</value>
   </data>
   <data name="QRText.Header" xml:space="preserve">
     <value>Copy this link to your browser to download</value>
@@ -893,12 +914,6 @@
   </data>
   <data name="ZipCRC.Label" xml:space="preserve">
     <value>CRC integrity check</value>
-  </data>
-  <data name="ZipCRCComplete.Text" xml:space="preserve">
-    <value>Complete (Slower)</value>
-  </data>
-  <data name="ZipCRCSimple.Text" xml:space="preserve">
-    <value>Simple (Faster)</value>
   </data>
   <data name="ZipDecompression.Label" xml:space="preserve">
     <value>Extract</value>

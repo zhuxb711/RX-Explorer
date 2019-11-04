@@ -10,7 +10,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace FileManager
 {
-    public sealed partial class TranscodeImageDialog : ContentDialog
+    public sealed partial class TranscodeImageDialog : QueueContentDialog
     {
         public StorageFile TargetFile { get; private set; }
 

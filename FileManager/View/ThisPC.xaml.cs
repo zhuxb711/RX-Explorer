@@ -66,25 +66,25 @@ namespace FileManager
                     IReadOnlyList<StorageFolder> LibraryFolder = await CurrentFolder.GetFoldersAsync();
 
                     var DesktopFolder = LibraryFolder.Where((Folder) => Folder.Name == "Desktop").FirstOrDefault();
-                    LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync()));
+                    LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                     var DownloadsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Downloads").FirstOrDefault();
-                    LibraryFolderList.Add(new LibraryFolder(DownloadsFolder, await DownloadsFolder.GetThumbnailBitmapAsync()));
+                    LibraryFolderList.Add(new LibraryFolder(DownloadsFolder, await DownloadsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                     var VideosFolder = LibraryFolder.Where((Folder) => Folder.Name == "Videos").FirstOrDefault();
-                    LibraryFolderList.Add(new LibraryFolder(VideosFolder, await VideosFolder.GetThumbnailBitmapAsync()));
+                    LibraryFolderList.Add(new LibraryFolder(VideosFolder, await VideosFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                     var ObjectsFolder = LibraryFolder.Where((Folder) => Folder.Name == "3D Objects").FirstOrDefault();
-                    LibraryFolderList.Add(new LibraryFolder(ObjectsFolder, await ObjectsFolder.GetThumbnailBitmapAsync()));
+                    LibraryFolderList.Add(new LibraryFolder(ObjectsFolder, await ObjectsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                     var PicturesFolder = LibraryFolder.Where((Folder) => Folder.Name == "Pictures").FirstOrDefault();
-                    LibraryFolderList.Add(new LibraryFolder(PicturesFolder, await PicturesFolder.GetThumbnailBitmapAsync()));
+                    LibraryFolderList.Add(new LibraryFolder(PicturesFolder, await PicturesFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                     var DocumentsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Documents").FirstOrDefault();
-                    LibraryFolderList.Add(new LibraryFolder(DocumentsFolder, await DocumentsFolder.GetThumbnailBitmapAsync()));
+                    LibraryFolderList.Add(new LibraryFolder(DocumentsFolder, await DocumentsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                     var MusicFolder = LibraryFolder.Where((Folder) => Folder.Name == "Music").FirstOrDefault();
-                    LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync()));
+                    LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
                 }
                 catch (FileNotFoundException)
                 {
@@ -131,25 +131,25 @@ FLAG1:
                             IReadOnlyList<StorageFolder> LibraryFolder = await CurrentUser.GetFoldersAsync();
 
                             var DesktopFolder = LibraryFolder.Where((Folder) => Folder.Name == "Desktop").FirstOrDefault();
-                            LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync()));
+                            LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                             var DownloadsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Downloads").FirstOrDefault();
-                            LibraryFolderList.Add(new LibraryFolder(DownloadsFolder, await DownloadsFolder.GetThumbnailBitmapAsync()));
+                            LibraryFolderList.Add(new LibraryFolder(DownloadsFolder, await DownloadsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                             var VideosFolder = LibraryFolder.Where((Folder) => Folder.Name == "Videos").FirstOrDefault();
-                            LibraryFolderList.Add(new LibraryFolder(VideosFolder, await VideosFolder.GetThumbnailBitmapAsync()));
+                            LibraryFolderList.Add(new LibraryFolder(VideosFolder, await VideosFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                             var ObjectsFolder = LibraryFolder.Where((Folder) => Folder.Name == "3D Objects").FirstOrDefault();
-                            LibraryFolderList.Add(new LibraryFolder(ObjectsFolder, await ObjectsFolder.GetThumbnailBitmapAsync()));
+                            LibraryFolderList.Add(new LibraryFolder(ObjectsFolder, await ObjectsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                             var PicturesFolder = LibraryFolder.Where((Folder) => Folder.Name == "Pictures").FirstOrDefault();
-                            LibraryFolderList.Add(new LibraryFolder(PicturesFolder, await PicturesFolder.GetThumbnailBitmapAsync()));
+                            LibraryFolderList.Add(new LibraryFolder(PicturesFolder, await PicturesFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                             var DocumentsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Documents").FirstOrDefault();
-                            LibraryFolderList.Add(new LibraryFolder(DocumentsFolder, await DocumentsFolder.GetThumbnailBitmapAsync()));
+                            LibraryFolderList.Add(new LibraryFolder(DocumentsFolder, await DocumentsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                             var MusicFolder = LibraryFolder.Where((Folder) => Folder.Name == "Music").FirstOrDefault();
-                            LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync()));
+                            LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
                         }
                         catch (FileNotFoundException)
                         {
@@ -205,25 +205,25 @@ FLAG:
                         IReadOnlyList<StorageFolder> LibraryFolder = await CurrentUser.GetFoldersAsync();
 
                         var DesktopFolder = LibraryFolder.Where((Folder) => Folder.Name == "Desktop").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync()));
+                        LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                         var DownloadsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Downloads").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(DownloadsFolder, await DownloadsFolder.GetThumbnailBitmapAsync()));
+                        LibraryFolderList.Add(new LibraryFolder(DownloadsFolder, await DownloadsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                         var VideosFolder = LibraryFolder.Where((Folder) => Folder.Name == "Videos").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(VideosFolder, await VideosFolder.GetThumbnailBitmapAsync()));
+                        LibraryFolderList.Add(new LibraryFolder(VideosFolder, await VideosFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                         var ObjectsFolder = LibraryFolder.Where((Folder) => Folder.Name == "3D Objects").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(ObjectsFolder, await ObjectsFolder.GetThumbnailBitmapAsync()));
+                        LibraryFolderList.Add(new LibraryFolder(ObjectsFolder, await ObjectsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                         var PicturesFolder = LibraryFolder.Where((Folder) => Folder.Name == "Pictures").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(PicturesFolder, await PicturesFolder.GetThumbnailBitmapAsync()));
+                        LibraryFolderList.Add(new LibraryFolder(PicturesFolder, await PicturesFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                         var DocumentsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Documents").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(DocumentsFolder, await DocumentsFolder.GetThumbnailBitmapAsync()));
+                        LibraryFolderList.Add(new LibraryFolder(DocumentsFolder, await DocumentsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                         var MusicFolder = LibraryFolder.Where((Folder) => Folder.Name == "Music").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync()));
+                        LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
                     }
                     catch (FileNotFoundException)
                     {
@@ -267,25 +267,25 @@ FLAG:
                         IReadOnlyList<StorageFolder> LibraryFolder = await CurrentUser.GetFoldersAsync();
 
                         var DesktopFolder = LibraryFolder.Where((Folder) => Folder.Name == "Desktop").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync()));
+                        LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                         var DownloadsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Downloads").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(DownloadsFolder, await DownloadsFolder.GetThumbnailBitmapAsync()));
+                        LibraryFolderList.Add(new LibraryFolder(DownloadsFolder, await DownloadsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                         var VideosFolder = LibraryFolder.Where((Folder) => Folder.Name == "Videos").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(VideosFolder, await VideosFolder.GetThumbnailBitmapAsync()));
+                        LibraryFolderList.Add(new LibraryFolder(VideosFolder, await VideosFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                         var ObjectsFolder = LibraryFolder.Where((Folder) => Folder.Name == "3D Objects").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(ObjectsFolder, await ObjectsFolder.GetThumbnailBitmapAsync()));
+                        LibraryFolderList.Add(new LibraryFolder(ObjectsFolder, await ObjectsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                         var PicturesFolder = LibraryFolder.Where((Folder) => Folder.Name == "Pictures").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(PicturesFolder, await PicturesFolder.GetThumbnailBitmapAsync()));
+                        LibraryFolderList.Add(new LibraryFolder(PicturesFolder, await PicturesFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                         var DocumentsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Documents").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(DocumentsFolder, await DocumentsFolder.GetThumbnailBitmapAsync()));
+                        LibraryFolderList.Add(new LibraryFolder(DocumentsFolder, await DocumentsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
                         var MusicFolder = LibraryFolder.Where((Folder) => Folder.Name == "Music").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync()));
+                        LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
                     }
                     catch (FileNotFoundException)
                     {
@@ -340,6 +340,23 @@ FLAG:
                 }
             }
 
+            Queue<string> ErrorList = new Queue<string>();
+            List<string> PinToLibraryFolderPath = await SQLite.Current.GetFolderLibraryAsync();
+            foreach (var FolderPath in PinToLibraryFolderPath)
+            {
+                try
+                {
+                    StorageFolder PinFile = await StorageFolder.GetFolderFromPathAsync(FolderPath);
+                    BitmapImage Thumbnail = await PinFile.GetThumbnailBitmapAsync();
+                    LibraryFolderList.Add(new LibraryFolder(PinFile, Thumbnail, LibrarySource.UserAdded));
+                }
+                catch (FileNotFoundException)
+                {
+                    ErrorList.Enqueue(FolderPath);
+                    await SQLite.Current.DeleteFolderLibraryAsync(FolderPath);
+                }
+            }
+
             foreach (string DriveRootPath in DriveInfo.GetDrives()
                                                       .TakeWhile((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
                                                       .GroupBy((Item) => Item.Name)
@@ -350,6 +367,25 @@ FLAG:
                 IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
 
                 HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
+            }
+
+            if (ErrorList.Count > 0)
+            {
+                string Display = string.Empty;
+                while (ErrorList.Count > 0)
+                {
+                    Display += "   " + ErrorList.Dequeue() + "\r";
+                }
+
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = "警告",
+                    Content = "部分固定的文件夹已无法找到，将自动移除\r\r" +
+                    "包括：\r" + Display,
+                    CloseButtonText = "知道了",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                _ = await dialog.ShowAsync();
             }
 
             if (MainPage.ThisPage.IsUSBActivate && !string.IsNullOrWhiteSpace(MainPage.ThisPage.ActivateUSBDevicePath))
@@ -516,6 +552,51 @@ FLAG:
         private void StackPanel_Unloaded(object sender, RoutedEventArgs e)
         {
             ((StackPanel)sender).FindChildOfType<ProgressBar>().Value = 0;
+        }
+
+        private void LibraryGrid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Context)
+            {
+                LibraryGrid.SelectedItem = Context;
+                if(Context.Source == LibrarySource.UserAdded)
+                {
+                    LibraryGrid.ContextFlyout = UserLibraryFlyout;
+                }
+                else
+                {
+                    LibraryGrid.ContextFlyout = SystemLibraryFlyout;
+                }
+            }
+            else
+            {
+                LibraryGrid.ContextFlyout = null;
+            }
+        }
+
+        private void OpenSystemLibrary_Click(object sender, RoutedEventArgs e)
+        {
+            if (LibraryGrid.SelectedItem is LibraryFolder Library)
+            {
+                MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Library.Folder, new DrillInNavigationTransitionInfo());
+            }
+        }
+
+        private void OpenUserLibrary_Click(object sender, RoutedEventArgs e)
+        {
+            if (LibraryGrid.SelectedItem is LibraryFolder Library)
+            {
+                MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Library.Folder, new DrillInNavigationTransitionInfo());
+            }
+        }
+
+        private async void RemovePin_Click(object sender, RoutedEventArgs e)
+        {
+            if (LibraryGrid.SelectedItem is LibraryFolder Library)
+            {
+                LibraryFolderList.Remove(Library);
+                await SQLite.Current.DeleteFolderLibraryAsync(Library.Folder.Path);
+            }
         }
     }
 }

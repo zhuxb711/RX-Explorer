@@ -603,7 +603,7 @@ namespace FileManager
             QueryOptions Options;
             if ((bool)ShallowRadio.IsChecked)
             {
-                Options = new QueryOptions(CommonFileQuery.DefaultQuery, null)
+                Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
                 {
                     FolderDepth = FolderDepth.Shallow,
                     IndexerOption = IndexerOption.UseIndexerWhenAvailable,
@@ -612,7 +612,7 @@ namespace FileManager
             }
             else
             {
-                Options = new QueryOptions(CommonFileQuery.DefaultQuery, null)
+                Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
                 {
                     FolderDepth = FolderDepth.Deep,
                     IndexerOption = IndexerOption.UseIndexerWhenAvailable,

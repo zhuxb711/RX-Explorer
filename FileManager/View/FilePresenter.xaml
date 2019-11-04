@@ -105,6 +105,11 @@
                               x:Uid="FolderDelete"
                               x:Name="FolderDelete"
                               Click="FolderDelete_Click" />
+                <AppBarButton Icon="Add" 
+                              Label="固定至主界面"
+                              x:Uid="PinToLibrary"
+                              x:Name="AddToLibray"
+                              Click="AddToLibray_Click"/>
                 <AppBarButton Icon="Tag"
                               Label="属性"
                               x:Uid="FolderAttribute"
@@ -174,7 +179,7 @@
         </controls1:TeachingTip>
     </Page.Resources>
 
-    <Grid AllowDrop="True">
+    <Grid>
         <Grid.Transitions>
             <TransitionCollection>
                 <PaneThemeTransition Edge="Right" />
@@ -188,18 +193,16 @@
                   RightTapped="GridViewControl_RightTapped"
                   SelectionChanged="GridViewControl_SelectionChanged"
                   SelectionMode="Single"
-                  CanDrag="True"
+                  CanDrag="False"
                   CanReorderItems="False"
-                  CanDragItems="True"
-                  AllowDrop="True"
-                  DragItemsCompleted="GridViewControl_DragItemsCompleted"
+                  CanDragItems="False"
+                  AllowDrop="False"
                   IsItemClickEnabled="True"
                   IsDoubleTapEnabled="True"
                   DoubleTapped="GridViewControl_DoubleTapped"
                   x:FieldModifier="Public"
                   IncrementalLoadingTrigger="Edge"
-                  DataFetchSize="1.5"
-                  DragItemsStarting="GridViewControl_DragItemsStarting">
+                  DataFetchSize="1.5">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="local:FileSystemStorageItem">
                     <StackPanel Width="240"
@@ -223,11 +226,11 @@
                                        TextTrimming="CharacterEllipsis" />
                             <TextBlock IsHitTestVisible="False"
                                        Text="{x:Bind DisplayType}"
-                                       FontSize="14" />
+                                       FontSize="13" />
                             <TextBlock IsHitTestVisible="False"
                                        Text="{x:Bind Size,Mode=OneWay}"
                                        Visibility="{x:Bind Folder,Converter={StaticResource StateConverter}}"
-                                       FontSize="14" />
+                                       FontSize="13" />
                         </StackPanel>
                     </StackPanel>
                 </DataTemplate>

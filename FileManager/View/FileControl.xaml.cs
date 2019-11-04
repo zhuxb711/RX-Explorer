@@ -128,7 +128,7 @@ namespace FileManager
                 : "Search " + PlaceText;
         }
 
-        protected async override void OnNavigatedFrom(NavigationEventArgs e)
+        protected override async void OnNavigatedFrom(NavigationEventArgs e)
         {
             Locker.Dispose();
 
@@ -196,7 +196,7 @@ namespace FileManager
             try
             {
                 ExitLocker.Reset();
-                QueryOptions Options = new QueryOptions(CommonFileQuery.DefaultQuery, null)
+                QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
                 {
                     FolderDepth = FolderDepth.Shallow,
                     IndexerOption = IndexerOption.UseIndexerWhenAvailable
@@ -324,7 +324,7 @@ namespace FileManager
 
                 FilePresenter.ThisPage.FileCollection.Clear();
 
-                QueryOptions Options = new QueryOptions(CommonFileQuery.DefaultQuery, null)
+                QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
                 {
                     FolderDepth = FolderDepth.Shallow,
                     IndexerOption = IndexerOption.UseIndexerWhenAvailable
@@ -514,24 +514,28 @@ FLAG:
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
             {
+                FolderTree.ContextFlyout = RightTabFlyout;
+
                 (FolderTree.ContainerFromNode(Node) as TreeViewItem).IsSelected = true;
                 await DisplayItemsInFolder(Node);
                 CurrentNode = Node;
 
                 if (FolderTree.RootNodes.Contains(CurrentNode))
                 {
-                    CreateFolder.IsEnabled = true;
                     FolderDelete.IsEnabled = false;
                     FolderRename.IsEnabled = false;
+                    FolderAdd.IsEnabled = false;
                 }
                 else
                 {
-                    CreateFolder.IsEnabled = true;
+                    FolderDelete.IsEnabled = true;
+                    FolderRename.IsEnabled = true;
+                    FolderAdd.IsEnabled = true;
                 }
             }
             else
             {
-                CreateFolder.IsEnabled = false;
+                FolderTree.ContextFlyout = null;
             }
         }
 
@@ -714,6 +718,28 @@ FLAG:
         {
             AttributeDialog Dialog = new AttributeDialog(CurrentFolder);
             _ = await Dialog.ShowAsync();
+        }
+
+        private async void FolderAdd_Click(object sender, RoutedEventArgs e)
+        {
+            StorageFolder folder = CurrentFolder;
+            if (ThisPC.ThisPage.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
+            {
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = "提示",
+                    Content = "此文件夹已经添加到主界面了，不能重复添加哦",
+                    CloseButtonText = "知道了",
+                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                };
+                _ = await dialog.ShowAsync();
+            }
+            else
+            {
+                BitmapImage Thumbnail = await folder.GetThumbnailBitmapAsync();
+                ThisPC.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, Thumbnail, LibrarySource.UserAdded));
+                await SQLite.Current.SetFolderLibraryAsync(folder.Path);
+            }
         }
     }
 

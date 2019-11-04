@@ -54,6 +54,37 @@
                            FontSize="18" />
             </StackPanel>
         </DataTemplate>
+
+        <CommandBarFlyout Placement="RightEdgeAlignedTop"
+                          x:Name="RightTabFlyout">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="NewFolder"
+                              Label="新建文件夹"
+                              x:Uid="FileControlCreateFolder"
+                              Name="CreateFolder"
+                              Click="CreateFolder_Click" />
+                <AppBarButton Icon="Delete"
+                              Label="删除此文件夹"
+                              x:Uid="FileControlDeleteFolder"
+                              Name="FolderDelete"
+                              Click="FolderDelete_Click" />
+                <AppBarButton Icon="Edit"
+                              Label="重命名此文件夹"
+                              x:Uid="FileControlRenameFolder"
+                              Name="FolderRename"
+                              Click="FolderRename_Click" />
+                <AppBarButton Icon="Add" 
+                              x:Name="FolderAdd"
+                              Label="固定至主界面"
+                              x:Uid="PinToLibrary"
+                              Click="FolderAdd_Click"/>
+                <AppBarButton Icon="Tag"
+                              Label="属性"
+                              x:Uid="FileControlAttribute"
+                              x:Name="FolderAttribute"
+                              Click="FolderAttribute_Click" />
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
     </Page.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -74,31 +105,6 @@
                   Grid.RowSpan="2"
                   VerticalAlignment="Stretch"
                   RightTapped="FolderTree_RightTapped">
-            <TreeView.ContextFlyout>
-                <CommandBarFlyout Placement="RightEdgeAlignedTop">
-                    <CommandBarFlyout.SecondaryCommands>
-                        <AppBarButton Icon="NewFolder"
-                                      Label="新建文件夹"
-                                      Name="CreateFolder"
-                                      Click="CreateFolder_Click" />
-                        <AppBarButton Icon="Delete"
-                                      Label="删除此文件夹"
-                                      Name="FolderDelete"
-                                      IsEnabled="{x:Bind CreateFolder.IsEnabled,Mode=OneWay}"
-                                      Click="FolderDelete_Click" />
-                        <AppBarButton Icon="Edit"
-                                      Label="重命名此文件夹"
-                                      Name="FolderRename"
-                                      IsEnabled="{x:Bind CreateFolder.IsEnabled,Mode=OneWay}"
-                                      Click="FolderRename_Click" />
-                        <AppBarButton Icon="Tag"
-                                      Label="属性"
-                                      x:Name="FolderAttribute"
-                                      IsEnabled="{x:Bind CreateFolder.IsEnabled,Mode=OneWay}"
-                                      Click="FolderAttribute_Click" />
-                    </CommandBarFlyout.SecondaryCommands>
-                </CommandBarFlyout>
-            </TreeView.ContextFlyout>
             <TreeView.Transitions>
                 <TransitionCollection>
                     <PaneThemeTransition Edge="Left" />

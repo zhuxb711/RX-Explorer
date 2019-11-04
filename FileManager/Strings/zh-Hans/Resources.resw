@@ -384,12 +384,6 @@
   <data name="ZipCRC.Label" xml:space="preserve">
     <value>CRC 完整性校验</value>
   </data>
-  <data name="ZipCRCComplete.Text" xml:space="preserve">
-    <value>完整 (较慢)</value>
-  </data>
-  <data name="ZipCRCSimple.Text" xml:space="preserve">
-    <value>简单 (较快)</value>
-  </data>
   <data name="ZipDecompression.Label" xml:space="preserve">
     <value>解压到当前目录</value>
   </data>
@@ -833,5 +827,26 @@
   </data>
   <data name="SystemInfoDialogNetwork.Text" xml:space="preserve">
     <value>网络信息</value>
+  </data>
+  <data name="PinToLibrary.Label" xml:space="preserve">
+    <value>固定至主界面</value>
+  </data>
+  <data name="LibraryCancelButton.Label" xml:space="preserve">
+    <value>取消固定</value>
+  </data>
+  <data name="LibraryOpenButton.Label" xml:space="preserve">
+    <value>打开</value>
+  </data>
+  <data name="FileControlAttribute.Label" xml:space="preserve">
+    <value>属性</value>
+  </data>
+  <data name="FileControlCreateFolder.Label" xml:space="preserve">
+    <value>新建文件夹</value>
+  </data>
+  <data name="FileControlDeleteFolder.Label" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="FileControlRenameFolder.Label" xml:space="preserve">
+    <value>重命名</value>
   </data>
 </root>
