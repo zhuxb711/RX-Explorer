@@ -107,11 +107,6 @@ namespace FileManager
                     _ = sb.Append("、FMA3");
                 }
 
-                if (SystemInformation._3DNOW)
-                {
-                    _ = sb.Append("、3DNow");
-                }
-
                 if (SystemInformation.SEP)
                 {
                     _ = sb.Append("、SEP");
@@ -206,7 +201,7 @@ namespace FileManager
             {
                 string GPUInfoGroup = SystemInformation.GraphicAdapterInfo[i];
                 string[] GPUInfo = GPUInfoGroup.Split("||");
-                int GPUMemory = Convert.ToInt32(GPUInfo[1]);
+                long GPUMemory = Convert.ToInt64(GPUInfo[1]);
                 if (GPUMemory != 0)
                 {
                     string GPUName = GPUInfo[0];

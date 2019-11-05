@@ -120,14 +120,6 @@ namespace SystemInformationProvider
 			}
 		}
 
-		property static bool _3DNOW
-		{
-			bool get()
-			{
-				return InstructionSet::_3DNOW;
-			}
-		}
-
 		property static bool FMA
 		{
 			bool get()
