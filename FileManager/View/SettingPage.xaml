@@ -79,18 +79,8 @@
     </Page.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="20" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="25" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <ScrollViewer Grid.Row="1"
-                      Grid.Column="1"
-                      Margin="0,0,0,15"
-                      IsVerticalScrollChainingEnabled="True">
+        <ScrollViewer IsVerticalScrollChainingEnabled="True"
+                      Margin="25">
             <StackPanel>
                 <StackPanel.ChildrenTransitions>
                     <TransitionCollection>

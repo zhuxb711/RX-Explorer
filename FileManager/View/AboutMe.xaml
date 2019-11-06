@@ -10,22 +10,46 @@
     Background="{StaticResource NavigationViewTopPaneBackground}">
 
     <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
-            <StackPanel.ChildrenTransitions>
-                <TransitionCollection>
-                    <EntranceThemeTransition FromVerticalOffset="150" IsStaggeringEnabled="True"/>
-                </TransitionCollection>
-            </StackPanel.ChildrenTransitions>
-            <TextBlock Text="Developer" FontWeight="ExtraBold" FontSize="22" HorizontalAlignment="Center"/>
-            <TextBlock Text="Ruofan" Margin="0,20,0,0" FontSize="18" HorizontalAlignment="Center"/>
-            <TextBlock Text="C# UWP WPF Developer" HorizontalAlignment="Center" FontSize="18"/>
-            <TextBlock Text="Contact Me" Margin="0,50,0,0" FontSize="22" FontWeight="ExtraBold" HorizontalAlignment="Center"/>
-            <StackPanel Height="50" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,20,0,0">
-                <Image Stretch="Uniform" Name="GithubImage" Source="ms-appx:///Assets/GithubIcon.png" PointerPressed="GithubImage_PointerPressed"/>
-                <Image Stretch="Uniform" Name="EmailImage" Margin="30,0,0,0" Source="ms-appx:///Assets/EmailIcon.png" PointerPressed="EmailImage_PointerPressed"/>
+        <StackPanel VerticalAlignment="Center">
+            <Image Source="ms-appx:///Assets/Square44x44Logo.altform-lightunplated_targetsize-256.png"
+                           Width="150"
+                           Stretch="Uniform"/>
+            <TextBlock Text="Base on"
+                               Margin="0,30,0,0"
+                               FontWeight="ExtraBold"
+                               TextAlignment="Center"
+                               FontSize="22"/>
+            <TextBlock Text="Universal Windows Platform" 
+                               FontSize="20" 
+                               TextAlignment="Center"
+                               Margin="0,10,0,0"/>
+            <TextBlock Text="Developer" 
+                               FontWeight="ExtraBold" 
+                               FontSize="22" 
+                               TextAlignment="Center"
+                               Margin="0,30,0,0"/>
+            <TextBlock Text="Ruofan" 
+                               Margin="0,10,0,0"
+                               FontSize="20" 
+                               TextAlignment="Center"/>
+            <TextBlock Text="Contact Me" 
+                               Margin="0,30,0,0"
+                               FontSize="22" 
+                               FontWeight="ExtraBold"
+                               TextAlignment="Center"/>
+            <StackPanel Height="50"
+                                HorizontalAlignment="Center"
+                                Orientation="Horizontal"
+                                Margin="0,30,0,0">
+                <Image Stretch="Uniform"
+                               Name="GithubImage"
+                               Source="ms-appx:///Assets/GithubIcon.png" 
+                               PointerPressed="GithubImage_PointerPressed"/>
+                <Image Stretch="Uniform" 
+                               Name="EmailImage" Margin="30,0,0,0"
+                               Source="ms-appx:///Assets/EmailIcon.png"
+                               PointerPressed="EmailImage_PointerPressed"/>
             </StackPanel>
-
-            <TextBlock Text="Thanks" FontWeight="ExtraBold" HorizontalAlignment="Center" FontSize="22" Margin="0,50,0,0"/>
         </StackPanel>
     </Grid>
 </Page>
