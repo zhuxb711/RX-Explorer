@@ -354,7 +354,8 @@ namespace FileManager
                 GatewayDescriptionBlock.SetValue(Grid.ColumnProperty, 0);
                 NetworkGrid.Children.Add(GatewayDescriptionBlock);
 
-                var Gateway = IPProperties.GatewayAddresses.FirstOrDefault();
+                var Gateway = IPProperties.GatewayAddresses.FirstOrDefault((Address) => Address.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                              ?? IPProperties.GatewayAddresses.FirstOrDefault((Address) => Address.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6);
                 TextBlock GatewayAddressBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
@@ -391,7 +392,7 @@ namespace FileManager
                 PrimaryDNSDescriptionBlock.SetValue(Grid.ColumnProperty, 0);
                 NetworkGrid.Children.Add(PrimaryDNSDescriptionBlock);
 
-                var PDNS = IPProperties.DnsAddresses.FirstOrDefault();
+                var PDNS = IPProperties.DnsAddresses.FirstOrDefault();                
                 TextBlock PrimaryDNSAddressBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
