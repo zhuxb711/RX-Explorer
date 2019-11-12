@@ -159,6 +159,9 @@
   <data name="AttributeFileName.Text" xml:space="preserve">
     <value>FileName</value>
   </data>
+  <data name="AttributeInclude.Text" xml:space="preserve">
+    <value>Includes</value>
+  </data>
   <data name="AttributeLocation.Text" xml:space="preserve">
     <value>Location</value>
   </data>

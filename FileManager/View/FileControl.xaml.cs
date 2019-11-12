@@ -211,25 +211,6 @@ namespace FileManager
                 {
                     return;
                 }
-                else if (FolderCount <= 50)
-                {
-                    IReadOnlyList<StorageFolder> StorageFolderList = await FolderQuery.GetFoldersAsync().AsTask(FolderExpandCancel.Token);
-
-                    foreach (var SubFolder in StorageFolderList)
-                    {
-                        StorageFolderQueryResult SubFolderQuery = SubFolder.CreateFolderQueryWithOptions(Options);
-                        uint Count = await SubFolderQuery.GetItemCountAsync().AsTask(FolderExpandCancel.Token);
-
-                        TreeViewNode NewNode = new TreeViewNode
-                        {
-                            Content = SubFolder,
-                            HasUnrealizedChildren = Count != 0
-                        };
-
-                        Node.Children.Add(NewNode);
-                    }
-                    Node.HasUnrealizedChildren = false;
-                }
                 else
                 {
                     for (uint i = 0; i < FolderCount && !FolderExpandCancel.IsCancellationRequested; i += 50)
@@ -339,7 +320,7 @@ namespace FileManager
                 try
                 {
                     FilePresenter.ThisPage.FileCollection.HasMoreItems = false;
-                    FileList = await ItemQuery.GetItemsAsync(0, 50).AsTask(CancelToken.Token);
+                    FileList = await ItemQuery.GetItemsAsync(0, 100).AsTask(CancelToken.Token);
                     await FilePresenter.ThisPage.FileCollection.SetStorageItemQuery(ItemQuery);
                 }
                 catch (TaskCanceledException)
@@ -716,8 +697,24 @@ FLAG:
 
         private async void FolderAttribute_Click(object sender, RoutedEventArgs e)
         {
-            AttributeDialog Dialog = new AttributeDialog(CurrentFolder);
-            _ = await Dialog.ShowAsync();
+            if (CurrentNode == FolderTree.RootNodes.FirstOrDefault())
+            {
+                if (ThisPC.ThisPage.HardDeviceList.FirstOrDefault((Device) => Device.Name == CurrentFolder.DisplayName) is HardDeviceInfo Info)
+                {
+                    DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
+                    _ = await dialog.ShowAsync();
+                }
+                else
+                {
+                    AttributeDialog Dialog = new AttributeDialog(CurrentFolder);
+                    _ = await Dialog.ShowAsync();
+                }
+            }
+            else
+            {
+                AttributeDialog Dialog = new AttributeDialog(CurrentFolder);
+                _ = await Dialog.ShowAsync();
+            }
         }
 
         private async void FolderAdd_Click(object sender, RoutedEventArgs e)

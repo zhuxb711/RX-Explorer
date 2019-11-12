@@ -18,72 +18,63 @@
                 <TextBlock Text="文件名"
                            x:Uid="AttributeFileName"
                            Name="Na"
-                           Height="35"
-                           TextAlignment="Justify" />
+                           Height="35"/>
                 <TextBlock Text="类型"
                            x:Uid="AttributeType"
-                           Height="35"
-                           TextAlignment="Justify" />
+                           Height="35"/>
                 <TextBlock Text="位置"
                            x:Uid="AttributeLocation"
-                           Height="35"
-                           TextAlignment="Justify" />
+                           Height="35" />
                 <TextBlock Text="大小"
                            x:Uid="AttributeSize"
-                           Visibility="{x:Bind Si.Visibility,Mode=OneWay}"
+                           Height="35"/>
+                <TextBlock Text="包括"
+                           x:Uid="AttributeInclude"
                            Height="35"
-                           TextAlignment="Justify" />
-                <TextBlock Text="包含"
-                           Height="35"
-                           TextAlignment="Justify"
                            Visibility="{x:Bind Inc.Visibility,Mode=OneWay}" />
                 <TextBlock Text="创建时间"
                            x:Uid="AttributeCreated"
-                           Height="35"
-                           TextAlignment="Justify" />
+                           Height="35"/>
                 <TextBlock Text="修改时间"
                            x:Uid="AttributeModified"
-                           Height="35"
-                           TextAlignment="Justify" />
+                           Height="35"/>
             </StackPanel>
-            <TextBlock Width="25" />
-            <StackPanel>
+            <StackPanel Margin="25,0,0,0">
                 <TextBlock Text="{x:Bind FileName,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind FileName,Mode=OneWay}"
                            Height="35"
                            TextTrimming="CharacterEllipsis"
-                           Width="280" />
+                           Width="250" />
                 <TextBlock Text="{x:Bind FileType,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind FileType,Mode=OneWay}"
                            Height="35"
                            TextTrimming="CharacterEllipsis"
-                           Width="280" />
+                           Width="250" />
                 <TextBlock Text="{x:Bind Path,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Path,Mode=OneWay}"
                            Height="35"
                            TextTrimming="CharacterEllipsis"
-                           Width="280" />
+                           Width="250" />
                 <TextBlock Text="{x:Bind FileSize,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind FileSize,Mode=OneWay}"
-                           Name="Si"
                            Height="35"
                            TextTrimming="CharacterEllipsis"
-                           Width="280" />
+                           Width="250" />
                 <TextBlock Text="{x:Bind Include,Mode=OneWay}"
                            Height="35"
                            TextTrimming="CharacterEllipsis"
-                           Width="280"
+                           Width="250"
                            Name="Inc" />
                 <TextBlock Text="{x:Bind CreateTime,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind CreateTime,Mode=OneWay}"
                            Height="35"
                            TextTrimming="CharacterEllipsis"
-                           Width="280" />
+                           Width="250" />
                 <TextBlock Text="{x:Bind ChangeTime,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind ChangeTime,Mode=OneWay}"
                            Height="35"
                            TextTrimming="CharacterEllipsis"
-                           Width="280" />
+                           Width="250" />
             </StackPanel>
         </StackPanel>
     </Grid>

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -1874,7 +1873,7 @@ namespace FileManager
                         }
                         else
                         {
-                            if((await FileControl.ThisPage.CurrentFolder.GetFoldersAsync()).Count==0)
+                            if ((await FileControl.ThisPage.CurrentFolder.GetFoldersAsync()).Count == 0)
                             {
                                 FileControl.ThisPage.CurrentNode.HasUnrealizedChildren = false;
                             }
@@ -2042,8 +2041,24 @@ namespace FileManager
 
         private async void ParentAttribute_Click(object sender, RoutedEventArgs e)
         {
-            AttributeDialog Dialog = new AttributeDialog(FileControl.ThisPage.CurrentFolder);
-            _ = await Dialog.ShowAsync();
+            if (FileControl.ThisPage.CurrentNode == FileControl.ThisPage.FolderTree.RootNodes.FirstOrDefault())
+            {
+                if (ThisPC.ThisPage.HardDeviceList.FirstOrDefault((Device) => Device.Name == FileControl.ThisPage.CurrentFolder.DisplayName) is HardDeviceInfo Info)
+                {
+                    DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
+                    _ = await dialog.ShowAsync();
+                }
+                else
+                {
+                    AttributeDialog Dialog = new AttributeDialog(FileControl.ThisPage.CurrentFolder);
+                    _ = await Dialog.ShowAsync();
+                }
+            }
+            else
+            {
+                AttributeDialog Dialog = new AttributeDialog(FileControl.ThisPage.CurrentFolder);
+                _ = await Dialog.ShowAsync();
+            }
         }
 
         private async void FileOpen_Click(object sender, RoutedEventArgs e)

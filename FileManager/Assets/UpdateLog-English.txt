@@ -1,4 +1,27 @@
 ﻿*****
+###What's new in Ver.3.3.3.0
+
+>#####Function update
+
+>>#####Display more information in folder properties, including "file & folder num", "folder size"
+
+>>#####Now if you right click on "Folder Properties" in the root directory of the disk, the disk information will be automatically displayed.
+
+>>#####Add the right-click menu of "Folders and Libraries" - "Properties"
+
+>#####Bug fix
+
+>>#####Solved the problem that the update log will pop up every time RX is started
+
+>>#####Now different identifiers are used to distinguish different disks
+
+>>#####Resolve translation problems of some modules
+
+>#####Performance optimization
+
+>>#####Improve the rendering speed and scrolling fluency of files and files
+
+*****
 ###What's new in Ver.3.2.7.0
 
 >#####UI optimization

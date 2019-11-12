@@ -1632,9 +1632,9 @@ namespace FileManager
 
             MaxNum = await Query.GetItemCountAsync();
 
-            CurrentIndex = MaxNum > 50 ? 50 : MaxNum;
+            CurrentIndex = MaxNum > 100 ? 100 : MaxNum;
 
-            if (MaxNum > 50)
+            if (MaxNum > 100)
             {
                 HasMoreItems = true;
             }

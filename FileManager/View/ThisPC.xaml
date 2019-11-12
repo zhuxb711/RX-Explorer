@@ -82,6 +82,11 @@
                               x:Uid="LibraryCancelButton"
                               Label="取消固定"
                               Click="RemovePin_Click"/>
+                <AppBarButton Icon="Tag"
+                              Label="属性"
+                              x:Uid="FolderAttribute"
+                              x:Name="LibraryProperties"
+                              Click="LibraryProperties_Click"/>
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
@@ -93,6 +98,10 @@
                               x:Uid="LibraryOpenButton"
                               Click="OpenSystemLibrary_Click"
                               x:Name="OpenSystemLibrary" />
+                <AppBarButton Icon="Tag"
+                              Label="属性"
+                              x:Uid="FolderAttribute"
+                              Click="LibraryProperties_Click"/>
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
     </Page.Resources>

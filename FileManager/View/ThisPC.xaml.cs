@@ -118,7 +118,7 @@ namespace FileManager
                         IReadOnlyList<StorageFolder> Users = await UserFolder.GetFoldersAsync();
                         IEnumerable<StorageFolder> PotentialUsers = Users.Where((Folder) => Folder.Name != "Public");
 
-FLAG1:
+                    FLAG1:
                         UserFolderDialog dialog = new UserFolderDialog(PotentialUsers);
                         _ = await dialog.ShowAsync();
 
@@ -192,7 +192,7 @@ FLAG1:
 
                 if (PotentialUsers.Count() > 1)
                 {
-FLAG:
+                FLAG:
                     UserFolderDialog dialog = new UserFolderDialog(PotentialUsers);
                     _ = await dialog.ShowAsync();
 
@@ -382,7 +382,7 @@ FLAG:
                     QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = "警告",
-                        Content = "部分已固定的文件夹已无法找到，将自动移除\r\r" 
+                        Content = "部分已固定的文件夹已无法找到，将自动移除\r\r"
                         + "包括：\r" + Display,
                         CloseButtonText = "知道了",
                         Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
@@ -574,7 +574,7 @@ FLAG:
             if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Context)
             {
                 LibraryGrid.SelectedItem = Context;
-                if(Context.Source == LibrarySource.UserAdded)
+                if (Context.Source == LibrarySource.UserAdded)
                 {
                     LibraryGrid.ContextFlyout = UserLibraryFlyout;
                 }
@@ -611,6 +611,15 @@ FLAG:
             {
                 LibraryFolderList.Remove(Library);
                 await SQLite.Current.DeleteFolderLibraryAsync(Library.Folder.Path);
+            }
+        }
+
+        private async void LibraryProperties_Click(object sender, RoutedEventArgs e)
+        {
+            if (LibraryGrid.SelectedItem is LibraryFolder Library)
+            {
+                AttributeDialog Dialog = new AttributeDialog(Library.Folder);
+                _ = await Dialog.ShowAsync();
             }
         }
     }

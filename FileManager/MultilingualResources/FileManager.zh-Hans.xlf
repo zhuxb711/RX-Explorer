@@ -295,6 +295,10 @@
           <target state="translated">路径</target>
         </trans-unit>
         <trans-unit id="AttributeModified.Text" translate="yes" xml:space="preserve">
+          <source>Includes</source>
+          <target state="translated">包括</target>
+        </trans-unit>
+        <trans-unit id="AttributeInclude.Text" translate="yes" xml:space="preserve">
           <source>Modified</source>
           <target state="translated">修改时间</target>
         </trans-unit>
