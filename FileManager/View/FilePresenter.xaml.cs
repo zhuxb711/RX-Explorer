@@ -1035,41 +1035,43 @@ namespace FileManager
         {
             lock (SyncRootProvider.SyncRoot)
             {
-                if (e.AddedItems.Count == 0)
+                if (GridViewControl.SelectedItem is FileSystemStorageItem Item)
                 {
-                    return;
-                }
-
-                if ((GridViewControl.SelectedItem as FileSystemStorageItem).ContentType == ContentType.File)
-                {
-                    Transcode.IsEnabled = false;
-
-                    Zip.Label = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
-                        ? "Zip压缩"
-                        : "Zip Compression";
-                    switch ((e.AddedItems.FirstOrDefault() as FileSystemStorageItem).Type)
+                    if (Item.ContentType == ContentType.File)
                     {
-                        case ".zip":
-                            Zip.Label = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
-                                ? "Zip解压"
-                                : "Zip Decompression";
-                            break;
-                        case ".mkv":
-                        case ".mp4":
-                        case ".mp3":
-                        case ".flac":
-                        case ".wma":
-                        case ".wmv":
-                        case ".m4a":
-                        case ".mov":
-                        case ".alac":
-                            Transcode.IsEnabled = true;
-                            break;
-                    }
+                        Transcode.IsEnabled = false;
 
-                    AES.Label = (e.AddedItems.FirstOrDefault() as FileSystemStorageItem).Type == ".sle"
-                        ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "AES解密" : "AES Decryption")
-                        : (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "AES加密" : "AES Encryption");
+                        Zip.Label = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                                    ? "Zip压缩"
+                                    : "Zip Compression";
+                        switch (Item.Type)
+                        {
+                            case ".zip":
+                                {
+                                    Zip.Label = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                                                ? "Zip解压"
+                                                : "Zip Decompression";
+                                    break;
+                                }
+                            case ".mkv":
+                            case ".mp4":
+                            case ".mp3":
+                            case ".flac":
+                            case ".wma":
+                            case ".wmv":
+                            case ".m4a":
+                            case ".mov":
+                            case ".alac":
+                                {
+                                    Transcode.IsEnabled = true;
+                                    break;
+                                }
+                        }
+
+                        AES.Label = Item.Type == ".sle"
+                                    ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "AES解密" : "AES Decryption")
+                                    : (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "AES加密" : "AES Encryption");
+                    }
                 }
             }
         }
