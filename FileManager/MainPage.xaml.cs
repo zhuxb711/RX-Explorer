@@ -2,7 +2,6 @@
 using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -154,7 +153,9 @@ namespace FileManager
                 {
                     WhatIsNew Dialog = new WhatIsNew();
                     await Task.Delay(2000);
-                    await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync();
+
+                    ApplicationData.Current.LocalSettings.Values["LastRunVersion"] = string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
                 }
             }
             else
@@ -162,7 +163,7 @@ namespace FileManager
                 ApplicationData.Current.LocalSettings.Values["LastRunVersion"] = string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
                 WhatIsNew Dialog = new WhatIsNew();
                 await Task.Delay(2000);
-                await Dialog.ShowAsync();
+                _ = await Dialog.ShowAsync();
             }
 
 #if !DEBUG

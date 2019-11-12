@@ -497,7 +497,7 @@ namespace FileManager
             {
                 return ContentType == ContentType.Folder ?
                     (string.IsNullOrEmpty(Folder.DisplayName) ? Folder.Name : Folder.DisplayName) :
-                    (string.IsNullOrEmpty(File.DisplayName) ? File.Name : (File.DisplayName.Contains(File.FileType) ? File.DisplayName.Remove(File.DisplayName.LastIndexOf(".")) : File.DisplayName));
+                    (string.IsNullOrEmpty(File.DisplayName) ? File.Name : (File.DisplayName.EndsWith(File.FileType) ? File.DisplayName.Remove(File.DisplayName.LastIndexOf(".")) : File.DisplayName));
             }
         }
 

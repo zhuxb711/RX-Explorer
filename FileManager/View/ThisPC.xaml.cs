@@ -358,9 +358,9 @@ FLAG:
             }
 
             foreach (string DriveRootPath in DriveInfo.GetDrives()
-                                                      .TakeWhile((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
-                                                      .GroupBy((Item) => Item.Name)
-                                                      .Select((Group) => Group.FirstOrDefault().Name))
+                                                      .Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                                                      .GroupBy((Item) => Item.RootDirectory.FullName)
+                                                      .Select((Group) => Group.FirstOrDefault().RootDirectory.FullName))
             {
                 var Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
                 BasicProperties Properties = await Device.GetBasicPropertiesAsync();
@@ -377,15 +377,30 @@ FLAG:
                     Display += "   " + ErrorList.Dequeue() + "\r";
                 }
 
-                QueueContentDialog dialog = new QueueContentDialog
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                 {
-                    Title = "警告",
-                    Content = "部分固定的文件夹已无法找到，将自动移除\r\r" +
-                    "包括：\r" + Display,
-                    CloseButtonText = "知道了",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                };
-                _ = await dialog.ShowAsync();
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = "警告",
+                        Content = "部分已固定的文件夹已无法找到，将自动移除\r\r" 
+                        + "包括：\r" + Display,
+                        CloseButtonText = "知道了",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    _ = await dialog.ShowAsync();
+                }
+                else
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = "Warning",
+                        Content = "Some of the fixed folders are no longer found and will be automatically removed\r\r"
+                        + "Including：\r" + Display,
+                        CloseButtonText = "Got it",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    _ = await dialog.ShowAsync();
+                }
             }
 
             if (MainPage.ThisPage.IsUSBActivate && !string.IsNullOrWhiteSpace(MainPage.ThisPage.ActivateUSBDevicePath))

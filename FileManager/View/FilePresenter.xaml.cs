@@ -2123,14 +2123,28 @@ namespace FileManager
             StorageFolder folder = (GridViewControl.SelectedItem as FileSystemStorageItem).Folder;
             if (ThisPC.ThisPage.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
             {
-                QueueContentDialog dialog = new QueueContentDialog
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                 {
-                    Title = "提示",
-                    Content = "此文件夹已经添加到主界面了，不能重复添加哦",
-                    CloseButtonText = "知道了",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                };
-                _ = await dialog.ShowAsync();
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = "提示",
+                        Content = "此文件夹已经添加到主界面了，不能重复添加哦",
+                        CloseButtonText = "知道了",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    _ = await dialog.ShowAsync();
+                }
+                else
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = "Tips",
+                        Content = "This folder has been added to the home page, can not be added repeatedly",
+                        CloseButtonText = "知道了",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                    _ = await dialog.ShowAsync();
+                }
             }
             else
             {

@@ -215,10 +215,9 @@
                                Source="{x:Bind Thumbnail,Mode=OneWay}"
                                Height="60"
                                Width="60" />
-                        <StackPanel AllowDrop="True"
-                                    Orientation="Vertical"
+                        <StackPanel Orientation="Vertical"
                                     VerticalAlignment="Top"
-                                    Margin="5,2,0,0">
+                                    Margin="5,0,0,0">
                             <TextBlock IsHitTestVisible="False"
                                        Text="{x:Bind DisplayName,Mode=OneWay}"
                                        FontSize="17"
