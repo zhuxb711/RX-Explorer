@@ -1,4 +1,17 @@
 ﻿*****
+###What's new in Ver.3.2.7.0
+
+>#####UI optimization
+
+>>#####Optimized the effect of the "About Developer" page
+
+>#####Bug fix
+
+>>#####Solved the problem that the "View System Information" module cannot correctly process graphics card data larger than 2GB, this problem will cause crash
+
+>>#####Resolved the problem that the “View System Information” module does not prioritize the display of IPv4 addresses when processing the gateway IP address.
+
+*****
 ###What's new in Ver.3.2.5.0
 
 >#####Interface optimization
