@@ -1,26 +1,36 @@
-﻿<local:QueueContentDialog
-    x:Class="FileManager.TranscodeDialog"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:FileManager"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    x:Uid="TranscodeDialog"
-    Title="转码"
-    PrimaryButtonText="确定"
-    CloseButtonText="取消"
-    PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick"
-    Background="{StaticResource DialogAcrylicBrush}">
+﻿<local:QueueContentDialog x:Class="FileManager.TranscodeDialog"
+                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                          xmlns:local="using:FileManager"
+                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                          mc:Ignorable="d"
+                          x:Uid="TranscodeDialog"
+                          Title="转码"
+                          PrimaryButtonText="确定"
+                          CloseButtonText="取消"
+                          Background="{StaticResource DialogAcrylicBrush}">
 
     <Grid>
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
-                <ComboBox Header="转换格式" x:Uid="TranscodeFormat" Name="Format" Width=" 180"/>
-                <ComboBox Header="编码质量" x:Uid="TranscodeQuality" Name="Quality" SelectionChanged="Quality_SelectionChanged" Width="120" Margin="10,0,0,0"/>
+                <ComboBox Header="转换格式"
+                          x:Uid="TranscodeFormat"
+                          Name="Format"
+                          Width=" 180" />
+                <ComboBox Header="编码质量"
+                          x:Uid="TranscodeQuality"
+                          Name="Quality"
+                          SelectionChanged="Quality_SelectionChanged"
+                          Width="120"
+                          Margin="10,0,0,0" />
             </StackPanel>
-            <TextBlock Name="Info"/>
-            <CheckBox Name="SpeedUpEnable" x:Uid="TranscodeBoost" Content="使用硬件加速(推荐)" IsChecked="True"/>
+            <TextBlock Name="Info"
+                       Margin="0,10,0,10" />
+            <CheckBox Name="SpeedUpEnable"
+                      x:Uid="TranscodeBoost"
+                      Content="使用硬件加速(推荐)"
+                      IsChecked="True" />
         </StackPanel>
     </Grid>
 </local:QueueContentDialog>

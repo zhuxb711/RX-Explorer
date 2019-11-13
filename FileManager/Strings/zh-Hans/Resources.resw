@@ -231,6 +231,9 @@
   <data name="AttributeModified.Text" xml:space="preserve">
     <value>修改时间</value>
   </data>
+  <data name="AttributeInclude.Text" xml:space="preserve">
+    <value>包括</value>
+  </data>
   <data name="AttributeSize.Text" xml:space="preserve">
     <value>大小</value>
   </data>

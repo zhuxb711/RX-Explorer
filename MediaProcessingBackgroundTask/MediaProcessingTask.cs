@@ -24,11 +24,12 @@ namespace MediaProcessingBackgroundTask
 
         public async void Run(IBackgroundTaskInstance taskInstance)
         {
+            Deferral = BackTaskInstance.GetDeferral();
+
             Cancellation = new CancellationTokenSource();
             BackTaskInstance = taskInstance;
             BackTaskInstance.Canceled += BackTaskInstance_Canceled;
             BackTaskInstance.Progress = 0;
-            Deferral = BackTaskInstance.GetDeferral();
 
             await TranscodeMediaAsync();
 
@@ -43,7 +44,7 @@ namespace MediaProcessingBackgroundTask
             }
 
             await Task.Delay(1000);
-            ToastNotificationManager.History.Remove("SmartLens-TranscodeNotification");
+            ToastNotificationManager.History.Remove("TranscodeNotification");
 
             if (Cancellation.IsCancellationRequested)
             {
@@ -420,7 +421,7 @@ namespace MediaProcessingBackgroundTask
         {
             IsSystemCancelRequest = true;
             Cancellation.Cancel();
-            ToastNotificationManager.History.Remove("SmartLens-TranscodeNotification");
+            ToastNotificationManager.History.Remove("TranscodeNotification");
             await OutputFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
             ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh")
                 ? "转码任务被Windows终止"
@@ -431,7 +432,7 @@ namespace MediaProcessingBackgroundTask
 
         private void UpdateToastNotification(uint CurrentValue)
         {
-            string Tag = "SmartLens-TranscodeNotification";
+            string Tag = "TranscodeNotification";
 
             var data = new NotificationData
             {
@@ -445,7 +446,7 @@ namespace MediaProcessingBackgroundTask
 
         public void SendUpdatableToastWithProgress()
         {
-            string Tag = "SmartLens-TranscodeNotification";
+            string Tag = "TranscodeNotification";
 
             var content = new ToastContent()
             {
@@ -490,7 +491,7 @@ namespace MediaProcessingBackgroundTask
 
             Toast.Activated += (s, e) =>
             {
-                if (s.Tag == "SmartLens-TranscodeNotification")
+                if (s.Tag == "TranscodeNotification")
                 {
                     Cancellation.Cancel();
                 }

@@ -1,5 +1,6 @@
 ﻿using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
+using Microsoft.Toolkit.Uwp.Notifications;
 using OpenCV;
 using System;
 using System.Collections.Generic;
@@ -12,10 +13,13 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.Radios;
 using Windows.Graphics.Imaging;
+using Windows.Media.MediaProperties;
+using Windows.Media.Transcoding;
 using Windows.Storage;
 using Windows.Storage.Search;
 using Windows.System;
 using Windows.UI;
+using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -43,6 +47,8 @@ namespace FileManager
         byte[] EncryptByteBuffer;
         byte[] DecryptByteBuffer;
         FileSystemStorageItem DoubleTabTarget = null;
+
+        CancellationTokenSource TranscodeCancellation;
 
 
         public FilePresenter()
@@ -1648,13 +1654,422 @@ namespace FileManager
 
         private async void Transcode_Click(object sender, RoutedEventArgs e)
         {
-            StorageFile file = (GridViewControl.SelectedItem as FileSystemStorageItem).File;
-            TranscodeDialog dialog = new TranscodeDialog
+            if (GridViewControl.SelectedItem is FileSystemStorageItem Source)
             {
-                SourceFile = file
-            };
-            await dialog.ShowAsync();
+                TranscodeDialog dialog = new TranscodeDialog(Source.File);
+
+                if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+                {
+                    try
+                    {
+                        StorageFile DestinationFile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(Source.DisplayName + "." + dialog.MediaTranscodeEncodingProfile.ToLower(), CreationCollisionOption.ReplaceExisting);
+
+                        await TranscodeMediaAsync(dialog.MediaTranscodeEncodingProfile, dialog.MediaTranscodeQuality, dialog.SpeedUp, Source.File, DestinationFile);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = "错误",
+                                Content = "RX无权在此处创建转码文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                                PrimaryButtonText = "立刻",
+                                CloseButtonText = "稍后",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                            {
+                                _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            }
+                        }
+                        else
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = "Error",
+                                Content = "RX does not have permission to create transcode file, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                                PrimaryButtonText = "Enter",
+                                CloseButtonText = "Later",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                            {
+                                _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            }
+                        }
+                    }
+
+                }
+            }
         }
+
+        private async Task TranscodeMediaAsync(string MediaTranscodeEncodingProfile, string MediaTranscodeQuality, bool SpeedUp, StorageFile SourceFile, StorageFile DestinationFile)
+        {
+            await Task.Factory.StartNew(() =>
+            {
+                TranscodeCancellation = new CancellationTokenSource();
+
+                MediaTranscoder Transcoder = new MediaTranscoder
+                {
+                    HardwareAccelerationEnabled = true,
+                    VideoProcessingAlgorithm = SpeedUp ? MediaVideoProcessingAlgorithm.Default : MediaVideoProcessingAlgorithm.MrfCrf444
+                };
+
+                try
+                {
+                    MediaEncodingProfile Profile = null;
+                    VideoEncodingQuality VideoQuality = default;
+                    AudioEncodingQuality AudioQuality = default;
+
+                    switch (MediaTranscodeQuality)
+                    {
+                        case "UHD2160p":
+                            VideoQuality = VideoEncodingQuality.Uhd2160p;
+                            break;
+                        case "QVGA":
+                            VideoQuality = VideoEncodingQuality.Qvga;
+                            break;
+                        case "HD1080p":
+                            VideoQuality = VideoEncodingQuality.HD1080p;
+                            break;
+                        case "HD720p":
+                            VideoQuality = VideoEncodingQuality.HD720p;
+                            break;
+                        case "WVGA":
+                            VideoQuality = VideoEncodingQuality.Wvga;
+                            break;
+                        case "VGA":
+                            VideoQuality = VideoEncodingQuality.Vga;
+                            break;
+                        case "High":
+                            AudioQuality = AudioEncodingQuality.High;
+                            break;
+                        case "Medium":
+                            AudioQuality = AudioEncodingQuality.Medium;
+                            break;
+                        case "Low":
+                            AudioQuality = AudioEncodingQuality.Low;
+                            break;
+                    }
+
+                    switch (MediaTranscodeEncodingProfile)
+                    {
+                        case "MKV":
+                            Profile = MediaEncodingProfile.CreateHevc(VideoQuality);
+                            break;
+                        case "MP4":
+                            Profile = MediaEncodingProfile.CreateMp4(VideoQuality);
+                            break;
+                        case "WMV":
+                            Profile = MediaEncodingProfile.CreateWmv(VideoQuality);
+                            break;
+                        case "AVI":
+                            Profile = MediaEncodingProfile.CreateAvi(VideoQuality);
+                            break;
+                        case "MP3":
+                            Profile = MediaEncodingProfile.CreateMp3(AudioQuality);
+                            break;
+                        case "ALAC":
+                            Profile = MediaEncodingProfile.CreateAlac(AudioQuality);
+                            break;
+                        case "WMA":
+                            Profile = MediaEncodingProfile.CreateWma(AudioQuality);
+                            break;
+                        case "M4A":
+                            Profile = MediaEncodingProfile.CreateM4a(AudioQuality);
+                            break;
+                    }
+
+                    PrepareTranscodeResult Result = Transcoder.PrepareFileTranscodeAsync(SourceFile, DestinationFile, Profile).AsTask().Result;
+                    if (Result.CanTranscode)
+                    {
+                        SendUpdatableToastWithProgress(SourceFile, DestinationFile);
+                        Progress<double> TranscodeProgress = new Progress<double>(UpdateToastNotification);
+
+                        Result.TranscodeAsync().AsTask(TranscodeCancellation.Token, TranscodeProgress).Wait();
+
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = "Success";
+                    }
+                    else
+                    {
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = "NotSupport";
+                        DestinationFile.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                    }
+                }
+                catch (AggregateException)
+                {
+                    ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = "Cancel";
+                    DestinationFile.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                }
+                catch (Exception e)
+                {
+                    ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = e.Message;
+                    DestinationFile.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                }
+            }, TaskCreationOptions.LongRunning).ContinueWith((task) =>
+            {
+                TranscodeCancellation.Dispose();
+                TranscodeCancellation = null;
+
+                if (ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] is string ExcuteStatus)
+                {
+                    Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                        {
+                            switch (ExcuteStatus)
+                            {
+                                case "Success":
+                                    FileControl.ThisPage.Notification.Show("转码已成功完成", 10000);
+                                    ShowCompleteNotification(SourceFile, DestinationFile);
+                                    break;
+                                case "Cancel":
+                                    FileControl.ThisPage.Notification.Show("转码任务被取消", 10000);
+                                    ShowUserCancelNotification();
+                                    break;
+                                case "NotSupport":
+                                    FileControl.ThisPage.Notification.Show("转码格式不支持", 10000);
+                                    break;
+                                default:
+                                    FileControl.ThisPage.Notification.Show("转码失败:" + ExcuteStatus, 10000);
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            switch (ExcuteStatus)
+                            {
+                                case "Success":
+                                    FileControl.ThisPage.Notification.Show("Transcoding has been successfully completed", 10000);
+                                    break;
+                                case "Cancel":
+                                    FileControl.ThisPage.Notification.Show("Transcoding task is cancelled", 10000);
+                                    ShowUserCancelNotification();
+                                    break;
+                                case "NotSupport":
+                                    FileControl.ThisPage.Notification.Show("Transcoding format is not supported", 10000);
+                                    break;
+                                default:
+                                    FileControl.ThisPage.Notification.Show("Transcoding failed:" + ExcuteStatus, 10000);
+                                    break;
+                            }
+                        }
+                    }).AsTask().Wait();
+                }
+            });
+        }
+
+        private void ShowCompleteNotification(StorageFile SourceFile, StorageFile DestinationFile)
+        {
+            ToastNotificationManager.History.Remove("TranscodeNotification");
+
+            if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "转换已完成！"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                   Text = SourceFile.Name+" 已成功转换为 "+DestinationFile.Name
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text="点击以消除提示"
+                                }
+                            }
+                        }
+                    },
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            else
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "Transcoding has been completed！"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                   Text = SourceFile.Name+" has been successfully transcoded to "+DestinationFile.Name
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text="Click to remove the prompt"
+                                }
+                            }
+                        }
+                    },
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+        }
+
+        private void ShowUserCancelNotification()
+        {
+            ToastNotificationManager.History.Remove("TranscodeNotification");
+
+            if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "格式转换已被取消"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                   Text = "您可以尝试重新启动转换"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text="点击以消除提示"
+                                }
+                            }
+                        }
+                    }
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            else
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "Transcode has been cancelled"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                   Text = "You can try restarting the transcode"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text="Click to remove the prompt"
+                                }
+                            }
+                        }
+                    }
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+        }
+
+        private void UpdateToastNotification(double CurrentValue)
+        {
+            string Tag = "TranscodeNotification";
+
+            var data = new NotificationData
+            {
+                SequenceNumber = 0
+            };
+            data.Values["ProgressValue"] = Math.Round(CurrentValue / 100, 2, MidpointRounding.AwayFromZero).ToString();
+            data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
+
+            ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+        }
+
+        public void SendUpdatableToastWithProgress(StorageFile SourceFile, StorageFile DestinationFile)
+        {
+            string Tag = "TranscodeNotification";
+
+            var content = new ToastContent()
+            {
+                Launch = "Transcode",
+                Scenario = ToastScenario.Reminder,
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                        {
+                            new AdaptiveText()
+                            {
+                                Text =Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh")
+                                ? ("正在转换:"+SourceFile.DisplayName)
+                                : ("Transcoding:"+SourceFile.DisplayName)
+                            },
+
+                            new AdaptiveProgressBar()
+                            {
+                                Title = SourceFile.FileType.Substring(1).ToUpper()+" ⋙⋙⋙⋙ "+DestinationFile.FileType.Substring(1).ToUpper(),
+                                Value = new BindableProgressBarValue("ProgressValue"),
+                                ValueStringOverride = new BindableString("ProgressValueString"),
+                                Status = new BindableString("ProgressStatus")
+                            }
+                        }
+                    }
+                }
+            };
+
+            var Toast = new ToastNotification(content.GetXml())
+            {
+                Tag = Tag,
+                Data = new NotificationData()
+            };
+            Toast.Data.Values["ProgressValue"] = "0";
+            Toast.Data.Values["ProgressValueString"] = "0%";
+            Toast.Data.Values["ProgressStatus"] = Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh")
+                ? "点击该提示以取消转码"
+                : "Click the prompt to cancel transcoding";
+            Toast.Data.SequenceNumber = 0;
+
+            Toast.Activated += (s, e) =>
+            {
+                if (s.Tag == "TranscodeNotification")
+                {
+                    TranscodeCancellation.Cancel();
+                }
+            };
+
+            ToastNotificationManager.CreateToastNotifier().Show(Toast);
+        }
+
 
         private async void FolderOpen_Click(object sender, RoutedEventArgs e)
         {
