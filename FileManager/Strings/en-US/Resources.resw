@@ -609,11 +609,17 @@
   <data name="SystemInfoDialogCPUModel.Text" xml:space="preserve">
     <value>CPU model</value>
   </data>
+  <data name="SystemInfoDialogCurrentColorMode.Text" xml:space="preserve">
+    <value>Current color mode</value>
+  </data>
   <data name="SystemInfoDialogDeivceModel.Text" xml:space="preserve">
     <value>Device model</value>
   </data>
   <data name="SystemInfoDialogDeviceName.Text" xml:space="preserve">
     <value>Device name</value>
+  </data>
+  <data name="SystemInfoDialogDisplayTitle.Text" xml:space="preserve">
+    <value>Screen information</value>
   </data>
   <data name="SystemInfoDialogGPUInfo.Text" xml:space="preserve">
     <value>GPU information</value>
@@ -626,6 +632,18 @@
   </data>
   <data name="SystemInfoDialogNetwork.Text" xml:space="preserve">
     <value>Network Information</value>
+  </data>
+  <data name="SystemInfoDialogPixeldensity.Text" xml:space="preserve">
+    <value>Pixel density</value>
+  </data>
+  <data name="SystemInfoDialogResolution.Text" xml:space="preserve">
+    <value>Resolution</value>
+  </data>
+  <data name="SystemInfoDialogResolutionScale.Text" xml:space="preserve">
+    <value>Windows scale</value>
+  </data>
+  <data name="SystemInfoDialogScreenSize.Text" xml:space="preserve">
+    <value>Screen size</value>
   </data>
   <data name="SystemInfoDialogWindowsLanguage.Text" xml:space="preserve">
     <value>Windows language</value>

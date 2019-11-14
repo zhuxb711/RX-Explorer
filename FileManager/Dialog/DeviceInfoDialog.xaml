@@ -40,7 +40,7 @@
                         Margin="0,20,0,0">
                 <Border Width="20"
                         Height="20"
-                        Background="DeepSkyBlue" />
+                        Background="{ThemeResource SystemAccentColor}" />
                 <Grid Margin="5,0,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="75" />
@@ -105,7 +105,7 @@
             </Grid>
             <controls:RadialProgressBar x:Name="RadialProgress"
                                         Value="0"
-                                        Foreground="DeepSkyBlue"
+                                        Foreground="{ThemeResource SystemAccentColor}"
                                         Thickness="12"
                                         Minimum="0"
                                         Maximum="100"

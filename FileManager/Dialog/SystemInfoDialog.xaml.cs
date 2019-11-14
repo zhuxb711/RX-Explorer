@@ -2,10 +2,8 @@
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
-using System.Text.RegularExpressions;
 using SystemInformationProvider;
 using Windows.ApplicationModel;
-using Windows.Foundation;
 using Windows.Graphics.Display;
 using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.System;
@@ -164,12 +162,93 @@ namespace FileManager
             }
         }
 
+        public string Resolution { get; private set; }
+
+        public string ScreenSize { get; private set; }
+
+        public string ResolutionScale { get; private set; }
+
+        public string DisplayDpi { get; private set; }
+
+        public string CurrentColorMode { get; private set; }
+
         public SystemInfoDialog()
         {
             InitializeComponent();
 
-            var displayInformation = DisplayInformation.GetForCurrentView();
-            var colorinfo = displayInformation.GetAdvancedColorInfo();
+            DisplayInformation CurrentDisplay = DisplayInformation.GetForCurrentView();
+            Resolution = $"{CurrentDisplay.ScreenWidthInRawPixels} × {CurrentDisplay.ScreenHeightInRawPixels}";
+            ScreenSize = CurrentDisplay.DiagonalSizeInInches == null ? "Unknown" : $"{CurrentDisplay.DiagonalSizeInInches.GetValueOrDefault().ToString("F1")} inch";
+            ResolutionScale = $"{Convert.ToInt16(CurrentDisplay.RawPixelsPerViewPixel * 100)}%";
+            DisplayDpi = $"{Convert.ToInt16(CurrentDisplay.RawDpiX)} DPI";
+
+            AdvancedColorInfo ColorInfo = CurrentDisplay.GetAdvancedColorInfo();
+            switch (ColorInfo.CurrentAdvancedColorKind)
+            {
+                case AdvancedColorKind.HighDynamicRange:
+                    {
+                        CurrentColorMode = "HDR";
+                        break;
+                    }
+                case AdvancedColorKind.StandardDynamicRange:
+                    {
+                        CurrentColorMode = "SDR";
+                        break;
+                    }
+                case AdvancedColorKind.WideColorGamut:
+                    {
+                        CurrentColorMode = "WCG";
+                        break;
+                    }
+            }
+
+            if (ColorInfo.MaxLuminanceInNits != 0)
+            {
+                DisplayGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+
+                TextBlock PeakLuminance = new TextBlock
+                {
+                    Text = MainPage.ThisPage.CurrentLanguage==LanguageEnum.Chinese?"峰值亮度": "Peak brightness",
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                PeakLuminance.SetValue(Grid.RowProperty, DisplayGrid.RowDefinitions.Count - 1);
+                PeakLuminance.SetValue(Grid.ColumnProperty, 0);
+
+                TextBlock PeakLuminanceDescription = new TextBlock
+                {
+                    Text = $"{ColorInfo.MaxLuminanceInNits.ToString("F1")} Nits",
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                PeakLuminanceDescription.SetValue(Grid.RowProperty, DisplayGrid.RowDefinitions.Count - 1);
+                PeakLuminanceDescription.SetValue(Grid.ColumnProperty, 1);
+
+                DisplayGrid.Children.Add(PeakLuminance);
+                DisplayGrid.Children.Add(PeakLuminanceDescription);
+            }
+
+            if (ColorInfo.MaxAverageFullFrameLuminanceInNits != 0)
+            {
+                DisplayGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+
+                TextBlock MaxAverageLuminance = new TextBlock
+                {
+                    Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "最大平均亮度": "Max average brightness",
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                MaxAverageLuminance.SetValue(Grid.RowProperty, DisplayGrid.RowDefinitions.Count - 1);
+                MaxAverageLuminance.SetValue(Grid.ColumnProperty, 0);
+
+                TextBlock MaxAverageLuminanceDescription = new TextBlock
+                {
+                    Text = $"{ColorInfo.MaxAverageFullFrameLuminanceInNits.ToString("F1")} Nits",
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                MaxAverageLuminanceDescription.SetValue(Grid.RowProperty, DisplayGrid.RowDefinitions.Count - 1);
+                MaxAverageLuminanceDescription.SetValue(Grid.ColumnProperty, 1);
+
+                DisplayGrid.Children.Add(MaxAverageLuminance);
+                DisplayGrid.Children.Add(MaxAverageLuminanceDescription);
+            }
 
             string CoreInfo = SystemInformation.CPUCoreInfo;
             if (!string.IsNullOrEmpty(CoreInfo))

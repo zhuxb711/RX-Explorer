@@ -27,7 +27,7 @@
                         <RowDefinition Height="35" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="180" />
                         <ColumnDefinition Width="350" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Windows 版本"
@@ -76,10 +76,12 @@
                                Grid.Row="4"
                                Text="{x:Bind DeviceModel}" />
                 </Grid>
-                <TextBlock Text="显示器信息"
+                <TextBlock Text="屏幕信息"
                            FontSize="20"
+                           x:Uid="SystemInfoDialogDisplayTitle"
                            Margin="0,20,0,0" />
-                <Grid Margin="0,10,0,0">
+                <Grid Margin="0,10,0,0"
+                      Name="DisplayGrid">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="35"/>
                         <RowDefinition Height="35" />
@@ -88,17 +90,54 @@
                         <RowDefinition Height="35" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="180" />
                         <ColumnDefinition Width="350" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Row="0"
                                Grid.Column="0"
-                               Text="分辨率"
+                               Text="屏幕尺寸"
+                               x:Uid="SystemInfoDialogScreenSize"
                                VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="0"
                                Grid.Column="1"
+                               Text="{x:Bind ScreenSize}"
                                VerticalAlignment="Center"/>
-                    
+                    <TextBlock Grid.Row="1"
+                               Grid.Column="0"
+                               Text="分辨率"
+                               x:Uid="SystemInfoDialogResolution"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="1"
+                               Grid.Column="1"
+                               Text="{x:Bind Resolution}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="2"
+                               Grid.Column="0"
+                               Text="像素密度"
+                               x:Uid="SystemInfoDialogPixeldensity"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="2"
+                               Grid.Column="1"
+                               Text="{x:Bind DisplayDpi}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="3"
+                               Grid.Column="0"
+                               Text="Windows缩放"
+                               x:Uid="SystemInfoDialogResolutionScale"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="3"
+                               Grid.Column="1"
+                               Text="{x:Bind ResolutionScale}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="4"
+                               Grid.Column="0"
+                               Text="目前色彩模式"
+                               x:Uid="SystemInfoDialogCurrentColorMode"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="4"
+                               Grid.Column="1"
+                               Text="{x:Bind CurrentColorMode}"
+                               VerticalAlignment="Center" />
                 </Grid>
                 <TextBlock Text="CPU信息"
                            x:Uid="SystemInfoDialogCPUInfo"
@@ -113,7 +152,7 @@
                         <RowDefinition Height="80" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="180" />
                         <ColumnDefinition Width="350" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="CPU型号"
@@ -173,7 +212,7 @@
                         <RowDefinition Height="35" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="180" />
                         <ColumnDefinition Width="350" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Row="0"
@@ -197,7 +236,7 @@
                 <Grid Margin="0,10,0,0"
                       Name="GPUGrid">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="180" />
                         <ColumnDefinition Width="350" />
                     </Grid.ColumnDefinitions>
                 </Grid>
@@ -208,7 +247,7 @@
                 <Grid Margin="0,10,0,0"
                       Name="NetworkGrid">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="180" />
                         <ColumnDefinition Width="350" />
                     </Grid.ColumnDefinitions>
                 </Grid>

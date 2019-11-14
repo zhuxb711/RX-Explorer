@@ -1126,6 +1126,30 @@
           <source>Rename</source>
           <target state="translated">重命名</target>
         </trans-unit>
+        <trans-unit id="SystemInfoDialogCurrentColorMode.Text" translate="yes" xml:space="preserve">
+          <source>Current color mode</source>
+          <target state="translated">目前色彩模式</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogDisplayTitle.Text" translate="yes" xml:space="preserve">
+          <source>Screen information</source>
+          <target state="translated">屏幕信息</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogPixeldensity.Text" translate="yes" xml:space="preserve">
+          <source>Pixel density</source>
+          <target state="translated">像素密度</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogResolution.Text" translate="yes" xml:space="preserve">
+          <source>Resolution</source>
+          <target state="translated">分辨率</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogResolutionScale.Text" translate="yes" xml:space="preserve">
+          <source>Windows scale</source>
+          <target state="translated">Windows缩放</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogScreenSize.Text" translate="yes" xml:space="preserve">
+          <source>Screen size</source>
+          <target state="translated">屏幕尺寸</target>
+        </trans-unit>
       </group>
     </body>
   </file>

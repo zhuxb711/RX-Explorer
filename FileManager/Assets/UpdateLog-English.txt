@@ -1,4 +1,23 @@
 ﻿*****
+###What's new in Ver.3.3.6.0
+
+>#####Function update
+
+>>##### "System Information" module adds screen related parameters
+
+>>##### "Transcoding" module no longer uses multi-process model
+
+>#####Bug fix
+
+>>#####Solved the problem that the transcoding module could not be started
+
+>>#####Solved the problem that the capacity display color of the disk drive information page does not change with the theme
+
+>#####Other updates
+
+>>#####Updated the latest control package with many bugfixes
+
+*****
 ###What's new in Ver.3.3.3.0
 
 >#####Function update
