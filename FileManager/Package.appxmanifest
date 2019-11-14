@@ -58,12 +58,7 @@
           <uap:AutoPlayContent>
             <uap:LaunchAction Verb="USBArrival" ActionDisplayName="USB管理" ContentEvent="StorageOnArrival"/>
           </uap:AutoPlayContent>
-        </uap:Extension>
-        <Extension Category="windows.backgroundTasks" EntryPoint="MediaProcessingBackgroundTask.MediaProcessingTask">
-          <BackgroundTasks>
-            <uap:Task Type="mediaProcessing"/>
-          </BackgroundTasks>
-        </Extension>  
+        </uap:Extension>  
       </Extensions>
     </Application>
   </Applications>

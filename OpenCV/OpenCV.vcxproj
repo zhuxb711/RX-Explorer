@@ -314,6 +314,9 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\filemanager\package.storeassociation.xml" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\OpenCV.UWP.native.core.0.0.2-alpha\build\native\OpenCV.UWP.native.core.targets" Condition="Exists('..\packages\OpenCV.UWP.native.core.0.0.2-alpha\build\native\OpenCV.UWP.native.core.targets')" />

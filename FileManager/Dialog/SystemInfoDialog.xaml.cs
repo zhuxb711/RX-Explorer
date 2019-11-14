@@ -2,8 +2,11 @@
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Text.RegularExpressions;
 using SystemInformationProvider;
 using Windows.ApplicationModel;
+using Windows.Foundation;
+using Windows.Graphics.Display;
 using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.System;
 using Windows.System.Profile;
@@ -164,6 +167,10 @@ namespace FileManager
         public SystemInfoDialog()
         {
             InitializeComponent();
+
+            var displayInformation = DisplayInformation.GetForCurrentView();
+            var colorinfo = displayInformation.GetAdvancedColorInfo();
+
             string CoreInfo = SystemInformation.CPUCoreInfo;
             if (!string.IsNullOrEmpty(CoreInfo))
             {
@@ -210,14 +217,14 @@ namespace FileManager
                                                               : Math.Round(GPUMemory / 1073741824f, 2).ToString("0.00") + " GB");
                     if (GPUGrid.RowDefinitions.Count == 0)
                     {
-                        GPUGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                        GPUGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                        GPUGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+                        GPUGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
                     }
                     else
                     {
-                        GPUGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                        GPUGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                        GPUGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                        GPUGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+                        GPUGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+                        GPUGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
                     }
 
                     TextBlock GPUNameDescriptionBlock = new TextBlock
@@ -269,24 +276,24 @@ namespace FileManager
 
                 if (NetworkGrid.RowDefinitions.Count == 0)
                 {
-                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
                 }
                 else
                 {
-                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
+                    NetworkGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });
                 }
 
                 TextBlock AdapterDescriptionBlock = new TextBlock
@@ -392,7 +399,7 @@ namespace FileManager
                 PrimaryDNSDescriptionBlock.SetValue(Grid.ColumnProperty, 0);
                 NetworkGrid.Children.Add(PrimaryDNSDescriptionBlock);
 
-                var PDNS = IPProperties.DnsAddresses.FirstOrDefault();                
+                var PDNS = IPProperties.DnsAddresses.FirstOrDefault();
                 TextBlock PrimaryDNSAddressBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,

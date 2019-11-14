@@ -49,7 +49,7 @@ namespace FileManager
         FileSystemStorageItem DoubleTabTarget = null;
 
         CancellationTokenSource TranscodeCancellation;
-
+        bool IsTranscoding = false;
 
         public FilePresenter()
         {
@@ -1656,12 +1656,41 @@ namespace FileManager
         {
             if (GridViewControl.SelectedItem is FileSystemStorageItem Source)
             {
+                if (IsTranscoding)
+                {
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "提示",
+                            Content = "已存在正在进行的转码任务，请等待其完成",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "Tips",
+                            Content = "There is already an ongoing transcoding task, please wait for it to complete",
+                            CloseButtonText = "Got it",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                    return;
+                }
+
                 TranscodeDialog dialog = new TranscodeDialog(Source.File);
 
                 if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
                     try
                     {
+                        IsTranscoding = true;
+
                         StorageFile DestinationFile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(Source.DisplayName + "." + dialog.MediaTranscodeEncodingProfile.ToLower(), CreationCollisionOption.ReplaceExisting);
 
                         await TranscodeMediaAsync(dialog.MediaTranscodeEncodingProfile, dialog.MediaTranscodeQuality, dialog.SpeedUp, Source.File, DestinationFile);
@@ -1699,7 +1728,10 @@ namespace FileManager
                             }
                         }
                     }
-
+                    finally
+                    {
+                        IsTranscoding = false;
+                    }
                 }
             }
         }
@@ -1864,7 +1896,7 @@ namespace FileManager
         {
             ToastNotificationManager.History.Remove("TranscodeNotification");
 
-            if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
                 var Content = new ToastContent()
                 {
@@ -1883,12 +1915,12 @@ namespace FileManager
 
                                 new AdaptiveText()
                                 {
-                                   Text = SourceFile.Name+" 已成功转换为 "+DestinationFile.Name
+                                   Text = SourceFile.Name + " 已成功转换为 " + DestinationFile.Name
                                 },
 
                                 new AdaptiveText()
                                 {
-                                    Text="点击以消除提示"
+                                    Text = "点击以消除提示"
                                 }
                             }
                         }
@@ -1915,12 +1947,12 @@ namespace FileManager
 
                                 new AdaptiveText()
                                 {
-                                   Text = SourceFile.Name+" has been successfully transcoded to "+DestinationFile.Name
+                                   Text = SourceFile.Name + " has been successfully transcoded to " + DestinationFile.Name
                                 },
 
                                 new AdaptiveText()
                                 {
-                                    Text="Click to remove the prompt"
+                                    Text = "Click to remove the prompt"
                                 }
                             }
                         }
@@ -1934,7 +1966,7 @@ namespace FileManager
         {
             ToastNotificationManager.History.Remove("TranscodeNotification");
 
-            if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
                 var Content = new ToastContent()
                 {
@@ -1958,7 +1990,7 @@ namespace FileManager
 
                                 new AdaptiveText()
                                 {
-                                    Text="点击以消除提示"
+                                    Text = "点击以消除提示"
                                 }
                             }
                         }
@@ -1990,7 +2022,7 @@ namespace FileManager
 
                                 new AdaptiveText()
                                 {
-                                    Text="Click to remove the prompt"
+                                    Text = "Click to remove the prompt"
                                 }
                             }
                         }
@@ -2030,7 +2062,7 @@ namespace FileManager
                         {
                             new AdaptiveText()
                             {
-                                Text =Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh")
+                                Text = MainPage.ThisPage.CurrentLanguage==LanguageEnum.Chinese
                                 ? ("正在转换:"+SourceFile.DisplayName)
                                 : ("Transcoding:"+SourceFile.DisplayName)
                             },
@@ -2054,7 +2086,7 @@ namespace FileManager
             };
             Toast.Data.Values["ProgressValue"] = "0";
             Toast.Data.Values["ProgressValueString"] = "0%";
-            Toast.Data.Values["ProgressStatus"] = Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh")
+            Toast.Data.Values["ProgressStatus"] = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
                 ? "点击该提示以取消转码"
                 : "Click the prompt to cancel transcoding";
             Toast.Data.SequenceNumber = 0;

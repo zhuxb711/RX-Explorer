@@ -10,7 +10,6 @@
                           PrimaryButtonText="确定"
                           CloseButtonText="取消"
                           Background="{StaticResource DialogAcrylicBrush}">
-
     <Grid>
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
