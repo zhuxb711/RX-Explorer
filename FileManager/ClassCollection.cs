@@ -1479,9 +1479,17 @@ namespace FileManager
 
             CurrentLevel = CurrentPath;
 
-            string[] Split = FullPath.Replace(CurrentPath, string.Empty).Split("\\", StringSplitOptions.RemoveEmptyEntries);
-
-            PathQueue = new Queue<string>(Split);
+            if(string.IsNullOrEmpty(CurrentPath))
+            {
+                string[] Split = FullPath.Split("\\", StringSplitOptions.RemoveEmptyEntries);
+                Split[0] = Split[0] + "\\";
+                PathQueue = new Queue<string>(Split);
+            }
+            else
+            {
+                string[] Split = FullPath.Replace(CurrentPath, string.Empty).Split("\\", StringSplitOptions.RemoveEmptyEntries);
+                PathQueue = new Queue<string>(Split);
+            }
         }
 
         public string NextPathLevel()

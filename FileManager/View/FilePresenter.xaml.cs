@@ -1086,7 +1086,6 @@ namespace FileManager
         {
             var Context = (e.OriginalSource as FrameworkElement)?.DataContext as FileSystemStorageItem;
             GridViewControl.SelectedIndex = FileCollection.IndexOf(Context);
-            e.Handled = true;
         }
 
         private void GridViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)

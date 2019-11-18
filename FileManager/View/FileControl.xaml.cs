@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using Windows.Storage.Search;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
@@ -29,25 +31,29 @@ namespace FileManager
             set
             {
                 currentnode = value;
-                if (currentnode != null)
+                if (currentnode != null && currentnode.Content is StorageFolder Folder)
                 {
-                    var Folder = currentnode.Content as StorageFolder;
                     string PlaceText;
-                    if (Folder.DisplayName.Length > 18)
+
+                    if (Folder.DisplayName.Length > 22)
                     {
-                        PlaceText = Folder.DisplayName.Substring(0, 18) + "...";
+                        PlaceText = Folder.DisplayName.Substring(0, 22) + "...";
                     }
                     else
                     {
                         PlaceText = Folder.DisplayName;
                     }
 
-                    MainPage.ThisPage.GlobeSearch.PlaceholderText = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                    GlobeSearch.PlaceholderText = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
                          ? "搜索 " + PlaceText
                          : "Search " + PlaceText;
+
+                    AddressBox.Text = Folder.Path;
                 }
             }
         }
+
+        public bool IsNowSearching { get; set; }
 
         public StorageFolder CurrentFolder
         {
@@ -109,23 +115,25 @@ namespace FileManager
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            StorageFolder TargetFolder = e.Parameter as StorageFolder;
-            InitializeTreeView(TargetFolder);
-
-            MainPage.ThisPage.GlobeSearch.Visibility = Visibility.Visible;
-
-            string PlaceText;
-            if (TargetFolder.DisplayName.Length > 18)
+            if (e.Parameter is StorageFolder TargetFolder)
             {
-                PlaceText = TargetFolder.DisplayName.Substring(0, 18) + "...";
+                InitializeTreeView(TargetFolder);
+
+                GlobeSearch.Visibility = Visibility.Visible;
+
+                string PlaceText;
+                if (TargetFolder.DisplayName.Length > 18)
+                {
+                    PlaceText = TargetFolder.DisplayName.Substring(0, 18) + "...";
+                }
+                else
+                {
+                    PlaceText = TargetFolder.DisplayName;
+                }
+                GlobeSearch.PlaceholderText = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                    ? "搜索 " + PlaceText
+                    : "Search " + PlaceText;
             }
-            else
-            {
-                PlaceText = TargetFolder.DisplayName;
-            }
-            MainPage.ThisPage.GlobeSearch.PlaceholderText = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
-                ? "搜索 " + PlaceText
-                : "Search " + PlaceText;
         }
 
         protected override async void OnNavigatedFrom(NavigationEventArgs e)
@@ -146,7 +154,6 @@ namespace FileManager
 
             CurrentNode = null;
 
-            MainPage.ThisPage.GlobeSearch.Visibility = Visibility.Collapsed;
 
             FolderTree.RootNodes.Clear();
             FilePresenter.ThisPage.FileCollection.Clear();
@@ -268,7 +275,7 @@ namespace FileManager
             //防止多次点击同一文件夹导致的多重查找            
             if (Node.Content is StorageFolder folder)
             {
-                if (folder.FolderRelativeId == CurrentFolder?.FolderRelativeId && !MainPage.ThisPage.IsNowSearching)
+                if (folder.FolderRelativeId == CurrentFolder?.FolderRelativeId && IsNowSearching)
                 {
                     IsAdding = false;
                     return;
@@ -737,6 +744,123 @@ FLAG:
                 ThisPC.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, Thumbnail, LibrarySource.UserAdded));
                 await SQLite.Current.SetFolderLibraryAsync(folder.Path);
             }
+        }
+
+        private async void GlobeSearch_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            if (string.IsNullOrWhiteSpace(args.QueryText))
+            {
+                return;
+            }
+
+            FlyoutBase.ShowAttachedFlyout(sender);
+
+            await SQLite.Current.SetSearchHistoryAsync(args.QueryText);
+        }
+
+        private async void GlobeSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            if (string.IsNullOrWhiteSpace(sender.Text))
+            {
+                if (IsNowSearching)
+                {
+                    FileControl.ThisPage.Nav.GoBack();
+                }
+                return;
+            }
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                List<string> FilterResult = await SQLite.Current.GetRelatedSearchHistoryAsync(sender.Text);
+                if (FilterResult.Count == 0)
+                {
+                    FilterResult.Add(MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                                        ? "无建议"
+                                        : "No Result");
+                }
+                sender.ItemsSource = FilterResult;
+            }
+        }
+
+        private void SearchConfirm_Click(object sender, RoutedEventArgs e)
+        {
+            SearchFlyout.Hide();
+
+            if (ApplicationData.Current.LocalSettings.Values["LaunchSearchTips"] == null)
+            {
+                ApplicationData.Current.LocalSettings.Values["LaunchSearchTips"] = true;
+                SearchTip.IsOpen = true;
+            }
+
+            IsNowSearching = true;
+
+            QueryOptions Options;
+            if ((bool)ShallowRadio.IsChecked)
+            {
+                Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
+                {
+                    FolderDepth = FolderDepth.Shallow,
+                    IndexerOption = IndexerOption.UseIndexerWhenAvailable,
+                    ApplicationSearchFilter = "System.FileName:*" + GlobeSearch.Text + "*"
+                };
+            }
+            else
+            {
+                Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
+                {
+                    FolderDepth = FolderDepth.Deep,
+                    IndexerOption = IndexerOption.UseIndexerWhenAvailable,
+                    ApplicationSearchFilter = "System.FileName:*" + GlobeSearch.Text + "*"
+                };
+            }
+
+            Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 60, ThumbnailOptions.ResizeThumbnail);
+            Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.FileName", "System.Size", "System.DateModified" });
+
+            if (FileControl.ThisPage.Nav.CurrentSourcePageType.Name != "SearchPage")
+            {
+                StorageItemQueryResult FileQuery = FileControl.ThisPage.CurrentFolder.CreateItemQueryWithOptions(Options);
+
+                FileControl.ThisPage.Nav.Navigate(typeof(SearchPage), FileQuery, new DrillInNavigationTransitionInfo());
+            }
+            else
+            {
+                SearchPage.ThisPage.SetSearchTarget = Options;
+            }
+        }
+
+        private void SearchCancel_Click(object sender, RoutedEventArgs e)
+        {
+            SearchFlyout.Hide();
+        }
+
+        private void SearchFlyout_Opened(object sender, object e)
+        {
+            _ = SearchConfirm.Focus(FocusState.Programmatic);
+        }
+
+        private async void GlobeSearch_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(GlobeSearch.Text))
+            {
+                List<string> FilterResult = await SQLite.Current.GetRelatedSearchHistoryAsync(string.Empty);
+                if (FilterResult.Count == 0)
+                {
+                    FilterResult.Add(MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                                        ? "无建议"
+                                        : "No Result");
+                }
+                GlobeSearch.ItemsSource = FilterResult;
+            }
+        }
+
+        private void AddressBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+
+        }
+
+        private void AddressBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+
         }
     }
 

@@ -218,7 +218,14 @@ namespace FileManager
 
         private void Nav_Navigated(object sender, NavigationEventArgs e)
         {
-            NavView.IsBackEnabled = Nav.CanGoBack;
+            if (Nav.CurrentSourcePageType == typeof(ThisPC) || Nav.CurrentSourcePageType == typeof(WebTab))
+            {
+                NavView.IsBackEnabled = false;
+            }
+            else
+            {
+                NavView.IsBackEnabled = true;
+            }
 
             if (Nav.SourcePageType == typeof(SettingPage))
             {
@@ -531,41 +538,6 @@ namespace FileManager
             }
         }
 
-        private async void GlobeSearch_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
-        {
-            if (string.IsNullOrWhiteSpace(args.QueryText))
-            {
-                return;
-            }
-
-            FlyoutBase.ShowAttachedFlyout(sender);
-
-            await SQLite.Current.SetSearchHistoryAsync(args.QueryText);
-        }
-
-        private async void GlobeSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
-        {
-            if (string.IsNullOrWhiteSpace(sender.Text))
-            {
-                if (IsNowSearching)
-                {
-                    FileControl.ThisPage.Nav.GoBack();
-                }
-                return;
-            }
-            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
-            {
-                List<string> FilterResult = await SQLite.Current.GetRelatedSearchHistoryAsync(sender.Text);
-                if (FilterResult.Count == 0)
-                {
-                    FilterResult.Add(CurrentLanguage == LanguageEnum.Chinese
-                                        ? "无建议"
-                                        : "No Result");
-                }
-                sender.ItemsSource = FilterResult;
-            }
-        }
-
         private void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
             switch (Nav.CurrentSourcePageType.Name)
@@ -586,78 +558,6 @@ namespace FileManager
                         Nav.GoBack();
                     }
                     break;
-            }
-        }
-
-        private void SearchConfirm_Click(object sender, RoutedEventArgs e)
-        {
-            SearchFlyout.Hide();
-
-            if (ApplicationData.Current.LocalSettings.Values["LaunchSearchTips"] == null)
-            {
-                ApplicationData.Current.LocalSettings.Values["LaunchSearchTips"] = true;
-                SearchTip.IsOpen = true;
-            }
-
-            IsNowSearching = true;
-
-            QueryOptions Options;
-            if ((bool)ShallowRadio.IsChecked)
-            {
-                Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
-                {
-                    FolderDepth = FolderDepth.Shallow,
-                    IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-                    ApplicationSearchFilter = "System.FileName:*" + GlobeSearch.Text + "*"
-                };
-            }
-            else
-            {
-                Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
-                {
-                    FolderDepth = FolderDepth.Deep,
-                    IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-                    ApplicationSearchFilter = "System.FileName:*" + GlobeSearch.Text + "*"
-                };
-            }
-
-            Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 60, ThumbnailOptions.ResizeThumbnail);
-            Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.FileName", "System.Size", "System.DateModified" });
-
-            if (FileControl.ThisPage.Nav.CurrentSourcePageType.Name != "SearchPage")
-            {
-                StorageItemQueryResult FileQuery = FileControl.ThisPage.CurrentFolder.CreateItemQueryWithOptions(Options);
-
-                FileControl.ThisPage.Nav.Navigate(typeof(SearchPage), FileQuery, new DrillInNavigationTransitionInfo());
-            }
-            else
-            {
-                SearchPage.ThisPage.SetSearchTarget = Options;
-            }
-        }
-
-        private void SearchCancel_Click(object sender, RoutedEventArgs e)
-        {
-            SearchFlyout.Hide();
-        }
-
-        private void SearchFlyout_Opened(object sender, object e)
-        {
-            _ = SearchConfirm.Focus(FocusState.Programmatic);
-        }
-
-        private async void GlobeSearch_GotFocus(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrEmpty(GlobeSearch.Text))
-            {
-                List<string> FilterResult = await SQLite.Current.GetRelatedSearchHistoryAsync(string.Empty);
-                if (FilterResult.Count == 0)
-                {
-                    FilterResult.Add(CurrentLanguage == LanguageEnum.Chinese
-                                        ? "无建议"
-                                        : "No Result");
-                }
-                GlobeSearch.ItemsSource = FilterResult;
             }
         }
     }

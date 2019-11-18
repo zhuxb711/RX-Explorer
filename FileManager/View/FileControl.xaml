@@ -5,6 +5,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:local="using:FileManager"
+      xmlns:controls1="using:Microsoft.UI.Xaml.Controls"
       NavigationCacheMode="Required"
       mc:Ignorable="d"
       Background="{StaticResource NavigationViewTopPaneBackground}">
@@ -85,42 +86,147 @@
                               Click="FolderAttribute_Click" />
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
+
+        <controls1:TeachingTip x:Name="SearchTip"
+                              x:Uid="SearchTip"
+                              Grid.Row="1"
+                              Title="Tips"
+                              Target="{x:Bind GlobeSearch}"
+                              PreferredPlacement="BottomRight"
+                              IsLightDismissEnabled="True"
+                              Subtitle="清空这个搜索框或点击任意文件夹即可退出搜索状态哦！"
+                              CloseButtonContent="知道啦">
+        </controls1:TeachingTip>
     </Page.Resources>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*" />
-            <ColumnDefinition Width="10" />
-            <ColumnDefinition Width="5*" />
-        </Grid.ColumnDefinitions>
-        <Frame Grid.Column="2"
-               Name="Nav"
-               x:FieldModifier="Public" />
-        <TreeView Name="FolderTree"
-                  x:FieldModifier="public"
-                  Expanding="FileTree_Expanding"
-                  ItemInvoked="FileTree_ItemInvoked"
-                  Collapsed="FileTree_Collapsed"
-                  HorizontalAlignment="Stretch"
-                  SelectionMode="Single"
-                  Grid.RowSpan="2"
-                  VerticalAlignment="Stretch"
-                  RightTapped="FolderTree_RightTapped">
-            <TreeView.Transitions>
-                <TransitionCollection>
-                    <PaneThemeTransition Edge="Left" />
-                </TransitionCollection>
-            </TreeView.Transitions>
-        </TreeView>
-        <controls:InAppNotification Grid.Column="2"
-                                    StackMode="Replace"
-                                    Name="Notification"
-                                    x:FieldModifier="public"
-                                    ShowDismissButton="True"
-                                    HorizontalAlignment="Center" />
-        <controls:GridSplitter Background="LightSlateGray"
-                               HorizontalAlignment="Center"
-                               ResizeBehavior="BasedOnAlignment"
-                               ResizeDirection="Auto"
-                               Grid.Column="1" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="35" />
+                <ColumnDefinition Width="35" />
+                <ColumnDefinition Width="35" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="250" />
+            </Grid.ColumnDefinitions>
+            <Button HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Style="{StaticResource ButtonRevealStyle}"
+                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
+                <Viewbox>
+                    <SymbolIcon Symbol="Back" />
+                </Viewbox>
+            </Button>
+            <Button Grid.Column="1"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Style="{StaticResource ButtonRevealStyle}"
+                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
+                <Viewbox>
+                    <SymbolIcon Symbol="Forward" />
+                </Viewbox>
+            </Button>
+            <Button HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Grid.Column="2"
+                    Style="{StaticResource ButtonRevealStyle}"
+                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
+                <Viewbox>
+                    <SymbolIcon Symbol="Up" />
+                </Viewbox>
+            </Button>
+            <AutoSuggestBox Grid.Column="3"
+                            Margin="5,0,5,0"
+                            VerticalAlignment="Center" 
+                            Name="AddressBox"
+                            UpdateTextOnSelect="True"
+                            QueryIcon="Forward"
+                            QuerySubmitted="AddressBox_QuerySubmitted"
+                            TextChanged="AddressBox_TextChanged"/>
+            <AutoSuggestBox QueryIcon="Find"
+                            PlaceholderText="搜索..."
+                            Name="GlobeSearch"
+                            Grid.Column="4"
+                            VerticalAlignment="Center"
+                            GotFocus="GlobeSearch_GotFocus"
+                            QuerySubmitted="GlobeSearch_QuerySubmitted"
+                            TextChanged="GlobeSearch_TextChanged"
+                            UpdateTextOnSelect="True">
+                <FlyoutBase.AttachedFlyout>
+                    <Flyout Placement="BottomEdgeAlignedRight"
+                            x:Name="SearchFlyout"
+                            Opened="SearchFlyout_Opened">
+                        <StackPanel>
+                            <RadioButton Name="ShallowRadio"
+                                         Width="200"
+                                         x:Uid="SearchFlyoutShallowRadio"
+                                         Content="仅搜索当前目录(较快)"
+                                         Tag="Shallow"
+                                         IsChecked="True"
+                                         GroupName="Search" />
+                            <RadioButton Name="DeepRadio"
+                                         Width="200"
+                                         Margin="0,5,0,0"
+                                         x:Uid="SearchFlyoutDeepRadio"
+                                         Content="深度搜索全部目录(较慢)"
+                                         Tag="Deep"
+                                         GroupName="Search" />
+                            <StackPanel Margin="0,5,0,0"
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="Right">
+                                <Button Content="搜索"
+                                        x:Uid="SearchFlyoutConfirm"
+                                        Name="SearchConfirm"
+                                        Click="SearchConfirm_Click" />
+                                <Button Content="取消"
+                                        x:Uid="SearchFlyoutCancel"
+                                        Name="SearchCancel"
+                                        Margin="10,0,0,0"
+                                        Click="SearchCancel_Click" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Flyout>
+                </FlyoutBase.AttachedFlyout>
+            </AutoSuggestBox>
+        </Grid>
+        <Grid Grid.Row="1"
+              Margin="0,5,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="5*" />
+            </Grid.ColumnDefinitions>
+            <Frame Grid.Column="2"
+                   Name="Nav"
+                   x:FieldModifier="Public"/>
+            <TreeView Name="FolderTree"
+                      x:FieldModifier="public"
+                      Expanding="FileTree_Expanding"
+                      ItemInvoked="FileTree_ItemInvoked"
+                      Collapsed="FileTree_Collapsed"
+                      HorizontalAlignment="Stretch"
+                      SelectionMode="Single"
+                      VerticalAlignment="Stretch"
+                      RightTapped="FolderTree_RightTapped">
+                <TreeView.Transitions>
+                    <TransitionCollection>
+                        <PaneThemeTransition Edge="Left" />
+                    </TransitionCollection>
+                </TreeView.Transitions>
+            </TreeView>
+            <controls:InAppNotification Grid.Column="2"
+                                        StackMode="Replace"
+                                        Name="Notification"
+                                        x:FieldModifier="public"
+                                        ShowDismissButton="True"
+                                        HorizontalAlignment="Center" />
+            <controls:GridSplitter Background="LightSlateGray"
+                                   HorizontalAlignment="Center"
+                                   ResizeBehavior="BasedOnAlignment"
+                                   ResizeDirection="Auto"
+                                   Grid.Column="1" />
+        </Grid>
     </Grid>
 </Page>

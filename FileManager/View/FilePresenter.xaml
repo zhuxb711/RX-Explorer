@@ -202,7 +202,7 @@
                   DoubleTapped="GridViewControl_DoubleTapped"
                   x:FieldModifier="Public"
                   IncrementalLoadingTrigger="Edge"
-                  DataFetchSize="1.5">
+                  DataFetchSize="2">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="local:FileSystemStorageItem">
                     <StackPanel Width="240"
@@ -221,7 +221,7 @@
                             <TextBlock IsHitTestVisible="False"
                                        Text="{x:Bind DisplayName,Mode=OneWay}"
                                        FontSize="17"
-                                       Width="170"
+                                       Width="160"
                                        TextTrimming="CharacterEllipsis" />
                             <TextBlock IsHitTestVisible="False"
                                        Text="{x:Bind DisplayType}"
@@ -248,7 +248,6 @@
         </GridView>
         <TextBlock Name="HasFile"
                    x:FieldModifier="public"
-                   Grid.RowSpan="2"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
                    x:Uid="HasFile"
@@ -256,9 +255,7 @@
                    FontSize="25"
                    Visibility="Visible" />
         <controls:Loading x:Name="LoadingControl"
-                          IsLoading="False"
-                          Grid.Column="2"
-                          Grid.RowSpan="2">
+                          IsLoading="False">
             <controls:Loading.Background>
                 <SolidColorBrush Color="Black"
                                  Opacity="0.5" />
