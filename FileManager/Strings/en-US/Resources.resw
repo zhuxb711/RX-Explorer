@@ -291,11 +291,20 @@
   <data name="FileControlAttribute.Label" xml:space="preserve">
     <value>Properties</value>
   </data>
+  <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Back</value>
+  </data>
   <data name="FileControlCreateFolder.Label" xml:space="preserve">
     <value>New folder</value>
   </data>
   <data name="FileControlDeleteFolder.Label" xml:space="preserve">
     <value>Delete</value>
+  </data>
+  <data name="FileControlForwardButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Forward</value>
+  </data>
+  <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Upper</value>
   </data>
   <data name="FileControlRenameFolder.Label" xml:space="preserve">
     <value>Rename</value>

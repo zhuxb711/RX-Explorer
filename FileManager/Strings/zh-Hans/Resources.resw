@@ -870,4 +870,13 @@
   <data name="SystemInfoDialogScreenSize.Text" xml:space="preserve">
     <value>屏幕尺寸</value>
   </data>
+  <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>返回</value>
+  </data>
+  <data name="FileControlForwardButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>前进</value>
+  </data>
+  <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>返回上一级</value>
+  </data>
 </root>

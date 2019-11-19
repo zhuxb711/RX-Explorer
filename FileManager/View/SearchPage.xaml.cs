@@ -147,15 +147,13 @@ namespace FileManager
                 }
                 else
                 {
-                    FileControl.ThisPage.CurrentNode = TargetNode;
-
                     while (true)
                     {
-                        if (FileControl.ThisPage.FolderTree.ContainerFromNode(FileControl.ThisPage.CurrentNode) is TreeViewItem Item)
+                        if (FileControl.ThisPage.FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Item)
                         {
                             Item.IsSelected = true;
                             Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                            await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode);
+                            await FileControl.ThisPage.DisplayItemsInFolder(TargetNode);
                             break;
                         }
                         else
@@ -172,14 +170,13 @@ namespace FileManager
                     _ = await StorageFile.GetFileFromPathAsync(RemoveFile.Path);
 
                     var RootNode = FileControl.ThisPage.FolderTree.RootNodes[0];
-                    FileControl.ThisPage.CurrentNode = await FindFolderLocationInTree(RootNode, new PathAnalysis((await RemoveFile.File.GetParentAsync()).Path, (RootNode.Content as StorageFolder).Path));
+                    var CurrentNode = await FindFolderLocationInTree(RootNode, new PathAnalysis((await RemoveFile.File.GetParentAsync()).Path, (RootNode.Content as StorageFolder).Path));
 
-                    var Container = FileControl.ThisPage.FolderTree.ContainerFromNode(FileControl.ThisPage.CurrentNode) as TreeViewItem;
+                    var Container = FileControl.ThisPage.FolderTree.ContainerFromNode(CurrentNode) as TreeViewItem;
                     Container.IsSelected = true;
                     Container.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                    StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
 
-                    await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode);
+                    await FileControl.ThisPage.DisplayItemsInFolder(CurrentNode);
                 }
                 catch (FileNotFoundException)
                 {

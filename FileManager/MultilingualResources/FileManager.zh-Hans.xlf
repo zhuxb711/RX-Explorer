@@ -1150,6 +1150,18 @@
           <source>Screen size</source>
           <target state="translated">屏幕尺寸</target>
         </trans-unit>
+        <trans-unit id="FileControlBackButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Back</source>
+          <target state="translated">返回</target>
+        </trans-unit>
+        <trans-unit id="FileControlForwardButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Forward</source>
+          <target state="translated">前进</target>
+        </trans-unit>
+        <trans-unit id="FileControlParentButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Upper</source>
+          <target state="translated">返回上一级</target>
+        </trans-unit>
       </group>
     </body>
   </file>

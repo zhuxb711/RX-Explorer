@@ -52,7 +52,8 @@ namespace FileManager
                                Create Table If Not Exists WebHistory (Subject Text Not Null, WebSite Text Not Null, DateTime Text Not Null, Primary Key (Subject, WebSite, DateTime));
                                Create Table If Not Exists DownloadHistory (UniqueID Text Not Null, ActualName Text Not Null, Uri Text Not Null, State Text Not Null, Primary Key(UniqueID));
                                Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
-                               Create Table If Not Exists FolderLibrary (Path Text Not Null, Primary Key (Path));";
+                               Create Table If Not Exists FolderLibrary (Path Text Not Null, Primary Key (Path));
+                               Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));";
             using (SqliteCommand CreateTable = new SqliteCommand(Command, OLEDB))
             {
                 _ = CreateTable.ExecuteNonQuery();
@@ -91,6 +92,32 @@ namespace FileManager
                 _ = Command.Parameters.AddWithValue("@Path", Path);
                 _ = await Command.ExecuteNonQueryAsync();
             }
+        }
+
+        public async Task SetPathHistoryAsync(string Path)
+        {
+            using (SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into PathHistory Values (@Para)", OLEDB))
+            {
+                _ = Command.Parameters.AddWithValue("@Para", Path);
+                _ = await Command.ExecuteNonQueryAsync();
+            }
+        }
+
+        public async Task<List<string>> GetRelatedPathHistoryAsync(string Target)
+        {
+            List<string> PathList = new List<string>();
+            using (SqliteCommand Command = new SqliteCommand("Select * From PathHistory Where Path Like @Target", OLEDB))
+            {
+                _ = Command.Parameters.AddWithValue("@Target", "%" + Target + "%");
+                using (SqliteDataReader query = await Command.ExecuteReaderAsync())
+                {
+                    while (query.Read())
+                    {
+                        PathList.Add(query[0].ToString());
+                    }
+                }
+            }
+            return PathList;
         }
 
         public async Task SetFolderLibraryAsync(string Path)
@@ -1244,39 +1271,46 @@ namespace FileManager
 
         public static async Task<BitmapImage> GetThumbnailBitmapAsync(this IStorageItem Item)
         {
-            if (Item is StorageFolder Folder)
+            try
             {
-                var Thumbnail = await Folder.GetThumbnailAsync(ThumbnailMode.ListView, 60);
-                if (Thumbnail == null)
+                if (Item is StorageFolder Folder)
+                {
+                    var Thumbnail = await Folder.GetThumbnailAsync(ThumbnailMode.ListView, 60);
+                    if (Thumbnail == null)
+                    {
+                        return null;
+                    }
+
+                    BitmapImage bitmapImage = new BitmapImage
+                    {
+                        DecodePixelHeight = 60,
+                        DecodePixelWidth = 60
+                    };
+                    await bitmapImage.SetSourceAsync(Thumbnail);
+                    return bitmapImage;
+                }
+                else if (Item is StorageFile File)
+                {
+                    var Thumbnail = await File.GetThumbnailAsync(ThumbnailMode.ListView, 60);
+                    if (Thumbnail == null)
+                    {
+                        return null;
+                    }
+
+                    BitmapImage bitmapImage = new BitmapImage
+                    {
+                        DecodePixelHeight = 60,
+                        DecodePixelWidth = 60
+                    };
+                    await bitmapImage.SetSourceAsync(Thumbnail);
+                    return bitmapImage;
+                }
+                else
                 {
                     return null;
                 }
-
-                BitmapImage bitmapImage = new BitmapImage
-                {
-                    DecodePixelHeight = 60,
-                    DecodePixelWidth = 60
-                };
-                await bitmapImage.SetSourceAsync(Thumbnail);
-                return bitmapImage;
             }
-            else if (Item is StorageFile File)
-            {
-                var Thumbnail = await File.GetThumbnailAsync(ThumbnailMode.ListView, 60);
-                if (Thumbnail == null)
-                {
-                    return null;
-                }
-
-                BitmapImage bitmapImage = new BitmapImage
-                {
-                    DecodePixelHeight = 60,
-                    DecodePixelWidth = 60
-                };
-                await bitmapImage.SetSourceAsync(Thumbnail);
-                return bitmapImage;
-            }
-            else
+            catch (Exception)
             {
                 return null;
             }
@@ -1479,7 +1513,7 @@ namespace FileManager
 
             CurrentLevel = CurrentPath;
 
-            if(string.IsNullOrEmpty(CurrentPath))
+            if (string.IsNullOrEmpty(CurrentPath))
             {
                 string[] Split = FullPath.Split("\\", StringSplitOptions.RemoveEmptyEntries);
                 Split[0] = Split[0] + "\\";
@@ -1487,7 +1521,7 @@ namespace FileManager
             }
             else
             {
-                string[] Split = FullPath.Replace(CurrentPath, string.Empty).Split("\\", StringSplitOptions.RemoveEmptyEntries);
+                string[] Split = Path.GetRelativePath(CurrentPath, FullPath).Split("\\", StringSplitOptions.RemoveEmptyEntries);
                 PathQueue = new Queue<string>(Split);
             }
         }

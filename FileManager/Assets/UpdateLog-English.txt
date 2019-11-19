@@ -1,4 +1,23 @@
 ﻿*****
+###What's new in Ver.3.4.0.0
+
+>#####Function update
+
+>>#####File browsing module adds address bar and "forward", "backward" and "return to superior" button
+
+>>#####Integration search bar to file browsing module
+
+>>#####Cancel the back navigation between "this computer" and "browser"
+
+>>#####Now you can directly locate the corresponding disk folder through the address bar. Switching between disks does not have to go back to the main interface.
+
+>>#####In the case of directly inputting the file path through the address bar, RX will directly call the system default program processing
+
+>#####Bug fix
+
+>>#####Solved the problem that RX can't open the corresponding type of file, and the will not pop up the program selection box when there is no default application available
+
+*****
 ###What's new in Ver.3.3.6.0
 
 >#####Function update

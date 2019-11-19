@@ -113,6 +113,11 @@
             </Grid.ColumnDefinitions>
             <Button HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
+                    ToolTipService.ToolTip="后退"
+                    x:Uid="FileControlBackButton"
+                    Name="GoBackRecord"
+                    Click="GoBackRecord_Click"
+                    IsEnabled="False"
                     Style="{StaticResource ButtonRevealStyle}"
                     Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
                 <Viewbox>
@@ -122,6 +127,11 @@
             <Button Grid.Column="1"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
+                    x:Uid="FileControlForwardButton"
+                    Name="GoForwardRecord"
+                    Click="GoForwardRecord_Click"
+                    IsEnabled="False"
+                    ToolTipService.ToolTip="前进"
                     Style="{StaticResource ButtonRevealStyle}"
                     Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
                 <Viewbox>
@@ -130,8 +140,13 @@
             </Button>
             <Button HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
+                    x:Uid="FileControlParentButton"
                     Grid.Column="2"
+                    x:Name="GoParentFolder"
+                    IsEnabled="False"
+                    Click="GoParentFolder_Click"
                     Style="{StaticResource ButtonRevealStyle}"
+                    ToolTipService.ToolTip="返回上级"
                     Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
                 <Viewbox>
                     <SymbolIcon Symbol="Up" />
@@ -144,7 +159,8 @@
                             UpdateTextOnSelect="True"
                             QueryIcon="Forward"
                             QuerySubmitted="AddressBox_QuerySubmitted"
-                            TextChanged="AddressBox_TextChanged"/>
+                            TextChanged="AddressBox_TextChanged"
+                            ToolTipService.ToolTip="{x:Bind AddressBox.Text,Mode=OneWay}"/>
             <AutoSuggestBox QueryIcon="Find"
                             PlaceholderText="搜索..."
                             Name="GlobeSearch"

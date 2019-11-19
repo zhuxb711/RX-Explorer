@@ -33,8 +33,6 @@ namespace FileManager
 
         public static MainPage ThisPage { get; private set; }
 
-        public bool IsNowSearching { get; set; }
-
         private Dictionary<Type, string> PageDictionary;
 
         public bool IsUSBActivate { get; set; } = false;

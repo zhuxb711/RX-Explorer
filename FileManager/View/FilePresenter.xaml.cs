@@ -1587,7 +1587,14 @@ namespace FileManager
                                     };
                                     if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                     {
-                                        _ = await Launcher.LaunchFileAsync(DoubleTabTarget.File);
+                                        if (!await Launcher.LaunchFileAsync(DoubleTabTarget.File))
+                                        {
+                                            LauncherOptions options = new LauncherOptions
+                                            {
+                                                DisplayApplicationPicker = true
+                                            };
+                                            _ = await Launcher.LaunchFileAsync(DoubleTabTarget.File, options);
+                                        }
                                     }
                                 }
                                 else
@@ -1600,9 +1607,13 @@ namespace FileManager
                                         CloseButtonText = "Cancel",
                                         Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                                     };
-                                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                    if (!await Launcher.LaunchFileAsync(DoubleTabTarget.File))
                                     {
-                                        _ = await Launcher.LaunchFileAsync(DoubleTabTarget.File);
+                                        LauncherOptions options = new LauncherOptions
+                                        {
+                                            DisplayApplicationPicker = true
+                                        };
+                                        _ = await Launcher.LaunchFileAsync(DoubleTabTarget.File, options);
                                     }
                                 }
                                 break;
