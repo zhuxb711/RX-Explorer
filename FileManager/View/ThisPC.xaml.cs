@@ -114,11 +114,140 @@ namespace FileManager
 
                     if (await Tips.ShowAsync() == ContentDialogResult.Primary)
                     {
-                        StorageFolder UserFolder = await StorageFolder.GetFolderFromPathAsync(@"C:\Users");
-                        IReadOnlyList<StorageFolder> Users = await UserFolder.GetFoldersAsync();
-                        IEnumerable<StorageFolder> PotentialUsers = Users.Where((Folder) => Folder.Name != "Public");
+                        try
+                        {
+                            StorageFolder UserFolder = await StorageFolder.GetFolderFromPathAsync(@"C:\Users");
+                            IReadOnlyList<StorageFolder> Users = await UserFolder.GetFoldersAsync();
+                            IEnumerable<StorageFolder> PotentialUsers = Users.Where((Folder) => Folder.Name != "Public");
 
-                    FLAG1:
+                        FLAG1:
+                            UserFolderDialog dialog = new UserFolderDialog(PotentialUsers);
+                            _ = await dialog.ShowAsync();
+
+                            StorageFolder CurrentUser = dialog.Result;
+
+                            try
+                            {
+                                ApplicationData.Current.LocalSettings.Values["UserFolderPath"] = CurrentUser.Path;
+
+                                IReadOnlyList<StorageFolder> LibraryFolder = await CurrentUser.GetFoldersAsync();
+
+                                var DesktopFolder = LibraryFolder.Where((Folder) => Folder.Name == "Desktop").FirstOrDefault();
+                                LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+
+                                var DownloadsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Downloads").FirstOrDefault();
+                                LibraryFolderList.Add(new LibraryFolder(DownloadsFolder, await DownloadsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+
+                                var VideosFolder = LibraryFolder.Where((Folder) => Folder.Name == "Videos").FirstOrDefault();
+                                LibraryFolderList.Add(new LibraryFolder(VideosFolder, await VideosFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+
+                                var ObjectsFolder = LibraryFolder.Where((Folder) => Folder.Name == "3D Objects").FirstOrDefault();
+                                LibraryFolderList.Add(new LibraryFolder(ObjectsFolder, await ObjectsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+
+                                var PicturesFolder = LibraryFolder.Where((Folder) => Folder.Name == "Pictures").FirstOrDefault();
+                                LibraryFolderList.Add(new LibraryFolder(PicturesFolder, await PicturesFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+
+                                var DocumentsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Documents").FirstOrDefault();
+                                LibraryFolderList.Add(new LibraryFolder(DocumentsFolder, await DocumentsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+
+                                var MusicFolder = LibraryFolder.Where((Folder) => Folder.Name == "Music").FirstOrDefault();
+                                LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                            }
+                            catch (FileNotFoundException)
+                            {
+                                QueueContentDialog Tip;
+                                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                                {
+                                    Tip = new QueueContentDialog
+                                    {
+                                        Title = "错误",
+                                        Content = "无法正确解析用户文件夹\r请重新检查用户文件夹选择是否正确",
+                                        PrimaryButtonText = "重新选择",
+                                        CloseButtonText = "忽略并继续",
+                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    };
+                                }
+                                else
+                                {
+                                    Tip = new QueueContentDialog
+                                    {
+                                        Title = "Error",
+                                        Content = "Unable to parse user folder correctly\rPlease re-check if the user folder is selected correctly",
+                                        PrimaryButtonText = "Re-Select",
+                                        CloseButtonText = "Ignore",
+                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    };
+                                }
+                                if (await Tip.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    goto FLAG1;
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                throw e; 
+                            }
+                        }
+                        catch(Exception)
+                        {
+                            if(MainPage.ThisPage.CurrentLanguage==LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "Opoos...",
+                                    Content = "由于某些无法预料的原因，无法导入库文件夹",
+                                    CloseButtonText = "确定"
+                                };
+                                _ = await Dialog.ShowAsync();
+                            }
+                            else
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "Opoos...",
+                                    Content = "Unable to import library folder for some unforeseen reasons",
+                                    CloseButtonText = "Got it"
+                                };
+                                _ = await Dialog.ShowAsync();
+                            }
+                        }
+                    }
+                }
+                catch(Exception)
+                {
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "Opoos...",
+                            Content = "由于某些无法预料的原因，无法导入库文件夹",
+                            CloseButtonText = "确定"
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "Opoos...",
+                            Content = "Unable to import library folder for some unforeseen reasons",
+                            CloseButtonText = "Got it"
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                }
+            }
+            else
+            {
+                try
+                {
+                    StorageFolder UserFolder = await StorageFolder.GetFolderFromPathAsync(@"C:\Users");
+                    IReadOnlyList<StorageFolder> Users = await UserFolder.GetFoldersAsync();
+                    IEnumerable<StorageFolder> PotentialUsers = Users.Where((Folder) => Folder.Name != "Public");
+
+                    if (PotentialUsers.Count() > 1)
+                    {
+                    FLAG:
                         UserFolderDialog dialog = new UserFolderDialog(PotentialUsers);
                         _ = await dialog.ShowAsync();
 
@@ -153,10 +282,10 @@ namespace FileManager
                         }
                         catch (FileNotFoundException)
                         {
-                            QueueContentDialog Tip;
+                            QueueContentDialog Tips;
                             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                             {
-                                Tip = new QueueContentDialog
+                                Tips = new QueueContentDialog
                                 {
                                     Title = "错误",
                                     Content = "无法正确解析用户文件夹\r请重新检查用户文件夹选择是否正确",
@@ -167,7 +296,7 @@ namespace FileManager
                             }
                             else
                             {
-                                Tip = new QueueContentDialog
+                                Tips = new QueueContentDialog
                                 {
                                     Title = "Error",
                                     Content = "Unable to parse user folder correctly\rPlease re-check if the user folder is selected correctly",
@@ -176,56 +305,78 @@ namespace FileManager
                                     Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                                 };
                             }
-                            if (await Tip.ShowAsync() == ContentDialogResult.Primary)
+                            if (await Tips.ShowAsync() == ContentDialogResult.Primary)
                             {
-                                goto FLAG1;
+                                goto FLAG;
                             }
                         }
+                        catch(Exception e)
+                        {
+                            throw e;
+                        }
                     }
-                }
-            }
-            else
-            {
-                StorageFolder UserFolder = await StorageFolder.GetFolderFromPathAsync(@"C:\Users");
-                IReadOnlyList<StorageFolder> Users = await UserFolder.GetFoldersAsync();
-                IEnumerable<StorageFolder> PotentialUsers = Users.Where((Folder) => Folder.Name != "Public");
-
-                if (PotentialUsers.Count() > 1)
-                {
-                FLAG:
-                    UserFolderDialog dialog = new UserFolderDialog(PotentialUsers);
-                    _ = await dialog.ShowAsync();
-
-                    StorageFolder CurrentUser = dialog.Result;
-
-                    try
+                    else if (PotentialUsers.Count() == 1)
                     {
-                        ApplicationData.Current.LocalSettings.Values["UserFolderPath"] = CurrentUser.Path;
+                        StorageFolder CurrentUser = PotentialUsers.FirstOrDefault();
 
-                        IReadOnlyList<StorageFolder> LibraryFolder = await CurrentUser.GetFoldersAsync();
+                        try
+                        {
+                            ApplicationData.Current.LocalSettings.Values["UserFolderPath"] = CurrentUser.Path;
 
-                        var DesktopFolder = LibraryFolder.Where((Folder) => Folder.Name == "Desktop").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                            IReadOnlyList<StorageFolder> LibraryFolder = await CurrentUser.GetFoldersAsync();
 
-                        var DownloadsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Downloads").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(DownloadsFolder, await DownloadsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                            var DesktopFolder = LibraryFolder.Where((Folder) => Folder.Name == "Desktop").FirstOrDefault();
+                            LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
-                        var VideosFolder = LibraryFolder.Where((Folder) => Folder.Name == "Videos").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(VideosFolder, await VideosFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                            var DownloadsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Downloads").FirstOrDefault();
+                            LibraryFolderList.Add(new LibraryFolder(DownloadsFolder, await DownloadsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
-                        var ObjectsFolder = LibraryFolder.Where((Folder) => Folder.Name == "3D Objects").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(ObjectsFolder, await ObjectsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                            var VideosFolder = LibraryFolder.Where((Folder) => Folder.Name == "Videos").FirstOrDefault();
+                            LibraryFolderList.Add(new LibraryFolder(VideosFolder, await VideosFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
-                        var PicturesFolder = LibraryFolder.Where((Folder) => Folder.Name == "Pictures").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(PicturesFolder, await PicturesFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                            var ObjectsFolder = LibraryFolder.Where((Folder) => Folder.Name == "3D Objects").FirstOrDefault();
+                            LibraryFolderList.Add(new LibraryFolder(ObjectsFolder, await ObjectsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
-                        var DocumentsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Documents").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(DocumentsFolder, await DocumentsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                            var PicturesFolder = LibraryFolder.Where((Folder) => Folder.Name == "Pictures").FirstOrDefault();
+                            LibraryFolderList.Add(new LibraryFolder(PicturesFolder, await PicturesFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
 
-                        var MusicFolder = LibraryFolder.Where((Folder) => Folder.Name == "Music").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                            var DocumentsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Documents").FirstOrDefault();
+                            LibraryFolderList.Add(new LibraryFolder(DocumentsFolder, await DocumentsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+
+                            var MusicFolder = LibraryFolder.Where((Folder) => Folder.Name == "Music").FirstOrDefault();
+                            LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            QueueContentDialog Tips;
+                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            {
+                                Tips = new QueueContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "无法正确解析用户文件夹中的部分库文件夹\r可能已经被移动或不存在",
+                                    CloseButtonText = "确定",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+                            else
+                            {
+                                Tips = new QueueContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "Some library folders in the user folder cannot be parsed correctly\rThe folder may have been moved or does not exist",
+                                    CloseButtonText = "Confirm",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                            }
+                            _ = await Tips.ShowAsync();
+                        }
+                        catch(Exception e)
+                        {
+                            throw e;
+                        }
                     }
-                    catch (FileNotFoundException)
+                    else
                     {
                         QueueContentDialog Tips;
                         if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
@@ -233,69 +384,7 @@ namespace FileManager
                             Tips = new QueueContentDialog
                             {
                                 Title = "错误",
-                                Content = "无法正确解析用户文件夹\r请重新检查用户文件夹选择是否正确",
-                                PrimaryButtonText = "重新选择",
-                                CloseButtonText = "忽略并继续",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                        }
-                        else
-                        {
-                            Tips = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "Unable to parse user folder correctly\rPlease re-check if the user folder is selected correctly",
-                                PrimaryButtonText = "Re-Select",
-                                CloseButtonText = "Ignore",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                        }
-                        if (await Tips.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            goto FLAG;
-                        }
-                    }
-                }
-                else if (PotentialUsers.Count() == 1)
-                {
-                    StorageFolder CurrentUser = PotentialUsers.FirstOrDefault();
-
-                    try
-                    {
-                        ApplicationData.Current.LocalSettings.Values["UserFolderPath"] = CurrentUser.Path;
-
-                        IReadOnlyList<StorageFolder> LibraryFolder = await CurrentUser.GetFoldersAsync();
-
-                        var DesktopFolder = LibraryFolder.Where((Folder) => Folder.Name == "Desktop").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-
-                        var DownloadsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Downloads").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(DownloadsFolder, await DownloadsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-
-                        var VideosFolder = LibraryFolder.Where((Folder) => Folder.Name == "Videos").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(VideosFolder, await VideosFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-
-                        var ObjectsFolder = LibraryFolder.Where((Folder) => Folder.Name == "3D Objects").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(ObjectsFolder, await ObjectsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-
-                        var PicturesFolder = LibraryFolder.Where((Folder) => Folder.Name == "Pictures").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(PicturesFolder, await PicturesFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-
-                        var DocumentsFolder = LibraryFolder.Where((Folder) => Folder.Name == "Documents").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(DocumentsFolder, await DocumentsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-
-                        var MusicFolder = LibraryFolder.Where((Folder) => Folder.Name == "Music").FirstOrDefault();
-                        LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        QueueContentDialog Tips;
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
-                        {
-                            Tips = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "无法正确解析用户文件夹中的部分库文件夹\r可能已经被移动或不存在",
+                                Content = "无法正确解析用户文件夹，仅存在公用文件夹\r库文件夹无法正确显示",
                                 CloseButtonText = "确定",
                                 Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                             };
@@ -305,7 +394,7 @@ namespace FileManager
                             Tips = new QueueContentDialog
                             {
                                 Title = "Error",
-                                Content = "Some library folders in the user folder cannot be parsed correctly\rThe folder may have been moved or does not exist",
+                                Content = "Unable to parse user folder correctly, Only public folders exist\rLibrary folder does not display correctly",
                                 CloseButtonText = "Confirm",
                                 Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                             };
@@ -313,30 +402,28 @@ namespace FileManager
                         _ = await Tips.ShowAsync();
                     }
                 }
-                else
+                catch(Exception)
                 {
-                    QueueContentDialog Tips;
                     if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        Tips = new QueueContentDialog
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
-                            Title = "错误",
-                            Content = "无法正确解析用户文件夹，仅存在公用文件夹\r库文件夹无法正确显示",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            Title = "Opoos...",
+                            Content = "由于某些无法预料的原因，无法导入库文件夹",
+                            CloseButtonText = "确定"
                         };
+                        _ = await Dialog.ShowAsync();
                     }
                     else
                     {
-                        Tips = new QueueContentDialog
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
-                            Title = "Error",
-                            Content = "Unable to parse user folder correctly, Only public folders exist\rLibrary folder does not display correctly",
-                            CloseButtonText = "Confirm",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            Title = "Opoos...",
+                            Content = "Unable to import library folder for some unforeseen reasons",
+                            CloseButtonText = "Got it"
                         };
+                        _ = await Dialog.ShowAsync();
                     }
-                    _ = await Tips.ShowAsync();
                 }
             }
 

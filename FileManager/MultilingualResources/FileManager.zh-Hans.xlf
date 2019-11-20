@@ -180,7 +180,7 @@
         </trans-unit>
         <trans-unit id="ParentAttribute.Label" translate="yes" xml:space="preserve">
           <source>FolderProperties</source>
-          <target state="translated">文件夹属性</target>
+          <target state="translated">属性</target>
         </trans-unit>
         <trans-unit id="QRText.Header" translate="yes" xml:space="preserve">
           <source>Copy this link to your browser to download</source>

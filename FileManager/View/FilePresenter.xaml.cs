@@ -38,8 +38,8 @@ namespace FileManager
         public static FilePresenter ThisPage { get; private set; }
         public List<GridViewItem> ZipCollection = new List<GridViewItem>();
         public TreeViewNode DisplayNode;
-        StorageFile CopyFile;
-        StorageFile CutFile;
+        private static StorageFile CopyFile;
+        private static StorageFile CutFile;
         AutoResetEvent AESControl;
         Frame Nav;
         WiFiShareProvider WiFiProvider;
@@ -114,19 +114,12 @@ namespace FileManager
 
         private void Copy_Click(object sender, RoutedEventArgs e)
         {
-            if (CopyFile != null)
-            {
-                CopyFile = null;
-            }
-
-            CopyFile = (GridViewControl.SelectedItem as FileSystemStorageItem).File;
-
-            Paste.IsEnabled = true;
-
             if (CutFile != null)
             {
                 CutFile = null;
             }
+
+            CopyFile = (GridViewControl.SelectedItem as FileSystemStorageItem).File;
 
             Restore();
         }
@@ -151,6 +144,9 @@ namespace FileManager
                         {
                             FileCollection.Add(new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
                         }
+
+                        CutFile = null;
+                        CopyFile = null;
                     }
                     catch (FileNotFoundException)
                     {
@@ -205,6 +201,9 @@ namespace FileManager
                         {
                             FileCollection.Add(new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
                         }
+
+                        CutFile = null;
+                        CopyFile = null;
                     }
                     catch (FileNotFoundException)
                     {
@@ -265,6 +264,9 @@ namespace FileManager
                         {
                             FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
                         }
+
+                        CutFile = null;
+                        CopyFile = null;
                     }
                     catch (FileNotFoundException)
                     {
@@ -319,6 +321,9 @@ namespace FileManager
                         {
                             FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
                         }
+
+                        CutFile = null;
+                        CopyFile = null;
                     }
                     catch (FileNotFoundException)
                     {
@@ -362,23 +367,19 @@ namespace FileManager
                 await Task.Delay(500);
                 LoadingActivation(false);
             }
+
             Paste.IsEnabled = false;
         }
 
         private void Cut_Click(object sender, RoutedEventArgs e)
         {
-            if (CutFile != null)
-            {
-                CutFile = null;
-            }
-
-            CutFile = (GridViewControl.SelectedItem as FileSystemStorageItem).File;
-            Paste.IsEnabled = true;
-
             if (CopyFile != null)
             {
                 CopyFile = null;
             }
+
+            CutFile = (GridViewControl.SelectedItem as FileSystemStorageItem).File;
+
             Restore();
         }
 
@@ -2625,6 +2626,71 @@ namespace FileManager
                 BitmapImage Thumbnail = await folder.GetThumbnailBitmapAsync();
                 ThisPC.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, Thumbnail, LibrarySource.UserAdded));
                 await SQLite.Current.SetFolderLibraryAsync(folder.Path);
+            }
+        }
+
+        private async void NewFolder_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var NewFolder = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                    ? await FileControl.ThisPage.CurrentFolder.CreateFolderAsync("新建文件夹", CreationCollisionOption.GenerateUniqueName)
+                    : await FileControl.ThisPage.CurrentFolder.CreateFolderAsync("New folder", CreationCollisionOption.GenerateUniqueName);
+
+                var Size = await NewFolder.GetSizeDescriptionAsync();
+                var Thumbnail = await NewFolder.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                var ModifiedTime = await NewFolder.GetModifiedTimeAsync();
+
+                FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
+
+                if (FileControl.ThisPage.CurrentNode.IsExpanded || !FileControl.ThisPage.CurrentNode.HasChildren)
+                {
+                    FileControl.ThisPage.CurrentNode.Children.Add(new TreeViewNode
+                    {
+                        Content = NewFolder,
+                        HasUnrealizedChildren = false
+                    });
+                }
+                FileControl.ThisPage.CurrentNode.IsExpanded = true;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                QueueContentDialog dialog;
+                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                {
+                    dialog = new QueueContentDialog
+                    {
+                        Title = "错误",
+                        Content = "RX无权在此创建文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
+                        PrimaryButtonText = "立刻",
+                        CloseButtonText = "稍后",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                }
+                else
+                {
+                    dialog = new QueueContentDialog
+                    {
+                        Title = "Error",
+                        Content = "RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                        PrimaryButtonText = "Enter",
+                        CloseButtonText = "Later",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    };
+                }
+
+                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                }
+            }
+        }
+
+        private void EmptyFlyout_Opening(object sender, object e)
+        {
+            if(CutFile!=null||CopyFile!=null)
+            {
+                Paste.IsEnabled = true;
             }
         }
     }

@@ -1521,8 +1521,15 @@ namespace FileManager
             }
             else
             {
-                string[] Split = Path.GetRelativePath(CurrentPath, FullPath).Split("\\", StringSplitOptions.RemoveEmptyEntries);
-                PathQueue = new Queue<string>(Split);
+                if (FullPath != CurrentPath)
+                {
+                    string[] Split = Path.GetRelativePath(CurrentPath, FullPath).Split("\\", StringSplitOptions.RemoveEmptyEntries);
+                    PathQueue = new Queue<string>(Split);
+                }
+                else
+                {
+                    PathQueue = new Queue<string>(0);
+                }
             }
         }
 

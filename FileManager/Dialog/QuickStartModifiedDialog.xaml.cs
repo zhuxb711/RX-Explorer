@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Net;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
@@ -236,6 +237,31 @@ namespace FileManager
         private void ProtocalIcon_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             ProtocalTips.IsOpen = true;
+        }
+
+        private async void GetWebImage_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            try
+            {
+                HttpWebRequest Request = WebRequest.CreateHttp(Path.Combine(Protocal.Text, "favicon.ico"));
+                using (WebResponse Response = await Request.GetResponseAsync())
+                using (Stream ImageStream = Response.GetResponseStream())
+                {
+                    StorageFile DownloadImage = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("DownloadFile.ico", CreationCollisionOption.ReplaceExisting);
+                    using (Stream FileStream = await DownloadImage.OpenStreamForWriteAsync())
+                    {
+                        await ImageStream.CopyToAsync(FileStream);
+                    }
+                    ImageFile = DownloadImage;
+                    IsSelectedImage = true;
+                }
+
+                Icon.Source = new BitmapImage(new Uri(Path.Combine(Protocal.Text, "favicon.ico")));
+            }
+            catch (Exception)
+            {
+
+            }
         }
     }
 }

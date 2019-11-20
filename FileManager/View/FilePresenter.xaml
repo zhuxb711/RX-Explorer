@@ -119,7 +119,8 @@
         </CommandBarFlyout>
 
         <CommandBarFlyout x:Name="EmptyFlyout"
-                          Placement="RightEdgeAlignedTop">
+                          Placement="RightEdgeAlignedTop"
+                          Opening="EmptyFlyout_Opening">
             <AppBarButton Icon="Paste"
                           x:Uid="FilePaste"
                           ToolTipService.ToolTip="{x:Bind Paste.Label}"
@@ -128,6 +129,11 @@
                           Click="Paste_Click"
                           Name="Paste" />
             <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="NewFolder"
+                              Label="新建文件夹"
+                              x:Uid="FileControlCreateFolder"
+                              x:Name="NewFolder"
+                              Click="NewFolder_Click"/>
                 <AppBarButton Icon="BackToWindow"
                               Label="使用系统管理器打开"
                               x:Uid="SystemManagerOpen"

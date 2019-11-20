@@ -187,7 +187,7 @@ namespace FileManager
             }
         }
 
-        protected async override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             if (e.Parameter is StorageFolder TargetFolder)
             {
@@ -427,10 +427,18 @@ namespace FileManager
                 for (int i = 0; i < FileList.Count && !CancelToken.IsCancellationRequested; i++)
                 {
                     var Item = FileList[i];
-                    var Size = await Item.GetSizeDescriptionAsync();
-                    var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                    var ModifiedTime = await Item.GetModifiedTimeAsync();
-                    FilePresenter.ThisPage.FileCollection.Add(new FileSystemStorageItem(FileList[i], Size, Thumbnail, ModifiedTime));
+                    if (Item is StorageFile)
+                    {
+                        var Size = await Item.GetSizeDescriptionAsync();
+                        var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                        var ModifiedTime = await Item.GetModifiedTimeAsync();
+                        FilePresenter.ThisPage.FileCollection.Add(new FileSystemStorageItem(FileList[i], Size, Thumbnail, ModifiedTime));
+                    }
+                    else
+                    {
+                        var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                        FilePresenter.ThisPage.FileCollection.Add(new FileSystemStorageItem(FileList[i], string.Empty, Thumbnail, string.Empty));
+                    }
                 }
             }
 
@@ -955,8 +963,8 @@ namespace FileManager
                     }
                     return;
                 }
-                catch (Exception) 
-                { 
+                catch (Exception)
+                {
 
                 }
 
@@ -965,7 +973,7 @@ namespace FileManager
                 if (args.QueryText.StartsWith((FolderTree.RootNodes.First().Content as StorageFolder).Path))
                 {
                     var RootNode = FolderTree.RootNodes[0];
-                    TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, string.Empty));
+                    TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
                     if (TargetNode == null)
                     {
                         if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
@@ -1133,7 +1141,7 @@ namespace FileManager
         {
             if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
             {
-                var ParenetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(ParentFolder.Path, string.Empty));
+                var ParenetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
                 while (true)
                 {
                     if (FolderTree.ContainerFromNode(ParenetNode) is TreeViewItem Item)
@@ -1163,7 +1171,7 @@ namespace FileManager
                 if (Path.StartsWith((FolderTree.RootNodes.First().Content as StorageFolder).Path))
                 {
                     var RootNode = FolderTree.RootNodes[0];
-                    TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, string.Empty));
+                    TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
                     if (TargetNode == null)
                     {
                         if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
@@ -1277,7 +1285,7 @@ namespace FileManager
                 if (Path.StartsWith((FolderTree.RootNodes.First().Content as StorageFolder).Path))
                 {
                     var RootNode = FolderTree.RootNodes[0];
-                    TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, string.Empty));
+                    TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
                     if (TargetNode == null)
                     {
                         if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
