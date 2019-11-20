@@ -48,6 +48,14 @@
                              Content="Win10_UWP应用启动命令大全-IT之家"
                              NavigateUri="https://www.ithome.com/html/win10/295999.htm" />
         </controls:TeachingTip>
+        <controls:TeachingTip x:Name="FailureTips"
+                              Title="Error"
+                              PreferredPlacement="TopRight"
+                              Target="{x:Bind GetWebImage}"
+                              IsLightDismissEnabled="True"
+                              x:Uid="QuickStartFailureTips"
+                              Subtitle="无法自动获取网页图标，请手动选择图标">
+        </controls:TeachingTip>
     </local:QueueContentDialog.Resources>
 
     <Grid>

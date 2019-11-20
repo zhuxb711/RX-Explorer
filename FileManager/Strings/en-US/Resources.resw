@@ -426,6 +426,9 @@
   <data name="QuickStartExistTip.Subtitle" xml:space="preserve">
     <value>The name already exists and cannot be added repeatedly</value>
   </data>
+  <data name="QuickStartFailureTips.Subtitle" xml:space="preserve">
+    <value>Unable to get webpage icon automatically, please select icon manually</value>
+  </data>
   <data name="QuickStartFormatErrorTip.Subtitle" xml:space="preserve">
     <value>Protocol or address format error</value>
   </data>

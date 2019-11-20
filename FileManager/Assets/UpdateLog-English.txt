@@ -1,4 +1,21 @@
 ﻿*****
+###What's new in Ver.3.4.2.0
+
+>#####Function update
+
+>>#####Allow copy and paste across drives
+
+>>#####"Popular Website" module adds the icon automatic acquisition function, which can automatically query the corresponding icon according to the URL.
+
+>#####Bug fix
+
+>>#####Solved the problem that the address bar and related buttons are invalid in the non-disk root directory (such as the "picture" folder)
+
+>>#####Solved the problem that the address bar cannot enter the subdirectory of the current directory
+
+>>#####Solved a problem that some special exceptions were thrown during the initialization phase but were not processed
+
+*****
 ###What's new in Ver.3.4.0.0
 
 >#####Function update

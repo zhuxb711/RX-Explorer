@@ -12,6 +12,11 @@ namespace FileManager
 {
     public sealed partial class QuickStartModifiedDialog : QueueContentDialog
     {
+        private readonly QuickStartItem QuickItem;
+        private readonly QuickStartType Type;
+        private bool IsSelectedImage = false;
+        private StorageFile ImageFile;
+
         public QuickStartModifiedDialog(QuickStartType Type, QuickStartItem Item = null)
         {
             InitializeComponent();
@@ -23,6 +28,7 @@ namespace FileManager
                         ? "启动协议"
                         : "Protocal";
                     ProtocalIcon.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                    GetWebImage.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                     Protocal.Width = 170;
                     break;
                 case QuickStartType.WebSite:
@@ -30,10 +36,12 @@ namespace FileManager
                         ? "网址"
                         : "WebSite";
                     ProtocalIcon.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                    GetWebImage.Visibility = Windows.UI.Xaml.Visibility.Visible;
                     Protocal.Width = 200;
                     break;
                 case QuickStartType.UpdateApp:
                     ProtocalIcon.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                    GetWebImage.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                     Protocal.Width = 170;
                     Icon.Source = Item.Image;
                     DisplayName.Text = Item.DisplayName;
@@ -43,6 +51,7 @@ namespace FileManager
                     break;
                 case QuickStartType.UpdateWeb:
                     ProtocalIcon.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                    GetWebImage.Visibility = Windows.UI.Xaml.Visibility.Visible;
                     Protocal.Width = 200;
                     Icon.Source = Item.Image;
                     DisplayName.Text = Item.DisplayName;
@@ -52,11 +61,6 @@ namespace FileManager
                     break;
             }
         }
-
-        private QuickStartItem QuickItem;
-        private QuickStartType Type;
-        private bool IsSelectedImage = false;
-        private StorageFile ImageFile;
 
         private async void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
@@ -241,9 +245,18 @@ namespace FileManager
 
         private async void GetWebImage_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(Protocal.Text))
+            {
+                EmptyTip.Target = Protocal;
+                EmptyTip.IsOpen = true;
+                return;
+            }
+
             try
             {
-                HttpWebRequest Request = WebRequest.CreateHttp(Path.Combine(Protocal.Text, "favicon.ico"));
+                Uri ImageUri = new Uri(new Uri(Protocal.Text), "favicon.ico");
+
+                HttpWebRequest Request = WebRequest.CreateHttp(ImageUri);
                 using (WebResponse Response = await Request.GetResponseAsync())
                 using (Stream ImageStream = Response.GetResponseStream())
                 {
@@ -256,11 +269,39 @@ namespace FileManager
                     IsSelectedImage = true;
                 }
 
-                Icon.Source = new BitmapImage(new Uri(Path.Combine(Protocal.Text, "favicon.ico")));
+                Icon.Source = new BitmapImage(ImageUri);
+            }
+            catch (UriFormatException)
+            {
+                FailureTips.IsOpen = true;
             }
             catch (Exception)
             {
+                try
+                {
+                    Uri QueryUrl = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                        ? new Uri($"http://statics.dnspod.cn/proxy_favicon/_/favicon?domain={new Uri(Protocal.Text).Host}")
+                        : new Uri($"http://www.google.com/s2/favicons?domain={new Uri(Protocal.Text).Host}");
 
+                    HttpWebRequest Request = WebRequest.CreateHttp(QueryUrl);
+                    using (WebResponse Response = await Request.GetResponseAsync())
+                    using (Stream ImageStream = Response.GetResponseStream())
+                    {
+                        StorageFile DownloadImage = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("DownloadFile.ico", CreationCollisionOption.ReplaceExisting);
+                        using (Stream FileStream = await DownloadImage.OpenStreamForWriteAsync())
+                        {
+                            await ImageStream.CopyToAsync(FileStream);
+                        }
+                        ImageFile = DownloadImage;
+                        IsSelectedImage = true;
+                    }
+
+                    Icon.Source = new BitmapImage(QueryUrl);
+                }
+                catch (Exception)
+                {
+                    FailureTips.IsOpen = true;
+                }
             }
         }
     }

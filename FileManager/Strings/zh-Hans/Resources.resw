@@ -879,4 +879,7 @@
   <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>返回上一级</value>
   </data>
+  <data name="QuickStartFailureTips.Subtitle" xml:space="preserve">
+    <value>无法自动获取网页图标，请手动选择图标</value>
+  </data>
 </root>

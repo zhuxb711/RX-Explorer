@@ -1162,6 +1162,10 @@
           <source>Upper</source>
           <target state="translated">返回上一级</target>
         </trans-unit>
+        <trans-unit id="QuickStartFailureTips.Subtitle" translate="yes" xml:space="preserve">
+          <source>Unable to get webpage icon automatically, please select icon manually</source>
+          <target state="translated">无法自动获取网页图标，请手动选择图标</target>
+        </trans-unit>
       </group>
     </body>
   </file>
