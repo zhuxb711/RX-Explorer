@@ -357,9 +357,6 @@
   <data name="LibraryOpenButton.Label" xml:space="preserve">
     <value>Open</value>
   </data>
-  <data name="MultiInstace.Content" xml:space="preserve">
-    <value>Enable Multi-Instance Support</value>
-  </data>
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>Open</value>
   </data>
@@ -432,6 +429,9 @@
   <data name="QuickStartFormatErrorTip.Subtitle" xml:space="preserve">
     <value>Protocol or address format error</value>
   </data>
+  <data name="QuickStartGetWebImage.Content" xml:space="preserve">
+    <value>Auto-acquisition</value>
+  </data>
   <data name="QuickStartLink.Content" xml:space="preserve">
     <value>Launch an app with a URI</value>
   </data>
@@ -458,6 +458,9 @@
   </data>
   <data name="RateTip.Title" xml:space="preserve">
     <value>Please rate us</value>
+  </data>
+  <data name="RefreshView.Label" xml:space="preserve">
+    <value>Refresh</value>
   </data>
   <data name="RenameDialog.CloseButtonText" xml:space="preserve">
     <value>Cancel</value>
@@ -665,6 +668,9 @@
   </data>
   <data name="SystemManagerOpen.Label" xml:space="preserve">
     <value>Use System File Explorer Open</value>
+  </data>
+  <data name="SystemShare.Text" xml:space="preserve">
+    <value>System share</value>
   </data>
   <data name="TextViewerCancel.Label" xml:space="preserve">
     <value>Cancel</value>

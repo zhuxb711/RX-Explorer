@@ -1,8 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
-using Windows.Storage;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 
 namespace FileManager
 {
@@ -33,22 +32,45 @@ namespace FileManager
             Loaded += DeviceInfoDialog_Loaded;
         }
 
-        private async void DeviceInfoDialog_Loaded(object sender, RoutedEventArgs e)
+        private void DeviceInfoDialog_Loaded(object sender, RoutedEventArgs e)
         {
             DoubleAnimation.To = Device.Percent * 100;
             Animation.Begin();
 
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (DriveInfo.GetDrives().FirstOrDefault((Drive) => Drive.RootDirectory.FullName == Device.Folder.Path) is DriveInfo Info)
             {
-                DeviceType.Text = (await KnownFolders.RemovableDevices.GetFoldersAsync()).Where((Folder) => Folder.FolderRelativeId == Device.Folder.FolderRelativeId).FirstOrDefault() != null
-                ? "可移动磁盘"
-                : "本地磁盘";
+                switch (Info.DriveType)
+                {
+                    case DriveType.Fixed:
+                        {
+                            DeviceType.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "本地驱动器" : "Local drive";
+                            break;
+                        }
+                    case DriveType.Network:
+                        {
+                            DeviceType.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "网络驱动器" : "Network drive";
+                            break;
+                        }
+                    case DriveType.Removable:
+                        {
+                            DeviceType.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "可移动驱动器" : "Removable drive";
+                            break;
+                        }
+                    case DriveType.Ram:
+                        {
+                            DeviceType.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "内存驱动器" : "Ram drive";
+                            break;
+                        }
+                    default:
+                        {
+                            DeviceType.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "未知" : "Unknown";
+                            break;
+                        }
+                }
             }
             else
             {
-                DeviceType.Text = (await KnownFolders.RemovableDevices.GetFoldersAsync()).Where((Folder) => Folder.FolderRelativeId == Device.Folder.FolderRelativeId).FirstOrDefault() != null
-                ? "Removable Disk"
-                : "Local Disk";
+                DeviceType.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "未知" : "Unknown";
             }
         }
 

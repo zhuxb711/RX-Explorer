@@ -603,9 +603,6 @@
   <data name="SearchFlyoutShallowRadio.Content" xml:space="preserve">
     <value>仅搜索当前目录(较快)</value>
   </data>
-  <data name="MultiInstace.Content" xml:space="preserve">
-    <value>启用多实例支持(应用多开)</value>
-  </data>
   <data name="SettingPageColorPickerTip.Title" xml:space="preserve">
     <value>Acrylic主题色</value>
   </data>
@@ -881,5 +878,14 @@
   </data>
   <data name="QuickStartFailureTips.Subtitle" xml:space="preserve">
     <value>无法自动获取网页图标，请手动选择图标</value>
+  </data>
+  <data name="QuickStartGetWebImage.Content" xml:space="preserve">
+    <value>自动获取</value>
+  </data>
+  <data name="RefreshView.Label" xml:space="preserve">
+    <value>刷新</value>
+  </data>
+  <data name="SystemShare.Text" xml:space="preserve">
+    <value>系统共享</value>
   </data>
 </root>

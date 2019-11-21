@@ -15,8 +15,8 @@
                   TintOpacity="0.4" 
                   FallbackColor="DimGray"/>
 
-    <x:Double x:Key="ContentDialogMaxWidth">700</x:Double>
-    <x:Double x:Key="ContentDialogMaxHeight">700</x:Double>
+    <x:Double x:Key="ContentDialogMaxWidth">650</x:Double>
+    <x:Double x:Key="ContentDialogMaxHeight">650</x:Double>
     
     <Style x:Key="SplitButtonStyleInOption" TargetType="SplitButton">
         <Setter Property="Background" Value="{ThemeResource SplitButtonBackground}"/>

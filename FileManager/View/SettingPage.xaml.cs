@@ -1,5 +1,4 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
-using System;
+﻿using System;
 using System.Linq;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
@@ -7,8 +6,6 @@ using Windows.Services.Store;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI;
-using Windows.UI.Core;
-using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -51,11 +48,6 @@ namespace FileManager
             {
                 SearchNum.SelectedIndex = SearchNum.Items.IndexOf(SearchNum.Items.Where((Item) => Item.ToString().Contains(MaxNum)).FirstOrDefault());
             }
-
-            if (ApplicationData.Current.LocalSettings.Values["EnableMultiInstanceSupport"] is bool Enable)
-            {
-                MultiInstace.IsChecked = Enable;
-            }
         }
 
         private void Like_PointerEntered(object sender, PointerRoutedEventArgs e)
@@ -77,7 +69,7 @@ namespace FileManager
 
         private async void Like_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            await Launcher.LaunchUriAsync(new Uri("ms-windows-store://review/?productid=9N88QBQKF2RS"));
+            _ = await StoreContext.GetDefault().RequestRateAndReviewAppAsync();
         }
 
         private void SearchNum_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -126,7 +118,7 @@ namespace FileManager
                 QueueContentDialog dialog = new QueueContentDialog
                 {
                     Title = "警告",
-                    Content = " 此操作将完全初始化RX文件管理器，包括：\r\r     • 清除全部数据存储\r\r     • 还原所有应用设置\r\r     • RX文件管理器将自动关闭\r\r 您需要按提示重新启动",
+                    Content = " 此操作将完全初始化RX文件管理器，包括：\r\r     • 清除全部数据存储\r\r     • 还原所有应用设置\r\r     • RX文件管理器将自动关闭并重新启动",
                     CloseButtonText = "取消",
                     PrimaryButtonText = "确认",
                     Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
@@ -135,8 +127,7 @@ namespace FileManager
                 {
                     SQLite.Current.Dispose();
                     await ApplicationData.Current.ClearAsync();
-                    ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(GenerateRestartToast().GetXml()));
-                    Application.Current.Exit();
+                    _ = await CoreApplication.RequestRestartAsync(string.Empty);
                 }
             }
             else
@@ -144,7 +135,7 @@ namespace FileManager
                 QueueContentDialog dialog = new QueueContentDialog
                 {
                     Title = "Warning",
-                    Content = " This will fully initialize the RX FileManager，Including：\r\r     • Clear all data\r\r     • Restore all app settings\r\r     • RX FileManager will automatically close\r\r You need to restart as prompted",
+                    Content = " This will fully initialize the RX FileManager，Including：\r\r     • Clear all data\r\r     • Restore all app settings\r\r     • RX FileManager will automatically restart",
                     CloseButtonText = "Cancel",
                     PrimaryButtonText = "Confirm",
                     Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
@@ -153,112 +144,9 @@ namespace FileManager
                 {
                     SQLite.Current.Dispose();
                     await ApplicationData.Current.ClearAsync();
-                    ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(GenerateRestartToast().GetXml()));
-                    Application.Current.Exit();
+                    _ = await CoreApplication.RequestRestartAsync(string.Empty);
                 }
             }
-        }
-
-        public static ToastContent GenerateRestartToast()
-        {
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
-            {
-                return new ToastContent()
-                {
-                    Launch = "Restart",
-                    Scenario = ToastScenario.Alarm,
-
-                    Visual = new ToastVisual()
-                    {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = "需要重新启动RX文件管理器"
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = "重置已完成"
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = "请点击以立即重新启动RX"
-                                }
-                            }
-                        }
-                    },
-
-                    Actions = new ToastActionsCustom
-                    {
-                        Buttons =
-                        {
-                            new ToastButton("立即启动","Restart")
-                            {
-                                ActivationType =ToastActivationType.Foreground
-                            },
-                            new ToastButtonDismiss("稍后")
-                        }
-                    }
-                };
-            }
-            else
-            {
-                return new ToastContent()
-                {
-                    Launch = "Restart",
-                    Scenario = ToastScenario.Alarm,
-
-                    Visual = new ToastVisual()
-                    {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = "Need to restart RX FileManager"
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = "Reset completed"
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = "Please click to restart RX now"
-                                }
-                            }
-                        }
-                    },
-
-                    Actions = new ToastActionsCustom
-                    {
-                        Buttons =
-                        {
-                            new ToastButton("Restart","Restart")
-                            {
-                                ActivationType =ToastActivationType.Foreground
-                            },
-                            new ToastButtonDismiss("Later")
-                        }
-                    }
-                };
-            }
-        }
-
-        private void MultiInstace_Checked(object sender, RoutedEventArgs e)
-        {
-            ApplicationData.Current.LocalSettings.Values["EnableMultiInstanceSupport"] = true;
-        }
-
-        private void MultiInstace_Unchecked(object sender, RoutedEventArgs e)
-        {
-            ApplicationData.Current.LocalSettings.Values["EnableMultiInstanceSupport"] = false;
         }
 
         private void UIMode_SelectionChanged(object sender, SelectionChangedEventArgs e)

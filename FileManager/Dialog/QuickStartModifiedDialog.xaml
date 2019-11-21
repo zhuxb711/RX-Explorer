@@ -70,6 +70,7 @@
                     <Button x:Name="GetWebImage"
                             Content="自动获取"
                             Margin="0,0,10,0"
+                            x:Uid="QuickStartGetWebImage"
                             Click="GetWebImage_Click"/>
                     <Button Name="SelectIconButton"
                             Content="选择图标"

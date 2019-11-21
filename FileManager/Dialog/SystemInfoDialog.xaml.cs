@@ -344,8 +344,8 @@ namespace FileManager
                 }
             }
 
-            var Interfaces = NetworkInterface.GetAllNetworkInterfaces().Where(Inter => (Inter.NetworkInterfaceType == NetworkInterfaceType.Ethernet || Inter.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
-                                                                                       && Inter.OperationalStatus == OperationalStatus.Up);
+            var Interfaces = NetworkInterface.GetAllNetworkInterfaces().Where(Inter => Inter.NetworkInterfaceType == NetworkInterfaceType.Ethernet || Inter.NetworkInterfaceType == NetworkInterfaceType.Wireless80211);
+
             for (int i = 0; i < Interfaces.Count(); i++)
             {
                 var Interface = Interfaces.ElementAt(i);

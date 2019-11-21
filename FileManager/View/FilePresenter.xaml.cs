@@ -2688,10 +2688,33 @@ namespace FileManager
 
         private void EmptyFlyout_Opening(object sender, object e)
         {
-            if(CutFile!=null||CopyFile!=null)
+            if (CutFile != null || CopyFile != null)
             {
                 Paste.IsEnabled = true;
             }
+        }
+
+        private void SystemShare_Click(object sender, RoutedEventArgs e)
+        {
+            DataTransferManager Manager = DataTransferManager.GetForCurrentView();
+            if (GridViewControl.SelectedItem is FileSystemStorageItem ShareItem)
+            {
+                Manager.DataRequested += (s, args) =>
+                {
+                    DataPackage Package = new DataPackage();
+                    Package.Properties.Title = ShareItem.DisplayName;
+                    Package.Properties.Description = ShareItem.DisplayType;
+                    Package.SetStorageItems(new StorageFile[] { ShareItem.File });
+                    args.Request.Data = Package;
+                };
+
+                DataTransferManager.ShowShareUI();
+            }
+        }
+
+        private async void Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            await FileControl.ThisPage.DisplayItemsInFolder(DisplayNode, true);
         }
     }
 }

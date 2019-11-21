@@ -342,7 +342,7 @@ namespace FileManager
             await DisplayItemsInFolder(args.InvokedItem as TreeViewNode);
         }
 
-        public async Task DisplayItemsInFolder(TreeViewNode Node)
+        public async Task DisplayItemsInFolder(TreeViewNode Node, bool ForceRefresh = false)
         {
             /*
              * 同一文件夹内可能存在大量文件
@@ -353,10 +353,13 @@ namespace FileManager
             //防止多次点击同一文件夹导致的多重查找            
             if (Node.Content is StorageFolder folder)
             {
-                if (folder.FolderRelativeId == CurrentFolder?.FolderRelativeId && Nav.CurrentSourcePageType == typeof(FilePresenter))
+                if (!ForceRefresh)
                 {
-                    IsAdding = false;
-                    return;
+                    if (folder.FolderRelativeId == CurrentFolder?.FolderRelativeId && Nav.CurrentSourcePageType == typeof(FilePresenter))
+                    {
+                        IsAdding = false;
+                        return;
+                    }
                 }
 
                 if (IsAdding)
@@ -1385,6 +1388,11 @@ namespace FileManager
                 }
                 RecordIndex--;
             }
+        }
+
+        private async void AddressBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            AddressBox.ItemsSource = await SQLite.Current.GetRelatedPathHistoryAsync(string.Empty);
         }
     }
 

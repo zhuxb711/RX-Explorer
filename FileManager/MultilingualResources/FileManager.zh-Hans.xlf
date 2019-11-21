@@ -794,10 +794,6 @@
           <source>Only search the current directory (faster)</source>
           <target state="translated">仅搜索当前目录(较快)</target>
         </trans-unit>
-        <trans-unit id="MultiInstace.Content" translate="yes" xml:space="preserve">
-          <source>Enable Multi-Instance Support</source>
-          <target state="translated">启用多实例支持(应用多开)</target>
-        </trans-unit>
         <trans-unit id="SettingPageColorPickerTip.Title" translate="yes" xml:space="preserve">
           <source>Acrylic theme color</source>
           <target state="translated">Acrylic主题色</target>
@@ -1165,6 +1161,18 @@
         <trans-unit id="QuickStartFailureTips.Subtitle" translate="yes" xml:space="preserve">
           <source>Unable to get webpage icon automatically, please select icon manually</source>
           <target state="translated">无法自动获取网页图标，请手动选择图标</target>
+        </trans-unit>
+        <trans-unit id="QuickStartGetWebImage.Content" translate="yes" xml:space="preserve">
+          <source>Auto-acquisition</source>
+          <target state="translated">自动获取</target>
+        </trans-unit>
+        <trans-unit id="RefreshView.Label" translate="yes" xml:space="preserve">
+          <source>Refresh</source>
+          <target state="translated">刷新</target>
+        </trans-unit>
+        <trans-unit id="SystemShare.Text" translate="yes" xml:space="preserve">
+          <source>System share</source>
+          <target state="translated">系统共享</target>
         </trans-unit>
       </group>
     </body>

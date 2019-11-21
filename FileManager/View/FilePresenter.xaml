@@ -50,6 +50,14 @@
                               Label="共享">
                     <AppBarButton.Flyout>
                         <MenuFlyout Placement="Right">
+                            <MenuFlyoutItem Text="系统共享"
+                                            x:Uid="SystemShare"
+                                            Name="SystemShare"
+                                            Click="SystemShare_Click">
+                                <MenuFlyoutItem.Icon>
+                                    <SymbolIcon Symbol="Share" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
                             <MenuFlyoutItem Text="WIFI共享"
                                             x:Uid="WIFIShare"
                                             Name="WIFIShare"
@@ -134,6 +142,11 @@
                               x:Uid="FileControlCreateFolder"
                               x:Name="NewFolder"
                               Click="NewFolder_Click"/>
+                <AppBarButton Icon="Refresh" 
+                              Label="刷新"
+                              x:Uid="RefreshView"
+                              x:Name="Refresh"
+                              Click="Refresh_Click"/>
                 <AppBarButton Icon="BackToWindow"
                               Label="使用系统管理器打开"
                               x:Uid="SystemManagerOpen"

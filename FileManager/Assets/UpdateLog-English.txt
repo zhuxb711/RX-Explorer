@@ -1,4 +1,27 @@
 ﻿*****
+###What's new in Ver.3.4.5.0
+
+>#####Function update
+
+>>#####Remove the multi-instance mode of RX
+
+>>#####Adding the manual refresh button of the drive and user can reload manually
+
+>>#####Clicking on the address bar will automatically pop up the history
+
+>>#####Simplifies the operation flow of the “Restore and Initialize” button. RX can now be restarted automatically without user manual operation
+
+>>#####Adding "system sharing" to "file sharing", you can now use the sharing function that comes with Windows
+
+>>#####Change rating module, now you can directly rate it directly inside RX
+
+>#####Bug fix
+
+>>#####Solved the problem that the drive property page cannot correctly distinguish different types of drives
+
+>>#####Solved the "System Information" module, if the device is not currently connected to the network or the network drive is not working, there is nothing to display
+
+*****
 ###What's new in Ver.3.4.2.0
 
 >#####Function update

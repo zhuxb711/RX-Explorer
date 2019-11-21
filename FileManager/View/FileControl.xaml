@@ -117,6 +117,7 @@
                     x:Uid="FileControlBackButton"
                     Name="GoBackRecord"
                     Click="GoBackRecord_Click"
+                    AllowFocusWhenDisabled="True"
                     IsEnabled="False"
                     Style="{StaticResource ButtonRevealStyle}"
                     Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
@@ -132,6 +133,7 @@
                     Click="GoForwardRecord_Click"
                     IsEnabled="False"
                     ToolTipService.ToolTip="前进"
+                    AllowFocusWhenDisabled="True"
                     Style="{StaticResource ButtonRevealStyle}"
                     Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
                 <Viewbox>
@@ -147,6 +149,7 @@
                     Click="GoParentFolder_Click"
                     Style="{StaticResource ButtonRevealStyle}"
                     ToolTipService.ToolTip="返回上级"
+                    AllowFocusWhenDisabled="True"
                     Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
                 <Viewbox>
                     <SymbolIcon Symbol="Up" />
@@ -158,6 +161,7 @@
                             Name="AddressBox"
                             UpdateTextOnSelect="True"
                             QueryIcon="Forward"
+                            GotFocus="AddressBox_GotFocus"
                             QuerySubmitted="AddressBox_QuerySubmitted"
                             TextChanged="AddressBox_TextChanged"
                             ToolTipService.ToolTip="{x:Bind AddressBox.Text,Mode=OneWay}"/>

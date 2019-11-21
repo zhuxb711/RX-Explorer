@@ -104,6 +104,33 @@
                               Click="LibraryProperties_Click"/>
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
+
+        <CommandBarFlyout x:Name="RefreshFlyout"
+                          Placement="RightEdgeAlignedTop">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Refresh"
+                              Label="刷新"
+                              x:Uid="RefreshView"
+                              x:Name="Refresh"
+                              Click="Refresh_Click" />
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
+
+        <CommandBarFlyout x:Name="DeviceFlyout" 
+                          Placement="RightEdgeAlignedTop">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="BackToWindow"
+                              Label="打开"
+                              x:Uid="OpenDevice"
+                              x:Name="OpenDevice"
+                              Click="OpenDevice_Click" />
+                <AppBarButton Icon="Tag"
+                              Label="属性"
+                              x:Uid="DeviceAttribute"
+                              x:Name="Attribute"
+                              Click="Attribute_Click" />
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
     </Page.Resources>
 
     <Grid Background="Transparent"
@@ -285,6 +312,7 @@
                           IsItemClickEnabled="True"
                           IsDoubleTapEnabled="True"
                           IsRightTapEnabled="True"
+                          ContextFlyout="{StaticResource RefreshFlyout}"
                           PointerPressed="DeviceGrid_PointerPressed"
                           RightTapped="DeviceGrid_RightTapped"
                           SelectionChanged="DeviceGrid_SelectionChanged"
@@ -341,23 +369,6 @@
                             </StackPanel>
                         </DataTemplate>
                     </GridView.ItemTemplate>
-                    <GridView.ContextFlyout>
-                        <CommandBarFlyout Placement="RightEdgeAlignedTop">
-                            <CommandBarFlyout.SecondaryCommands>
-                                <AppBarButton Icon="BackToWindow"
-                                              Label="打开"
-                                              x:Uid="OpenDevice"
-                                              x:Name="OpenDevice"
-                                              IsEnabled="{x:Bind Attribute.IsEnabled,Mode=OneWay}"
-                                              Click="OpenDevice_Click" />
-                                <AppBarButton Icon="Tag"
-                                              Label="属性"
-                                              x:Uid="DeviceAttribute"
-                                              x:Name="Attribute"
-                                              Click="Attribute_Click" />
-                            </CommandBarFlyout.SecondaryCommands>
-                        </CommandBarFlyout>
-                    </GridView.ContextFlyout>
                     <GridView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <ItemsWrapGrid Orientation="Horizontal"

@@ -185,12 +185,12 @@ namespace FileManager
                             }
                             catch (Exception e)
                             {
-                                throw e; 
+                                throw e;
                             }
                         }
-                        catch(Exception)
+                        catch (Exception)
                         {
-                            if(MainPage.ThisPage.CurrentLanguage==LanguageEnum.Chinese)
+                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                             {
                                 QueueContentDialog Dialog = new QueueContentDialog
                                 {
@@ -213,7 +213,7 @@ namespace FileManager
                         }
                     }
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
@@ -310,7 +310,7 @@ namespace FileManager
                                 goto FLAG;
                             }
                         }
-                        catch(Exception e)
+                        catch (Exception e)
                         {
                             throw e;
                         }
@@ -371,7 +371,7 @@ namespace FileManager
                             }
                             _ = await Tips.ShowAsync();
                         }
-                        catch(Exception e)
+                        catch (Exception e)
                         {
                             throw e;
                         }
@@ -402,7 +402,7 @@ namespace FileManager
                         _ = await Tips.ShowAsync();
                     }
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
@@ -611,7 +611,7 @@ namespace FileManager
 
         private void DeviceGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Attribute.IsEnabled = DeviceGrid.SelectedIndex != -1;
+            DeviceGrid.ContextFlyout = DeviceGrid.SelectedItem != null ? DeviceFlyout : RefreshFlyout;
         }
 
         private void OpenDevice_Click(object sender, RoutedEventArgs e)
@@ -707,6 +707,22 @@ namespace FileManager
             {
                 AttributeDialog Dialog = new AttributeDialog(Library.Folder);
                 _ = await Dialog.ShowAsync();
+            }
+        }
+
+        private async void Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            HardDeviceList.Clear();
+            foreach (string DriveRootPath in DriveInfo.GetDrives()
+                                          .Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                                          .GroupBy((Item) => Item.RootDirectory.FullName)
+                                          .Select((Group) => Group.FirstOrDefault().RootDirectory.FullName))
+            {
+                var Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
+                BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+
+                HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
             }
         }
     }
