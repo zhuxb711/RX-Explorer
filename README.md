@@ -10,8 +10,7 @@
 
 
 
-Microsoft Store下载链接:
-https://www.microsoft.com/store/apps/9N88QBQKF2RS
+[Microsoft Store下载链接](ms-windows-store://pdp/?productid=9N88QBQKF2RS)
 
 # UWP 应用隐私策略
 前注  本声明通用于Ruofan所发布的所有 UWP 应用，下文简称“应用”。
