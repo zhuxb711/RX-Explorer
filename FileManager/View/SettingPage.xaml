@@ -76,190 +76,325 @@
                            TextWrapping="WrapWholeWords" />
             </StackPanel>
         </controls:TeachingTip>
+
+        <controls:TeachingTip x:Name="FeedBackTip"
+                              IsLightDismissEnabled="True"
+                              Title="反馈说明"
+                              PreferredPlacement="TopRight"
+                              Target="{x:Bind FeedBackQuestion}"
+                              x:Uid="FeedBackTip"
+                              Subtitle="此反馈清单将向所有使用者展示您的建议或者反馈，同样您也可以查看其他人提出的建议，并给予您感兴趣的提议一个支持，支持越多且反对越少的建议将越靠前，开发者将聆听您的建议。您只能修改或删除您提交的建议。"/>
+
+        <CommandBarFlyout x:Name="FeedBackFlyout"
+                          Placement="RightEdgeAlignedTop">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Edit"
+                              x:Name="FeedBackEdit"
+                              x:Uid="FeedBackEditButton"
+                              Label="编辑"
+                              Click="FeedBackEdit_Click"/>
+                <AppBarButton Icon="Delete"
+                              x:Name="FeedBackDelete"
+                              x:Uid="FeedBackDeleteButton"
+                              Label="删除"
+                              Click="FeedBackDelete_Click" />
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
     </Page.Resources>
 
     <Grid>
         <ScrollViewer IsVerticalScrollChainingEnabled="True"
-                      Margin="25">
-            <StackPanel>
-                <StackPanel.ChildrenTransitions>
-                    <TransitionCollection>
-                        <AddDeleteThemeTransition />
-                    </TransitionCollection>
-                </StackPanel.ChildrenTransitions>
-                <TextBlock Text="高级"
-                           x:Uid="SettingAdvance"
-                           FontSize="24" />
+                      Padding="25">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="250" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="350" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <StackPanel.ChildrenTransitions>
+                        <TransitionCollection>
+                            <AddDeleteThemeTransition />
+                        </TransitionCollection>
+                    </StackPanel.ChildrenTransitions>
+                    <TextBlock Text="高级"
+                               x:Uid="SettingAdvance"
+                               FontSize="24" />
 
-                <ComboBox Name="SearchNum"
-                          x:Uid="SettingSearchNum"
-                          Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
-                          SelectionChanged="SearchNum_SelectionChanged"
-                          Margin="0,20,0,0"
-                          Header="设置最大搜索结果数" />
+                    <ComboBox Name="SearchNum"
+                              x:Uid="SettingSearchNum"
+                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
+                              SelectionChanged="SearchNum_SelectionChanged"
+                              Margin="0,20,0,0"
+                              Header="设置最大搜索结果数" />
 
-                <ComboBox Header="调整UI显示模式"
-                          x:Uid="SettingPageUIMode"
-                          Margin="0,20,0,0"
-                          SelectionChanged="UIMode_SelectionChanged"
-                          Name="UIMode"
-                          Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
+                    <ComboBox Header="调整UI显示模式"
+                              x:Uid="SettingPageUIMode"
+                              Margin="0,20,0,0"
+                              SelectionChanged="UIMode_SelectionChanged"
+                              Name="UIMode"
+                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
 
-                <StackPanel x:Name="CustomUIArea">
-                    <Button Content="Acrylic主题颜色"
-                            x:Uid="SettingPageThemeColorButton"
-                            Name="AcrylicColor"
-                            Style="{StaticResource ButtonRevealStyle}"
-                            Margin="0,20,0,0"
-                            Click="AcrylicColor_Click" />
-                    <StackPanel Margin="0,20,0,0"
-                                Orientation="Horizontal">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Acrylic颜色透明度"
-                                           x:Uid="SettingPageTintOpacitySliderHeader" />
-                                <Viewbox Margin="10,0,0,0"
-                                         Height="15"
-                                         VerticalAlignment="Bottom">
-                                    <FontIcon Glyph="&#xE9CE;"
-                                              Name="TintOpacityQuestion"
-                                              PointerPressed="TintOpacityQuestion_PointerPressed" />
-                                </Viewbox>
-                            </StackPanel>
-                            <Slider Margin="0,5,0,0"
-                                    IsThumbToolTipEnabled="False"
-                                    Value="{x:Bind local:AcrylicBackgroundController.TintOpacity,Mode=TwoWay}"
-                                    x:Name="TintOpacitySlider"
-                                    StepFrequency="0.1"
-                                    Maximum="1"
-                                    Minimum="0"
-                                    Width="220"
-                                    HorizontalAlignment="Left" />
-                        </StackPanel>
-                        <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintOpacitySlider.Value),Mode=OneWay}"
-                                   Margin="5,20,0,0"
-                                   VerticalAlignment="Center" />
-                    </StackPanel>
-                    <StackPanel Margin="0,20,0,0"
-                                Orientation="Horizontal">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Acrylic背景透光度"
-                                           x:Uid="SettingPageTintLuminositySliderHeader" />
-                                <Viewbox Margin="10,0,0,0"
-                                         Height="15"
-                                         VerticalAlignment="Bottom">
-                                    <FontIcon Glyph="&#xE9CE;"
-                                              Name="TintLuminosityQuestion"
-                                              PointerPressed="TintLuminosityQuestion_PointerPressed" />
-                                </Viewbox>
-                            </StackPanel>
-                            <Slider Margin="0,5,0,0"
-                                    IsThumbToolTipEnabled="False"
-                                    Value="{x:Bind local:AcrylicBackgroundController.TintLuminosityOpacity,Mode=TwoWay}"
-                                    x:Name="TintLuminositySlider"
-                                    StepFrequency="0.1"
-                                    Maximum="1"
-                                    Minimum="0"
-                                    Width="220"
-                                    HorizontalAlignment="Left" />
-                        </StackPanel>
-                        <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"
-                                   Margin="5,20,0,0"
-                                   VerticalAlignment="Center" />
-                    </StackPanel>
-                </StackPanel>
-                <Button Margin="0,20,0,0"
-                        x:Uid="SettingClearHistory"
-                        Content="清除搜索历史记录"
-                        Style="{StaticResource ButtonRevealStyle}">
-                    <Button.Flyout>
-                        <Flyout x:Name="ConfirmFly">
+                    <StackPanel x:Name="CustomUIArea">
+                        <Button Content="Acrylic主题颜色"
+                                x:Uid="SettingPageThemeColorButton"
+                                Name="AcrylicColor"
+                                Style="{StaticResource ButtonRevealStyle}"
+                                Margin="0,20,0,0"
+                                Click="AcrylicColor_Click" />
+                        <StackPanel Margin="0,20,0,0"
+                                    Orientation="Horizontal">
                             <StackPanel>
-                                <TextBlock Style="{ThemeResource BaseTextBlockStyle}"
-                                           Text="搜索历史记录将被清除，是否继续?"
-                                           x:Uid="SettingClearHistoryFlyoutContent"
-                                           Margin="0,0,0,12" />
-                                <StackPanel HorizontalAlignment="Right"
-                                            Orientation="Horizontal">
-                                    <Button Content="继续"
-                                            x:Uid="SettingClearHistoryFlyoutContinueButton"
-                                            Name="FlyoutContinue"
-                                            Click="FlyoutContinue_Click"
-                                            Width="100" />
-                                    <Button Margin="10,0,0,0"
-                                            Content="取消"
-                                            x:Uid="SettingClearHistoryFlyoutCancelButton"
-                                            Name="FlyoutCancel"
-                                            Click="FlyoutCancel_Click"
-                                            Width="100" />
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Acrylic颜色透明度"
+                                               x:Uid="SettingPageTintOpacitySliderHeader" />
+                                    <Viewbox Margin="10,0,0,0"
+                                             Height="15"
+                                             VerticalAlignment="Bottom">
+                                        <FontIcon Glyph="&#xE9CE;"
+                                                  Name="TintOpacityQuestion"
+                                                  PointerPressed="TintOpacityQuestion_PointerPressed" />
+                                    </Viewbox>
                                 </StackPanel>
+                                <Slider Margin="0,5,0,0"
+                                        IsThumbToolTipEnabled="False"
+                                        Value="{x:Bind local:AcrylicBackgroundController.TintOpacity,Mode=TwoWay}"
+                                        x:Name="TintOpacitySlider"
+                                        StepFrequency="0.1"
+                                        Maximum="1"
+                                        Minimum="0"
+                                        Width="220"
+                                        HorizontalAlignment="Left" />
                             </StackPanel>
-                        </Flyout>
-                    </Button.Flyout>
-                </Button>
-                <Button Margin="0,20,0,0"
-                        Content="还原并初始化App"
-                        x:Uid="SettingCleanup"
-                        Style="{StaticResource ButtonRevealStyle}"
-                        Name="ClearUp"
-                        Click="ClearUp_Click" />
-                <Button Style="{ThemeResource ButtonRevealStyle}"
-                        Margin="0,20,0,0"
-                        x:Uid="SettingSystemInfo"
-                        Content="查看系统信息"
-                        Name="SystemInfoButton"
-                        Click="SystemInfoButton_Click" />
-                <TextBlock Text="版本"
-                           x:Uid="SettingVersion"
-                           FontSize="24"
-                           Margin="0,30,0,0" />
-                <TextBlock Name="Version"
-                           Margin="0,20,0,0"
-                           FontSize="16" />
-                <HyperlinkButton x:Name="UpdateLogLink"
-                                 Content="查看更新日志"
-                                 FontSize="16"
-                                 Margin="0,20,0,0"
-                                 x:Uid="SettingUpdateLogButton"
-                                 Click="UpdateLogLink_Click"/>
-
-                <TextBlock Margin="0,30,0,0"
-                           x:Uid="SettingOther"
-                           Text="其他"
-                           FontSize="24" />
-                <Border Margin="0,20,0,0"
-                        Name="Like"
-                        PointerExited="Like_PointerExited"
-                        PointerEntered="Like_PointerEntered"
-                        PointerPressed="Like_PointerPressed"
-                        HorizontalAlignment="Left"
-                        Background="Transparent">
-                    <StackPanel Orientation="Horizontal">
-                        <SymbolIcon Symbol="Like"
-                                    Name="LikeSymbol"
-                                    VerticalAlignment="Bottom" />
-                        <TextBlock Margin="5,0,0,0"
-                                   x:Uid="SettingLike"
-                                   Name="LikeText"
-                                   VerticalAlignment="Center"
-                                   FontSize="16"
-                                   Text="给App点赞"/>
+                            <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintOpacitySlider.Value),Mode=OneWay}"
+                                       Margin="5,20,0,0"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Margin="0,20,0,0"
+                                    Orientation="Horizontal">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Acrylic背景透光度"
+                                               x:Uid="SettingPageTintLuminositySliderHeader" />
+                                    <Viewbox Margin="10,0,0,0"
+                                             Height="15"
+                                             VerticalAlignment="Bottom">
+                                        <FontIcon Glyph="&#xE9CE;"
+                                                  Name="TintLuminosityQuestion"
+                                                  PointerPressed="TintLuminosityQuestion_PointerPressed" />
+                                    </Viewbox>
+                                </StackPanel>
+                                <Slider Margin="0,5,0,0"
+                                        IsThumbToolTipEnabled="False"
+                                        Value="{x:Bind local:AcrylicBackgroundController.TintLuminosityOpacity,Mode=TwoWay}"
+                                        x:Name="TintLuminositySlider"
+                                        StepFrequency="0.1"
+                                        Maximum="1"
+                                        Minimum="0"
+                                        Width="220"
+                                        HorizontalAlignment="Left" />
+                            </StackPanel>
+                            <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"
+                                       Margin="5,20,0,0"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
                     </StackPanel>
-                </Border>
-                <Button Style="{ThemeResource ButtonRevealStyle}"
-                        x:Name="Donation"
-                        Margin="0,20,0,0"
-                        Content="支持开发者"
-                        x:Uid="SettingSupportDeveloper"
-                        Click="Donation_Click" />
-                <Button Style="{ThemeResource ButtonRevealStyle}"
-                        Name="Link"
-                        Click="Link_Click"
-                        Margin="0,20,0,0"
-                        x:Uid="SettingAbout"
-                        Content="关于开发者→→" />
-            </StackPanel>
+                    <Button Margin="0,20,0,0"
+                            x:Uid="SettingClearHistory"
+                            Content="清除搜索历史记录"
+                            Style="{StaticResource ButtonRevealStyle}">
+                        <Button.Flyout>
+                            <Flyout x:Name="ConfirmFly">
+                                <StackPanel>
+                                    <TextBlock Style="{ThemeResource BaseTextBlockStyle}"
+                                               Text="搜索历史记录将被清除，是否继续?"
+                                               x:Uid="SettingClearHistoryFlyoutContent"
+                                               Margin="0,0,0,12" />
+                                    <StackPanel HorizontalAlignment="Right"
+                                                Orientation="Horizontal">
+                                        <Button Content="继续"
+                                                x:Uid="SettingClearHistoryFlyoutContinueButton"
+                                                Name="FlyoutContinue"
+                                                Click="FlyoutContinue_Click"
+                                                Width="100" />
+                                        <Button Margin="10,0,0,0"
+                                                Content="取消"
+                                                x:Uid="SettingClearHistoryFlyoutCancelButton"
+                                                Name="FlyoutCancel"
+                                                Click="FlyoutCancel_Click"
+                                                Width="100" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+                    <Button Margin="0,20,0,0"
+                            Content="还原并初始化App"
+                            x:Uid="SettingCleanup"
+                            Style="{StaticResource ButtonRevealStyle}"
+                            Name="ClearUp"
+                            Click="ClearUp_Click" />
+                    <Button Style="{ThemeResource ButtonRevealStyle}"
+                            Margin="0,20,0,0"
+                            x:Uid="SettingSystemInfo"
+                            Content="查看系统信息"
+                            Name="SystemInfoButton"
+                            Click="SystemInfoButton_Click" />
+                    <TextBlock Text="版本"
+                               x:Uid="SettingVersion"
+                               FontSize="24"
+                               Margin="0,30,0,0" />
+                    <TextBlock Name="Version"
+                               Margin="0,20,0,0"
+                               FontSize="16" />
+                    <HyperlinkButton x:Name="UpdateLogLink"
+                                     Content="查看更新日志"
+                                     FontSize="16"
+                                     Margin="0,20,0,0"
+                                     x:Uid="SettingUpdateLogButton"
+                                     Click="UpdateLogLink_Click" />
+
+                    <TextBlock Margin="0,30,0,0"
+                               x:Uid="SettingOther"
+                               Text="其他"
+                               FontSize="24" />
+                    <Border Margin="0,20,0,0"
+                            Name="Like"
+                            PointerExited="Like_PointerExited"
+                            PointerEntered="Like_PointerEntered"
+                            PointerPressed="Like_PointerPressed"
+                            HorizontalAlignment="Left"
+                            Background="Transparent">
+                        <StackPanel Orientation="Horizontal">
+                            <SymbolIcon Symbol="Like"
+                                        Name="LikeSymbol"
+                                        VerticalAlignment="Bottom" />
+                            <TextBlock Margin="5,0,0,0"
+                                       x:Uid="SettingLike"
+                                       Name="LikeText"
+                                       VerticalAlignment="Center"
+                                       FontSize="16"
+                                       Text="给App点赞" />
+                        </StackPanel>
+                    </Border>
+                    <Button Style="{ThemeResource ButtonRevealStyle}"
+                            x:Name="Donation"
+                            Margin="0,20,0,0"
+                            Content="支持开发者"
+                            x:Uid="SettingSupportDeveloper"
+                            Click="Donation_Click" />
+                    <Button Style="{ThemeResource ButtonRevealStyle}"
+                            Name="Link"
+                            Click="Link_Click"
+                            Margin="0,20,0,0"
+                            x:Uid="SettingAbout"
+                            Content="关于开发者→→" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontSize="24"
+                                   Text="反馈建议清单"
+                                   x:Uid="FeedBackListHeader" />
+                        <Viewbox Margin="10,4,0,0"
+                                 Height="20"
+                                 VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE9CE;"
+                                      Name="FeedBackQuestion"
+                                      PointerPressed="FeedBackQuestion_PointerPressed" />
+                        </Viewbox>
+                    </StackPanel>
+                    <TextBlock Text="无任何反馈或建议"
+                               x:Uid="FeedBackListEmptyTips"
+                               Name="EmptyFeedBack"
+                               Visibility="Collapsed"
+                               HorizontalAlignment="Center"
+                               FontSize="20"
+                               Margin="0,50,0,50"/>
+                    <ListView Margin="0,10,0,0"
+                              Name="FeedBackList"
+                              Visibility="Collapsed"
+                              MaxHeight="600"
+                              IsRightTapEnabled="True"
+                              RightTapped="FeedBackList_RightTapped">
+                        <ListView.ItemContainerTransitions>
+                            <TransitionCollection>
+                                <AddDeleteThemeTransition />
+                            </TransitionCollection>
+                        </ListView.ItemContainerTransitions>
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:FeedBackItem">
+                                <Grid Padding="5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="220" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"
+                                               Text="{x:Bind UserName}"
+                                               TextWrapping="Wrap" />
+                                    <StackPanel VerticalAlignment="Center"
+                                                Grid.Column="1">
+                                        <TextBlock Text="{x:Bind Title,Mode=OneWay}"
+                                                   TextWrapping="Wrap"
+                                                   FontWeight="Bold"
+                                                   FontSize="18" />
+                                        <TextBlock Text="{x:Bind Suggestion,Mode=OneWay}"
+                                                   TextWrapping="Wrap"
+                                                   FontSize="15"
+                                                   Margin="0,5,0,0" />
+                                        <TextBlock Text="{x:Bind SupportDescription,Mode=OneWay}"
+                                                   Margin="0,10,0,5"
+                                                   FontSize="13" />
+                                        <StackPanel Orientation="Horizontal">
+                                            <ToggleButton Background="Transparent"
+                                                          x:Name="FeedBackLike"
+                                                          Checked="FeedBackLike_Checked"
+                                                          Unchecked="FeedBackLike_Unchecked">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Viewbox Height="18">
+                                                        <SymbolIcon Symbol="Like" />
+                                                    </Viewbox>
+                                                    <TextBlock Text="支持"
+                                                               FontSize="13"
+                                                               Margin="5,0,0,0" />
+                                                </StackPanel>
+                                            </ToggleButton>
+                                            <ToggleButton Background="Transparent"
+                                                          Name="FeedDislike"
+                                                          Checked="FeedDislike_Checked"
+                                                          Unchecked="FeedDislike_Unchecked"
+                                                          Margin="10,0,0,0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Viewbox Height="18">
+                                                        <SymbolIcon Symbol="Dislike" />
+                                                    </Viewbox>
+                                                    <TextBlock Text="反对"
+                                                               FontSize="13"
+                                                               Margin="5,0,0,0" />
+                                                </StackPanel>
+                                            </ToggleButton>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <Button HorizontalAlignment="Stretch"
+                            Margin="0,10,0,0"
+                            Name="AddFeedBack"
+                            Click="AddFeedBack_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Height="18">
+                                <SymbolIcon Symbol="Add" />
+                            </Viewbox>
+                            <TextBlock Text="添加我的反馈"
+                                       x:Uid="FeedBackAddButton"
+                                       Margin="10,0,0,0"
+                                       FontSize="18"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </ScrollViewer>
     </Grid>
 </Page>

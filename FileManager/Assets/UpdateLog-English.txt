@@ -1,4 +1,11 @@
 ﻿*****
+###What's new in Ver.3.5.0.0
+
+>#####Feature Update
+
+>>######Added a setting page "Feedback and Suggestion List", where all users can ask questions or support others' suggestions
+
+*****
 ###What's new in Ver.3.4.5.0
 
 >#####Function update

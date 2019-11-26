@@ -231,7 +231,10 @@
             </GridView>
         </Grid>
         <StackPanel Grid.Column="2"
-                    Margin="10">
+                    Margin="10"
+                    Background="Transparent"
+                    IsRightTapEnabled="True"
+                    ContextFlyout="{x:Bind RefreshFlyout}">
             <StackPanel.ChildrenTransitions>
                 <TransitionCollection>
                     <PaneThemeTransition Edge="Top" />
@@ -239,7 +242,7 @@
             </StackPanel.ChildrenTransitions>
             <controls:Expander x:Name="LibraryExpander"
                                VerticalAlignment="Stretch"
-                               Background="{StaticResource NavigationViewTopPaneBackground}"
+                               Background="Transparent"
                                IsExpanded="True"
                                ExpandDirection="Down"
                                HorizontalContentAlignment="Stretch"
@@ -298,7 +301,7 @@
                 </GridView>
             </controls:Expander>
             <controls:Expander x:Name="DeviceExpander"
-                               Background="{StaticResource NavigationViewTopPaneBackground}"
+                               Background="Transparent"
                                VerticalAlignment="Stretch"
                                HorizontalContentAlignment="Stretch"
                                IsExpanded="True"

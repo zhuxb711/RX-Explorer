@@ -3,10 +3,12 @@ using Bluetooth.Services.Obex;
 using DownloaderProvider;
 using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Data.Sqlite;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -406,6 +408,281 @@ namespace FileManager
         ~SQLite()
         {
             Dispose();
+        }
+    }
+    #endregion
+
+    #region MySQL数据库
+    public sealed class MySQL : IDisposable
+    {
+        private static MySQL Instance;
+
+        private MySqlConnection Connection;
+
+        private static readonly object Locker = new object();
+
+        private bool IsDisposed = false;
+
+        public static MySQL Current
+        {
+            get
+            {
+                lock (Locker)
+                {
+                    return Instance ?? (Instance = new MySQL());
+                }
+            }
+        }
+
+        private MySQL()
+        {
+        }
+
+        private async Task<bool> ConnectAsync()
+        {
+            try
+            {
+                if (Connection == null)
+                {
+                    Connection = new MySqlConnection("Data Source=zhuxb711.rdsmcjd7wro1g19.rds.gz.baidubce.com;port=3306;CharSet=utf8;User id=zhuxb711;password=password123;Database=FeedBackDataBase;");
+                    await Connection.OpenAsync();
+                    string CommandText = @"Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);
+                                           Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null)";
+                    using (MySqlCommand Command = new MySqlCommand(CommandText, Connection))
+                    {
+                        _ = await Command.ExecuteNonQueryAsync();
+                    }
+                    return true;
+                }
+                else if (Connection.State != System.Data.ConnectionState.Open)
+                {
+                    await Connection.OpenAsync();
+                    string CommandText = @"Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);
+                                           Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null)";
+                    using (MySqlCommand Command = new MySqlCommand(CommandText, Connection))
+                    {
+                        _ = await Command.ExecuteNonQueryAsync();
+                    }
+                    return true;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<List<FeedBackItem>> GetAllFeedBackAsync()
+        {
+            if (await ConnectAsync())
+            {
+                try
+                {
+                    List<FeedBackItem> list = new List<FeedBackItem>();
+                    using (MySqlCommand Command = new MySqlCommand("Select * From FeedBackTable", Connection))
+                    using (DbDataReader Reader = await Command.ExecuteReaderAsync())
+                    {
+                        while (Reader.Read())
+                        {
+                            list.Add(new FeedBackItem(Reader["UserName"].ToString(), Reader["Title"].ToString(), Reader["Suggestion"].ToString(), Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString()));
+                        }
+                    }
+
+                    foreach (var Item in list)
+                    {
+                        using (MySqlCommand Command1 = new MySqlCommand("Select Behavior From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
+                        {
+                            _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                            _ = Command1.Parameters.AddWithValue("@GUID", Item.GUID);
+
+                            string Behaivor = Convert.ToString(await Command1.ExecuteScalarAsync());
+                            if (!string.IsNullOrEmpty(Behaivor))
+                            {
+                                Item.UserVoteAction = Behaivor;
+                            }
+                        }
+                    }
+
+                    return list;
+                }
+                catch (Exception)
+                {
+                    return new List<FeedBackItem>();
+                }
+            }
+            else
+            {
+                return new List<FeedBackItem>();
+            }
+        }
+
+        public async Task<bool> UpdateFeedBackVoteAsync(FeedBackItem Item)
+        {
+            if (await ConnectAsync())
+            {
+                try
+                {
+                    using (MySqlCommand Command = new MySqlCommand("Update FeedBackTable Set LikeNum=@LikeNum, DislikeNum=@DislikeNum Where GUID=@GUID", Connection))
+                    {
+                        _ = Command.Parameters.AddWithValue("@LikeNum", Item.LikeNum);
+                        _ = Command.Parameters.AddWithValue("@DislikeNum", Item.DislikeNum);
+                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                        _ = await Command.ExecuteNonQueryAsync();
+                    }
+
+                    using (MySqlCommand Command1 = new MySqlCommand("Select count(*) From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
+                    {
+                        _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                        _ = Command1.Parameters.AddWithValue("@GUID", Item.GUID);
+                        if (Convert.ToInt16(await Command1.ExecuteScalarAsync()) == 0)
+                        {
+                            if (Item.UserVoteAction != "=")
+                            {
+                                using (MySqlCommand Command = new MySqlCommand("Insert Into VoteRecordTable Values (@UserID,@GUID,@Behaivor)", Connection))
+                                {
+                                    _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                                    _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                    _ = Command.Parameters.AddWithValue("@Behaivor", Item.UserVoteAction);
+                                    _ = await Command.ExecuteNonQueryAsync();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (Item.UserVoteAction != "=")
+                            {
+                                using (MySqlCommand Command = new MySqlCommand("Update VoteRecordTable Set Behavior=@Behaivor Where UserID=@UserID And GUID=@GUID", Connection))
+                                {
+                                    _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                                    _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                    _ = Command.Parameters.AddWithValue("@Behaivor", Item.UserVoteAction);
+                                    _ = await Command.ExecuteNonQueryAsync();
+                                }
+                            }
+                            else
+                            {
+                                using (MySqlCommand Command = new MySqlCommand("Delete From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
+                                {
+                                    _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                                    _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                    _ = await Command.ExecuteNonQueryAsync();
+                                }
+                            }
+                        }
+                    }
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateFeedBackTitleAndSuggestionAsync(string Title, string Suggestion, string GUID)
+        {
+            if (await ConnectAsync())
+            {
+                try
+                {
+                    using (MySqlCommand Command = new MySqlCommand("Update FeedBackTable Set Title=@NewTitle, Suggestion=@NewSuggestion Where GUID=@GUID", Connection))
+                    {
+                        _ = Command.Parameters.AddWithValue("@NewTitle", Title);
+                        _ = Command.Parameters.AddWithValue("@NewSuggestion", Suggestion);
+                        _ = Command.Parameters.AddWithValue("@GUID", GUID);
+                        _ = await Command.ExecuteNonQueryAsync();
+                    }
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteFeedBackAsync(FeedBackItem Item)
+        {
+            if (await ConnectAsync())
+            {
+                try
+                {
+                    using (MySqlCommand Command = new MySqlCommand("Delete From FeedBackTable Where GUID=@GUID", Connection))
+                    {
+                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                        _ = await Command.ExecuteNonQueryAsync();
+                    }
+
+                    using (MySqlCommand Command = new MySqlCommand("Delete From VoteRecordTable Where GUID=@GUID", Connection))
+                    {
+                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                        _ = await Command.ExecuteNonQueryAsync();
+                    }
+
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> SetFeedBackAsync(FeedBackItem Item)
+        {
+            if (await ConnectAsync())
+            {
+                try
+                {
+                    using (MySqlCommand Command = new MySqlCommand("Insert Into FeedBackTable Values (@UserName,@Title,@Suggestion,@Like,@Dislike,@UserID,@GUID)", Connection))
+                    {
+                        _ = Command.Parameters.AddWithValue("@UserName", Item.UserName);
+                        _ = Command.Parameters.AddWithValue("@Title", Item.Title);
+                        _ = Command.Parameters.AddWithValue("@Suggestion", Item.Suggestion);
+                        _ = Command.Parameters.AddWithValue("@Like", Item.LikeNum);
+                        _ = Command.Parameters.AddWithValue("@Dislike", Item.DislikeNum);
+                        _ = Command.Parameters.AddWithValue("@UserID", Item.UserID);
+                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                        _ = await Command.ExecuteNonQueryAsync();
+                    }
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (!IsDisposed)
+            {
+                IsDisposed = true;
+                Connection?.Dispose();
+                Connection = null;
+                Instance = null;
+            }
         }
     }
     #endregion
@@ -1201,7 +1478,7 @@ namespace FileManager
     #region 扩展方法类
     public static class Extention
     {
-        public static T FindChildOfType<T>(this DependencyObject root) where T : class
+        public static T FindChildOfType<T>(this DependencyObject root) where T : DependencyObject
         {
             Queue<DependencyObject> ObjectQueue = new Queue<DependencyObject>();
             ObjectQueue.Enqueue(root);
@@ -1214,6 +1491,29 @@ namespace FileManager
                     {
                         var ChildObject = VisualTreeHelper.GetChild(Current, i);
                         if (ChildObject is T TypedChild)
+                        {
+                            return TypedChild;
+                        }
+                        ObjectQueue.Enqueue(ChildObject);
+                    }
+                }
+            }
+            return null;
+        }
+
+        public static T FindChildOfName<T>(this DependencyObject root, string name) where T : DependencyObject
+        {
+            Queue<DependencyObject> ObjectQueue = new Queue<DependencyObject>();
+            ObjectQueue.Enqueue(root);
+            while (ObjectQueue.Count > 0)
+            {
+                DependencyObject Current = ObjectQueue.Dequeue();
+                if (Current != null)
+                {
+                    for (int i = 0; i < VisualTreeHelper.GetChildrenCount(Current); i++)
+                    {
+                        var ChildObject = VisualTreeHelper.GetChild(Current, i);
+                        if (ChildObject is T TypedChild && (TypedChild as FrameworkElement).Name == name)
                         {
                             return TypedChild;
                         }
@@ -1607,11 +1907,20 @@ namespace FileManager
             Folder = Device ?? throw new FileNotFoundException();
             this.Thumbnail = Thumbnail;
 
-            TotalByte = (ulong)PropertiesRetrieve["System.Capacity"];
-            FreeByte = (ulong)PropertiesRetrieve["System.FreeSpace"];
-            Capacity = GetSizeDescription(TotalByte);
-            FreeSpace = GetSizeDescription(FreeByte);
-            Percent = 1 - FreeByte / Convert.ToDouble(TotalByte);
+            if (PropertiesRetrieve["System.Capacity"] is ulong TotalByte && PropertiesRetrieve["System.FreeSpace"] is ulong FreeByte)
+            {
+                this.TotalByte = (ulong)PropertiesRetrieve["System.Capacity"];
+                this.FreeByte = (ulong)PropertiesRetrieve["System.FreeSpace"];
+                Capacity = GetSizeDescription(TotalByte);
+                FreeSpace = GetSizeDescription(FreeByte);
+                Percent = 1 - FreeByte / Convert.ToDouble(TotalByte);
+            }
+            else
+            {
+                Capacity = "Unknown";
+                FreeSpace = "Unknown";
+                Percent = 0;
+            }
         }
 
         private string GetSizeDescription(ulong Size)
@@ -2260,6 +2569,104 @@ namespace FileManager
             Locker.Set();
             return Result;
         }
+    }
+    #endregion
+
+    #region 反馈对象
+    public sealed class FeedBackItem : INotifyPropertyChanged
+    {
+        public string UserName { get; private set; }
+
+        public string Suggestion { get; private set; }
+
+        public string LikeNum { get; private set; }
+
+        public string DislikeNum { get; private set; }
+
+        public string SupportDescription { get; private set; }
+
+        public string Title { get; private set; }
+
+        public string UserID { get; private set; }
+
+        public string GUID { get; private set; }
+
+        public string UserVoteAction { get; set; } = "=";
+
+        public FeedBackItem(string UserName, string Title, string Suggestion, string LikeNum, string DislikeNum, string UserID, string GUID)
+        {
+            this.UserName = UserName;
+            this.Title = Title;
+            this.Suggestion = Suggestion;
+            this.LikeNum = LikeNum;
+            this.DislikeNum = DislikeNum;
+            this.UserID = UserID;
+            this.GUID = GUID;
+            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            {
+                SupportDescription = $"({LikeNum} 人支持 , {DislikeNum} 人反对)";
+            }
+            else
+            {
+                SupportDescription = $"({LikeNum} people agree , {DislikeNum} people against)";
+            }
+        }
+
+        public void UpdateSupportInfo(FeedBackUpdateType Type, bool IsAdding)
+        {
+            if (Type == FeedBackUpdateType.Like)
+            {
+                if (IsAdding)
+                {
+                    LikeNum = (Convert.ToInt16(LikeNum) + 1).ToString();
+                    UserVoteAction = "+";
+                }
+                else
+                {
+                    LikeNum = (Convert.ToInt16(LikeNum) - 1).ToString();
+                    UserVoteAction = "=";
+                }
+
+                SupportDescription = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                    ? $"({LikeNum} 人支持 , {DislikeNum} 人反对)"
+                    : $"({LikeNum} people agree , {DislikeNum} people against)";
+            }
+            else
+            {
+                if (IsAdding)
+                {
+                    DislikeNum = (Convert.ToInt16(DislikeNum) + 1).ToString();
+                    UserVoteAction = "-";
+                }
+                else
+                {
+                    DislikeNum = (Convert.ToInt16(DislikeNum) - 1).ToString();
+                    UserVoteAction = "=";
+                }
+
+                SupportDescription = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                    ? $"({LikeNum} 人支持 , {DislikeNum} 人反对)"
+                    : $"({LikeNum} people agree , {DislikeNum} people against)";
+            }
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SupportDescription)));
+        }
+
+        public void UpdateTitleAndSuggestion(string Title, string Suggestion)
+        {
+            this.Title = Title;
+            this.Suggestion = Suggestion;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Title)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Suggestion)));
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+    }
+
+    public enum FeedBackUpdateType
+    {
+        Like = 0,
+        Dislike = 1
     }
     #endregion
 }

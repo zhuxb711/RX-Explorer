@@ -1174,6 +1174,62 @@
           <source>System share</source>
           <target state="translated">系统共享</target>
         </trans-unit>
+        <trans-unit id="FeedBackAddButton.Text" translate="yes" xml:space="preserve">
+          <source>Add my feedback</source>
+          <target state="translated">添加我的反馈</target>
+        </trans-unit>
+        <trans-unit id="FeedBackDeleteButton.Label" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="translated">删除</target>
+        </trans-unit>
+        <trans-unit id="FeedBackDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="FeedBackDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Submit</source>
+          <target state="translated">提交</target>
+        </trans-unit>
+        <trans-unit id="FeedBackDialog.Title" translate="yes" xml:space="preserve">
+          <source>Vote</source>
+          <target state="translated">参与投票</target>
+        </trans-unit>
+        <trans-unit id="FeedBackDialogContent.Header" translate="yes" xml:space="preserve">
+          <source>Feedback and suggestion</source>
+          <target state="translated">建议和反馈</target>
+        </trans-unit>
+        <trans-unit id="FeedBackDialogContent.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please enter the text</source>
+          <target state="translated">请输入正文</target>
+        </trans-unit>
+        <trans-unit id="FeedBackDialogTitle.Header" translate="yes" xml:space="preserve">
+          <source>Title</source>
+          <target state="translated">标题</target>
+        </trans-unit>
+        <trans-unit id="FeedBackDialogTitle.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please enter a title</source>
+          <target state="translated">请输入标题</target>
+        </trans-unit>
+        <trans-unit id="FeedBackEditButton.Label" translate="yes" xml:space="preserve">
+          <source>Edit</source>
+          <target state="translated">编辑</target>
+        </trans-unit>
+        <trans-unit id="FeedBackListEmptyTips.Text" translate="yes" xml:space="preserve">
+          <source>No feedback or suggestions</source>
+          <target state="translated">无任何反馈或建议</target>
+        </trans-unit>
+        <trans-unit id="FeedBackListHeader.Text" translate="yes" xml:space="preserve">
+          <source>Feedback list</source>
+          <target state="translated">反馈建议清单</target>
+        </trans-unit>
+        <trans-unit id="FeedBackTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>This feedback list will show your suggestions or feedback to all users. You can also review the suggestions made by others and give you support for the suggestions that are of interest. The more support and the less objection, the higher the priority, The developer will listen to your suggestions. You can only modify or delete the suggestions you submit.</source>
+          <target state="translated">此反馈清单将向所有使用者展示您的建议或者反馈，同样您也可以查看其他人提出的建议，并给予您感兴趣的提议一个支持，支持越多且反对越少的建议将越靠前，开发者将聆听您的建议。您只能修改或删除您提交的建议。</target>
+        </trans-unit>
+        <trans-unit id="FeedBackTip.Title" translate="yes" xml:space="preserve">
+          <source>Feedback description</source>
+          <target state="translated">反馈说明</target>
+        </trans-unit>
       </group>
     </body>
   </file>

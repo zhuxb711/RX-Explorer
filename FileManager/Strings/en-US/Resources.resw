@@ -282,6 +282,48 @@
   <data name="DeviceUsedSpace.Text" xml:space="preserve">
     <value>Used space</value>
   </data>
+  <data name="FeedBackAddButton.Text" xml:space="preserve">
+    <value>Add my feedback</value>
+  </data>
+  <data name="FeedBackDeleteButton.Label" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="FeedBackDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="FeedBackDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Submit</value>
+  </data>
+  <data name="FeedBackDialog.Title" xml:space="preserve">
+    <value>Vote</value>
+  </data>
+  <data name="FeedBackDialogContent.Header" xml:space="preserve">
+    <value>Feedback and suggestion</value>
+  </data>
+  <data name="FeedBackDialogContent.PlaceholderText" xml:space="preserve">
+    <value>Please enter the text</value>
+  </data>
+  <data name="FeedBackDialogTitle.Header" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="FeedBackDialogTitle.PlaceholderText" xml:space="preserve">
+    <value>Please enter a title</value>
+  </data>
+  <data name="FeedBackEditButton.Label" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="FeedBackListEmptyTips.Text" xml:space="preserve">
+    <value>No feedback or suggestions</value>
+  </data>
+  <data name="FeedBackListHeader.Text" xml:space="preserve">
+    <value>Feedback list</value>
+  </data>
+  <data name="FeedBackTip.Subtitle" xml:space="preserve">
+    <value>This feedback list will show your suggestions or feedback to all users. You can also review the suggestions made by others and give you support for the suggestions that are of interest. The more support and the less objection, the higher the priority, The developer will listen to your suggestions. You can only modify or delete the suggestions you submit.</value>
+  </data>
+  <data name="FeedBackTip.Title" xml:space="preserve">
+    <value>Feedback description</value>
+  </data>
   <data name="FileAES.Label" xml:space="preserve">
     <value>AES Encryption</value>
   </data>

@@ -1,13 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
+using Windows.Security.Cryptography;
+using Windows.Security.Cryptography.Core;
 using Windows.Services.Store;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.System;
+using Windows.System.Profile;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
@@ -16,9 +24,15 @@ namespace FileManager
 {
     public sealed partial class SettingPage : Page
     {
+        private ObservableCollection<FeedBackItem> FeedBackCollection;
+        private string UserFullName = string.Empty;
+        public string UserID = string.Empty;
+        public static SettingPage ThisPage { get; private set; }
+
         public SettingPage()
         {
             InitializeComponent();
+            ThisPage = this;
             Version.Text = string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
 
             for (int i = 1; i <= 10; i++)
@@ -48,6 +62,167 @@ namespace FileManager
             {
                 SearchNum.SelectedIndex = SearchNum.Items.IndexOf(SearchNum.Items.Where((Item) => Item.ToString().Contains(MaxNum)).FirstOrDefault());
             }
+
+            Loaded += SettingPage_Loaded;
+            Unloaded += SettingPage_Unloaded;
+        }
+
+        private void SettingPage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            FeedBackCollection.Clear();
+            FeedBackCollection = null;
+        }
+
+        private async void SettingPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            if ((await User.FindAllAsync()).Where(p => p.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && p.Type == UserType.LocalUser).FirstOrDefault() is User CurrentUser)
+            {
+                string FirstName = (await CurrentUser.GetPropertyAsync(KnownUserProperties.FirstName))?.ToString();
+                string LastName = (await CurrentUser.GetPropertyAsync(KnownUserProperties.LastName))?.ToString();
+                UserID = (await CurrentUser.GetPropertyAsync(KnownUserProperties.AccountName))?.ToString();
+                if (string.IsNullOrEmpty(UserID))
+                {
+                    var Token = HardwareIdentification.GetPackageSpecificToken(null);
+                    HashAlgorithmProvider md5 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
+                    IBuffer hashedData = md5.HashData(Token.Id);
+                    UserID = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
+                }
+
+                if (!(string.IsNullOrEmpty(FirstName) || string.IsNullOrEmpty(LastName)))
+                {
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    {
+                        UserFullName = $"{LastName} {FirstName}";
+                    }
+                    else
+                    {
+                        UserFullName = $"{FirstName} {LastName}";
+                    }
+                }
+                else if (!string.IsNullOrEmpty(FirstName))
+                {
+                    UserFullName = FirstName;
+                }
+                else if (!string.IsNullOrEmpty(LastName))
+                {
+                    UserFullName = LastName;
+                }
+                else
+                {
+                    var Token = HardwareIdentification.GetPackageSpecificToken(null);
+                    HashAlgorithmProvider md5 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
+                    IBuffer hashedData = md5.HashData(Token.Id);
+                    UserFullName = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
+                }
+            }
+            else
+            {
+                var Token = HardwareIdentification.GetPackageSpecificToken(null);
+                HashAlgorithmProvider md5 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
+                IBuffer hashedData = md5.HashData(Token.Id);
+                UserFullName = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
+            }
+
+
+            List<FeedBackItem> ResultList = await MySQL.Current.GetAllFeedBackAsync();
+
+            if (ResultList.Count == 0)
+            {
+                EmptyFeedBack.Visibility = Visibility.Visible;
+                FeedBackList.Visibility = Visibility.Collapsed;
+                FeedBackCollection = new ObservableCollection<FeedBackItem>();
+            }
+            else
+            {
+                EmptyFeedBack.Visibility = Visibility.Collapsed;
+                FeedBackList.Visibility = Visibility.Visible;
+
+                ResultList.Sort((Item1, Item2) =>
+                {
+                    int Num1 = Math.Abs(Convert.ToInt16(Item1.LikeNum) - Convert.ToInt16(Item1.DislikeNum));
+                    int Num2 = Math.Abs(Convert.ToInt16(Item2.LikeNum) - Convert.ToInt16(Item2.DislikeNum));
+                    if (Num1 > Num2)
+                    {
+                        return -1;
+                    }
+                    else if (Num1 < Num2)
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        return 1;
+                    }
+                });
+                FeedBackCollection = new ObservableCollection<FeedBackItem>(ResultList);
+            }
+
+            FeedBackCollection.CollectionChanged += (s, t) =>
+            {
+                if (FeedBackCollection.Count == 0)
+                {
+                    EmptyFeedBack.Visibility = Visibility.Visible;
+                    FeedBackList.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    EmptyFeedBack.Visibility = Visibility.Collapsed;
+                    FeedBackList.Visibility = Visibility.Visible;
+                }
+            };
+            FeedBackList.ItemsSource = FeedBackCollection;
+
+            foreach (var Item in FeedBackCollection)
+            {
+                switch (Item.UserVoteAction)
+                {
+                    case "+":
+                        {
+                            while (true)
+                            {
+                                if (FeedBackList.ContainerFromItem(Item) is ListViewItem ListItem)
+                                {
+                                    ToggleButton Button = ListItem.FindChildOfName<ToggleButton>("FeedBackLike");
+                                    if (!Button.IsChecked.GetValueOrDefault())
+                                    {
+                                        Button.Checked -= FeedBackLike_Checked;
+                                        Button.IsChecked = true;
+                                        Button.Checked += FeedBackLike_Checked;
+                                    }
+                                    break;
+                                }
+                                else
+                                {
+                                    await Task.Delay(200);
+                                }
+                            }
+                            break;
+                        }
+                    case "-":
+                        {
+                            while (true)
+                            {
+                                if (FeedBackList.ContainerFromItem(Item) is ListViewItem ListItem)
+                                {
+                                    ToggleButton Button = ListItem.FindChildOfName<ToggleButton>("FeedDislike");
+                                    if (!Button.IsChecked.GetValueOrDefault())
+                                    {
+                                        Button.Checked -= FeedDislike_Checked;
+                                        Button.IsChecked = true;
+                                        Button.Checked += FeedDislike_Checked;
+                                    }
+                                    break;
+                                }
+                                else
+                                {
+                                    await Task.Delay(200);
+                                }
+                            }
+                            break;
+                        }
+                }
+            }
+
         }
 
         private void Like_PointerEntered(object sender, PointerRoutedEventArgs e)
@@ -432,7 +607,7 @@ namespace FileManager
             if (Package.Current.Id.Architecture == ProcessorArchitecture.X64 || Package.Current.Id.Architecture == ProcessorArchitecture.X86)
             {
                 SystemInfoDialog dialog = new SystemInfoDialog();
-                await dialog.ShowAsync();
+                _ = await dialog.ShowAsync();
             }
             else
             {
@@ -442,9 +617,10 @@ namespace FileManager
                     {
                         Title = "抱歉",
                         Content = "系统信息窗口所依赖的部分组件仅支持在X86或X64处理器上实现\rARM处理器暂不支持，因此无法打开此窗口",
-                        CloseButtonText = "知道了"
+                        CloseButtonText = "知道了",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                     };
-                    await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync();
                 }
                 else
                 {
@@ -452,12 +628,344 @@ namespace FileManager
                     {
                         Title = "Sorry",
                         Content = "Some components that the system information dialog depends on only support X86 or X64 processors\rUnsupport ARM processor for now, so this dialog will not be opened",
-                        CloseButtonText = "Got it"
+                        CloseButtonText = "Got it",
+                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                     };
-                    await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync();
                 }
             }
 
+        }
+
+        private async void AddFeedBack_Click(object sender, RoutedEventArgs e)
+        {
+            FeedBackDialog Dialog = new FeedBackDialog();
+            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+            {
+                if (FeedBackCollection.Count != 0)
+                {
+                    if (FeedBackCollection.FirstOrDefault((It) => It.UserName == UserFullName && It.Suggestion == Dialog.FeedBack && It.Title == Dialog.TitleName) == null)
+                    {
+                        FeedBackItem Item = new FeedBackItem(UserFullName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
+                        if (!await MySQL.Current.SetFeedBackAsync(Item))
+                        {
+                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "因网络原因无法进行此项操作",
+                                    CloseButtonText = "确定",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                _ = await dialog.ShowAsync();
+                            }
+                            else
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "This operation cannot be performed due to network reasons",
+                                    CloseButtonText = "Got it",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                _ = await dialog.ShowAsync();
+                            }
+                        }
+                        else
+                        {
+                            FeedBackCollection.Add(Item);
+                        }
+                    }
+                    else
+                    {
+                        QueueContentDialog TipsDialog = new QueueContentDialog
+                        {
+                            Title = "Tips",
+                            Content = "The same feedback already exists, please do not submit it repeatedly",
+                            CloseButtonText = "Got it",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await TipsDialog.ShowAsync();
+                    }
+                }
+                else
+                {
+                    FeedBackItem Item = new FeedBackItem(UserFullName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
+                    FeedBackCollection.Add(Item);
+                    if (!await MySQL.Current.SetFeedBackAsync(Item))
+                    {
+                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = "错误",
+                                Content = "因网络原因无法进行此项操作",
+                                CloseButtonText = "确定",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            _ = await dialog.ShowAsync();
+                        }
+                        else
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = "Error",
+                                Content = "This operation cannot be performed due to network reasons",
+                                CloseButtonText = "Got it",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            _ = await dialog.ShowAsync();
+                        }
+                    }
+                }
+            }
+        }
+
+        private async void FeedDislike_Checked(object sender, RoutedEventArgs e)
+        {
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is FeedBackItem Item)
+            {
+                if (FeedBackList.ContainerFromItem(Item) is ListViewItem ListItem)
+                {
+                    ToggleButton Button = ListItem.FindChildOfName<ToggleButton>("FeedBackLike");
+                    if (Button.IsChecked.GetValueOrDefault())
+                    {
+                        Button.Unchecked -= FeedBackLike_Unchecked;
+                        Button.IsChecked = false;
+                        Button.Unchecked += FeedBackLike_Unchecked;
+                        Item.UpdateSupportInfo(FeedBackUpdateType.Like, false);
+                    }
+                }
+
+                Item.UpdateSupportInfo(FeedBackUpdateType.Dislike, true);
+                if (!await MySQL.Current.UpdateFeedBackVoteAsync(Item))
+                {
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "因网络原因无法进行此项操作",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "This operation cannot be performed due to network reasons",
+                            CloseButtonText = "Got it",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                }
+            }
+        }
+
+        private async void FeedDislike_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is FeedBackItem Item)
+            {
+                Item.UpdateSupportInfo(FeedBackUpdateType.Dislike, false);
+                if (!await MySQL.Current.UpdateFeedBackVoteAsync(Item))
+                {
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "因网络原因无法进行此项操作",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "This operation cannot be performed due to network reasons",
+                            CloseButtonText = "Got it",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                }
+            }
+        }
+
+        private async void FeedBackLike_Checked(object sender, RoutedEventArgs e)
+        {
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is FeedBackItem Item)
+            {
+                if (FeedBackList.ContainerFromItem(Item) is ListViewItem ListItem)
+                {
+                    ToggleButton Button = ListItem.FindChildOfName<ToggleButton>("FeedDislike");
+                    if (Button.IsChecked.GetValueOrDefault())
+                    {
+                        Button.Unchecked -= FeedDislike_Unchecked;
+                        Button.IsChecked = false;
+                        Button.Unchecked += FeedDislike_Unchecked;
+                        Item.UpdateSupportInfo(FeedBackUpdateType.Dislike, false);
+                    }
+                }
+
+                Item.UpdateSupportInfo(FeedBackUpdateType.Like, true);
+                if (!await MySQL.Current.UpdateFeedBackVoteAsync(Item))
+                {
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "因网络原因无法进行此项操作",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "This operation cannot be performed due to network reasons",
+                            CloseButtonText = "Got it",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                }
+            }
+        }
+
+        private async void FeedBackLike_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is FeedBackItem Item)
+            {
+                Item.UpdateSupportInfo(FeedBackUpdateType.Like, false);
+                if (!await MySQL.Current.UpdateFeedBackVoteAsync(Item))
+                {
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "因网络原因无法进行此项操作",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "This operation cannot be performed due to network reasons",
+                            CloseButtonText = "Got it",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                }
+            }
+        }
+
+        private void FeedBackList_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is FeedBackItem Item)
+            {
+                FeedBackList.SelectedItem = Item;
+                FeedBackList.ContextFlyout = Item.UserID == UserID ? FeedBackFlyout : null;
+            }
+        }
+
+        private async void FeedBackEdit_Click(object sender, RoutedEventArgs e)
+        {
+            if (FeedBackList.SelectedItem is FeedBackItem SelectItem)
+            {
+                FeedBackDialog Dialog = new FeedBackDialog(SelectItem.Title, SelectItem.Suggestion);
+                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                {
+                    if (!await MySQL.Current.UpdateFeedBackTitleAndSuggestionAsync(Dialog.TitleName, Dialog.FeedBack, SelectItem.GUID))
+                    {
+                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = "错误",
+                                Content = "因网络原因无法进行此项操作",
+                                CloseButtonText = "确定",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            _ = await dialog.ShowAsync();
+                        }
+                        else
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = "Error",
+                                Content = "This operation cannot be performed due to network reasons",
+                                CloseButtonText = "Got it",
+                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            };
+                            _ = await dialog.ShowAsync();
+                        }
+                    }
+                    else
+                    {
+                        SelectItem.UpdateTitleAndSuggestion(Dialog.TitleName, Dialog.FeedBack);
+                    }
+                }
+            }
+        }
+
+        private async void FeedBackDelete_Click(object sender, RoutedEventArgs e)
+        {
+            if (FeedBackList.SelectedItem is FeedBackItem SelectItem)
+            {
+                if (!await MySQL.Current.DeleteFeedBackAsync(SelectItem))
+                {
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "因网络原因无法进行此项操作",
+                            CloseButtonText = "确定",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "This operation cannot be performed due to network reasons",
+                            CloseButtonText = "Got it",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                }
+                else
+                {
+                    FeedBackCollection.Remove(SelectItem);
+                }
+            }
+        }
+
+        private void FeedBackQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            FeedBackTip.IsOpen = true;
         }
     }
 }
