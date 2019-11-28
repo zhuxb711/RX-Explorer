@@ -134,6 +134,8 @@
     </Page.Resources>
 
     <Grid Background="Transparent"
+          x:Name="Gr"
+          x:FieldModifier="public"
           PointerPressed="Grid_PointerPressed">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300" />
@@ -255,6 +257,7 @@
                           IsItemClickEnabled="True"
                           IsDoubleTapEnabled="True"
                           IsRightTapEnabled="True"
+                          ItemClick="LibraryGrid_ItemClick"
                           RightTapped="LibraryGrid_RightTapped"
                           PointerPressed="LibraryGrid_PointerPressed"
                           DoubleTapped="LibraryGrid_DoubleTapped">
@@ -315,6 +318,7 @@
                           IsItemClickEnabled="True"
                           IsDoubleTapEnabled="True"
                           IsRightTapEnabled="True"
+                          ItemClick="DeviceGrid_ItemClick"
                           ContextFlyout="{StaticResource RefreshFlyout}"
                           PointerPressed="DeviceGrid_PointerPressed"
                           RightTapped="DeviceGrid_RightTapped"

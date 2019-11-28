@@ -107,12 +107,12 @@
                               Label="重命名"
                               x:Uid="FolderRename"
                               x:Name="FolderRename"
-                              Click="FolderRename_Click" />
+                              Click="Rename_Click" />
                 <AppBarButton Icon="Delete"
                               Label="删除"
                               x:Uid="FolderDelete"
                               x:Name="FolderDelete"
-                              Click="FolderDelete_Click" />
+                              Click="Delete_Click" />
                 <AppBarButton Icon="Add" 
                               Label="固定至主界面"
                               x:Uid="PinToLibrary"
@@ -212,6 +212,7 @@
                   RightTapped="GridViewControl_RightTapped"
                   SelectionChanged="GridViewControl_SelectionChanged"
                   SelectionMode="Single"
+                  ItemClick="GridViewControl_ItemClick"
                   CanDrag="False"
                   CanReorderItems="False"
                   CanDragItems="False"

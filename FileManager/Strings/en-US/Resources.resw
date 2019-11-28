@@ -570,6 +570,9 @@
   <data name="SettingAdvance.Text" xml:space="preserve">
     <value>Advance</value>
   </data>
+  <data name="SettingBasicText.Text" xml:space="preserve">
+    <value>Basic</value>
+  </data>
   <data name="SettingCleanup.Content" xml:space="preserve">
     <value>Restore and initialize</value>
   </data>
@@ -585,8 +588,26 @@
   <data name="SettingClearHistoryFlyoutContinueButton.Content" xml:space="preserve">
     <value>Continue</value>
   </data>
+  <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
+    <value>Folder open method</value>
+  </data>
+  <data name="SettingFolderOpenMethod.OffContent" xml:space="preserve">
+    <value>Click</value>
+  </data>
+  <data name="SettingFolderOpenMethod.OnContent" xml:space="preserve">
+    <value>Double click</value>
+  </data>
   <data name="SettingLike.Text" xml:space="preserve">
     <value>Like the app</value>
+  </data>
+  <data name="SettingOpenLeftArea.Header" xml:space="preserve">
+    <value>Sidebar switch</value>
+  </data>
+  <data name="SettingOpenLeftArea.OffContent" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="SettingOpenLeftArea.OnContent" xml:space="preserve">
+    <value>On</value>
   </data>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>Other</value>
@@ -623,9 +644,6 @@
   </data>
   <data name="SettingPageUIMode.Header" xml:space="preserve">
     <value>Adjust UI display mode</value>
-  </data>
-  <data name="SettingSearchNum.Header" xml:space="preserve">
-    <value>Set the maximum number of search results</value>
   </data>
   <data name="SettingSupportDeveloper.Content" xml:space="preserve">
     <value>Donate</value>
@@ -792,17 +810,23 @@
   <data name="UpdateTip.Title" xml:space="preserve">
     <value>Update Available</value>
   </data>
+  <data name="UserFolderDialog.CloseButtonText" xml:space="preserve">
+    <value>Ignore</value>
+  </data>
   <data name="UserFolderDialog.PrimaryButtonText" xml:space="preserve">
     <value>Confirm</value>
   </data>
   <data name="UserFolderDialog.Title" xml:space="preserve">
-    <value>Choose User Folder</value>
+    <value>Choose library folder</value>
+  </data>
+  <data name="UserFolderReferButton.Content" xml:space="preserve">
+    <value>Specify</value>
   </data>
   <data name="UserFolderText1.Text" xml:space="preserve">
-    <value>Unable to automatically determine User folder</value>
+    <value>Unable to automatically determine library folder</value>
   </data>
   <data name="UserFolderText2.Text" xml:space="preserve">
-    <value>Please specify the user folder manually</value>
+    <value>Please specify the library folder manually</value>
   </data>
   <data name="WebAllowDB.Header" xml:space="preserve">
     <value>Allow to use IndexedDB</value>

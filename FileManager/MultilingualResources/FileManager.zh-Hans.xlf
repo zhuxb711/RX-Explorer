@@ -450,10 +450,6 @@
           <source>Other</source>
           <target state="translated">其他</target>
         </trans-unit>
-        <trans-unit id="SettingSearchNum.Header" translate="yes" xml:space="preserve">
-          <source>Set the maximum number of search results</source>
-          <target state="translated">设置最大搜索结果数</target>
-        </trans-unit>
         <trans-unit id="SettingVersion.Text" translate="yes" xml:space="preserve">
           <source>Version</source>
           <target state="translated">版本</target>
@@ -499,8 +495,8 @@
           <target state="translated">确定</target>
         </trans-unit>
         <trans-unit id="UserFolderDialog.Title" translate="yes" xml:space="preserve">
-          <source>Choose User Folder</source>
-          <target state="translated">选择用户文件夹</target>
+          <source>Choose library folder</source>
+          <target state="translated">选择库文件夹</target>
         </trans-unit>
         <trans-unit id="ZipCRC.Label" translate="yes" xml:space="preserve">
           <source>CRC integrity check</source>
@@ -839,12 +835,12 @@
           <target state="translated">调整UI显示模式</target>
         </trans-unit>
         <trans-unit id="UserFolderText1.Text" translate="yes" xml:space="preserve">
-          <source>Unable to automatically determine User folder</source>
-          <target state="translated">无法自动确定用户文件夹</target>
+          <source>Unable to automatically determine library folder</source>
+          <target state="translated">无法自动确定库文件夹</target>
         </trans-unit>
         <trans-unit id="UserFolderText2.Text" translate="yes" xml:space="preserve">
-          <source>Please specify the user folder manually</source>
-          <target state="translated">请手动指定用户文件夹</target>
+          <source>Please specify the library folder manually</source>
+          <target state="translated">请手动指定库文件夹</target>
         </trans-unit>
         <trans-unit id="WebDefaultSearchEngine.Header" translate="yes" xml:space="preserve">
           <source>Default search engine</source>
@@ -1229,6 +1225,42 @@
         <trans-unit id="FeedBackTip.Title" translate="yes" xml:space="preserve">
           <source>Feedback description</source>
           <target state="translated">反馈说明</target>
+        </trans-unit>
+        <trans-unit id="UserFolderReferButton.Content" translate="yes" xml:space="preserve">
+          <source>Specify</source>
+          <target state="translated">指定</target>
+        </trans-unit>
+        <trans-unit id="UserFolderDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Ignore</source>
+          <target state="translated">忽略</target>
+        </trans-unit>
+        <trans-unit id="SettingBasicText.Text" translate="yes" xml:space="preserve">
+          <source>Basic</source>
+          <target state="translated">基本</target>
+        </trans-unit>
+        <trans-unit id="SettingFolderOpenMethod.Header" translate="yes" xml:space="preserve">
+          <source>Folder open method</source>
+          <target state="translated">文件夹打开方式</target>
+        </trans-unit>
+        <trans-unit id="SettingFolderOpenMethod.OffContent" translate="yes" xml:space="preserve">
+          <source>Click</source>
+          <target state="translated">单击</target>
+        </trans-unit>
+        <trans-unit id="SettingFolderOpenMethod.OnContent" translate="yes" xml:space="preserve">
+          <source>Double click</source>
+          <target state="translated">双击</target>
+        </trans-unit>
+        <trans-unit id="SettingOpenLeftArea.Header" translate="yes" xml:space="preserve">
+          <source>Sidebar switch</source>
+          <target state="translated">侧边栏开关</target>
+        </trans-unit>
+        <trans-unit id="SettingOpenLeftArea.OffContent" translate="yes" xml:space="preserve">
+          <source>Off</source>
+          <target state="translated">关闭</target>
+        </trans-unit>
+        <trans-unit id="SettingOpenLeftArea.OnContent" translate="yes" xml:space="preserve">
+          <source>On</source>
+          <target state="translated">开启</target>
         </trans-unit>
       </group>
     </body>

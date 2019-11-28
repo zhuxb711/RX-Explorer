@@ -117,16 +117,30 @@
                             <AddDeleteThemeTransition />
                         </TransitionCollection>
                     </StackPanel.ChildrenTransitions>
+                    <TextBlock Text="基本" 
+                               FontSize="24"
+                               x:Uid="SettingBasicText"/>
+
+                    <ToggleSwitch Margin="0,20,0,0"
+                                  Header="侧边栏开关"
+                                  OnContent="开启"
+                                  OffContent="关闭"
+                                  x:Name="OpenLeftArea"
+                                  x:Uid="SettingOpenLeftArea"
+                                  Toggled="OpenLeftArea_Toggled"/>
+
+                    <ToggleSwitch Margin="0,20,0,0"
+                                  Header="文件夹打开方式"
+                                  OnContent="双击"
+                                  OffContent="单击"
+                                  x:Uid="SettingFolderOpenMethod"
+                                  Name="FolderOpenMethod"
+                                  Toggled="FolderOpenMethod_Toggled"/>
+
                     <TextBlock Text="高级"
                                x:Uid="SettingAdvance"
-                               FontSize="24" />
-
-                    <ComboBox Name="SearchNum"
-                              x:Uid="SettingSearchNum"
-                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
-                              SelectionChanged="SearchNum_SelectionChanged"
-                              Margin="0,20,0,0"
-                              Header="设置最大搜索结果数" />
+                               FontSize="24"
+                               Margin="0,30,0,0" />
 
                     <ComboBox Header="调整UI显示模式"
                               x:Uid="SettingPageUIMode"

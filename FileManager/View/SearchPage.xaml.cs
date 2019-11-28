@@ -48,8 +48,6 @@ namespace FileManager
         {
             Loaded -= SearchPage_Loaded;
 
-            uint MaxSearchNum = uint.Parse(ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] as string);
-
             HasItem.Visibility = Visibility.Collapsed;
 
             LoadingControl.IsLoading = true;
@@ -65,7 +63,7 @@ namespace FileManager
                     LoadingControl.IsLoading = false;
                 });
 
-                IAsyncOperation<IReadOnlyList<IStorageItem>> SearchAsync = ItemQuery.GetItemsAsync(0, MaxSearchNum);
+                IAsyncOperation<IReadOnlyList<IStorageItem>> SearchAsync = ItemQuery.GetItemsAsync(0, 100);
 
                 SearchItems = await SearchAsync.AsTask(Cancellation.Token);
             }

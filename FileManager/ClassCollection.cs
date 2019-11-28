@@ -2492,29 +2492,31 @@ namespace FileManager
     #endregion
 
     #region DebugLog
-    //public static class Log
-    //{
-    //    static Log()
-    //    {
-    //        System.Diagnostics.Debug.WriteLine(ApplicationData.Current.LocalCacheFolder.Path);
-    //    }
+#if DEBUG
+    public static class Log
+    {
+        static Log()
+        {
+            System.Diagnostics.Debug.WriteLine(ApplicationData.Current.LocalCacheFolder.Path);
+        }
 
-    //    public static void Write(Exception Ex)
-    //    {
-    //        string Message = Ex.Message + Environment.NewLine + Ex.StackTrace;
-    //        Write(Message);
-    //    }
+        public static void Write(Exception Ex)
+        {
+            string Message = Ex.Message + Environment.NewLine + Ex.StackTrace;
+            Write(Message);
+        }
 
-    //    public static void Write(string Message)
-    //    {
-    //        lock (SyncRootProvider.SyncRoot)
-    //        {
-    //            StorageFolder BaseFolder = ApplicationData.Current.LocalCacheFolder;
-    //            StorageFile TempFile = BaseFolder.CreateFileAsync("RX_Error_Message.txt", CreationCollisionOption.OpenIfExists).AsTask().Result;
-    //            FileIO.AppendTextAsync(TempFile, Message + Environment.NewLine).AsTask().Wait();
-    //        }
-    //    }
-    //}
+        public static void Write(string Message)
+        {
+            lock (SyncRootProvider.SyncRoot)
+            {
+                StorageFolder BaseFolder = ApplicationData.Current.LocalCacheFolder;
+                StorageFile TempFile = BaseFolder.CreateFileAsync("RX_Error_Message.txt", CreationCollisionOption.OpenIfExists).AsTask().Result;
+                FileIO.AppendTextAsync(TempFile, Message + Environment.NewLine).AsTask().Wait();
+            }
+        }
+    }
+#endif
     #endregion
 
     #region 搜索建议Json解析类
@@ -2558,14 +2560,29 @@ namespace FileManager
     {
         private static readonly AutoResetEvent Locker = new AutoResetEvent(true);
 
+        private static int WaitCount = 0;
+
+        public static bool IsRunningOrWaiting 
+        { 
+            get
+            {
+                return WaitCount != 0;
+            } 
+        }
+
         public new async Task<ContentDialogResult> ShowAsync()
         {
+            _ = Interlocked.Increment(ref WaitCount);
+
             await Task.Run(() =>
             {
                 Locker.WaitOne();
             });
 
             var Result = await base.ShowAsync();
+
+            _ = Interlocked.Decrement(ref WaitCount);
+
             Locker.Set();
             return Result;
         }

@@ -12,14 +12,12 @@ using Windows.Foundation;
 using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
-using Windows.Storage.Search;
 using Windows.System;
 using Windows.UI.Notifications;
 using Windows.UI.Shell;
 using Windows.UI.StartScreen;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 
@@ -95,11 +93,6 @@ namespace FileManager
             PortalDeviceWatcher.Removed += PortalDeviceWatcher_Removed;
             PortalDeviceWatcher.Start();
 
-            if (ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] == null)
-            {
-                ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] = Convert.ToString(100);
-            }
-
             if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is string Mode)
             {
                 if (Mode != "推荐" && Mode != "Recommand")
@@ -117,6 +110,15 @@ namespace FileManager
                 ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = CurrentLanguage == LanguageEnum.Chinese
                             ? "推荐"
                             : "Recommand";
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)
+            {
+                SettingPage.IsDoubleClickEnable = IsDoubleClick;
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = true;
             }
 
             if (CurrentLanguage == LanguageEnum.Chinese)

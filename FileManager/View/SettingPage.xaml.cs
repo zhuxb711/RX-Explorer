@@ -28,19 +28,13 @@ namespace FileManager
         private string UserFullName = string.Empty;
         public string UserID = string.Empty;
         public static SettingPage ThisPage { get; private set; }
+        public static bool IsDoubleClickEnable { get; set; } = true;
 
         public SettingPage()
         {
             InitializeComponent();
             ThisPage = this;
             Version.Text = string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
-
-            for (int i = 1; i <= 10; i++)
-            {
-                SearchNum.Items.Add(MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
-                    ? "前" + (i * 10) + "项结果"
-                    : "Top" + (i * 10) + "Results");
-            }
 
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
@@ -58,9 +52,14 @@ namespace FileManager
                 UIMode.SelectedItem = UIMode.Items.Where((Item) => Item.ToString() == Mode).FirstOrDefault();
             }
 
-            if (ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] is string MaxNum)
+            if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
             {
-                SearchNum.SelectedIndex = SearchNum.Items.IndexOf(SearchNum.Items.Where((Item) => Item.ToString().Contains(MaxNum)).FirstOrDefault());
+                OpenLeftArea.IsOn = Enable;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)
+            {
+                FolderOpenMethod.IsOn = IsDoubleClick;
             }
 
             Loaded += SettingPage_Loaded;
@@ -245,11 +244,6 @@ namespace FileManager
         private async void Like_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             _ = await StoreContext.GetDefault().RequestRateAndReviewAppAsync();
-        }
-
-        private void SearchNum_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ApplicationData.Current.LocalSettings.Values["SetSearchResultMaxNum"] = ((SearchNum.SelectedIndex + 1) * 10).ToString();
         }
 
         private async void FlyoutContinue_Click(object sender, RoutedEventArgs e)
@@ -692,7 +686,6 @@ namespace FileManager
                 else
                 {
                     FeedBackItem Item = new FeedBackItem(UserFullName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
-                    FeedBackCollection.Add(Item);
                     if (!await MySQL.Current.SetFeedBackAsync(Item))
                     {
                         if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
@@ -717,6 +710,10 @@ namespace FileManager
                             };
                             _ = await dialog.ShowAsync();
                         }
+                    }
+                    else
+                    {
+                        FeedBackCollection.Add(Item);
                     }
                 }
             }
@@ -966,6 +963,34 @@ namespace FileManager
         private void FeedBackQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             FeedBackTip.IsOpen = true;
+        }
+
+        private void OpenLeftArea_Toggled(object sender, RoutedEventArgs e)
+        {
+            if(OpenLeftArea.IsOn)
+            {
+                ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
+                ThisPC.ThisPage.Gr.ColumnDefinitions[0].Width = new GridLength(300);
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = false;
+                ThisPC.ThisPage.Gr.ColumnDefinitions[0].Width = new GridLength(0);
+            }
+        }
+
+        private void FolderOpenMethod_Toggled(object sender, RoutedEventArgs e)
+        {
+            if(FolderOpenMethod.IsOn)
+            {
+                ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = true;
+                IsDoubleClickEnable = true;
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = false;
+                IsDoubleClickEnable = false;
+            }
         }
     }
 }

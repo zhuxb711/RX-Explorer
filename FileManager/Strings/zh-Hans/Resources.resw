@@ -345,9 +345,6 @@
   <data name="SettingOther.Text" xml:space="preserve">
     <value>其他</value>
   </data>
-  <data name="SettingSearchNum.Header" xml:space="preserve">
-    <value>设置最大搜索结果数</value>
-  </data>
   <data name="SettingVersion.Text" xml:space="preserve">
     <value>版本</value>
   </data>
@@ -382,7 +379,7 @@
     <value>确定</value>
   </data>
   <data name="UserFolderDialog.Title" xml:space="preserve">
-    <value>选择用户文件夹</value>
+    <value>选择库文件夹</value>
   </data>
   <data name="ZipCRC.Label" xml:space="preserve">
     <value>CRC 完整性校验</value>
@@ -637,10 +634,10 @@
     <value>调整UI显示模式</value>
   </data>
   <data name="UserFolderText1.Text" xml:space="preserve">
-    <value>无法自动确定用户文件夹</value>
+    <value>无法自动确定库文件夹</value>
   </data>
   <data name="UserFolderText2.Text" xml:space="preserve">
-    <value>请手动指定用户文件夹</value>
+    <value>请手动指定库文件夹</value>
   </data>
   <data name="WebDefaultSearchEngine.Header" xml:space="preserve">
     <value>默认搜索引擎</value>
@@ -929,5 +926,26 @@
   </data>
   <data name="FeedBackTip.Title" xml:space="preserve">
     <value>反馈说明</value>
+  </data>
+  <data name="UserFolderReferButton.Content" xml:space="preserve">
+    <value>指定</value>
+  </data>
+  <data name="UserFolderDialog.CloseButtonText" xml:space="preserve">
+    <value>忽略</value>
+  </data>
+  <data name="SettingBasicText.Text" xml:space="preserve">
+    <value>基本</value>
+  </data>
+  <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
+    <value>文件夹打开方式</value>
+  </data>
+  <data name="SettingFolderOpenMethod.OffContent" xml:space="preserve">
+    <value>单击</value>
+  </data>
+  <data name="SettingFolderOpenMethod.OnContent" xml:space="preserve">
+    <value>双击</value>
+  </data>
+  <data name="SettingOpenLeftArea.Header" xml:space="preserve">
+    <value>侧边栏开关</value>
   </data>
 </root>

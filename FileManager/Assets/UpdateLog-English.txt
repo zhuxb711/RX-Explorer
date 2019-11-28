@@ -1,9 +1,28 @@
 ﻿*****
+### What's new in Ver.3.5.5.0
+
+>#####Feature Update
+
+>>######Added setting options "Sidebar Switch" and "Folder Opening Method"
+
+>>######Added keyboard shortcut support, including Ctrl + C, Ctrl + V, Ctrl + X, Ctrl + L, Ctrl + F, Ctrl + D, Ctrl + Shift + N, F2, F5, Delete , Backspace, Enter, etc.
+
+>>######Add automatic user path analysis and support user-defined location of each library folder
+
+>>######Removed the setting option "Maximum search result rows", now the default value is 100
+
+>#####Bug fix
+
+>>######Resolved an issue that caused RX to crash when copying or cutting files to a directory with no files or folders
+
+>>######Solved the problem that RX still displays feedback on the interface when feedback cannot be submitted due to network problems
+
+*****
 ###What's new in Ver.3.5.0.0
 
 >#####Feature Update
 
->>######Added a setting page "Feedback and Suggestion List", where all users can ask questions or support others' suggestions
+>>#####Added a setting page "Feedback and Suggestion List", where all users can ask questions or support others' suggestions
 
 *****
 ###What's new in Ver.3.4.5.0

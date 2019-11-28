@@ -19,6 +19,7 @@ using Windows.Storage;
 using Windows.Storage.Search;
 using Windows.System;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -67,6 +68,97 @@ namespace FileManager
             Application.Current.Suspending += Current_Suspending;
         }
 
+        private void Window_KeyDown(CoreWindow sender, KeyEventArgs args)
+        {
+            if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name == nameof(FileControl))
+            {
+                var WindowInstance = CoreWindow.GetForCurrentThread();
+                var CtrlState = WindowInstance.GetKeyState(VirtualKey.Control);
+                var ShiftState = WindowInstance.GetKeyState(VirtualKey.Shift);
+
+                switch (args.VirtualKey)
+                {
+                    case VirtualKey.Delete:
+                        {
+                            Delete_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.F2:
+                        {
+                            Rename_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.F5:
+                        {
+                            Refresh_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.Right when GridViewControl.SelectedIndex == -1:
+                        {
+                            GridViewControl.Focus(FocusState.Programmatic);
+                            GridViewControl.SelectedIndex = 0;
+                            break;
+                        }
+                    case VirtualKey.Enter when !QueueContentDialog.IsRunningOrWaiting && GridViewControl.SelectedItem is FileSystemStorageItem Item:
+                        {
+                            GridViewControl.Focus(FocusState.Programmatic);
+                            EnterSelectedItem(Item);
+                            break;
+                        }
+                    case VirtualKey.Back when FileControl.ThisPage.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && !QueueContentDialog.IsRunningOrWaiting:
+                        {
+                            FileControl.ThisPage.GoParentFolder_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            FileControl.ThisPage.AddressBox.Focus(FocusState.Programmatic);
+                            break;
+                        }
+                    case VirtualKey.V when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            Paste_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            if (CutFile != null)
+                            {
+                                CutFile = null;
+                            }
+
+                            CopyFile = (GridViewControl.SelectedItem as FileSystemStorageItem)?.File;
+                            break;
+                        }
+                    case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            if (CopyFile != null)
+                            {
+                                CopyFile = null;
+                            }
+
+                            CutFile = (GridViewControl.SelectedItem as FileSystemStorageItem)?.File;
+                            break;
+                        }
+                    case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            Delete_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.F when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            FileControl.ThisPage.GlobeSearch.Focus(FocusState.Programmatic);
+                            break;
+                        }
+                    case VirtualKey.N when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            NewFolder_Click(null, null);
+                            break;
+                        }
+                }
+            }
+        }
+
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
         {
             WiFiProvider?.Dispose();
@@ -97,11 +189,13 @@ namespace FileManager
         {
             Nav = e.Parameter as Frame;
             AESControl = new AutoResetEvent(false);
+            CoreWindow.GetForCurrentThread().KeyDown += Window_KeyDown;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             AESControl?.Dispose();
+            CoreWindow.GetForCurrentThread().KeyDown -= Window_KeyDown;
         }
 
         /// <summary>
@@ -119,7 +213,7 @@ namespace FileManager
                 CutFile = null;
             }
 
-            CopyFile = (GridViewControl.SelectedItem as FileSystemStorageItem).File;
+            CopyFile = (GridViewControl.SelectedItem as FileSystemStorageItem)?.File;
 
             Restore();
         }
@@ -138,7 +232,15 @@ namespace FileManager
                         await CutFile.MoveAsync(FileControl.ThisPage.CurrentFolder, CutFile.Name, NameCollisionOption.GenerateUniqueName);
                         if (FileCollection.Count > 0)
                         {
-                            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                            int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.ContentType == ContentType.File));
+                            if (Index == -1)
+                            {
+                                FileCollection.Add(new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                            }
+                            else
+                            {
+                                FileCollection.Insert(Index, new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                            }
                         }
                         else
                         {
@@ -195,7 +297,15 @@ namespace FileManager
                         await CutFile.MoveAsync(FileControl.ThisPage.CurrentFolder, CutFile.Name, NameCollisionOption.GenerateUniqueName);
                         if (FileCollection.Count > 0)
                         {
-                            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                            int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.ContentType == ContentType.File));
+                            if (Index == -1)
+                            {
+                                FileCollection.Add(new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                            }
+                            else
+                            {
+                                FileCollection.Insert(Index, new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                            }
                         }
                         else
                         {
@@ -258,7 +368,15 @@ namespace FileManager
                         StorageFile NewFile = await CopyFile.CopyAsync(FileControl.ThisPage.CurrentFolder, CopyFile.Name, NameCollisionOption.GenerateUniqueName);
                         if (FileCollection.Count > 0)
                         {
-                            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                            int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.ContentType == ContentType.File));
+                            if (Index == -1)
+                            {
+                                FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                            }
+                            else
+                            {
+                                FileCollection.Insert(Index, new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                            }
                         }
                         else
                         {
@@ -315,7 +433,15 @@ namespace FileManager
                         StorageFile NewFile = await CopyFile.CopyAsync(FileControl.ThisPage.CurrentFolder, CopyFile.Name, NameCollisionOption.GenerateUniqueName);
                         if (FileCollection.Count > 0)
                         {
-                            FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                            int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.ContentType == ContentType.File));
+                            if (Index == -1)
+                            {
+                                FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                            }
+                            else
+                            {
+                                FileCollection.Insert(Index, new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                            }
                         }
                         else
                         {
@@ -378,107 +504,210 @@ namespace FileManager
                 CopyFile = null;
             }
 
-            CutFile = (GridViewControl.SelectedItem as FileSystemStorageItem).File;
+            CutFile = (GridViewControl.SelectedItem as FileSystemStorageItem)?.File;
 
             Restore();
         }
 
         private async void Delete_Click(object sender, RoutedEventArgs e)
         {
-            var FileToDelete = GridViewControl.SelectedItem as FileSystemStorageItem;
-            Restore();
-
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (GridViewControl.SelectedItem is FileSystemStorageItem ItemToDelete)
             {
-                QueueContentDialog QueueContenDialog = new QueueContentDialog
-                {
-                    Title = "警告",
-                    PrimaryButtonText = "是",
-                    Content = "此操作将永久删除 \" " + FileToDelete.Name + " \"\r\r是否继续?",
-                    CloseButtonText = "否",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                };
-                if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
-                {
-                    LoadingActivation(true, "正在删除");
+                Restore();
 
-                    try
+                if (ItemToDelete.ContentType == ContentType.File)
+                {
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        await FileToDelete.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
-
-                        for (int i = 0; i < FileCollection.Count; i++)
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                         {
-                            if (FileCollection[i].RelativeId == FileToDelete.File.FolderRelativeId)
+                            Title = "警告",
+                            PrimaryButtonText = "是",
+                            Content = "此操作将永久删除 \" " + ItemToDelete.Name + " \"\r\r是否继续?",
+                            CloseButtonText = "否",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        };
+                        if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            LoadingActivation(true, "正在删除");
+
+                            try
                             {
-                                FileCollection.RemoveAt(i);
-                                break;
+                                await ItemToDelete.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+
+                                for (int i = 0; i < FileCollection.Count; i++)
+                                {
+                                    if (FileCollection[i].RelativeId == ItemToDelete.File.FolderRelativeId)
+                                    {
+                                        FileCollection.RemoveAt(i);
+                                        break;
+                                    }
+                                }
+                            }
+                            catch (UnauthorizedAccessException)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "RX无权删除此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                                    PrimaryButtonText = "立刻",
+                                    CloseButtonText = "稍后",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                }
                             }
                         }
                     }
-                    catch (UnauthorizedAccessException)
+                    else
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                         {
-                            Title = "错误",
-                            Content = "RX无权删除此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                            PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后",
+                            Title = "Warning",
+                            PrimaryButtonText = "Continue",
+                            Content = "This action will permanently delete \" " + ItemToDelete.Name + " \"\r\rWhether to continue?",
+                            CloseButtonText = "Cancel",
                             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                         };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
                         {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                QueueContentDialog QueueContenDialog = new QueueContentDialog
-                {
-                    Title = "Warning",
-                    PrimaryButtonText = "Continue",
-                    Content = "This action will permanently delete \" " + FileToDelete.Name + " \"\r\rWhether to continue?",
-                    CloseButtonText = "Cancel",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                };
-                if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
-                {
-                    LoadingActivation(true, "Deleting");
+                            LoadingActivation(true, "Deleting");
 
-                    try
-                    {
-                        await FileToDelete.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
-
-                        for (int i = 0; i < FileCollection.Count; i++)
-                        {
-                            if (FileCollection[i].RelativeId == FileToDelete.File.FolderRelativeId)
+                            try
                             {
-                                FileCollection.RemoveAt(i);
-                                break;
+                                await ItemToDelete.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+
+                                for (int i = 0; i < FileCollection.Count; i++)
+                                {
+                                    if (FileCollection[i].RelativeId == ItemToDelete.File.FolderRelativeId)
+                                    {
+                                        FileCollection.RemoveAt(i);
+                                        break;
+                                    }
+                                }
+                            }
+                            catch (UnauthorizedAccessException)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "RX does not have permission to delete, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                                    PrimaryButtonText = "Enter",
+                                    CloseButtonText = "Later",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                }
                             }
                         }
                     }
-                    catch (UnauthorizedAccessException)
+                }
+                else
+                {
+                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
                         {
-                            Title = "Error",
-                            Content = "RX does not have permission to delete, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                            PrimaryButtonText = "Enter",
-                            CloseButtonText = "Later",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            Title = "警告",
+                            PrimaryButtonText = "是",
+                            CloseButtonText = "否",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
+                            Content = "此操作将永久删除 \"" + ItemToDelete.DisplayName + " \"\r\r是否继续?"
                         };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+
+                        if ((await QueueContenDialog.ShowAsync()) == ContentDialogResult.Primary)
                         {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            try
+                            {
+                                LoadingActivation(true, "正在删除");
+
+                                await ItemToDelete.Folder.DeleteAllSubFilesAndFolders();
+                                await ItemToDelete.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                            }
+                            catch (UnauthorizedAccessException)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "RX无权删除此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
+                                    PrimaryButtonText = "立刻",
+                                    CloseButtonText = "稍后",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                }
+                                return;
+                            }
+
+                            FileCollection.Remove(ItemToDelete);
+                            if (FileControl.ThisPage.CurrentNode.IsExpanded)
+                            {
+                                FileControl.ThisPage.CurrentNode.Children.Remove(FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == ItemToDelete.RelativeId).FirstOrDefault());
+                            }
+                            else
+                            {
+                                if ((await FileControl.ThisPage.CurrentFolder.GetFoldersAsync()).Count == 0)
+                                {
+                                    FileControl.ThisPage.CurrentNode.HasUnrealizedChildren = false;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = "Warning",
+                            PrimaryButtonText = "Continue",
+                            CloseButtonText = "Cancel",
+                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
+                            Content = "This action will permanently delete \" " + ItemToDelete.DisplayName + " \"\r\rWhether to continue ?"
+                        };
+
+                        if ((await QueueContenDialog.ShowAsync()) == ContentDialogResult.Primary)
+                        {
+                            LoadingActivation(true, "Deleting");
+
+                            try
+                            {
+                                await ItemToDelete.Folder.DeleteAllSubFilesAndFolders();
+                                await ItemToDelete.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                            }
+                            catch (UnauthorizedAccessException)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "RX does not have permission to delete, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                                    PrimaryButtonText = "Enter",
+                                    CloseButtonText = "Later",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                }
+                                return;
+                            }
+
+                            FileCollection.Remove(ItemToDelete);
+                            if (FileControl.ThisPage.CurrentNode.IsExpanded)
+                            {
+                                FileControl.ThisPage.CurrentNode.Children.Remove(FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == ItemToDelete.RelativeId).FirstOrDefault());
+                            }
                         }
                     }
                 }
-            }
 
-            await Task.Delay(500);
-            LoadingActivation(false);
+                await Task.Delay(500);
+                LoadingActivation(false);
+            }
         }
 
         /// <summary>
@@ -515,92 +744,218 @@ namespace FileManager
 
         private async void Rename_Click(object sender, RoutedEventArgs e)
         {
-            var file = (GridViewControl.SelectedItem as FileSystemStorageItem).File;
-            RenameDialog dialog = new RenameDialog(file.DisplayName, file.FileType);
-            if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+            if (GridViewControl.SelectedItem is FileSystemStorageItem RenameItem)
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (RenameItem.ContentType == ContentType.File)
                 {
-                    if (dialog.DesireName == file.FileType)
+                    RenameDialog dialog = new RenameDialog(RenameItem.File.DisplayName, RenameItem.File.FileType);
+                    if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
-                        QueueContentDialog content = new QueueContentDialog
+                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
                         {
-                            Title = "错误",
-                            Content = "文件名不能为空，重命名失败",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        await content.ShowAsync();
-                        return;
-                    }
+                            if (dialog.DesireName == RenameItem.File.FileType)
+                            {
+                                QueueContentDialog content = new QueueContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "文件名不能为空，重命名失败",
+                                    CloseButtonText = "确定",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                await content.ShowAsync();
+                                return;
+                            }
 
-                    try
-                    {
-                        await file.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
+                            try
+                            {
+                                await RenameItem.File.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
 
-                        foreach (var Item in from FileSystemStorageItem Item in FileCollection
-                                             where Item.Name == dialog.DesireName
-                                             select Item)
-                        {
-                            await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(file.Path));
+                                foreach (var Item in from FileSystemStorageItem Item in FileCollection
+                                                     where Item.Name == dialog.DesireName
+                                                     select Item)
+                                {
+                                    await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(RenameItem.File.Path));
+                                }
+                            }
+                            catch (UnauthorizedAccessException)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "RX无权重命名此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                                    PrimaryButtonText = "立刻",
+                                    CloseButtonText = "稍后",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                }
+                            }
                         }
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        else
                         {
-                            Title = "错误",
-                            Content = "RX无权重命名此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                            PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            if (dialog.DesireName == RenameItem.File.FileType)
+                            {
+                                QueueContentDialog content = new QueueContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "File name cannot be empty, rename failed",
+                                    CloseButtonText = "Confirm",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                await content.ShowAsync();
+                                return;
+                            }
+
+                            try
+                            {
+                                await RenameItem.File.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
+
+                                foreach (var Item in from FileSystemStorageItem Item in FileCollection
+                                                     where Item.Name == dialog.DesireName
+                                                     select Item)
+                                {
+                                    await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(RenameItem.File.Path));
+                                }
+                            }
+                            catch (UnauthorizedAccessException)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "RX does not have permission to rename, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                                    PrimaryButtonText = "Enter",
+                                    CloseButtonText = "Later",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                }
+                            }
                         }
                     }
                 }
                 else
                 {
-                    if (dialog.DesireName == file.FileType)
+                    RenameDialog dialog = new RenameDialog(RenameItem.Folder.DisplayName);
+                    if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
-                        QueueContentDialog content = new QueueContentDialog
+                        if (string.IsNullOrWhiteSpace(dialog.DesireName))
                         {
-                            Title = "Error",
-                            Content = "File name cannot be empty, rename failed",
-                            CloseButtonText = "Confirm",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        await content.ShowAsync();
-                        return;
-                    }
-
-                    try
-                    {
-                        await file.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
-
-                        foreach (var Item in from FileSystemStorageItem Item in FileCollection
-                                             where Item.Name == dialog.DesireName
-                                             select Item)
-                        {
-                            await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(file.Path));
+                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog content = new QueueContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "文件夹名不能为空，重命名失败",
+                                    CloseButtonText = "确定",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                await content.ShowAsync();
+                            }
+                            else
+                            {
+                                QueueContentDialog content = new QueueContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "Folder name cannot be empty, rename failed",
+                                    CloseButtonText = "Confirm",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                await content.ShowAsync();
+                            }
+                            return;
                         }
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
+
+                        StorageFolder ReCreateFolder = null;
+                        if (FileControl.ThisPage.CurrentNode.Children.Count != 0)
                         {
-                            Title = "Error",
-                            Content = "RX does not have permission to rename, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                            PrimaryButtonText = "Enter",
-                            CloseButtonText = "Later",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            var ChildCollection = FileControl.ThisPage.CurrentNode.Children;
+                            var TargetNode = FileControl.ThisPage.CurrentNode.Children.Where((Fold) => (Fold.Content as StorageFolder).FolderRelativeId == RenameItem.Folder.FolderRelativeId).FirstOrDefault();
+                            int index = FileControl.ThisPage.CurrentNode.Children.IndexOf(TargetNode);
+
+                            try
+                            {
+                                await RenameItem.Folder.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
+                                ReCreateFolder = await StorageFolder.GetFolderFromPathAsync(RenameItem.Folder.Path);
+
+                                if (TargetNode.HasUnrealizedChildren)
+                                {
+                                    ChildCollection.Insert(index, new TreeViewNode()
+                                    {
+                                        Content = ReCreateFolder,
+                                        HasUnrealizedChildren = true,
+                                        IsExpanded = false
+                                    });
+                                    ChildCollection.Remove(TargetNode);
+                                }
+                                else if (TargetNode.HasChildren)
+                                {
+                                    var NewNode = new TreeViewNode()
+                                    {
+                                        Content = ReCreateFolder,
+                                        HasUnrealizedChildren = false,
+                                        IsExpanded = true
+                                    };
+
+                                    foreach (var SubNode in TargetNode.Children)
+                                    {
+                                        NewNode.Children.Add(SubNode);
+                                    }
+
+                                    ChildCollection.Insert(index, NewNode);
+                                    ChildCollection.Remove(TargetNode);
+                                    await NewNode.UpdateAllSubNodeFolder();
+                                }
+                                else
+                                {
+                                    ChildCollection.Insert(index, new TreeViewNode()
+                                    {
+                                        Content = ReCreateFolder,
+                                        HasUnrealizedChildren = false,
+                                        IsExpanded = false
+                                    });
+                                    ChildCollection.Remove(TargetNode);
+                                }
+                            }
+                            catch (UnauthorizedAccessException)
+                            {
+                                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                                {
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = "错误",
+                                        Content = "RX无权重命名此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
+                                        PrimaryButtonText = "立刻",
+                                        CloseButtonText = "稍后",
+                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    };
+                                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                    {
+                                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                    }
+                                }
+                                else
+                                {
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = "Error",
+                                        Content = "RX does not have permission to rename the folder, it may be that you do not have access to this file.\r\rEnter the system file manager immediately ？",
+                                        PrimaryButtonText = "Enter",
+                                        CloseButtonText = "Later",
+                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    };
+                                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                    {
+                                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                    }
+                                }
+                            }
                         }
+
+                        await (GridViewControl.SelectedItem as FileSystemStorageItem).UpdateRequested(ReCreateFolder);
                     }
                 }
             }
@@ -1540,126 +1895,11 @@ namespace FileManager
             }
         }
 
-        private async void GridViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private void GridViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem ReFile)
             {
-                if (Interlocked.Exchange(ref DoubleTabTarget, ReFile) == null)
-                {
-                    if (DoubleTabTarget.ContentType == ContentType.File)
-                    {
-                        switch (DoubleTabTarget.File.FileType)
-                        {
-                            case ".zip":
-                                Nav.Navigate(typeof(ZipExplorer), DoubleTabTarget, new DrillInNavigationTransitionInfo());
-                                break;
-                            case ".jpg":
-                            case ".png":
-                            case ".bmp":
-                                Nav.Navigate(typeof(PhotoViewer), DoubleTabTarget.File.FolderRelativeId, new DrillInNavigationTransitionInfo());
-                                break;
-                            case ".mkv":
-                            case ".mp4":
-                            case ".mp3":
-                            case ".flac":
-                            case ".wma":
-                            case ".wmv":
-                            case ".m4a":
-                            case ".mov":
-                            case ".alac":
-                                Nav.Navigate(typeof(MediaPlayer), DoubleTabTarget.File, new DrillInNavigationTransitionInfo());
-                                break;
-                            case ".txt":
-                                Nav.Navigate(typeof(TextViewer), DoubleTabTarget, new DrillInNavigationTransitionInfo());
-                                break;
-                            case ".pdf":
-                                Nav.Navigate(typeof(PdfReader), DoubleTabTarget.File, new DrillInNavigationTransitionInfo());
-                                break;
-                            default:
-                                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
-                                {
-                                    QueueContentDialog dialog = new QueueContentDialog
-                                    {
-                                        Title = "提示",
-                                        Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
-                                        PrimaryButtonText = "默认应用打开",
-                                        CloseButtonText = "取消",
-                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                                    };
-                                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                                    {
-                                        if (!await Launcher.LaunchFileAsync(DoubleTabTarget.File))
-                                        {
-                                            LauncherOptions options = new LauncherOptions
-                                            {
-                                                DisplayApplicationPicker = true
-                                            };
-                                            _ = await Launcher.LaunchFileAsync(DoubleTabTarget.File, options);
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    QueueContentDialog dialog = new QueueContentDialog
-                                    {
-                                        Title = "Tips",
-                                        Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
-                                        PrimaryButtonText = "Open with default app",
-                                        CloseButtonText = "Cancel",
-                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                                    };
-                                    if (!await Launcher.LaunchFileAsync(DoubleTabTarget.File))
-                                    {
-                                        LauncherOptions options = new LauncherOptions
-                                        {
-                                            DisplayApplicationPicker = true
-                                        };
-                                        _ = await Launcher.LaunchFileAsync(DoubleTabTarget.File, options);
-                                    }
-                                }
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        if (FileControl.ThisPage.CurrentNode.HasUnrealizedChildren && !FileControl.ThisPage.CurrentNode.IsExpanded)
-                        {
-                            FileControl.ThisPage.CurrentNode.IsExpanded = true;
-                        }
-
-                        while (true)
-                        {
-                            TreeViewNode TargetNode = FileControl.ThisPage.CurrentNode?.Children.Where((Node) => (Node.Content as StorageFolder).Name == DoubleTabTarget.Name).FirstOrDefault();
-                            if (TargetNode != null)
-                            {
-                                while (true)
-                                {
-                                    if (FileControl.ThisPage.FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Container)
-                                    {
-                                        Container.IsSelected = true;
-                                        Container.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                                        _ = FileControl.ThisPage.DisplayItemsInFolder(TargetNode);
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        await Task.Delay(300);
-                                    }
-                                }
-                                break;
-                            }
-                            else if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name != "FileControl")
-                            {
-                                break;
-                            }
-                            else
-                            {
-                                await Task.Delay(300);
-                            }
-                        }
-                    }
-                    Interlocked.Exchange(ref DoubleTabTarget, null);
-                }
+                EnterSelectedItem(ReFile);
             }
         }
 
@@ -2153,239 +2393,11 @@ namespace FileManager
             }
         }
 
-        private async void FolderRename_Click(object sender, RoutedEventArgs e)
-        {
-            var Folder = (GridViewControl.SelectedItem as FileSystemStorageItem).Folder;
-            RenameDialog dialog = new RenameDialog(Folder.DisplayName);
-            if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
-            {
-                if (string.IsNullOrWhiteSpace(dialog.DesireName))
-                {
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
-                    {
-                        QueueContentDialog content = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "文件夹名不能为空，重命名失败",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        await content.ShowAsync();
-                    }
-                    else
-                    {
-                        QueueContentDialog content = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "Folder name cannot be empty, rename failed",
-                            CloseButtonText = "Confirm",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                        };
-                        await content.ShowAsync();
-                    }
-                    return;
-                }
-
-                StorageFolder ReCreateFolder = null;
-                if (FileControl.ThisPage.CurrentNode.Children.Count != 0)
-                {
-                    var ChildCollection = FileControl.ThisPage.CurrentNode.Children;
-                    var TargetNode = FileControl.ThisPage.CurrentNode.Children.Where((Fold) => (Fold.Content as StorageFolder).FolderRelativeId == Folder.FolderRelativeId).FirstOrDefault();
-                    int index = FileControl.ThisPage.CurrentNode.Children.IndexOf(TargetNode);
-
-                    try
-                    {
-                        await Folder.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
-                        ReCreateFolder = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
-
-                        if (TargetNode.HasUnrealizedChildren)
-                        {
-                            ChildCollection.Insert(index, new TreeViewNode()
-                            {
-                                Content = ReCreateFolder,
-                                HasUnrealizedChildren = true,
-                                IsExpanded = false
-                            });
-                            ChildCollection.Remove(TargetNode);
-                        }
-                        else if (TargetNode.HasChildren)
-                        {
-                            var NewNode = new TreeViewNode()
-                            {
-                                Content = ReCreateFolder,
-                                HasUnrealizedChildren = false,
-                                IsExpanded = true
-                            };
-
-                            foreach (var SubNode in TargetNode.Children)
-                            {
-                                NewNode.Children.Add(SubNode);
-                            }
-
-                            ChildCollection.Insert(index, NewNode);
-                            ChildCollection.Remove(TargetNode);
-                            await NewNode.UpdateAllSubNodeFolder();
-                        }
-                        else
-                        {
-                            ChildCollection.Insert(index, new TreeViewNode()
-                            {
-                                Content = ReCreateFolder,
-                                HasUnrealizedChildren = false,
-                                IsExpanded = false
-                            });
-                            ChildCollection.Remove(TargetNode);
-                        }
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "RX无权重命名此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
-                                PrimaryButtonText = "立刻",
-                                CloseButtonText = "稍后",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                            }
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "RX does not have permission to rename the folder, it may be that you do not have access to this file.\r\rEnter the system file manager immediately ？",
-                                PrimaryButtonText = "Enter",
-                                CloseButtonText = "Later",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                            }
-                        }
-                    }
-                }
-
-                await (GridViewControl.SelectedItem as FileSystemStorageItem).UpdateRequested(ReCreateFolder);
-            }
-
-        }
-
         private async void FolderAttribute_Click(object sender, RoutedEventArgs e)
         {
             FileSystemStorageItem Device = GridViewControl.SelectedItem as FileSystemStorageItem;
             AttributeDialog Dialog = new AttributeDialog(Device.Folder);
             _ = await Dialog.ShowAsync();
-        }
-
-        private async void FolderDelete_Click(object sender, RoutedEventArgs e)
-        {
-            var SelectedItem = GridViewControl.SelectedItem as FileSystemStorageItem;
-            Restore();
-
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
-            {
-                QueueContentDialog QueueContenDialog = new QueueContentDialog
-                {
-                    Title = "警告",
-                    PrimaryButtonText = "是",
-                    CloseButtonText = "否",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
-                    Content = "此操作将永久删除 \"" + SelectedItem.DisplayName + " \"\r\r是否继续?"
-                };
-
-                if ((await QueueContenDialog.ShowAsync()) == ContentDialogResult.Primary)
-                {
-                    foreach (FileSystemStorageItem Item in GridViewControl.SelectedItems)
-                    {
-                        try
-                        {
-                            await Item.Folder.DeleteAllSubFilesAndFolders();
-                            await Item.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                        }
-                        catch (UnauthorizedAccessException)
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "RX无权删除此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
-                                PrimaryButtonText = "立刻",
-                                CloseButtonText = "稍后",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                            }
-                            return;
-                        }
-
-                        FileCollection.Remove(Item);
-                        if (FileControl.ThisPage.CurrentNode.IsExpanded)
-                        {
-                            FileControl.ThisPage.CurrentNode.Children.Remove(FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == Item.RelativeId).FirstOrDefault());
-                        }
-                        else
-                        {
-                            if ((await FileControl.ThisPage.CurrentFolder.GetFoldersAsync()).Count == 0)
-                            {
-                                FileControl.ThisPage.CurrentNode.HasUnrealizedChildren = false;
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                QueueContentDialog QueueContenDialog = new QueueContentDialog
-                {
-                    Title = "Warning",
-                    PrimaryButtonText = "Continue",
-                    CloseButtonText = "Cancel",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
-                    Content = "This action will permanently delete \" " + SelectedItem.DisplayName + " \"\r\rWhether to continue ?"
-                };
-
-                if ((await QueueContenDialog.ShowAsync()) == ContentDialogResult.Primary)
-                {
-                    foreach (FileSystemStorageItem Item in GridViewControl.SelectedItems)
-                    {
-                        try
-                        {
-                            await Item.Folder.DeleteAllSubFilesAndFolders();
-                            await Item.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                        }
-                        catch (UnauthorizedAccessException)
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "RX does not have permission to delete, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                                PrimaryButtonText = "Enter",
-                                CloseButtonText = "Later",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
-                            };
-                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                            }
-                            return;
-                        }
-
-                        FileCollection.Remove(Item);
-                        if (FileControl.ThisPage.CurrentNode.IsExpanded)
-                        {
-                            FileControl.ThisPage.CurrentNode.Children.Remove(FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == Item.RelativeId).FirstOrDefault());
-                        }
-                    }
-                }
-            }
         }
 
         private async void WIFIShare_Click(object sender, RoutedEventArgs e)
@@ -2715,6 +2727,134 @@ namespace FileManager
         private async void Refresh_Click(object sender, RoutedEventArgs e)
         {
             await FileControl.ThisPage.DisplayItemsInFolder(DisplayNode, true);
+        }
+
+        private void GridViewControl_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            if (!SettingPage.IsDoubleClickEnable && e.ClickedItem is FileSystemStorageItem ReFile)
+            {
+                EnterSelectedItem(ReFile);
+            }
+        }
+
+        private async void EnterSelectedItem(FileSystemStorageItem ReFile)
+        {
+            if (Interlocked.Exchange(ref DoubleTabTarget, ReFile) == null)
+            {
+                if (DoubleTabTarget.ContentType == ContentType.File)
+                {
+                    switch (DoubleTabTarget.File.FileType)
+                    {
+                        case ".zip":
+                            Nav.Navigate(typeof(ZipExplorer), DoubleTabTarget, new DrillInNavigationTransitionInfo());
+                            break;
+                        case ".jpg":
+                        case ".png":
+                        case ".bmp":
+                            Nav.Navigate(typeof(PhotoViewer), DoubleTabTarget.File.FolderRelativeId, new DrillInNavigationTransitionInfo());
+                            break;
+                        case ".mkv":
+                        case ".mp4":
+                        case ".mp3":
+                        case ".flac":
+                        case ".wma":
+                        case ".wmv":
+                        case ".m4a":
+                        case ".mov":
+                        case ".alac":
+                            Nav.Navigate(typeof(MediaPlayer), DoubleTabTarget.File, new DrillInNavigationTransitionInfo());
+                            break;
+                        case ".txt":
+                            Nav.Navigate(typeof(TextViewer), DoubleTabTarget, new DrillInNavigationTransitionInfo());
+                            break;
+                        case ".pdf":
+                            Nav.Navigate(typeof(PdfReader), DoubleTabTarget.File, new DrillInNavigationTransitionInfo());
+                            break;
+                        default:
+                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = "提示",
+                                    Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
+                                    PrimaryButtonText = "默认应用打开",
+                                    CloseButtonText = "取消",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    if (!await Launcher.LaunchFileAsync(DoubleTabTarget.File))
+                                    {
+                                        LauncherOptions options = new LauncherOptions
+                                        {
+                                            DisplayApplicationPicker = true
+                                        };
+                                        _ = await Launcher.LaunchFileAsync(DoubleTabTarget.File, options);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = "Tips",
+                                    Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
+                                    PrimaryButtonText = "Open with default app",
+                                    CloseButtonText = "Cancel",
+                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                };
+                                if (!await Launcher.LaunchFileAsync(DoubleTabTarget.File))
+                                {
+                                    LauncherOptions options = new LauncherOptions
+                                    {
+                                        DisplayApplicationPicker = true
+                                    };
+                                    _ = await Launcher.LaunchFileAsync(DoubleTabTarget.File, options);
+                                }
+                            }
+                            break;
+                    }
+                }
+                else
+                {
+                    if (FileControl.ThisPage.CurrentNode.HasUnrealizedChildren && !FileControl.ThisPage.CurrentNode.IsExpanded)
+                    {
+                        FileControl.ThisPage.CurrentNode.IsExpanded = true;
+                    }
+
+                    while (true)
+                    {
+                        TreeViewNode TargetNode = FileControl.ThisPage.CurrentNode?.Children.Where((Node) => (Node.Content as StorageFolder).Name == DoubleTabTarget.Name).FirstOrDefault();
+                        if (TargetNode != null)
+                        {
+                            while (true)
+                            {
+                                if (FileControl.ThisPage.FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Container)
+                                {
+                                    Container.IsSelected = true;
+                                    Container.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
+                                    _ = FileControl.ThisPage.DisplayItemsInFolder(TargetNode);
+                                    break;
+                                }
+                                else
+                                {
+                                    await Task.Delay(300);
+                                }
+                            }
+                            break;
+                        }
+                        else if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name != "FileControl")
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            await Task.Delay(300);
+                        }
+                    }
+                }
+                Interlocked.Exchange(ref DoubleTabTarget, null);
+            }
         }
     }
 }

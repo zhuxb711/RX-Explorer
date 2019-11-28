@@ -868,14 +868,7 @@ namespace FileManager
             }
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                List<string> FilterResult = await SQLite.Current.GetRelatedSearchHistoryAsync(sender.Text);
-                if (FilterResult.Count == 0)
-                {
-                    FilterResult.Add(MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
-                                        ? "无建议"
-                                        : "No Result");
-                }
-                sender.ItemsSource = FilterResult;
+                sender.ItemsSource = await SQLite.Current.GetRelatedSearchHistoryAsync(sender.Text);
             }
         }
 
@@ -938,14 +931,7 @@ namespace FileManager
         {
             if (string.IsNullOrEmpty(GlobeSearch.Text))
             {
-                List<string> FilterResult = await SQLite.Current.GetRelatedSearchHistoryAsync(string.Empty);
-                if (FilterResult.Count == 0)
-                {
-                    FilterResult.Add(MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
-                                        ? "无建议"
-                                        : "No Result");
-                }
-                GlobeSearch.ItemsSource = FilterResult;
+                GlobeSearch.ItemsSource = await SQLite.Current.GetRelatedSearchHistoryAsync(string.Empty);
             }
         }
 
@@ -1140,7 +1126,7 @@ namespace FileManager
             }
         }
 
-        private async void GoParentFolder_Click(object sender, RoutedEventArgs e)
+        public async void GoParentFolder_Click(object sender, RoutedEventArgs e)
         {
             if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
             {
