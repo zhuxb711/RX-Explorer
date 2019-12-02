@@ -967,7 +967,7 @@ namespace FileManager
 
         private void OpenLeftArea_Toggled(object sender, RoutedEventArgs e)
         {
-            if(OpenLeftArea.IsOn)
+            if (OpenLeftArea.IsOn)
             {
                 ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
                 ThisPC.ThisPage.Gr.ColumnDefinitions[0].Width = new GridLength(300);
@@ -981,7 +981,7 @@ namespace FileManager
 
         private void FolderOpenMethod_Toggled(object sender, RoutedEventArgs e)
         {
-            if(FolderOpenMethod.IsOn)
+            if (FolderOpenMethod.IsOn)
             {
                 ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = true;
                 IsDoubleClickEnable = true;

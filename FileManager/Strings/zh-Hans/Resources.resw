@@ -948,4 +948,16 @@
   <data name="SettingOpenLeftArea.Header" xml:space="preserve">
     <value>侧边栏开关</value>
   </data>
+  <data name="SettingOpenLeftArea.OffContent" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="SettingOpenLeftArea.OnContent" xml:space="preserve">
+    <value>开启</value>
+  </data>
+  <data name="FeedBackAgainstText.Text" xml:space="preserve">
+    <value>反对</value>
+  </data>
+  <data name="FeedBackAgreeText.Text" xml:space="preserve">
+    <value>支持</value>
+  </data>
 </root>

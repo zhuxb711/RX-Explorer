@@ -1,4 +1,17 @@
 ﻿*****
+### What's new in Ver.3.5.7.0
+
+>#####Feature Update
+
+>>#####Feedback module adds automatic translation for two languages supported by RX (English and Chinese)
+
+>>#####English feedback will be translated into Chinese, and Chinese feedback will be translated into English (depending on the current Windows language)
+
+>#####Bug fix
+
+>>#####Solved the problem of translation of some controls
+
+*****
 ### What's new in Ver.3.5.5.0
 
 >#####Feature Update

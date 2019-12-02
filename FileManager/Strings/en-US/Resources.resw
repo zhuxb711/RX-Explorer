@@ -285,6 +285,12 @@
   <data name="FeedBackAddButton.Text" xml:space="preserve">
     <value>Add my feedback</value>
   </data>
+  <data name="FeedBackAgainstText.Text" xml:space="preserve">
+    <value>Against</value>
+  </data>
+  <data name="FeedBackAgreeText.Text" xml:space="preserve">
+    <value>Agree</value>
+  </data>
   <data name="FeedBackDeleteButton.Label" xml:space="preserve">
     <value>Delete</value>
   </data>

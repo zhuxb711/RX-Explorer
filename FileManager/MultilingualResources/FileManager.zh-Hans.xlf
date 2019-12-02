@@ -1262,6 +1262,14 @@
           <source>On</source>
           <target state="translated">开启</target>
         </trans-unit>
+        <trans-unit id="FeedBackAgainstText.Text" translate="yes" xml:space="preserve">
+          <source>Against</source>
+          <target state="translated">反对</target>
+        </trans-unit>
+        <trans-unit id="FeedBackAgreeText.Text" translate="yes" xml:space="preserve">
+          <source>Agree</source>
+          <target state="translated">支持</target>
+        </trans-unit>
       </group>
     </body>
   </file>

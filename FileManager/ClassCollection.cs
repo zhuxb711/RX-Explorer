@@ -4,6 +4,7 @@ using DownloaderProvider;
 using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Data.Sqlite;
 using MySql.Data.MySqlClient;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,11 +13,13 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TinyPinyin.Core;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
 using Windows.Graphics.Imaging;
@@ -486,9 +489,12 @@ namespace FileManager
                     using (MySqlCommand Command = new MySqlCommand("Select * From FeedBackTable", Connection))
                     using (DbDataReader Reader = await Command.ExecuteReaderAsync())
                     {
+                        var CurrentLanguage = MainPage.ThisPage.CurrentLanguage;
                         while (Reader.Read())
                         {
-                            list.Add(new FeedBackItem(Reader["UserName"].ToString(), Reader["Title"].ToString(), Reader["Suggestion"].ToString(), Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString()));
+                            string TitleTranslation = await Reader["Title"].ToString().TranslateTo(CurrentLanguage);
+                            string SuggestionTranslation = await Reader["Suggestion"].ToString().TranslateTo(CurrentLanguage);
+                            list.Add(new FeedBackItem(CurrentLanguage == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString().TranslateToPinyinOrStayInEnglish(), string.IsNullOrEmpty(TitleTranslation) ? Reader["Title"].ToString() : TitleTranslation, string.IsNullOrEmpty(SuggestionTranslation) ? Reader["Suggestion"].ToString() : SuggestionTranslation, Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString()));
                         }
                     }
 
@@ -1475,9 +1481,135 @@ namespace FileManager
     }
     #endregion
 
+    #region Json翻译对象
+    public class TranslationResult
+    {
+        public DetectedLanguage DetectedLanguage { get; set; }
+        public TextResult SourceText { get; set; }
+        public Translation[] Translations { get; set; }
+    }
+
+    public class DetectedLanguage
+    {
+        public string Language { get; set; }
+        public float Score { get; set; }
+    }
+
+    public class TextResult
+    {
+        public string Text { get; set; }
+        public string Script { get; set; }
+    }
+
+    public class Translation
+    {
+        public string Text { get; set; }
+        public TextResult Transliteration { get; set; }
+        public string To { get; set; }
+        public Alignment Alignment { get; set; }
+        public SentenceLength SentLen { get; set; }
+    }
+
+    public class Alignment
+    {
+        public string Proj { get; set; }
+    }
+
+    public class SentenceLength
+    {
+        public int[] SrcSentLen { get; set; }
+        public int[] TransSentLen { get; set; }
+    }
+    #endregion
+
     #region 扩展方法类
     public static class Extention
     {
+        public static string TranslateToPinyinOrStayInEnglish(this string From)
+        {
+            StringBuilder EnglishBuilder = new StringBuilder();
+            StringBuilder ChineseBuilder = new StringBuilder();
+            foreach (var Char in From)
+            {
+                if (PinyinHelper.IsChinese(Char))
+                {
+                    _ = ChineseBuilder.Append(Char);
+                }
+                else
+                {
+                    _ = EnglishBuilder.Append(Char);
+                }
+            }
+
+            if (ChineseBuilder.Length != 0 && EnglishBuilder.Length != 0)
+            {
+                return EnglishBuilder.ToString() + " " + PinyinHelper.GetPinyin(ChineseBuilder.ToString());
+            }
+            else if (ChineseBuilder.Length == 0 && EnglishBuilder.Length != 0)
+            {
+                return EnglishBuilder.ToString();
+            }
+            else if (ChineseBuilder.Length != 0 && EnglishBuilder.Length == 0)
+            {
+                return PinyinHelper.GetPinyin(ChineseBuilder.ToString());
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public static async Task<string> TranslateTo(this string From, LanguageEnum language)
+        {
+            using (HttpClient Client = new HttpClient())
+            using (HttpRequestMessage Request = new HttpRequestMessage())
+            {
+
+                Request.Method = HttpMethod.Post;
+                Request.RequestUri = new Uri($"https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to={(language == LanguageEnum.Chinese ? "zh-Hans" : "en")}");
+                Request.Content = new StringContent(JsonConvert.SerializeObject(new object[] { new { Text = From } }), Encoding.UTF8, "application/json");
+                Request.Headers.Add("Ocp-Apim-Subscription-Key", "3e0230e26b134d7ab9ffdc566deadf9c");
+
+                try
+                {
+                    HttpResponseMessage Response = await Client.SendAsync(Request);
+                    string result = await Response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrEmpty(result))
+                    {
+                        TranslationResult[] deserializedOutput = JsonConvert.DeserializeObject<TranslationResult[]>(result);
+
+                        if (deserializedOutput.FirstOrDefault() is TranslationResult Result)
+                        {
+                            if (Result.DetectedLanguage.Language.StartsWith("en") && language == LanguageEnum.English)
+                            {
+                                return From;
+                            }
+                            else if (Result.DetectedLanguage.Language.StartsWith("zh") && language == LanguageEnum.Chinese)
+                            {
+                                return From;
+                            }
+                            else
+                            {
+                                return Result.Translations.FirstOrDefault()?.Text;
+                            }
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
+        }
+
         public static T FindChildOfType<T>(this DependencyObject root) where T : DependencyObject
         {
             Queue<DependencyObject> ObjectQueue = new Queue<DependencyObject>();
@@ -2562,12 +2694,12 @@ namespace FileManager
 
         private static int WaitCount = 0;
 
-        public static bool IsRunningOrWaiting 
-        { 
+        public static bool IsRunningOrWaiting
+        {
             get
             {
                 return WaitCount != 0;
-            } 
+            }
         }
 
         public new async Task<ContentDialogResult> ShowAsync()
