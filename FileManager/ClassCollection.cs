@@ -58,7 +58,9 @@ namespace FileManager
                                Create Table If Not Exists DownloadHistory (UniqueID Text Not Null, ActualName Text Not Null, Uri Text Not Null, State Text Not Null, Primary Key(UniqueID));
                                Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
                                Create Table If Not Exists FolderLibrary (Path Text Not Null, Primary Key (Path));
-                               Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));";
+                               Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
+                               Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));";
+
             using (SqliteCommand CreateTable = new SqliteCommand(Command, OLEDB))
             {
                 _ = CreateTable.ExecuteNonQuery();
@@ -76,6 +78,38 @@ namespace FileManager
             }
         }
 
+        public async Task SetBackgroundPictureAsync(Uri uri)
+        {
+            using (SqliteCommand Command = new SqliteCommand("Insert Into BackgroundPicture Values (@FileName)", OLEDB))
+            {
+                _ = Command.Parameters.AddWithValue("@FileName", uri.ToString());
+                _ = await Command.ExecuteNonQueryAsync();
+            }
+        }
+
+        public async Task<List<string>> GetBackgroundPictureAsync()
+        {
+            List<string> list = new List<string>();
+            using (SqliteCommand Command = new SqliteCommand("Select * From BackgroundPicture", OLEDB))
+            using (SqliteDataReader query = await Command.ExecuteReaderAsync())
+            {
+                while (query.Read())
+                {
+                    list.Add(query[0].ToString());
+                }
+            }
+            return list;
+        }
+
+        public async Task DeleteBackgroundPictureAsync(Uri uri)
+        {
+            using (SqliteCommand Command = new SqliteCommand("Delete From BackgroundPicture Where FileName=@FileName", OLEDB))
+            {
+                _ = Command.Parameters.AddWithValue("@FileName", uri.ToString());
+                _ = await Command.ExecuteNonQueryAsync();
+            }
+        }
+
         public async Task<List<string>> GetFolderLibraryAsync()
         {
             List<string> FolderPath = new List<string>();
@@ -86,8 +120,8 @@ namespace FileManager
                 {
                     FolderPath.Add(query[0].ToString());
                 }
-                return FolderPath;
             }
+            return FolderPath;
         }
 
         public async Task DeleteFolderLibraryAsync(string Path)
@@ -1750,11 +1784,6 @@ namespace FileManager
 
         public static void ScrollIntoViewSmoothly(this ListViewBase listViewBase, object item, ScrollIntoViewAlignment alignment = ScrollIntoViewAlignment.Default)
         {
-            if (listViewBase == null)
-            {
-                throw new ArgumentNullException(nameof(listViewBase));
-            }
-
             // GetFirstDescendantOfType 是 WinRTXamlToolkit 中的扩展方法，
             // 寻找该控件在可视树上第一个符合类型的子元素。
             ScrollViewer scrollViewer = listViewBase.GetFirstDescendantOfType<ScrollViewer>();
@@ -2517,62 +2546,184 @@ namespace FileManager
     }
     #endregion
 
-    #region 亚克力材质背景控制器
-    public static class AcrylicBackgroundController
+    #region 全局背景控制器
+    public enum BackgroundBrushType
     {
-        private static AcrylicBrush BackgroundBrush;
+        Acrylic = 0,
+        Picture = 1
+    }
 
-        static AcrylicBackgroundController()
-        {
-            BackgroundBrush = (AcrylicBrush)Application.Current.Resources["NavigationViewTopPaneBackground"];
-        }
+    public class BackgroundController : INotifyPropertyChanged
+    {
+        private readonly AcrylicBrush AcrylicBackgroundBrush;
 
-        public static double TintOpacity
+        private readonly ImageBrush PictureBackgroundBrush;
+
+        private BackgroundBrushType CurrentType;
+
+        public Brush BackgroundBrush
         {
             get
             {
-                return 1 - (double)BackgroundBrush.GetValue(AcrylicBrush.TintOpacityProperty);
+                return CurrentType == BackgroundBrushType.Picture ? PictureBackgroundBrush : (Brush)AcrylicBackgroundBrush;
             }
             set
             {
-                BackgroundBrush.SetValue(AcrylicBrush.TintOpacityProperty, 1 - value);
+
+            }
+        }
+
+        private static readonly object Locker = new object();
+
+        private static BackgroundController Instance;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public static BackgroundController Current
+        {
+            get
+            {
+                lock (Locker)
+                {
+                    return Instance ?? (Instance = new BackgroundController());
+                }
+            }
+        }
+
+        private BackgroundController()
+        {
+            if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is string Mode)
+            {
+                if (Mode == "推荐" || Mode == "Recommand")
+                {
+                    AcrylicBackgroundBrush = new AcrylicBrush
+                    {
+                        BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                        TintColor = Colors.LightSlateGray,
+                        TintOpacity = 0.4,
+                        FallbackColor = Colors.DimGray
+                    };
+                }
+                else
+                {
+                    AcrylicBackgroundBrush = new AcrylicBrush
+                    {
+                        BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? GetColorFromHexString(Color) : Colors.LightSlateGray,
+                        TintOpacity = 1 - Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]),
+                        TintLuminosityOpacity = 1 - Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]),
+                        FallbackColor = Colors.DimGray
+                    };
+                }
+            }
+            else
+            {
+                AcrylicBackgroundBrush = new AcrylicBrush
+                {
+                    BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                    TintColor = Colors.LightSlateGray,
+                    TintOpacity = 0.4,
+                    FallbackColor = Colors.DimGray
+                };
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string uri)
+            {
+                PictureBackgroundBrush = new ImageBrush
+                {
+                    ImageSource = new BitmapImage(new Uri(uri)),
+                    Stretch = Stretch.UniformToFill
+                };
+            }
+            else
+            {
+                PictureBackgroundBrush = new ImageBrush
+                {
+                    Stretch = Stretch.UniformToFill
+                };
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string SubMode)
+            {
+                CurrentType = (BackgroundBrushType)Enum.Parse(typeof(BackgroundBrushType), SubMode);
+            }
+        }
+
+        public double TintOpacity
+        {
+            get
+            {
+                return 1 - (double)AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintOpacityProperty);
+            }
+            set
+            {
+                AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintOpacityProperty, 1 - value);
                 ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] = value.ToString("0.0");
             }
         }
 
-        public static double TintLuminosityOpacity
+        public double TintLuminosityOpacity
         {
             get
             {
-                return 1 - ((double?)BackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty)).GetValueOrDefault();
+                return 1 - ((double?)AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty)).GetValueOrDefault();
             }
             set
             {
                 if (value == -1)
                 {
-                    BackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, null);
+                    AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, null);
                 }
                 else
                 {
-                    BackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, 1 - value);
+                    AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, 1 - value);
                     ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] = value.ToString("0.0");
                 }
             }
         }
 
-        public static Color AcrylicColor
+        public Color AcrylicColor
         {
             get
             {
-                return (Color)BackgroundBrush.GetValue(AcrylicBrush.TintColorProperty);
+                return (Color)AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintColorProperty);
             }
             set
             {
-                BackgroundBrush.SetValue(AcrylicBrush.TintColorProperty, value);
+                AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintColorProperty, value);
             }
         }
 
-        public static Color GetColorFromHexString(string hex)
+        public void SwitchTo(BackgroundBrushType Type, string uri = null)
+        {
+            CurrentType = Type;
+
+            if (Type == BackgroundBrushType.Picture)
+            {
+                if (string.IsNullOrEmpty(uri))
+                {
+                    throw new ArgumentNullException("if parameter: 'Type' is BackgroundBrushType.Picture, parameter: 'uri' could not be null or empty");
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string Ur)
+                {
+                    if (Ur != uri)
+                    {
+                        PictureBackgroundBrush.ImageSource = new BitmapImage(new Uri(uri));
+                        ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = uri;
+                    }
+                }
+                else
+                {
+                    PictureBackgroundBrush.ImageSource = new BitmapImage(new Uri(uri));
+                    ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = uri;
+                }
+            }
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+        }
+
+        public Color GetColorFromHexString(string hex)
         {
             hex = hex.Replace("#", string.Empty);
 
@@ -2606,8 +2757,6 @@ namespace FileManager
             var b = (byte)ConvertHexToByte(hex, n + 2 * hexCount, hexCount);
             if (!isDoubleHex)
             {
-                //#FD92 = #FFDD9922
-
                 r = (byte)(r * 16 + r);
                 g = (byte)(g * 16 + g);
                 b = (byte)(b * 16 + b);
@@ -2616,7 +2765,7 @@ namespace FileManager
             return Color.FromArgb(a, r, g, b);
         }
 
-        private static uint ConvertHexToByte(string hex, int n, int count = 2)
+        private uint ConvertHexToByte(string hex, int n, int count = 2)
         {
             return Convert.ToUInt32(hex.Substring(n, count), 16);
         }

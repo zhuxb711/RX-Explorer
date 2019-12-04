@@ -9,6 +9,7 @@ using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
 using Windows.Services.Store;
 using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.System.Profile;
@@ -19,6 +20,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace FileManager
 {
@@ -30,11 +32,30 @@ namespace FileManager
         public static SettingPage ThisPage { get; private set; }
         public static bool IsDoubleClickEnable { get; set; } = true;
 
+        private ObservableCollection<BitmapImage> PictureList = new ObservableCollection<BitmapImage>
+        {
+            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture1.jpg")),
+            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture2.jpg")) ,
+            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture3.jpg")) ,
+            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture4.jpg")) ,
+            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture5.jpg")) ,
+            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture6.jpg")),
+            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture7.jpg")),
+            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture8.jpg")),
+            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture9.jpg"))
+        };
+
         public SettingPage()
         {
             InitializeComponent();
             ThisPage = this;
             Version.Text = string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
+            PictureGirdView.ItemsSource = PictureList;
+
+            foreach (var ImageUri in SQLite.Current.GetBackgroundPictureAsync().Result)
+            {
+                PictureList.Add(new BitmapImage(new Uri(ImageUri)));
+            }
 
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
             {
@@ -63,17 +84,14 @@ namespace FileManager
             }
 
             Loaded += SettingPage_Loaded;
-            Unloaded += SettingPage_Unloaded;
-        }
-
-        private void SettingPage_Unloaded(object sender, RoutedEventArgs e)
-        {
-            FeedBackCollection.Clear();
-            FeedBackCollection = null;
         }
 
         private async void SettingPage_Loaded(object sender, RoutedEventArgs e)
         {
+            Loaded -= SettingPage_Loaded;
+
+            PictureGirdView.ScrollIntoView(PictureGirdView.SelectedItem);
+
             if ((await User.FindAllAsync()).Where(p => p.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && p.Type == UserType.LocalUser).FirstOrDefault() is User CurrentUser)
             {
                 string FirstName = (await CurrentUser.GetPropertyAsync(KnownUserProperties.FirstName))?.ToString();
@@ -321,45 +339,66 @@ namespace FileManager
         private void UIMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = UIMode.SelectedItem.ToString();
+
             if (UIMode.SelectedIndex == 0)
             {
                 CustomUIArea.Visibility = Visibility.Collapsed;
 
-                AcrylicBackgroundController.TintOpacity = 0.6;
-                AcrylicBackgroundController.TintLuminosityOpacity = -1;
-                AcrylicBackgroundController.AcrylicColor = Colors.LightSlateGray;
+                AcrylicMode.IsChecked = null;
+                PictureMode.IsChecked = null;
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
+                BackgroundController.Current.TintOpacity = 0.6;
+                BackgroundController.Current.TintLuminosityOpacity = -1;
+                BackgroundController.Current.AcrylicColor = Colors.LightSlateGray;
             }
             else
             {
                 CustomUIArea.Visibility = Visibility.Visible;
 
-                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] is string Luminosity)
+                if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string Mode)
                 {
-                    float Value = Convert.ToSingle(Luminosity);
-                    TintLuminositySlider.Value = Value;
-                    AcrylicBackgroundController.TintLuminosityOpacity = Value;
+                    if ((BackgroundBrushType)Enum.Parse(typeof(BackgroundBrushType), Mode) == BackgroundBrushType.Acrylic)
+                    {
+                        AcrylicMode.IsChecked = true;
+                    }
+                    else
+                    {
+                        PictureMode.IsChecked = true;
+                    }
                 }
                 else
                 {
-                    TintLuminositySlider.Value = 0.8;
-                    AcrylicBackgroundController.TintLuminosityOpacity = 0.8;
-                }
+                    ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Acrylic);
+                    AcrylicMode.IsChecked = true;
 
-                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] is string Opacity)
-                {
-                    float Value = Convert.ToSingle(Opacity);
-                    TintOpacitySlider.Value = Value;
-                    AcrylicBackgroundController.TintOpacity = Value;
-                }
-                else
-                {
-                    TintOpacitySlider.Value = 0.6;
-                    AcrylicBackgroundController.TintOpacity = 0.6;
-                }
+                    if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] is string Luminosity)
+                    {
+                        float Value = Convert.ToSingle(Luminosity);
+                        TintLuminositySlider.Value = Value;
+                        BackgroundController.Current.TintLuminosityOpacity = Value;
+                    }
+                    else
+                    {
+                        TintLuminositySlider.Value = 0.8;
+                        BackgroundController.Current.TintLuminosityOpacity = 0.8;
+                    }
 
-                if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
-                {
-                    AcrylicBackgroundController.AcrylicColor = AcrylicBackgroundController.GetColorFromHexString(AcrylicColor);
+                    if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] is string Opacity)
+                    {
+                        float Value = Convert.ToSingle(Opacity);
+                        TintOpacitySlider.Value = Value;
+                        BackgroundController.Current.TintOpacity = Value;
+                    }
+                    else
+                    {
+                        TintOpacitySlider.Value = 0.6;
+                        BackgroundController.Current.TintOpacity = 0.6;
+                    }
+
+                    if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
+                    {
+                        BackgroundController.Current.AcrylicColor = BackgroundController.Current.GetColorFromHexString(AcrylicColor);
+                    }
                 }
             }
         }
@@ -990,6 +1029,125 @@ namespace FileManager
             {
                 ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = false;
                 IsDoubleClickEnable = false;
+            }
+        }
+
+        private void AcrylicMode_Checked(object sender, RoutedEventArgs e)
+        {
+            CustomAcrylicArea.Visibility = Visibility.Visible;
+            CustomPictureArea.Visibility = Visibility.Collapsed;
+
+            BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
+            ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Acrylic);
+
+            if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] is string Luminosity)
+            {
+                float Value = Convert.ToSingle(Luminosity);
+                TintLuminositySlider.Value = Value;
+                BackgroundController.Current.TintLuminosityOpacity = Value;
+            }
+            else
+            {
+                TintLuminositySlider.Value = 0.8;
+                BackgroundController.Current.TintLuminosityOpacity = 0.8;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] is string Opacity)
+            {
+                float Value = Convert.ToSingle(Opacity);
+                TintOpacitySlider.Value = Value;
+                BackgroundController.Current.TintOpacity = Value;
+            }
+            else
+            {
+                TintOpacitySlider.Value = 0.6;
+                BackgroundController.Current.TintOpacity = 0.6;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
+            {
+                BackgroundController.Current.AcrylicColor = BackgroundController.Current.GetColorFromHexString(AcrylicColor);
+            }
+        }
+
+        private void PictureMode_Checked(object sender, RoutedEventArgs e)
+        {
+            CustomAcrylicArea.Visibility = Visibility.Collapsed;
+            CustomPictureArea.Visibility = Visibility.Visible;
+
+            ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Picture);
+
+            if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string Uri)
+            {
+                BitmapImage Bitmap = PictureList.FirstOrDefault((Image) => Image.UriSource.ToString() == Uri);
+
+                PictureGirdView.SelectedItem = Bitmap;
+                PictureGirdView.ScrollIntoView(Bitmap);
+
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap.UriSource.ToString());
+            }
+            else
+            {
+                PictureGirdView.SelectedIndex = 0;
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, PictureList.FirstOrDefault().UriSource.ToString());
+            }
+        }
+
+        private void PictureGirdView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (PictureGirdView.SelectedItem is BitmapImage Image)
+            {
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Image.UriSource.ToString());
+            }
+        }
+
+        private async void AddImageToPictureButton_Click(object sender, RoutedEventArgs e)
+        {
+            FileOpenPicker Picker = new FileOpenPicker
+            {
+                SuggestedStartLocation = PickerLocationId.PicturesLibrary,
+                ViewMode = PickerViewMode.Thumbnail
+            };
+            Picker.FileTypeFilter.Add(".png");
+            Picker.FileTypeFilter.Add(".jpg");
+            Picker.FileTypeFilter.Add(".jpeg");
+            Picker.FileTypeFilter.Add(".bmp");
+
+            if (await Picker.PickSingleFileAsync() is StorageFile File)
+            {
+                StorageFolder ImageFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("CustomImageFolder");
+                StorageFile CopyedFile = await File.CopyAsync(ImageFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+                BitmapImage Bitmap = new BitmapImage(new Uri($"ms-appdata:///local/CustomImageFolder/{CopyedFile.Name}"));
+                PictureList.Add(Bitmap);
+                PictureGirdView.ScrollIntoView(Bitmap);
+                PictureGirdView.SelectedItem = Bitmap;
+                await SQLite.Current.SetBackgroundPictureAsync(Bitmap.UriSource);
+            }
+        }
+
+        private async void DeletePictureButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (PictureGirdView.SelectedItem is BitmapImage Image)
+            {
+                await SQLite.Current.DeleteBackgroundPictureAsync(Image.UriSource);
+                PictureList.Remove(Image);
+                PictureGirdView.SelectedIndex = PictureList.Count - 1;
+            }
+        }
+
+        private void PictureGirdView_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is BitmapImage Image)
+            {
+                PictureGirdView.ContextFlyout = PictureFlyout;
+
+                DeletePictureButton.IsEnabled = !Image.UriSource.ToString().StartsWith("ms-appx://");
+
+                PictureGirdView.SelectedItem = Image;
+            }
+            else
+            {
+                PictureGirdView.ContextFlyout = null;
             }
         }
     }

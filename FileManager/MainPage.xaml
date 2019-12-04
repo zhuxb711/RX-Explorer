@@ -6,7 +6,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d"
-      Background="{StaticResource NavigationViewTopPaneBackground}">
+      Background="{x:Bind local:BackgroundController.Current.BackgroundBrush,Mode=TwoWay}">
 
     <Page.Resources>
         <controls:TeachingTip x:Name="UpdateTip"
@@ -46,7 +46,7 @@
         </Grid.RowDefinitions>
 
         <Border x:Name="TitleBar"
-                Background="{StaticResource NavigationViewTopPaneBackground}"
+                Background="Transparent"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch">
             <TextBlock x:Uid="AppName"

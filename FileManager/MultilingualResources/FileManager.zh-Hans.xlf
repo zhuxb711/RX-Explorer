@@ -1270,6 +1270,18 @@
           <source>Agree</source>
           <target state="translated">支持</target>
         </trans-unit>
+        <trans-unit id="CustomUISubtype1.Content" translate="yes" xml:space="preserve">
+          <source>Acrylic background</source>
+          <target state="translated">Acrylic背景</target>
+        </trans-unit>
+        <trans-unit id="CustomUISubtype2.Content" translate="yes" xml:space="preserve">
+          <source>Custom image background</source>
+          <target state="translated">自定义图片背景</target>
+        </trans-unit>
+        <trans-unit id="SettingRecovery.Text" translate="yes" xml:space="preserve">
+          <source>Recovery</source>
+          <target state="translated">恢复</target>
+        </trans-unit>
       </group>
     </body>
   </file>

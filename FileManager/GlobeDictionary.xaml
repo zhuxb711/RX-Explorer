@@ -4,16 +4,14 @@
     x:Class="FileManager.GlobeResource"
     xmlns:local="using:FileManager">
 
-    <AcrylicBrush x:Key="DialogAcrylicBrush" 
+    <AcrylicBrush x:Key="DialogAcrylicBrush"
                   BackgroundSource="Backdrop"
                   TintOpacity="0"
-                  TintColor="LightGray" 
+                  TintColor="LightGray"
                   FallbackColor="DimGray" />
-    <AcrylicBrush x:Key="NavigationViewTopPaneBackground"
-                  BackgroundSource="HostBackdrop"
-                  TintColor="LightSlateGray"
-                  TintOpacity="0.4" 
-                  FallbackColor="DimGray"/>
+
+    <SolidColorBrush x:Key="NavigationViewTopPaneBackground"
+                     Color="Transparent"/>
 
     <x:Double x:Key="ContentDialogMaxWidth">650</x:Double>
     <x:Double x:Key="ContentDialogMaxHeight">650</x:Double>

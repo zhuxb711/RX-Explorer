@@ -9,7 +9,7 @@
       xmlns:controls="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d"
       NavigationCacheMode="Required"
-      Background="{StaticResource NavigationViewTopPaneBackground}">
+      Background="Transparent">
 
     <Page.Resources>
         <controls:TeachingTip x:Name="ColorPickerTeachTip"
@@ -30,7 +30,7 @@
                              IsColorSliderVisible="True"
                              IsColorChannelTextInputVisible="True"
                              IsHexInputVisible="False"
-                             Color="{x:Bind local:AcrylicBackgroundController.AcrylicColor,Mode=TwoWay}"
+                             Color="{x:Bind local:BackgroundController.Current.AcrylicColor,Mode=TwoWay}"
                              x:Name="AcrylicColorPicker" />
             </controls:TeachingTip.Content>
         </controls:TeachingTip>
@@ -100,6 +100,16 @@
                               Click="FeedBackDelete_Click" />
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
+
+        <CommandBarFlyout Placement="RightEdgeAlignedTop"
+                          x:Name="PictureFlyout">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Delete"
+                              Label="删除"
+                              x:Name="DeletePictureButton"
+                              Click="DeletePictureButton_Click" />
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
     </Page.Resources>
 
     <Grid>
@@ -107,7 +117,7 @@
                       Padding="25">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="260" />
+                    <ColumnDefinition Width="350" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="350" />
                 </Grid.ColumnDefinitions>
@@ -149,70 +159,127 @@
                               Name="UIMode"
                               Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
 
-                    <StackPanel x:Name="CustomUIArea">
-                        <Button Content="Acrylic主题颜色"
-                                x:Uid="SettingPageThemeColorButton"
-                                Name="AcrylicColor"
-                                Style="{StaticResource ButtonRevealStyle}"
-                                Margin="0,20,0,0"
-                                Click="AcrylicColor_Click" />
+                    <StackPanel Margin="0,10,0,0"
+                                Name="CustomUIArea">
+                        <RadioButton Content="Acrylic背景"
+                                     x:Uid="CustomUISubtype1"
+                                     Name="AcrylicMode"
+                                     Checked="AcrylicMode_Checked"/>
+                        <RadioButton Content="自定义图片背景"
+                                     x:Uid="CustomUISubtype2"
+                                     Margin="0,10,0,0"
+                                     Name="PictureMode"
+                                     Checked="PictureMode_Checked"/>
                         <StackPanel Margin="0,20,0,0"
+                                    Name="CustomPictureArea"
                                     Orientation="Horizontal">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Acrylic颜色透明度"
-                                               x:Uid="SettingPageTintOpacitySliderHeader" />
-                                    <Viewbox Margin="10,0,0,0"
-                                             Height="15"
-                                             VerticalAlignment="Bottom">
-                                        <FontIcon Glyph="&#xE9CE;"
-                                                  Name="TintOpacityQuestion"
-                                                  PointerPressed="TintOpacityQuestion_PointerPressed" />
-                                    </Viewbox>
-                                </StackPanel>
-                                <Slider Margin="0,5,0,0"
-                                        IsThumbToolTipEnabled="False"
-                                        Value="{x:Bind local:AcrylicBackgroundController.TintOpacity,Mode=TwoWay}"
-                                        x:Name="TintOpacitySlider"
-                                        StepFrequency="0.1"
-                                        Maximum="1"
-                                        Minimum="0"
-                                        Width="220"
-                                        HorizontalAlignment="Left" />
-                            </StackPanel>
-                            <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintOpacitySlider.Value),Mode=OneWay}"
-                                       Margin="5,20,0,0"
-                                       VerticalAlignment="Center" />
+                            <GridView Name="PictureGirdView"
+                                      Width="275"
+                                      VerticalAlignment="Center"
+                                      IsRightTapEnabled="True"
+                                      ContextFlyout="{StaticResource PictureFlyout}"
+                                      RightTapped="PictureGirdView_RightTapped"
+                                      ScrollViewer.HorizontalScrollMode="Enabled"
+                                      ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                                      ScrollViewer.VerticalScrollMode="Disabled"
+                                      SelectionChanged="PictureGirdView_SelectionChanged">
+                                <GridView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Image Width="70"
+                                               Height="70"
+                                               Stretch="UniformToFill"
+                                               Source="{Binding}" />
+                                    </DataTemplate>
+                                </GridView.ItemTemplate>
+                                <GridView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <ItemsStackPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </GridView.ItemsPanel>
+                            </GridView>
+                            <Button Margin="5,0,0,0"
+                                    Width="70"
+                                    Height="70"
+                                    Name="AddImageToPictureButton"
+                                    Click="AddImageToPictureButton_Click"
+                                    VerticalAlignment="Top">
+                                <Viewbox>
+                                    <SymbolIcon Symbol="Add" />
+                                </Viewbox>
+                            </Button>
                         </StackPanel>
-                        <StackPanel Margin="0,20,0,0"
-                                    Orientation="Horizontal">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Acrylic背景透光度"
-                                               x:Uid="SettingPageTintLuminositySliderHeader" />
-                                    <Viewbox Margin="10,0,0,0"
-                                             Height="15"
-                                             VerticalAlignment="Bottom">
-                                        <FontIcon Glyph="&#xE9CE;"
-                                                  Name="TintLuminosityQuestion"
-                                                  PointerPressed="TintLuminosityQuestion_PointerPressed" />
-                                    </Viewbox>
+
+                        <StackPanel x:Name="CustomAcrylicArea"
+                                    Margin="0,20,0,0">
+                            <Button Content="Acrylic主题颜色"
+                                    x:Uid="SettingPageThemeColorButton"
+                                    Name="AcrylicColor"
+                                    Style="{StaticResource ButtonRevealStyle}"
+                                    Click="AcrylicColor_Click" />
+                            <StackPanel Margin="0,20,0,0"
+                                        Orientation="Horizontal">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Acrylic颜色透明度"
+                                                   x:Uid="SettingPageTintOpacitySliderHeader" />
+                                        <Viewbox Margin="10,0,0,0"
+                                                 Height="15"
+                                                 VerticalAlignment="Bottom">
+                                            <FontIcon Glyph="&#xE9CE;"
+                                                      Name="TintOpacityQuestion"
+                                                      PointerPressed="TintOpacityQuestion_PointerPressed" />
+                                        </Viewbox>
+                                    </StackPanel>
+                                    <Slider Margin="0,5,0,0"
+                                            IsThumbToolTipEnabled="False"
+                                            Value="{x:Bind local:BackgroundController.Current.TintOpacity,Mode=TwoWay}"
+                                            x:Name="TintOpacitySlider"
+                                            StepFrequency="0.1"
+                                            Maximum="1"
+                                            Minimum="0"
+                                            Width="220"
+                                            HorizontalAlignment="Left" />
                                 </StackPanel>
-                                <Slider Margin="0,5,0,0"
-                                        IsThumbToolTipEnabled="False"
-                                        Value="{x:Bind local:AcrylicBackgroundController.TintLuminosityOpacity,Mode=TwoWay}"
-                                        x:Name="TintLuminositySlider"
-                                        StepFrequency="0.1"
-                                        Maximum="1"
-                                        Minimum="0"
-                                        Width="220"
-                                        HorizontalAlignment="Left" />
+                                <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintOpacitySlider.Value),Mode=OneWay}"
+                                           Margin="5,20,0,0"
+                                           VerticalAlignment="Center" />
                             </StackPanel>
-                            <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"
-                                       Margin="5,20,0,0"
-                                       VerticalAlignment="Center" />
+                            <StackPanel Margin="0,20,0,0"
+                                        Orientation="Horizontal">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Acrylic背景透光度"
+                                                   x:Uid="SettingPageTintLuminositySliderHeader" />
+                                        <Viewbox Margin="10,0,0,0"
+                                                 Height="15"
+                                                 VerticalAlignment="Bottom">
+                                            <FontIcon Glyph="&#xE9CE;"
+                                                      Name="TintLuminosityQuestion"
+                                                      PointerPressed="TintLuminosityQuestion_PointerPressed" />
+                                        </Viewbox>
+                                    </StackPanel>
+                                    <Slider Margin="0,5,0,0"
+                                            IsThumbToolTipEnabled="False"
+                                            Value="{x:Bind local:BackgroundController.Current.TintLuminosityOpacity,Mode=TwoWay}"
+                                            x:Name="TintLuminositySlider"
+                                            StepFrequency="0.1"
+                                            Maximum="1"
+                                            Minimum="0"
+                                            Width="220"
+                                            HorizontalAlignment="Left" />
+                                </StackPanel>
+                                <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"
+                                           Margin="5,20,0,0"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
                         </StackPanel>
                     </StackPanel>
+
+                    <TextBlock Text="恢复"
+                               x:Uid="SettingRecovery"
+                               FontSize="24"
+                               Margin="0,30,0,0" />
+                    
                     <Button Margin="0,20,0,0"
                             x:Uid="SettingClearHistory"
                             Content="清除搜索历史记录"
@@ -248,12 +315,6 @@
                             Style="{StaticResource ButtonRevealStyle}"
                             Name="ClearUp"
                             Click="ClearUp_Click" />
-                    <Button Style="{ThemeResource ButtonRevealStyle}"
-                            Margin="0,20,0,0"
-                            x:Uid="SettingSystemInfo"
-                            Content="查看系统信息"
-                            Name="SystemInfoButton"
-                            Click="SystemInfoButton_Click" />
                     <TextBlock Text="版本"
                                x:Uid="SettingVersion"
                                FontSize="24"
@@ -291,6 +352,12 @@
                                        Text="给App点赞" />
                         </StackPanel>
                     </Border>
+                    <Button Style="{ThemeResource ButtonRevealStyle}"
+                            Margin="0,20,0,0"
+                            x:Uid="SettingSystemInfo"
+                            Content="查看系统信息"
+                            Name="SystemInfoButton"
+                            Click="SystemInfoButton_Click" />
                     <Button Style="{ThemeResource ButtonRevealStyle}"
                             x:Name="Donation"
                             Margin="0,20,0,0"

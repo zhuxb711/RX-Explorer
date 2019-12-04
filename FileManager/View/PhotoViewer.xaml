@@ -9,7 +9,7 @@
       xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
       NavigationCacheMode="Required"
       mc:Ignorable="d"
-      Background="{StaticResource NavigationViewTopPaneBackground}">
+      Background="Transparent">
 
     <Grid>
         <Grid.RowDefinitions>

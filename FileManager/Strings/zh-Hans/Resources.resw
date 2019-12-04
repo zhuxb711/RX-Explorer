@@ -960,4 +960,13 @@
   <data name="FeedBackAgreeText.Text" xml:space="preserve">
     <value>支持</value>
   </data>
+  <data name="CustomUISubtype1.Content" xml:space="preserve">
+    <value>Acrylic背景</value>
+  </data>
+  <data name="CustomUISubtype2.Content" xml:space="preserve">
+    <value>自定义图片背景</value>
+  </data>
+  <data name="SettingRecovery.Text" xml:space="preserve">
+    <value>恢复</value>
+  </data>
 </root>

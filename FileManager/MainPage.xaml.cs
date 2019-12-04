@@ -93,19 +93,7 @@ namespace FileManager
             PortalDeviceWatcher.Removed += PortalDeviceWatcher_Removed;
             PortalDeviceWatcher.Start();
 
-            if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is string Mode)
-            {
-                if (Mode != "推荐" && Mode != "Recommand")
-                {
-                    AcrylicBackgroundController.TintOpacity = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]);
-                    AcrylicBackgroundController.TintLuminosityOpacity = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]);
-                    if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color)
-                    {
-                        AcrylicBackgroundController.AcrylicColor = AcrylicBackgroundController.GetColorFromHexString(Color);
-                    }
-                }
-            }
-            else
+            if (!(ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is string Mode))
             {
                 ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = CurrentLanguage == LanguageEnum.Chinese
                             ? "推荐"
@@ -145,6 +133,13 @@ namespace FileManager
             Nav.Navigate(typeof(ThisPC));
 
             EntranceEffectProvider.StartEntranceEffect();
+
+            var PictureUri = await SQLite.Current.GetBackgroundPictureAsync();
+            var FileList = await (await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists)).GetFilesAsync();
+            foreach (var ToDeletePicture in FileList.Where((File) => PictureUri.All((Image) => Image.Replace("ms-appdata:///local/CustomImageFolder/", string.Empty) != File.Name)))
+            {
+                await ToDeletePicture.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            }
 
             if (ApplicationData.Current.LocalSettings.Values["LastRunVersion"] is string Version)
             {

@@ -261,6 +261,12 @@
   <data name="CropperPageSavingTips.Text" xml:space="preserve">
     <value>Saving</value>
   </data>
+  <data name="CustomUISubtype1.Content" xml:space="preserve">
+    <value>Acrylic background</value>
+  </data>
+  <data name="CustomUISubtype2.Content" xml:space="preserve">
+    <value>Custom image background</value>
+  </data>
   <data name="DeviceAttribute.Label" xml:space="preserve">
     <value>Properties</value>
   </data>
@@ -650,6 +656,9 @@
   </data>
   <data name="SettingPageUIMode.Header" xml:space="preserve">
     <value>Adjust UI display mode</value>
+  </data>
+  <data name="SettingRecovery.Text" xml:space="preserve">
+    <value>Recovery</value>
   </data>
   <data name="SettingSupportDeveloper.Content" xml:space="preserve">
     <value>Donate</value>

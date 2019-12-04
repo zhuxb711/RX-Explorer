@@ -1,4 +1,21 @@
 ﻿*****
+### What's new in Ver.3.6.0.0
+
+>#####Feature Update
+
+>>#####Add new custom picture background options, Settings-Adjust UI display mode-Custom-Picture custom background
+
+>#####Bug fix
+
+>>######Resolved an issue that could cause RX to crash when returning directly to the main interface
+
+>#####Performance improvements
+
+>>######Updated the control logic of the global background controller, combining the control of the picture background and the background of the acrylic material
+
+>>######Improved the way to get feedback data, reduce network usage, and improve interface response speed
+
+*****
 ### What's new in Ver.3.5.7.0
 
 >#####Feature Update
@@ -16,19 +33,19 @@
 
 >#####Feature Update
 
->>######Added setting options "Sidebar Switch" and "Folder Opening Method"
+>>#####Added setting options "Sidebar Switch" and "Folder Opening Method"
 
->>######Added keyboard shortcut support, including Ctrl + C, Ctrl + V, Ctrl + X, Ctrl + L, Ctrl + F, Ctrl + D, Ctrl + Shift + N, F2, F5, Delete , Backspace, Enter, etc.
+>>#####Added keyboard shortcut support, including Ctrl + C, Ctrl + V, Ctrl + X, Ctrl + L, Ctrl + F, Ctrl + D, Ctrl + Shift + N, F2, F5, Delete , Backspace, Enter, etc.
 
->>######Add automatic user path analysis and support user-defined location of each library folder
+>>#####Add automatic user path analysis and support user-defined location of each library folder
 
->>######Removed the setting option "Maximum search result rows", now the default value is 100
+>>#####Removed the setting option "Maximum search result rows", now the default value is 100
 
 >#####Bug fix
 
->>######Resolved an issue that caused RX to crash when copying or cutting files to a directory with no files or folders
+>>#####Resolved an issue that caused RX to crash when copying or cutting files to a directory with no files or folders
 
->>######Solved the problem that RX still displays feedback on the interface when feedback cannot be submitted due to network problems
+>>#####Solved the problem that RX still displays feedback on the interface when feedback cannot be submitted due to network problems
 
 *****
 ###What's new in Ver.3.5.0.0

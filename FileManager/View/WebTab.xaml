@@ -8,7 +8,7 @@
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
     NavigationCacheMode="Required"
-    Background="{StaticResource NavigationViewTopPaneBackground}">
+    Background="Transparent">
 
     <controls:TabView TabWidthBehavior="Equal"
                       CanCloseTabs="True"
@@ -19,7 +19,7 @@
                       x:FieldModifier="Public"
                       TabClosing="TabControl_TabClosing"
                       SelectionChanged="TabControl_SelectionChanged"
-                      Background="{ThemeResource NavigationViewTopPaneBackground}">
+                      Background="Transparent">
         <controls:TabView.Resources>
             <x:Double x:Key="TabViewItemHeaderMinHeight">40</x:Double>
             <x:Double x:Key="TabViewItemHeaderMinWidth">90</x:Double>

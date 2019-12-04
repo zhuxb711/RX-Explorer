@@ -9,7 +9,7 @@
     mc:Ignorable="d"
     NavigationCacheMode="Disabled"
     xmlns:down="using:DownloaderProvider"
-    Background="{StaticResource NavigationViewTopPaneBackground}">
+    Background="Transparent">
 
     <Page.Resources>
         <Style TargetType="TextBox">
