@@ -44,7 +44,7 @@ namespace FileManager
         {
             if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
             {
-                if(Enable)
+                if (Enable)
                 {
                     Gr.ColumnDefinitions[0].Width = new GridLength(300);
                 }
@@ -58,7 +58,7 @@ namespace FileManager
                 ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
             }
 
-            foreach (var Item in await SQLite.Current.GetQuickStartItemAsync())
+            await foreach (var Item in SQLite.Current.GetQuickStartItemAsync())
             {
                 if (Item.Key == QuickStartType.Application)
                 {
@@ -206,8 +206,7 @@ namespace FileManager
             }
 
             Queue<string> ErrorList = new Queue<string>();
-            List<string> PinToLibraryFolderPath = await SQLite.Current.GetFolderLibraryAsync();
-            foreach (var FolderPath in PinToLibraryFolderPath)
+            await foreach (var FolderPath in SQLite.Current.GetFolderLibraryAsync())
             {
                 try
                 {

@@ -22,6 +22,8 @@ namespace AnimationEffectProvider
 
         private readonly Rect SplashScreenRect;
 
+        public event EventHandler AnimationCompleted;
+
         public EntranceAnimationEffect(Page BasePage, UIElement UIToShow, Rect SplashScreenRect)
         {
             this.UIToShow = UIToShow;
@@ -101,6 +103,7 @@ namespace AnimationEffectProvider
             {
                 ElementCompositionPreview.SetElementChildVisual(BasePage, null);
                 SurfaceLoader.Uninitialize();
+                AnimationCompleted?.Invoke(this, null);
             };
             batch.End();
         }

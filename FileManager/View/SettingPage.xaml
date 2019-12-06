@@ -184,11 +184,11 @@
                                       ScrollViewer.VerticalScrollMode="Disabled"
                                       SelectionChanged="PictureGirdView_SelectionChanged">
                                 <GridView.ItemTemplate>
-                                    <DataTemplate>
+                                    <DataTemplate x:DataType="local:BackgroundPicture">
                                         <Image Width="70"
                                                Height="70"
                                                Stretch="UniformToFill"
-                                               Source="{Binding}" />
+                                               Source="{x:Bind Picture}" />
                                     </DataTemplate>
                                 </GridView.ItemTemplate>
                                 <GridView.ItemsPanel>
@@ -387,7 +387,6 @@
                     <TextBlock Text="无任何反馈或建议"
                                x:Uid="FeedBackListEmptyTips"
                                Name="EmptyFeedBack"
-                               Visibility="Collapsed"
                                HorizontalAlignment="Center"
                                FontSize="20"
                                Margin="0,50,0,50"/>

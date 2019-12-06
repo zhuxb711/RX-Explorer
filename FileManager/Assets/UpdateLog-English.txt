@@ -1,4 +1,27 @@
 ﻿*****
+### What's new in Ver.3.6.3.0
+
+>#####Feature Update
+
+>>#####Support deleting custom background image
+
+>>#####Improved the clarity of all thumbnail icons
+
+>#####Performance improvements
+
+>>#####Connect to cloud database in advance, optimizing data acquisition speed of feedback list
+
+>>#####Using C # 8.0 features -<asynchronous streaming traversal>- improves data acquisition speed in some scenarios
+
+>>######Optimize the loading speed of images and the speed of obtaining cloud database, and solve the problem of stuttering when entering the setting interface
+
+>#####Bug fix
+
+>>######Solved the problem that users may not display correctly after importing background images
+
+>>######Fixed the problem of scrolling animation of picture list when switching between different background modes
+
+*****
 ### What's new in Ver.3.6.0.0
 
 >#####Feature Update

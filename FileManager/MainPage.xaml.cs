@@ -132,11 +132,16 @@ namespace FileManager
 
             Nav.Navigate(typeof(ThisPC));
 
+            EntranceEffectProvider.AnimationCompleted += (s, t) =>
+            {
+                _ = MySQL.Current.StartConnectToDataBaseAsync();
+            };
+
             EntranceEffectProvider.StartEntranceEffect();
 
             var PictureUri = await SQLite.Current.GetBackgroundPictureAsync();
             var FileList = await (await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists)).GetFilesAsync();
-            foreach (var ToDeletePicture in FileList.Where((File) => PictureUri.All((Image) => Image.Replace("ms-appdata:///local/CustomImageFolder/", string.Empty) != File.Name)))
+            foreach (var ToDeletePicture in FileList.Where((File) => PictureUri.All((ImageUri) => ImageUri.ToString().Replace("ms-appdata:///local/CustomImageFolder/", string.Empty) != File.Name)))
             {
                 await ToDeletePicture.DeleteAsync(StorageDeleteOption.PermanentDelete);
             }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,6 +20,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Navigation;
 
 namespace FileManager
 {
@@ -32,18 +32,7 @@ namespace FileManager
         public static SettingPage ThisPage { get; private set; }
         public static bool IsDoubleClickEnable { get; set; } = true;
 
-        private ObservableCollection<BitmapImage> PictureList = new ObservableCollection<BitmapImage>
-        {
-            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture1.jpg")),
-            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture2.jpg")) ,
-            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture3.jpg")) ,
-            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture4.jpg")) ,
-            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture5.jpg")) ,
-            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture6.jpg")),
-            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture7.jpg")),
-            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture8.jpg")),
-            new BitmapImage(new Uri("ms-appx:///CustomImage/Picture9.jpg"))
-        };
+        private ObservableCollection<BackgroundPicture> PictureList = new ObservableCollection<BackgroundPicture>();
 
         public SettingPage()
         {
@@ -52,9 +41,32 @@ namespace FileManager
             Version.Text = string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
             PictureGirdView.ItemsSource = PictureList;
 
-            foreach (var ImageUri in SQLite.Current.GetBackgroundPictureAsync().Result)
+            Loading += SettingPage_Loading;
+            Loaded += SettingPage_Loaded1;
+            Loaded += SettingPage_Loaded;
+        }
+
+        private void SettingPage_Loaded1(object sender, RoutedEventArgs e)
+        {
+            if (PictureMode.IsChecked.GetValueOrDefault() == true && PictureGirdView.SelectedItem != null)
             {
-                PictureList.Add(new BitmapImage(new Uri(ImageUri)));
+                PictureGirdView.ScrollIntoViewSmoothly(PictureGirdView.SelectedItem);
+            }
+        }
+
+        private async void SettingPage_Loading(FrameworkElement sender, object args)
+        {
+            Loading -= SettingPage_Loading;
+
+            foreach (Uri ImageUri in await SQLite.Current.GetBackgroundPictureAsync())
+            {
+                BitmapImage Image = new BitmapImage
+                {
+                    DecodePixelHeight = 90,
+                    DecodePixelWidth = 160
+                };
+                PictureList.Add(new BackgroundPicture(Image, ImageUri));
+                Image.UriSource = ImageUri;
             }
 
             if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
@@ -82,15 +94,11 @@ namespace FileManager
             {
                 FolderOpenMethod.IsOn = IsDoubleClick;
             }
-
-            Loaded += SettingPage_Loaded;
         }
 
         private async void SettingPage_Loaded(object sender, RoutedEventArgs e)
         {
             Loaded -= SettingPage_Loaded;
-
-            PictureGirdView.ScrollIntoView(PictureGirdView.SelectedItem);
 
             if ((await User.FindAllAsync()).Where(p => p.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && p.Type == UserType.LocalUser).FirstOrDefault() is User CurrentUser)
             {
@@ -140,40 +148,12 @@ namespace FileManager
                 UserFullName = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
             }
 
-
-            List<FeedBackItem> ResultList = await MySQL.Current.GetAllFeedBackAsync();
-
-            if (ResultList.Count == 0)
+            if (PictureMode.IsChecked.GetValueOrDefault() == true)
             {
-                EmptyFeedBack.Visibility = Visibility.Visible;
-                FeedBackList.Visibility = Visibility.Collapsed;
-                FeedBackCollection = new ObservableCollection<FeedBackItem>();
-            }
-            else
-            {
-                EmptyFeedBack.Visibility = Visibility.Collapsed;
-                FeedBackList.Visibility = Visibility.Visible;
-
-                ResultList.Sort((Item1, Item2) =>
-                {
-                    int Num1 = Math.Abs(Convert.ToInt16(Item1.LikeNum) - Convert.ToInt16(Item1.DislikeNum));
-                    int Num2 = Math.Abs(Convert.ToInt16(Item2.LikeNum) - Convert.ToInt16(Item2.DislikeNum));
-                    if (Num1 > Num2)
-                    {
-                        return -1;
-                    }
-                    else if (Num1 < Num2)
-                    {
-                        return 0;
-                    }
-                    else
-                    {
-                        return 1;
-                    }
-                });
-                FeedBackCollection = new ObservableCollection<FeedBackItem>(ResultList);
+                PictureGirdView.ScrollIntoViewSmoothly(PictureGirdView.SelectedItem);
             }
 
+            FeedBackCollection = new ObservableCollection<FeedBackItem>();
             FeedBackCollection.CollectionChanged += (s, t) =>
             {
                 if (FeedBackCollection.Count == 0)
@@ -189,15 +169,19 @@ namespace FileManager
             };
             FeedBackList.ItemsSource = FeedBackCollection;
 
-            foreach (var Item in FeedBackCollection)
+            foreach (var FeedBackItem in await MySQL.Current.GetAllFeedBackAsync())
             {
-                switch (Item.UserVoteAction)
+                FeedBackCollection.Add(FeedBackItem);
+
+                await MySQL.Current.GetExtraFeedBackInfo(FeedBackItem);
+
+                switch (FeedBackItem.UserVoteAction)
                 {
                     case "+":
                         {
                             while (true)
                             {
-                                if (FeedBackList.ContainerFromItem(Item) is ListViewItem ListItem)
+                                if (FeedBackList.ContainerFromItem(FeedBackItem) is ListViewItem ListItem)
                                 {
                                     ToggleButton Button = ListItem.FindChildOfName<ToggleButton>("FeedBackLike");
                                     if (!Button.IsChecked.GetValueOrDefault())
@@ -219,7 +203,7 @@ namespace FileManager
                         {
                             while (true)
                             {
-                                if (FeedBackList.ContainerFromItem(Item) is ListViewItem ListItem)
+                                if (FeedBackList.ContainerFromItem(FeedBackItem) is ListViewItem ListItem)
                                 {
                                     ToggleButton Button = ListItem.FindChildOfName<ToggleButton>("FeedDislike");
                                     if (!Button.IsChecked.GetValueOrDefault())
@@ -239,7 +223,6 @@ namespace FileManager
                         }
                 }
             }
-
         }
 
         private void Like_PointerEntered(object sender, PointerRoutedEventArgs e)
@@ -1079,25 +1062,24 @@ namespace FileManager
 
             if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string Uri)
             {
-                BitmapImage Bitmap = PictureList.FirstOrDefault((Image) => Image.UriSource.ToString() == Uri);
+                BackgroundPicture PictureItem = PictureList.FirstOrDefault((Picture) => Picture.PictureUri.ToString() == Uri);
 
-                PictureGirdView.SelectedItem = Bitmap;
-                PictureGirdView.ScrollIntoView(Bitmap);
-
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap.UriSource.ToString());
+                PictureGirdView.SelectedItem = PictureItem;
+                PictureGirdView.ScrollIntoViewSmoothly(PictureItem);
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, PictureItem.PictureUri.ToString());
             }
             else
             {
                 PictureGirdView.SelectedIndex = 0;
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, PictureList.FirstOrDefault().UriSource.ToString());
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, PictureList.FirstOrDefault().PictureUri.ToString());
             }
         }
 
         private void PictureGirdView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (PictureGirdView.SelectedItem is BitmapImage Image)
+            if (PictureGirdView.SelectedItem is BackgroundPicture Picture)
             {
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Image.UriSource.ToString());
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Picture.PictureUri.ToString());
             }
         }
 
@@ -1116,34 +1098,44 @@ namespace FileManager
             if (await Picker.PickSingleFileAsync() is StorageFile File)
             {
                 StorageFolder ImageFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("CustomImageFolder");
-                StorageFile CopyedFile = await File.CopyAsync(ImageFolder, File.Name, NameCollisionOption.GenerateUniqueName);
-                BitmapImage Bitmap = new BitmapImage(new Uri($"ms-appdata:///local/CustomImageFolder/{CopyedFile.Name}"));
-                PictureList.Add(Bitmap);
-                PictureGirdView.ScrollIntoView(Bitmap);
-                PictureGirdView.SelectedItem = Bitmap;
-                await SQLite.Current.SetBackgroundPictureAsync(Bitmap.UriSource);
+
+                StorageFile CopyedFile = await File.CopyAsync(ImageFolder, $"BackgroundPicture_{Guid.NewGuid().ToString("N")}{File.FileType}", NameCollisionOption.GenerateUniqueName);
+
+                BitmapImage Bitmap = new BitmapImage
+                {
+                    DecodePixelWidth = 160,
+                    DecodePixelHeight = 90
+                };
+                BackgroundPicture Picture = new BackgroundPicture(Bitmap, new Uri($"ms-appdata:///local/CustomImageFolder/{CopyedFile.Name}"));
+                PictureList.Add(Picture);
+                Bitmap.UriSource = Picture.PictureUri;
+
+                PictureGirdView.ScrollIntoViewSmoothly(Picture);
+                PictureGirdView.SelectedItem = Picture;
+
+                await SQLite.Current.SetBackgroundPictureAsync(Picture.PictureUri.ToString());
             }
         }
 
         private async void DeletePictureButton_Click(object sender, RoutedEventArgs e)
         {
-            if (PictureGirdView.SelectedItem is BitmapImage Image)
+            if (PictureGirdView.SelectedItem is BackgroundPicture Picture)
             {
-                await SQLite.Current.DeleteBackgroundPictureAsync(Image.UriSource);
-                PictureList.Remove(Image);
+                await SQLite.Current.DeleteBackgroundPictureAsync(Picture.PictureUri.ToString());
+                PictureList.Remove(Picture);
                 PictureGirdView.SelectedIndex = PictureList.Count - 1;
             }
         }
 
         private void PictureGirdView_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is BitmapImage Image)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is BackgroundPicture Picture)
             {
                 PictureGirdView.ContextFlyout = PictureFlyout;
 
-                DeletePictureButton.IsEnabled = !Image.UriSource.ToString().StartsWith("ms-appx://");
+                DeletePictureButton.IsEnabled = !Picture.PictureUri.ToString().StartsWith("ms-appx://");
 
-                PictureGirdView.SelectedItem = Image;
+                PictureGirdView.SelectedItem = Picture;
             }
             else
             {

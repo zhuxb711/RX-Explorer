@@ -34,7 +34,6 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
-using WinRTXamlToolkit.Controls.Extensions;
 
 namespace FileManager
 {
@@ -65,6 +64,8 @@ namespace FileManager
             {
                 _ = CreateTable.ExecuteNonQuery();
             }
+
+            InitializeBackgroundPicture();
         }
 
         public static SQLite Current
@@ -78,50 +79,71 @@ namespace FileManager
             }
         }
 
-        public async Task SetBackgroundPictureAsync(Uri uri)
+        private void InitializeBackgroundPicture()
+        {
+            string Command = @"Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');
+                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');
+                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture3.jpg');
+                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture4.jpg');
+                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture5.jpg');
+                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture6.jpg');
+                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture7.jpg');
+                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture8.jpg');
+                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture9.jpg');
+                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture10.jpg');
+                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture11.jpg');
+                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture12.jpg');
+                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture13.jpg');
+                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');";
+
+            using (SqliteCommand CreateTable = new SqliteCommand(Command, OLEDB))
+            {
+                _ = CreateTable.ExecuteNonQuery();
+            }
+        }
+
+        public async Task SetBackgroundPictureAsync(string uri)
         {
             using (SqliteCommand Command = new SqliteCommand("Insert Into BackgroundPicture Values (@FileName)", OLEDB))
             {
-                _ = Command.Parameters.AddWithValue("@FileName", uri.ToString());
+                _ = Command.Parameters.AddWithValue("@FileName", uri);
                 _ = await Command.ExecuteNonQueryAsync();
             }
         }
 
-        public async Task<List<string>> GetBackgroundPictureAsync()
+        public async Task<List<Uri>> GetBackgroundPictureAsync()
         {
-            List<string> list = new List<string>();
+            List<Uri> list = new List<Uri>();
             using (SqliteCommand Command = new SqliteCommand("Select * From BackgroundPicture", OLEDB))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync())
             {
                 while (query.Read())
                 {
-                    list.Add(query[0].ToString());
+                    list.Add(new Uri(query[0].ToString()));
                 }
             }
             return list;
         }
 
-        public async Task DeleteBackgroundPictureAsync(Uri uri)
+        public async Task DeleteBackgroundPictureAsync(string uri)
         {
             using (SqliteCommand Command = new SqliteCommand("Delete From BackgroundPicture Where FileName=@FileName", OLEDB))
             {
-                _ = Command.Parameters.AddWithValue("@FileName", uri.ToString());
+                _ = Command.Parameters.AddWithValue("@FileName", uri);
                 _ = await Command.ExecuteNonQueryAsync();
             }
         }
 
-        public async Task<List<string>> GetFolderLibraryAsync()
+        public async IAsyncEnumerable<string> GetFolderLibraryAsync()
         {
-            List<string> FolderPath = new List<string>();
             using (SqliteCommand Command = new SqliteCommand("Select * From FolderLibrary", OLEDB))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync())
             {
                 while (query.Read())
                 {
-                    FolderPath.Add(query[0].ToString());
+                    yield return query[0].ToString();
                 }
             }
-            return FolderPath;
         }
 
         public async Task DeleteFolderLibraryAsync(string Path)
@@ -227,35 +249,17 @@ namespace FileManager
             }
         }
 
-        public async Task<List<KeyValuePair<QuickStartType, QuickStartItem>>> GetQuickStartItemAsync()
+        public async IAsyncEnumerable<KeyValuePair<QuickStartType, QuickStartItem>> GetQuickStartItemAsync()
         {
-            List<KeyValuePair<QuickStartType, QuickStartItem>> QuickStartItemList = new List<KeyValuePair<QuickStartType, QuickStartItem>>();
-
             using (SqliteCommand Command = new SqliteCommand("Select * From QuickStart", OLEDB))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync())
             {
                 while (query.Read())
                 {
+                    StorageFile ImageFile = null;
                     try
                     {
-                        StorageFile ImageFile = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, query[1].ToString()));
-                        using (var Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
-                        {
-                            BitmapImage Bitmap = new BitmapImage
-                            {
-                                DecodePixelHeight = 80,
-                                DecodePixelWidth = 80
-                            };
-                            await Bitmap.SetSourceAsync(Stream);
-                            if ((QuickStartType)Enum.Parse(typeof(QuickStartType), query[3].ToString()) == QuickStartType.Application)
-                            {
-                                QuickStartItemList.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.Application, query[1].ToString(), query[0].ToString())));
-                            }
-                            else
-                            {
-                                QuickStartItemList.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.WebSite, query[1].ToString(), query[0].ToString())));
-                            }
-                        }
+                        ImageFile = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, query[1].ToString()));
                     }
                     catch (Exception)
                     {
@@ -267,8 +271,28 @@ namespace FileManager
                             _ = await Command1.ExecuteNonQueryAsync();
                         }
                     }
+
+                    if (ImageFile != null)
+                    {
+                        using (var Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                        {
+                            BitmapImage Bitmap = new BitmapImage
+                            {
+                                DecodePixelHeight = 80,
+                                DecodePixelWidth = 80
+                            };
+                            await Bitmap.SetSourceAsync(Stream);
+                            if ((QuickStartType)Enum.Parse(typeof(QuickStartType), query[3].ToString()) == QuickStartType.Application)
+                            {
+                                yield return new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.Application, query[1].ToString(), query[0].ToString()));
+                            }
+                            else
+                            {
+                                yield return new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.WebSite, query[1].ToString(), query[0].ToString()));
+                            }
+                        }
+                    }
                 }
-                return QuickStartItemList;
             }
         }
 
@@ -460,6 +484,8 @@ namespace FileManager
 
         private bool IsDisposed = false;
 
+        private AutoResetEvent ConnectionLocker;
+
         public static MySQL Current
         {
             get
@@ -473,245 +499,282 @@ namespace FileManager
 
         private MySQL()
         {
+            ConnectionLocker = new AutoResetEvent(true);
         }
 
-        private async Task<bool> ConnectAsync()
+        public Task<bool> StartConnectToDataBaseAsync()
         {
-            try
+            return Task.Run(() =>
             {
-                if (Connection == null)
+                ConnectionLocker.WaitOne();
+
+                try
                 {
-                    Connection = new MySqlConnection("Data Source=zhuxb711.rdsmcjd7wro1g19.rds.gz.baidubce.com;port=3306;CharSet=utf8;User id=zhuxb711;password=password123;Database=FeedBackDataBase;");
-                    await Connection.OpenAsync();
-                    string CommandText = @"Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);
-                                           Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null)";
-                    using (MySqlCommand Command = new MySqlCommand(CommandText, Connection))
+                    if (Connection == null)
                     {
-                        _ = await Command.ExecuteNonQueryAsync();
+                        Connection = new MySqlConnection("Data Source=zhuxb711.rdsmcjd7wro1g19.rds.gz.baidubce.com;port=3306;CharSet=utf8;User id=zhuxb711;password=password123;Database=FeedBackDataBase;");
+                        Connection.Open();
+                        const string CommandText = @"Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);
+                                                     Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null)";
+                        using (MySqlCommand Command = new MySqlCommand(CommandText, Connection))
+                        {
+                            _ = Command.ExecuteNonQuery();
+                        }
+                        return true;
                     }
-                    return true;
-                }
-                else if (Connection.State != System.Data.ConnectionState.Open)
-                {
-                    await Connection.OpenAsync();
-                    string CommandText = @"Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);
-                                           Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null)";
-                    using (MySqlCommand Command = new MySqlCommand(CommandText, Connection))
+                    else if (Connection.State != System.Data.ConnectionState.Open)
                     {
-                        _ = await Command.ExecuteNonQueryAsync();
+                        Connection.Open();
+                        const string CommandText = @"Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);
+                                                     Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null)";
+                        using (MySqlCommand Command = new MySqlCommand(CommandText, Connection))
+                        {
+                            _ = Command.ExecuteNonQuery();
+                        }
+                        return true;
                     }
-                    return true;
+                    else
+                    {
+                        return true;
+                    }
                 }
-                else
+                catch (Exception)
                 {
-                    return true;
+                    return false;
                 }
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+                finally
+                {
+                    ConnectionLocker.Set();
+                }
+            });
         }
 
-        public async Task<List<FeedBackItem>> GetAllFeedBackAsync()
+        public Task<List<FeedBackItem>> GetAllFeedBackAsync()
         {
-            if (await ConnectAsync())
+            return StartConnectToDataBaseAsync().ContinueWith((Result) =>
             {
                 try
                 {
                     List<FeedBackItem> list = new List<FeedBackItem>();
                     using (MySqlCommand Command = new MySqlCommand("Select * From FeedBackTable", Connection))
-                    using (DbDataReader Reader = await Command.ExecuteReaderAsync())
+                    using (DbDataReader Reader = Command.ExecuteReader())
                     {
                         var CurrentLanguage = MainPage.ThisPage.CurrentLanguage;
                         while (Reader.Read())
                         {
-                            string TitleTranslation = await Reader["Title"].ToString().TranslateTo(CurrentLanguage);
-                            string SuggestionTranslation = await Reader["Suggestion"].ToString().TranslateTo(CurrentLanguage);
+                            string TitleTranslation = Reader["Title"].ToString().TranslateTo(CurrentLanguage);
+                            string SuggestionTranslation = Reader["Suggestion"].ToString().TranslateTo(CurrentLanguage);
                             list.Add(new FeedBackItem(CurrentLanguage == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString().TranslateToPinyinOrStayInEnglish(), string.IsNullOrEmpty(TitleTranslation) ? Reader["Title"].ToString() : TitleTranslation, string.IsNullOrEmpty(SuggestionTranslation) ? Reader["Suggestion"].ToString() : SuggestionTranslation, Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString()));
                         }
                     }
-
-                    foreach (var Item in list)
-                    {
-                        using (MySqlCommand Command1 = new MySqlCommand("Select Behavior From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
-                        {
-                            _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                            _ = Command1.Parameters.AddWithValue("@GUID", Item.GUID);
-
-                            string Behaivor = Convert.ToString(await Command1.ExecuteScalarAsync());
-                            if (!string.IsNullOrEmpty(Behaivor))
-                            {
-                                Item.UserVoteAction = Behaivor;
-                            }
-                        }
-                    }
-
                     return list;
                 }
                 catch (Exception)
                 {
                     return new List<FeedBackItem>();
                 }
-            }
-            else
-            {
-                return new List<FeedBackItem>();
-            }
+            });
         }
 
-        public async Task<bool> UpdateFeedBackVoteAsync(FeedBackItem Item)
+        public Task<bool> GetExtraFeedBackInfo(FeedBackItem list)
         {
-            if (await ConnectAsync())
+            return StartConnectToDataBaseAsync().ContinueWith((Result, Para) =>
             {
-                try
+                if (Result.Result)
                 {
-                    using (MySqlCommand Command = new MySqlCommand("Update FeedBackTable Set LikeNum=@LikeNum, DislikeNum=@DislikeNum Where GUID=@GUID", Connection))
+                    try
                     {
-                        _ = Command.Parameters.AddWithValue("@LikeNum", Item.LikeNum);
-                        _ = Command.Parameters.AddWithValue("@DislikeNum", Item.DislikeNum);
-                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                        _ = await Command.ExecuteNonQueryAsync();
-                    }
-
-                    using (MySqlCommand Command1 = new MySqlCommand("Select count(*) From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
-                    {
-                        _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                        _ = Command1.Parameters.AddWithValue("@GUID", Item.GUID);
-                        if (Convert.ToInt16(await Command1.ExecuteScalarAsync()) == 0)
+                        FeedBackItem Item = (FeedBackItem)Para;
+                        using (MySqlCommand Command1 = new MySqlCommand("Select Behavior From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
                         {
-                            if (Item.UserVoteAction != "=")
+                            _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                            _ = Command1.Parameters.AddWithValue("@GUID", Item.GUID);
+
+                            string Behaivor = Convert.ToString(Command1.ExecuteScalar());
+                            if (!string.IsNullOrEmpty(Behaivor))
                             {
-                                using (MySqlCommand Command = new MySqlCommand("Insert Into VoteRecordTable Values (@UserID,@GUID,@Behaivor)", Connection))
-                                {
-                                    _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                                    _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                    _ = Command.Parameters.AddWithValue("@Behaivor", Item.UserVoteAction);
-                                    _ = await Command.ExecuteNonQueryAsync();
-                                }
+                                Item.UserVoteAction = Behaivor;
                             }
                         }
-                        else
+
+                        return true;
+                    }
+                    catch (Exception)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }, list);
+        }
+
+        public Task<bool> UpdateFeedBackVoteAsync(FeedBackItem Item)
+        {
+            return StartConnectToDataBaseAsync().ContinueWith((Result) =>
+            {
+                if (Result.Result)
+                {
+                    try
+                    {
+                        using (MySqlCommand Command = new MySqlCommand("Update FeedBackTable Set LikeNum=@LikeNum, DislikeNum=@DislikeNum Where GUID=@GUID", Connection))
                         {
-                            if (Item.UserVoteAction != "=")
+                            _ = Command.Parameters.AddWithValue("@LikeNum", Item.LikeNum);
+                            _ = Command.Parameters.AddWithValue("@DislikeNum", Item.DislikeNum);
+                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                            _ = Command.ExecuteNonQuery();
+                        }
+
+                        using (MySqlCommand Command1 = new MySqlCommand("Select count(*) From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
+                        {
+                            _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                            _ = Command1.Parameters.AddWithValue("@GUID", Item.GUID);
+                            if (Convert.ToInt16(Command1.ExecuteScalar()) == 0)
                             {
-                                using (MySqlCommand Command = new MySqlCommand("Update VoteRecordTable Set Behavior=@Behaivor Where UserID=@UserID And GUID=@GUID", Connection))
+                                if (Item.UserVoteAction != "=")
                                 {
-                                    _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                                    _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                    _ = Command.Parameters.AddWithValue("@Behaivor", Item.UserVoteAction);
-                                    _ = await Command.ExecuteNonQueryAsync();
+                                    using (MySqlCommand Command = new MySqlCommand("Insert Into VoteRecordTable Values (@UserID,@GUID,@Behaivor)", Connection))
+                                    {
+                                        _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                        _ = Command.Parameters.AddWithValue("@Behaivor", Item.UserVoteAction);
+                                        _ = Command.ExecuteNonQuery();
+                                    }
                                 }
                             }
                             else
                             {
-                                using (MySqlCommand Command = new MySqlCommand("Delete From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
+                                if (Item.UserVoteAction != "=")
                                 {
-                                    _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                                    _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                    _ = await Command.ExecuteNonQueryAsync();
+                                    using (MySqlCommand Command = new MySqlCommand("Update VoteRecordTable Set Behavior=@Behaivor Where UserID=@UserID And GUID=@GUID", Connection))
+                                    {
+                                        _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                        _ = Command.Parameters.AddWithValue("@Behaivor", Item.UserVoteAction);
+                                        _ = Command.ExecuteNonQuery();
+                                    }
+                                }
+                                else
+                                {
+                                    using (MySqlCommand Command = new MySqlCommand("Delete From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
+                                    {
+                                        _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                        _ = Command.ExecuteNonQuery();
+                                    }
                                 }
                             }
                         }
+                        return true;
                     }
-                    return true;
+                    catch (Exception)
+                    {
+                        return false;
+                    }
                 }
-                catch (Exception)
+                else
                 {
                     return false;
                 }
-            }
-            else
-            {
-                return false;
-            }
+            });
         }
 
-        public async Task<bool> UpdateFeedBackTitleAndSuggestionAsync(string Title, string Suggestion, string GUID)
+        public Task<bool> UpdateFeedBackTitleAndSuggestionAsync(string Title, string Suggestion, string GUID)
         {
-            if (await ConnectAsync())
+            return StartConnectToDataBaseAsync().ContinueWith((Result) =>
             {
-                try
+                if (Result.Result)
                 {
-                    using (MySqlCommand Command = new MySqlCommand("Update FeedBackTable Set Title=@NewTitle, Suggestion=@NewSuggestion Where GUID=@GUID", Connection))
+                    try
                     {
-                        _ = Command.Parameters.AddWithValue("@NewTitle", Title);
-                        _ = Command.Parameters.AddWithValue("@NewSuggestion", Suggestion);
-                        _ = Command.Parameters.AddWithValue("@GUID", GUID);
-                        _ = await Command.ExecuteNonQueryAsync();
+                        using (MySqlCommand Command = new MySqlCommand("Update FeedBackTable Set Title=@NewTitle, Suggestion=@NewSuggestion Where GUID=@GUID", Connection))
+                        {
+                            _ = Command.Parameters.AddWithValue("@NewTitle", Title);
+                            _ = Command.Parameters.AddWithValue("@NewSuggestion", Suggestion);
+                            _ = Command.Parameters.AddWithValue("@GUID", GUID);
+                            _ = Command.ExecuteNonQuery();
+                        }
+                        return true;
                     }
-                    return true;
+                    catch (Exception)
+                    {
+                        return false;
+                    }
                 }
-                catch (Exception)
+                else
                 {
                     return false;
                 }
-            }
-            else
-            {
-                return false;
-            }
+            });
         }
 
-        public async Task<bool> DeleteFeedBackAsync(FeedBackItem Item)
+        public Task<bool> DeleteFeedBackAsync(FeedBackItem Item)
         {
-            if (await ConnectAsync())
+            return StartConnectToDataBaseAsync().ContinueWith((Result) =>
             {
-                try
+                if (Result.Result)
                 {
-                    using (MySqlCommand Command = new MySqlCommand("Delete From FeedBackTable Where GUID=@GUID", Connection))
+                    try
                     {
-                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                        _ = await Command.ExecuteNonQueryAsync();
-                    }
+                        using (MySqlCommand Command = new MySqlCommand("Delete From FeedBackTable Where GUID=@GUID", Connection))
+                        {
+                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                            _ = Command.ExecuteNonQuery();
+                        }
 
-                    using (MySqlCommand Command = new MySqlCommand("Delete From VoteRecordTable Where GUID=@GUID", Connection))
+                        using (MySqlCommand Command = new MySqlCommand("Delete From VoteRecordTable Where GUID=@GUID", Connection))
+                        {
+                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                            _ = Command.ExecuteNonQuery();
+                        }
+
+                        return true;
+                    }
+                    catch (Exception)
                     {
-                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                        _ = await Command.ExecuteNonQueryAsync();
+                        return false;
                     }
-
-                    return true;
                 }
-                catch (Exception)
+                else
                 {
                     return false;
                 }
-            }
-            else
-            {
-                return false;
-            }
+            });
         }
 
-        public async Task<bool> SetFeedBackAsync(FeedBackItem Item)
+        public Task<bool> SetFeedBackAsync(FeedBackItem Item)
         {
-            if (await ConnectAsync())
+            return StartConnectToDataBaseAsync().ContinueWith((Result) =>
             {
-                try
+                if (Result.Result)
                 {
-                    using (MySqlCommand Command = new MySqlCommand("Insert Into FeedBackTable Values (@UserName,@Title,@Suggestion,@Like,@Dislike,@UserID,@GUID)", Connection))
+                    try
                     {
-                        _ = Command.Parameters.AddWithValue("@UserName", Item.UserName);
-                        _ = Command.Parameters.AddWithValue("@Title", Item.Title);
-                        _ = Command.Parameters.AddWithValue("@Suggestion", Item.Suggestion);
-                        _ = Command.Parameters.AddWithValue("@Like", Item.LikeNum);
-                        _ = Command.Parameters.AddWithValue("@Dislike", Item.DislikeNum);
-                        _ = Command.Parameters.AddWithValue("@UserID", Item.UserID);
-                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                        _ = await Command.ExecuteNonQueryAsync();
+                        using (MySqlCommand Command = new MySqlCommand("Insert Into FeedBackTable Values (@UserName,@Title,@Suggestion,@Like,@Dislike,@UserID,@GUID)", Connection))
+                        {
+                            _ = Command.Parameters.AddWithValue("@UserName", Item.UserName);
+                            _ = Command.Parameters.AddWithValue("@Title", Item.Title);
+                            _ = Command.Parameters.AddWithValue("@Suggestion", Item.Suggestion);
+                            _ = Command.Parameters.AddWithValue("@Like", Item.LikeNum);
+                            _ = Command.Parameters.AddWithValue("@Dislike", Item.DislikeNum);
+                            _ = Command.Parameters.AddWithValue("@UserID", Item.UserID);
+                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                            _ = Command.ExecuteNonQuery();
+                        }
+                        return true;
                     }
-                    return true;
+                    catch (Exception)
+                    {
+                        return false;
+                    }
                 }
-                catch (Exception)
+                else
                 {
                     return false;
                 }
-            }
-            else
-            {
-                return false;
-            }
+            });
         }
 
         public void Dispose()
@@ -719,10 +782,17 @@ namespace FileManager
             if (!IsDisposed)
             {
                 IsDisposed = true;
+                ConnectionLocker.Dispose();
                 Connection?.Dispose();
                 Connection = null;
+                ConnectionLocker = null;
                 Instance = null;
             }
+        }
+
+        ~MySQL()
+        {
+            Dispose();
         }
     }
     #endregion
@@ -1593,7 +1663,7 @@ namespace FileManager
             }
         }
 
-        public static async Task<string> TranslateTo(this string From, LanguageEnum language)
+        public static async Task<string> TranslateToAsync(this string From, LanguageEnum language)
         {
             using (HttpClient Client = new HttpClient())
             using (HttpRequestMessage Request = new HttpRequestMessage())
@@ -1608,6 +1678,57 @@ namespace FileManager
                 {
                     HttpResponseMessage Response = await Client.SendAsync(Request);
                     string result = await Response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrEmpty(result))
+                    {
+                        TranslationResult[] deserializedOutput = JsonConvert.DeserializeObject<TranslationResult[]>(result);
+
+                        if (deserializedOutput.FirstOrDefault() is TranslationResult Result)
+                        {
+                            if (Result.DetectedLanguage.Language.StartsWith("en") && language == LanguageEnum.English)
+                            {
+                                return From;
+                            }
+                            else if (Result.DetectedLanguage.Language.StartsWith("zh") && language == LanguageEnum.Chinese)
+                            {
+                                return From;
+                            }
+                            else
+                            {
+                                return Result.Translations.FirstOrDefault()?.Text;
+                            }
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
+        }
+
+        public static string TranslateTo(this string From, LanguageEnum language)
+        {
+            using (HttpClient Client = new HttpClient())
+            using (HttpRequestMessage Request = new HttpRequestMessage())
+            {
+
+                Request.Method = HttpMethod.Post;
+                Request.RequestUri = new Uri($"https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to={(language == LanguageEnum.Chinese ? "zh-Hans" : "en")}");
+                Request.Content = new StringContent(JsonConvert.SerializeObject(new object[] { new { Text = From } }), Encoding.UTF8, "application/json");
+                Request.Headers.Add("Ocp-Apim-Subscription-Key", "3e0230e26b134d7ab9ffdc566deadf9c");
+
+                try
+                {
+                    HttpResponseMessage Response = Client.SendAsync(Request).Result;
+                    string result = Response.Content.ReadAsStringAsync().Result;
                     if (!string.IsNullOrEmpty(result))
                     {
                         TranslationResult[] deserializedOutput = JsonConvert.DeserializeObject<TranslationResult[]>(result);
@@ -1741,7 +1862,7 @@ namespace FileManager
             {
                 if (Item is StorageFolder Folder)
                 {
-                    var Thumbnail = await Folder.GetThumbnailAsync(ThumbnailMode.ListView, 60);
+                    var Thumbnail = await Folder.GetThumbnailAsync(ThumbnailMode.ListView, 100);
                     if (Thumbnail == null)
                     {
                         return null;
@@ -1749,15 +1870,15 @@ namespace FileManager
 
                     BitmapImage bitmapImage = new BitmapImage
                     {
-                        DecodePixelHeight = 60,
-                        DecodePixelWidth = 60
+                        DecodePixelHeight = 100,
+                        DecodePixelWidth = 100
                     };
                     await bitmapImage.SetSourceAsync(Thumbnail);
                     return bitmapImage;
                 }
                 else if (Item is StorageFile File)
                 {
-                    var Thumbnail = await File.GetThumbnailAsync(ThumbnailMode.ListView, 60);
+                    var Thumbnail = await File.GetThumbnailAsync(ThumbnailMode.ListView, 100);
                     if (Thumbnail == null)
                     {
                         return null;
@@ -1765,8 +1886,8 @@ namespace FileManager
 
                     BitmapImage bitmapImage = new BitmapImage
                     {
-                        DecodePixelHeight = 60,
-                        DecodePixelWidth = 60
+                        DecodePixelHeight = 100,
+                        DecodePixelWidth = 100
                     };
                     await bitmapImage.SetSourceAsync(Thumbnail);
                     return bitmapImage;
@@ -1784,40 +1905,38 @@ namespace FileManager
 
         public static void ScrollIntoViewSmoothly(this ListViewBase listViewBase, object item, ScrollIntoViewAlignment alignment = ScrollIntoViewAlignment.Default)
         {
-            // GetFirstDescendantOfType 是 WinRTXamlToolkit 中的扩展方法，
-            // 寻找该控件在可视树上第一个符合类型的子元素。
-            ScrollViewer scrollViewer = listViewBase.GetFirstDescendantOfType<ScrollViewer>();
-
-            // 记录初始位置，用于 ScrollIntoView 检测目标位置后复原。
-            double originHorizontalOffset = scrollViewer.HorizontalOffset;
-            double originVerticalOffset = scrollViewer.VerticalOffset;
-
-            void layoutUpdatedHandler(object sender, object e)
+            if (listViewBase.FindChildOfType<ScrollViewer>() is ScrollViewer scrollViewer)
             {
-                listViewBase.LayoutUpdated -= layoutUpdatedHandler;
+                double originHorizontalOffset = scrollViewer.HorizontalOffset;
+                double originVerticalOffset = scrollViewer.VerticalOffset;
 
-                // 获取目标位置。
-                double targetHorizontalOffset = scrollViewer.HorizontalOffset;
-                double targetVerticalOffset = scrollViewer.VerticalOffset;
-
-                void scrollHandler(object s, ScrollViewerViewChangedEventArgs m)
+                void layoutUpdatedHandler(object sender, object e)
                 {
-                    scrollViewer.ViewChanged -= scrollHandler;
+                    listViewBase.LayoutUpdated -= layoutUpdatedHandler;
 
-                    // 最终目的，带平滑滚动效果滚动到 item。
-                    scrollViewer.ChangeView(targetHorizontalOffset, targetVerticalOffset, null);
+                    double targetHorizontalOffset = scrollViewer.HorizontalOffset;
+                    double targetVerticalOffset = scrollViewer.VerticalOffset;
+
+                    void scrollHandler(object s, ScrollViewerViewChangedEventArgs t)
+                    {
+                        scrollViewer.ViewChanged -= scrollHandler;
+
+                        scrollViewer.ChangeView(targetHorizontalOffset, targetVerticalOffset, null);
+                    }
+
+                    scrollViewer.ViewChanged += scrollHandler;
+
+                    scrollViewer.ChangeView(originHorizontalOffset, originVerticalOffset, null, true);
                 }
 
-                scrollViewer.ViewChanged += scrollHandler;
+                listViewBase.LayoutUpdated += layoutUpdatedHandler;
 
-                // 复原位置，且不需要使用动画效果。
-                scrollViewer.ChangeView(originHorizontalOffset, originVerticalOffset, null, true);
-
+                listViewBase.ScrollIntoView(item, alignment);
             }
-
-            listViewBase.LayoutUpdated += layoutUpdatedHandler;
-
-            listViewBase.ScrollIntoView(item, alignment);
+            else
+            {
+                listViewBase.ScrollIntoView(item, alignment);
+            }
         }
     }
     #endregion
@@ -2709,13 +2828,17 @@ namespace FileManager
                 {
                     if (Ur != uri)
                     {
-                        PictureBackgroundBrush.ImageSource = new BitmapImage(new Uri(uri));
+                        BitmapImage Bitmap = new BitmapImage();
+                        PictureBackgroundBrush.ImageSource = Bitmap;
+                        Bitmap.UriSource = new Uri(uri);
                         ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = uri;
                     }
                 }
                 else
                 {
-                    PictureBackgroundBrush.ImageSource = new BitmapImage(new Uri(uri));
+                    BitmapImage Bitmap = new BitmapImage();
+                    PictureBackgroundBrush.ImageSource = Bitmap;
+                    Bitmap.UriSource = new Uri(uri);
                     ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = uri;
                 }
             }
@@ -2965,6 +3088,21 @@ namespace FileManager
     {
         Like = 0,
         Dislike = 1
+    }
+    #endregion
+
+    #region 背景图片
+    public sealed class BackgroundPicture
+    {
+        public BitmapImage Picture { get; private set; }
+
+        public Uri PictureUri { get; private set; }
+
+        public BackgroundPicture(BitmapImage Picture, Uri PictureUri)
+        {
+            this.Picture = Picture;
+            this.PictureUri = PictureUri;
+        }
     }
     #endregion
 }
