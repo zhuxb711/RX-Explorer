@@ -71,11 +71,15 @@
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem Content="浏览器"
-                                    x:Uid="Browser"
-                                    IsSelected="True">
+                                    x:Uid="Browser">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
                                   Glyph="&#xE909;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="安全域">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="ProtectedDocument"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.MenuItems>

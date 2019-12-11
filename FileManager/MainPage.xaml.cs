@@ -116,7 +116,8 @@ namespace FileManager
                     {typeof(WebTab), "浏览器"},
                     {typeof(ThisPC),"这台电脑" },
                     {typeof(FileControl),"这台电脑" },
-                    {typeof(AboutMe),"这台电脑" }
+                    {typeof(AboutMe),"这台电脑" },
+                    {typeof(SecureArea),"安全域" }
                 };
             }
             else
@@ -126,7 +127,8 @@ namespace FileManager
                     {typeof(WebTab), "Browser"},
                     {typeof(ThisPC),"ThisPC" },
                     {typeof(FileControl),"ThisPC" },
-                    {typeof(AboutMe),"ThisPC" }
+                    {typeof(AboutMe),"ThisPC" },
+                    {typeof(SecureArea),"SecureArea" }
                 };
             }
 
@@ -218,7 +220,7 @@ namespace FileManager
 
         private void Nav_Navigated(object sender, NavigationEventArgs e)
         {
-            if (Nav.CurrentSourcePageType == typeof(ThisPC) || Nav.CurrentSourcePageType == typeof(WebTab))
+            if (Nav.CurrentSourcePageType == typeof(ThisPC) || Nav.CurrentSourcePageType == typeof(WebTab) || Nav.CurrentSourcePageType == typeof(SecureArea))
             {
                 NavView.IsBackEnabled = false;
             }
@@ -526,6 +528,8 @@ namespace FileManager
                     case "浏览器":
                     case "Browser":
                         Nav.Navigate(typeof(WebTab), null, new DrillInNavigationTransitionInfo()); break;
+                    case "安全域":
+                        Nav.Navigate(typeof(SecureArea), null, new DrillInNavigationTransitionInfo()); break;
                 }
             }
         }

@@ -177,6 +177,9 @@
     <Compile Include="View\ExtendedSplash.xaml.cs">
       <DependentUpon>ExtendedSplash.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\SecureArea.xaml.cs">
+      <DependentUpon>SecureArea.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\ThisPC.xaml.cs">
       <DependentUpon>ThisPC.xaml</DependentUpon>
     </Compile>
@@ -245,6 +248,8 @@
     <Content Include="Assets\Add.png" />
     <Content Include="Assets\AddImage.png" />
     <Content Include="Assets\ColorPickerHero.png" />
+    <Content Include="Assets\Lock.png" />
+    <Content Include="Assets\LockFile.png" />
     <Content Include="Assets\UpdateLog-Chinese.txt" />
     <Content Include="Assets\UpdateLog-English.txt" />
     <Content Include="CustomImage\Picture14.jpg" />
@@ -427,6 +432,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\ExtendedSplash.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SecureArea.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

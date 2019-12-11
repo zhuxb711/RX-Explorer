@@ -1,0 +1,88 @@
+﻿<Page
+    x:Class="FileManager.SecureArea"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FileManager"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="Transparent"
+    NavigationCacheMode="Required">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <CommandBar Background="Transparent"
+                    DefaultLabelPosition="Right">
+            <AppBarButton Label="添加文件"
+                          Icon="Add" 
+                          Name="AddFile"
+                          Click="AddFile_Click"/>
+            <AppBarButton Label="导出"
+                          Icon="Import" />
+            <AppBarButton Label="选项"
+                          Icon="Setting" />
+        </CommandBar>
+        <GridView IsRightTapEnabled="True"
+                  IsItemClickEnabled="False"
+                  Grid.Row="1"
+                  Name="SecureGridView">
+            <GridView.ItemTemplate>
+                <DataTemplate x:DataType="local:FileSystemStorageItem">
+                    <StackPanel Width="240"
+                                Padding="10"
+                                Orientation="Horizontal"
+                                AllowDrop="True">
+                        <Image IsHitTestVisible="False"
+                               VerticalAlignment="Center"
+                               Stretch="Uniform"
+                               Source="{x:Bind Thumbnail,Mode=OneWay}"
+                               Height="60"
+                               Width="60" />
+                        <StackPanel Orientation="Vertical"
+                                    VerticalAlignment="Top"
+                                    Margin="5,0,0,0">
+                            <TextBlock IsHitTestVisible="False"
+                                       Text="{x:Bind DisplayName,Mode=OneWay}"
+                                       FontSize="17"
+                                       Width="160"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock IsHitTestVisible="False"
+                                       Text="{x:Bind DisplayType}"
+                                       FontSize="13" />
+                            <TextBlock IsHitTestVisible="False"
+                                       Text="{x:Bind Size,Mode=OneWay}"
+                                       Visibility="{x:Bind Folder,Converter={StaticResource StateConverter}}"
+                                       FontSize="13" />
+                        </StackPanel>
+                    </StackPanel>
+                </DataTemplate>
+            </GridView.ItemTemplate>
+            <GridView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsWrapGrid Orientation="Horizontal"
+                                   HorizontalAlignment="Stretch" />
+                </ItemsPanelTemplate>
+            </GridView.ItemsPanel>
+            <GridView.ItemContainerTransitions>
+                <TransitionCollection>
+                    <PaneThemeTransition Edge="Left" />
+                </TransitionCollection>
+            </GridView.ItemContainerTransitions>
+        </GridView>
+        <StackPanel Grid.RowSpan="2"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Name="EmptyTips">
+            <Image Source="ms-appx:///Assets/Lock.png"
+                   Stretch="Uniform"
+                   Width="100" />
+            <TextBlock Text="点击按钮或拖动文件到此处"
+                       FontSize="20"
+                       TextAlignment="Center"
+                       Margin="0,20,0,0" />
+        </StackPanel>
+    </Grid>
+</Page>

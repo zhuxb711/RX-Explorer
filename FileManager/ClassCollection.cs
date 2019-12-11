@@ -1225,37 +1225,6 @@ namespace FileManager
         }
 
         /// <summary>
-        /// 使用AES-CBC加密方式的解密算法
-        /// </summary>
-        /// <param name="ToDecrypt">待解密数据</param>
-        /// <param name="key">密码</param>
-        /// <param name="KeySize">密钥长度</param>
-        /// <returns>解密后数据</returns>
-        public static byte[] CBCDecrypt(byte[] ToDecrypt, string key, int KeySize)
-        {
-            if (KeySize != 256 && KeySize != 128)
-            {
-                throw new InvalidEnumArgumentException("AES密钥长度仅支持128或256任意一种");
-            }
-
-            byte[] KeyArray = Encoding.UTF8.GetBytes(key);
-            byte[] result;
-            using (RijndaelManaged Rijndael = new RijndaelManaged
-            {
-                KeySize = KeySize,
-                Key = KeyArray,
-                Mode = CipherMode.CBC,
-                Padding = PaddingMode.PKCS7,
-                IV = AdminIV
-            })
-            {
-                ICryptoTransform CryptoTransform = Rijndael.CreateDecryptor();
-                result = CryptoTransform.TransformFinalBlock(ToDecrypt, 0, ToDecrypt.Length);
-            }
-            return result;
-        }
-
-        /// <summary>
         /// 使用AES-ECB方式的加密算法
         /// </summary>
         /// <param name="ToEncrypt">待加密数据</param>
@@ -1629,6 +1598,121 @@ namespace FileManager
     #region 扩展方法类
     public static class Extention
     {
+        public static async Task<StorageFile> CBCEncryption(this StorageFile OriginFile, string Key, int KeySize)
+        {
+            if (KeySize != 256 && KeySize != 128)
+            {
+                throw new InvalidEnumArgumentException("AES密钥长度仅支持128或256任意一种");
+            }
+
+            byte[] KeyArray = null;
+
+            int KeyLengthNeed = KeySize / 8;
+
+            if (Key.Length > KeyLengthNeed)
+            {
+                KeyArray = Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed));
+            }
+            else
+            {
+                KeyArray = Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
+            }
+
+            StorageFolder ParentFolder = await OriginFile.GetParentAsync();
+            StorageFile EncryptedFile = await ParentFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(OriginFile.Name)}.sle", CreationCollisionOption.ReplaceExisting);
+
+            byte[] AdminIV = Encoding.UTF8.GetBytes("r7BXXKkLb8qrSNn0");
+
+            using (Aes AES = Aes.Create())
+            {
+                AES.Key = KeyArray;
+                AES.Mode = CipherMode.CBC;
+                AES.KeySize = KeySize;
+                AES.Padding = PaddingMode.Zeros;
+                AES.IV = AdminIV;
+
+                using (Stream OriginFileStream = await OriginFile.OpenStreamForReadAsync())
+                using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForWriteAsync())
+                using (ICryptoTransform Encryptor = AES.CreateEncryptor(AES.Key, AES.IV))
+                {
+                    byte[] Detail = Encoding.UTF8.GetBytes("$" + KeySize + "|" + OriginFile.FileType + "$");
+                    await EncryptFileStream.WriteAsync(Detail, 0, Detail.Length);
+
+                    byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
+                    byte[] EncryptPasswordFlag = Encryptor.TransformFinalBlock(PasswordFlag, 0, PasswordFlag.Length);
+                    await EncryptFileStream.WriteAsync(EncryptPasswordFlag, 0, EncryptPasswordFlag.Length);
+
+                    using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Encryptor, CryptoStreamMode.Write))
+                    {
+                        await OriginFileStream.CopyToAsync(TransformStream);
+                        TransformStream.FlushFinalBlock();
+                    }
+                }
+            }
+
+            return EncryptedFile;
+        }
+
+        public static async Task<StorageFile> CBCDecryption(this StorageFile EncryptedFile, string Key)
+        {
+            StorageFolder ParentFolder = await EncryptedFile.GetParentAsync();
+
+            byte[] AdminIV = Encoding.UTF8.GetBytes("r7BXXKkLb8qrSNn0");
+            string FileType = string.Empty;
+
+            using (Aes AES = Aes.Create())
+            {
+                AES.Mode = CipherMode.CBC;
+                AES.Padding = PaddingMode.Zeros;
+                AES.IV = AdminIV;
+
+                using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForReadAsync())
+                {
+                    byte[] DecryptByteBuffer = new byte[20];
+
+                    await EncryptFileStream.ReadAsync(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
+
+                    if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
+                    {
+                        string[] InfoGroup = Info.Split('|');
+                        int KeySize = Convert.ToInt32(InfoGroup[0]);
+                        FileType = InfoGroup[1];
+                        AES.KeySize = KeySize;
+                        AES.Key = Encoding.UTF8.GetBytes(Key.PadRight(KeySize / 8, '0'));
+                    }
+                    else
+                    {
+                        throw new InvalidDataException("文件损坏，无法解密");
+                    }
+
+                    StorageFile DecryptedFile = await ParentFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(EncryptedFile.Name)}.{FileType}", CreationCollisionOption.ReplaceExisting);
+
+                    using (Stream DecryptFileStream = await DecryptedFile.OpenStreamForWriteAsync())
+                    using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
+                    {
+                        byte[] PasswordConfirm = new byte[16];
+                        EncryptFileStream.Seek(Info.Length + 2, SeekOrigin.Begin);
+                        await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length);
+                        var temp = Decryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length);
+
+                        if (Encoding.UTF8.GetString(temp) == "PASSWORD_CORRECT")
+                        {
+                            using (CryptoStream TransformStream = new CryptoStream(DecryptFileStream, Decryptor, CryptoStreamMode.Write))
+                            {
+                                await EncryptFileStream.CopyToAsync(TransformStream);
+                            }
+                        }
+                        else
+                        {
+
+                        }
+                    }
+
+                    return DecryptedFile;
+                }
+            }
+        }
+
         public static string TranslateToPinyinOrStayInEnglish(this string From)
         {
             StringBuilder EnglishBuilder = new StringBuilder();
@@ -1827,8 +1911,7 @@ namespace FileManager
 
         public static async Task DeleteAllSubFilesAndFolders(this StorageFolder Folder)
         {
-            IReadOnlyList<IStorageItem> ItemList = await Folder.GetItemsAsync();
-            foreach (var Item in ItemList)
+            foreach (var Item in await Folder.GetItemsAsync())
             {
                 if (Item is StorageFolder folder)
                 {
@@ -2264,7 +2347,7 @@ namespace FileManager
             this.MoreItemsNeed = MoreItemsNeed;
         }
 
-        public async Task SetStorageItemQuery(StorageItemQueryResult InputQuery)
+        public async Task SetStorageItemQueryAsync(StorageItemQueryResult InputQuery)
         {
             Query = InputQuery;
 

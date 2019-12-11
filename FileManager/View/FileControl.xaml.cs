@@ -408,7 +408,7 @@ namespace FileManager
                     IndexerOption = IndexerOption.UseIndexerWhenAvailable
                 };
 
-                Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 60, ThumbnailOptions.ResizeThumbnail);
+                Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.ResizeThumbnail);
                 Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.FileName", "System.Size", "System.DateModified" });
 
                 StorageItemQueryResult ItemQuery = folder.CreateItemQueryWithOptions(Options);
@@ -418,7 +418,7 @@ namespace FileManager
                 {
                     FilePresenter.ThisPage.FileCollection.HasMoreItems = false;
                     FileList = await ItemQuery.GetItemsAsync(0, 100).AsTask(CancelToken.Token);
-                    await FilePresenter.ThisPage.FileCollection.SetStorageItemQuery(ItemQuery);
+                    await FilePresenter.ThisPage.FileCollection.SetStorageItemQueryAsync(ItemQuery);
                 }
                 catch (TaskCanceledException)
                 {
@@ -902,7 +902,7 @@ namespace FileManager
                 };
             }
 
-            Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 60, ThumbnailOptions.ResizeThumbnail);
+            Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.ResizeThumbnail);
             Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.FileName", "System.Size", "System.DateModified" });
 
             if (Nav.CurrentSourcePageType.Name != "SearchPage")

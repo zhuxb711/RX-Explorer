@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -313,7 +314,17 @@ namespace FileManager
                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
                     SQLite.Current.Dispose();
-                    await ApplicationData.Current.ClearAsync();
+                    MySQL.Current.Dispose();
+                    try
+                    {
+                        await ApplicationData.Current.ClearAsync();
+                    }
+                    catch(Exception)
+                    {
+                        ApplicationData.Current.LocalSettings.Values.Clear();
+                        await ApplicationData.Current.LocalFolder.DeleteAllSubFilesAndFolders();
+                        await ApplicationData.Current.TemporaryFolder.DeleteAllSubFilesAndFolders();
+                    }
                     _ = await CoreApplication.RequestRestartAsync(string.Empty);
                 }
             }
