@@ -22,7 +22,7 @@
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
-    <PackageCertificateThumbprint>4F952890560E6210FFE4A23728A25DDB2B5FACAC</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>3508C69A39C4140619227ECAA9C8604722ADC668</PackageCertificateThumbprint>
     <AppInstallerUpdateFrequency>0</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
@@ -139,6 +139,9 @@
   <ItemGroup>
     <Compile Include="Dialog\FeedBackDialog.xaml.cs">
       <DependentUpon>FeedBackDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\SecureAreaWelcomeDialog.xaml.cs">
+      <DependentUpon>SecureAreaWelcomeDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialog\SystemInfoDialog.xaml.cs">
       <DependentUpon>SystemInfoDialog.xaml</DependentUpon>
@@ -380,6 +383,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Dialog\FeedBackDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\SecureAreaWelcomeDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

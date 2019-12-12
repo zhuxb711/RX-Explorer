@@ -50,7 +50,7 @@ namespace FileManager
             PermissionLocker = new AutoResetEvent(false);
             FavouriteList.ItemsSource = WebTab.ThisPage.FavouriteCollection;
             DownloadList.ItemsSource = WebDownloader.DownloadList;
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 TabOpenMethod.Items.Add("空白页");
                 TabOpenMethod.Items.Add("主页");
@@ -95,7 +95,7 @@ namespace FileManager
         private void InitHistoryList()
         {
             //根据WebTab提供的分类信息决定历史记录树应当展示多少分类
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 if (WebTab.ThisPage.HistoryFlag.HasFlag(HistoryTreeCategoryFlag.Today))
                 {
@@ -259,7 +259,7 @@ namespace FileManager
             else
             {
                 var TreeNodes = from Item in HistoryTree.RootNodes
-                                let Subject = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "今天" : "Today"
+                                let Subject = Globalization.Language == LanguageEnum.Chinese ? "今天" : "Today"
                                 where (Item.Content as WebSiteItem).Subject == Subject
                                 select Item;
                 var TodayNode = TreeNodes.FirstOrDefault();
@@ -300,7 +300,7 @@ namespace FileManager
             }
             else
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     ApplicationData.Current.LocalSettings.Values["WebTabMainPage"] = "https://www.baidu.com";
                     MainUrl.Text = "https://www.baidu.com";
@@ -370,7 +370,7 @@ namespace FileManager
             }
             else
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     ApplicationData.Current.LocalSettings.Values["WebSearchEngine"] = "百度";
                     SearchEngine.SelectedIndex = 0;
@@ -533,7 +533,7 @@ namespace FileManager
                 Width = GridLength.Auto
             });
 
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 TextBlock textBlock = new TextBlock
                 {
@@ -564,7 +564,7 @@ namespace FileManager
 
             Button SaveConfirmButton = new Button
             {
-                Content = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "保存" : "Save",
+                Content = Globalization.Language == LanguageEnum.Chinese ? "保存" : "Save",
                 Width = 120,
                 Height = 30,
             };
@@ -586,7 +586,7 @@ namespace FileManager
 
             Button CancelButton = new Button
             {
-                Content = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "取消" : "Cancel",
+                Content = Globalization.Language == LanguageEnum.Chinese ? "取消" : "Cancel",
                 Width = 120,
                 Height = 30,
                 Margin = new Thickness(10, 0, 0, 0)
@@ -647,7 +647,7 @@ namespace FileManager
             StorageFile HtmlFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///WebErrorStaticPage/index.html"));
             string HtmlContext = await FileIO.ReadTextAsync(HtmlFile);
 
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 HtmlContext = HtmlContext.Replace("@PrimaryTip", "抱歉，您访问的页面出错了")
                                          .Replace("@SecondTip", "可能是该网页已删除或不存在或网络故障")
@@ -690,7 +690,7 @@ namespace FileManager
 
         private async void WebBrowser_SeparateProcessLost(WebView sender, WebViewSeparateProcessLostEventArgs args)
         {
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -725,7 +725,7 @@ namespace FileManager
                 return;
             }
 
-            ThisTab.Header = string.IsNullOrEmpty(WebBrowser.DocumentTitle) ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "正在加载..." : "Loading...") : WebBrowser.DocumentTitle;
+            ThisTab.Header = string.IsNullOrEmpty(WebBrowser.DocumentTitle) ? (Globalization.Language == LanguageEnum.Chinese ? "正在加载..." : "Loading...") : WebBrowser.DocumentTitle;
 
             if (AutoSuggest.Text != args.Uri.ToString())
             {
@@ -766,7 +766,7 @@ namespace FileManager
                         if (!HistoryItem.Key.Equals(default))
                         {
                             TreeViewNode TodayNode = null;
-                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            if (Globalization.Language == LanguageEnum.Chinese)
                             {
                                 TodayNode = HistoryTree.RootNodes.Where((Node) => (Node.Content as WebSiteItem).Subject == "今天").FirstOrDefault();
                             }
@@ -797,7 +797,7 @@ namespace FileManager
             //TabViewItem的Header必须设置否则将导致异常发生
             TabViewItem NewItem = new TabViewItem
             {
-                Header = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "空白页" : "Blank Page",
+                Header = Globalization.Language == LanguageEnum.Chinese ? "空白页" : "Blank Page",
                 Icon = new SymbolIcon(Symbol.Document),
                 Content = Web
             };
@@ -1036,7 +1036,7 @@ namespace FileManager
                 StorageFile HtmlFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///WebErrorStaticPage/index.html"));
                 string HtmlContext = await FileIO.ReadTextAsync(HtmlFile);
 
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     HtmlContext = HtmlContext.Replace("@PrimaryTip", "抱歉，您访问的页面出错了")
                                              .Replace("@SecondTip", "可能是该网页已删除或不存在或网络故障")
@@ -1084,7 +1084,7 @@ namespace FileManager
         {
             if (ThisTab.Header.ToString() == "正在加载..." || ThisTab.Header.ToString() == "Loading...")
             {
-                ThisTab.Header = string.IsNullOrEmpty(WebBrowser.DocumentTitle) ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "空白页" : "Blank Page") : WebBrowser.DocumentTitle;
+                ThisTab.Header = string.IsNullOrEmpty(WebBrowser.DocumentTitle) ? (Globalization.Language == LanguageEnum.Chinese ? "空白页" : "Blank Page") : WebBrowser.DocumentTitle;
             }
 
             if (InPrivate.IsOn)
@@ -1107,7 +1107,7 @@ namespace FileManager
                             if (!HistoryItem.Key.Equals(default))
                             {
                                 TreeViewNode TodayNode = null;
-                                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                                if (Globalization.Language == LanguageEnum.Chinese)
                                 {
                                     TodayNode = HistoryTree.RootNodes.Where((Node) => (Node.Content as WebSiteItem).Subject == "今天").FirstOrDefault();
                                 }
@@ -1154,7 +1154,7 @@ namespace FileManager
 
         private async void WebBrowser_UnsafeContentWarningDisplaying(WebView sender, object args)
         {
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -1202,7 +1202,7 @@ namespace FileManager
 
         private void ShowPermissionToast()
         {
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 ToastContent Content = new ToastContent()
                 {
@@ -1330,7 +1330,7 @@ namespace FileManager
                     case WebViewPermissionType.Geolocation:
                         {
                             QueueContentDialog dialog;
-                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            if (Globalization.Language == LanguageEnum.Chinese)
                             {
                                 dialog = new QueueContentDialog
                                 {
@@ -1371,7 +1371,7 @@ namespace FileManager
                                             }
 
                                             QueueContentDialog LocationTips;
-                                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                                            if (Globalization.Language == LanguageEnum.Chinese)
                                             {
                                                 LocationTips = new QueueContentDialog
                                                 {
@@ -1422,7 +1422,7 @@ namespace FileManager
                     case WebViewPermissionType.WebNotifications:
                         {
                             QueueContentDialog dialog;
-                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            if (Globalization.Language == LanguageEnum.Chinese)
                             {
                                 dialog = new QueueContentDialog
                                 {
@@ -1459,7 +1459,7 @@ namespace FileManager
                     case WebViewPermissionType.Media:
                         {
                             QueueContentDialog dialog;
-                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            if (Globalization.Language == LanguageEnum.Chinese)
                             {
                                 dialog = new QueueContentDialog
                                 {
@@ -1514,7 +1514,7 @@ namespace FileManager
                                         catch (UnauthorizedAccessException)
                                         {
                                             QueueContentDialog LocationTips;
-                                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                                            if (Globalization.Language == LanguageEnum.Chinese)
                                             {
                                                 LocationTips = new QueueContentDialog
                                                 {
@@ -1572,7 +1572,7 @@ namespace FileManager
                     case WebViewPermissionType.Screen:
                         {
                             QueueContentDialog dialog;
-                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            if (Globalization.Language == LanguageEnum.Chinese)
                             {
                                 dialog = new QueueContentDialog
                                 {
@@ -1612,7 +1612,7 @@ namespace FileManager
                     case WebViewPermissionType.UnlimitedIndexedDBQuota:
                         {
                             QueueContentDialog dialog;
-                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            if (Globalization.Language == LanguageEnum.Chinese)
                             {
                                 dialog = new QueueContentDialog
                                 {
@@ -1656,7 +1656,7 @@ namespace FileManager
                     case WebViewPermissionType.PointerLock:
                         {
                             QueueContentDialog dialog;
-                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            if (Globalization.Language == LanguageEnum.Chinese)
                             {
                                 dialog = new QueueContentDialog
                                 {
@@ -1696,7 +1696,7 @@ namespace FileManager
                     case WebViewPermissionType.ImmersiveView:
                         {
                             QueueContentDialog dialog;
-                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            if (Globalization.Language == LanguageEnum.Chinese)
                             {
                                 dialog = new QueueContentDialog
                                 {
@@ -1743,7 +1743,7 @@ namespace FileManager
         {
             if ((await (await BluetoothAdapter.GetDefaultAsync()).GetRadioAsync()).State != RadioState.On)
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -1794,7 +1794,7 @@ namespace FileManager
                     BluetoothFileTransfer FileTransfer = new BluetoothFileTransfer
                     {
                         StreamToSend = stream.AsStream(),
-                        FileName = string.IsNullOrEmpty(WebBrowser.DocumentTitle) ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "屏幕截图.jpg" : "Screenshot.jpg") : (WebBrowser.DocumentTitle + ".jpg"),
+                        FileName = string.IsNullOrEmpty(WebBrowser.DocumentTitle) ? (Globalization.Language == LanguageEnum.Chinese ? "屏幕截图.jpg" : "Screenshot.jpg") : (WebBrowser.DocumentTitle + ".jpg"),
                         UseStorageFileRatherThanStream = false
                     };
                     await FileTransfer.ShowAsync();
@@ -1811,7 +1811,7 @@ namespace FileManager
             WebTab.ThisPage.HistoryCollection.Clear();
             HistoryTree.RootNodes.Clear();
 
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -1837,7 +1837,7 @@ namespace FileManager
 
         private async void About_Click(object sender, RoutedEventArgs e)
         {
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {

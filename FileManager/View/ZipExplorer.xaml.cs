@@ -80,7 +80,7 @@ namespace FileManager
 
         private async void Delete_Click(object sender, RoutedEventArgs e)
         {
-            LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+            LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
                 ? "正在执行删除操作"
                 : "Deleting");
             var file = GridControl.SelectedItem as ZipFileDisplay;
@@ -114,7 +114,7 @@ namespace FileManager
 
         private async void Test_Click(object sender, RoutedEventArgs e)
         {
-            LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+            LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
                 ? "正在检验文件"
                 : "Verifying");
             var file = GridControl.SelectedItem as ZipFileDisplay;
@@ -129,7 +129,7 @@ namespace FileManager
                     });
 
                     QueueContentDialog QueueContenDialog;
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         QueueContenDialog = new QueueContentDialog
                         {
@@ -208,7 +208,7 @@ namespace FileManager
 
         private async void Decompression_Click(object sender, RoutedEventArgs e)
         {
-            LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+            LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
                 ? "正在解压"
                 : "Extracting");
 
@@ -285,7 +285,7 @@ namespace FileManager
 
         private async void DecompressAll_Click(object sender, RoutedEventArgs e)
         {
-            LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+            LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
             ? "正在解压"
             : "Extracting");
 
@@ -369,7 +369,7 @@ namespace FileManager
 
             if (AddList.Count != 0)
             {
-                LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
                 ? "正在执行添加操作"
                 : "Adding");
 

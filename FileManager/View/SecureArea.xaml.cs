@@ -27,6 +27,12 @@ namespace FileManager
             SecureGridView.ItemsSource = SecureCollection;
             Loading += SecureArea_Loading;
             SecureCollection.CollectionChanged += SecureCollection_CollectionChanged;
+
+            if ((bool)ApplicationData.Current.LocalSettings.Values["SecureAreaPreviousCheckResult"])
+            {
+                EmptyTips.Visibility = Visibility.Collapsed;
+                SecureGridView.Visibility = Visibility.Visible;
+            }
         }
 
         private async void SecureArea_Loading(FrameworkElement sender, object args)
@@ -37,7 +43,7 @@ namespace FileManager
 
             QueryOptions Options = new QueryOptions
             {
-                FolderDepth = FolderDepth.Deep,
+                FolderDepth = FolderDepth.Shallow,
                 IndexerOption = IndexerOption.UseIndexerWhenAvailable
             };
             Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.ResizeThumbnail);
@@ -60,7 +66,14 @@ namespace FileManager
 
         private void SecureCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            EmptyTips.Visibility = SecureCollection.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            if(SecureCollection.Count == 0)
+            {
+                EmptyTips.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                EmptyTips.Visibility = Visibility.Collapsed;
+            }
         }
 
         private async Task<IEnumerable<FileSystemStorageItem>> GetMoreItemsFunction(uint Index, uint Num, StorageItemQueryResult Query)
@@ -98,12 +111,31 @@ namespace FileManager
                 }
                 else
                 {
-
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "加密文件时出现意外错误，导入过程已经终止",
+                            CloseButtonText = "确定"
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "An unexpected error occurred while encrypting the file, the import process has ended",
+                            CloseButtonText = "Got it"
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
                 }
             }
         }
 
-        private async void SecureGridView_Drop(object sender, DragEventArgs e)
+        private async void Grid_Drop(object sender, DragEventArgs e)
         {
             if (e.DataView.Contains(StandardDataFormats.StorageItems))
             {
@@ -120,13 +152,51 @@ namespace FileManager
                     }
                     else
                     {
-
+                        if (Globalization.Language == LanguageEnum.Chinese)
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = "错误",
+                                Content = "加密文件时出现意外错误，导入过程已经终止",
+                                CloseButtonText = "确定"
+                            };
+                            _ = await Dialog.ShowAsync();
+                        }
+                        else
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = "Error",
+                                Content = "An unexpected error occurred while encrypting the file, the import process has ended",
+                                CloseButtonText = "Got it"
+                            };
+                            _ = await Dialog.ShowAsync();
+                        }
                     }
                 }
 
                 if (Items.Count((Item) => Item.IsOfType(StorageItemTypes.Folder)) != 0)
                 {
-
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "提示",
+                            Content = "安全域不支持导入文件夹类型，所有文件夹类型均已被过滤",
+                            CloseButtonText = "确定"
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "Tips",
+                            Content = "Security Area does not support importing folder, all folders have been filtered",
+                            CloseButtonText = "Got it"
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
                 }
             }
         }
@@ -192,15 +262,70 @@ namespace FileManager
 
                         _ = await Launcher.LaunchFolderAsync(Folder);
                     }
-                    catch(PasswordErrorException)
+                    catch (Exception ex)
                     {
-
-                    }
-                    catch (FileDamagedException)
-                    {
-
+                        if (ex is PasswordErrorException)
+                        {
+                            if (Globalization.Language == LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "由于解密密码错误，解密失败，导出任务已经终止\r\r这可能是由于待解密文件数据不匹配造成的",
+                                    CloseButtonText = "确定"
+                                };
+                                _ = await Dialog.ShowAsync();
+                            }
+                            else
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "The decryption failed due to the wrong decryption password, the export task has been terminated \r \rThis may be caused by a mismatch in the data of the files to be decrypted",
+                                    CloseButtonText = "Got it"
+                                };
+                                _ = await Dialog.ShowAsync();
+                            }
+                        }
+                        else if (ex is FileDamagedException)
+                        {
+                            if (Globalization.Language == LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "由于待解密文件的内部结构损坏，解密失败，导出任务已经终止\r\r这可能是由于文件数据已损坏或被修改造成的",
+                                    CloseButtonText = "确定"
+                                };
+                                _ = await Dialog.ShowAsync();
+                            }
+                            else
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r \rThis may be caused by the file data being damaged or modified",
+                                    CloseButtonText = "Got it"
+                                };
+                                _ = await Dialog.ShowAsync();
+                            }
+                        }
                     }
                 }
+            }
+        }
+
+        private void SecureGridView_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+            if((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
+            {
+                SecureGridView.SelectedItem = Item;
+                SecureGridView.ContextFlyout = FileFlyout;
+            }
+            else
+            {
+                SecureGridView.SelectedItem = null;
+                SecureGridView.ContextFlyout = EmptyFlyout;
             }
         }
     }

@@ -24,7 +24,7 @@ namespace FileManager
             switch (Type)
             {
                 case QuickStartType.Application:
-                    Protocal.PlaceholderText = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                    Protocal.PlaceholderText = Globalization.Language == LanguageEnum.Chinese
                         ? "启动协议"
                         : "Protocal";
                     ProtocalIcon.Visibility = Windows.UI.Xaml.Visibility.Visible;
@@ -32,7 +32,7 @@ namespace FileManager
                     Protocal.Width = 170;
                     break;
                 case QuickStartType.WebSite:
-                    Protocal.PlaceholderText = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                    Protocal.PlaceholderText = Globalization.Language == LanguageEnum.Chinese
                         ? "网址"
                         : "WebSite";
                     ProtocalIcon.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
@@ -279,7 +279,7 @@ namespace FileManager
             {
                 try
                 {
-                    Uri QueryUrl = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                    Uri QueryUrl = Globalization.Language == LanguageEnum.Chinese
                         ? new Uri($"http://statics.dnspod.cn/proxy_favicon/_/favicon?domain={new Uri(Protocal.Text).Host}")
                         : new Uri($"http://www.google.com/s2/favicons?domain={new Uri(Protocal.Text).Host}");
 

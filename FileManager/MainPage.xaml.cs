@@ -37,8 +37,6 @@ namespace FileManager
 
         public string ActivateUSBDevicePath { get; private set; }
 
-        public LanguageEnum CurrentLanguage { get; private set; }
-
         private EntranceAnimationEffect EntranceEffectProvider;
 
         private DeviceWatcher PortalDeviceWatcher;
@@ -49,9 +47,6 @@ namespace FileManager
             ThisPage = this;
             Window.Current.SetTitleBar(TitleBar);
             Loaded += MainPage_Loaded;
-            CurrentLanguage = Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh")
-                ? LanguageEnum.Chinese
-                : LanguageEnum.English;
             Application.Current.Resuming += Current_Resuming;
             Application.Current.Suspending += Current_Suspending;
         }
@@ -95,7 +90,7 @@ namespace FileManager
 
             if (!(ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is string Mode))
             {
-                ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = CurrentLanguage == LanguageEnum.Chinese
+                ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = Globalization.Language == LanguageEnum.Chinese
                             ? "推荐"
                             : "Recommand";
             }
@@ -109,7 +104,7 @@ namespace FileManager
                 ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = true;
             }
 
-            if (CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 PageDictionary = new Dictionary<Type, string>()
                 {
@@ -300,7 +295,7 @@ namespace FileManager
                 RequestRateApplication();
             };
 
-            PinTip.Subtitle = CurrentLanguage == LanguageEnum.Chinese
+            PinTip.Subtitle = Globalization.Language == LanguageEnum.Chinese
                 ? "将RX文件管理器固定在和开始屏幕任务栏，启动更快更方便哦！\r\r★固定至开始菜单\r\r★固定至任务栏"
                 : "Pin the RX FileManager to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar";
             PinTip.IsOpen = true;
@@ -333,7 +328,7 @@ namespace FileManager
 
                 if (Updates.Count > 0)
                 {
-                    UpdateTip.Subtitle = CurrentLanguage == LanguageEnum.Chinese
+                    UpdateTip.Subtitle = Globalization.Language == LanguageEnum.Chinese
                         ? "最新版RX文件管理器已推出！\r最新版包含针对以往问题的修复补丁\r是否立即下载？"
                         : "The latest version of the RX FileManager has been released! \rIncluding fixes for past issues\rWhether to download it now ?";
 
@@ -442,14 +437,14 @@ namespace FileManager
                         {
                             new AdaptiveText()
                             {
-                                Text = CurrentLanguage == LanguageEnum.Chinese
+                                Text = Globalization.Language == LanguageEnum.Chinese
                                         ? "更新失败"
                                         : "Update Failed"
                             },
 
                             new AdaptiveText()
                             {
-                                Text = CurrentLanguage == LanguageEnum.Chinese
+                                Text = Globalization.Language == LanguageEnum.Chinese
                                         ? "RX文件管理器无法更新至最新版"
                                         : "RX FileManager cannot be updated to the latest version"
                             }
@@ -477,14 +472,14 @@ namespace FileManager
                         {
                             new AdaptiveText()
                             {
-                                Text = CurrentLanguage == LanguageEnum.Chinese
+                                Text = Globalization.Language == LanguageEnum.Chinese
                                         ? "正在下载应用更新..."
                                         : "Downloading Updates..."
                             },
 
                             new AdaptiveProgressBar()
                             {
-                                Title = CurrentLanguage == LanguageEnum.Chinese
+                                Title = Globalization.Language == LanguageEnum.Chinese
                                         ? "正在更新..."
                                         : "Updating...",
                                 Value = new BindableProgressBarValue("ProgressValue"),
@@ -502,7 +497,7 @@ namespace FileManager
                 Data = new NotificationData()
             };
             Toast.Data.Values["ProgressValue"] = "0";
-            Toast.Data.Values["ProgressStatus"] = CurrentLanguage == LanguageEnum.Chinese
+            Toast.Data.Values["ProgressStatus"] = Globalization.Language == LanguageEnum.Chinese
                                                     ? "正在下载..."
                                                     : "Downloading...";
             Toast.Data.Values["ProgressString"] = "0%";

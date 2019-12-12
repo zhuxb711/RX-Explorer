@@ -78,7 +78,7 @@ namespace FileManager
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Title = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                Title = Globalization.Language == LanguageEnum.Chinese
                 ? "正在传输中"
                 : "Transferring";
             });
@@ -93,7 +93,7 @@ namespace FileManager
             }
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     Title = "传输终止";
                     ProgressText.Text = "目标设备终止了文件传输";
@@ -114,7 +114,7 @@ namespace FileManager
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     Title = "传输终止";
                     ProgressText.Text = "文件传输终止";
@@ -135,7 +135,7 @@ namespace FileManager
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     Title = "传输终止";
                     ProgressText.Text = "连接失败: " + e.ExceptionObject.Message;
@@ -157,7 +157,7 @@ namespace FileManager
             AbortFromHere = true;
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     Title = "传输完成";
                     ProgressControl.Value = 100;
@@ -187,7 +187,7 @@ namespace FileManager
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     Title = "传输终止";
                     ProgressText.Text = "文件传输意外终止:" + e.ExceptionObject.Message;
@@ -208,7 +208,7 @@ namespace FileManager
         {
             var Deferral = args.GetDeferral();
 
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 if (SecondaryButtonText == "中止")
                 {

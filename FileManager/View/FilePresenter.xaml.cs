@@ -223,7 +223,7 @@ namespace FileManager
             Restore();
             if (CutFile != null)
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     LoadingActivation(true, "正在剪切");
 
@@ -359,7 +359,7 @@ namespace FileManager
             }
             else if (CopyFile != null)
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     LoadingActivation(true, "正在复制");
 
@@ -517,7 +517,7 @@ namespace FileManager
 
                 if (ItemToDelete.ContentType == ContentType.File)
                 {
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         QueueContentDialog QueueContenDialog = new QueueContentDialog
                         {
@@ -608,7 +608,7 @@ namespace FileManager
                 }
                 else
                 {
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         QueueContentDialog QueueContenDialog = new QueueContentDialog
                         {
@@ -751,7 +751,7 @@ namespace FileManager
                     RenameDialog dialog = new RenameDialog(RenameItem.File.DisplayName, RenameItem.File.FileType);
                     if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                        if (Globalization.Language == LanguageEnum.Chinese)
                         {
                             if (dialog.DesireName == RenameItem.File.FileType)
                             {
@@ -844,7 +844,7 @@ namespace FileManager
                     {
                         if (string.IsNullOrWhiteSpace(dialog.DesireName))
                         {
-                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            if (Globalization.Language == LanguageEnum.Chinese)
                             {
                                 QueueContentDialog content = new QueueContentDialog
                                 {
@@ -922,7 +922,7 @@ namespace FileManager
                             }
                             catch (UnauthorizedAccessException)
                             {
-                                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                                if (Globalization.Language == LanguageEnum.Chinese)
                                 {
                                     QueueContentDialog Dialog = new QueueContentDialog
                                     {
@@ -997,7 +997,7 @@ namespace FileManager
                     return;
                 }
 
-                LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
                     ? "正在加密"
                     : "Encrypting");
 
@@ -1055,7 +1055,7 @@ namespace FileManager
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         QueueContentDialog dialog = new QueueContentDialog
                         {
@@ -1103,7 +1103,7 @@ namespace FileManager
                     return;
                 }
 
-                LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
                     ? "正在解密"
                     : "Decrypting");
 
@@ -1130,7 +1130,7 @@ namespace FileManager
                             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                             {
                                 QueueContentDialog dialog;
-                                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                                if (Globalization.Language == LanguageEnum.Chinese)
                                 {
                                     dialog = new QueueContentDialog
                                     {
@@ -1190,7 +1190,7 @@ namespace FileManager
                             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                             {
                                 QueueContentDialog dialog;
-                                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                                if (Globalization.Language == LanguageEnum.Chinese)
                                 {
                                     dialog = new QueueContentDialog
                                     {
@@ -1277,7 +1277,7 @@ namespace FileManager
                         }
                         catch (UnauthorizedAccessException)
                         {
-                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            if (Globalization.Language == LanguageEnum.Chinese)
                             {
                                 QueueContentDialog dialog = new QueueContentDialog
                                 {
@@ -1343,7 +1343,7 @@ namespace FileManager
             {
                 if (Device.State != RadioState.On)
                 {
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         QueueContentDialog dialog = new QueueContentDialog
                         {
@@ -1403,14 +1403,14 @@ namespace FileManager
                     {
                         Transcode.IsEnabled = false;
 
-                        Zip.Label = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                        Zip.Label = Globalization.Language == LanguageEnum.Chinese
                                     ? "Zip压缩"
                                     : "Zip Compression";
                         switch (Item.Type)
                         {
                             case ".zip":
                                 {
-                                    Zip.Label = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                                    Zip.Label = Globalization.Language == LanguageEnum.Chinese
                                                 ? "Zip解压"
                                                 : "Zip Decompression";
                                     break;
@@ -1431,8 +1431,8 @@ namespace FileManager
                         }
 
                         AES.Label = Item.Type == ".sle"
-                                    ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "AES解密" : "AES Decryption")
-                                    : (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "AES加密" : "AES Encryption");
+                                    ? (Globalization.Language == LanguageEnum.Chinese ? "AES解密" : "AES Decryption")
+                                    : (Globalization.Language == LanguageEnum.Chinese ? "AES加密" : "AES Encryption");
                     }
                 }
             }
@@ -1496,7 +1496,7 @@ namespace FileManager
 
                 if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                    LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
                         ? "正在压缩"
                         : "Compressing", true);
 
@@ -1537,7 +1537,7 @@ namespace FileManager
                         ZipDialog dialog = new ZipDialog(false);
                         if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                         {
-                            LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                            LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
                                 ? "正在解压"
                                 : "Extracting", true);
                             zipFile.Password = dialog.Password;
@@ -1549,7 +1549,7 @@ namespace FileManager
                     }
                     else
                     {
-                        LoadingActivation(true, MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                        LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
                             ? "正在解压"
                             : "Extracting", true);
                     }
@@ -1612,7 +1612,7 @@ namespace FileManager
                                 {
                                     await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                                     {
-                                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                                        if (Globalization.Language == LanguageEnum.Chinese)
                                         {
                                             QueueContentDialog dialog = new QueueContentDialog
                                             {
@@ -1650,7 +1650,7 @@ namespace FileManager
                 }
                 catch (Exception e)
                 {
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         QueueContentDialog dialog = new QueueContentDialog
                         {
@@ -1828,7 +1828,7 @@ namespace FileManager
                     }
                     catch (Exception e)
                     {
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                        if (Globalization.Language == LanguageEnum.Chinese)
                         {
                             QueueContentDialog dialog = new QueueContentDialog
                             {
@@ -1861,7 +1861,7 @@ namespace FileManager
             }
             catch (UnauthorizedAccessException)
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -1908,7 +1908,7 @@ namespace FileManager
             {
                 if (IsTranscoding)
                 {
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -1947,7 +1947,7 @@ namespace FileManager
                     }
                     catch (UnauthorizedAccessException)
                     {
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                        if (Globalization.Language == LanguageEnum.Chinese)
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
@@ -2098,7 +2098,7 @@ namespace FileManager
                 {
                     Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                     {
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                        if (Globalization.Language == LanguageEnum.Chinese)
                         {
                             switch (ExcuteStatus)
                             {
@@ -2146,7 +2146,7 @@ namespace FileManager
         {
             ToastNotificationManager.History.Remove("TranscodeNotification");
 
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 var Content = new ToastContent()
                 {
@@ -2216,7 +2216,7 @@ namespace FileManager
         {
             ToastNotificationManager.History.Remove("TranscodeNotification");
 
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 var Content = new ToastContent()
                 {
@@ -2312,7 +2312,7 @@ namespace FileManager
                         {
                             new AdaptiveText()
                             {
-                                Text = MainPage.ThisPage.CurrentLanguage==LanguageEnum.Chinese
+                                Text = Globalization.Language==LanguageEnum.Chinese
                                 ? ("正在转换:"+SourceFile.DisplayName)
                                 : ("Transcoding:"+SourceFile.DisplayName)
                             },
@@ -2336,7 +2336,7 @@ namespace FileManager
             };
             Toast.Data.Values["ProgressValue"] = "0";
             Toast.Data.Values["ProgressValueString"] = "0%";
-            Toast.Data.Values["ProgressStatus"] = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+            Toast.Data.Values["ProgressStatus"] = Globalization.Language == LanguageEnum.Chinese
                 ? "点击该提示以取消转码"
                 : "Click the prompt to cancel transcoding";
             Toast.Data.SequenceNumber = 0;
@@ -2469,7 +2469,7 @@ namespace FileManager
             {
                 QRTeachTip.IsOpen = false;
 
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -2564,7 +2564,7 @@ namespace FileManager
                         Nav.Navigate(typeof(PdfReader), ReFile.File, new DrillInNavigationTransitionInfo());
                         break;
                     default:
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                        if (Globalization.Language == LanguageEnum.Chinese)
                         {
                             QueueContentDialog dialog = new QueueContentDialog
                             {
@@ -2609,7 +2609,7 @@ namespace FileManager
             StorageFolder folder = (GridViewControl.SelectedItem as FileSystemStorageItem).Folder;
             if (ThisPC.ThisPage.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -2644,7 +2644,7 @@ namespace FileManager
         {
             try
             {
-                var NewFolder = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                var NewFolder = Globalization.Language == LanguageEnum.Chinese
                     ? await FileControl.ThisPage.CurrentFolder.CreateFolderAsync("新建文件夹", CreationCollisionOption.GenerateUniqueName)
                     : await FileControl.ThisPage.CurrentFolder.CreateFolderAsync("New folder", CreationCollisionOption.GenerateUniqueName);
 
@@ -2667,7 +2667,7 @@ namespace FileManager
             catch (UnauthorizedAccessException)
             {
                 QueueContentDialog dialog;
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     dialog = new QueueContentDialog
                     {
@@ -2770,7 +2770,7 @@ namespace FileManager
                             Nav.Navigate(typeof(PdfReader), DoubleTabTarget.File, new DrillInNavigationTransitionInfo());
                             break;
                         default:
-                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            if (Globalization.Language == LanguageEnum.Chinese)
                             {
                                 QueueContentDialog dialog = new QueueContentDialog
                                 {

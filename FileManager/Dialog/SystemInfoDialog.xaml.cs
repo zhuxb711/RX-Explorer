@@ -129,7 +129,7 @@ namespace FileManager
                 if (!string.IsNullOrEmpty(SystemInformation.MemoryInfo))
                 {
                     var MemoryGroup = SystemInformation.MemoryInfo.Split("||");
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         return "共 " + MemoryGroup[0] + " (" + MemoryGroup[1] + " 可用)";
                     }
@@ -149,7 +149,7 @@ namespace FileManager
         {
             get
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     return "此软件内存占用: " + (MemoryManager.AppMemoryUsage / 1048576f < 1024 ? Math.Round(MemoryManager.AppMemoryUsage / 1048576f, 2).ToString("0.00") + " MB"
                                                                                                 : Math.Round(MemoryManager.AppMemoryUsage / 1073741824f, 2).ToString("0.00") + " GB");
@@ -208,7 +208,7 @@ namespace FileManager
 
                 TextBlock PeakLuminance = new TextBlock
                 {
-                    Text = MainPage.ThisPage.CurrentLanguage==LanguageEnum.Chinese?"峰值亮度": "Peak brightness",
+                    Text = Globalization.Language==LanguageEnum.Chinese?"峰值亮度": "Peak brightness",
                     VerticalAlignment = VerticalAlignment.Center
                 };
                 PeakLuminance.SetValue(Grid.RowProperty, DisplayGrid.RowDefinitions.Count - 1);
@@ -232,7 +232,7 @@ namespace FileManager
 
                 TextBlock MaxAverageLuminance = new TextBlock
                 {
-                    Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "最大平均亮度": "Max average brightness",
+                    Text = Globalization.Language == LanguageEnum.Chinese ? "最大平均亮度": "Max average brightness",
                     VerticalAlignment = VerticalAlignment.Center
                 };
                 MaxAverageLuminance.SetValue(Grid.RowProperty, DisplayGrid.RowDefinitions.Count - 1);
@@ -254,7 +254,7 @@ namespace FileManager
             if (!string.IsNullOrEmpty(CoreInfo))
             {
                 var CoreInfoGroup = CoreInfo.Split("||");
-                CPUCoreCount = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                CPUCoreCount = Globalization.Language == LanguageEnum.Chinese
                     ? (CoreInfoGroup[0] + "个物理核心  ,  " + CoreInfoGroup[1] + "个逻辑核心")
                     : (CoreInfoGroup[0] + " physical core  ,  " + CoreInfoGroup[1] + " logical core");
                 float L1Size = Convert.ToSingle(CoreInfoGroup[2]);
@@ -269,7 +269,7 @@ namespace FileManager
                 CPUArchitecture = (Package.Current.Id.Architecture == ProcessorArchitecture.X86
                                     ? "X86"
                                     : "X64");
-                CPUCache = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                CPUCache = Globalization.Language == LanguageEnum.Chinese
                     ? ("L1缓存: " + L1SizeDescription + "   L2缓存: " + L2SizeDescription + "   L3缓存: " + L3SizeDescription)
                     : ("L1 cache: " + L1SizeDescription + "   L2 cache: " + L2SizeDescription + "   L3 cache: " + L3SizeDescription);
             }
@@ -308,7 +308,7 @@ namespace FileManager
 
                     TextBlock GPUNameDescriptionBlock = new TextBlock
                     {
-                        Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "GPU型号" : "GPU model",
+                        Text = Globalization.Language == LanguageEnum.Chinese ? "GPU型号" : "GPU model",
                         VerticalAlignment = VerticalAlignment.Center
                     };
                     GPUNameDescriptionBlock.SetValue(Grid.RowProperty, i * 3);
@@ -326,7 +326,7 @@ namespace FileManager
 
                     TextBlock GPUMemoryDescriptionBlock = new TextBlock
                     {
-                        Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "GPU内存" : "GPU memory",
+                        Text = Globalization.Language == LanguageEnum.Chinese ? "GPU内存" : "GPU memory",
                         VerticalAlignment = VerticalAlignment.Center
                     };
                     GPUMemoryDescriptionBlock.SetValue(Grid.RowProperty, i * 3 + 1);
@@ -378,7 +378,7 @@ namespace FileManager
                 TextBlock AdapterDescriptionBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "网络适配器" : "Network Adapter"
+                    Text = Globalization.Language == LanguageEnum.Chinese ? "网络适配器" : "Network Adapter"
                 };
                 AdapterDescriptionBlock.SetValue(Grid.RowProperty, i * 8);
                 AdapterDescriptionBlock.SetValue(Grid.ColumnProperty, 0);
@@ -434,7 +434,7 @@ namespace FileManager
                 TextBlock GatewayDescriptionBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "网关" : "Gateway"
+                    Text = Globalization.Language == LanguageEnum.Chinese ? "网关" : "Gateway"
                 };
                 GatewayDescriptionBlock.SetValue(Grid.RowProperty, i * 8 + 3);
                 GatewayDescriptionBlock.SetValue(Grid.ColumnProperty, 0);
@@ -472,7 +472,7 @@ namespace FileManager
                 TextBlock PrimaryDNSDescriptionBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "主DNS服务器" : "Primary DNS Server"
+                    Text = Globalization.Language == LanguageEnum.Chinese ? "主DNS服务器" : "Primary DNS Server"
                 };
                 PrimaryDNSDescriptionBlock.SetValue(Grid.RowProperty, i * 8 + 5);
                 PrimaryDNSDescriptionBlock.SetValue(Grid.ColumnProperty, 0);
@@ -491,7 +491,7 @@ namespace FileManager
                 TextBlock SecondaryDNSDescriptionBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "副DNS服务器" : "Secondary DNS server"
+                    Text = Globalization.Language == LanguageEnum.Chinese ? "副DNS服务器" : "Secondary DNS server"
                 };
                 SecondaryDNSDescriptionBlock.SetValue(Grid.RowProperty, i * 8 + 6);
                 SecondaryDNSDescriptionBlock.SetValue(Grid.ColumnProperty, 0);

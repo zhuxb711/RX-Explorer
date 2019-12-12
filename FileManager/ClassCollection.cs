@@ -28,6 +28,7 @@ using Windows.Networking.Connectivity;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
+using Windows.System.UserProfile;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -512,7 +513,7 @@ namespace FileManager
                 {
                     if (Connection == null)
                     {
-                        Connection = new MySqlConnection("Data Source=zhuxb711.rdsmcjd7wro1g19.rds.gz.baidubce.com;port=3306;CharSet=utf8;User id=zhuxb711;password=password123;Database=FeedBackDataBase;");
+                        Connection = new MySqlConnection("Data Source=zhuxb711.rdsmt2onuvpvh1v.rds.gz.baidubce.com;port=3306;CharSet=utf8;User id=zhuxb711;password=password123;Database=FeedBackDataBase;");
                         Connection.Open();
                         const string CommandText = @"Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);
                                                      Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null)";
@@ -559,7 +560,7 @@ namespace FileManager
                     using (MySqlCommand Command = new MySqlCommand("Select * From FeedBackTable", Connection))
                     using (DbDataReader Reader = Command.ExecuteReader())
                     {
-                        var CurrentLanguage = MainPage.ThisPage.CurrentLanguage;
+                        var CurrentLanguage = Globalization.Language;
                         while (Reader.Read())
                         {
                             string TitleTranslation = Reader["Title"].ToString().TranslateTo(CurrentLanguage);
@@ -1021,7 +1022,7 @@ namespace FileManager
         {
             FullName = Entry.Name;
 
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 CompresionSize = "压缩大小：" + GetSize(Entry.CompressedSize);
                 ActualSize = "解压大小：" + GetSize(Entry.Size);
@@ -1682,9 +1683,10 @@ namespace FileManager
                        ? Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed))
                        : Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
 
+            StorageFile EncryptedFile = null;
             try
             {
-                StorageFile EncryptedFile = await ExportFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(OriginFile.Name)}.sle", CreationCollisionOption.ReplaceExisting);
+                EncryptedFile = await ExportFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(OriginFile.Name)}.sle", CreationCollisionOption.GenerateUniqueName);
 
                 using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                 {
@@ -1718,6 +1720,7 @@ namespace FileManager
             }
             catch (Exception)
             {
+                await EncryptedFile?.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 return null;
             }
         }
@@ -1729,6 +1732,7 @@ namespace FileManager
                 throw new ArgumentException("ExportFolder could not be null");
             }
 
+            StorageFile DecryptedFile = null;
             try
             {
                 using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
@@ -1768,7 +1772,7 @@ namespace FileManager
                             throw new FileDamagedException("文件损坏，无法解密");
                         }
 
-                        StorageFile DecryptedFile = await ExportFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(EncryptedFile.Name)}{FileType}", CreationCollisionOption.ReplaceExisting);
+                        DecryptedFile = await ExportFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(EncryptedFile.Name)}{FileType}", CreationCollisionOption.GenerateUniqueName);
 
                         using (Stream DecryptFileStream = await DecryptedFile.OpenStreamForWriteAsync())
                         using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
@@ -1795,9 +1799,10 @@ namespace FileManager
                     }
                 }
             }
-            catch (Exception e) when (!(e is PasswordErrorException) && !(e is FileDamagedException))
+            catch (Exception e)
             {
-                return null;
+                await DecryptedFile?.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                throw e;
             }
         }
 
@@ -2136,7 +2141,7 @@ namespace FileManager
         {
             get
             {
-                return string.IsNullOrWhiteSpace(DeviceInfo.Name) ? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "未知设备" : "Unknown") : DeviceInfo.Name;
+                return string.IsNullOrWhiteSpace(DeviceInfo.Name) ? (Globalization.Language == LanguageEnum.Chinese ? "未知设备" : "Unknown") : DeviceInfo.Name;
             }
         }
 
@@ -2162,11 +2167,11 @@ namespace FileManager
             {
                 if (DeviceInfo.Pairing.IsPaired)
                 {
-                    return MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "已配对" : "Paired";
+                    return Globalization.Language == LanguageEnum.Chinese ? "已配对" : "Paired";
                 }
                 else
                 {
-                    return MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "准备配对" : "ReadyToPair";
+                    return Globalization.Language == LanguageEnum.Chinese ? "准备配对" : "ReadyToPair";
                 }
             }
         }
@@ -2180,11 +2185,11 @@ namespace FileManager
             {
                 if (DeviceInfo.Pairing.IsPaired)
                 {
-                    return MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "取消配对" : "Unpair";
+                    return Globalization.Language == LanguageEnum.Chinese ? "取消配对" : "Unpair";
                 }
                 else
                 {
-                    return MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "配对" : "Pair";
+                    return Globalization.Language == LanguageEnum.Chinese ? "配对" : "Pair";
                 }
             }
         }
@@ -2342,7 +2347,7 @@ namespace FileManager
         {
             get
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     return FreeSpace + " 可用, 共 " + Capacity;
                 }
@@ -3194,7 +3199,7 @@ namespace FileManager
             this.DislikeNum = DislikeNum;
             this.UserID = UserID;
             this.GUID = GUID;
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 SupportDescription = $"({LikeNum} 人支持 , {DislikeNum} 人反对)";
             }
@@ -3219,7 +3224,7 @@ namespace FileManager
                     UserVoteAction = "=";
                 }
 
-                SupportDescription = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                SupportDescription = Globalization.Language == LanguageEnum.Chinese
                     ? $"({LikeNum} 人支持 , {DislikeNum} 人反对)"
                     : $"({LikeNum} people agree , {DislikeNum} people against)";
             }
@@ -3236,7 +3241,7 @@ namespace FileManager
                     UserVoteAction = "=";
                 }
 
-                SupportDescription = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                SupportDescription = Globalization.Language == LanguageEnum.Chinese
                     ? $"({LikeNum} 人支持 , {DislikeNum} 人反对)"
                     : $"({LikeNum} people agree , {DislikeNum} people against)";
             }
@@ -3277,6 +3282,7 @@ namespace FileManager
     }
     #endregion
 
+    #region 错误类型
     public sealed class PasswordErrorException : Exception
     {
         public PasswordErrorException(string ErrorMessage) : base(ErrorMessage)
@@ -3298,4 +3304,17 @@ namespace FileManager
         {
         }
     }
+    #endregion
+
+    #region 本地化指示器
+    public static class Globalization
+    {
+        public static LanguageEnum Language { get; private set; }
+
+        static Globalization()
+        {
+            Language = GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh", StringComparison.OrdinalIgnoreCase) ? LanguageEnum.Chinese : LanguageEnum.English;
+        }
+    }
+    #endregion
 }

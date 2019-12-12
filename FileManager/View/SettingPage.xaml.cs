@@ -70,7 +70,7 @@ namespace FileManager
                 Image.UriSource = ImageUri;
             }
 
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 UIMode.Items.Add("推荐");
                 UIMode.Items.Add("自定义");
@@ -116,7 +116,7 @@ namespace FileManager
 
                 if (!(string.IsNullOrEmpty(FirstName) || string.IsNullOrEmpty(LastName)))
                 {
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         UserFullName = $"{LastName} {FirstName}";
                     }
@@ -253,7 +253,7 @@ namespace FileManager
             ConfirmFly.Hide();
             await SQLite.Current.ClearSearchHistoryRecord();
 
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -284,7 +284,7 @@ namespace FileManager
 
         private async void ClearUp_Click(object sender, RoutedEventArgs e)
         {
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -419,7 +419,7 @@ namespace FileManager
 
         private async void Donation_Click(object sender, RoutedEventArgs e)
         {
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -638,7 +638,7 @@ namespace FileManager
             }
             else
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -676,7 +676,7 @@ namespace FileManager
                         FeedBackItem Item = new FeedBackItem(UserFullName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
                         if (!await MySQL.Current.SetFeedBackAsync(Item))
                         {
-                            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                            if (Globalization.Language == LanguageEnum.Chinese)
                             {
                                 QueueContentDialog dialog = new QueueContentDialog
                                 {
@@ -721,7 +721,7 @@ namespace FileManager
                     FeedBackItem Item = new FeedBackItem(UserFullName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
                     if (!await MySQL.Current.SetFeedBackAsync(Item))
                     {
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                        if (Globalization.Language == LanguageEnum.Chinese)
                         {
                             QueueContentDialog dialog = new QueueContentDialog
                             {
@@ -771,7 +771,7 @@ namespace FileManager
                 Item.UpdateSupportInfo(FeedBackUpdateType.Dislike, true);
                 if (!await MySQL.Current.UpdateFeedBackVoteAsync(Item))
                 {
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         QueueContentDialog dialog = new QueueContentDialog
                         {
@@ -804,7 +804,7 @@ namespace FileManager
                 Item.UpdateSupportInfo(FeedBackUpdateType.Dislike, false);
                 if (!await MySQL.Current.UpdateFeedBackVoteAsync(Item))
                 {
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         QueueContentDialog dialog = new QueueContentDialog
                         {
@@ -849,7 +849,7 @@ namespace FileManager
                 Item.UpdateSupportInfo(FeedBackUpdateType.Like, true);
                 if (!await MySQL.Current.UpdateFeedBackVoteAsync(Item))
                 {
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         QueueContentDialog dialog = new QueueContentDialog
                         {
@@ -882,7 +882,7 @@ namespace FileManager
                 Item.UpdateSupportInfo(FeedBackUpdateType.Like, false);
                 if (!await MySQL.Current.UpdateFeedBackVoteAsync(Item))
                 {
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         QueueContentDialog dialog = new QueueContentDialog
                         {
@@ -926,7 +926,7 @@ namespace FileManager
                 {
                     if (!await MySQL.Current.UpdateFeedBackTitleAndSuggestionAsync(Dialog.TitleName, Dialog.FeedBack, SelectItem.GUID))
                     {
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                        if (Globalization.Language == LanguageEnum.Chinese)
                         {
                             QueueContentDialog dialog = new QueueContentDialog
                             {
@@ -963,7 +963,7 @@ namespace FileManager
             {
                 if (!await MySQL.Current.DeleteFeedBackAsync(SelectItem))
                 {
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         QueueContentDialog dialog = new QueueContentDialog
                         {

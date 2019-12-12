@@ -49,7 +49,7 @@ namespace FileManager
 
                     var Properties = await file.GetBasicPropertiesAsync();
 
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         FileSize = (Properties.Size / 1024f < 1024 ? Math.Round(Properties.Size / 1024f, 2).ToString("0.00") + " KB" :
                                     (Properties.Size / 1048576f < 1024 ? Math.Round(Properties.Size / 1048576f, 2).ToString("0.00") + " MB" :
@@ -72,7 +72,7 @@ namespace FileManager
                 {
                     Cancellation = new CancellationTokenSource();
 
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         Na.Text = "文件夹名";
                         Include = "计算中...";
@@ -166,7 +166,7 @@ namespace FileManager
             {
                 var FolderCount = await FolderQuery.GetItemCountAsync().AsTask(Cancellation.Token);
                 var FileCount = await FileQuery.GetItemCountAsync().AsTask(Cancellation.Token);
-                Include = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                Include = Globalization.Language == LanguageEnum.Chinese
                             ? $"{FileCount} 个文件 , {FolderCount} 个文件夹"
                             : $"{FileCount} files , {FolderCount} folders";
                 OnPropertyChanged();
@@ -179,7 +179,7 @@ namespace FileManager
 
         private void Timer_Tick(object sender, object e)
         {
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 FileSize = Length / 1024f < 1024 ? Math.Round(Length / 1024f, 2).ToString("0.00") + " KB" :
                            (Length / 1048576f < 1024 ? Math.Round(Length / 1048576f, 2).ToString("0.00") + " MB" :

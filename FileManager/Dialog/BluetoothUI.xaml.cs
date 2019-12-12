@@ -71,7 +71,7 @@ namespace FileManager
 
             if (BluetoothControl.SelectedIndex == -1 || !BluetoothDeviceCollection[BluetoothControl.SelectedIndex].DeviceInfo.Pairing.IsPaired)
             {
-                Tips.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                Tips.Text = Globalization.Language == LanguageEnum.Chinese
                     ? "请先选择一个已配对的设备"
                     : "Please select a paired device first";
                 Tips.Visibility = Visibility.Visible;
@@ -106,7 +106,7 @@ namespace FileManager
 
                 if (ObexServiceProvider.GetObexNewInstance() == null)
                 {
-                    throw new Exception(MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                    throw new Exception(Globalization.Language == LanguageEnum.Chinese
                         ? "未能找到已配对的设备，请打开该设备的蓝牙开关"
                         : "Failed to find the paired device, please turn on the device's Bluetooth switch");
                 }
@@ -134,7 +134,7 @@ namespace FileManager
                 BluetoothWatcher.Stop();
                 BluetoothWatcher = null;
                 Progress.IsActive = true;
-                StatusText.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                StatusText.Text = Globalization.Language == LanguageEnum.Chinese
                     ? "正在搜索"
                     : "Searching";
             }
@@ -155,7 +155,7 @@ namespace FileManager
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 Progress.IsActive = false;
-                StatusText.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                StatusText.Text = Globalization.Language == LanguageEnum.Chinese
                 ? "搜索完成"
                 : "Search Complete";
             });
@@ -264,7 +264,7 @@ namespace FileManager
             var Services = await Device.GetRfcommServicesForIdAsync(RfcommServiceId.ObexObjectPush);
             if (Services.Services.Count == 0)
             {
-                throw new Exception(MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                throw new Exception(Globalization.Language == LanguageEnum.Chinese
                     ? "无法发现蓝牙设备的ObexObjectPush服务，该设备不受支持"
                     : "Unable to discover the ObexObjectPush service for Bluetooth devices, which is not supported");
             }
@@ -319,7 +319,7 @@ namespace FileManager
             }
             else
             {
-                Tips.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "配对失败" : "Pair failed";
+                Tips.Text = Globalization.Language == LanguageEnum.Chinese ? "配对失败" : "Pair failed";
             }
         }
 
@@ -333,7 +333,7 @@ namespace FileManager
                     {
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                         {
-                            Tips.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? ("请确认PIN码与配对设备一致\r" + args.Pin) : ("Please confirm that the PIN is the same as the paired device\r" + args.Pin);
+                            Tips.Text = Globalization.Language == LanguageEnum.Chinese ? ("请确认PIN码与配对设备一致\r" + args.Pin) : ("Please confirm that the PIN is the same as the paired device\r" + args.Pin);
                             Tips.Visibility = Visibility.Visible;
                             PinConfirm.Visibility = Visibility.Visible;
                             PinRefuse.Visibility = Visibility.Visible;
@@ -344,7 +344,7 @@ namespace FileManager
                     {
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                         {
-                            Tips.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "请确认是否与设备配对" : "Please confirm whether to pair with the device";
+                            Tips.Text = Globalization.Language == LanguageEnum.Chinese ? "请确认是否与设备配对" : "Please confirm whether to pair with the device";
                             Tips.Visibility = Visibility.Visible;
                             PinConfirm.Visibility = Visibility.Visible;
                             PinRefuse.Visibility = Visibility.Visible;

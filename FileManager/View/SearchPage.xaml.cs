@@ -120,7 +120,7 @@ namespace FileManager
                 TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(RemoveFile.Folder.Path, (RootNode.Content as StorageFolder).Path));
                 if (TargetNode == null)
                 {
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         QueueContentDialog dialog = new QueueContentDialog
                         {
@@ -178,7 +178,7 @@ namespace FileManager
                 }
                 catch (FileNotFoundException)
                 {
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         QueueContentDialog dialog = new QueueContentDialog
                         {

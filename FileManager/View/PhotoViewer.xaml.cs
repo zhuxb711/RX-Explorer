@@ -276,7 +276,7 @@ namespace FileManager
         private async void Delete_Click(object sender, RoutedEventArgs e)
         {
             QueueContentDialog Dialog;
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 Dialog = new QueueContentDialog
                 {

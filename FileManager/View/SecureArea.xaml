@@ -9,6 +9,32 @@
     Background="Transparent"
     NavigationCacheMode="Required">
 
+    <Page.Resources>
+        <CommandBarFlyout x:Name="FileFlyout"
+                          Placement="RightEdgeAlignedTop">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Import"
+                              Label="导出"
+                              Click="ExportFile_Click"/>
+                <AppBarButton Icon="Delete"
+                              Label="删除"
+                              Click="DeleteFile_Click" />
+                <AppBarButton Icon="Rename"
+                              Label="重命名"/>
+                <AppBarButton Icon="Tag" 
+                              Label="属性"/>
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
+        <CommandBarFlyout x:Name="EmptyFlyout"
+                          Placement="RightEdgeAlignedTop">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Add"
+                              Label="添加文件"
+                              Click="AddFile_Click" />
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
+    </Page.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
@@ -38,9 +64,10 @@
         <GridView IsRightTapEnabled="True"
                   IsItemClickEnabled="False"
                   Grid.Row="1"
-                  Name="SecureGridView"
                   AllowDrop="True"
-                  Drop="SecureGridView_Drop"
+                  Drop="Grid_Drop"
+                  RightTapped="SecureGridView_RightTapped"
+                  Name="SecureGridView"
                   PointerPressed="SecureGridView_PointerPressed"
                   DragEnter="SecureGridView_DragEnter"
                   SelectionChanged="SecureGridView_SelectionChanged"

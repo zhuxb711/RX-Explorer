@@ -46,7 +46,7 @@ namespace FileManager
             }
             else
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     Title = "需要解压密码";
                     Pass.PlaceholderText = "输入解密密码";

@@ -160,7 +160,7 @@ namespace FileManager
             catch (FileNotFoundException)
             {
                 QueueContentDialog Tips;
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     Tips = new QueueContentDialog
                     {
@@ -183,7 +183,7 @@ namespace FileManager
             }
             catch (Exception)
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -241,7 +241,7 @@ namespace FileManager
                     Display += "   " + ErrorList.Dequeue() + "\r";
                 }
 
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {

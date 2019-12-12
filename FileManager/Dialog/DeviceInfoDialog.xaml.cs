@@ -14,7 +14,7 @@ namespace FileManager
             this.Device = Device;
             DeviceName.Text = Device.Name;
             Thumbnail.Source = Device.Thumbnail;
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 FreeByte.Text = Device.FreeByte.ToString("N0") + " 字节";
                 TotalByte.Text = Device.TotalByte.ToString("N0") + " 字节";
@@ -43,34 +43,34 @@ namespace FileManager
                 {
                     case DriveType.Fixed:
                         {
-                            DeviceType.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "本地驱动器" : "Local drive";
+                            DeviceType.Text = Globalization.Language == LanguageEnum.Chinese ? "本地驱动器" : "Local drive";
                             break;
                         }
                     case DriveType.Network:
                         {
-                            DeviceType.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "网络驱动器" : "Network drive";
+                            DeviceType.Text = Globalization.Language == LanguageEnum.Chinese ? "网络驱动器" : "Network drive";
                             break;
                         }
                     case DriveType.Removable:
                         {
-                            DeviceType.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "可移动驱动器" : "Removable drive";
+                            DeviceType.Text = Globalization.Language == LanguageEnum.Chinese ? "可移动驱动器" : "Removable drive";
                             break;
                         }
                     case DriveType.Ram:
                         {
-                            DeviceType.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "内存驱动器" : "Ram drive";
+                            DeviceType.Text = Globalization.Language == LanguageEnum.Chinese ? "内存驱动器" : "Ram drive";
                             break;
                         }
                     default:
                         {
-                            DeviceType.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "未知" : "Unknown";
+                            DeviceType.Text = Globalization.Language == LanguageEnum.Chinese ? "未知" : "Unknown";
                             break;
                         }
                 }
             }
             else
             {
-                DeviceType.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "未知" : "Unknown";
+                DeviceType.Text = Globalization.Language == LanguageEnum.Chinese ? "未知" : "Unknown";
             }
         }
 

@@ -28,7 +28,7 @@ namespace FileManager
         public CropperPage()
         {
             InitializeComponent();
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 AspList.Items.Add("自定义");
             }
@@ -114,7 +114,7 @@ namespace FileManager
             SoftwareBitmapSource Source7 = new SoftwareBitmapSource();
             await Source7.SetBitmapAsync(Bitmap7);
 
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 FilterCollection.Add(new FilterItem(Source1, "原图", FilterType.Origin));
                 FilterCollection.Add(new FilterItem(Source2, "反色", FilterType.Invert));
@@ -180,7 +180,7 @@ namespace FileManager
         private async void SaveAs_Click(SplitButton sender, SplitButtonClickEventArgs args)
         {
             FileSavePicker Picker;
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 Picker = new FileSavePicker
                 {

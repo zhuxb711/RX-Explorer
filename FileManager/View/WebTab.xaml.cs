@@ -128,14 +128,14 @@ namespace FileManager
                     if (e.Action == NotifyCollectionChangedAction.Add)
                     {
                         var TreeNode = from Item in CurrentWebPage.HistoryTree.RootNodes
-                                       let Subject = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "今天" : "Today"
+                                       let Subject = Globalization.Language == LanguageEnum.Chinese ? "今天" : "Today"
                                        where (Item.Content as WebSiteItem).Subject == Subject
                                        select Item;
                         if (TreeNode.Count() == 0)
                         {
                             CurrentWebPage.HistoryTree.RootNodes.Insert(0, new TreeViewNode
                             {
-                                Content = new WebSiteItem(MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "今天" : "Today", string.Empty),
+                                Content = new WebSiteItem(Globalization.Language == LanguageEnum.Chinese ? "今天" : "Today", string.Empty),
                                 HasUnrealizedChildren = true,
                                 IsExpanded = true
                             });
@@ -170,7 +170,7 @@ namespace FileManager
                 }
             };
 
-            switch (ApplicationData.Current.LocalSettings.Values["WebTabOpenMethod"]?.ToString() ?? (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "空白页" : "Blank Page"))
+            switch (ApplicationData.Current.LocalSettings.Values["WebTabOpenMethod"]?.ToString() ?? (Globalization.Language == LanguageEnum.Chinese ? "空白页" : "Blank Page"))
             {
                 case "空白页":
                 case "Blank Page":
@@ -270,7 +270,7 @@ namespace FileManager
                 WebPage Web = new WebPage(uri);
                 TabViewItem CurrentItem = new TabViewItem
                 {
-                    Header = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? "空白页" : "Blank Page",
+                    Header = Globalization.Language == LanguageEnum.Chinese ? "空白页" : "Blank Page",
                     Icon = new SymbolIcon(Symbol.Document),
                     Content = Web
                 };

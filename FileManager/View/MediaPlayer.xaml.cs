@@ -46,7 +46,7 @@ namespace FileManager
                 }
                 Item.ApplyDisplayProperties(Props);
 
-                Display.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                Display.Text = Globalization.Language == LanguageEnum.Chinese
                     ? "请欣赏：" + MediaFile.DisplayName
                     : "Please Enjoy: " + MediaFile.DisplayName;
                 MVControl.Source = Item;
@@ -123,7 +123,7 @@ namespace FileManager
                     }
                     else
                     {
-                        return MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                        return Globalization.Language == LanguageEnum.Chinese
                             ? "未知"
                             : "Unknown";
                     }

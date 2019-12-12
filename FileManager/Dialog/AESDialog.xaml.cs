@@ -19,7 +19,7 @@ namespace FileManager
             this.IsEncrypt = IsEncrypt;
             KeySelector.SelectedIndex = 0;
 
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 FileName.Text = "文件名：" + Name;
                 if (!IsEncrypt)

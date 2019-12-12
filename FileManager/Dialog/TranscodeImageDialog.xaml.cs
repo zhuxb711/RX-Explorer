@@ -68,7 +68,7 @@ namespace FileManager
             var ScalePixelData = GetScalePixelData(ScaleCombo.SelectedItem.ToString());
             ScaleWidth = ScalePixelData.Item1;
             ScaleHeight = ScalePixelData.Item2;
-            PreviewText.Text = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese ? ("预览分辨率: " + ScaleWidth + " X " + ScaleHeight) : ("Preview resolution: " + ScaleWidth + " X " + ScaleHeight);
+            PreviewText.Text = Globalization.Language == LanguageEnum.Chinese ? ("预览分辨率: " + ScaleWidth + " X " + ScaleHeight) : ("Preview resolution: " + ScaleWidth + " X " + ScaleHeight);
         }
 
         private void ScaleMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -98,7 +98,7 @@ namespace FileManager
                 SuggestedStartLocation = PickerLocationId.Desktop
             };
 
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 switch (Format.SelectedItem.ToString().Split(" ").FirstOrDefault())
                 {

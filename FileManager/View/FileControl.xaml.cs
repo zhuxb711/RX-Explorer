@@ -45,7 +45,7 @@ namespace FileManager
                         PlaceText = Folder.DisplayName;
                     }
 
-                    GlobeSearch.PlaceholderText = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                    GlobeSearch.PlaceholderText = Globalization.Language == LanguageEnum.Chinese
                          ? "搜索 " + PlaceText
                          : "Search " + PlaceText;
 
@@ -111,7 +111,7 @@ namespace FileManager
             TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, string.Empty));
             if (TargetNode == null)
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -202,7 +202,7 @@ namespace FileManager
                 {
                     PlaceText = TargetFolder.DisplayName;
                 }
-                GlobeSearch.PlaceholderText = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                GlobeSearch.PlaceholderText = Globalization.Language == LanguageEnum.Chinese
                     ? "搜索 " + PlaceText
                     : "Search " + PlaceText;
             }
@@ -464,7 +464,7 @@ namespace FileManager
             }
 
             QueueContentDialog QueueContenDialog;
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 QueueContenDialog = new QueueContentDialog
                 {
@@ -524,7 +524,7 @@ namespace FileManager
                 catch (UnauthorizedAccessException)
                 {
                     QueueContentDialog dialog;
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         dialog = new QueueContentDialog
                         {
@@ -555,7 +555,7 @@ namespace FileManager
                 catch (Exception)
                 {
                     QueueContentDialog Dialog;
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         Dialog = new QueueContentDialog
                         {
@@ -637,7 +637,7 @@ namespace FileManager
             {
                 if (renameDialog.DesireName == "")
                 {
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         QueueContentDialog content = new QueueContentDialog
                         {
@@ -712,7 +712,7 @@ namespace FileManager
                 catch (UnauthorizedAccessException)
                 {
                     QueueContentDialog dialog;
-                    if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         dialog = new QueueContentDialog
                         {
@@ -747,7 +747,7 @@ namespace FileManager
         {
             try
             {
-                var NewFolder = MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese
+                var NewFolder = Globalization.Language == LanguageEnum.Chinese
                     ? await CurrentFolder.CreateFolderAsync("新建文件夹", CreationCollisionOption.GenerateUniqueName)
                     : await CurrentFolder.CreateFolderAsync("New folder", CreationCollisionOption.GenerateUniqueName);
 
@@ -770,7 +770,7 @@ namespace FileManager
             catch (UnauthorizedAccessException)
             {
                 QueueContentDialog dialog;
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     dialog = new QueueContentDialog
                     {
@@ -965,7 +965,7 @@ namespace FileManager
                     TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
                     if (TargetNode == null)
                     {
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                        if (Globalization.Language == LanguageEnum.Chinese)
                         {
                             QueueContentDialog dialog = new QueueContentDialog
                             {
@@ -1038,7 +1038,7 @@ namespace FileManager
             }
             catch (Exception)
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -1163,7 +1163,7 @@ namespace FileManager
                     TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
                     if (TargetNode == null)
                     {
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                        if (Globalization.Language == LanguageEnum.Chinese)
                         {
                             QueueContentDialog dialog = new QueueContentDialog
                             {
@@ -1236,7 +1236,7 @@ namespace FileManager
             }
             catch (Exception)
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -1277,7 +1277,7 @@ namespace FileManager
                     TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
                     if (TargetNode == null)
                     {
-                        if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                        if (Globalization.Language == LanguageEnum.Chinese)
                         {
                             QueueContentDialog dialog = new QueueContentDialog
                             {
@@ -1350,7 +1350,7 @@ namespace FileManager
             }
             catch (Exception)
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {

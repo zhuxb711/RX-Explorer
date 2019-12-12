@@ -65,7 +65,7 @@ namespace FileManager
 
         public static ToastContent GenerateRestartToast()
         {
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 return new ToastContent()
                 {

@@ -13,7 +13,7 @@ namespace FileManager
         {
             get
             {
-                if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     switch (Format.SelectedItem.ToString())
                     {
@@ -86,7 +86,7 @@ namespace FileManager
 
         private void TranscodeDialog_Loaded(object sender, RoutedEventArgs e)
         {
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 switch (SourceFile.FileType)
                 {
@@ -338,7 +338,7 @@ namespace FileManager
 
         private void Quality_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (MainPage.ThisPage.CurrentLanguage == LanguageEnum.Chinese)
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 switch (Quality.SelectedItem.ToString())
                 {
