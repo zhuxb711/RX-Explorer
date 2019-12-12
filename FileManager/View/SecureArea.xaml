@@ -21,14 +21,30 @@
                           Name="AddFile"
                           Click="AddFile_Click"/>
             <AppBarButton Label="导出"
-                          Icon="Import" />
+                          Icon="Import" 
+                          IsEnabled="False"
+                          Name="ExportFile"
+                          Click="ExportFile_Click"/>
+            <AppBarButton Label="删除"
+                          Icon="Delete"
+                          IsEnabled="False"
+                          Name="DeleteFile"
+                          Click="DeleteFile_Click"/>
             <AppBarButton Label="选项"
-                          Icon="Setting" />
+                          Icon="Setting"
+                          Name="Setting"
+                          Click="Setting_Click"/>
         </CommandBar>
         <GridView IsRightTapEnabled="True"
                   IsItemClickEnabled="False"
                   Grid.Row="1"
-                  Name="SecureGridView">
+                  Name="SecureGridView"
+                  AllowDrop="True"
+                  Drop="SecureGridView_Drop"
+                  PointerPressed="SecureGridView_PointerPressed"
+                  DragEnter="SecureGridView_DragEnter"
+                  SelectionChanged="SecureGridView_SelectionChanged"
+                  Padding="15">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="local:FileSystemStorageItem">
                     <StackPanel Width="240"
@@ -54,7 +70,6 @@
                                        FontSize="13" />
                             <TextBlock IsHitTestVisible="False"
                                        Text="{x:Bind Size,Mode=OneWay}"
-                                       Visibility="{x:Bind Folder,Converter={StaticResource StateConverter}}"
                                        FontSize="13" />
                         </StackPanel>
                     </StackPanel>
@@ -75,6 +90,7 @@
         <StackPanel Grid.RowSpan="2"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
+                    IsHitTestVisible="False"
                     Name="EmptyTips">
             <Image Source="ms-appx:///Assets/Lock.png"
                    Stretch="Uniform"

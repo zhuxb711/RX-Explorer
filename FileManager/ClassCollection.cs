@@ -1598,8 +1598,77 @@ namespace FileManager
     #region 扩展方法类
     public static class Extention
     {
-        public static async Task<StorageFile> CBCEncryption(this StorageFile OriginFile, string Key, int KeySize)
+        public static async Task<string> EncryptionAsync(this string OriginText, string Key)
         {
+            try
+            {
+                using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                {
+                    KeySize = 128,
+                    Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
+                    Mode = CipherMode.CBC,
+                    Padding = PaddingMode.PKCS7,
+                    IV = Encoding.UTF8.GetBytes("KUsaWlEy2XN5b6y8")
+                })
+                {
+                    using (MemoryStream EncryptStream = new MemoryStream())
+                    {
+                        using (ICryptoTransform Encryptor = AES.CreateEncryptor())
+                        using (CryptoStream TransformStream = new CryptoStream(EncryptStream, Encryptor, CryptoStreamMode.Write))
+                        {
+                            using (StreamWriter Writer = new StreamWriter(TransformStream))
+                            {
+                                await Writer.WriteAsync(OriginText);
+                            }
+                        }
+
+                        return Convert.ToBase64String(EncryptStream.ToArray());
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public static async Task<string> DecryptionAsync(this string OriginText, string Key)
+        {
+            try
+            {
+                using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                {
+                    KeySize = 128,
+                    Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
+                    Mode = CipherMode.CBC,
+                    Padding = PaddingMode.PKCS7,
+                    IV = Encoding.UTF8.GetBytes("KUsaWlEy2XN5b6y8")
+                })
+                {
+                    using (MemoryStream DecryptStream = new MemoryStream(Convert.FromBase64String(OriginText)))
+                    {
+                        using (ICryptoTransform Decryptor = AES.CreateDecryptor())
+                        using (CryptoStream TransformStream = new CryptoStream(DecryptStream, Decryptor, CryptoStreamMode.Read))
+                        using (StreamReader Writer = new StreamReader(TransformStream, Encoding.UTF8))
+                        {
+                            return await Writer.ReadToEndAsync();
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public static async Task<StorageFile> EncryptionAsync(this StorageFile OriginFile, StorageFolder ExportFolder, string Key, int KeySize)
+        {
+            if (ExportFolder == null)
+            {
+                throw new ArgumentException("ExportFolder could not be null");
+            }
+
             if (KeySize != 256 && KeySize != 128)
             {
                 throw new InvalidEnumArgumentException("AES密钥长度仅支持128或256任意一种");
@@ -1609,107 +1678,126 @@ namespace FileManager
 
             int KeyLengthNeed = KeySize / 8;
 
-            if (Key.Length > KeyLengthNeed)
+            KeyArray = Key.Length > KeyLengthNeed
+                       ? Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed))
+                       : Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
+
+            try
             {
-                KeyArray = Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed));
-            }
-            else
-            {
-                KeyArray = Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
-            }
+                StorageFile EncryptedFile = await ExportFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(OriginFile.Name)}.sle", CreationCollisionOption.ReplaceExisting);
 
-            StorageFolder ParentFolder = await OriginFile.GetParentAsync();
-            StorageFile EncryptedFile = await ParentFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(OriginFile.Name)}.sle", CreationCollisionOption.ReplaceExisting);
-
-            byte[] AdminIV = Encoding.UTF8.GetBytes("r7BXXKkLb8qrSNn0");
-
-            using (Aes AES = Aes.Create())
-            {
-                AES.Key = KeyArray;
-                AES.Mode = CipherMode.CBC;
-                AES.KeySize = KeySize;
-                AES.Padding = PaddingMode.Zeros;
-                AES.IV = AdminIV;
-
-                using (Stream OriginFileStream = await OriginFile.OpenStreamForReadAsync())
-                using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForWriteAsync())
-                using (ICryptoTransform Encryptor = AES.CreateEncryptor(AES.Key, AES.IV))
+                using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                 {
-                    byte[] Detail = Encoding.UTF8.GetBytes("$" + KeySize + "|" + OriginFile.FileType + "$");
-                    await EncryptFileStream.WriteAsync(Detail, 0, Detail.Length);
-
-                    byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
-                    byte[] EncryptPasswordFlag = Encryptor.TransformFinalBlock(PasswordFlag, 0, PasswordFlag.Length);
-                    await EncryptFileStream.WriteAsync(EncryptPasswordFlag, 0, EncryptPasswordFlag.Length);
-
-                    using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Encryptor, CryptoStreamMode.Write))
+                    KeySize = KeySize,
+                    Key = KeyArray,
+                    Mode = CipherMode.CBC,
+                    Padding = PaddingMode.Zeros,
+                    IV = Encoding.UTF8.GetBytes("HqVQ2YgUnUlRNp5Z")
+                })
+                {
+                    using (Stream OriginFileStream = await OriginFile.OpenStreamForReadAsync())
+                    using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForWriteAsync())
+                    using (ICryptoTransform Encryptor = AES.CreateEncryptor())
                     {
-                        await OriginFileStream.CopyToAsync(TransformStream);
-                        TransformStream.FlushFinalBlock();
+                        byte[] Detail = Encoding.UTF8.GetBytes("$" + KeySize + "|" + OriginFile.FileType + "$");
+                        await EncryptFileStream.WriteAsync(Detail, 0, Detail.Length);
+
+                        byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
+                        byte[] EncryptPasswordFlag = Encryptor.TransformFinalBlock(PasswordFlag, 0, PasswordFlag.Length);
+                        await EncryptFileStream.WriteAsync(EncryptPasswordFlag, 0, EncryptPasswordFlag.Length);
+
+                        using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Encryptor, CryptoStreamMode.Write))
+                        {
+                            await OriginFileStream.CopyToAsync(TransformStream);
+                            TransformStream.FlushFinalBlock();
+                        }
                     }
                 }
-            }
 
-            return EncryptedFile;
+                return EncryptedFile;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
-        public static async Task<StorageFile> CBCDecryption(this StorageFile EncryptedFile, string Key)
+        public static async Task<StorageFile> DecryptionAsync(this StorageFile EncryptedFile, StorageFolder ExportFolder, string Key)
         {
-            StorageFolder ParentFolder = await EncryptedFile.GetParentAsync();
-
-            byte[] AdminIV = Encoding.UTF8.GetBytes("r7BXXKkLb8qrSNn0");
-            string FileType = string.Empty;
-
-            using (Aes AES = Aes.Create())
+            if (ExportFolder == null)
             {
-                AES.Mode = CipherMode.CBC;
-                AES.Padding = PaddingMode.Zeros;
-                AES.IV = AdminIV;
+                throw new ArgumentException("ExportFolder could not be null");
+            }
 
-                using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForReadAsync())
+            try
+            {
+                using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                 {
-                    byte[] DecryptByteBuffer = new byte[20];
-
-                    await EncryptFileStream.ReadAsync(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
-
-                    if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
+                    Mode = CipherMode.CBC,
+                    Padding = PaddingMode.Zeros,
+                    IV = Encoding.UTF8.GetBytes("HqVQ2YgUnUlRNp5Z")
+                })
+                {
+                    using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForReadAsync())
                     {
-                        string[] InfoGroup = Info.Split('|');
-                        int KeySize = Convert.ToInt32(InfoGroup[0]);
-                        FileType = InfoGroup[1];
-                        AES.KeySize = KeySize;
-                        AES.Key = Encoding.UTF8.GetBytes(Key.PadRight(KeySize / 8, '0'));
-                    }
-                    else
-                    {
-                        throw new InvalidDataException("文件损坏，无法解密");
-                    }
+                        byte[] DecryptByteBuffer = new byte[20];
 
-                    StorageFile DecryptedFile = await ParentFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(EncryptedFile.Name)}.{FileType}", CreationCollisionOption.ReplaceExisting);
+                        await EncryptFileStream.ReadAsync(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
 
-                    using (Stream DecryptFileStream = await DecryptedFile.OpenStreamForWriteAsync())
-                    using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
-                    {
-                        byte[] PasswordConfirm = new byte[16];
-                        EncryptFileStream.Seek(Info.Length + 2, SeekOrigin.Begin);
-                        await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length);
-                        var temp = Decryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length);
-
-                        if (Encoding.UTF8.GetString(temp) == "PASSWORD_CORRECT")
+                        string FileType;
+                        if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
                         {
-                            using (CryptoStream TransformStream = new CryptoStream(DecryptFileStream, Decryptor, CryptoStreamMode.Write))
+                            string[] InfoGroup = Info.Split('|');
+                            if (InfoGroup.Length == 2)
                             {
-                                await EncryptFileStream.CopyToAsync(TransformStream);
+                                int KeySize = Convert.ToInt32(InfoGroup[0]);
+                                FileType = InfoGroup[1];
+
+                                AES.KeySize = KeySize;
+
+                                int KeyLengthNeed = KeySize / 8;
+                                AES.Key = Key.Length > KeyLengthNeed ? Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed)) : Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
+                            }
+                            else
+                            {
+                                throw new FileDamagedException("文件损坏，无法解密");
                             }
                         }
                         else
                         {
-
+                            throw new FileDamagedException("文件损坏，无法解密");
                         }
-                    }
 
-                    return DecryptedFile;
+                        StorageFile DecryptedFile = await ExportFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(EncryptedFile.Name)}{FileType}", CreationCollisionOption.ReplaceExisting);
+
+                        using (Stream DecryptFileStream = await DecryptedFile.OpenStreamForWriteAsync())
+                        using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
+                        {
+                            byte[] PasswordConfirm = new byte[16];
+                            EncryptFileStream.Seek(Info.Length + 2, SeekOrigin.Begin);
+                            await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length);
+
+                            if (Encoding.UTF8.GetString(Decryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length)) == "PASSWORD_CORRECT")
+                            {
+                                using (CryptoStream TransformStream = new CryptoStream(DecryptFileStream, Decryptor, CryptoStreamMode.Write))
+                                {
+                                    await EncryptFileStream.CopyToAsync(TransformStream);
+                                    TransformStream.FlushFinalBlock();
+                                }
+                            }
+                            else
+                            {
+                                throw new PasswordErrorException("密码错误");
+                            }
+                        }
+
+                        return DecryptedFile;
+                    }
                 }
+            }
+            catch (Exception e) when (!(e is PasswordErrorException) && !(e is FileDamagedException))
+            {
+                return null;
             }
         }
 
@@ -3188,4 +3276,26 @@ namespace FileManager
         }
     }
     #endregion
+
+    public sealed class PasswordErrorException : Exception
+    {
+        public PasswordErrorException(string ErrorMessage) : base(ErrorMessage)
+        {
+        }
+
+        public PasswordErrorException() : base()
+        {
+        }
+    }
+
+    public sealed class FileDamagedException : Exception
+    {
+        public FileDamagedException(string ErrorMessage) : base(ErrorMessage)
+        {
+        }
+
+        public FileDamagedException() : base()
+        {
+        }
+    }
 }

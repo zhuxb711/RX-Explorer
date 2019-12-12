@@ -1440,8 +1440,7 @@ namespace FileManager
 
         private void GridViewControl_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            var Context = (e.OriginalSource as FrameworkElement)?.DataContext as FileSystemStorageItem;
-            GridViewControl.SelectedIndex = FileCollection.IndexOf(Context);
+            GridViewControl.SelectedIndex = -1;
         }
 
         private void GridViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
