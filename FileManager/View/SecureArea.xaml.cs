@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
@@ -37,10 +38,11 @@ namespace FileManager
             SecureCollection = new IncrementalLoadingCollection<FileSystemStorageItem>(GetMoreItemsFunction);
             SecureGridView.ItemsSource = SecureCollection;
             Loaded += SecureArea_Loaded;
+            Unloaded += SecureArea_Unloaded;
             SecureCollection.CollectionChanged += SecureCollection_CollectionChanged;
         }
 
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        private void SecureArea_Unloaded(object sender, RoutedEventArgs e)
         {
             SecureGridView.Visibility = Visibility.Collapsed;
             EmptyTips.Visibility = Visibility.Collapsed;
@@ -212,13 +214,16 @@ namespace FileManager
 
         private void SecureCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (SecureCollection.Count == 0)
+            if (e.Action != NotifyCollectionChangedAction.Reset)
             {
-                EmptyTips.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                EmptyTips.Visibility = Visibility.Collapsed;
+                if (SecureCollection.Count == 0)
+                {
+                    EmptyTips.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    EmptyTips.Visibility = Visibility.Collapsed;
+                }
             }
         }
 
@@ -376,8 +381,36 @@ namespace FileManager
         {
             if (SecureGridView.SelectedItem is FileSystemStorageItem Item)
             {
-                await Item.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                SecureCollection.Remove(Item);
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "警告",
+                        PrimaryButtonText = "是",
+                        Content = "此操作将永久删除 \" " + Item.Name + " \"\r\r是否继续?",
+                        CloseButtonText = "否"
+                    };
+                    if((await Dialog.ShowAsync())==ContentDialogResult.Primary)
+                    {
+                        await Item.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                        SecureCollection.Remove(Item);
+                    }
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "Warning",
+                        PrimaryButtonText = "Continue",
+                        Content = "This action will permanently delete \" " + Item.Name + " \"\r\rWhether to continue?",
+                        CloseButtonText = "Cancel"
+                    };
+                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    {
+                        await Item.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                        SecureCollection.Remove(Item);
+                    }
+                }
             }
         }
 
@@ -500,8 +533,7 @@ namespace FileManager
                             {
                                 Title = "错误",
                                 Content = "文件名不能为空，重命名失败",
-                                CloseButtonText = "确定",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                CloseButtonText = "确定"
                             };
                             await content.ShowAsync();
                             return;
@@ -512,8 +544,7 @@ namespace FileManager
                             {
                                 Title = "Error",
                                 Content = "File name cannot be empty, rename failed",
-                                CloseButtonText = "Confirm",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                CloseButtonText = "Confirm"
                             };
                             await content.ShowAsync();
                             return;

@@ -166,8 +166,7 @@ namespace FileManager
                     {
                         Title = "错误",
                         Content = "无法正确解析用户文件夹，可能已经被移动或不存在",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "确定"
                     };
                 }
                 else
@@ -176,8 +175,7 @@ namespace FileManager
                     {
                         Title = "Error",
                         Content = "Unable to parse user folder correctly，the folder may have been moved or does not exist",
-                        CloseButtonText = "Got it",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "Got it"
                     };
                 }
             }
@@ -248,8 +246,7 @@ namespace FileManager
                         Title = "警告",
                         Content = "部分已固定的文件夹已无法找到，将自动移除\r\r"
                         + "包括：\r" + Display,
-                        CloseButtonText = "知道了",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "知道了"
                     };
                     _ = await dialog.ShowAsync();
                 }
@@ -260,8 +257,7 @@ namespace FileManager
                         Title = "Warning",
                         Content = "Some of the fixed folders are no longer found and will be automatically removed\r\r"
                         + "Including：\r" + Display,
-                        CloseButtonText = "Got it",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "Got it"
                     };
                     _ = await dialog.ShowAsync();
                 }

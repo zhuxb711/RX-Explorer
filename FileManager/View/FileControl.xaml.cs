@@ -117,8 +117,7 @@ namespace FileManager
                     {
                         Title = "错误",
                         Content = "无法定位文件夹，该文件夹可能已被删除或移动",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "确定"
                     };
                     _ = await dialog.ShowAsync();
                 }
@@ -128,8 +127,7 @@ namespace FileManager
                     {
                         Title = "Error",
                         Content = "Unable to locate folder, which may have been deleted or moved",
-                        CloseButtonText = "Confirm",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "Confirm"
                     };
                     _ = await dialog.ShowAsync();
                 }
@@ -471,8 +469,7 @@ namespace FileManager
                     Title = "警告",
                     Content = "此操作将永久删除该文件夹内的所有内容\r\r是否继续？",
                     PrimaryButtonText = "继续",
-                    CloseButtonText = "取消",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    CloseButtonText = "取消"
                 };
             }
             else
@@ -482,8 +479,7 @@ namespace FileManager
                     Title = "Warning",
                     Content = "This will permanently delete everything in the folder\r\rWhether to continue ？",
                     PrimaryButtonText = "Continue",
-                    CloseButtonText = "Cancel",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    CloseButtonText = "Cancel"
                 };
             }
 
@@ -531,8 +527,7 @@ namespace FileManager
                             Title = "错误",
                             Content = "RX无权删除此文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
                             PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "稍后"
                         };
                     }
                     else
@@ -542,8 +537,7 @@ namespace FileManager
                             Title = "Error",
                             Content = "RX does not have permission to delete this folder, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
                             PrimaryButtonText = "Enter",
-                            CloseButtonText = "Later",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Later"
                         };
                     }
 
@@ -561,8 +555,7 @@ namespace FileManager
                         {
                             Title = "错误",
                             Content = "删除文件夹时出现错误",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "确定"
                         };
                     }
                     else
@@ -571,8 +564,7 @@ namespace FileManager
                         {
                             Title = "Error",
                             Content = "An error occurred while deleting the folder",
-                            CloseButtonText = "Confirm",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Confirm"
                         };
                     }
                     _ = await Dialog.ShowAsync();
@@ -643,8 +635,7 @@ namespace FileManager
                         {
                             Title = "错误",
                             Content = "文件夹名不能为空，重命名失败",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "确定"
                         };
                         _ = await content.ShowAsync();
                     }
@@ -654,8 +645,7 @@ namespace FileManager
                         {
                             Title = "Error",
                             Content = "Folder name cannot be empty, rename failed",
-                            CloseButtonText = "Confirm",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Confirm"
                         };
                         _ = await content.ShowAsync();
                     }
@@ -719,8 +709,7 @@ namespace FileManager
                             Title = "错误",
                             Content = "RX无权重命名此文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
                             PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "稍后"
                         };
                     }
                     else
@@ -731,7 +720,6 @@ namespace FileManager
                             Content = "RX does not have permission to rename this folder, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
                             PrimaryButtonText = "Enter",
                             CloseButtonText = "Later",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                         };
                     }
 
@@ -777,8 +765,7 @@ namespace FileManager
                         Title = "错误",
                         Content = "RX无权在此创建文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
                         PrimaryButtonText = "立刻",
-                        CloseButtonText = "稍后",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "稍后"
                     };
                 }
                 else
@@ -788,8 +775,7 @@ namespace FileManager
                         Title = "Error",
                         Content = "RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
                         PrimaryButtonText = "Enter",
-                        CloseButtonText = "Later",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "Later"
                     };
                 }
 
@@ -831,8 +817,7 @@ namespace FileManager
                 {
                     Title = "提示",
                     Content = "此文件夹已经添加到主界面了，不能重复添加哦",
-                    CloseButtonText = "知道了",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    CloseButtonText = "知道了"
                 };
                 _ = await dialog.ShowAsync();
             }
@@ -971,8 +956,7 @@ namespace FileManager
                             {
                                 Title = "错误",
                                 Content = "无法定位文件夹，该文件夹可能已被删除或移动",
-                                CloseButtonText = "确定",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                CloseButtonText = "确定"
                             };
                             _ = await dialog.ShowAsync();
                         }
@@ -982,8 +966,7 @@ namespace FileManager
                             {
                                 Title = "Error",
                                 Content = "Unable to locate folder, which may have been deleted or moved",
-                                CloseButtonText = "Confirm",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                CloseButtonText = "Confirm"
                             };
                             _ = await dialog.ShowAsync();
                         }
@@ -1044,8 +1027,7 @@ namespace FileManager
                     {
                         Title = "错误",
                         Content = "无法找到路径为: \r" + args.QueryText + "的文件夹",
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "确定"
                     };
                     _ = await dialog.ShowAsync();
                 }
@@ -1056,7 +1038,6 @@ namespace FileManager
                         Title = "Error",
                         Content = "Unable to locate folder: " + args.QueryText,
                         CloseButtonText = "Confirm",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                     };
                     _ = await dialog.ShowAsync();
                 }
@@ -1170,7 +1151,6 @@ namespace FileManager
                                 Title = "错误",
                                 Content = "无法定位文件夹，该文件夹可能已被删除或移动",
                                 CloseButtonText = "确定",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                             };
                             _ = await dialog.ShowAsync();
                         }
@@ -1181,7 +1161,6 @@ namespace FileManager
                                 Title = "Error",
                                 Content = "Unable to locate folder, which may have been deleted or moved",
                                 CloseButtonText = "Confirm",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
                             };
                             _ = await dialog.ShowAsync();
                         }
@@ -1242,8 +1221,7 @@ namespace FileManager
                     {
                         Title = "错误",
                         Content = "无法找到以下文件夹，路径为: \r" + Path,
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "确定"
                     };
                     _ = await dialog.ShowAsync();
                 }
@@ -1253,8 +1231,7 @@ namespace FileManager
                     {
                         Title = "Error",
                         Content = "Unable to locate folder: " + Path,
-                        CloseButtonText = "Confirm",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "Confirm"
                     };
                     _ = await dialog.ShowAsync();
                 }
@@ -1283,8 +1260,7 @@ namespace FileManager
                             {
                                 Title = "错误",
                                 Content = "无法定位文件夹，该文件夹可能已被删除或移动",
-                                CloseButtonText = "确定",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                CloseButtonText = "确定"
                             };
                             _ = await dialog.ShowAsync();
                         }
@@ -1294,8 +1270,7 @@ namespace FileManager
                             {
                                 Title = "Error",
                                 Content = "Unable to locate folder, which may have been deleted or moved",
-                                CloseButtonText = "Confirm",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                CloseButtonText = "Confirm"
                             };
                             _ = await dialog.ShowAsync();
                         }
@@ -1356,8 +1331,7 @@ namespace FileManager
                     {
                         Title = "错误",
                         Content = "无法找到以下文件夹，路径为: \r" + Path,
-                        CloseButtonText = "确定",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "确定"
                     };
                     _ = await dialog.ShowAsync();
                 }
@@ -1367,8 +1341,7 @@ namespace FileManager
                     {
                         Title = "Error",
                         Content = "Unable to locate folder: " + Path,
-                        CloseButtonText = "Confirm",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "Confirm"
                     };
                     _ = await dialog.ShowAsync();
                 }

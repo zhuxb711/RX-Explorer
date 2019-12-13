@@ -76,7 +76,7 @@
                   PointerPressed="SecureGridView_PointerPressed"
                   DragEnter="SecureGridView_DragEnter"
                   SelectionChanged="SecureGridView_SelectionChanged"
-                  Padding="15">
+                  Padding="20">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="local:FileSystemStorageItem">
                     <StackPanel Width="240"

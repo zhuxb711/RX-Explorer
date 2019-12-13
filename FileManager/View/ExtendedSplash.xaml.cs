@@ -95,8 +95,7 @@ namespace FileManager
                             {
                                 Title = "提示",
                                 Content = "    自上次启动以来，系统语言设置发生了更改\r\r    语言更改:  " + LastLanguageString + " ⋙⋙⋙⋙ " + CurrentLanguageString + "\r\r    为了保证程序正常运行，RX已将所有已保存设置还原为默认值",
-                                CloseButtonText = "确定",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                CloseButtonText = "确定"
                             };
                             _ = await dialog.ShowAsync();
                             ReleaseLock.Set();
@@ -110,8 +109,7 @@ namespace FileManager
                             {
                                 Title = "Tips",
                                 Content = "    The system language setting has changed since the last boot\r\r    Language changes:  " + LastLanguageString + " ⋙⋙⋙⋙ " + CurrentLanguageString + "\r\r    To ensure the program is running properly\r    RX has restored all saved settings to their default values",
-                                CloseButtonText = "Got it",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                CloseButtonText = "Got it"
                             };
                             _ = await dialog.ShowAsync();
                             ReleaseLock.Set();

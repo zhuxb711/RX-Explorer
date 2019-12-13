@@ -3169,6 +3169,11 @@ namespace FileManager
             Locker.Set();
             return Result;
         }
+
+        public QueueContentDialog()
+        {
+            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush;
+        }
     }
     #endregion
 

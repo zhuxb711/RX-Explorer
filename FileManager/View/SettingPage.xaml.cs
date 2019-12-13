@@ -259,8 +259,7 @@ namespace FileManager
                 {
                     Title = "提示",
                     Content = "搜索历史记录清理完成",
-                    CloseButtonText = "确定",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    CloseButtonText = "确定"
                 };
                 _ = await dialog.ShowAsync();
             }
@@ -270,8 +269,7 @@ namespace FileManager
                 {
                     Title = "Tips",
                     Content = "Search history cleanup completed",
-                    CloseButtonText = "Confirm",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    CloseButtonText = "Confirm"
                 };
                 _ = await dialog.ShowAsync();
             }
@@ -291,13 +289,23 @@ namespace FileManager
                     Title = "警告",
                     Content = " 此操作将完全初始化RX文件管理器，包括：\r\r     • 清除全部数据存储\r\r     • 还原所有应用设置\r\r     • RX文件管理器将自动关闭并重新启动",
                     CloseButtonText = "取消",
-                    PrimaryButtonText = "确认",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    PrimaryButtonText = "确认"
                 };
                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
                     SQLite.Current.Dispose();
-                    await ApplicationData.Current.ClearAsync();
+                    MySQL.Current.Dispose();
+                    try
+                    {
+                        await ApplicationData.Current.ClearAsync();
+                    }
+                    catch (Exception)
+                    {
+                        ApplicationData.Current.LocalSettings.Values.Clear();
+                        await ApplicationData.Current.LocalFolder.DeleteAllSubFilesAndFolders();
+                        await ApplicationData.Current.TemporaryFolder.DeleteAllSubFilesAndFolders();
+                        await ApplicationData.Current.LocalCacheFolder.DeleteAllSubFilesAndFolders();
+                    }
                     _ = await CoreApplication.RequestRestartAsync(string.Empty);
                 }
             }
@@ -308,8 +316,7 @@ namespace FileManager
                     Title = "Warning",
                     Content = " This will fully initialize the RX FileManager，Including：\r\r     • Clear all data\r\r     • Restore all app settings\r\r     • RX FileManager will automatically restart",
                     CloseButtonText = "Cancel",
-                    PrimaryButtonText = "Confirm",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    PrimaryButtonText = "Confirm"
                 };
                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
@@ -324,6 +331,7 @@ namespace FileManager
                         ApplicationData.Current.LocalSettings.Values.Clear();
                         await ApplicationData.Current.LocalFolder.DeleteAllSubFilesAndFolders();
                         await ApplicationData.Current.TemporaryFolder.DeleteAllSubFilesAndFolders();
+                        await ApplicationData.Current.LocalCacheFolder.DeleteAllSubFilesAndFolders();
                     }
                     _ = await CoreApplication.RequestRestartAsync(string.Empty);
                 }
@@ -431,8 +439,7 @@ namespace FileManager
                               "若您愿意支持开发者，则可以点击\"准奏\"\r\r" +
                               "Tips: 无论支持与否，RX文件管理器都将继续运行，且无任何功能限制",
                     PrimaryButtonText = "准奏",
-                    CloseButtonText = "跪安",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    CloseButtonText = "跪安"
                 };
                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
@@ -457,8 +464,7 @@ namespace FileManager
                                                        "RX文件管理器是我利用业余时间开发的项目\r" +
                                                        "希望大家能够喜欢\r\r" +
                                                        "Ruofan,\r敬上",
-                                            CloseButtonText = "朕知道了",
-                                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                            CloseButtonText = "朕知道了"
                                         };
                                         _ = await QueueContenDialog.ShowAsync();
                                         break;
@@ -472,8 +478,7 @@ namespace FileManager
                                                       "RX的初衷并非是赚钱，因此不可重复支持哦\r\r" +
                                                       "您可以向周围的人宣传一下RX，也是对RX的最好的支持哦（*＾-＾*）\r\r" +
                                                       "Ruofan,\r敬上",
-                                            CloseButtonText = "朕知道了",
-                                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                            CloseButtonText = "朕知道了"
                                         };
                                         _ = await QueueContenDialog.ShowAsync();
                                         break;
@@ -486,8 +491,7 @@ namespace FileManager
                                             Content = "无论支持与否，RX始终如一\r\r" +
                                                       "即使您最终决定放弃支持本项目，依然十分感谢您能够点进来看一看\r\r" +
                                                       "Ruofan,\r敬上",
-                                            CloseButtonText = "朕知道了",
-                                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                            CloseButtonText = "朕知道了"
                                         };
                                         _ = await QueueContenDialog.ShowAsync();
                                         break;
@@ -498,8 +502,7 @@ namespace FileManager
                                         {
                                             Title = "抱歉",
                                             Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
-                                            CloseButtonText = "朕知道了",
-                                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                            CloseButtonText = "朕知道了"
                                         };
                                         _ = await QueueContenDialog.ShowAsync();
                                         break;
@@ -513,8 +516,7 @@ namespace FileManager
                         {
                             Title = "抱歉",
                             Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
-                            CloseButtonText = "朕知道了",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "朕知道了"
                         };
                         _ = await QueueContenDialog.ShowAsync();
                     }
@@ -532,8 +534,7 @@ namespace FileManager
                               "if you want to donate, you can click \"Donate\" to support developer\r\r" +
                               "Tips: Whether donated or not, the RX File Manager will continue to run without any functional limitations",
                     PrimaryButtonText = "Donate",
-                    CloseButtonText = "Later",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    CloseButtonText = "Later"
                 };
                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
@@ -558,8 +559,7 @@ namespace FileManager
                                                       "RX File Manager is a project I developed in my spare time\r" +
                                                       "I hope everyone likes\r\r" +
                                                       "Sincerely,\rRuofan",
-                                            CloseButtonText = "朕知道了",
-                                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                            CloseButtonText = "朕知道了"
                                         };
                                         _ = await QueueContenDialog.ShowAsync();
                                         break;
@@ -573,8 +573,7 @@ namespace FileManager
                                                       "The original intention of RX is not to make money, so you can't repeat purchase it.\r\r" +
                                                       "You can advertise the RX to the people around you, and it is also the best support for RX（*＾-＾*）\r\r" +
                                                       "Sincerely,\rRuofan",
-                                            CloseButtonText = "Got it",
-                                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                            CloseButtonText = "Got it"
                                         };
                                         _ = await QueueContenDialog.ShowAsync();
                                         break;
@@ -587,8 +586,7 @@ namespace FileManager
                                             Content = "Whether supported or not, RX is always the same\r\r" +
                                                       "Even if you finally decide to give up supporting the project, thank you very much for being able to click to see it\r\r" +
                                                       "Sincerely,\rRuofan",
-                                            CloseButtonText = "Got it",
-                                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                            CloseButtonText = "Got it"
                                         };
                                         _ = await QueueContenDialog.ShowAsync();
                                         break;
@@ -599,8 +597,7 @@ namespace FileManager
                                         {
                                             Title = "Sorry",
                                             Content = "Unable to open support page due to Microsoft Store or network, please try again later",
-                                            CloseButtonText = "Got it",
-                                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                            CloseButtonText = "Got it"
                                         };
                                         _ = await QueueContenDialog.ShowAsync();
                                         break;
@@ -614,8 +611,7 @@ namespace FileManager
                         {
                             Title = "Sorry",
                             Content = "Unable to open support page due to Microsoft Store or network, please try again later",
-                            CloseButtonText = "Got it",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Got it"
                         };
                         _ = await QueueContenDialog.ShowAsync();
                     }
@@ -644,8 +640,7 @@ namespace FileManager
                     {
                         Title = "抱歉",
                         Content = "系统信息窗口所依赖的部分组件仅支持在X86或X64处理器上实现\rARM处理器暂不支持，因此无法打开此窗口",
-                        CloseButtonText = "知道了",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "知道了"
                     };
                     _ = await dialog.ShowAsync();
                 }
@@ -655,8 +650,7 @@ namespace FileManager
                     {
                         Title = "Sorry",
                         Content = "Some components that the system information dialog depends on only support X86 or X64 processors\rUnsupport ARM processor for now, so this dialog will not be opened",
-                        CloseButtonText = "Got it",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "Got it"
                     };
                     _ = await dialog.ShowAsync();
                 }
@@ -682,8 +676,7 @@ namespace FileManager
                                 {
                                     Title = "错误",
                                     Content = "因网络原因无法进行此项操作",
-                                    CloseButtonText = "确定",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    CloseButtonText = "确定"
                                 };
                                 _ = await dialog.ShowAsync();
                             }
@@ -693,8 +686,7 @@ namespace FileManager
                                 {
                                     Title = "Error",
                                     Content = "This operation cannot be performed due to network reasons",
-                                    CloseButtonText = "Got it",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    CloseButtonText = "Got it"
                                 };
                                 _ = await dialog.ShowAsync();
                             }
@@ -710,8 +702,7 @@ namespace FileManager
                         {
                             Title = "Tips",
                             Content = "The same feedback already exists, please do not submit it repeatedly",
-                            CloseButtonText = "Got it",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Got it"
                         };
                         _ = await TipsDialog.ShowAsync();
                     }
@@ -727,8 +718,7 @@ namespace FileManager
                             {
                                 Title = "错误",
                                 Content = "因网络原因无法进行此项操作",
-                                CloseButtonText = "确定",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                CloseButtonText = "确定"
                             };
                             _ = await dialog.ShowAsync();
                         }
@@ -738,8 +728,7 @@ namespace FileManager
                             {
                                 Title = "Error",
                                 Content = "This operation cannot be performed due to network reasons",
-                                CloseButtonText = "Got it",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                CloseButtonText = "Got it"
                             };
                             _ = await dialog.ShowAsync();
                         }
@@ -777,8 +766,7 @@ namespace FileManager
                         {
                             Title = "错误",
                             Content = "因网络原因无法进行此项操作",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "确定"
                         };
                         _ = await dialog.ShowAsync();
                     }
@@ -788,8 +776,7 @@ namespace FileManager
                         {
                             Title = "Error",
                             Content = "This operation cannot be performed due to network reasons",
-                            CloseButtonText = "Got it",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Got it"
                         };
                         _ = await dialog.ShowAsync();
                     }
@@ -810,8 +797,7 @@ namespace FileManager
                         {
                             Title = "错误",
                             Content = "因网络原因无法进行此项操作",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "确定"
                         };
                         _ = await dialog.ShowAsync();
                     }
@@ -821,8 +807,7 @@ namespace FileManager
                         {
                             Title = "Error",
                             Content = "This operation cannot be performed due to network reasons",
-                            CloseButtonText = "Got it",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Got it"
                         };
                         _ = await dialog.ShowAsync();
                     }
@@ -855,8 +840,7 @@ namespace FileManager
                         {
                             Title = "错误",
                             Content = "因网络原因无法进行此项操作",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "确定"
                         };
                         _ = await dialog.ShowAsync();
                     }
@@ -866,8 +850,7 @@ namespace FileManager
                         {
                             Title = "Error",
                             Content = "This operation cannot be performed due to network reasons",
-                            CloseButtonText = "Got it",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Got it"
                         };
                         _ = await dialog.ShowAsync();
                     }
@@ -888,8 +871,7 @@ namespace FileManager
                         {
                             Title = "错误",
                             Content = "因网络原因无法进行此项操作",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "确定"
                         };
                         _ = await dialog.ShowAsync();
                     }
@@ -899,8 +881,7 @@ namespace FileManager
                         {
                             Title = "Error",
                             Content = "This operation cannot be performed due to network reasons",
-                            CloseButtonText = "Got it",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Got it"
                         };
                         _ = await dialog.ShowAsync();
                     }
@@ -932,8 +913,7 @@ namespace FileManager
                             {
                                 Title = "错误",
                                 Content = "因网络原因无法进行此项操作",
-                                CloseButtonText = "确定",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                CloseButtonText = "确定"
                             };
                             _ = await dialog.ShowAsync();
                         }
@@ -943,8 +923,7 @@ namespace FileManager
                             {
                                 Title = "Error",
                                 Content = "This operation cannot be performed due to network reasons",
-                                CloseButtonText = "Got it",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                CloseButtonText = "Got it"
                             };
                             _ = await dialog.ShowAsync();
                         }
@@ -969,8 +948,7 @@ namespace FileManager
                         {
                             Title = "错误",
                             Content = "因网络原因无法进行此项操作",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "确定"
                         };
                         _ = await dialog.ShowAsync();
                     }
@@ -980,8 +958,7 @@ namespace FileManager
                         {
                             Title = "Error",
                             Content = "This operation cannot be performed due to network reasons",
-                            CloseButtonText = "Got it",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Got it"
                         };
                         _ = await dialog.ShowAsync();
                     }

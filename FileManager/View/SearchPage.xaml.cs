@@ -126,8 +126,7 @@ namespace FileManager
                         {
                             Title = "错误",
                             Content = "无法定位文件夹，该文件夹可能已被删除或移动",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "确定"
                         };
                         _ = await dialog.ShowAsync();
                     }
@@ -137,8 +136,7 @@ namespace FileManager
                         {
                             Title = "Error",
                             Content = "Unable to locate folder, which may have been deleted or moved",
-                            CloseButtonText = "Confirm",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Confirm"
                         };
                         _ = await dialog.ShowAsync();
                     }
@@ -184,8 +182,7 @@ namespace FileManager
                         {
                             Title = "错误",
                             Content = "无法定位文件，该文件可能已被删除或移动",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "确定"
                         };
                         _ = await dialog.ShowAsync();
                     }
@@ -195,8 +192,7 @@ namespace FileManager
                         {
                             Title = "Error",
                             Content = "Unable to locate file, which may have been deleted or moved",
-                            CloseButtonText = "Confirm",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Confirm"
                         };
                         _ = await dialog.ShowAsync();
                     }

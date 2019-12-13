@@ -135,8 +135,7 @@ namespace FileManager
                         {
                             Title = "测试结果",
                             Content = IsCorrect ? "CRC校验通过，Zip文件完整" : "未能通过CRC校验，Zip文件存在问题",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "确定"
                         };
                     }
                     else
@@ -145,8 +144,7 @@ namespace FileManager
                         {
                             Title = "Test Result",
                             Content = IsCorrect ? "The CRC is verified" : "Failed to pass CRC check",
-                            CloseButtonText = "Confirm",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Confirm"
                         };
                     }
                     LoadingActivation(false);

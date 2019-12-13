@@ -696,8 +696,7 @@ namespace FileManager
                 {
                     Content = "浏览器进程意外终止\r将自动重启并返回主页",
                     Title = "提示",
-                    CloseButtonText = "确定",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    CloseButtonText = "确定"
                 };
                 _ = await dialog.ShowAsync();
             }
@@ -707,8 +706,7 @@ namespace FileManager
                 {
                     Content = "Browser process terminated unexpectedly\rWe will automatically restart and return to the home page",
                     Title = "Tips",
-                    CloseButtonText = "Confirm",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    CloseButtonText = "Confirm"
                 };
                 _ = await dialog.ShowAsync();
             }
@@ -1161,8 +1159,7 @@ namespace FileManager
                     Content = "SmartScreen将该页面标记为不安全",
                     Title = "警告",
                     CloseButtonText = "继续访问",
-                    PrimaryButtonText = "返回主页",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    PrimaryButtonText = "返回主页"
                 };
                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
@@ -1176,8 +1173,7 @@ namespace FileManager
                     Content = "SmartScreen marks the page as unsafe",
                     Title = "Warning",
                     CloseButtonText = "Ignore anyway",
-                    PrimaryButtonText = "Back to homepage",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    PrimaryButtonText = "Back to homepage"
                 };
                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
@@ -1337,8 +1333,7 @@ namespace FileManager
                                     Content = "此网站正在请求您的精确GPS定位",
                                     Title = "权限",
                                     SecondaryButtonText = "拒绝",
-                                    PrimaryButtonText = "允许",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    PrimaryButtonText = "允许"
                                 };
                             }
                             else
@@ -1348,8 +1343,7 @@ namespace FileManager
                                     Content = "This site is requesting your precise GPS location",
                                     Title = "Permission",
                                     SecondaryButtonText = "Deny",
-                                    PrimaryButtonText = "Allow",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    PrimaryButtonText = "Allow"
                                 };
                             }
                             switch (await dialog.ShowAsync())
@@ -1377,7 +1371,6 @@ namespace FileManager
                                                 {
                                                     Title = "警告",
                                                     Content = "如果您拒绝授予RX文件管理器定位权限，则此网站亦无法获得您的精确位置",
-                                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
                                                     PrimaryButtonText = "授予权限",
                                                     SecondaryButtonText = "仍然拒绝"
                                                 };
@@ -1388,7 +1381,6 @@ namespace FileManager
                                                 {
                                                     Title = "Warning",
                                                     Content = "If you refuse to grant RX File Manager targeting, this site will not be able to get your exact location",
-                                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
                                                     PrimaryButtonText = "Permission",
                                                     SecondaryButtonText = "Deny"
                                                 };
@@ -1429,8 +1421,7 @@ namespace FileManager
                                     Content = "此网站正在请求Web通知权限",
                                     Title = "权限",
                                     SecondaryButtonText = "拒绝",
-                                    PrimaryButtonText = "允许",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    PrimaryButtonText = "允许"
                                 };
                             }
                             else
@@ -1440,8 +1431,7 @@ namespace FileManager
                                     Content = "This site is requesting web notification permission",
                                     Title = "Permission",
                                     SecondaryButtonText = "Deny",
-                                    PrimaryButtonText = "Allow",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    PrimaryButtonText = "Allow"
                                 };
                             }
 
@@ -1466,8 +1456,7 @@ namespace FileManager
                                     Content = "此网站正在请求音视频权限",
                                     Title = "权限",
                                     SecondaryButtonText = "拒绝",
-                                    PrimaryButtonText = "允许",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    PrimaryButtonText = "允许"
                                 };
                             }
                             else
@@ -1477,8 +1466,7 @@ namespace FileManager
                                     Content = "This site is requesting media playback permission",
                                     Title = "Permission",
                                     SecondaryButtonText = "Deny",
-                                    PrimaryButtonText = "Allow",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    PrimaryButtonText = "Allow"
                                 };
                             }
                             switch (await dialog.ShowAsync())
@@ -1520,7 +1508,6 @@ namespace FileManager
                                                 {
                                                     Title = "警告",
                                                     Content = "如果您拒绝授予RX文件管理器音视频权限，则此网站亦无法获得您的音视频流",
-                                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
                                                     PrimaryButtonText = "授予权限",
                                                     SecondaryButtonText = "仍然拒绝"
                                                 };
@@ -1531,7 +1518,6 @@ namespace FileManager
                                                 {
                                                     Title = "Warning",
                                                     Content = "If you refuse to grant RX File Manager audio and video permissions, the site will not be able to get your audio and video streams",
-                                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
                                                     PrimaryButtonText = "Permission",
                                                     SecondaryButtonText = "Deny"
                                                 };
@@ -1579,8 +1565,7 @@ namespace FileManager
                                     Content = "此网站正在请求屏幕录制权限",
                                     Title = "权限",
                                     CloseButtonText = "拒绝",
-                                    PrimaryButtonText = "允许",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    PrimaryButtonText = "允许"
                                 };
                             }
                             else
@@ -1590,8 +1575,7 @@ namespace FileManager
                                     Content = "This site is requesting screen recording permission",
                                     Title = "Permission",
                                     CloseButtonText = "Deny",
-                                    PrimaryButtonText = "Allow",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    PrimaryButtonText = "Allow"
                                 };
                             }
                             switch (await dialog.ShowAsync())
@@ -1619,8 +1603,7 @@ namespace FileManager
                                     Content = "此网站正在请求无限制数据存储",
                                     Title = "权限",
                                     SecondaryButtonText = "拒绝",
-                                    PrimaryButtonText = "允许",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    PrimaryButtonText = "允许"
                                 };
                             }
                             else
@@ -1630,8 +1613,7 @@ namespace FileManager
                                     Content = "This site is requesting unlimited data storage",
                                     Title = "Permission",
                                     SecondaryButtonText = "Deny",
-                                    PrimaryButtonText = "Allow",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    PrimaryButtonText = "Allow"
                                 };
                             }
                             switch (await dialog.ShowAsync())
@@ -1663,8 +1645,7 @@ namespace FileManager
                                     Content = "此网站正在请求鼠标指针锁定",
                                     Title = "权限",
                                     SecondaryButtonText = "拒绝",
-                                    PrimaryButtonText = "允许",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    PrimaryButtonText = "允许"
                                 };
                             }
                             else
@@ -1674,8 +1655,7 @@ namespace FileManager
                                     Content = "This site is requesting a mouse pointer lock",
                                     Title = "Permission",
                                     SecondaryButtonText = "Deny",
-                                    PrimaryButtonText = "Allow",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    PrimaryButtonText = "Allow"
                                 };
                             }
                             switch (await dialog.ShowAsync())
@@ -1703,8 +1683,7 @@ namespace FileManager
                                     Content = "此网站正在请求沉浸式视图模式(VR)",
                                     Title = "权限",
                                     SecondaryButtonText = "拒绝",
-                                    PrimaryButtonText = "允许",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    PrimaryButtonText = "允许"
                                 };
                             }
                             else
@@ -1714,8 +1693,7 @@ namespace FileManager
                                     Content = "This site is requesting immersive view mode (VR)",
                                     Title = "Permission",
                                     SecondaryButtonText = "Deny",
-                                    PrimaryButtonText = "Allow",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    PrimaryButtonText = "Allow"
                                 };
                             }
                             switch (await dialog.ShowAsync())
@@ -1750,8 +1728,7 @@ namespace FileManager
                         Content = "蓝牙功能尚未开启，是否前往设置开启？",
                         Title = "提示",
                         PrimaryButtonText = "确定",
-                        CloseButtonText = "取消",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "取消"
                     };
                     if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
@@ -1765,8 +1742,7 @@ namespace FileManager
                         Content = "Bluetooth is not turned on, go to setting to enable？",
                         Title = "Tips",
                         PrimaryButtonText = "Confirm",
-                        CloseButtonText = "Cancel",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "Cancel"
                     };
                     if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
@@ -1828,8 +1804,7 @@ namespace FileManager
                 {
                     Content = "All cache and history data has being cleared",
                     Title = "Tips",
-                    CloseButtonText = "Confirm",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    CloseButtonText = "Confirm"
                 };
                 _ = await dialog.ShowAsync();
             }
@@ -1843,8 +1818,7 @@ namespace FileManager
                 {
                     Content = "RX管理器内置浏览器\r\r具备SmartScreen保护和完整权限控制\r\r基于Microsoft Edge内核的轻型浏览器",
                     Title = "关于",
-                    CloseButtonText = "确定",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    CloseButtonText = "确定"
                 };
                 _ = await dialog.ShowAsync();
             }
@@ -1854,8 +1828,7 @@ namespace FileManager
                 {
                     Content = "RX Manager built-in browser\r\rSmartScreen protection and full access control\r\rLightweight browser based on Microsoft Edge kernel",
                     Title = "About",
-                    CloseButtonText = "Confirm",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    CloseButtonText = "Confirm"
                 };
                 _ = await dialog.ShowAsync();
             }

@@ -256,8 +256,7 @@ namespace FileManager
                         {
                             Title = "错误",
                             Content = "因源文件已删除，无法剪切到指定位置",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "确定"
                         };
                         _ = await Dialog.ShowAsync();
                     }
@@ -268,8 +267,7 @@ namespace FileManager
                             Title = "错误",
                             Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
                             PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "稍后"
                         };
                         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                         {
@@ -282,8 +280,7 @@ namespace FileManager
                         {
                             Title = "错误",
                             Content = "因设备剩余空间大小不足，文件无法剪切",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "确定"
                         };
                         _ = await QueueContenDialog.ShowAsync();
                     }
@@ -321,8 +318,7 @@ namespace FileManager
                         {
                             Title = "Error",
                             Content = "Unable to cut to the specified location because the source file has been deleted",
-                            CloseButtonText = "Confirm",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Confirm"
                         };
                         _ = await Dialog.ShowAsync();
                     }
@@ -333,8 +329,7 @@ namespace FileManager
                             Title = "Error",
                             Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
                             PrimaryButtonText = "Enter",
-                            CloseButtonText = "Later",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Later"
                         };
                         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                         {
@@ -347,8 +342,7 @@ namespace FileManager
                         {
                             Title = "Error",
                             Content = "The device has insufficient free space and the file cannot be cut.",
-                            CloseButtonText = "Confirm",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Confirm"
                         };
                         _ = await QueueContenDialog.ShowAsync();
                     }
@@ -392,8 +386,7 @@ namespace FileManager
                         {
                             Title = "错误",
                             Content = "因源文件已删除，无法复制到指定位置",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "确定"
                         };
                         _ = await Dialog.ShowAsync();
                     }
@@ -404,8 +397,7 @@ namespace FileManager
                             Title = "错误",
                             Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
                             PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "稍后"
                         };
                         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                         {
@@ -418,8 +410,7 @@ namespace FileManager
                         {
                             Title = "错误",
                             Content = "因设备剩余空间大小不足，文件无法复制",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "确定"
                         };
                         _ = await QueueContenDialog.ShowAsync();
                     }
@@ -457,8 +448,7 @@ namespace FileManager
                         {
                             Title = "Error",
                             Content = "Unable to copy to the specified location because the source file has been deleted",
-                            CloseButtonText = "Confirm",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Confirm"
                         };
                         _ = await Dialog.ShowAsync();
                     }
@@ -469,8 +459,7 @@ namespace FileManager
                             Title = "Error",
                             Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
                             PrimaryButtonText = "Enter",
-                            CloseButtonText = "Later",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Later"
                         };
                         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                         {
@@ -483,8 +472,7 @@ namespace FileManager
                         {
                             Title = "Error",
                             Content = "The device has insufficient free space and the file cannot be copy",
-                            CloseButtonText = "Confirm",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Confirm"
                         };
                         _ = await QueueContenDialog.ShowAsync();
                     }
@@ -524,8 +512,7 @@ namespace FileManager
                             Title = "警告",
                             PrimaryButtonText = "是",
                             Content = "此操作将永久删除 \" " + ItemToDelete.Name + " \"\r\r是否继续?",
-                            CloseButtonText = "否",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "否"
                         };
                         if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
                         {
@@ -551,8 +538,7 @@ namespace FileManager
                                     Title = "错误",
                                     Content = "RX无权删除此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
                                     PrimaryButtonText = "立刻",
-                                    CloseButtonText = "稍后",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    CloseButtonText = "稍后"
                                 };
                                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                 {
@@ -568,8 +554,7 @@ namespace FileManager
                             Title = "Warning",
                             PrimaryButtonText = "Continue",
                             Content = "This action will permanently delete \" " + ItemToDelete.Name + " \"\r\rWhether to continue?",
-                            CloseButtonText = "Cancel",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Cancel"
                         };
                         if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
                         {
@@ -595,8 +580,7 @@ namespace FileManager
                                     Title = "Error",
                                     Content = "RX does not have permission to delete, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
                                     PrimaryButtonText = "Enter",
-                                    CloseButtonText = "Later",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    CloseButtonText = "Later"
                                 };
                                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                 {
@@ -615,7 +599,6 @@ namespace FileManager
                             Title = "警告",
                             PrimaryButtonText = "是",
                             CloseButtonText = "否",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
                             Content = "此操作将永久删除 \"" + ItemToDelete.DisplayName + " \"\r\r是否继续?"
                         };
 
@@ -635,8 +618,7 @@ namespace FileManager
                                     Title = "错误",
                                     Content = "RX无权删除此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
                                     PrimaryButtonText = "立刻",
-                                    CloseButtonText = "稍后",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    CloseButtonText = "稍后"
                                 };
                                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                 {
@@ -666,7 +648,6 @@ namespace FileManager
                             Title = "Warning",
                             PrimaryButtonText = "Continue",
                             CloseButtonText = "Cancel",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
                             Content = "This action will permanently delete \" " + ItemToDelete.DisplayName + " \"\r\rWhether to continue ?"
                         };
 
@@ -686,8 +667,7 @@ namespace FileManager
                                     Title = "Error",
                                     Content = "RX does not have permission to delete, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
                                     PrimaryButtonText = "Enter",
-                                    CloseButtonText = "Later",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    CloseButtonText = "Later"
                                 };
                                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                 {
@@ -759,8 +739,7 @@ namespace FileManager
                                 {
                                     Title = "错误",
                                     Content = "文件名不能为空，重命名失败",
-                                    CloseButtonText = "确定",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    CloseButtonText = "确定"
                                 };
                                 await content.ShowAsync();
                                 return;
@@ -784,8 +763,7 @@ namespace FileManager
                                     Title = "错误",
                                     Content = "RX无权重命名此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
                                     PrimaryButtonText = "立刻",
-                                    CloseButtonText = "稍后",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    CloseButtonText = "稍后"
                                 };
                                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                 {
@@ -801,8 +779,7 @@ namespace FileManager
                                 {
                                     Title = "Error",
                                     Content = "File name cannot be empty, rename failed",
-                                    CloseButtonText = "Confirm",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    CloseButtonText = "Confirm"
                                 };
                                 await content.ShowAsync();
                                 return;
@@ -826,8 +803,7 @@ namespace FileManager
                                     Title = "Error",
                                     Content = "RX does not have permission to rename, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
                                     PrimaryButtonText = "Enter",
-                                    CloseButtonText = "Later",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    CloseButtonText = "Later"
                                 };
                                 if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                 {
@@ -850,8 +826,7 @@ namespace FileManager
                                 {
                                     Title = "错误",
                                     Content = "文件夹名不能为空，重命名失败",
-                                    CloseButtonText = "确定",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    CloseButtonText = "确定"
                                 };
                                 await content.ShowAsync();
                             }
@@ -861,8 +836,7 @@ namespace FileManager
                                 {
                                     Title = "Error",
                                     Content = "Folder name cannot be empty, rename failed",
-                                    CloseButtonText = "Confirm",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    CloseButtonText = "Confirm"
                                 };
                                 await content.ShowAsync();
                             }
@@ -929,8 +903,7 @@ namespace FileManager
                                         Title = "错误",
                                         Content = "RX无权重命名此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
                                         PrimaryButtonText = "立刻",
-                                        CloseButtonText = "稍后",
-                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                        CloseButtonText = "稍后"
                                     };
                                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                     {
@@ -944,8 +917,7 @@ namespace FileManager
                                         Title = "Error",
                                         Content = "RX does not have permission to rename the folder, it may be that you do not have access to this file.\r\rEnter the system file manager immediately ？",
                                         PrimaryButtonText = "Enter",
-                                        CloseButtonText = "Later",
-                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                        CloseButtonText = "Later"
                                     };
                                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                     {
@@ -1062,8 +1034,7 @@ namespace FileManager
                             Title = "错误",
                             Content = "RX无权在此处创建加密文件，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
                             PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "稍后"
                         };
                         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                         {
@@ -1077,8 +1048,7 @@ namespace FileManager
                             Title = "Error",
                             Content = "RX does not have permission to create an encrypted file here, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
                             PrimaryButtonText = "Enter",
-                            CloseButtonText = "Later",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Later"
                         };
                         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                         {
@@ -1127,7 +1097,7 @@ namespace FileManager
                         }
                         catch (Exception)
                         {
-                            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                             {
                                 QueueContentDialog dialog;
                                 if (Globalization.Language == LanguageEnum.Chinese)
@@ -1136,8 +1106,7 @@ namespace FileManager
                                     {
                                         Title = "错误",
                                         Content = "  文件格式检验错误，文件可能已损坏",
-                                        CloseButtonText = "确定",
-                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                        CloseButtonText = "确定"
                                     };
                                 }
                                 else
@@ -1146,8 +1115,7 @@ namespace FileManager
                                     {
                                         Title = "Error",
                                         Content = "  File format validation error, file may be corrupt",
-                                        CloseButtonText = "Confirm",
-                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                        CloseButtonText = "Confirm"
                                     };
                                 }
 
@@ -1187,7 +1155,7 @@ namespace FileManager
                         await FileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length);
                         if (Encoding.UTF8.GetString(AESProvider.ECBDecrypt(PasswordConfirm, KeyRequest, EncryptKeySize)) != "PASSWORD_CORRECT")
                         {
-                            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                             {
                                 QueueContentDialog dialog;
                                 if (Globalization.Language == LanguageEnum.Chinese)
@@ -1196,8 +1164,7 @@ namespace FileManager
                                     {
                                         Title = "错误",
                                         Content = "  密码错误，无法解密\r\r  请重试...",
-                                        CloseButtonText = "确定",
-                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                        CloseButtonText = "确定"
                                     };
                                 }
                                 else
@@ -1206,8 +1173,7 @@ namespace FileManager
                                     {
                                         Title = "Error",
                                         Content = "  The password is incorrect and cannot be decrypted\r\r  Please try again...",
-                                        CloseButtonText = "Confirm",
-                                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                        CloseButtonText = "Confirm"
                                     };
                                 }
 
@@ -1237,7 +1203,7 @@ namespace FileManager
                         DecryptedBytes = AESProvider.ECBDecrypt(DecryptByteBuffer, KeyRequest, EncryptKeySize);
 
                         StorageFolder CurrentFolder = null;
-                        await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                         {
                             CurrentFolder = FileControl.ThisPage.CurrentFolder;
                         });
@@ -1270,7 +1236,7 @@ namespace FileManager
                                 }
                             }
 
-                            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                             {
                                 FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(file, await file.GetSizeDescriptionAsync(), await file.GetThumbnailBitmapAsync(), await file.GetModifiedTimeAsync()));
                             });
@@ -1284,8 +1250,7 @@ namespace FileManager
                                     Title = "错误",
                                     Content = "RX无权在此处创建解密文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
                                     PrimaryButtonText = "立刻",
-                                    CloseButtonText = "稍后",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    CloseButtonText = "稍后"
                                 };
                                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                 {
@@ -1299,8 +1264,7 @@ namespace FileManager
                                     Title = "Error",
                                     Content = "RX does not have permission to create an decrypted file here, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
                                     PrimaryButtonText = "Enter",
-                                    CloseButtonText = "Later",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    CloseButtonText = "Later"
                                 };
                                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                 {
@@ -1349,8 +1313,7 @@ namespace FileManager
                         {
                             Title = "提示",
                             Content = "请开启蓝牙开关后再试",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "确定"
                         };
                         _ = await dialog.ShowAsync();
                     }
@@ -1360,8 +1323,7 @@ namespace FileManager
                         {
                             Title = "Tips",
                             Content = "Please turn on Bluetooth and try again.",
-                            CloseButtonText = "Confirm",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Confirm"
                         };
                         _ = await dialog.ShowAsync();
                     }
@@ -1370,7 +1332,7 @@ namespace FileManager
             }
 
             Restore();
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
                 FileSystemStorageItem file = GridViewControl.SelectedItem as FileSystemStorageItem;
 
@@ -1610,7 +1572,7 @@ namespace FileManager
                                 }
                                 catch (UnauthorizedAccessException)
                                 {
-                                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                                     {
                                         if (Globalization.Language == LanguageEnum.Chinese)
                                         {
@@ -1619,8 +1581,7 @@ namespace FileManager
                                                 Title = "错误",
                                                 Content = "RX无权在此处解压Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
                                                 PrimaryButtonText = "立刻",
-                                                CloseButtonText = "稍后",
-                                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                                CloseButtonText = "稍后"
                                             };
                                             if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                             {
@@ -1634,8 +1595,7 @@ namespace FileManager
                                                 Title = "错误",
                                                 Content = "RX does not have permission to extract the Zip file here, it may be that you do not have access to this file.\r\rEnter the system file manager immediately ？",
                                                 PrimaryButtonText = "Enter",
-                                                CloseButtonText = "Later",
-                                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                                CloseButtonText = "Later"
                                             };
                                             if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                             {
@@ -1656,7 +1616,6 @@ namespace FileManager
                         {
                             Title = "错误",
                             Content = "解压文件时发生异常\r\r错误信息：\r\r" + e.Message,
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
                             CloseButtonText = "确定"
                         };
                         _ = await dialog.ShowAsync();
@@ -1667,7 +1626,6 @@ namespace FileManager
                         {
                             Title = "Error",
                             Content = "An exception occurred while extracting the file\r\rError Message：\r\r" + e.Message,
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
                             CloseButtonText = "Confirm"
                         };
                         _ = await dialog.ShowAsync();
@@ -1780,7 +1738,7 @@ namespace FileManager
                                 {
                                     StreamUtils.Copy(stream, ZipStream, new byte[4096], async (s, e) =>
                                     {
-                                        await LoadingControl.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                                        await LoadingControl.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                                         {
                                             lock (SyncRootProvider.SyncRoot)
                                             {
@@ -1809,7 +1767,7 @@ namespace FileManager
                                 {
                                     StreamUtils.Copy(stream, ZipStream, new byte[4096], async (s, e) =>
                                     {
-                                        await LoadingControl.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                                        await LoadingControl.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                                         {
                                             lock (SyncRootProvider.SyncRoot)
                                             {
@@ -1834,7 +1792,6 @@ namespace FileManager
                             {
                                 Title = "错误",
                                 Content = "压缩文件时发生异常\r\r错误信息：\r\r" + e.Message,
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
                                 CloseButtonText = "确定"
                             };
                             _ = await dialog.ShowAsync();
@@ -1845,7 +1802,6 @@ namespace FileManager
                             {
                                 Title = "Error",
                                 Content = "An exception occurred while compressing the file\r\rError Message：\r\r" + e.Message,
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush,
                                 CloseButtonText = "Confirm"
                             };
                             _ = await dialog.ShowAsync();
@@ -1868,8 +1824,7 @@ namespace FileManager
                         Title = "错误",
                         Content = "RX无权在此处创建Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
                         PrimaryButtonText = "立刻",
-                        CloseButtonText = "稍后",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "稍后"
                     };
                     if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
@@ -1883,8 +1838,7 @@ namespace FileManager
                         Title = "Error",
                         Content = "RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rEnter the system file manager immediately ？",
                         PrimaryButtonText = "Enter",
-                        CloseButtonText = "Later",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "Later"
                     };
                     if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
@@ -1914,8 +1868,7 @@ namespace FileManager
                         {
                             Title = "提示",
                             Content = "已存在正在进行的转码任务，请等待其完成",
-                            CloseButtonText = "确定",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "确定"
                         };
                         _ = await Dialog.ShowAsync();
                     }
@@ -1925,8 +1878,7 @@ namespace FileManager
                         {
                             Title = "Tips",
                             Content = "There is already an ongoing transcoding task, please wait for it to complete",
-                            CloseButtonText = "Got it",
-                            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                            CloseButtonText = "Got it"
                         };
                         _ = await Dialog.ShowAsync();
                     }
@@ -1954,8 +1906,7 @@ namespace FileManager
                                 Title = "错误",
                                 Content = "RX无权在此处创建转码文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
                                 PrimaryButtonText = "立刻",
-                                CloseButtonText = "稍后",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                CloseButtonText = "稍后"
                             };
                             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                             {
@@ -1969,8 +1920,7 @@ namespace FileManager
                                 Title = "Error",
                                 Content = "RX does not have permission to create transcode file, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
                                 PrimaryButtonText = "Enter",
-                                CloseButtonText = "Later",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                CloseButtonText = "Later"
                             };
                             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                             {
@@ -2465,7 +2415,7 @@ namespace FileManager
 
         private async void WiFiProvider_ThreadExitedUnexpectly(object sender, Exception e)
         {
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
                 QRTeachTip.IsOpen = false;
 
@@ -2571,8 +2521,7 @@ namespace FileManager
                                 Title = "提示",
                                 Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
                                 PrimaryButtonText = "默认应用打开",
-                                CloseButtonText = "取消",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                CloseButtonText = "取消"
                             };
                             if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                             {
@@ -2586,8 +2535,7 @@ namespace FileManager
                                 Title = "Tips",
                                 Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
                                 PrimaryButtonText = "Open with default app",
-                                CloseButtonText = "Cancel",
-                                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                CloseButtonText = "Cancel"
                             };
                             if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                             {
@@ -2615,8 +2563,7 @@ namespace FileManager
                     {
                         Title = "提示",
                         Content = "此文件夹已经添加到主界面了，不能重复添加哦",
-                        CloseButtonText = "知道了",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "知道了"
                     };
                     _ = await dialog.ShowAsync();
                 }
@@ -2626,8 +2573,7 @@ namespace FileManager
                     {
                         Title = "Tips",
                         Content = "This folder has been added to the home page, can not be added repeatedly",
-                        CloseButtonText = "知道了",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "知道了"
                     };
                     _ = await dialog.ShowAsync();
                 }
@@ -2674,8 +2620,7 @@ namespace FileManager
                         Title = "错误",
                         Content = "RX无权在此创建文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
                         PrimaryButtonText = "立刻",
-                        CloseButtonText = "稍后",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "稍后"
                     };
                 }
                 else
@@ -2685,8 +2630,7 @@ namespace FileManager
                         Title = "Error",
                         Content = "RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
                         PrimaryButtonText = "Enter",
-                        CloseButtonText = "Later",
-                        Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                        CloseButtonText = "Later"
                     };
                 }
 
@@ -2777,8 +2721,7 @@ namespace FileManager
                                     Title = "提示",
                                     Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
                                     PrimaryButtonText = "默认应用打开",
-                                    CloseButtonText = "取消",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    CloseButtonText = "取消"
                                 };
                                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                 {
@@ -2799,8 +2742,7 @@ namespace FileManager
                                     Title = "Tips",
                                     Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
                                     PrimaryButtonText = "Open with default app",
-                                    CloseButtonText = "Cancel",
-                                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                                    CloseButtonText = "Cancel"
                                 };
                                 if (!await Launcher.LaunchFileAsync(DoubleTabTarget.File))
                                 {

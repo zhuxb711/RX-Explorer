@@ -283,8 +283,7 @@ namespace FileManager
                     Title = "警告",
                     Content = "此操作将永久删除该图像文件",
                     PrimaryButtonText = "继续",
-                    CloseButtonText = "取消",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    CloseButtonText = "取消"
                 };
             }
             else
@@ -294,8 +293,7 @@ namespace FileManager
                     Title = "Warning",
                     Content = "This action will permanently delete the image file",
                     PrimaryButtonText = "Continue",
-                    CloseButtonText = "Cancel",
-                    Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush
+                    CloseButtonText = "Cancel"
                 };
             }
 
