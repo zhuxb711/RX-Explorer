@@ -20,9 +20,13 @@
                               Label="删除"
                               Click="DeleteFile_Click" />
                 <AppBarButton Icon="Rename"
-                              Label="重命名"/>
+                              Label="重命名"
+                              x:Name="RenameFile"
+                              Click="RenameFile_Click"/>
                 <AppBarButton Icon="Tag" 
-                              Label="属性"/>
+                              Label="属性"
+                              x:Name="Property"
+                              Click="Property_Click"/>
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
         <CommandBarFlyout x:Name="EmptyFlyout"
@@ -65,6 +69,7 @@
                   IsItemClickEnabled="False"
                   Grid.Row="1"
                   AllowDrop="True"
+                  Visibility="Collapsed"
                   Drop="Grid_Drop"
                   RightTapped="SecureGridView_RightTapped"
                   Name="SecureGridView"
@@ -115,10 +120,16 @@
             </GridView.ItemContainerTransitions>
         </GridView>
         <StackPanel Grid.RowSpan="2"
+                    Visibility="Collapsed"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     IsHitTestVisible="False"
                     Name="EmptyTips">
+            <StackPanel.ChildrenTransitions>
+                <TransitionCollection>
+                    <PaneThemeTransition Edge="Top"/>
+                </TransitionCollection>
+            </StackPanel.ChildrenTransitions>
             <Image Source="ms-appx:///Assets/Lock.png"
                    Stretch="Uniform"
                    Width="100" />

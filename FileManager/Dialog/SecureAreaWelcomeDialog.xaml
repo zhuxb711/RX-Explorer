@@ -4,10 +4,58 @@
                           xmlns:local="using:FileManager"
                           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                          xmlns:controls="using:Microsoft.UI.Xaml.Controls"
                           mc:Ignorable="d"
-                          Title="TITLE"
+                          Title="初始化安全域"
+                          Background="{StaticResource DialogAcrylicBrush}"
                           PrimaryButtonText="确定"
+                          PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
                           CloseButtonText="返回">
+
+    <local:QueueContentDialog.Resources>
+        <controls:TeachingTip x:Name="EmptyTip"
+                              Title="Tips"
+                              Subtitle="请指定所有文件夹后再点击确定哦"
+                              IsLightDismissEnabled="True"
+                              PreferredPlacement="TopRight"
+                              Target="{x:Bind PrimaryPassword}" />
+    </local:QueueContentDialog.Resources>
+    
     <Grid>
+        <StackPanel>
+            <PasswordBox Header="主密码 (必须)"
+                         PlaceholderText="设置解锁密码"
+                         Name="PrimaryPassword"/>
+            <ComboBox Header="安全等级"
+                      Margin="0,10,0,0"
+                      Name="SecureLevel"
+                      Width="200"/>
+            <StackPanel Orientation="Horizontal">
+                <CheckBox Content="使用Windows Hello代替密码验证"
+                          Margin="0,10,0,0"
+                          Checked="UseWinHel_Checked"
+                          Unchecked="UseWinHel_Unchecked"
+                          Name="UseWinHel" 
+                          Visibility="Collapsed"/>
+                <Viewbox Margin="4,8,0,0"
+                         Width="25"
+                         Visibility="Collapsed"
+                         VerticalAlignment="Center"
+                         Name="WindowsHelloPassed">
+                    <FontIcon Glyph="&#xE001;"
+                              Foreground="Green"
+                              FontWeight="Bold" />
+                </Viewbox>
+                <Viewbox Margin="4,9,0,0"
+                         Width="16"
+                         Visibility="Collapsed"
+                         VerticalAlignment="Center"
+                         Name="WindowsHelloFailed">
+                    <FontIcon Glyph="&#xE106;"
+                              Foreground="Red"
+                              FontWeight="Bold" />
+                </Viewbox>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </local:QueueContentDialog>

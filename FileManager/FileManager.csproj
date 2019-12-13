@@ -22,7 +22,7 @@
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
-    <PackageCertificateThumbprint>3508C69A39C4140619227ECAA9C8604722ADC668</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>9181890969643C821B84F1EB67CDF030A33E3E06</PackageCertificateThumbprint>
     <AppInstallerUpdateFrequency>0</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
@@ -140,8 +140,14 @@
     <Compile Include="Dialog\FeedBackDialog.xaml.cs">
       <DependentUpon>FeedBackDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\SecureAreaVerifyDialog.xaml.cs">
+      <DependentUpon>SecureAreaVerifyDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\SecureAreaWelcomeDialog.xaml.cs">
       <DependentUpon>SecureAreaWelcomeDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\SecureFilePropertyDialog.xaml.cs">
+      <DependentUpon>SecureFilePropertyDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialog\SystemInfoDialog.xaml.cs">
       <DependentUpon>SystemInfoDialog.xaml</DependentUpon>
@@ -386,7 +392,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Dialog\SecureAreaVerifyDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialog\SecureAreaWelcomeDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\SecureFilePropertyDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -547,7 +561,7 @@
       <Version>6.0.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.3.191129002</Version>
+      <Version>2.3.191211002</Version>
     </PackageReference>
     <PackageReference Include="MySql.Data">
       <Version>8.0.18</Version>

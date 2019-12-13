@@ -1282,6 +1282,10 @@
           <source>Recovery</source>
           <target state="translated">恢复</target>
         </trans-unit>
+        <trans-unit id="UserFolderNotReferTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Please specify all folders and click confirm</source>
+          <target state="translated">请指定所有文件夹后再点击确定哦</target>
+        </trans-unit>
       </group>
     </body>
   </file>

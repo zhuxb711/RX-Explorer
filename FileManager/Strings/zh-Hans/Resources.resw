@@ -969,4 +969,7 @@
   <data name="SettingRecovery.Text" xml:space="preserve">
     <value>恢复</value>
   </data>
+  <data name="UserFolderNotReferTip.Subtitle" xml:space="preserve">
+    <value>请指定所有文件夹后再点击确定哦</value>
+  </data>
 </root>

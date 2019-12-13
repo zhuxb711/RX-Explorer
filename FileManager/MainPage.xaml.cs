@@ -41,6 +41,8 @@ namespace FileManager
 
         private DeviceWatcher PortalDeviceWatcher;
 
+        public string LastPageName { get; private set; }
+
         public MainPage()
         {
             InitializeComponent();
@@ -509,6 +511,8 @@ namespace FileManager
 
         private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
+            LastPageName = Nav.CurrentSourcePageType == null ? nameof(ThisPC) : Nav.CurrentSourcePageType.Name;
+
             if (args.IsSettingsInvoked)
             {
                 Nav.Navigate(typeof(SettingPage), null, new DrillInNavigationTransitionInfo());
@@ -519,12 +523,28 @@ namespace FileManager
                 {
                     case "这台电脑":
                     case "ThisPC":
-                        Nav.Navigate(typeof(ThisPC), null, new DrillInNavigationTransitionInfo()); break;
+                        {
+                            Nav.Navigate(typeof(ThisPC), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                            break;
+                        }
                     case "浏览器":
                     case "Browser":
-                        Nav.Navigate(typeof(WebTab), null, new DrillInNavigationTransitionInfo()); break;
+                        {
+                            if (LastPageName == nameof(ThisPC))
+                            {
+                                Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+                            }
+                            else if (LastPageName == nameof(SecureArea))
+                            {
+                                Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                            }
+                            break;
+                        }
                     case "安全域":
-                        Nav.Navigate(typeof(SecureArea), null, new DrillInNavigationTransitionInfo()); break;
+                        {
+                            Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+                            break;
+                        }
                 }
             }
         }

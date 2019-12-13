@@ -239,7 +239,7 @@
                     ContextFlyout="{x:Bind RefreshFlyout}">
             <StackPanel.ChildrenTransitions>
                 <TransitionCollection>
-                    <PaneThemeTransition Edge="Top" />
+                    <PaneThemeTransition Edge="Left" />
                 </TransitionCollection>
             </StackPanel.ChildrenTransitions>
             <controls:Expander x:Name="LibraryExpander"

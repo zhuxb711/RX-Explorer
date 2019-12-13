@@ -25,6 +25,9 @@ using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Networking;
 using Windows.Networking.Connectivity;
+using Windows.Security.Credentials;
+using Windows.Security.Cryptography;
+using Windows.Security.Cryptography.Core;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
@@ -3314,6 +3317,120 @@ namespace FileManager
         static Globalization()
         {
             Language = GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh", StringComparison.OrdinalIgnoreCase) ? LanguageEnum.Chinese : LanguageEnum.English;
+        }
+    }
+    #endregion
+
+    #region WindowsHello授权管理器
+    public enum AuthenticatorState
+    {
+        RegisterSuccess = 0,
+        UserCanceled = 1,
+        CredentialNotFound = 2,
+        UnknownError = 4,
+        WindowsHelloUnsupport = 8,
+        VerifyPassed = 16,
+        VerifyFailed = 32,
+        UserNotRegistered = 64
+    }
+
+    public static class WindowsHelloAuthenticator
+    {
+        private const string ChallengeText = "This is a challenge send by RX, to verify secure area access authorization";
+
+        private const string CredentialName = "RX-SecureProtection";
+
+        private static Task<bool> CheckSupportAsync()
+        {
+            return KeyCredentialManager.IsSupportedAsync().AsTask();
+        }
+
+        public static async Task<AuthenticatorState> RegisterUserAsync()
+        {
+            if (await CheckSupportAsync())
+            {
+                KeyCredentialRetrievalResult CredentiaResult = await KeyCredentialManager.RequestCreateAsync(CredentialName, KeyCredentialCreationOption.ReplaceExisting);
+                switch (CredentiaResult.Status)
+                {
+                    case KeyCredentialStatus.Success:
+                        {
+                            string PublicKey = CryptographicBuffer.EncodeToHexString(CredentiaResult.Credential.RetrievePublicKey());
+                            ApplicationData.Current.LocalSettings.Values["WindowsHelloPublicKeyForUser"] = PublicKey;
+                            return AuthenticatorState.RegisterSuccess;
+                        }
+                    case KeyCredentialStatus.UserCanceled:
+                        {
+                            return AuthenticatorState.UserCanceled;
+                        }
+                    default:
+                        {
+                            return AuthenticatorState.UnknownError;
+                        }
+                }
+            }
+            else
+            {
+                return AuthenticatorState.WindowsHelloUnsupport;
+            }
+        }
+
+        public static async Task<AuthenticatorState> VerifyUserAsync()
+        {
+            if (await CheckSupportAsync())
+            {
+                if (ApplicationData.Current.LocalSettings.Values["WindowsHelloPublicKeyForUser"] is string PublicKey)
+                {
+                    KeyCredentialRetrievalResult RetrievalResult = await KeyCredentialManager.OpenAsync(CredentialName);
+                    switch (RetrievalResult.Status)
+                    {
+                        case KeyCredentialStatus.Success:
+                            {
+                                KeyCredentialOperationResult OperationResult = await RetrievalResult.Credential.RequestSignAsync(CryptographicBuffer.ConvertStringToBinary(ChallengeText, BinaryStringEncoding.Utf8));
+                                if (OperationResult.Status == KeyCredentialStatus.Success)
+                                {
+                                    var Algorithm = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(AsymmetricAlgorithmNames.RsaSignPkcs1Sha256);
+                                    var Key = Algorithm.ImportPublicKey(CryptographicBuffer.DecodeFromHexString(PublicKey));
+                                    return CryptographicEngine.VerifySignature(Key, CryptographicBuffer.ConvertStringToBinary(ChallengeText, BinaryStringEncoding.Utf8), OperationResult.Result) ? AuthenticatorState.VerifyPassed : AuthenticatorState.VerifyFailed;
+                                }
+                                else
+                                {
+                                    return AuthenticatorState.UnknownError;
+                                }
+                            }
+                        case KeyCredentialStatus.NotFound:
+                            {
+                                return AuthenticatorState.CredentialNotFound;
+                            }
+                        default:
+                            {
+                                return AuthenticatorState.UnknownError;
+                            }
+                    }
+                }
+                else
+                {
+                    return AuthenticatorState.UserNotRegistered;
+                }
+            }
+            else
+            {
+                return AuthenticatorState.WindowsHelloUnsupport;
+            }
+        }
+
+        public static async Task DeleteUserAsync()
+        {
+            if (await CheckSupportAsync())
+            {
+                try
+                {
+                    ApplicationData.Current.LocalSettings.Values["WindowsHelloPublicKeyForUser"] = null;
+                    await KeyCredentialManager.DeleteAsync(CredentialName);
+                }
+                catch (Exception)
+                {
+                }
+            }
         }
     }
     #endregion

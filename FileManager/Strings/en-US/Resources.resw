@@ -834,6 +834,9 @@
   <data name="UserFolderDialog.Title" xml:space="preserve">
     <value>Choose library folder</value>
   </data>
+  <data name="UserFolderNotReferTip.Subtitle" xml:space="preserve">
+    <value>Please specify all folders and click confirm</value>
+  </data>
   <data name="UserFolderReferButton.Content" xml:space="preserve">
     <value>Specify</value>
   </data>

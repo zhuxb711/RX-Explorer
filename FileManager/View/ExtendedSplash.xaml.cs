@@ -184,7 +184,6 @@ namespace FileManager
 
             if (await CheckFileAccessAuthority())
             {
-                await PreviousCheckSecureArea();
                 DismissExtendedSplash();
             }
             else
@@ -196,22 +195,6 @@ namespace FileManager
                                     : "Please enable file system access for this app to work properly\rThen restart the app";
                     ButtonPane.Visibility = Visibility.Visible;
                 });
-            }
-        }
-
-        private async Task PreviousCheckSecureArea()
-        {
-            var SecureFolder = await ApplicationData.Current.LocalCacheFolder.CreateFolderAsync("SecureFolder", CreationCollisionOption.OpenIfExists);
-            StorageItemQueryResult ItemQuery = SecureFolder.CreateItemQuery();
-            uint Count = await ItemQuery.GetItemCountAsync();
-
-            if(Count>0)
-            {
-                ApplicationData.Current.LocalSettings.Values["SecureAreaPreviousCheckResult"] = true;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["SecureAreaPreviousCheckResult"] = false;
             }
         }
 
