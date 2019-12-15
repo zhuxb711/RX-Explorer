@@ -1,19 +1,17 @@
 ﻿using AnimationEffectProvider;
-using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Background;
 using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
-using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.System;
-using Windows.UI.Notifications;
 using Windows.UI.Shell;
 using Windows.UI.StartScreen;
 using Windows.UI.Xaml;
@@ -25,10 +23,6 @@ namespace FileManager
 {
     public sealed partial class MainPage : Page
     {
-        private StoreContext Context;
-
-        private IReadOnlyList<StorePackageUpdate> Updates;
-
         public static MainPage ThisPage { get; private set; }
 
         private Dictionary<Type, string> PageDictionary;
@@ -125,7 +119,7 @@ namespace FileManager
                     {typeof(ThisPC),"ThisPC" },
                     {typeof(FileControl),"ThisPC" },
                     {typeof(AboutMe),"ThisPC" },
-                    {typeof(SecureArea),"SecureArea" }
+                    {typeof(SecureArea),"Security Area" }
                 };
             }
 
@@ -165,9 +159,59 @@ namespace FileManager
                 _ = await Dialog.ShowAsync();
             }
 
-#if !DEBUG
-            await CheckAndInstallUpdate();
-#endif
+            await RegisterBackgroundTask();
+
+            await Task.Delay(5000);
+
+            await PinApplicationToTaskBar();
+        }
+
+        private async Task RegisterBackgroundTask()
+        {
+            var State = BackgroundExecutionManager.GetAccessStatus();
+            if (State == BackgroundAccessStatus.DeniedBySystemPolicy || State == BackgroundAccessStatus.DeniedByUser || State == BackgroundAccessStatus.Unspecified)
+            {
+                switch (await BackgroundExecutionManager.RequestAccessAsync())
+                {
+                    case BackgroundAccessStatus.AllowedSubjectToSystemPolicy:
+                    case BackgroundAccessStatus.AlwaysAllowed:
+                        {
+                            if (BackgroundTaskRegistration.AllTasks.Select((item) => item.Value).FirstOrDefault((task) => task.Name == "UpdateTask") is IBackgroundTaskRegistration Registration)
+                            {
+                                Registration.Unregister(true);
+                            }
+
+                            SystemTrigger Trigger = new SystemTrigger(SystemTriggerType.SessionConnected, false);
+                            BackgroundTaskBuilder Builder = new BackgroundTaskBuilder();
+                            Builder.SetTrigger(Trigger);
+                            Builder.AddCondition(new SystemCondition(SystemConditionType.InternetAvailable));
+                            Builder.AddCondition(new SystemCondition(SystemConditionType.UserPresent));
+                            Builder.Name = "UpdateTask";
+                            Builder.IsNetworkRequested = true;
+                            Builder.TaskEntryPoint = "UpdateCheckBackgroundTask.UpdateCheck";
+                            Builder.Register();
+
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                if (BackgroundTaskRegistration.AllTasks.Select((item) => item.Value).FirstOrDefault((task) => task.Name == "UpdateTask") is IBackgroundTaskRegistration Registration)
+                {
+                    Registration.Unregister(true);
+                }
+
+                SystemTrigger Trigger = new SystemTrigger(SystemTriggerType.SessionConnected, false);
+                BackgroundTaskBuilder Builder = new BackgroundTaskBuilder();
+                Builder.SetTrigger(Trigger);
+                Builder.AddCondition(new SystemCondition(SystemConditionType.InternetAvailable));
+                Builder.AddCondition(new SystemCondition(SystemConditionType.UserPresent));
+                Builder.Name = "UpdateTask";
+                Builder.IsNetworkRequested = true;
+                Builder.TaskEntryPoint = "UpdateCheckBackgroundTask.UpdateCheck";
+                Builder.Register();
+            }
         }
 
         private async void PortalDeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
@@ -217,7 +261,7 @@ namespace FileManager
 
         private void Nav_Navigated(object sender, NavigationEventArgs e)
         {
-            if (Nav.CurrentSourcePageType == typeof(ThisPC) || Nav.CurrentSourcePageType == typeof(WebTab) || Nav.CurrentSourcePageType == typeof(SecureArea))
+            if (Nav.CurrentSourcePageType == typeof(ThisPC) || Nav.CurrentSourcePageType == typeof(WebTab) || Nav.CurrentSourcePageType == typeof(SecureArea) || Nav.CurrentSourcePageType == typeof(SettingPage))
             {
                 NavView.IsBackEnabled = false;
             }
@@ -321,201 +365,13 @@ namespace FileManager
             };
         }
 
-        private async Task CheckAndInstallUpdate()
-        {
-            try
-            {
-                Context = StoreContext.GetDefault();
-                Updates = await Context.GetAppAndOptionalStorePackageUpdatesAsync();
-
-                if (Updates.Count > 0)
-                {
-                    UpdateTip.Subtitle = Globalization.Language == LanguageEnum.Chinese
-                        ? "最新版RX文件管理器已推出！\r最新版包含针对以往问题的修复补丁\r是否立即下载？"
-                        : "The latest version of the RX FileManager has been released! \rIncluding fixes for past issues\rWhether to download it now ?";
-
-                    UpdateTip.ActionButtonClick += async (s, e) =>
-                    {
-                        s.IsOpen = false;
-                        SendUpdatableToastWithProgress();
-
-                        if (Context.CanSilentlyDownloadStorePackageUpdates)
-                        {
-                            IProgress<StorePackageUpdateStatus> DownloadProgress = new Progress<StorePackageUpdateStatus>((Status) =>
-                            {
-                                if (Status.PackageDownloadProgress > 1)
-                                {
-                                    return;
-                                }
-
-                                string Tag = "RX-Updating";
-                                var data = new NotificationData
-                                {
-                                    SequenceNumber = 0
-                                };
-                                data.Values["ProgressValue"] = Status.PackageDownloadProgress.ToString("0.##");
-                                data.Values["ProgressString"] = Convert.ToUInt16(Math.Ceiling(Status.PackageDownloadProgress * 100)).ToString() + "%";
-
-                                ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
-                            });
-
-                            StorePackageUpdateResult DownloadResult = await Context.TrySilentDownloadStorePackageUpdatesAsync(Updates).AsTask(DownloadProgress);
-
-                            if (DownloadResult.OverallState == StorePackageUpdateState.Completed)
-                            {
-                                _ = await Context.TrySilentDownloadAndInstallStorePackageUpdatesAsync(Updates).AsTask();
-                            }
-                            else
-                            {
-                                ShowErrorNotification();
-                            }
-                        }
-                        else
-                        {
-                            IProgress<StorePackageUpdateStatus> DownloadProgress = new Progress<StorePackageUpdateStatus>((Status) =>
-                            {
-                                if (Status.PackageDownloadProgress > 1)
-                                {
-                                    return;
-                                }
-
-                                string Tag = "RX-Updating";
-                                var data = new NotificationData
-                                {
-                                    SequenceNumber = 0
-                                };
-                                data.Values["ProgressValue"] = Status.PackageDownloadProgress.ToString("0.##");
-                                data.Values["ProgressString"] = Convert.ToUInt16(Math.Ceiling(Status.PackageDownloadProgress * 100)).ToString() + "%";
-
-                                ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
-                            });
-
-                            StorePackageUpdateResult DownloadResult = await Context.RequestDownloadStorePackageUpdatesAsync(Updates).AsTask(DownloadProgress);
-
-                            if (DownloadResult.OverallState == StorePackageUpdateState.Completed)
-                            {
-                                _ = await Context.RequestDownloadAndInstallStorePackageUpdatesAsync(Updates).AsTask();
-                            }
-                            else
-                            {
-                                ShowErrorNotification();
-                            }
-                        }
-                    };
-
-                    UpdateTip.Closed += async (s, e) =>
-                    {
-                        await Task.Delay(5000);
-                        await PinApplicationToTaskBar();
-                    };
-
-                    UpdateTip.IsOpen = true;
-                }
-                else
-                {
-                    await Task.Delay(5000);
-                    await PinApplicationToTaskBar();
-                }
-            }
-            catch (Exception)
-            {
-                ShowErrorNotification();
-                await Task.Delay(5000);
-                await PinApplicationToTaskBar();
-            }
-        }
-
-        private void ShowErrorNotification()
-        {
-            var Content = new ToastContent()
-            {
-                Scenario = ToastScenario.Default,
-                Launch = "Updating",
-                Visual = new ToastVisual()
-                {
-                    BindingGeneric = new ToastBindingGeneric()
-                    {
-                        Children =
-                        {
-                            new AdaptiveText()
-                            {
-                                Text = Globalization.Language == LanguageEnum.Chinese
-                                        ? "更新失败"
-                                        : "Update Failed"
-                            },
-
-                            new AdaptiveText()
-                            {
-                                Text = Globalization.Language == LanguageEnum.Chinese
-                                        ? "RX文件管理器无法更新至最新版"
-                                        : "RX FileManager cannot be updated to the latest version"
-                            }
-                        }
-                    }
-                },
-            };
-            ToastNotificationManager.History.Clear();
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-        }
-
-        private void SendUpdatableToastWithProgress()
-        {
-            string Tag = "RX-Updating";
-
-            var content = new ToastContent()
-            {
-                Launch = "Updating",
-                Scenario = ToastScenario.Reminder,
-                Visual = new ToastVisual()
-                {
-                    BindingGeneric = new ToastBindingGeneric()
-                    {
-                        Children =
-                        {
-                            new AdaptiveText()
-                            {
-                                Text = Globalization.Language == LanguageEnum.Chinese
-                                        ? "正在下载应用更新..."
-                                        : "Downloading Updates..."
-                            },
-
-                            new AdaptiveProgressBar()
-                            {
-                                Title = Globalization.Language == LanguageEnum.Chinese
-                                        ? "正在更新..."
-                                        : "Updating...",
-                                Value = new BindableProgressBarValue("ProgressValue"),
-                                Status = new BindableString("ProgressStatus"),
-                                ValueStringOverride = new BindableString("ProgressString")
-                            }
-                        }
-                    }
-                }
-            };
-
-            var Toast = new ToastNotification(content.GetXml())
-            {
-                Tag = Tag,
-                Data = new NotificationData()
-            };
-            Toast.Data.Values["ProgressValue"] = "0";
-            Toast.Data.Values["ProgressStatus"] = Globalization.Language == LanguageEnum.Chinese
-                                                    ? "正在下载..."
-                                                    : "Downloading...";
-            Toast.Data.Values["ProgressString"] = "0%";
-            Toast.Data.SequenceNumber = 0;
-
-            ToastNotificationManager.History.Clear();
-            ToastNotificationManager.CreateToastNotifier().Show(Toast);
-        }
-
         private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
             LastPageName = Nav.CurrentSourcePageType == null ? nameof(ThisPC) : Nav.CurrentSourcePageType.Name;
 
             if (args.IsSettingsInvoked)
             {
-                Nav.Navigate(typeof(SettingPage), null, new DrillInNavigationTransitionInfo());
+                Nav.Navigate(typeof(SettingPage), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
             }
             else
             {
@@ -534,15 +390,23 @@ namespace FileManager
                             {
                                 Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
                             }
-                            else if (LastPageName == nameof(SecureArea))
+                            else if (LastPageName == nameof(SecureArea) || LastPageName == nameof(SettingPage))
                             {
                                 Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
                             }
                             break;
                         }
                     case "安全域":
+                    case "Security Area":
                         {
-                            Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+                            if (LastPageName == nameof(WebTab) || LastPageName == nameof(ThisPC))
+                            {
+                                Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+                            }
+                            else if (LastPageName == nameof(SettingPage))
+                            {
+                                Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                            }
                             break;
                         }
                 }

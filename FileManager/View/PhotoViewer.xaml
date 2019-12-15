@@ -32,26 +32,6 @@
                     HorizontalAlignment="Center"
                     IsOpen="False"
                     DefaultLabelPosition="Right">
-            <AppBarButton Icon="ZoomIn"
-                          Label="Zoom"
-                          x:Name="Zoom"
-                          x:Uid="PhotoViewerZoomButton">
-                <AppBarButton.Flyout>
-                    <Flyout Placement="Bottom">
-                        <Slider Minimum="1"
-                                Maximum="4"
-                                Width="250"
-                                Name="ZoomSlider"
-                                Loading="ZoomSlider_Loading"
-                                ValueChanged="ZoomSlider_ValueChanged"/>
-                    </Flyout>
-                </AppBarButton.Flyout>
-            </AppBarButton>
-            <AppBarButton Icon="Delete"
-                          Label="Delete" 
-                          x:Name="Delete"
-                          x:Uid="PhotoViewerDeleteButton"
-                          Click="Delete_Click"/>
             <AppBarButton Icon="Repair"
                           Label="Adjust"
                           x:Name="Adjust"
@@ -62,6 +42,11 @@
                           x:Uid="PhotoViewerRotateButton"
                           x:Name="ImageRotate"
                           Click="ImageRotate_Click" />
+            <AppBarButton Icon="Delete"
+                          Label="Delete"
+                          x:Name="Delete"
+                          x:Uid="PhotoViewerDeleteButton"
+                          Click="Delete_Click" />
             <AppBarButton Icon="Switch"
                           Label="Transcode"
                           x:Uid="PhotoViewerTranscodeButton"
@@ -102,14 +87,14 @@
                           Grid.RowSpan="2">
             <controls:Loading.Background>
                 <SolidColorBrush Color="Black"
-                                 Opacity="0.55" />
+                                 Opacity="0.65" />
             </controls:Loading.Background>
             <StackPanel Orientation="Horizontal"
                         Padding="12">
                 <StackPanel>
                     <TextBlock Text="正在加载图片缓存..."
                                x:Uid="PhotoViewerLoadingCache"
-                               FontSize="25"
+                               FontSize="22"
                                VerticalAlignment="Center"
                                TextAlignment="Center" />
                     <ProgressBar Name="ProBar"
@@ -123,18 +108,18 @@
                           Grid.RowSpan="2">
             <controls:Loading.Background>
                 <SolidColorBrush Color="Black"
-                                 Opacity="0.55" />
+                                 Opacity="0.65" />
             </controls:Loading.Background>
             <StackPanel Orientation="Horizontal"
                         Padding="12">
                 <ProgressRing IsActive="True"
-                              Height="30"
-                              Width="30"
+                              Height="25"
+                              Width="25"
                               HorizontalAlignment="Center" />
                 <TextBlock Text="正在保存..."
                            x:Uid="PhotoViewerSaveTips"
                            Margin="10,0,0,0"
-                           FontSize="25"
+                           FontSize="22"
                            VerticalAlignment="Center"
                            TextAlignment="Center" />
             </StackPanel>

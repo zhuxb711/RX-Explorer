@@ -156,16 +156,15 @@
                           Grid.RowSpan="2">
             <controls:Loading.Background>
                 <SolidColorBrush Color="Black"
-                                 Opacity="0.8" />
+                                 Opacity="0.65" />
             </controls:Loading.Background>
             <StackPanel Orientation="Horizontal"
                         Padding="12">
                 <Grid Margin="0,0,15,0">
                     <ProgressRing x:Name="ProRing"
                                   IsActive="True"
-                                  Foreground="White"
-                                  Height="20"
-                                  Width="20" />
+                                  Height="25"
+                                  Width="25" />
                 </Grid>
                 <StackPanel>
                     <TextBlock FontSize="22"

@@ -22,7 +22,7 @@
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
-    <PackageCertificateThumbprint>669338F25D496FE4E81A7CA74D72A189AEE6172C</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>A425E1E81CA6A19B279C80EA39A0D6F558E8524C</PackageCertificateThumbprint>
     <AppInstallerUpdateFrequency>0</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
@@ -139,6 +139,9 @@
   <ItemGroup>
     <Compile Include="Dialog\FeedBackDialog.xaml.cs">
       <DependentUpon>FeedBackDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\ResetDialog.xaml.cs">
+      <DependentUpon>ResetDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialog\SecureAreaVerifyDialog.xaml.cs">
       <DependentUpon>SecureAreaVerifyDialog.xaml</DependentUpon>
@@ -392,6 +395,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Dialog\ResetDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialog\SecureAreaVerifyDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -607,6 +614,10 @@
     <ProjectReference Include="..\SystemInformationProvider\SystemInformationProvider.vcxproj">
       <Project>{b7beef6e-1f7f-43b6-a1ec-f447b3f995df}</Project>
       <Name>SystemInformationProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UpdateCheckBackgroundTask\UpdateCheckBackgroundTask.csproj">
+      <Project>{f6d7bf7b-aa4f-4f20-a6fe-45c60c75f88a}</Project>
+      <Name>UpdateCheckBackgroundTask</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

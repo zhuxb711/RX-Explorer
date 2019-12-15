@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -21,7 +20,6 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
-using Windows.UI.Xaml.Navigation;
 
 namespace FileManager
 {
@@ -282,16 +280,10 @@ namespace FileManager
 
         private async void ClearUp_Click(object sender, RoutedEventArgs e)
         {
-            if (Globalization.Language == LanguageEnum.Chinese)
+            ResetDialog Dialog = new ResetDialog();
+            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = "警告",
-                    Content = " 此操作将完全初始化RX文件管理器，包括：\r\r     • 清除全部数据存储\r\r     • 还原所有应用设置\r\r     • RX文件管理器将自动关闭并重新启动",
-                    CloseButtonText = "取消",
-                    PrimaryButtonText = "确认"
-                };
-                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                if (Dialog.IsClearSecureFolder)
                 {
                     SQLite.Current.Dispose();
                     MySQL.Current.Dispose();
@@ -306,34 +298,158 @@ namespace FileManager
                         await ApplicationData.Current.TemporaryFolder.DeleteAllSubFilesAndFolders();
                         await ApplicationData.Current.LocalCacheFolder.DeleteAllSubFilesAndFolders();
                     }
-                    _ = await CoreApplication.RequestRestartAsync(string.Empty);
+
+                    Window.Current.Activate();
+                    switch (await CoreApplication.RequestRestartAsync(string.Empty))
+                    {
+                        case AppRestartFailureReason.InvalidUser:
+                        case AppRestartFailureReason.NotInForeground:
+                        case AppRestartFailureReason.Other:
+                            {
+                                if (Globalization.Language == LanguageEnum.Chinese)
+                                {
+                                    QueueContentDialog Dialog1 = new QueueContentDialog
+                                    {
+                                        Title = "错误",
+                                        Content = "自动重新启动过程中出现问题，请手动重启RX文件管理器",
+                                        CloseButtonText = "确定"
+                                    };
+                                    _ = await Dialog1.ShowAsync();
+                                }
+                                else
+                                {
+                                    QueueContentDialog Dialog1 = new QueueContentDialog
+                                    {
+                                        Title = "Error",
+                                        Content = "There was a problem during the automatic restart, please restart the RX Explorer manually",
+                                        CloseButtonText = "Got it"
+                                    };
+                                    _ = await Dialog1.ShowAsync();
+                                }
+                                break;
+                            }
+                    }
                 }
-            }
-            else
-            {
-                QueueContentDialog dialog = new QueueContentDialog
+                else
                 {
-                    Title = "Warning",
-                    Content = " This will fully initialize the RX FileManager，Including：\r\r     • Clear all data\r\r     • Restore all app settings\r\r     • RX FileManager will automatically restart",
-                    CloseButtonText = "Cancel",
-                    PrimaryButtonText = "Confirm"
-                };
-                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                {
+                    LoadingText.Text = Globalization.Language == LanguageEnum.Chinese ? "正在导出..." : "Exporting";
+                    LoadingControl.IsLoading = true;
+
+                    StorageFolder SecureFolder = await ApplicationData.Current.LocalCacheFolder.CreateFolderAsync("SecureFolder", CreationCollisionOption.OpenIfExists);
+                    string FileEncryptionAesKey = KeyGenerator.GetMD5FromKey(CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword"), 16);
+
+                    foreach (var Item in await SecureFolder.GetFilesAsync())
+                    {
+                        try
+                        {
+                            _ = await Item.DecryptAsync(Dialog.ExportFolder, FileEncryptionAesKey);
+
+                            await Item.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                        }
+                        catch (Exception ex)
+                        {
+                            await Item.MoveAsync(Dialog.ExportFolder, Item.Name + (Globalization.Language == LanguageEnum.Chinese ? "-解密错误备份" : "-Decrypt Error Backup"), NameCollisionOption.GenerateUniqueName);
+                            if (ex is PasswordErrorException)
+                            {
+                                if (Globalization.Language == LanguageEnum.Chinese)
+                                {
+                                    QueueContentDialog Dialog1 = new QueueContentDialog
+                                    {
+                                        Title = "错误",
+                                        Content = "由于解密密码错误，解密失败，导出任务已经终止\r\r这可能是由于待解密文件数据不匹配造成的",
+                                        CloseButtonText = "确定"
+                                    };
+                                    _ = await Dialog1.ShowAsync();
+                                }
+                                else
+                                {
+                                    QueueContentDialog Dialog1 = new QueueContentDialog
+                                    {
+                                        Title = "Error",
+                                        Content = "The decryption failed due to the wrong decryption password, the export task has been terminated \r \rThis may be caused by a mismatch in the data of the files to be decrypted",
+                                        CloseButtonText = "Got it"
+                                    };
+                                    _ = await Dialog1.ShowAsync();
+                                }
+                            }
+                            else if (ex is FileDamagedException)
+                            {
+                                if (Globalization.Language == LanguageEnum.Chinese)
+                                {
+                                    QueueContentDialog Dialog1 = new QueueContentDialog
+                                    {
+                                        Title = "错误",
+                                        Content = "由于待解密文件的内部结构损坏，解密失败，导出任务已经终止\r\r这可能是由于文件数据已损坏或被修改造成的",
+                                        CloseButtonText = "确定"
+                                    };
+                                    _ = await Dialog1.ShowAsync();
+                                }
+                                else
+                                {
+                                    QueueContentDialog Dialog1 = new QueueContentDialog
+                                    {
+                                        Title = "Error",
+                                        Content = "Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r \rThis may be caused by the file data being damaged or modified",
+                                        CloseButtonText = "Got it"
+                                    };
+                                    _ = await Dialog1.ShowAsync();
+                                }
+                            }
+                        }
+                    }
+
                     SQLite.Current.Dispose();
                     MySQL.Current.Dispose();
                     try
                     {
-                        await ApplicationData.Current.ClearAsync();
-                    }
-                    catch(Exception)
-                    {
                         ApplicationData.Current.LocalSettings.Values.Clear();
+                        await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Local);
+                        await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Temporary);
+                        await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Roaming);
+                    }
+                    catch (Exception)
+                    {
                         await ApplicationData.Current.LocalFolder.DeleteAllSubFilesAndFolders();
                         await ApplicationData.Current.TemporaryFolder.DeleteAllSubFilesAndFolders();
-                        await ApplicationData.Current.LocalCacheFolder.DeleteAllSubFilesAndFolders();
+                        await ApplicationData.Current.RoamingFolder.DeleteAllSubFilesAndFolders();
                     }
-                    _ = await CoreApplication.RequestRestartAsync(string.Empty);
+
+                    await Task.Delay(1000);
+
+                    LoadingControl.IsLoading = false;
+
+                    await Task.Delay(1000);
+
+                    Window.Current.Activate();
+                    switch (await CoreApplication.RequestRestartAsync(string.Empty))
+                    {
+                        case AppRestartFailureReason.InvalidUser:
+                        case AppRestartFailureReason.NotInForeground:
+                        case AppRestartFailureReason.Other:
+                            {
+                                if (Globalization.Language == LanguageEnum.Chinese)
+                                {
+                                    QueueContentDialog Dialog1 = new QueueContentDialog
+                                    {
+                                        Title = "错误",
+                                        Content = "自动重新启动过程中出现问题，请手动重启RX文件管理器",
+                                        CloseButtonText = "确定"
+                                    };
+                                    _ = await Dialog1.ShowAsync();
+                                }
+                                else
+                                {
+                                    QueueContentDialog Dialog1 = new QueueContentDialog
+                                    {
+                                        Title = "Error",
+                                        Content = "There was a problem during the automatic restart, please restart the RX Explorer manually",
+                                        CloseButtonText = "Got it"
+                                    };
+                                    _ = await Dialog1.ShowAsync();
+                                }
+                                break;
+                            }
+                    }
                 }
             }
         }

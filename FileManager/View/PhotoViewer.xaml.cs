@@ -1,7 +1,6 @@
 ﻿using AnimationEffectProvider;
 using Microsoft.Toolkit.Uwp.UI.Animations;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +11,6 @@ using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
@@ -24,7 +22,6 @@ namespace FileManager
         ObservableCollection<PhotoDisplaySupport> PhotoCollection = new ObservableCollection<PhotoDisplaySupport>();
         StorageFileQueryResult QueryResult;
         AnimationFlipViewBehavior Behavior = new AnimationFlipViewBehavior();
-        Dictionary<int, (double, double)> ZoomOffsetMap = new Dictionary<int, (double, double)>(4);
         string SelectedPhotoID;
         int LastSelectIndex;
         double OriginHorizonOffset;
@@ -109,7 +106,6 @@ namespace FileManager
             Flip.Opacity = 0;
             Behavior.Detach();
             PhotoCollection.Clear();
-            ZoomOffsetMap.Clear();
             SelectedPhotoID = string.Empty;
             Flip.SelectionChanged -= Flip_SelectionChanged;
             QueryResult = null;
@@ -134,7 +130,6 @@ namespace FileManager
                 await Photo.ReplaceThumbnailBitmap();
                 Behavior.InitAnimation(InitOption.AroundImage);
                 LastSelectIndex = Flip.SelectedIndex;
-                ZoomOffsetMap.Clear();
             }
         }
 
@@ -310,42 +305,6 @@ namespace FileManager
         {
             IsNavigateToCropperPage = true;
             FileControl.ThisPage.Nav.Navigate(typeof(CropperPage), Flip.SelectedItem, new DrillInNavigationTransitionInfo());
-        }
-
-        private void ZoomSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
-        {
-            if (e.OldValue != 0)
-            {
-                var Viewer = Flip.ContainerFromIndex(Flip.SelectedIndex).FindChildOfType<ScrollViewer>();
-
-                var Index = (int)Math.Round(e.NewValue, MidpointRounding.AwayFromZero);
-                if (ZoomOffsetMap.ContainsKey(Index))
-                {
-                    Viewer.ChangeView(ZoomOffsetMap[Index].Item1, ZoomOffsetMap[Index].Item2, Convert.ToSingle(e.NewValue));
-                }
-                else
-                {
-                    var ImageInSide = Viewer.FindChildOfType<Image>();
-
-                    var HorizontalOffset = Viewer.HorizontalOffset + Viewer.ViewportWidth / 2;
-                    var VerticalOffset = Viewer.VerticalOffset + Viewer.ViewportHeight / 2 - (Viewer.ActualHeight - ImageInSide.ActualHeight) / 2;
-
-                    ZoomOffsetMap.Add(Index, (HorizontalOffset, VerticalOffset));
-
-                    Viewer.ChangeView(HorizontalOffset, VerticalOffset, Convert.ToSingle(e.NewValue));
-                }
-            }
-        }
-
-        private void ZoomSlider_Loading(FrameworkElement sender, object args)
-        {
-            var Viewer = Flip.ContainerFromIndex(Flip.SelectedIndex).FindChildOfType<ScrollViewer>();
-            if (Math.Abs(ZoomSlider.Value - Viewer.ZoomFactor) > 1E-06)
-            {
-                ZoomSlider.ValueChanged -= ZoomSlider_ValueChanged;
-                ZoomSlider.Value = Math.Round(Viewer.ZoomFactor, MidpointRounding.AwayFromZero);
-                ZoomSlider.ValueChanged += ZoomSlider_ValueChanged;
-            }
         }
     }
 }

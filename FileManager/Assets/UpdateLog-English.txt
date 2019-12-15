@@ -1,5 +1,32 @@
 ﻿*****
-### What's new in Ver.3.6.3.0
+###What's new in Ver.3.7.0.0
+
+>#####Feature Update
+
+>>#####New top-level navigation page-"Secure Area", supports Windows Hello, plus AES encryption to protect private files
+
+>>#####New brand new update reminder mechanism, no need to start RX file manager to receive update reminder
+
+>>#####New reset interface is added, allowing exporting files of security domain before reset
+
+>>#####Removed the zoom button of the picture viewer interface, only retaining the double-click zoom function
+
+>>#####New brand new top page switching effects are added to make the interface more uniform
+
+>#####Performance improvements
+
+>>#####The AES encryption method has been greatly optimized and enhanced, the original less secure ECB mode has been replaced, and the new CBC mode has been adopted.
+
+>>#####Other design pattern improvements
+
+>#####Bug fix
+
+>>#####Solved the problem that using keyboard shortcuts will cause misoperation when the focus is on the address bar and search box
+
+>>#####Resolved an issue that could cause layout circular reference exceptions when using the Enter key on the address bar and search bar
+
+*****
+###What's new in Ver.3.6.3.0
 
 >#####Feature Update
 
@@ -22,7 +49,7 @@
 >>######Fixed the problem of scrolling animation of picture list when switching between different background modes
 
 *****
-### What's new in Ver.3.6.0.0
+###What's new in Ver.3.6.0.0
 
 >#####Feature Update
 
@@ -39,7 +66,7 @@
 >>######Improved the way to get feedback data, reduce network usage, and improve interface response speed
 
 *****
-### What's new in Ver.3.5.7.0
+###What's new in Ver.3.5.7.0
 
 >#####Feature Update
 
@@ -52,7 +79,7 @@
 >>#####Solved the problem of translation of some controls
 
 *****
-### What's new in Ver.3.5.5.0
+###What's new in Ver.3.5.5.0
 
 >#####Feature Update
 

@@ -99,21 +99,19 @@
                           Grid.RowSpan="2">
             <controls:Loading.Background>
                 <SolidColorBrush Color="Black"
-                                 Opacity="0.7" />
+                                 Opacity="0.65" />
             </controls:Loading.Background>
             <StackPanel Orientation="Horizontal"
                         Padding="12">
                 <Grid Margin="0,0,15,0">
                     <ProgressRing Name="ProRing"
                                   IsActive="True"
-                                  Foreground="White"
                                   Height="25"
                                   Width="25" />
                 </Grid>
                 <StackPanel>
                     <TextBlock Name="ProgressInfo"
-                               FontSize="25"
-                               Foreground="White"
+                               FontSize="22"
                                VerticalAlignment="Center"
                                TextAlignment="Center" />
                 </StackPanel>

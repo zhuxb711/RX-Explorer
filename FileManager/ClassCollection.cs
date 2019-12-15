@@ -1177,122 +1177,6 @@ namespace FileManager
     }
     #endregion
 
-    #region AES加密解密方法类
-    /// <summary>
-    /// 提供AES加密相关方法
-    /// </summary>
-    public sealed class AESProvider
-    {
-        /// <summary>
-        /// 默认256位密钥
-        /// </summary>
-        public const string Admin256Key = "12345678876543211234567887654321";
-
-        /// <summary>
-        /// 默认128位密钥
-        /// </summary>
-        public const string Admin128Key = "1234567887654321";
-
-        /// <summary>
-        /// 默认IV加密向量
-        /// </summary>
-        private static readonly byte[] AdminIV = Encoding.UTF8.GetBytes("r7BXXKkLb8qrSNn0");
-
-        /// <summary>
-        /// 使用AES-CBC加密方式的加密算法
-        /// </summary>
-        /// <param name="ToEncrypt">待加密的数据</param>
-        /// <param name="key">密码</param>
-        /// <param name="KeySize">密钥长度</param>
-        /// <returns>加密后数据</returns>
-        public static byte[] CBCEncrypt(byte[] ToEncrypt, string key, int KeySize)
-        {
-            if (KeySize != 256 && KeySize != 128)
-            {
-                throw new InvalidEnumArgumentException("AES密钥长度仅支持128或256任意一种");
-            }
-            byte[] KeyArray = Encoding.UTF8.GetBytes(key);
-            byte[] result;
-            using (RijndaelManaged Rijndael = new RijndaelManaged
-            {
-                KeySize = KeySize,
-                Key = KeyArray,
-                Mode = CipherMode.CBC,
-                Padding = PaddingMode.PKCS7,
-                IV = AdminIV
-            })
-            {
-                ICryptoTransform CryptoTransform = Rijndael.CreateEncryptor();
-                result = CryptoTransform.TransformFinalBlock(ToEncrypt, 0, ToEncrypt.Length);
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// 使用AES-ECB方式的加密算法
-        /// </summary>
-        /// <param name="ToEncrypt">待加密数据</param>
-        /// <param name="key">密码</param>
-        /// <param name="KeySize">密钥长度</param>
-        /// <returns></returns>
-        public static byte[] ECBEncrypt(byte[] ToEncrypt, string key, int KeySize)
-        {
-            if (KeySize != 256 && KeySize != 128)
-            {
-                throw new InvalidEnumArgumentException("AES密钥长度仅支持128或256任意一种");
-            }
-
-            byte[] KeyArray = Encoding.UTF8.GetBytes(key);
-            byte[] result;
-            using (RijndaelManaged Rijndael = new RijndaelManaged
-            {
-                KeySize = KeySize,
-                Key = KeyArray,
-                Mode = CipherMode.ECB,
-                Padding = PaddingMode.Zeros
-            })
-            {
-                ICryptoTransform CryptoTransform = Rijndael.CreateEncryptor();
-                result = CryptoTransform.TransformFinalBlock(ToEncrypt, 0, ToEncrypt.Length);
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// 使用AES-ECB方式的解密算法
-        /// </summary>
-        /// <param name="ToDecrypt">待解密数据</param>
-        /// <param name="key">密码</param>
-        /// <param name="KeySize">密钥长度</param>
-        /// <returns>解密后数据</returns>
-        public static byte[] ECBDecrypt(byte[] ToDecrypt, string key, int KeySize)
-        {
-            if (KeySize != 256 && KeySize != 128)
-            {
-                throw new InvalidEnumArgumentException("AES密钥长度仅支持128或256任意一种");
-            }
-
-            byte[] KeyArray = Encoding.UTF8.GetBytes(key);
-            byte[] result;
-            using (RijndaelManaged Rijndael = new RijndaelManaged
-            {
-                KeySize = KeySize,
-                Key = KeyArray,
-                Mode = CipherMode.ECB,
-                Padding = PaddingMode.Zeros
-            })
-            {
-
-                ICryptoTransform CryptoTransform = Rijndael.CreateDecryptor();
-
-                result = CryptoTransform.TransformFinalBlock(ToDecrypt, 0, ToDecrypt.Length);
-            }
-            return result;
-        }
-
-    }
-    #endregion
-
     #region 图片展示类
     /// <summary>
     /// 为图片查看提供支持
@@ -1602,7 +1486,7 @@ namespace FileManager
     #region 扩展方法类
     public static class Extention
     {
-        public static async Task<string> EncryptionAsync(this string OriginText, string Key)
+        public static async Task<string> EncryptAsync(this string OriginText, string Key)
         {
             try
             {
@@ -1636,7 +1520,7 @@ namespace FileManager
             }
         }
 
-        public static async Task<string> DecryptionAsync(this string OriginText, string Key)
+        public static async Task<string> DecryptAsync(this string OriginText, string Key)
         {
             try
             {
@@ -1666,7 +1550,7 @@ namespace FileManager
             }
         }
 
-        public static async Task<StorageFile> EncryptionAsync(this StorageFile OriginFile, StorageFolder ExportFolder, string Key, int KeySize)
+        public static async Task<StorageFile> EncryptAsync(this StorageFile OriginFile, StorageFolder ExportFolder, string Key, int KeySize)
         {
             if (ExportFolder == null)
             {
@@ -1721,14 +1605,14 @@ namespace FileManager
 
                 return EncryptedFile;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 await EncryptedFile?.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                return null;
+                throw e;
             }
         }
 
-        public static async Task<StorageFile> DecryptionAsync(this StorageFile EncryptedFile, StorageFolder ExportFolder, string Key)
+        public static async Task<StorageFile> DecryptAsync(this StorageFile EncryptedFile, StorageFolder ExportFolder, string Key)
         {
             if (ExportFolder == null)
             {
@@ -2836,14 +2720,6 @@ namespace FileManager
     }
     #endregion
 
-    #region 语言枚举
-    public enum LanguageEnum
-    {
-        Chinese = 1,
-        English = 2
-    }
-    #endregion
-
     #region 全局背景控制器
     public enum BackgroundBrushType
     {
@@ -3153,6 +3029,9 @@ namespace FileManager
             }
         }
 
+        private bool IsCloseRequested = false;
+        private ContentDialogResult CloseWithResult;
+
         public new async Task<ContentDialogResult> ShowAsync()
         {
             _ = Interlocked.Increment(ref WaitCount);
@@ -3167,7 +3046,23 @@ namespace FileManager
             _ = Interlocked.Decrement(ref WaitCount);
 
             Locker.Set();
-            return Result;
+
+            if (IsCloseRequested)
+            {
+                IsCloseRequested = false;
+                return CloseWithResult;
+            }
+            else
+            {
+                return Result;
+            }
+        }
+
+        public void Close(ContentDialogResult CloseWithResult)
+        {
+            IsCloseRequested = true;
+            this.CloseWithResult = CloseWithResult;
+            Hide();
         }
 
         public QueueContentDialog()
@@ -3315,6 +3210,12 @@ namespace FileManager
     #endregion
 
     #region 本地化指示器
+    public enum LanguageEnum
+    {
+        Chinese = 1,
+        English = 2
+    }
+
     public static class Globalization
     {
         public static LanguageEnum Language { get; private set; }
@@ -3345,7 +3246,7 @@ namespace FileManager
 
         private const string CredentialName = "RX-SecureProtection";
 
-        private static Task<bool> CheckSupportAsync()
+        public static Task<bool> CheckSupportAsync()
         {
             return KeyCredentialManager.IsSupportedAsync().AsTask();
         }
@@ -3436,6 +3337,101 @@ namespace FileManager
                 {
                 }
             }
+        }
+    }
+    #endregion
+
+    #region 密码生成器
+    public static class KeyGenerator
+    {
+        public static string GetMD5FromKey(string OriginKey, int Length = 32)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(OriginKey);
+                byte[] Md5Buffer = md5.ComputeHash(bytes);
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < Md5Buffer.Length; i++)
+                {
+                    _ = sb.Append(Md5Buffer[i].ToString("x2"));
+                }
+
+                if (Length <= 32)
+                {
+                    return sb.ToString().Substring((32 - Length) / 2, Length);
+                }
+                else
+                {
+                    string Result = sb.ToString();
+                    return Result + Result.Substring(0, Length - 32);
+                }
+            }
+        }
+
+        public static string GetRandomKey(uint Length)
+        {
+            StringBuilder Builder = new StringBuilder();
+            Random CharNumRandom = new Random();
+
+            for (int i = 0; i < Length; i++)
+            {
+                switch (CharNumRandom.Next(0, 3))
+                {
+                    case 0:
+                        {
+                            _ = Builder.Append((char)CharNumRandom.Next(65, 91));
+                            break;
+                        }
+                    case 1:
+                        {
+                            _ = Builder.Append((char)CharNumRandom.Next(97, 123));
+                            break;
+                        }
+                    case 2:
+                        {
+                            _ = Builder.Append((char)CharNumRandom.Next(48, 58));
+                            break;
+                        }
+                }
+            }
+
+            return Builder.ToString();
+        }
+    }
+    #endregion
+
+    #region 凭据保护器
+    public static class CredentialProtector
+    {
+        public static string GetPasswordFromProtector(string Name)
+        {
+            PasswordVault Vault = new PasswordVault();
+
+            PasswordCredential Credential = Vault.RetrieveAll().Where((Cre) => Cre.UserName == Name).FirstOrDefault();
+
+            if (Credential != null)
+            {
+                Credential.RetrievePassword();
+                return Credential.Password;
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public static void RequestProtectPassword(string Name, string Password)
+        {
+            PasswordVault Vault = new PasswordVault();
+
+            PasswordCredential Credential = Vault.RetrieveAll().Where((Cre) => Cre.UserName == Name).FirstOrDefault();
+
+            if (Credential != null)
+            {
+                Vault.Remove(Credential);
+            }
+
+            Vault.Add(new PasswordCredential("RX_Secure_Vault", Name, Password));
         }
     }
     #endregion

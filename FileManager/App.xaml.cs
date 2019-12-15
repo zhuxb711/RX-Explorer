@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -102,14 +103,6 @@ namespace FileManager
 
         protected override void OnActivated(IActivatedEventArgs args)
         {
-            if (Window.Current.Content != null)
-            {
-                if (args is ToastNotificationActivatedEventArgs e && e.Argument == "Updating")
-                {
-                    return;
-                }
-            }
-
             CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
             var viewTitleBar = ApplicationView.GetForCurrentView().TitleBar;
             viewTitleBar.ButtonBackgroundColor = Colors.Transparent;

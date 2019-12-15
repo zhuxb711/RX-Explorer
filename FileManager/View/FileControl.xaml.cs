@@ -11,7 +11,6 @@ using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
@@ -65,6 +64,8 @@ namespace FileManager
                 return CurrentNode?.Content as StorageFolder;
             }
         }
+
+        public bool IsSearchOrPathBoxFocused = false;
 
         public static FileControl ThisPage { get; private set; }
         private bool IsAdding = false;
@@ -914,6 +915,7 @@ namespace FileManager
 
         private async void GlobeSearch_GotFocus(object sender, RoutedEventArgs e)
         {
+            IsSearchOrPathBoxFocused = true;
             if (string.IsNullOrEmpty(GlobeSearch.Text))
             {
                 GlobeSearch.ItemsSource = await SQLite.Current.GetRelatedSearchHistoryAsync(string.Empty);
@@ -924,122 +926,119 @@ namespace FileManager
         {
             try
             {
-                try
+                StorageFile File = await StorageFile.GetFileFromPathAsync(args.QueryText);
+                if (!await Launcher.LaunchFileAsync(File))
                 {
-                    StorageFile File = await StorageFile.GetFileFromPathAsync(args.QueryText);
-                    if (!await Launcher.LaunchFileAsync(File))
+                    LauncherOptions options = new LauncherOptions
                     {
-                        LauncherOptions options = new LauncherOptions
-                        {
-                            DisplayApplicationPicker = true
-                        };
-                        _ = await Launcher.LaunchFileAsync(File, options);
-                    }
-                    return;
-                }
-                catch (Exception)
-                {
-
-                }
-
-                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(args.QueryText);
-
-                if (args.QueryText.StartsWith((FolderTree.RootNodes.First().Content as StorageFolder).Path))
-                {
-                    var RootNode = FolderTree.RootNodes[0];
-                    TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
-                    if (TargetNode == null)
-                    {
-                        if (Globalization.Language == LanguageEnum.Chinese)
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "无法定位文件夹，该文件夹可能已被删除或移动",
-                                CloseButtonText = "确定"
-                            };
-                            _ = await dialog.ShowAsync();
-                        }
-                        else
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "Unable to locate folder, which may have been deleted or moved",
-                                CloseButtonText = "Confirm"
-                            };
-                            _ = await dialog.ShowAsync();
-                        }
-                    }
-                    else
-                    {
-                        while (true)
-                        {
-                            if (FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Item)
-                            {
-                                Item.IsSelected = true;
-                                Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                                await DisplayItemsInFolder(TargetNode);
-                                break;
-                            }
-                            else
-                            {
-                                await Task.Delay(300);
-                            }
-                        }
-
-                        await SQLite.Current.SetPathHistoryAsync(Folder.Path);
-                    }
-                }
-                else
-                {
-                    Locker.Dispose();
-
-                    FolderExpandCancel.Cancel();
-
-                    await Task.Run(() =>
-                    {
-                        ExitLocker.WaitOne();
-                    });
-
-                    ExitLocker.Dispose();
-                    ExitLocker = null;
-                    FolderExpandCancel.Dispose();
-                    FolderExpandCancel = null;
-
-                    CurrentNode = null;
-
-
-                    FolderTree.RootNodes.Clear();
-                    FilePresenter.ThisPage.FileCollection.Clear();
-                    FilePresenter.ThisPage.HasFile.Visibility = Visibility.Visible;
-
-                    await SQLite.Current.SetPathHistoryAsync(Folder.Path);
-
-                    MainPage.ThisPage.Nav.Content = new FileControl(Folder);
+                        DisplayApplicationPicker = true
+                    };
+                    _ = await Launcher.LaunchFileAsync(File, options);
                 }
             }
             catch (Exception)
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                try
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(args.QueryText);
+
+                    if (args.QueryText.StartsWith((FolderTree.RootNodes.First().Content as StorageFolder).Path))
                     {
-                        Title = "错误",
-                        Content = "无法找到路径为: \r" + args.QueryText + "的文件夹",
-                        CloseButtonText = "确定"
-                    };
-                    _ = await dialog.ShowAsync();
+                        var RootNode = FolderTree.RootNodes[0];
+                        TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
+                        if (TargetNode == null)
+                        {
+                            if (Globalization.Language == LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "无法定位文件夹，该文件夹可能已被删除或移动",
+                                    CloseButtonText = "确定"
+                                };
+                                _ = await dialog.ShowAsync();
+                            }
+                            else
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "Unable to locate folder, which may have been deleted or moved",
+                                    CloseButtonText = "Confirm"
+                                };
+                                _ = await dialog.ShowAsync();
+                            }
+                        }
+                        else
+                        {
+                            while (true)
+                            {
+                                if (FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Item)
+                                {
+                                    Item.IsSelected = true;
+                                    Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
+                                    await DisplayItemsInFolder(TargetNode);
+                                    break;
+                                }
+                                else
+                                {
+                                    await Task.Delay(300);
+                                }
+                            }
+
+                            await SQLite.Current.SetPathHistoryAsync(Folder.Path);
+                        }
+                    }
+                    else
+                    {
+                        Locker.Dispose();
+
+                        FolderExpandCancel.Cancel();
+
+                        await Task.Run(() =>
+                        {
+                            ExitLocker.WaitOne();
+                        });
+
+                        ExitLocker.Dispose();
+                        ExitLocker = null;
+                        FolderExpandCancel.Dispose();
+                        FolderExpandCancel = null;
+
+                        CurrentNode = null;
+
+
+                        FolderTree.RootNodes.Clear();
+                        FilePresenter.ThisPage.FileCollection.Clear();
+                        FilePresenter.ThisPage.HasFile.Visibility = Visibility.Visible;
+
+                        await SQLite.Current.SetPathHistoryAsync(Folder.Path);
+
+                        MainPage.ThisPage.Nav.Content = new FileControl(Folder);
+                    }
                 }
-                else
+                catch (Exception)
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
-                        Title = "Error",
-                        Content = "Unable to locate folder: " + args.QueryText,
-                        CloseButtonText = "Confirm",
-                    };
-                    _ = await dialog.ShowAsync();
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "无法找到路径为: \r" + args.QueryText + "的文件夹",
+                            CloseButtonText = "确定"
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Unable to locate folder: " + args.QueryText,
+                            CloseButtonText = "Confirm",
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
                 }
             }
         }
@@ -1351,6 +1350,8 @@ namespace FileManager
 
         private async void AddressBox_GotFocus(object sender, RoutedEventArgs e)
         {
+            IsSearchOrPathBoxFocused = true;
+
             AddressBox.ItemsSource = await SQLite.Current.GetRelatedPathHistoryAsync(string.Empty);
         }
     }

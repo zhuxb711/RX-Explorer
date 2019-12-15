@@ -1,23 +1,33 @@
-﻿<local:QueueContentDialog
-    x:Class="FileManager.AESDialog"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:FileManager"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Title="AES加密"
-    x:Uid="AESDialog"
-    CloseButtonText="取消"
-    PrimaryButtonText="确定"
-    PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick"
-    Background="{StaticResource DialogAcrylicBrush}">
-    
+﻿<local:QueueContentDialog x:Class="FileManager.AESDialog"
+                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                          xmlns:local="using:FileManager"
+                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                          mc:Ignorable="d"
+                          Title="AES加密"
+                          x:Uid="AESDialog"
+                          CloseButtonText="取消"
+                          PrimaryButtonText="确定"
+                          PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick"
+                          Background="{StaticResource DialogAcrylicBrush}">
+
     <Grid>
         <StackPanel Orientation="Vertical">
-            <TextBlock FontSize="18" Height="30" Name="FileName" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
-            <PasswordBox x:Uid="AESPassword" PlaceholderText="密码" Name="PasswordControl" Header="加密密码" MaxLength="16"/>
-            <ComboBox Header="加密方式" x:Uid="AESMethod" HorizontalAlignment="Stretch" Name="KeySelector">
+            <TextBlock FontSize="18"
+                       Name="FileName"
+                       TextWrapping="Wrap"
+                       TextTrimming="CharacterEllipsis" />
+            <PasswordBox x:Uid="AESPassword"
+                         PlaceholderText="密码"
+                         Name="PasswordControl"
+                         Header="加密密码"
+                         Margin="0,10,0,0"/>
+            <ComboBox Header="加密方式"
+                      x:Uid="AESMethod"
+                      HorizontalAlignment="Stretch"
+                      Name="KeySelector"
+                      Margin="0,10,0,0">
                 <ComboBox.Items>
                     <x:String>
                         AES-128bit
@@ -27,7 +37,11 @@
                     </x:String>
                 </ComboBox.Items>
             </ComboBox>
-            <CheckBox Content="加密完成后删除源文件" x:Uid="AESCheckBox" Name="Check" IsChecked="{x:Bind IsDeleteChecked,Mode=TwoWay}"/>
+            <CheckBox Content="加密完成后删除源文件"
+                      x:Uid="AESCheckBox"
+                      Name="Check"
+                      Margin="0,10,0,0"
+                      IsChecked="{x:Bind IsDeleteChecked,Mode=TwoWay}" />
         </StackPanel>
     </Grid>
 </local:QueueContentDialog>

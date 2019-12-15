@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.Notifications;
@@ -35,14 +36,14 @@ namespace FileManager
                 messageBody = "版本: "
                             + string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)
                             + messageBody
-                            + "\r\r问题复现方法：(推荐)\r1、\r\r2、\r\r3、\r";
+                            + "\r\r问题复现方法：\r1、\r\r2、\r\r3、\r";
             }
             else
             {
                 messageBody = "Version: "
                             + string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)
                             + messageBody
-                            + "\r\rProblem recurrence method：(Recommand)\r1、\r\r2、\r\r3、\r";
+                            + "\r\rProblem recurrence method：\r1、\r\r2、\r\r3、\r";
             }
 
             messageBody = Uri.EscapeDataString(messageBody);
@@ -58,102 +59,20 @@ namespace FileManager
         private async void Reset_Click(object sender, RoutedEventArgs e)
         {
             SQLite.Current.Dispose();
-            await ApplicationData.Current.ClearAsync();
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(GenerateRestartToast().GetXml()));
-            Application.Current.Exit();
+            MySQL.Current.Dispose();
+            try
+            {
+                await ApplicationData.Current.ClearAsync();
+            }
+            catch (Exception)
+            {
+                ApplicationData.Current.LocalSettings.Values.Clear();
+                await ApplicationData.Current.LocalFolder.DeleteAllSubFilesAndFolders();
+                await ApplicationData.Current.TemporaryFolder.DeleteAllSubFilesAndFolders();
+                await ApplicationData.Current.LocalCacheFolder.DeleteAllSubFilesAndFolders();
+            }
+            _ = await CoreApplication.RequestRestartAsync(string.Empty);
         }
 
-        public static ToastContent GenerateRestartToast()
-        {
-            if (Globalization.Language == LanguageEnum.Chinese)
-            {
-                return new ToastContent()
-                {
-                    Launch = "Restart",
-                    Scenario = ToastScenario.Alarm,
-
-                    Visual = new ToastVisual()
-                    {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = "需要重新启动RX文件管理器"
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = "重置已完成"
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = "请点击以立即重新启动RX"
-                                }
-                            }
-                        }
-                    },
-
-                    Actions = new ToastActionsCustom
-                    {
-                        Buttons =
-                        {
-                            new ToastButton("立即启动","Restart")
-                            {
-                                ActivationType =ToastActivationType.Foreground
-                            },
-                            new ToastButtonDismiss("稍后")
-                        }
-                    }
-                };
-            }
-            else
-            {
-                return new ToastContent()
-                {
-                    Launch = "Restart",
-                    Scenario = ToastScenario.Alarm,
-
-                    Visual = new ToastVisual()
-                    {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = "Need to restart RX FileManager"
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = "Reset completed"
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = "Please click to restart RX now"
-                                }
-                            }
-                        }
-                    },
-
-                    Actions = new ToastActionsCustom
-                    {
-                        Buttons =
-                        {
-                            new ToastButton("Restart","Restart")
-                            {
-                                ActivationType =ToastActivationType.Foreground
-                            },
-                            new ToastButtonDismiss("Later")
-                        }
-                    }
-                };
-
-            }
-        }
     }
 }

@@ -23,7 +23,6 @@ using Windows.UI.Core;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
@@ -41,14 +40,9 @@ namespace FileManager
         public TreeViewNode DisplayNode;
         private static StorageFile CopyFile;
         private static StorageFile CutFile;
-        AutoResetEvent AESControl;
         Frame Nav;
         WiFiShareProvider WiFiProvider;
-        const int AESCacheSize = 1048576;
-        byte[] EncryptByteBuffer;
-        byte[] DecryptByteBuffer;
         FileSystemStorageItem DoubleTabTarget = null;
-
         CancellationTokenSource TranscodeCancellation;
         bool IsTranscoding = false;
 
@@ -76,85 +70,88 @@ namespace FileManager
                 var CtrlState = WindowInstance.GetKeyState(VirtualKey.Control);
                 var ShiftState = WindowInstance.GetKeyState(VirtualKey.Shift);
 
-                switch (args.VirtualKey)
+                if (!FileControl.ThisPage.IsSearchOrPathBoxFocused)
                 {
-                    case VirtualKey.Delete:
-                        {
-                            Delete_Click(null, null);
-                            break;
-                        }
-                    case VirtualKey.F2:
-                        {
-                            Rename_Click(null, null);
-                            break;
-                        }
-                    case VirtualKey.F5:
-                        {
-                            Refresh_Click(null, null);
-                            break;
-                        }
-                    case VirtualKey.Right when GridViewControl.SelectedIndex == -1:
-                        {
-                            GridViewControl.Focus(FocusState.Programmatic);
-                            GridViewControl.SelectedIndex = 0;
-                            break;
-                        }
-                    case VirtualKey.Enter when !QueueContentDialog.IsRunningOrWaiting && GridViewControl.SelectedItem is FileSystemStorageItem Item:
-                        {
-                            GridViewControl.Focus(FocusState.Programmatic);
-                            EnterSelectedItem(Item);
-                            break;
-                        }
-                    case VirtualKey.Back when FileControl.ThisPage.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && !QueueContentDialog.IsRunningOrWaiting:
-                        {
-                            FileControl.ThisPage.GoParentFolder_Click(null, null);
-                            break;
-                        }
-                    case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            FileControl.ThisPage.AddressBox.Focus(FocusState.Programmatic);
-                            break;
-                        }
-                    case VirtualKey.V when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            Paste_Click(null, null);
-                            break;
-                        }
-                    case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            if (CutFile != null)
+                    switch (args.VirtualKey)
+                    {
+                        case VirtualKey.Delete:
                             {
-                                CutFile = null;
+                                Delete_Click(null, null);
+                                break;
                             }
-
-                            CopyFile = (GridViewControl.SelectedItem as FileSystemStorageItem)?.File;
-                            break;
-                        }
-                    case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            if (CopyFile != null)
+                        case VirtualKey.F2:
                             {
-                                CopyFile = null;
+                                Rename_Click(null, null);
+                                break;
                             }
+                        case VirtualKey.F5:
+                            {
+                                Refresh_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.Right when GridViewControl.SelectedIndex == -1:
+                            {
+                                GridViewControl.Focus(FocusState.Programmatic);
+                                GridViewControl.SelectedIndex = 0;
+                                break;
+                            }
+                        case VirtualKey.Enter when !QueueContentDialog.IsRunningOrWaiting && GridViewControl.SelectedItem is FileSystemStorageItem Item:
+                            {
+                                GridViewControl.Focus(FocusState.Programmatic);
+                                EnterSelectedItem(Item);
+                                break;
+                            }
+                        case VirtualKey.Back when FileControl.ThisPage.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && !QueueContentDialog.IsRunningOrWaiting:
+                            {
+                                FileControl.ThisPage.GoParentFolder_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                FileControl.ThisPage.AddressBox.Focus(FocusState.Programmatic);
+                                break;
+                            }
+                        case VirtualKey.V when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                Paste_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                if (CutFile != null)
+                                {
+                                    CutFile = null;
+                                }
 
-                            CutFile = (GridViewControl.SelectedItem as FileSystemStorageItem)?.File;
-                            break;
-                        }
-                    case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            Delete_Click(null, null);
-                            break;
-                        }
-                    case VirtualKey.F when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            FileControl.ThisPage.GlobeSearch.Focus(FocusState.Programmatic);
-                            break;
-                        }
-                    case VirtualKey.N when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            NewFolder_Click(null, null);
-                            break;
-                        }
+                                CopyFile = (GridViewControl.SelectedItem as FileSystemStorageItem)?.File;
+                                break;
+                            }
+                        case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                if (CopyFile != null)
+                                {
+                                    CopyFile = null;
+                                }
+
+                                CutFile = (GridViewControl.SelectedItem as FileSystemStorageItem)?.File;
+                                break;
+                            }
+                        case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                Delete_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.F when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                FileControl.ThisPage.GlobeSearch.Focus(FocusState.Programmatic);
+                                break;
+                            }
+                        case VirtualKey.N when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                NewFolder_Click(null, null);
+                                break;
+                            }
+                    }
                 }
             }
         }
@@ -188,13 +185,11 @@ namespace FileManager
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             Nav = e.Parameter as Frame;
-            AESControl = new AutoResetEvent(false);
             CoreWindow.GetForCurrentThread().KeyDown += Window_KeyDown;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            AESControl?.Dispose();
             CoreWindow.GetForCurrentThread().KeyDown -= Window_KeyDown;
         }
 
@@ -964,8 +959,6 @@ namespace FileManager
                 else
                 {
                     LoadingActivation(false);
-                    DecryptByteBuffer = null;
-                    EncryptByteBuffer = null;
                     return;
                 }
 
@@ -975,55 +968,9 @@ namespace FileManager
 
                 try
                 {
-                    StorageFile file = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(SelectedFile.DisplayName + ".sle", CreationCollisionOption.GenerateUniqueName);
+                    StorageFile EncryptFile = await SelectedFile.File.EncryptAsync(FileControl.ThisPage.CurrentFolder, KeyRequest, KeySizeRequest);
 
-                    await Task.Run(async () =>
-                    {
-                        using (var FileStream = await SelectedFile.File.OpenStreamForReadAsync())
-                        {
-                            using (var TargetFileStream = await file.OpenStreamForWriteAsync())
-                            {
-                                byte[] Tail = Encoding.UTF8.GetBytes("$" + KeySizeRequest + "|" + SelectedFile.Type + "$");
-                                byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
-
-                                if (FileStream.Length < AESCacheSize)
-                                {
-                                    EncryptByteBuffer = new byte[FileStream.Length];
-                                    FileStream.Read(EncryptByteBuffer, 0, EncryptByteBuffer.Length);
-                                    await TargetFileStream.WriteAsync(Tail, 0, Tail.Length);
-                                    await TargetFileStream.WriteAsync(AESProvider.ECBEncrypt(PasswordFlag, KeyRequest, KeySizeRequest), 0, PasswordFlag.Length);
-                                    var EncryptedBytes = AESProvider.ECBEncrypt(EncryptByteBuffer, KeyRequest, KeySizeRequest);
-                                    await TargetFileStream.WriteAsync(EncryptedBytes, 0, EncryptedBytes.Length);
-                                }
-                                else
-                                {
-                                    EncryptByteBuffer = new byte[Tail.Length];
-                                    await TargetFileStream.WriteAsync(Tail, 0, Tail.Length);
-                                    await TargetFileStream.WriteAsync(AESProvider.ECBEncrypt(PasswordFlag, KeyRequest, KeySizeRequest), 0, PasswordFlag.Length);
-
-                                    long BytesWrite = 0;
-                                    EncryptByteBuffer = new byte[AESCacheSize];
-                                    while (BytesWrite < FileStream.Length)
-                                    {
-                                        if (FileStream.Length - BytesWrite < AESCacheSize)
-                                        {
-                                            if (FileStream.Length - BytesWrite == 0)
-                                            {
-                                                break;
-                                            }
-                                            EncryptByteBuffer = new byte[FileStream.Length - BytesWrite];
-                                        }
-
-                                        BytesWrite += FileStream.Read(EncryptByteBuffer, 0, EncryptByteBuffer.Length);
-                                        var EncryptedBytes = AESProvider.ECBEncrypt(EncryptByteBuffer, KeyRequest, KeySizeRequest);
-                                        await TargetFileStream.WriteAsync(EncryptedBytes, 0, EncryptedBytes.Length);
-                                    }
-
-                                }
-                            }
-                        }
-                    });
-                    FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(file, await file.GetSizeDescriptionAsync(), await file.GetThumbnailBitmapAsync(), await file.GetModifiedTimeAsync()));
+                    FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(EncryptFile, await EncryptFile.GetSizeDescriptionAsync(), await EncryptFile.GetThumbnailBitmapAsync(), await EncryptFile.GetModifiedTimeAsync()));
                 }
                 catch (UnauthorizedAccessException)
                 {
@@ -1068,8 +1015,6 @@ namespace FileManager
                 else
                 {
                     LoadingActivation(false);
-                    DecryptByteBuffer = null;
-                    EncryptByteBuffer = null;
                     return;
                 }
 
@@ -1077,221 +1022,111 @@ namespace FileManager
                     ? "正在解密"
                     : "Decrypting");
 
-                await Task.Run(async () =>
+                try
                 {
-                    using (var FileStream = await SelectedFile.File.OpenStreamForReadAsync())
+                    StorageFile EncryptFile = await SelectedFile.File.DecryptAsync(FileControl.ThisPage.CurrentFolder, KeyRequest);
+
+                    FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(EncryptFile, await EncryptFile.GetSizeDescriptionAsync(), await EncryptFile.GetThumbnailBitmapAsync(), await EncryptFile.GetModifiedTimeAsync()));
+                }
+                catch (FileDamagedException)
+                {
+                    LoadingActivation(false);
+
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
-                        string FileType;
-                        byte[] DecryptedBytes;
-                        int SignalLength = 0;
-                        int EncryptKeySize = 0;
-
-                        DecryptByteBuffer = new byte[20];
-                        FileStream.Read(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
-                        try
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
-                            if (Encoding.UTF8.GetString(DecryptByteBuffer, 0, 1) != "$")
-                            {
-                                throw new Exception("文件格式错误");
-                            }
-                        }
-                        catch (Exception)
+                            Title = "错误",
+                            Content = "  文件格式检验错误，文件可能已损坏",
+                            CloseButtonText = "确定"
+                        };
+                        await dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                            {
-                                QueueContentDialog dialog;
-                                if (Globalization.Language == LanguageEnum.Chinese)
-                                {
-                                    dialog = new QueueContentDialog
-                                    {
-                                        Title = "错误",
-                                        Content = "  文件格式检验错误，文件可能已损坏",
-                                        CloseButtonText = "确定"
-                                    };
-                                }
-                                else
-                                {
-                                    dialog = new QueueContentDialog
-                                    {
-                                        Title = "Error",
-                                        Content = "  File format validation error, file may be corrupt",
-                                        CloseButtonText = "Confirm"
-                                    };
-                                }
+                            Title = "Error",
+                            Content = "  File format validation error, file may be corrupt",
+                            CloseButtonText = "Confirm"
+                        };
+                        await dialog.ShowAsync();
+                    }
 
-                                LoadingActivation(false);
-                                DecryptByteBuffer = null;
-                                EncryptByteBuffer = null;
-                                await dialog.ShowAsync();
-                            });
+                    return;
+                }
+                catch (PasswordErrorException)
+                {
+                    LoadingActivation(false);
 
-                            return;
-                        }
-                        StringBuilder builder = new StringBuilder();
-                        for (int i = 1; ; i++)
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
-                            string Char = Encoding.UTF8.GetString(DecryptByteBuffer, i, 1);
-                            if (Char == "|")
-                            {
-                                EncryptKeySize = int.Parse(builder.ToString());
-                                KeyRequest = KeyRequest.PadRight(EncryptKeySize / 8, '0');
-                                builder.Clear();
-                                continue;
-                            }
-                            if (Char != "$")
-                            {
-                                builder.Append(Char);
-                            }
-                            else
-                            {
-                                SignalLength = i + 1;
-                                break;
-                            }
-                        }
-                        FileType = builder.ToString();
-                        FileStream.Seek(SignalLength, SeekOrigin.Begin);
+                            Title = "错误",
+                            Content = "  密码错误，无法解密\r\r  请重试...",
+                            CloseButtonText = "确定"
+                        };
+                        _ = await dialog.ShowAsync();
 
-                        byte[] PasswordConfirm = new byte[16];
-                        await FileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length);
-                        if (Encoding.UTF8.GetString(AESProvider.ECBDecrypt(PasswordConfirm, KeyRequest, EncryptKeySize)) != "PASSWORD_CORRECT")
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                            {
-                                QueueContentDialog dialog;
-                                if (Globalization.Language == LanguageEnum.Chinese)
-                                {
-                                    dialog = new QueueContentDialog
-                                    {
-                                        Title = "错误",
-                                        Content = "  密码错误，无法解密\r\r  请重试...",
-                                        CloseButtonText = "确定"
-                                    };
-                                }
-                                else
-                                {
-                                    dialog = new QueueContentDialog
-                                    {
-                                        Title = "Error",
-                                        Content = "  The password is incorrect and cannot be decrypted\r\r  Please try again...",
-                                        CloseButtonText = "Confirm"
-                                    };
-                                }
+                            Title = "Error",
+                            Content = "  The password is incorrect and cannot be decrypted\r\r  Please try again...",
+                            CloseButtonText = "Confirm"
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
 
-                                LoadingActivation(false);
-                                DecryptByteBuffer = null;
-                                EncryptByteBuffer = null;
-                                await dialog.ShowAsync();
-                                AESControl.Set();
-                            });
-                            AESControl.WaitOne();
-                            return;
-                        }
-                        else
+                    return;
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
-                            SignalLength += 16;
-                        }
-
-                        if (FileStream.Length - SignalLength < AESCacheSize)
+                            Title = "错误",
+                            Content = "RX无权在此处创建解密文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后"
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                         {
-                            DecryptByteBuffer = new byte[FileStream.Length - SignalLength];
-                        }
-                        else
-                        {
-                            DecryptByteBuffer = new byte[AESCacheSize];
-                        }
-                        FileStream.Read(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
-                        DecryptedBytes = AESProvider.ECBDecrypt(DecryptByteBuffer, KeyRequest, EncryptKeySize);
-
-                        StorageFolder CurrentFolder = null;
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                        {
-                            CurrentFolder = FileControl.ThisPage.CurrentFolder;
-                        });
-
-                        try
-                        {
-                            StorageFile file = await CurrentFolder.CreateFileAsync(SelectedFile.DisplayName + FileType, CreationCollisionOption.GenerateUniqueName);
-
-                            using (var TargetFileStream = await file.OpenStreamForWriteAsync())
-                            {
-                                await TargetFileStream.WriteAsync(DecryptedBytes, 0, DecryptedBytes.Length);
-
-                                if (FileStream.Length - SignalLength >= AESCacheSize)
-                                {
-                                    long BytesRead = DecryptByteBuffer.Length + SignalLength;
-                                    while (BytesRead < FileStream.Length)
-                                    {
-                                        if (FileStream.Length - BytesRead < AESCacheSize)
-                                        {
-                                            if (FileStream.Length - BytesRead == 0)
-                                            {
-                                                break;
-                                            }
-                                            DecryptByteBuffer = new byte[FileStream.Length - BytesRead];
-                                        }
-                                        BytesRead += FileStream.Read(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
-                                        DecryptedBytes = AESProvider.ECBDecrypt(DecryptByteBuffer, KeyRequest, EncryptKeySize);
-                                        await TargetFileStream.WriteAsync(DecryptedBytes, 0, DecryptedBytes.Length);
-                                    }
-                                }
-                            }
-
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                            {
-                                FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(file, await file.GetSizeDescriptionAsync(), await file.GetThumbnailBitmapAsync(), await file.GetModifiedTimeAsync()));
-                            });
-                        }
-                        catch (UnauthorizedAccessException)
-                        {
-                            if (Globalization.Language == LanguageEnum.Chinese)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "RX无权在此处创建解密文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                                    PrimaryButtonText = "立刻",
-                                    CloseButtonText = "稍后"
-                                };
-                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                                {
-                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                                }
-                            }
-                            else
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "RX does not have permission to create an decrypted file here, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                                    PrimaryButtonText = "Enter",
-                                    CloseButtonText = "Later"
-                                };
-                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                                {
-                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                                }
-                            }
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
                         }
                     }
-                });
-            }
-
-            if (IsDeleteRequest)
-            {
-                await SelectedFile.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
-
-                for (int i = 0; i < FileCollection.Count; i++)
-                {
-                    if (FileCollection[i].RelativeId == SelectedFile.RelativeId)
+                    else
                     {
-                        FileCollection.RemoveAt(i);
-                        break;
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "RX does not have permission to create an decrypted file here, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                            PrimaryButtonText = "Enter",
+                            CloseButtonText = "Later"
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
+                    }
+
+                    return;
+                }
+
+                if (IsDeleteRequest)
+                {
+                    await SelectedFile.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+
+                    if (FileCollection.FirstOrDefault((Item) => Item.RelativeId == SelectedFile.RelativeId) is FileSystemStorageItem It)
+                    {
+                        FileCollection.Remove(It);
                     }
                 }
             }
-
-            DecryptByteBuffer = null;
-            EncryptByteBuffer = null;
 
             await Task.Delay(500);
             LoadingActivation(false);
@@ -1403,6 +1238,7 @@ namespace FileManager
         private void GridViewControl_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             GridViewControl.SelectedIndex = -1;
+            FileControl.ThisPage.IsSearchOrPathBoxFocused = false;
         }
 
         private void GridViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
@@ -2674,6 +2510,8 @@ namespace FileManager
 
         private void GridViewControl_ItemClick(object sender, ItemClickEventArgs e)
         {
+            FileControl.ThisPage.IsSearchOrPathBoxFocused = false;
+
             if (!SettingPage.IsDoubleClickEnable && e.ClickedItem is FileSystemStorageItem ReFile)
             {
                 EnterSelectedItem(ReFile);

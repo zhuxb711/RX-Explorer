@@ -25,6 +25,7 @@
                            x:Uid="AttributeSize"
                            Height="40" />
                 <TextBlock Text="安全等级"
+                           x:Uid="AttributeSecureLevel"
                            Height="40" />
             </StackPanel>
             <StackPanel Margin="25,0,0,0">

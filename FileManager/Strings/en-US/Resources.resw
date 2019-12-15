@@ -168,6 +168,9 @@
   <data name="AttributeModified.Text" xml:space="preserve">
     <value>Modified</value>
   </data>
+  <data name="AttributeSecureLevel.Text" xml:space="preserve">
+    <value>Security Level</value>
+  </data>
   <data name="AttributeSize.Text" xml:space="preserve">
     <value>Size</value>
   </data>
@@ -438,9 +441,6 @@
   <data name="PhotoViewerTranscodeButton.Label" xml:space="preserve">
     <value>Transcode</value>
   </data>
-  <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
-    <value>Zoom</value>
-  </data>
   <data name="PinTip.ActionButtonContent" xml:space="preserve">
     <value>Now</value>
   </data>
@@ -528,6 +528,87 @@
   <data name="RenamePreview.Text" xml:space="preserve">
     <value>Preview</value>
   </data>
+  <data name="ResetDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="ResetDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="ResetDialog.Title" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="ResetDialogButton.Content" xml:space="preserve">
+    <value>Select export location</value>
+  </data>
+  <data name="ResetDialogCheckBox1.Content" xml:space="preserve">
+    <value>Application saved settings, database storage</value>
+  </data>
+  <data name="ResetDialogCheckBox2.Content" xml:space="preserve">
+    <value>Files stored in Security Area</value>
+  </data>
+  <data name="ResetDialogText1.Text" xml:space="preserve">
+    <value>This will initialize the RX Explorer</value>
+  </data>
+  <data name="ResetDialogText2.Text" xml:space="preserve">
+    <value>Including:</value>
+  </data>
+  <data name="ResetDialogTip.Subtitle" xml:space="preserve">
+    <value>Please select an export folder</value>
+  </data>
+  <data name="SAVerifyDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="SAVerifyDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="SAVerifyDialog.Title" xml:space="preserve">
+    <value>Enter credentials</value>
+  </data>
+  <data name="SAVerifyDialogErrorTip.Subtitle" xml:space="preserve">
+    <value>Wrong password, please re-enter</value>
+  </data>
+  <data name="SAVerifyDialogErrorTip.Title" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="SAVerifyDialogPasswordBox.Header" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="SAVerifyDialogPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>Enter unlock password</value>
+  </data>
+  <data name="SAWelcomeDialog.CloseButtonText" xml:space="preserve">
+    <value>Go back</value>
+  </data>
+  <data name="SAWelcomeDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="SAWelcomeDialog.Title" xml:space="preserve">
+    <value>First time setup</value>
+  </data>
+  <data name="SAWelcomeDialogConfrimPassword.Header" xml:space="preserve">
+    <value>Enter the password again</value>
+  </data>
+  <data name="SAWelcomeDialogConfrimPassword.PlaceholderText" xml:space="preserve">
+    <value>Enter master password</value>
+  </data>
+  <data name="SAWelcomeDialogEmptyTip.Subtitle" xml:space="preserve">
+    <value>This field is required and cannot be left blank</value>
+  </data>
+  <data name="SAWelcomeDialogErrorTip.Subtitle" xml:space="preserve">
+    <value>The passwords entered are inconsistent, please check the passwords</value>
+  </data>
+  <data name="SAWelcomeDialogPrimaryPassword.Header" xml:space="preserve">
+    <value>Master password</value>
+  </data>
+  <data name="SAWelcomeDialogPrimaryPassword.PlaceholderText" xml:space="preserve">
+    <value>Set unlock password</value>
+  </data>
+  <data name="SAWelcomeDialogSecureLevel.Header" xml:space="preserve">
+    <value>Security Level</value>
+  </data>
+  <data name="SAWelcomeDialogUseWH.Content" xml:space="preserve">
+    <value>Use Windows Hello instead of password authentication</value>
+  </data>
   <data name="SearchFlyoutCancel.Content" xml:space="preserve">
     <value>Cancel</value>
   </data>
@@ -575,6 +656,75 @@
   </data>
   <data name="SearchType.Text" xml:space="preserve">
     <value>Type</value>
+  </data>
+  <data name="SecureArea.Content" xml:space="preserve">
+    <value>Security Area</value>
+  </data>
+  <data name="SecureAreaAddFileButton.Label" xml:space="preserve">
+    <value>Add file</value>
+  </data>
+  <data name="SecureAreaDeleteButton.Label" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="SecureAreaDropText.Text" xml:space="preserve">
+    <value>Click the button or drag the file here</value>
+  </data>
+  <data name="SecureAreaEncryptTip.Subtitle" xml:space="preserve">
+    <value>The AES-128-CBC mode already provides sufficient security by default, but you can also choose the AES-256-CBC mode for better security protection. Processors of the second generation Core processors and above support two modes of hardware acceleration, so there is no need to worry about performance issues</value>
+  </data>
+  <data name="SecureAreaEncryptTip.Title" xml:space="preserve">
+    <value>AES mode</value>
+  </data>
+  <data name="SecureAreaExportButton.Label" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="SecureAreaProperty.Label" xml:space="preserve">
+    <value>Property</value>
+  </data>
+  <data name="SecureAreaRenameButton.Label" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="SecureAreaSettingAboutHeader.Text" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="SecureAreaSettingAboutText1.Text" xml:space="preserve">
+    <value>RX built-in file vault</value>
+  </data>
+  <data name="SecureAreaSettingAboutText2.Text" xml:space="preserve">
+    <value>Based on AES-CBC algorithm, combined with multiple system-level security authentication measures to ensure the secure storage of files</value>
+  </data>
+  <data name="SecureAreaSettingAESMode1.Content" xml:space="preserve">
+    <value>AES-128bit CBC mode</value>
+  </data>
+  <data name="SecureAreaSettingAESMode2.Content" xml:space="preserve">
+    <value>AES-256bit CBC mode</value>
+  </data>
+  <data name="SecureAreaSettingButton.Label" xml:space="preserve">
+    <value>Setting</value>
+  </data>
+  <data name="SecureAreaSettingEncryptionHeader.Text" xml:space="preserve">
+    <value>Encryption mode</value>
+  </data>
+  <data name="SecureAreaSettingHeader.Text" xml:space="preserve">
+    <value>Setting</value>
+  </data>
+  <data name="SecureAreaSettingLockMode1.Content" xml:space="preserve">
+    <value>Lock immediately when leaving this page</value>
+  </data>
+  <data name="SecureAreaSettingLockMode2.Content" xml:space="preserve">
+    <value>Lock when this app is closing</value>
+  </data>
+  <data name="SecureAreaSettingLockModeHeader.Text" xml:space="preserve">
+    <value>Security Area lock mode</value>
+  </data>
+  <data name="SecureAreaSettingUseWH.Header" xml:space="preserve">
+    <value>Simplify authentication with Windows Hello</value>
+  </data>
+  <data name="SecureAreaWHTip.Subtitle" xml:space="preserve">
+    <value>Utilizing Windows Hello to strengthen the security of the security domain, Windows Hello saves the necessary credentials to the TPM security chip. The TPM chip is not affected by any software and hardware vulnerabilities, so these credentials will not be disclosed in any unauthorized state. RX utilizes this feature, combined with AES encryption, to provide unparalleled security protection</value>
+  </data>
+  <data name="SecureAreaWHTip.Title" xml:space="preserve">
+    <value>Combine with Windows Hello</value>
   </data>
   <data name="SettingAbout.Content" xml:space="preserve">
     <value>About Developer→→</value>

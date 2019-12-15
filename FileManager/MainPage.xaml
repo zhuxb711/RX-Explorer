@@ -77,7 +77,8 @@
                                   Glyph="&#xE909;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="安全域">
+                <NavigationViewItem Content="安全域"
+                                    x:Uid="SecureArea">
                     <NavigationViewItem.Icon>
                         <SymbolIcon Symbol="ProtectedDocument"/>
                     </NavigationViewItem.Icon>

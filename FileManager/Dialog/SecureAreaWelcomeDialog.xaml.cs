@@ -33,9 +33,9 @@ namespace FileManager
 
         private async void SecureAreaWelcomeDialog_Loading(Windows.UI.Xaml.FrameworkElement sender, object args)
         {
-            if (await KeyCredentialManager.IsSupportedAsync())
+            if (await WindowsHelloAuthenticator.CheckSupportAsync())
             {
-                UseWinHel.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                UseWinHel.IsEnabled = true;
             }
         }
 
@@ -43,7 +43,23 @@ namespace FileManager
         {
             if (string.IsNullOrWhiteSpace(PrimaryPassword.Password))
             {
+                EmptyTip.Target = PrimaryPassword;
                 EmptyTip.IsOpen = true;
+                args.Cancel = true;
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(ConfirmPassword.Password))
+            {
+                EmptyTip.Target = ConfirmPassword;
+                EmptyTip.IsOpen = true;
+                args.Cancel = true;
+                return;
+            }
+
+            if (PrimaryPassword.Password != ConfirmPassword.Password)
+            {
+                PasswordErrorTip.IsOpen = true;
                 args.Cancel = true;
                 return;
             }

@@ -11,10 +11,8 @@ using Windows.Storage.Search;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
-using Windows.UI.Xaml.Navigation;
 
 namespace FileManager
 {
@@ -24,13 +22,13 @@ namespace FileManager
 
         private StorageFolder SecureFolder;
 
-        private const string EncryptUserPasswordAesKey = "6MByE6rDxS3WbE1a";
-
-        private const string PrimaryEncryptionAesKey = "TtUg4jSSYmJPgu3b";
+        private string FileEncryptionAesKey;
 
         private string UnlockPassword;
 
         private int AESKeySize;
+
+        private bool IsNewStart = true;
 
         public SecureArea()
         {
@@ -53,63 +51,182 @@ namespace FileManager
         {
             if (ApplicationData.Current.LocalSettings.Values.ContainsKey("IsFirstEnterSecureArea"))
             {
-                UnlockPassword = await ApplicationData.Current.LocalSettings.Values["SecureAreaPrimaryPassword"].ToString().DecryptionAsync(EncryptUserPasswordAesKey);
+                UnlockPassword = CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword");
+                FileEncryptionAesKey = KeyGenerator.GetMD5FromKey(UnlockPassword, 16);
                 AESKeySize = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"]);
-                if (Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"]))
+
+                if (!(ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] is string LockMode) || LockMode != nameof(CloseLockMode) || IsNewStart)
                 {
-                RETRY:
-                    switch (await WindowsHelloAuthenticator.VerifyUserAsync())
+                    if (Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"]))
                     {
-                        case AuthenticatorState.VerifyPassed:
-                            {
-                                break;
-                            }
-                        case AuthenticatorState.UnknownError:
-                        case AuthenticatorState.VerifyFailed:
-                            {
-                                ContentDialog Dialog = new ContentDialog
+                    RETRY:
+                        switch (await WindowsHelloAuthenticator.VerifyUserAsync())
+                        {
+                            case AuthenticatorState.VerifyPassed:
                                 {
-                                    Title = "错误",
-                                    Content = "Windows Hello验证不通过，您无进入安全域的权限",
-                                    PrimaryButtonText = "再次尝试",
-                                    CloseButtonText = "使用密码"
-                                };
-                                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
-                                {
-                                    goto RETRY;
+                                    break;
                                 }
-                                else
+                            case AuthenticatorState.UnknownError:
+                            case AuthenticatorState.VerifyFailed:
                                 {
+                                    QueueContentDialog Dialog;
+                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    {
+                                        Dialog = new QueueContentDialog
+                                        {
+                                            Title = "错误",
+                                            Content = "Windows Hello认证不通过，您无进入安全域的权限",
+                                            PrimaryButtonText = "再次尝试",
+                                            SecondaryButtonText = "使用密码",
+                                            CloseButtonText = "返回"
+                                        };
+                                    }
+                                    else
+                                    {
+                                        Dialog = new QueueContentDialog
+                                        {
+                                            Title = "Error",
+                                            Content = "Windows Hello authentication failed, you do not have permission to enter the Security Area",
+                                            PrimaryButtonText = "Try again",
+                                            SecondaryButtonText = "Use password",
+                                            CloseButtonText = "Go back"
+                                        };
+                                    }
+
+                                    ContentDialogResult Result = await Dialog.ShowAsync();
+
+                                    if (Result == ContentDialogResult.Primary)
+                                    {
+                                        goto RETRY;
+                                    }
+                                    else if (Result == ContentDialogResult.Secondary)
+                                    {
+                                        if (!await EnterByPassword())
+                                        {
+                                            return;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        switch (MainPage.ThisPage.LastPageName)
+                                        {
+                                            case nameof(ThisPC):
+                                                {
+                                                    MainPage.ThisPage.Nav.Navigate(typeof(ThisPC), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                                                    break;
+                                                }
+                                            case nameof(WebTab):
+                                                {
+                                                    MainPage.ThisPage.Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                                                    break;
+                                                }
+                                            case nameof(SettingPage):
+                                                {
+                                                    MainPage.ThisPage.Nav.Navigate(typeof(SettingPage), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+                                                    break;
+                                                }
+                                        }
+                                        return;
+                                    }
+                                    break;
+                                }
+                            case AuthenticatorState.UserNotRegistered:
+                            case AuthenticatorState.CredentialNotFound:
+                                {
+                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    {
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = "错误",
+                                            Content = "Windows Hello认证凭据丢失，无法使用Windows Hello，请使用密码进入\r\r您可以在重新进入安全域后，进入设置重新注册Windows Hello",
+                                            CloseButtonText = "确定"
+                                        };
+                                        _ = await Dialog.ShowAsync();
+                                    }
+                                    else
+                                    {
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = "Error",
+                                            Content = "Windows Hello authentication credentials are lost, you cannot use Windows Hello, please use the password to enter \r \rAfter you re-enter the security domain, enter settings to re-register Windows Hello",
+                                            CloseButtonText = "Confirm"
+                                        };
+                                        _ = await Dialog.ShowAsync();
+                                    }
+
+                                    ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
+
                                     if (!await EnterByPassword())
                                     {
                                         return;
                                     }
+                                    break;
                                 }
-                                break;
-                            }
-                        case AuthenticatorState.UserNotRegistered:
-                        case AuthenticatorState.CredentialNotFound:
-                            {
-                                ContentDialog Dialog = new ContentDialog
+                            case AuthenticatorState.WindowsHelloUnsupport:
                                 {
-                                    Title = "错误",
-                                    Content = "Windows Hello验证凭据丢失，无法使用Windows Hello，请使用密码进入",
-                                    CloseButtonText = "确定"
-                                };
-                                _ = await Dialog.ShowAsync();
-                                if (!await EnterByPassword())
-                                {
-                                    return;
+                                    QueueContentDialog Dialog;
+                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    {
+                                        Dialog = new QueueContentDialog
+                                        {
+                                            Title = "警告",
+                                            Content = "Windows Hello已被禁用，无法通过Windows Hello进入安全域",
+                                            PrimaryButtonText = "使用密码",
+                                            CloseButtonText = "返回"
+                                        };
+                                    }
+                                    else
+                                    {
+                                        Dialog = new QueueContentDialog
+                                        {
+                                            Title = "Warning",
+                                            Content = "Windows Hello is disabled and cannot enter the Security Area through Windows Hello",
+                                            PrimaryButtonText = "Use password",
+                                            CloseButtonText = "Go back"
+                                        };
+                                    }
+
+                                    ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
+
+                                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                                    {
+                                        if (!await EnterByPassword())
+                                        {
+                                            return;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        switch (MainPage.ThisPage.LastPageName)
+                                        {
+                                            case nameof(ThisPC):
+                                                {
+                                                    MainPage.ThisPage.Nav.Navigate(typeof(ThisPC), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                                                    break;
+                                                }
+                                            case nameof(WebTab):
+                                                {
+                                                    MainPage.ThisPage.Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                                                    break;
+                                                }
+                                            case nameof(SettingPage):
+                                                {
+                                                    MainPage.ThisPage.Nav.Navigate(typeof(SettingPage), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+                                                    break;
+                                                }
+                                        }
+                                        return;
+                                    }
+                                    break;
                                 }
-                                break;
-                            }
+                        }
                     }
-                }
-                else
-                {
-                    if (!await EnterByPassword())
+                    else
                     {
-                        return;
+                        if (!await EnterByPassword())
+                        {
+                            return;
+                        }
                     }
                 }
             }
@@ -120,9 +237,11 @@ namespace FileManager
                 {
                     AESKeySize = Dialog.AESKeySize;
                     UnlockPassword = Dialog.Password;
+                    FileEncryptionAesKey = KeyGenerator.GetMD5FromKey(UnlockPassword, 16);
+                    CredentialProtector.RequestProtectPassword("SecureAreaPrimaryPassword", UnlockPassword);
+
                     ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] = Dialog.AESKeySize;
                     ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = Dialog.IsEnableWindowsHello;
-                    ApplicationData.Current.LocalSettings.Values["SecureAreaPrimaryPassword"] = await Dialog.Password.EncryptionAsync(EncryptUserPasswordAesKey);
                     ApplicationData.Current.LocalSettings.Values["IsFirstEnterSecureArea"] = false;
                 }
                 else
@@ -173,6 +292,11 @@ namespace FileManager
                             MainPage.ThisPage.Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
                             break;
                         }
+                    case nameof(SettingPage):
+                        {
+                            MainPage.ThisPage.Nav.Navigate(typeof(SettingPage), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+                            break;
+                        }
                 }
                 return false;
             }
@@ -180,6 +304,8 @@ namespace FileManager
 
         private async Task StartLoadFile()
         {
+            IsNewStart = false;
+
             SecureFolder = await ApplicationData.Current.LocalCacheFolder.CreateFolderAsync("SecureFolder", CreationCollisionOption.OpenIfExists);
 
             QueryOptions Options = new QueryOptions
@@ -212,7 +338,7 @@ namespace FileManager
             await SecureCollection.SetStorageItemQueryAsync(ItemQuery);
         }
 
-        private void SecureCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void SecureCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action != NotifyCollectionChangedAction.Reset)
             {
@@ -251,9 +377,11 @@ namespace FileManager
 
             IReadOnlyList<StorageFile> FileList = await Picker.PickMultipleFilesAsync();
 
+            ActivateLoading(true, true);
+
             foreach (var File in FileList)
             {
-                if ((await File.EncryptionAsync(SecureFolder, PrimaryEncryptionAesKey, AESKeySize)) is StorageFile EncryptedFile)
+                if ((await File.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize)) is StorageFile EncryptedFile)
                 {
                     var Size = await EncryptedFile.GetSizeDescriptionAsync();
                     var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
@@ -284,6 +412,9 @@ namespace FileManager
                     }
                 }
             }
+
+            await Task.Delay(1500);
+            ActivateLoading(false);
         }
 
         private async void Grid_Drop(object sender, DragEventArgs e)
@@ -292,9 +423,11 @@ namespace FileManager
             {
                 IReadOnlyList<IStorageItem> Items = await e.DataView.GetStorageItemsAsync();
 
+                ActivateLoading(true, true);
+
                 foreach (StorageFile Item in Items.OfType<StorageFile>())
                 {
-                    if ((await Item.EncryptionAsync(SecureFolder, PrimaryEncryptionAesKey, AESKeySize)) is StorageFile EncryptedFile)
+                    if ((await Item.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize)) is StorageFile EncryptedFile)
                     {
                         var Size = await EncryptedFile.GetSizeDescriptionAsync();
                         var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
@@ -349,13 +482,16 @@ namespace FileManager
                         _ = await Dialog.ShowAsync();
                     }
                 }
+
+                await Task.Delay(1500);
+                ActivateLoading(false);
             }
         }
 
         private void SecureGridView_DragEnter(object sender, DragEventArgs e)
         {
             e.AcceptedOperation = DataPackageOperation.Copy;
-            e.DragUIOverride.Caption = "松开即可添加文件";
+            e.DragUIOverride.Caption = Globalization.Language == LanguageEnum.Chinese ? "松开即可添加文件" : "Release to add files";
         }
 
         private void SecureGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -390,7 +526,7 @@ namespace FileManager
                         Content = "此操作将永久删除 \" " + Item.Name + " \"\r\r是否继续?",
                         CloseButtonText = "否"
                     };
-                    if((await Dialog.ShowAsync())==ContentDialogResult.Primary)
+                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
                         await Item.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
                         SecureCollection.Remove(Item);
@@ -416,7 +552,7 @@ namespace FileManager
 
         private void Setting_Click(object sender, RoutedEventArgs e)
         {
-
+            SettingPane.IsPaneOpen = !SettingPane.IsPaneOpen;
         }
 
         private async void ExportFile_Click(object sender, RoutedEventArgs e)
@@ -434,61 +570,96 @@ namespace FileManager
                 {
                     try
                     {
-                        _ = await Item.File.DecryptionAsync(Folder, PrimaryEncryptionAesKey);
+                        ActivateLoading(true, false);
+
+                        _ = await Item.File.DecryptAsync(Folder, FileEncryptionAesKey);
 
                         await Item.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
                         SecureCollection.Remove(Item);
 
+                        await Task.Delay(1500);
+                        ActivateLoading(false);
+                        await Task.Delay(500);
+
                         _ = await Launcher.LaunchFolderAsync(Folder);
                     }
-                    catch (Exception ex)
+                    catch (PasswordErrorException)
                     {
-                        if (ex is PasswordErrorException)
+                        if (Globalization.Language == LanguageEnum.Chinese)
                         {
-                            if (Globalization.Language == LanguageEnum.Chinese)
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "由于解密密码错误，解密失败，导出任务已经终止\r\r这可能是由于待解密文件数据不匹配造成的",
-                                    CloseButtonText = "确定"
-                                };
-                                _ = await Dialog.ShowAsync();
-                            }
-                            else
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "The decryption failed due to the wrong decryption password, the export task has been terminated \r \rThis may be caused by a mismatch in the data of the files to be decrypted",
-                                    CloseButtonText = "Got it"
-                                };
-                                _ = await Dialog.ShowAsync();
-                            }
+                                Title = "错误",
+                                Content = "由于解密密码错误，解密失败，导出任务已经终止\r\r这可能是由于待解密文件数据不匹配造成的",
+                                CloseButtonText = "确定"
+                            };
+                            _ = await Dialog.ShowAsync();
                         }
-                        else if (ex is FileDamagedException)
+                        else
                         {
-                            if (Globalization.Language == LanguageEnum.Chinese)
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "由于待解密文件的内部结构损坏，解密失败，导出任务已经终止\r\r这可能是由于文件数据已损坏或被修改造成的",
-                                    CloseButtonText = "确定"
-                                };
-                                _ = await Dialog.ShowAsync();
-                            }
-                            else
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r \rThis may be caused by the file data being damaged or modified",
-                                    CloseButtonText = "Got it"
-                                };
-                                _ = await Dialog.ShowAsync();
-                            }
+                                Title = "Error",
+                                Content = "The decryption failed due to the wrong decryption password, the export task has been terminated \r \rThis may be caused by a mismatch in the data of the files to be decrypted",
+                                CloseButtonText = "Got it"
+                            };
+                            _ = await Dialog.ShowAsync();
                         }
+
+                        await Task.Delay(1500);
+                        ActivateLoading(false);
+                    }
+                    catch (FileDamagedException)
+                    {
+                        if (Globalization.Language == LanguageEnum.Chinese)
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = "错误",
+                                Content = "由于待解密文件的内部结构损坏，解密失败，导出任务已经终止\r\r这可能是由于文件数据已损坏或被修改造成的",
+                                CloseButtonText = "确定"
+                            };
+                            _ = await Dialog.ShowAsync();
+                        }
+                        else
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = "Error",
+                                Content = "Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r \rThis may be caused by the file data being damaged or modified",
+                                CloseButtonText = "Got it"
+                            };
+                            _ = await Dialog.ShowAsync();
+                        }
+
+                        await Task.Delay(1500);
+                        ActivateLoading(false);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        if (Globalization.Language == LanguageEnum.Chinese)
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = "错误",
+                                Content = "RX无权在此处创建解密文件，可能是您无权访问此文件夹",
+                                CloseButtonText = "确定"
+                            };
+                            _ = await dialog.ShowAsync();
+                        }
+                        else
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = "Error",
+                                Content = "RX does not have permission to create an decrypted file here",
+                                CloseButtonText = "Got it"
+                            };
+                            _ = await dialog.ShowAsync();
+                        }
+
+                        await Task.Delay(1500);
+                        ActivateLoading(false);
                     }
                 }
             }
@@ -560,6 +731,152 @@ namespace FileManager
                     }
                 }
             }
+        }
+
+        private void ActivateLoading(bool ActivateOrNot, bool IsImport = true)
+        {
+            if (ActivateOrNot)
+            {
+                LoadingText.Text = IsImport
+                ? Globalization.Language == LanguageEnum.Chinese ? "正在导入..." : "Importing..."
+                : Globalization.Language == LanguageEnum.Chinese ? "正在导出..." : "Exporting...";
+            }
+            LoadingControl.IsLoading = ActivateOrNot;
+        }
+
+        private void WindowsHelloQuestion_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            WindowsHelloTip.IsOpen = true;
+        }
+
+        private void EncryptionModeQuestion_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            EncryptTip.IsOpen = true;
+        }
+
+        private async void SettingPane_PaneOpening(SplitView sender, object args)
+        {
+            if (await WindowsHelloAuthenticator.CheckSupportAsync())
+            {
+                UseWindowsHello.IsEnabled = true;
+                UseWindowsHello.IsOn = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"]);
+            }
+            else
+            {
+                UseWindowsHello.IsOn = false;
+                UseWindowsHello.IsEnabled = false;
+            }
+
+            if (Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"]) == 128)
+            {
+                AES128Mode.IsChecked = true;
+            }
+            else
+            {
+                AES256Mode.IsChecked = true;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] is string LockMode)
+            {
+                if (LockMode == nameof(ImmediateLockMode))
+                {
+                    ImmediateLockMode.IsChecked = true;
+                }
+                else if (LockMode == nameof(CloseLockMode))
+                {
+                    CloseLockMode.IsChecked = true;
+                }
+            }
+            else
+            {
+                ImmediateLockMode.IsChecked = true;
+                ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] = nameof(ImmediateLockMode);
+            }
+
+            UseWindowsHello.Toggled += UseWindowsHello_Toggled;
+            AES128Mode.Checked += AES128Mode_Checked;
+            AES256Mode.Checked += AES256Mode_Checked;
+            ImmediateLockMode.Checked += ImmediateLockMode_Checked;
+            CloseLockMode.Checked += CloseLockMode_Checked;
+        }
+
+        private void CloseLockMode_Checked(object sender, RoutedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] = nameof(CloseLockMode);
+        }
+
+        private void ImmediateLockMode_Checked(object sender, RoutedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] = nameof(ImmediateLockMode);
+        }
+
+        private async void UseWindowsHello_Toggled(object sender, RoutedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = UseWindowsHello.IsOn ? true : false;
+
+            if (UseWindowsHello.IsOn)
+            {
+            RETRY:
+                if ((await WindowsHelloAuthenticator.RegisterUserAsync()) != AuthenticatorState.RegisterSuccess)
+                {
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "无法正确设置Windows Hello，请重试",
+                            PrimaryButtonText = "重试",
+                            CloseButtonText = "取消"
+                        };
+                        if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                        {
+                            goto RETRY;
+                        }
+                    }
+                    else
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Windows Hello could not be set up correctly, please try again",
+                            PrimaryButtonText = "Retry",
+                            CloseButtonText = "Cancel"
+                        };
+                        if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                        {
+                            goto RETRY;
+                        }
+                    }
+
+                    UseWindowsHello.Toggled -= UseWindowsHello_Toggled;
+                    UseWindowsHello.IsOn = false;
+                    ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
+                    UseWindowsHello.Toggled += UseWindowsHello_Toggled;
+                }
+            }
+            else
+            {
+                await WindowsHelloAuthenticator.DeleteUserAsync();
+            }
+        }
+
+        private void AES128Mode_Checked(object sender, RoutedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] = 128;
+        }
+
+        private void AES256Mode_Checked(object sender, RoutedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] = 256;
+        }
+
+        private void SettingPane_PaneClosing(SplitView sender, SplitViewPaneClosingEventArgs args)
+        {
+            UseWindowsHello.Toggled -= UseWindowsHello_Toggled;
+            AES128Mode.Checked -= AES128Mode_Checked;
+            AES256Mode.Checked -= AES256Mode_Checked;
+            ImmediateLockMode.Checked -= ImmediateLockMode_Checked;
+            CloseLockMode.Checked -= CloseLockMode_Checked;
         }
     }
 }

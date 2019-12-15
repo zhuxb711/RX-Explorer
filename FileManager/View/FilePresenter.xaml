@@ -205,6 +205,7 @@
             </TransitionCollection>
         </Grid.Transitions>
         <GridView Name="GridViewControl"
+                  Background="Transparent"
                   Margin="5,0,0,0"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
@@ -272,27 +273,25 @@
                    VerticalAlignment="Center"
                    x:Uid="HasFile"
                    Text="无文件"
-                   FontSize="25"
+                   FontSize="22"
                    Visibility="Visible" />
         <controls:Loading x:Name="LoadingControl"
                           IsLoading="False">
             <controls:Loading.Background>
                 <SolidColorBrush Color="Black"
-                                 Opacity="0.5" />
+                                 Opacity="0.65" />
             </controls:Loading.Background>
             <StackPanel Orientation="Horizontal"
                         Padding="12">
                 <Grid Margin="0,0,15,0">
                     <ProgressRing Name="ProRing"
                                   IsActive="True"
-                                  Foreground="White"
-                                  Height="30"
-                                  Width="30" />
+                                  Height="25"
+                                  Width="25" />
                 </Grid>
                 <StackPanel>
                     <TextBlock Name="ProgressInfo"
-                               FontSize="25"
-                               Foreground="White"
+                               FontSize="22"
                                VerticalAlignment="Center"
                                TextAlignment="Center" />
                     <ProgressBar Name="ProBar"

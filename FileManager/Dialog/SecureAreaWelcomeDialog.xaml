@@ -6,7 +6,8 @@
                           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                           xmlns:controls="using:Microsoft.UI.Xaml.Controls"
                           mc:Ignorable="d"
-                          Title="初始化安全域"
+                          x:Uid="SAWelcomeDialog"
+                          Title="首次激活安全域"
                           Background="{StaticResource DialogAcrylicBrush}"
                           PrimaryButtonText="确定"
                           PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
@@ -14,29 +15,45 @@
 
     <local:QueueContentDialog.Resources>
         <controls:TeachingTip x:Name="EmptyTip"
+                              x:Uid="SAWelcomeDialogEmptyTip"
                               Title="Tips"
-                              Subtitle="请指定所有文件夹后再点击确定哦"
+                              Subtitle="此处为必填项，不能留空"
+                              IsLightDismissEnabled="True"
+                              PreferredPlacement="TopRight"/>
+
+        <controls:TeachingTip x:Name="PasswordErrorTip"
+                              Title="Tips"
+                              x:Uid="SAWelcomeDialogErrorTip"
+                              Subtitle="输入的密码不一致，请检查一下密码"
                               IsLightDismissEnabled="True"
                               PreferredPlacement="TopRight"
-                              Target="{x:Bind PrimaryPassword}" />
+                              Target="{x:Bind ConfirmPassword}"/>
     </local:QueueContentDialog.Resources>
     
     <Grid>
         <StackPanel>
-            <PasswordBox Header="主密码 (必须)"
+            <PasswordBox Header="主密码"
                          PlaceholderText="设置解锁密码"
+                         x:Uid="SAWelcomeDialogPrimaryPassword"
                          Name="PrimaryPassword"/>
+            <PasswordBox Header="再次输入密码"
+                         PlaceholderText="输入密码"
+                         x:Uid="SAWelcomeDialogConfrimPassword"
+                         Margin="0,10,0,0"
+                         Name="ConfirmPassword"/>
             <ComboBox Header="安全等级"
+                      x:Uid="SAWelcomeDialogSecureLevel"
                       Margin="0,10,0,0"
                       Name="SecureLevel"
                       Width="200"/>
             <StackPanel Orientation="Horizontal">
-                <CheckBox Content="使用Windows Hello代替密码验证"
+                <CheckBox Content="使用Windows Hello代替密码认证"
+                          x:Uid="SAWelcomeDialogUseWH"
                           Margin="0,10,0,0"
                           Checked="UseWinHel_Checked"
                           Unchecked="UseWinHel_Unchecked"
-                          Name="UseWinHel" 
-                          Visibility="Collapsed"/>
+                          Name="UseWinHel"
+                          IsEnabled="False"/>
                 <Viewbox Margin="4,8,0,0"
                          Width="25"
                          Visibility="Collapsed"
@@ -46,8 +63,8 @@
                               Foreground="Green"
                               FontWeight="Bold" />
                 </Viewbox>
-                <Viewbox Margin="4,9,0,0"
-                         Width="16"
+                <Viewbox Margin="4,10,0,0"
+                         Width="15"
                          Visibility="Collapsed"
                          VerticalAlignment="Center"
                          Name="WindowsHelloFailed">

@@ -717,9 +717,6 @@
   <data name="PhotoViewerTranscodeButton.Label" xml:space="preserve">
     <value>转码</value>
   </data>
-  <data name="PhotoViewerZoomButton.Label" xml:space="preserve">
-    <value>缩放</value>
-  </data>
   <data name="TranscodeImageDialog.CloseButtonText" xml:space="preserve">
     <value>取消</value>
   </data>
@@ -971,5 +968,158 @@
   </data>
   <data name="UserFolderNotReferTip.Subtitle" xml:space="preserve">
     <value>请指定所有文件夹后再点击确定哦</value>
+  </data>
+  <data name="AttributeSecureLevel.Text" xml:space="preserve">
+    <value>安全等级</value>
+  </data>
+  <data name="ResetDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="ResetDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="ResetDialog.Title" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="ResetDialogButton.Content" xml:space="preserve">
+    <value>选择导出位置</value>
+  </data>
+  <data name="ResetDialogCheckBox1.Content" xml:space="preserve">
+    <value>应用保存的设置、数据库存储的内容</value>
+  </data>
+  <data name="ResetDialogCheckBox2.Content" xml:space="preserve">
+    <value>安全域存储的文件</value>
+  </data>
+  <data name="ResetDialogText1.Text" xml:space="preserve">
+    <value>此操作将初始化RX文件管理器"</value>
+  </data>
+  <data name="ResetDialogText2.Text" xml:space="preserve">
+    <value>包括:</value>
+  </data>
+  <data name="ResetDialogTip.Subtitle" xml:space="preserve">
+    <value>请选择一个导出文件夹</value>
+  </data>
+  <data name="SAVerifyDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="SAVerifyDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="SAVerifyDialog.Title" xml:space="preserve">
+    <value>输入凭据</value>
+  </data>
+  <data name="SAVerifyDialogErrorTip.Subtitle" xml:space="preserve">
+    <value>密码错误，请重新输入</value>
+  </data>
+  <data name="SAVerifyDialogErrorTip.Title" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="SAVerifyDialogPasswordBox.Header" xml:space="preserve">
+    <value>密码</value>
+  </data>
+  <data name="SAVerifyDialogPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>输入解锁密码</value>
+  </data>
+  <data name="SAWelcomeDialog.CloseButtonText" xml:space="preserve">
+    <value>返回</value>
+  </data>
+  <data name="SAWelcomeDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="SAWelcomeDialog.Title" xml:space="preserve">
+    <value>首次激活安全域</value>
+  </data>
+  <data name="SAWelcomeDialogConfrimPassword.Header" xml:space="preserve">
+    <value>再次输入密码</value>
+  </data>
+  <data name="SAWelcomeDialogConfrimPassword.PlaceholderText" xml:space="preserve">
+    <value>输入密码</value>
+  </data>
+  <data name="SAWelcomeDialogEmptyTip.Subtitle" xml:space="preserve">
+    <value>此处为必填项，不能留空</value>
+  </data>
+  <data name="SAWelcomeDialogErrorTip.Subtitle" xml:space="preserve">
+    <value>输入的密码不一致，请检查一下密码</value>
+  </data>
+  <data name="SAWelcomeDialogPrimaryPassword.Header" xml:space="preserve">
+    <value>主密码</value>
+  </data>
+  <data name="SAWelcomeDialogPrimaryPassword.PlaceholderText" xml:space="preserve">
+    <value>设置解锁密码</value>
+  </data>
+  <data name="SAWelcomeDialogSecureLevel.Header" xml:space="preserve">
+    <value>安全等级</value>
+  </data>
+  <data name="SAWelcomeDialogUseWH.Content" xml:space="preserve">
+    <value>使用Windows Hello代替密码认证</value>
+  </data>
+  <data name="SecureAreaAddFileButton.Label" xml:space="preserve">
+    <value>添加文件</value>
+  </data>
+  <data name="SecureAreaDeleteButton.Label" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="SecureAreaDropText.Text" xml:space="preserve">
+    <value>点击按钮或拖动文件到此处</value>
+  </data>
+  <data name="SecureAreaEncryptTip.Subtitle" xml:space="preserve">
+    <value>默认情况下AES-128-CBC模式已经提供足够的安全性，但是您也可以选择AES-256-CBC模式以获得更加好的安全保护。第二代酷睿处理器以上等级的处理器均支持两种模式的硬件加速，因此无需担心性能问题</value>
+  </data>
+  <data name="SecureAreaEncryptTip.Title" xml:space="preserve">
+    <value>AES模式</value>
+  </data>
+  <data name="SecureAreaExportButton.Label" xml:space="preserve">
+    <value>导出</value>
+  </data>
+  <data name="SecureAreaProperty.Label" xml:space="preserve">
+    <value>属性</value>
+  </data>
+  <data name="SecureAreaRenameButton.Label" xml:space="preserve">
+    <value>重命名</value>
+  </data>
+  <data name="SecureAreaSettingAboutHeader.Text" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="SecureAreaSettingAboutText1.Text" xml:space="preserve">
+    <value>RX内建文件保险箱</value>
+  </data>
+  <data name="SecureAreaSettingAboutText2.Text" xml:space="preserve">
+    <value>基于AES-CBC算法，结合多项系统级安全认证措施，确保文件安全存储</value>
+  </data>
+  <data name="SecureAreaSettingAESMode1.Content" xml:space="preserve">
+    <value>AES-128bit CBC 模式</value>
+  </data>
+  <data name="SecureAreaSettingAESMode2.Content" xml:space="preserve">
+    <value>AES-256bit CBC 模式</value>
+  </data>
+  <data name="SecureAreaSettingButton.Label" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="SecureAreaSettingEncryptionHeader.Text" xml:space="preserve">
+    <value>加密模式</value>
+  </data>
+  <data name="SecureAreaSettingHeader.Text" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="SecureAreaSettingLockMode1.Content" xml:space="preserve">
+    <value>离开此页面时立刻锁定</value>
+  </data>
+  <data name="SecureAreaSettingLockMode2.Content" xml:space="preserve">
+    <value>此应用关闭时锁定</value>
+  </data>
+  <data name="SecureAreaSettingLockModeHeader.Text" xml:space="preserve">
+    <value>安全域锁定模式</value>
+  </data>
+  <data name="SecureAreaSettingUseWH.Header" xml:space="preserve">
+    <value>使用Windows Hello简化认证过程</value>
+  </data>
+  <data name="SecureAreaWHTip.Subtitle" xml:space="preserve">
+    <value>利用Windows Hello来加强安全域的安全性，Windows Hello将必要的凭据保存至TPM安全芯片中。TPM芯片不受任何软硬件漏洞的影响，因此不会在任何未授权状态下泄露这些凭据。RX利用这一特性，结合AES加密，提供无与伦比的安全保护</value>
+  </data>
+  <data name="SecureAreaWHTip.Title" xml:space="preserve">
+    <value>与Windows Hello结合</value>
+  </data>
+  <data name="SecureArea.Content" xml:space="preserve">
+    <value>安全域</value>
   </data>
 </root>
