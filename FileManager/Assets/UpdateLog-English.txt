@@ -1,4 +1,27 @@
 ﻿*****
+###What's new in Ver.3.7.4.0
+
+>#####Feature Update
+
+>>#####Added a new file validity check to ensure that no error occurs when the file or folder does not exist
+
+>>#####Search and file display interface with new progress bar
+
+>#####Bug fix
+
+>>#####Fixed the problem that when you enter the Security Area from the settings page and then click back, you cannot return
+
+>>#####Solved the problem that when clicking on other pages when viewing files on the "This PC" page, it would not switch
+
+>>#####Fixed the problem that when a subfolder of an unexpanded folder is deleted, the subfolder still appears in the folder
+
+>>#####Fixed the problem that after the current folder is deleted, RX automatically returns to the parent folder, the folder still exists
+
+>>#####Clear and merge some legacy code to avoid unnecessary operations
+
+>>#####Solved the problem that the search box was too close to the right margin, adjusted the docking position of the search option
+
+*****
 ###What's new in Ver.3.7.0.0
 
 >#####Feature Update

@@ -1486,6 +1486,60 @@ namespace FileManager
     #region 扩展方法类
     public static class Extention
     {
+        public static async Task<bool> CheckExist(this StorageFile File)
+        {
+            try
+            {
+                if ((await File.GetParentAsync()) is StorageFolder ParentFolder)
+                {
+                    return (await ParentFolder.TryGetItemAsync(File.Name)) != null;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    _ = await StorageFile.GetFileFromPathAsync(File.Path);
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+        }
+
+        public static async Task<bool> CheckExist(this StorageFolder Folder)
+        {
+            try
+            {
+                if ((await Folder.GetParentAsync()) is StorageFolder ParenetFolder)
+                {
+                    return (await ParenetFolder.TryGetItemAsync(Folder.Name)) != null;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    _ = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+        }
+
         public static async Task<string> EncryptAsync(this string OriginText, string Key)
         {
             try

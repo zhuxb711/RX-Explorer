@@ -77,6 +77,8 @@ namespace FileManager
         private static int RecordIndex = 0;
         private static bool IsBackOrForwardAction = false;
 
+        private string ToDeleteFolderName;
+
         public FileControl()
         {
             InitializeComponent();
@@ -391,7 +393,6 @@ namespace FileManager
                 }
 
                 CurrentNode = Node;
-                FilePresenter.ThisPage.DisplayNode = CurrentNode;
 
                 //当处于USB其他附加功能的页面时，若点击文件目录则自动执行返回导航
                 if (Nav.CurrentSourcePageType.Name != "FilePresenter")
@@ -438,8 +439,15 @@ namespace FileManager
                     }
                     else
                     {
-                        var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                        FilePresenter.ThisPage.FileCollection.Add(new FileSystemStorageItem(FileList[i], string.Empty, Thumbnail, string.Empty));
+                        if (ToDeleteFolderName != Item.Name)
+                        {
+                            var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                            FilePresenter.ThisPage.FileCollection.Add(new FileSystemStorageItem(FileList[i], string.Empty, Thumbnail, string.Empty));
+                        }
+                        else
+                        {
+                            ToDeleteFolderName = null;
+                        }
                     }
                 }
             }
@@ -459,6 +467,32 @@ namespace FileManager
         {
             if (CurrentNode == null)
             {
+                return;
+            }
+
+            if(!await CurrentFolder.CheckExist())
+            {
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "错误",
+                        Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
+                        CloseButtonText = "刷新"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "Error",
+                        Content = "Could not find the corresponding folder, it may have been moved or deleted",
+                        CloseButtonText = "Refresh"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                await DisplayItemsInFolder(CurrentNode, true);
                 return;
             }
 
@@ -493,12 +527,6 @@ namespace FileManager
 
                     FilePresenter.ThisPage.FileCollection.Remove(FilePresenter.ThisPage.FileCollection.Where((Item) => Item.RelativeId == CurrentFolder.FolderRelativeId).FirstOrDefault());
 
-                    if (FilePresenter.ThisPage.DisplayNode == CurrentNode)
-                    {
-                        FilePresenter.ThisPage.FileCollection.Clear();
-                        FilePresenter.ThisPage.HasFile.Visibility = Visibility.Visible;
-                    }
-
                     TreeViewNode ParentNode = CurrentNode.Parent;
                     ParentNode.Children.Remove(CurrentNode);
 
@@ -508,6 +536,7 @@ namespace FileManager
                         {
                             Item.IsSelected = true;
                             Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
+                            ToDeleteFolderName = CurrentFolder.Name;
                             await DisplayItemsInFolder(ParentNode);
                             break;
                         }
@@ -624,6 +653,33 @@ namespace FileManager
             {
                 return;
             }
+
+            if (!await CurrentFolder.CheckExist())
+            {
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "错误",
+                        Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
+                        CloseButtonText = "刷新"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "Error",
+                        Content = "Could not find the corresponding folder, it may have been moved or deleted",
+                        CloseButtonText = "Refresh"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                await DisplayItemsInFolder(CurrentNode, true);
+                return;
+            }
+
             var Folder = CurrentFolder;
             RenameDialog renameDialog = new RenameDialog(Folder.Name);
             if (await renameDialog.ShowAsync() == ContentDialogResult.Primary)
@@ -734,6 +790,31 @@ namespace FileManager
 
         private async void CreateFolder_Click(object sender, RoutedEventArgs e)
         {
+            if (!await CurrentFolder.CheckExist())
+            {
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "错误",
+                        Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
+                        CloseButtonText = "刷新"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "Error",
+                        Content = "Could not find the corresponding folder, it may have been moved or deleted",
+                        CloseButtonText = "Refresh"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                return;
+            }
+
             try
             {
                 var NewFolder = Globalization.Language == LanguageEnum.Chinese
@@ -789,6 +870,32 @@ namespace FileManager
 
         private async void FolderAttribute_Click(object sender, RoutedEventArgs e)
         {
+            if (!await CurrentFolder.CheckExist())
+            {
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "错误",
+                        Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
+                        CloseButtonText = "刷新"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "Error",
+                        Content = "Could not find the corresponding folder, it may have been moved or deleted",
+                        CloseButtonText = "Refresh"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                await DisplayItemsInFolder(CurrentNode, true);
+                return;
+            }
+
             if (CurrentNode == FolderTree.RootNodes.FirstOrDefault())
             {
                 if (ThisPC.ThisPage.HardDeviceList.FirstOrDefault((Device) => Device.Name == CurrentFolder.DisplayName) is HardDeviceInfo Info)
@@ -812,6 +919,33 @@ namespace FileManager
         private async void FolderAdd_Click(object sender, RoutedEventArgs e)
         {
             StorageFolder folder = CurrentFolder;
+
+            if (!await folder.CheckExist())
+            {
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "错误",
+                        Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
+                        CloseButtonText = "刷新"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "Error",
+                        Content = "Could not find the corresponding folder, it may have been moved or deleted",
+                        CloseButtonText = "Refresh"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                await DisplayItemsInFolder(CurrentNode, true);
+                return;
+            }
+
             if (ThisPC.ThisPage.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
             {
                 QueueContentDialog dialog = new QueueContentDialog

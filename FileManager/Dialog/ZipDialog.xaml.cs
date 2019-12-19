@@ -61,6 +61,24 @@ namespace FileManager
                 ZipMethod.Visibility = Visibility.Collapsed;
                 EnableCryption.Visibility = Visibility.Collapsed;
             }
+
+            if (Globalization.Language == LanguageEnum.Chinese)
+            {
+                ZipMethod.Items.Add("最大");
+                ZipMethod.Items.Add("较大");
+                ZipMethod.Items.Add("标准");
+                ZipMethod.Items.Add("较小");
+                ZipMethod.Items.Add("最小");
+            }
+            else
+            {
+                ZipMethod.Items.Add("Max");
+                ZipMethod.Items.Add("Higher");
+                ZipMethod.Items.Add("Standard");
+                ZipMethod.Items.Add("Lower");
+                ZipMethod.Items.Add("Min");
+            }
+
             Loaded += (s, e) =>
             {
                 if (!IsZip)

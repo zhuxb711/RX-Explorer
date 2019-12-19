@@ -386,26 +386,26 @@ namespace FileManager
                     case "浏览器":
                     case "Browser":
                         {
-                            if (LastPageName == nameof(ThisPC))
-                            {
-                                Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
-                            }
-                            else if (LastPageName == nameof(SecureArea) || LastPageName == nameof(SettingPage))
+                            if (LastPageName == nameof(SecureArea) || LastPageName == nameof(SettingPage))
                             {
                                 Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                            }
+                            else
+                            {
+                                Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
                             }
                             break;
                         }
                     case "安全域":
                     case "Security Area":
                         {
-                            if (LastPageName == nameof(WebTab) || LastPageName == nameof(ThisPC))
-                            {
-                                Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
-                            }
-                            else if (LastPageName == nameof(SettingPage))
+                            if (LastPageName == nameof(SettingPage))
                             {
                                 Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                            }
+                            else
+                            {
+                                Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
                             }
                             break;
                         }

@@ -175,9 +175,10 @@
                             GotFocus="GlobeSearch_GotFocus"
                             QuerySubmitted="GlobeSearch_QuerySubmitted"
                             TextChanged="GlobeSearch_TextChanged"
-                            UpdateTextOnSelect="True">
+                            UpdateTextOnSelect="True"
+                            Margin="0,0,5,0">
                 <FlyoutBase.AttachedFlyout>
-                    <Flyout Placement="BottomEdgeAlignedRight"
+                    <Flyout Placement="BottomEdgeAlignedLeft"
                             x:Name="SearchFlyout"
                             Opened="SearchFlyout_Opened">
                         <StackPanel>

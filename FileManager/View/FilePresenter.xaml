@@ -13,7 +13,7 @@
     <Page.Resources>
         <local:SizeDisplayConverter x:Key="StateConverter" />
 
-        <CommandBarFlyout x:Name="CommandsFlyout"
+        <CommandBarFlyout x:Name="FileFlyout"
                           Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Copy"
                           ToolTipService.ToolTip="复制"
@@ -281,22 +281,15 @@
                 <SolidColorBrush Color="Black"
                                  Opacity="0.65" />
             </controls:Loading.Background>
-            <StackPanel Orientation="Horizontal"
-                        Padding="12">
-                <Grid Margin="0,0,15,0">
-                    <ProgressRing Name="ProRing"
-                                  IsActive="True"
-                                  Height="25"
-                                  Width="25" />
-                </Grid>
                 <StackPanel>
                     <TextBlock Name="ProgressInfo"
                                FontSize="22"
                                VerticalAlignment="Center"
                                TextAlignment="Center" />
-                    <ProgressBar Name="ProBar"
-                                 Margin="0,10,0,0" />
-                </StackPanel>
+                <controls1:ProgressBar IsIndeterminate="True"
+                                       Width="180"
+                                       Name="ProBar"
+                                       Margin="0,10,0,0" />
             </StackPanel>
         </controls:Loading>
     </Grid>
