@@ -243,7 +243,7 @@ namespace FileManager
 
         private async void Like_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            _ = await StoreContext.GetDefault().RequestRateAndReviewAppAsync();
+            _ = await Launcher.LaunchUriAsync(new Uri("ms-windows-store://review/?productid=9N88QBQKF2RS"));
         }
 
         private async void FlyoutContinue_Click(object sender, RoutedEventArgs e)
@@ -550,7 +550,6 @@ namespace FileManager
                     Title = "支持",
                     Content = "开发者开发RX文件管理器花费了大量精力\r" +
                               "🎉您可以自愿为开发者贡献一点小零花钱🎉\r\r" +
-                              "给开发者支持7个🍪吧\r\r" +
                               "若您不愿意，则可以点击\"跪安\"以取消\r" +
                               "若您愿意支持开发者，则可以点击\"准奏\"\r\r" +
                               "Tips: 无论支持与否，RX文件管理器都将继续运行，且无任何功能限制",
@@ -675,7 +674,7 @@ namespace FileManager
                                                       "RX File Manager is a project I developed in my spare time\r" +
                                                       "I hope everyone likes\r\r" +
                                                       "Sincerely,\rRuofan",
-                                            CloseButtonText = "朕知道了"
+                                            CloseButtonText = "Got it"
                                         };
                                         _ = await QueueContenDialog.ShowAsync();
                                         break;

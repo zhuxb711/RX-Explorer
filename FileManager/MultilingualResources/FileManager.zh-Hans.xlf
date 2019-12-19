@@ -1486,6 +1486,18 @@
           <source>Security Area</source>
           <target state="translated">安全域</target>
         </trans-unit>
+        <trans-unit id="DonateTip.ActionButtonContent" translate="yes" xml:space="preserve">
+          <source>Donate</source>
+          <target state="new">Donate</target>
+        </trans-unit>
+        <trans-unit id="DonateTip.CloseButtonContent" translate="yes" xml:space="preserve">
+          <source>Later</source>
+          <target state="new">Later</target>
+        </trans-unit>
+        <trans-unit id="DonateTip.Title" translate="yes" xml:space="preserve">
+          <source>Donate developer</source>
+          <target state="new">Donate developer</target>
+        </trans-unit>
       </group>
     </body>
   </file>

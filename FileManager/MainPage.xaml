@@ -37,6 +37,15 @@
                               ActionButtonContent="评分"
                               CloseButtonContent="稍后">
         </controls:TeachingTip>
+        <controls:TeachingTip x:Name="DonateTip"
+                              x:Uid="DonateTip"
+                              Grid.Row="1"
+                              Title="支持一下"
+                              PreferredPlacement="Bottom"
+                              IsLightDismissEnabled="False"
+                              ActionButtonContent="准奏"
+                              CloseButtonContent="跪安">
+        </controls:TeachingTip>
     </Page.Resources>
 
     <Grid>

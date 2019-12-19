@@ -291,6 +291,15 @@
   <data name="DeviceUsedSpace.Text" xml:space="preserve">
     <value>Used space</value>
   </data>
+  <data name="DonateTip.ActionButtonContent" xml:space="preserve">
+    <value>Donate</value>
+  </data>
+  <data name="DonateTip.CloseButtonContent" xml:space="preserve">
+    <value>Later</value>
+  </data>
+  <data name="DonateTip.Title" xml:space="preserve">
+    <value>Donate developer</value>
+  </data>
   <data name="FeedBackAddButton.Text" xml:space="preserve">
     <value>Add my feedback</value>
   </data>
