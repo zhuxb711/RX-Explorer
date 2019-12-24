@@ -1002,7 +1002,7 @@
           <source>Continue</source>
           <target state="translated">继续</target>
         </trans-unit>
-        <trans-unit id="FileOpen" translate="yes" xml:space="preserve">
+        <trans-unit id="FileOpen.Label" translate="yes" xml:space="preserve">
           <source>Open</source>
           <target state="translated">打开</target>
         </trans-unit>
@@ -1488,15 +1488,27 @@
         </trans-unit>
         <trans-unit id="DonateTip.ActionButtonContent" translate="yes" xml:space="preserve">
           <source>Donate</source>
-          <target state="new">Donate</target>
+          <target state="translated">准奏</target>
         </trans-unit>
         <trans-unit id="DonateTip.CloseButtonContent" translate="yes" xml:space="preserve">
           <source>Later</source>
-          <target state="new">Later</target>
+          <target state="translated">跪安</target>
         </trans-unit>
         <trans-unit id="DonateTip.Title" translate="yes" xml:space="preserve">
           <source>Donate developer</source>
-          <target state="new">Donate developer</target>
+          <target state="translated">捐赠开发者</target>
+        </trans-unit>
+        <trans-unit id="AboutMeText1.Text" translate="yes" xml:space="preserve">
+          <source>Base on</source>
+          <target state="translated">基于</target>
+        </trans-unit>
+        <trans-unit id="AboutMeText2.Text" translate="yes" xml:space="preserve">
+          <source>Developer</source>
+          <target state="translated">开发者</target>
+        </trans-unit>
+        <trans-unit id="AboutMeText3.Text" translate="yes" xml:space="preserve">
+          <source>Contact me</source>
+          <target state="translated">联系方式</target>
         </trans-unit>
       </group>
     </body>

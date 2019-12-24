@@ -171,49 +171,94 @@ namespace FileManager
 
         private async Task RegisterBackgroundTask()
         {
-            var State = BackgroundExecutionManager.GetAccessStatus();
-            if (State == BackgroundAccessStatus.DeniedBySystemPolicy || State == BackgroundAccessStatus.DeniedByUser || State == BackgroundAccessStatus.Unspecified)
+            switch (await BackgroundExecutionManager.RequestAccessAsync())
             {
-                switch (await BackgroundExecutionManager.RequestAccessAsync())
-                {
-                    case BackgroundAccessStatus.AllowedSubjectToSystemPolicy:
-                    case BackgroundAccessStatus.AlwaysAllowed:
+                case BackgroundAccessStatus.AllowedSubjectToSystemPolicy:
+                case BackgroundAccessStatus.AlwaysAllowed:
+                    {
+                        if (BackgroundTaskRegistration.AllTasks.Select((item) => item.Value).FirstOrDefault((task) => task.Name == "UpdateTask") is IBackgroundTaskRegistration Registration)
                         {
-                            if (BackgroundTaskRegistration.AllTasks.Select((item) => item.Value).FirstOrDefault((task) => task.Name == "UpdateTask") is IBackgroundTaskRegistration Registration)
-                            {
-                                Registration.Unregister(true);
-                            }
-
-                            SystemTrigger Trigger = new SystemTrigger(SystemTriggerType.SessionConnected, false);
-                            BackgroundTaskBuilder Builder = new BackgroundTaskBuilder();
-                            Builder.SetTrigger(Trigger);
-                            Builder.AddCondition(new SystemCondition(SystemConditionType.InternetAvailable));
-                            Builder.AddCondition(new SystemCondition(SystemConditionType.UserPresent));
-                            Builder.Name = "UpdateTask";
-                            Builder.IsNetworkRequested = true;
-                            Builder.TaskEntryPoint = "UpdateCheckBackgroundTask.UpdateCheck";
-                            Builder.Register();
-
-                            break;
+                            Registration.Unregister(true);
                         }
-                }
-            }
-            else
-            {
-                if (BackgroundTaskRegistration.AllTasks.Select((item) => item.Value).FirstOrDefault((task) => task.Name == "UpdateTask") is IBackgroundTaskRegistration Registration)
-                {
-                    Registration.Unregister(true);
-                }
 
-                SystemTrigger Trigger = new SystemTrigger(SystemTriggerType.SessionConnected, false);
-                BackgroundTaskBuilder Builder = new BackgroundTaskBuilder();
-                Builder.SetTrigger(Trigger);
-                Builder.AddCondition(new SystemCondition(SystemConditionType.InternetAvailable));
-                Builder.AddCondition(new SystemCondition(SystemConditionType.UserPresent));
-                Builder.Name = "UpdateTask";
-                Builder.IsNetworkRequested = true;
-                Builder.TaskEntryPoint = "UpdateCheckBackgroundTask.UpdateCheck";
-                Builder.Register();
+                        SystemTrigger Trigger = new SystemTrigger(SystemTriggerType.SessionConnected, false);
+                        BackgroundTaskBuilder Builder = new BackgroundTaskBuilder
+                        {
+                            Name = "UpdateTask",
+                            IsNetworkRequested = true,
+                            TaskEntryPoint = "UpdateCheckBackgroundTask.UpdateCheck"
+                        };
+                        Builder.SetTrigger(Trigger);
+                        Builder.AddCondition(new SystemCondition(SystemConditionType.InternetAvailable));
+                        Builder.AddCondition(new SystemCondition(SystemConditionType.UserPresent));
+                        Builder.AddCondition(new SystemCondition(SystemConditionType.FreeNetworkAvailable));
+                        Builder.Register();
+
+                        break;
+                    }
+                default:
+                    {
+                        if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DisableBackgroundTaskTips"))
+                        {
+                            if (Globalization.Language == LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "提示",
+                                    Content = "后台任务被禁用，RX将无法在更新发布时及时通知您\r\r请手动开启后台任务权限",
+                                    PrimaryButtonText = "现在开启",
+                                    SecondaryButtonText = "稍后提醒",
+                                    CloseButtonText = "不再提醒"
+                                };
+                                switch (await Dialog.ShowAsync())
+                                {
+                                    case ContentDialogResult.Primary:
+                                        {
+                                            _ = await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
+                                            break;
+                                        }
+                                    case ContentDialogResult.Secondary:
+                                        {
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            ApplicationData.Current.LocalSettings.Values["DisableBackgroundTaskTips"] = true;
+                                            break;
+                                        }
+                                }
+                            }
+                            else
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "Tips",
+                                    Content = "Background tasks are disabled, RX will not be able to notify you in time when the update is released \r \rPlease manually enable background task permissions",
+                                    PrimaryButtonText = "Authorize now",
+                                    SecondaryButtonText = "Remind later",
+                                    CloseButtonText = "Never remind"
+                                };
+                                switch (await Dialog.ShowAsync())
+                                {
+                                    case ContentDialogResult.Primary:
+                                        {
+                                            _ = await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
+                                            break;
+                                        }
+                                    case ContentDialogResult.Secondary:
+                                        {
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            ApplicationData.Current.LocalSettings.Values["DisableBackgroundTaskTips"] = true;
+                                            break;
+                                        }
+                                }
+                            }
+                        }
+                        break;
+                    }
             }
         }
 
@@ -273,7 +318,7 @@ namespace FileManager
                 NavView.IsBackEnabled = true;
             }
 
-            if (Nav.SourcePageType == typeof(SettingPage))
+            if (Nav.SourcePageType == typeof(SettingPage)|| Nav.SourcePageType == typeof(AboutMe))
             {
                 NavView.SelectedItem = NavView.SettingsItem as NavigationViewItem;
             }

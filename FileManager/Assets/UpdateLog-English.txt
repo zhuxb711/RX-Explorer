@@ -1,4 +1,19 @@
 ﻿*****
+###What's new in Ver.3.7.6.0
+
+>#####Feature Update
+
+>>#####If background tasks are disabled now, a prompt will pop up to request approval for background task execution
+
+>>#####Add new background task restriction: run when not using billing traffic
+
+>#####Bug fix
+
+>>#####Solve the problem that some right-click operations in the root folder of the drive do not work
+
+>>#####Solved some text translation issues
+
+*****
 ###What's new in Ver.3.7.4.0
 
 >#####Feature Update

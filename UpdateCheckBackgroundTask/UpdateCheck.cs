@@ -3,7 +3,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using Windows.ApplicationModel.Background;
 using Windows.Services.Store;
 using Windows.System.UserProfile;

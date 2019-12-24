@@ -209,7 +209,7 @@ namespace FileManager
         {
             try
             {
-                _ = await StorageFolder.GetFolderFromPathAsync(Directory.GetLogicalDrives().FirstOrDefault());
+                _ = await StorageFolder.GetFolderFromPathAsync(Environment.GetLogicalDrives().FirstOrDefault());
                 return true;
             }
             catch (UnauthorizedAccessException)

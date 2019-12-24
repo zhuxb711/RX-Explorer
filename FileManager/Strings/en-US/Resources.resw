@@ -117,6 +117,15 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AboutMeText1.Text" xml:space="preserve">
+    <value>Base on</value>
+  </data>
+  <data name="AboutMeText2.Text" xml:space="preserve">
+    <value>Developer</value>
+  </data>
+  <data name="AboutMeText3.Text" xml:space="preserve">
+    <value>Contact me</value>
+  </data>
   <data name="AESCheckBox.Content" xml:space="preserve">
     <value>Delete source file after encryption is complete</value>
   </data>
@@ -384,7 +393,7 @@
   <data name="FileDelete.ToolTipService.ToolTip" xml:space="preserve">
     <value>Delete</value>
   </data>
-  <data name="FileOpen" xml:space="preserve">
+  <data name="FileOpen.Label" xml:space="preserve">
     <value>Open</value>
   </data>
   <data name="FilePaste.Label" xml:space="preserve">

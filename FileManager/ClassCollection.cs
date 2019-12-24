@@ -1496,7 +1496,15 @@ namespace FileManager
                 }
                 else
                 {
-                    return false;
+                    try
+                    {
+                        _ = await StorageFile.GetFileFromPathAsync(File.Path);
+                        return true;
+                    }
+                    catch (Exception)
+                    {
+                        return false;
+                    }
                 }
             }
             catch (Exception)
@@ -1523,7 +1531,15 @@ namespace FileManager
                 }
                 else
                 {
-                    return false;
+                    try
+                    {
+                        _ = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
+                        return true;
+                    }
+                    catch (Exception)
+                    {
+                        return false;
+                    }
                 }
             }
             catch (Exception)

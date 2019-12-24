@@ -2573,6 +2573,31 @@ namespace FileManager
 
         private async void ParentAttribute_Click(object sender, RoutedEventArgs e)
         {
+            if (!await FileControl.ThisPage.CurrentFolder.CheckExist())
+            {
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "错误",
+                        Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
+                        CloseButtonText = "刷新"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "Error",
+                        Content = "Could not find the corresponding folder, it may have been moved or deleted",
+                        CloseButtonText = "Refresh"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                return;
+            }
+
             if (FileControl.ThisPage.CurrentNode == FileControl.ThisPage.FolderTree.RootNodes.FirstOrDefault())
             {
                 if (ThisPC.ThisPage.HardDeviceList.FirstOrDefault((Device) => Device.Name == FileControl.ThisPage.CurrentFolder.DisplayName) is HardDeviceInfo Info)
