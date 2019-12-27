@@ -9,11 +9,11 @@
 
 >#####Bug fix
 
->#####Removed support for GIF files in image transcoding
+>>#####Removed support for GIF files in image transcoding
 
->#####Fixed an issue that may cause a crash when returning to viewing the file after returning to the main interface from viewers such as videos, pictures, etc.
+>>#####Fixed an issue that may cause a crash when returning to viewing the file after returning to the main interface from viewers such as videos, pictures, etc.
 
->#####Resolved the issue that when some authentication errors occur in the Security Area, it cannot be returned
+>>#####Resolved the issue that when some authentication errors occur in the Security Area, it cannot be returned
 
 *****
 ###What's new in Ver.3.7.6.0
