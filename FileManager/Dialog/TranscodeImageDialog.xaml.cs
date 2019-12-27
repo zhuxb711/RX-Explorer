@@ -24,7 +24,7 @@ namespace FileManager
 
         public uint ScaleHeight { get; private set; }
 
-        public bool IsEnbaleScale { get; private set; }
+        public bool IsEnableScale { get; private set; }
 
         public BitmapInterpolationMode InterpolationMode { get; private set; }
 
@@ -122,11 +122,6 @@ namespace FileManager
                             Picker.FileTypeChoices.Add("HEIF格式", new List<string>() { ".heic" });
                             break;
                         }
-                    case "GIF":
-                        {
-                            Picker.FileTypeChoices.Add("GIF格式", new List<string>() { ".gif" });
-                            break;
-                        }
                     case "TIFF":
                         {
                             Picker.FileTypeChoices.Add("TIFF格式", new List<string>() { ".tiff" });
@@ -156,11 +151,6 @@ namespace FileManager
                     case "HEIF":
                         {
                             Picker.FileTypeChoices.Add("HEIF format", new List<string>() { ".heic" });
-                            break;
-                        }
-                    case "GIF":
-                        {
-                            Picker.FileTypeChoices.Add("GIF format", new List<string>() { ".gif" });
                             break;
                         }
                     case "TIFF":

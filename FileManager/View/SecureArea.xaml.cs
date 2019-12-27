@@ -108,24 +108,7 @@ namespace FileManager
                                     }
                                     else
                                     {
-                                        switch (MainPage.ThisPage.LastPageName)
-                                        {
-                                            case nameof(ThisPC):
-                                                {
-                                                    MainPage.ThisPage.Nav.Navigate(typeof(ThisPC), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
-                                                    break;
-                                                }
-                                            case nameof(WebTab):
-                                                {
-                                                    MainPage.ThisPage.Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
-                                                    break;
-                                                }
-                                            case nameof(SettingPage):
-                                                {
-                                                    MainPage.ThisPage.Nav.Navigate(typeof(SettingPage), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
-                                                    break;
-                                                }
-                                        }
+                                        GoBack();
                                         return;
                                     }
                                     break;
@@ -197,24 +180,7 @@ namespace FileManager
                                     }
                                     else
                                     {
-                                        switch (MainPage.ThisPage.LastPageName)
-                                        {
-                                            case nameof(ThisPC):
-                                                {
-                                                    MainPage.ThisPage.Nav.Navigate(typeof(ThisPC), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
-                                                    break;
-                                                }
-                                            case nameof(WebTab):
-                                                {
-                                                    MainPage.ThisPage.Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
-                                                    break;
-                                                }
-                                            case nameof(SettingPage):
-                                                {
-                                                    MainPage.ThisPage.Nav.Navigate(typeof(SettingPage), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
-                                                    break;
-                                                }
-                                        }
+                                        GoBack();
                                         return;
                                     }
                                     break;

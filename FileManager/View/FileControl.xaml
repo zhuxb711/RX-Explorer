@@ -69,7 +69,7 @@
                               x:Uid="FileControlDeleteFolder"
                               Name="FolderDelete"
                               Click="FolderDelete_Click" />
-                <AppBarButton Icon="Edit"
+                <AppBarButton Icon="Rename"
                               Label="重命名此文件夹"
                               x:Uid="FileControlRenameFolder"
                               Name="FolderRename"
@@ -243,7 +243,7 @@
                                         StackMode="Replace"
                                         Name="Notification"
                                         x:FieldModifier="public"
-                                        ShowDismissButton="True"
+                                        ShowDismissButton="False"
                                         HorizontalAlignment="Center" />
             <controls:GridSplitter Background="LightSlateGray"
                                    HorizontalAlignment="Center"

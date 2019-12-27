@@ -36,10 +36,35 @@
                               x:Uid="FileOpen"
                               x:Name="FileOpen"
                               Click="FileOpen_Click"/>
-                <AppBarButton Icon="Edit"
+                <AppBarButton Icon="Rename"
                               Label="重命名"
                               x:Uid="FileRename"
                               Click="Rename_Click" />
+                <AppBarButton Icon="Edit"
+                              Label="编辑"
+                              x:Uid="FileEdit">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Text="剪辑"
+                                            x:Uid="VideoMontage"
+                                            x:Name="VideoEdit"
+                                            Click="VideoEdit_Click">
+                                <MenuFlyoutItem.Icon>
+                                    <SymbolIcon Symbol="Cut"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Text="转码"
+                                            Name="Transcode"
+                                            x:Uid="Transcode"
+                                            IsEnabled="False"
+                                            Click="Transcode_Click">
+                                <MenuFlyoutItem.Icon>
+                                    <SymbolIcon Symbol="Switch"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
                 <AppBarButton Icon="ProtectedDocument"
                               x:Uid="FileAES"
                               Name="AES"
@@ -81,12 +106,6 @@
                               x:Uid="Zip"
                               Label="Zip压缩"
                               Click="Zip_Click" />
-                <AppBarButton Icon="Switch"
-                              Name="Transcode"
-                              x:Uid="Transcode"
-                              Label="媒体转码"
-                              IsEnabled="False"
-                              Click="Transcode_Click" />
                 <AppBarButton Icon="Tag"
                               Name="Attribute"
                               x:Uid="FileAttribute"
@@ -103,7 +122,7 @@
                               x:Uid="FolderOpen"
                               x:Name="FolderOpen"
                               Click="FolderOpen_Click" />
-                <AppBarButton Icon="Edit"
+                <AppBarButton Icon="Rename"
                               Label="重命名"
                               x:Uid="FolderRename"
                               x:Name="FolderRename"

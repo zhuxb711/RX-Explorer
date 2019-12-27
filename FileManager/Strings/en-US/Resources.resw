@@ -393,6 +393,9 @@
   <data name="FileDelete.ToolTipService.ToolTip" xml:space="preserve">
     <value>Delete</value>
   </data>
+  <data name="FileEdit.Label" xml:space="preserve">
+    <value>Edit</value>
+  </data>
   <data name="FileOpen.Label" xml:space="preserve">
     <value>Open</value>
   </data>
@@ -927,7 +930,7 @@
   <data name="ThisPC.Content" xml:space="preserve">
     <value>ThisPC</value>
   </data>
-  <data name="Transcode.Label" xml:space="preserve">
+  <data name="Transcode.Text" xml:space="preserve">
     <value>Transcode</value>
   </data>
   <data name="TranscodeBoost.Content" xml:space="preserve">
@@ -1013,6 +1016,39 @@
   </data>
   <data name="UserFolderText2.Text" xml:space="preserve">
     <value>Please specify the library folder manually</value>
+  </data>
+  <data name="VideoEditDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="VideoEditDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="VideoEditDialog.Title" xml:space="preserve">
+    <value>Montage</value>
+  </data>
+  <data name="VideoEditDialogErrorTip.Subtitle" xml:space="preserve">
+    <value>This time format is incorrect, please re-enter</value>
+  </data>
+  <data name="VideoEditDialogErrorTip.Title" xml:space="preserve">
+    <value>Tips</value>
+  </data>
+  <data name="VideoEditDialogText1.Text" xml:space="preserve">
+    <value>Crop</value>
+  </data>
+  <data name="VideoEditDialogText2.Text" xml:space="preserve">
+    <value>Output encoding config</value>
+  </data>
+  <data name="VideoEditDialogText3.Text" xml:space="preserve">
+    <value>Output quality</value>
+  </data>
+  <data name="VideoEditDialogText4.Text" xml:space="preserve">
+    <value>Crop accuracy</value>
+  </data>
+  <data name="VideoEditDialogUseSameProfile.Text" xml:space="preserve">
+    <value>Use the same encoding configuration as the source video</value>
+  </data>
+  <data name="VideoMontage.Text" xml:space="preserve">
+    <value>Montage</value>
   </data>
   <data name="WebAllowDB.Header" xml:space="preserve">
     <value>Allow to use IndexedDB</value>

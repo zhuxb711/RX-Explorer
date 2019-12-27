@@ -158,6 +158,9 @@
     <Compile Include="Dialog\TranscodeImageDialog.xaml.cs">
       <DependentUpon>TranscodeImageDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\VideoEditDialog.xaml.cs">
+      <DependentUpon>VideoEditDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\WhatIsNew.xaml.cs">
       <DependentUpon>WhatIsNew.xaml</DependentUpon>
     </Compile>
@@ -418,6 +421,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\TranscodeImageDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\VideoEditDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

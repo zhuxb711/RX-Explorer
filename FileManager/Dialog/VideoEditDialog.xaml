@@ -1,0 +1,125 @@
+﻿<local:QueueContentDialog
+    x:Class="FileManager.VideoEditDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FileManager"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:control="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d"
+    x:Uid="VideoEditDialog"
+    Title="剪辑"
+    PrimaryButtonText="确定"
+    CloseButtonText="取消"
+    PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick"
+    CloseButtonClick="QueueContentDialog_CloseButtonClick">
+
+    <local:QueueContentDialog.Resources>
+        <local:TimespanConverter x:Key="Converter" />
+        <local:InverseBooleanConverter x:Key="BooleanConverter"/>
+        <control:TeachingTip x:Name="FormatErrorTip"
+                             Title="提示"
+                             x:Uid="VideoEditDialogErrorTip"
+                             Subtitle="此时间格式不正确，请重新输入"
+                             IsLightDismissEnabled="True"
+                             PreferredPlacement="TopRight"/>
+    </local:QueueContentDialog.Resources>
+
+    <Grid Background="Transparent">
+        <StackPanel>
+            <StackPanel.ChildrenTransitions>
+                <TransitionCollection>
+                    <EntranceThemeTransition />
+                </TransitionCollection>
+            </StackPanel.ChildrenTransitions>
+            <MediaPlayerElement Width="640"
+                                Height="360"
+                                Name="MediaPlay"
+                                AreTransportControlsEnabled="True">
+                <MediaPlayerElement.TransportControls>
+                    <MediaTransportControls IsFullWindowButtonVisible="False"
+                                            IsZoomButtonVisible="False"
+                                            IsVolumeButtonVisible="False"
+                                            IsSeekBarVisible="True"
+                                            IsSkipForwardButtonVisible="True"
+                                            IsSkipBackwardEnabled="True"
+                                            IsSkipBackwardButtonVisible="True"
+                                            IsSkipForwardEnabled="True"/>
+                </MediaPlayerElement.TransportControls>
+            </MediaPlayerElement>
+            <TextBlock Text="裁剪"
+                       FontSize="16"
+                       x:Uid="VideoEditDialogText1"
+                       Margin="0,15,0,0"/>
+            <Grid Margin="0,5,0,0"
+                  Background="Transparent">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0"
+                         BorderThickness="0"
+                         MaxLength="12"
+                         TextWrapping="Wrap"
+                         LostFocus="TrimStartTime_LostFocus"
+                         KeyDown="TrimStartTime_KeyDown"
+                         Name="TrimStartTime"
+                         Text="{x:Bind CutRange.RangeMin,Mode=OneWay,Converter={StaticResource Converter}}"/>
+                <controls:RangeSelector Style="{StaticResource RangeSelectorStyle}" Margin="5,0,5,0"
+                                        Name="CutRange" 
+                                        Grid.Column="1"
+                                        Minimum="0"
+                                        RangeMin="0"
+                                        VerticalAlignment="Center"
+                                        StepFrequency="10"
+                                        ValueChanged="CutRange_ValueChanged"/>
+                <TextBox Grid.Column="2"
+                         BorderThickness="0"
+                         Name="TrimEndTime"
+                         TextWrapping="Wrap"
+                         MaxLength="12"
+                         KeyDown="TrimEndTime_KeyDown"
+                         LostFocus="TrimEndTime_LostFocus"
+                         Text="{x:Bind CutRange.RangeMax,Mode=OneWay,Converter={StaticResource Converter}}"/>
+            </Grid>
+            <CheckBox Margin="0,10,0,0"
+                      IsChecked="True"
+                      Name="UseSameProfile">
+                <TextBlock Text="使用和源视频相同的编码配置"
+                           FontSize="16"
+                           x:Uid="VideoEditDialogUseSameProfile"
+                           Margin="0,-1,0,0"/>
+            </CheckBox>
+            <StackPanel Orientation="Horizontal"
+                        Margin="0,10,0,0"
+                        Visibility="{x:Bind UseSameProfile.IsChecked,Mode=OneWay,Converter={StaticResource BooleanConverter}}">
+                <StackPanel>
+                    <TextBlock Text="输出编码配置"
+                               FontSize="16"
+                               x:Uid="VideoEditDialogText2"/>
+                    <ComboBox Width="200"
+                              Margin="0,5,0,0" 
+                              Name="EncodingProfile"/>
+                </StackPanel>
+                <StackPanel Margin="20,0,0,0">
+                    <TextBlock Text="输出质量"
+                               x:Uid="VideoEditDialogText3"
+                               FontSize="16"/>
+                    <ComboBox Width="200"
+                              Margin="0,5,0,0"
+                              Name="EncodingQuality"/>
+                </StackPanel>
+                <StackPanel Margin="20,0,0,0">
+                    <TextBlock Text="裁剪精度"
+                               x:Uid="VideoEditDialogText4"
+                               FontSize="16"/>
+                    <ComboBox Width="200"
+                              Margin="0,5,0,0"
+                              Name="TrimmingProfile"/>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</local:QueueContentDialog>

@@ -7,6 +7,7 @@
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
       xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       NavigationCacheMode="Required"
       mc:Ignorable="d"
       Background="Transparent">
@@ -110,18 +111,16 @@
                 <SolidColorBrush Color="Black"
                                  Opacity="0.65" />
             </controls:Loading.Background>
-            <StackPanel Orientation="Horizontal"
-                        Padding="12">
-                <ProgressRing IsActive="True"
-                              Height="25"
-                              Width="25"
-                              HorizontalAlignment="Center" />
+            <StackPanel>
                 <TextBlock Text="正在保存..."
                            x:Uid="PhotoViewerSaveTips"
                            Margin="10,0,0,0"
                            FontSize="22"
                            VerticalAlignment="Center"
                            TextAlignment="Center" />
+                <muxc:ProgressBar Width="150"
+                                  Margin="0,10,0,0"
+                                  IsIndeterminate="True"/>
             </StackPanel>
         </controls:Loading>
     </Grid>

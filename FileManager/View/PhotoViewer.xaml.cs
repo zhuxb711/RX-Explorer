@@ -201,70 +201,19 @@ namespace FileManager
         private async void TranscodeImage_Click(object sender, RoutedEventArgs e)
         {
             StorageFile OriginFile = PhotoCollection[Flip.SelectedIndex].PhotoFile;
+            TranscodeImageDialog Dialog = null;
             using (var OriginStream = await OriginFile.OpenAsync(FileAccessMode.Read))
             {
                 BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
-                TranscodeImageDialog Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
-                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                {
-                    TranscodeLoadingControl.IsLoading = true;
-                    using (var TargetStream = await Dialog.TargetFile.OpenAsync(FileAccessMode.ReadWrite))
-                    using (var TranscodeImage = await Decoder.GetSoftwareBitmapAsync())
-                    {
-                        BitmapEncoder Encoder = null;
-                        switch (Dialog.TargetFile.FileType)
-                        {
-                            case ".png":
-                                Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, TargetStream);
-                                break;
-                            case ".jpg":
-                                Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, TargetStream);
-                                break;
-                            case ".bmp":
-                                Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.BmpEncoderId, TargetStream);
-                                break;
-                            case ".heic":
-                                Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.HeifEncoderId, TargetStream);
-                                break;
-                            case ".gif":
-                                Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.GifEncoderId, TargetStream);
-                                break;
-                            case ".tiff":
-                                Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.TiffEncoderId, TargetStream);
-                                break;
-                            default:
-                                throw new InvalidOperationException("Unsupport image format");
-                        }
+                Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
+            }
 
-                        if (Dialog.IsEnbaleScale)
-                        {
-                            Encoder.BitmapTransform.ScaledWidth = Dialog.ScaleWidth;
-                            Encoder.BitmapTransform.ScaledHeight = Dialog.ScaleHeight;
-                            Encoder.BitmapTransform.InterpolationMode = Dialog.InterpolationMode;
-                        }
-
-                        Encoder.SetSoftwareBitmap(TranscodeImage);
-                        Encoder.IsThumbnailGenerated = true;
-                        try
-                        {
-                            await Encoder.FlushAsync();
-                        }
-                        catch (Exception err)
-                        {
-                            if (err.HResult == unchecked((int)0x88982F81))
-                            {
-                                Encoder.IsThumbnailGenerated = false;
-                                await Encoder.FlushAsync();
-                            }
-                            else
-                            {
-                                throw;
-                            }
-                        }
-                    }
-                    await Task.Delay(500);
-                    TranscodeLoadingControl.IsLoading = false;
-                }
+            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+            {
+                TranscodeLoadingControl.IsLoading = true;
+                await GeneralTransformer.TranscodeFromImageAsync(OriginFile, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode);
+                await Task.Delay(1000);
+                TranscodeLoadingControl.IsLoading = false;
             }
         }
 

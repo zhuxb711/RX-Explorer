@@ -47,12 +47,11 @@
                 <x:String>JPEG (.jpg)</x:String>
                 <x:String>BMP (.bmp)</x:String>
                 <x:String>HEIF (.heic)</x:String>
-                <x:String>GIF (.gif)</x:String>
                 <x:String>TIFF (.tiff)</x:String>
             </ComboBox>
             <CheckBox Content="启用图片缩放"
                       x:Uid="TranscodeImageDialogEnableScale"
-                      IsChecked="{x:Bind IsEnbaleScale,Mode=TwoWay}"
+                      IsChecked="{x:Bind IsEnableScale,Mode=TwoWay}"
                       Margin="0,15,0,0" 
                       FontSize="15"
                       Name="ScaleEnable"/>

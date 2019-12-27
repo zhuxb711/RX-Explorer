@@ -211,6 +211,11 @@ namespace FileManager
 
         protected override async void OnNavigatedFrom(NavigationEventArgs e)
         {
+            while(Nav.CanGoBack)
+            {
+                Nav.GoBack();
+            }
+
             Locker.Dispose();
 
             FolderExpandCancel.Cancel();

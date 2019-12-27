@@ -226,7 +226,7 @@
           <source>Use System File Explorer Open</source>
           <target state="translated">使用系统管理器打开</target>
         </trans-unit>
-        <trans-unit id="Transcode.Label" translate="yes" xml:space="preserve">
+        <trans-unit id="Transcode.Text" translate="yes" xml:space="preserve">
           <source>Transcode</source>
           <target state="translated">转码</target>
         </trans-unit>
@@ -1509,6 +1509,54 @@
         <trans-unit id="AboutMeText3.Text" translate="yes" xml:space="preserve">
           <source>Contact me</source>
           <target state="translated">联系方式</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialog.Title" translate="yes" xml:space="preserve">
+          <source>Montage</source>
+          <target state="translated">剪辑</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogErrorTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>This time format is incorrect, please re-enter</source>
+          <target state="translated">此时间格式不正确，请重新输入</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogErrorTip.Title" translate="yes" xml:space="preserve">
+          <source>Tips</source>
+          <target state="translated">提示</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogText1.Text" translate="yes" xml:space="preserve">
+          <source>Crop</source>
+          <target state="translated">裁剪</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogText2.Text" translate="yes" xml:space="preserve">
+          <source>Output encoding config</source>
+          <target state="translated">输出编码配置</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogText3.Text" translate="yes" xml:space="preserve">
+          <source>Output quality</source>
+          <target state="translated">输出质量</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogText4.Text" translate="yes" xml:space="preserve">
+          <source>Crop accuracy</source>
+          <target state="translated">裁剪精度</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogUseSameProfile.Text" translate="yes" xml:space="preserve">
+          <source>Use the same encoding configuration as the source video</source>
+          <target state="translated">使用和源视频相同的编码配置</target>
+        </trans-unit>
+        <trans-unit id="FileEdit.Label" translate="yes" xml:space="preserve">
+          <source>Edit</source>
+          <target state="translated">编辑</target>
+        </trans-unit>
+        <trans-unit id="VideoMontage.Text" translate="yes" xml:space="preserve">
+          <source>Montage</source>
+          <target state="translated">剪辑</target>
         </trans-unit>
       </group>
     </body>

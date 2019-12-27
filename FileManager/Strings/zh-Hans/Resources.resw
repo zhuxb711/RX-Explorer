@@ -177,7 +177,7 @@
   <data name="SystemManagerOpen.Label" xml:space="preserve">
     <value>使用系统管理器打开</value>
   </data>
-  <data name="Transcode.Label" xml:space="preserve">
+  <data name="Transcode.Text" xml:space="preserve">
     <value>转码</value>
   </data>
   <data name="WIFIShare.Text" xml:space="preserve">
@@ -1139,5 +1139,41 @@
   </data>
   <data name="AboutMeText3.Text" xml:space="preserve">
     <value>联系方式</value>
+  </data>
+  <data name="VideoEditDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="VideoEditDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="VideoEditDialog.Title" xml:space="preserve">
+    <value>剪辑</value>
+  </data>
+  <data name="VideoEditDialogErrorTip.Subtitle" xml:space="preserve">
+    <value>此时间格式不正确，请重新输入</value>
+  </data>
+  <data name="VideoEditDialogErrorTip.Title" xml:space="preserve">
+    <value>提示</value>
+  </data>
+  <data name="VideoEditDialogText1.Text" xml:space="preserve">
+    <value>裁剪</value>
+  </data>
+  <data name="VideoEditDialogText2.Text" xml:space="preserve">
+    <value>输出编码配置</value>
+  </data>
+  <data name="VideoEditDialogText3.Text" xml:space="preserve">
+    <value>输出质量</value>
+  </data>
+  <data name="VideoEditDialogText4.Text" xml:space="preserve">
+    <value>裁剪精度</value>
+  </data>
+  <data name="VideoEditDialogUseSameProfile.Text" xml:space="preserve">
+    <value>使用和源视频相同的编码配置</value>
+  </data>
+  <data name="FileEdit.Label" xml:space="preserve">
+    <value>编辑</value>
+  </data>
+  <data name="VideoMontage.Text" xml:space="preserve">
+    <value>剪辑</value>
   </data>
 </root>

@@ -3,6 +3,7 @@ using Bluetooth.Services.Obex;
 using DownloaderProvider;
 using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Data.Sqlite;
+using Microsoft.Toolkit.Uwp.Notifications;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using System;
@@ -20,9 +21,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TinyPinyin.Core;
+using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
 using Windows.Graphics.Imaging;
+using Windows.Media.Editing;
+using Windows.Media.MediaProperties;
+using Windows.Media.Transcoding;
 using Windows.Networking;
 using Windows.Networking.Connectivity;
 using Windows.Security.Credentials;
@@ -33,6 +38,8 @@ using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
 using Windows.System.UserProfile;
 using Windows.UI;
+using Windows.UI.Core;
+using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
@@ -3502,6 +3509,816 @@ namespace FileManager
             }
 
             Vault.Add(new PasswordCredential("RX_Secure_Vault", Name, Password));
+        }
+    }
+    #endregion
+
+    #region 通用文件转换器
+    public static class GeneralTransformer
+    {
+        private static CancellationTokenSource AVTranscodeCancellation;
+
+        public static bool IsAnyTransformTaskRunning { get; private set; } = false;
+
+        public static Task GenerateCroppedVideoFromOriginAsync(StorageFile DestinationFile, MediaComposition Composition, MediaEncodingProfile EncodingProfile, MediaTrimmingPreference TrimmingPreference)
+        {
+            return Task.Factory.StartNew((ob) =>
+            {
+                IsAnyTransformTaskRunning = true;
+
+                AVTranscodeCancellation = new CancellationTokenSource();
+
+                var Para = (ValueTuple<StorageFile, MediaComposition, MediaEncodingProfile, MediaTrimmingPreference>)ob;
+
+                SendUpdatableToastWithProgressForCropVideo(Para.Item1);
+                Progress<double> CropVideoProgress = new Progress<double>((CurrentValue) =>
+                {
+                    string Tag = "CropVideoNotification";
+
+                    var data = new NotificationData
+                    {
+                        SequenceNumber = 0
+                    };
+                    data.Values["ProgressValue"] = Math.Round(CurrentValue / 100, 2, MidpointRounding.AwayFromZero).ToString();
+                    data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
+
+                    ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                });
+
+                try
+                {
+                    Para.Item2.RenderToFileAsync(Para.Item1, Para.Item4, Para.Item3).AsTask(AVTranscodeCancellation.Token, CropVideoProgress).Wait();
+                    ApplicationData.Current.LocalSettings.Values["MediaCropStatus"] = "Success";
+                }
+                catch (AggregateException)
+                {
+                    ApplicationData.Current.LocalSettings.Values["MediaCropStatus"] = "Cancel";
+                    Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                }
+                catch (Exception e)
+                {
+                    ApplicationData.Current.LocalSettings.Values["MediaCropStatus"] = e.Message;
+                    Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                }
+
+            }, (DestinationFile, Composition, EncodingProfile, TrimmingPreference), TaskCreationOptions.LongRunning).ContinueWith((task) =>
+             {
+                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                 {
+                     if (Globalization.Language == LanguageEnum.Chinese)
+                     {
+                         switch (ApplicationData.Current.LocalSettings.Values["MediaCropStatus"].ToString())
+                         {
+                             case "Success":
+                                 {
+                                     FileControl.ThisPage.Notification.Show("视频已成功完成裁剪", 5000);
+                                     ShowCropCompleteNotification();
+                                     break;
+                                 }
+                             case "Cancel":
+                                 {
+                                     FileControl.ThisPage.Notification.Show("视频裁剪任务被取消", 5000);
+                                     ShowCropCancelNotification();
+                                     break;
+                                 }
+                             default:
+                                 {
+                                     FileControl.ThisPage.Notification.Show("裁剪视频时遇到未知错误", 5000);
+                                     break;
+                                 }
+                         }
+                     }
+                     else
+                     {
+                         switch (ApplicationData.Current.LocalSettings.Values["MediaCropStatus"].ToString())
+                         {
+                             case "Success":
+                                 {
+                                     FileControl.ThisPage.Notification.Show("Video successfully cropped", 5000);
+                                     ShowCropCompleteNotification();
+                                     break;
+                                 }
+                             case "Cancel":
+                                 {
+                                     FileControl.ThisPage.Notification.Show("Video crop task was canceled", 5000);
+                                     ShowCropCancelNotification();
+                                     break;
+                                 }
+                             default:
+                                 {
+                                     FileControl.ThisPage.Notification.Show("Encountered unknown error while cropping video", 5000);
+                                     break;
+                                 }
+                         }
+                     }
+                 }).AsTask().Wait();
+
+                 IsAnyTransformTaskRunning = false;
+             });
+        }
+
+        public static Task TranscodeFromImageAsync(StorageFile SourceFile, StorageFile DestinationFile, bool IsEnableScale = false, uint ScaleWidth = default, uint ScaleHeight = default, BitmapInterpolationMode InterpolationMode = default)
+        {
+            return Task.Run(() =>
+            {
+                IsAnyTransformTaskRunning = true;
+
+                using (var OriginStream = SourceFile.OpenAsync(FileAccessMode.Read).AsTask().Result)
+                {
+                    BitmapDecoder Decoder = BitmapDecoder.CreateAsync(OriginStream).AsTask().Result;
+                    using (var TargetStream = DestinationFile.OpenAsync(FileAccessMode.ReadWrite).AsTask().Result)
+                    using (var TranscodeImage = Decoder.GetSoftwareBitmapAsync().AsTask().Result)
+                    {
+                        BitmapEncoder Encoder = DestinationFile.FileType switch
+                        {
+                            ".png" => BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, TargetStream).AsTask().Result,
+                            ".jpg" => BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, TargetStream).AsTask().Result,
+                            ".bmp" => BitmapEncoder.CreateAsync(BitmapEncoder.BmpEncoderId, TargetStream).AsTask().Result,
+                            ".heic" => BitmapEncoder.CreateAsync(BitmapEncoder.HeifEncoderId, TargetStream).AsTask().Result,
+                            ".tiff" => BitmapEncoder.CreateAsync(BitmapEncoder.TiffEncoderId, TargetStream).AsTask().Result,
+                            _ => throw new InvalidOperationException("Unsupport image format"),
+                        };
+
+                        if (IsEnableScale)
+                        {
+                            Encoder.BitmapTransform.ScaledWidth = ScaleWidth;
+                            Encoder.BitmapTransform.ScaledHeight = ScaleHeight;
+                            Encoder.BitmapTransform.InterpolationMode = InterpolationMode;
+                        }
+
+                        Encoder.SetSoftwareBitmap(TranscodeImage);
+                        Encoder.IsThumbnailGenerated = true;
+                        try
+                        {
+                            Encoder.FlushAsync().AsTask().Wait();
+                        }
+                        catch (Exception err)
+                        {
+                            if (err.HResult == unchecked((int)0x88982F81))
+                            {
+                                Encoder.IsThumbnailGenerated = false;
+                                Encoder.FlushAsync().AsTask().Wait();
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+                    }
+                }
+
+                IsAnyTransformTaskRunning = false;
+            });
+        }
+
+        public static Task TranscodeFromAudioOrVideoAsync(StorageFile SourceFile, StorageFile DestinationFile, string MediaTranscodeEncodingProfile, string MediaTranscodeQuality, bool SpeedUp)
+        {
+            return Task.Factory.StartNew((ob) =>
+            {
+                IsAnyTransformTaskRunning = true;
+
+                AVTranscodeCancellation = new CancellationTokenSource();
+
+                var Para = (ValueTuple<StorageFile, StorageFile, string, string,bool>)ob;
+
+                MediaTranscoder Transcoder = new MediaTranscoder
+                {
+                    HardwareAccelerationEnabled = true,
+                    VideoProcessingAlgorithm = Para.Item5 ? MediaVideoProcessingAlgorithm.Default : MediaVideoProcessingAlgorithm.MrfCrf444
+                };
+
+                try
+                {
+                    MediaEncodingProfile Profile = null;
+                    VideoEncodingQuality VideoQuality = default;
+                    AudioEncodingQuality AudioQuality = default;
+
+                    switch (Para.Item4)
+                    {
+                        case "UHD2160p":
+                            VideoQuality = VideoEncodingQuality.Uhd2160p;
+                            break;
+                        case "QVGA":
+                            VideoQuality = VideoEncodingQuality.Qvga;
+                            break;
+                        case "HD1080p":
+                            VideoQuality = VideoEncodingQuality.HD1080p;
+                            break;
+                        case "HD720p":
+                            VideoQuality = VideoEncodingQuality.HD720p;
+                            break;
+                        case "WVGA":
+                            VideoQuality = VideoEncodingQuality.Wvga;
+                            break;
+                        case "VGA":
+                            VideoQuality = VideoEncodingQuality.Vga;
+                            break;
+                        case "High":
+                            AudioQuality = AudioEncodingQuality.High;
+                            break;
+                        case "Medium":
+                            AudioQuality = AudioEncodingQuality.Medium;
+                            break;
+                        case "Low":
+                            AudioQuality = AudioEncodingQuality.Low;
+                            break;
+                    }
+
+                    switch (Para.Item3)
+                    {
+                        case "MKV":
+                            Profile = MediaEncodingProfile.CreateHevc(VideoQuality);
+                            break;
+                        case "MP4":
+                            Profile = MediaEncodingProfile.CreateMp4(VideoQuality);
+                            break;
+                        case "WMV":
+                            Profile = MediaEncodingProfile.CreateWmv(VideoQuality);
+                            break;
+                        case "AVI":
+                            Profile = MediaEncodingProfile.CreateAvi(VideoQuality);
+                            break;
+                        case "MP3":
+                            Profile = MediaEncodingProfile.CreateMp3(AudioQuality);
+                            break;
+                        case "ALAC":
+                            Profile = MediaEncodingProfile.CreateAlac(AudioQuality);
+                            break;
+                        case "WMA":
+                            Profile = MediaEncodingProfile.CreateWma(AudioQuality);
+                            break;
+                        case "M4A":
+                            Profile = MediaEncodingProfile.CreateM4a(AudioQuality);
+                            break;
+                    }
+
+                    PrepareTranscodeResult Result = Transcoder.PrepareFileTranscodeAsync(Para.Item1, Para.Item2, Profile).AsTask().Result;
+                    if (Result.CanTranscode)
+                    {
+                        SendUpdatableToastWithProgressForTranscode(Para.Item1, Para.Item2);
+                        Progress<double> TranscodeProgress = new Progress<double>((CurrentValue) =>
+                        {
+                            string Tag = "TranscodeNotification";
+
+                            var data = new NotificationData
+                            {
+                                SequenceNumber = 0
+                            };
+                            data.Values["ProgressValue"] = Math.Round(CurrentValue / 100, 2, MidpointRounding.AwayFromZero).ToString();
+                            data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
+
+                            ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                        });
+
+                        Result.TranscodeAsync().AsTask(AVTranscodeCancellation.Token, TranscodeProgress).Wait();
+
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = "Success";
+                    }
+                    else
+                    {
+                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = "NotSupport";
+                        Para.Item2.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                    }
+                }
+                catch (AggregateException)
+                {
+                    ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = "Cancel";
+                    Para.Item2.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                }
+                catch (Exception e)
+                {
+                    ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = e.Message;
+                    Para.Item2.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                }
+            },(SourceFile, DestinationFile, MediaTranscodeEncodingProfile, MediaTranscodeQuality, SpeedUp), TaskCreationOptions.LongRunning).ContinueWith((task,ob) =>
+            {
+                AVTranscodeCancellation.Dispose();
+                AVTranscodeCancellation = null;
+
+                var Para = (ValueTuple<StorageFile, StorageFile>)ob;
+
+                if (ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] is string ExcuteStatus)
+                {
+                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    {
+                        if (Globalization.Language == LanguageEnum.Chinese)
+                        {
+                            switch (ExcuteStatus)
+                            {
+                                case "Success":
+                                    FileControl.ThisPage.Notification.Show("转码已成功完成", 5000);
+                                    ShowTranscodeCompleteNotification(Para.Item1, Para.Item2);
+                                    break;
+                                case "Cancel":
+                                    FileControl.ThisPage.Notification.Show("转码任务被取消", 5000);
+                                    ShowTranscodeCancelNotification();
+                                    break;
+                                case "NotSupport":
+                                    FileControl.ThisPage.Notification.Show("转码格式不支持", 5000);
+                                    break;
+                                default:
+                                    FileControl.ThisPage.Notification.Show("转码失败:" + ExcuteStatus, 5000);
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            switch (ExcuteStatus)
+                            {
+                                case "Success":
+                                    FileControl.ThisPage.Notification.Show("Transcoding has been successfully completed", 5000);
+                                    ShowTranscodeCompleteNotification(Para.Item1, Para.Item2);
+                                    break;
+                                case "Cancel":
+                                    FileControl.ThisPage.Notification.Show("Transcoding task is cancelled", 5000);
+                                    ShowTranscodeCancelNotification();
+                                    break;
+                                case "NotSupport":
+                                    FileControl.ThisPage.Notification.Show("Transcoding format is not supported", 5000);
+                                    break;
+                                default:
+                                    FileControl.ThisPage.Notification.Show("Transcoding failed:" + ExcuteStatus, 5000);
+                                    break;
+                            }
+                        }
+                    }).AsTask().Wait();
+                }
+
+                IsAnyTransformTaskRunning = false;
+
+            },(SourceFile,DestinationFile));
+        }
+
+        private static void SendUpdatableToastWithProgressForCropVideo(StorageFile SourceFile)
+        {
+            var content = new ToastContent()
+            {
+                Launch = "Transcode",
+                Scenario = ToastScenario.Reminder,
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                        {
+                            new AdaptiveText()
+                            {
+                                Text = Globalization.Language==LanguageEnum.Chinese
+                                ? ("正在裁剪:"+SourceFile.DisplayName)
+                                : ("Cropping:"+SourceFile.DisplayName)
+                            },
+
+                            new AdaptiveProgressBar()
+                            {
+                                Title = Globalization.Language==LanguageEnum.Chinese?"正在处理...":"Processing",
+                                Value = new BindableProgressBarValue("ProgressValue"),
+                                ValueStringOverride = new BindableString("ProgressValueString"),
+                                Status = new BindableString("ProgressStatus")
+                            }
+                        }
+                    }
+                }
+            };
+
+            var Toast = new ToastNotification(content.GetXml())
+            {
+                Tag = "CropVideoNotification",
+                Data = new NotificationData()
+            };
+            Toast.Data.Values["ProgressValue"] = "0";
+            Toast.Data.Values["ProgressValueString"] = "0%";
+            Toast.Data.Values["ProgressStatus"] = Globalization.Language == LanguageEnum.Chinese
+                ? "点击该提示以取消"
+                : "Click the prompt to cancel";
+            Toast.Data.SequenceNumber = 0;
+
+            Toast.Activated += (s, e) =>
+            {
+                if (s.Tag == "CropVideoNotification")
+                {
+                    AVTranscodeCancellation.Cancel();
+                }
+            };
+
+            ToastNotificationManager.CreateToastNotifier().Show(Toast);
+        }
+
+        private static void SendUpdatableToastWithProgressForTranscode(StorageFile SourceFile, StorageFile DestinationFile)
+        {
+            string Tag = "TranscodeNotification";
+
+            var content = new ToastContent()
+            {
+                Launch = "Transcode",
+                Scenario = ToastScenario.Reminder,
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                        {
+                            new AdaptiveText()
+                            {
+                                Text = Globalization.Language==LanguageEnum.Chinese
+                                ? ("正在转换:"+SourceFile.DisplayName)
+                                : ("Transcoding:"+SourceFile.DisplayName)
+                            },
+
+                            new AdaptiveProgressBar()
+                            {
+                                Title = SourceFile.FileType.Substring(1).ToUpper()+" ⋙⋙⋙⋙ "+DestinationFile.FileType.Substring(1).ToUpper(),
+                                Value = new BindableProgressBarValue("ProgressValue"),
+                                ValueStringOverride = new BindableString("ProgressValueString"),
+                                Status = new BindableString("ProgressStatus")
+                            }
+                        }
+                    }
+                }
+            };
+
+            var Toast = new ToastNotification(content.GetXml())
+            {
+                Tag = Tag,
+                Data = new NotificationData()
+            };
+            Toast.Data.Values["ProgressValue"] = "0";
+            Toast.Data.Values["ProgressValueString"] = "0%";
+            Toast.Data.Values["ProgressStatus"] = Globalization.Language == LanguageEnum.Chinese
+                ? "点击该提示以取消"
+                : "Click the prompt to cancel";
+            Toast.Data.SequenceNumber = 0;
+
+            Toast.Activated += (s, e) =>
+            {
+                if (s.Tag == "TranscodeNotification")
+                {
+                    AVTranscodeCancellation.Cancel();
+                }
+            };
+
+            ToastNotificationManager.CreateToastNotifier().Show(Toast);
+        }
+
+        private static void ShowCropCompleteNotification()
+        {
+            ToastNotificationManager.History.Remove("CropVideoNotification");
+
+            if (Globalization.Language == LanguageEnum.Chinese)
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "裁剪已完成！"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "点击以消除提示"
+                                }
+                            }
+                        }
+                    },
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            else
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "Cropping has been completed！"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "Click to remove the prompt"
+                                }
+                            }
+                        }
+                    },
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+        }
+
+        private static void ShowTranscodeCompleteNotification(StorageFile SourceFile, StorageFile DestinationFile)
+        {
+            ToastNotificationManager.History.Remove("TranscodeNotification");
+
+            if (Globalization.Language == LanguageEnum.Chinese)
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "转换已完成！"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                   Text = SourceFile.Name + " 已成功转换为 " + DestinationFile.Name
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "点击以消除提示"
+                                }
+                            }
+                        }
+                    },
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            else
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "Transcoding has been completed！"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                   Text = SourceFile.Name + " has been successfully transcoded to " + DestinationFile.Name
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "Click to remove the prompt"
+                                }
+                            }
+                        }
+                    },
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+        }
+
+        private static void ShowCropCancelNotification()
+        {
+            ToastNotificationManager.History.Remove("CropVideoNotification");
+
+            if (Globalization.Language == LanguageEnum.Chinese)
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "裁剪任务已被取消"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                   Text = "您可以尝试重新启动此任务"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "点击以消除提示"
+                                }
+                            }
+                        }
+                    }
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            else
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "Cropping task has been cancelled"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                   Text = "You can try restarting the task"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "Click to remove the prompt"
+                                }
+                            }
+                        }
+                    }
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+        }
+
+        private static void ShowTranscodeCancelNotification()
+        {
+            ToastNotificationManager.History.Remove("TranscodeNotification");
+
+            if (Globalization.Language == LanguageEnum.Chinese)
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "格式转换已被取消"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                   Text = "您可以尝试重新启动转换"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "点击以消除提示"
+                                }
+                            }
+                        }
+                    }
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            else
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "Transcode has been cancelled"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                   Text = "You can try restarting the transcode"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "Click to remove the prompt"
+                                }
+                            }
+                        }
+                    }
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+        }
+    }
+
+    #endregion
+
+    #region 时间和反转布尔值转换器
+    public sealed class InverseBooleanConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is bool v)
+            {
+                if (targetType == typeof(Visibility))
+                {
+                    return v ? Visibility.Collapsed : Visibility.Visible;
+                }
+                else if (targetType == typeof(bool))
+                {
+                    return !v;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            if (value is bool v)
+            {
+                if (targetType == typeof(Visibility))
+                {
+                    return v ? Visibility.Collapsed : Visibility.Visible;
+                }
+                else if (targetType == typeof(bool))
+                {
+                    return !v;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+
+    public sealed class TimespanConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is double)
+            {
+                long Millisecond = System.Convert.ToInt64(value);
+                int Hour = 0;
+                int Minute = 0;
+                int Second = 0;
+
+                if (Millisecond >= 1000)
+                {
+                    Second = System.Convert.ToInt32(Millisecond / 1000);
+                    Millisecond %= 1000;
+                    if (Second >= 60)
+                    {
+                        Minute = Second / 60;
+                        Second %= 60;
+                        if (Minute >= 60)
+                        {
+                            Hour = Minute / 60;
+                            Minute %= 60;
+                        }
+                    }
+                }
+                return string.Format("{0:D2}:{1:D2}:{2:D2}.{3:D3}", Hour, Minute, Second, Millisecond);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
         }
     }
     #endregion
