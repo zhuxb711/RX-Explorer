@@ -45,6 +45,9 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
+using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
+using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
+using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace FileManager
 {
@@ -1493,6 +1496,28 @@ namespace FileManager
     #region 扩展方法类
     public static class Extention
     {
+        public static async Task SelectNode(this TreeViewNode Node, TreeView View)
+        {
+            if (View == null)
+            {
+                throw new ArgumentException("View could not be null");
+            }
+
+            while (true)
+            {
+                if (View.ContainerFromNode(Node) is TreeViewItem Item)
+                {
+                    Item.IsSelected = true;
+                    Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
+                    break;
+                }
+                else
+                {
+                    await Task.Delay(200);
+                }
+            }
+        }
+
         public static async Task<bool> CheckExist(this StorageFile File)
         {
             try
@@ -3679,7 +3704,7 @@ namespace FileManager
 
                 AVTranscodeCancellation = new CancellationTokenSource();
 
-                var Para = (ValueTuple<StorageFile, StorageFile, string, string,bool>)ob;
+                var Para = (ValueTuple<StorageFile, StorageFile, string, string, bool>)ob;
 
                 MediaTranscoder Transcoder = new MediaTranscoder
                 {
@@ -3790,63 +3815,63 @@ namespace FileManager
                     ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = e.Message;
                     Para.Item2.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
                 }
-            },(SourceFile, DestinationFile, MediaTranscodeEncodingProfile, MediaTranscodeQuality, SpeedUp), TaskCreationOptions.LongRunning).ContinueWith((task,ob) =>
-            {
-                AVTranscodeCancellation.Dispose();
-                AVTranscodeCancellation = null;
+            }, (SourceFile, DestinationFile, MediaTranscodeEncodingProfile, MediaTranscodeQuality, SpeedUp), TaskCreationOptions.LongRunning).ContinueWith((task, ob) =>
+             {
+                 AVTranscodeCancellation.Dispose();
+                 AVTranscodeCancellation = null;
 
-                var Para = (ValueTuple<StorageFile, StorageFile>)ob;
+                 var Para = (ValueTuple<StorageFile, StorageFile>)ob;
 
-                if (ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] is string ExcuteStatus)
-                {
-                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                    {
-                        if (Globalization.Language == LanguageEnum.Chinese)
-                        {
-                            switch (ExcuteStatus)
-                            {
-                                case "Success":
-                                    FileControl.ThisPage.Notification.Show("转码已成功完成", 5000);
-                                    ShowTranscodeCompleteNotification(Para.Item1, Para.Item2);
-                                    break;
-                                case "Cancel":
-                                    FileControl.ThisPage.Notification.Show("转码任务被取消", 5000);
-                                    ShowTranscodeCancelNotification();
-                                    break;
-                                case "NotSupport":
-                                    FileControl.ThisPage.Notification.Show("转码格式不支持", 5000);
-                                    break;
-                                default:
-                                    FileControl.ThisPage.Notification.Show("转码失败:" + ExcuteStatus, 5000);
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            switch (ExcuteStatus)
-                            {
-                                case "Success":
-                                    FileControl.ThisPage.Notification.Show("Transcoding has been successfully completed", 5000);
-                                    ShowTranscodeCompleteNotification(Para.Item1, Para.Item2);
-                                    break;
-                                case "Cancel":
-                                    FileControl.ThisPage.Notification.Show("Transcoding task is cancelled", 5000);
-                                    ShowTranscodeCancelNotification();
-                                    break;
-                                case "NotSupport":
-                                    FileControl.ThisPage.Notification.Show("Transcoding format is not supported", 5000);
-                                    break;
-                                default:
-                                    FileControl.ThisPage.Notification.Show("Transcoding failed:" + ExcuteStatus, 5000);
-                                    break;
-                            }
-                        }
-                    }).AsTask().Wait();
-                }
+                 if (ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] is string ExcuteStatus)
+                 {
+                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                     {
+                         if (Globalization.Language == LanguageEnum.Chinese)
+                         {
+                             switch (ExcuteStatus)
+                             {
+                                 case "Success":
+                                     FileControl.ThisPage.Notification.Show("转码已成功完成", 5000);
+                                     ShowTranscodeCompleteNotification(Para.Item1, Para.Item2);
+                                     break;
+                                 case "Cancel":
+                                     FileControl.ThisPage.Notification.Show("转码任务被取消", 5000);
+                                     ShowTranscodeCancelNotification();
+                                     break;
+                                 case "NotSupport":
+                                     FileControl.ThisPage.Notification.Show("转码格式不支持", 5000);
+                                     break;
+                                 default:
+                                     FileControl.ThisPage.Notification.Show("转码失败:" + ExcuteStatus, 5000);
+                                     break;
+                             }
+                         }
+                         else
+                         {
+                             switch (ExcuteStatus)
+                             {
+                                 case "Success":
+                                     FileControl.ThisPage.Notification.Show("Transcoding has been successfully completed", 5000);
+                                     ShowTranscodeCompleteNotification(Para.Item1, Para.Item2);
+                                     break;
+                                 case "Cancel":
+                                     FileControl.ThisPage.Notification.Show("Transcoding task is cancelled", 5000);
+                                     ShowTranscodeCancelNotification();
+                                     break;
+                                 case "NotSupport":
+                                     FileControl.ThisPage.Notification.Show("Transcoding format is not supported", 5000);
+                                     break;
+                                 default:
+                                     FileControl.ThisPage.Notification.Show("Transcoding failed:" + ExcuteStatus, 5000);
+                                     break;
+                             }
+                         }
+                     }).AsTask().Wait();
+                 }
 
-                IsAnyTransformTaskRunning = false;
+                 IsAnyTransformTaskRunning = false;
 
-            },(SourceFile,DestinationFile));
+             }, (SourceFile, DestinationFile));
         }
 
         private static void SendUpdatableToastWithProgressForCropVideo(StorageFile SourceFile)

@@ -9,7 +9,6 @@ using Windows.Storage.FileProperties;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -75,108 +74,79 @@ namespace FileManager
 
             try
             {
-                string UserPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
-                StorageFolder CurrentFolder = await StorageFolder.GetFolderFromPathAsync(UserPath);
-
-                IReadOnlyList<StorageFolder> LibraryFolder = await CurrentFolder.GetFoldersAsync();
-                List<string> FolderNotFoundList = new List<string>(7);
-
-                if (LibraryFolder.Where((Folder) => Folder.Name == "Desktop").FirstOrDefault() is StorageFolder DesktopFolder)
+                if (ApplicationData.Current.LocalSettings.Values["UserDefineDownloadPath"] is string UserDefinePath)
                 {
-                    LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-                }
-                else
-                {
-                    FolderNotFoundList.Add("Desktop");
-                }
-
-                if (LibraryFolder.Where((Folder) => Folder.Name == "Downloads").FirstOrDefault() is StorageFolder DownloadsFolder)
-                {
-                    LibraryFolderList.Add(new LibraryFolder(DownloadsFolder, await DownloadsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-                }
-                else
-                {
-                    FolderNotFoundList.Add("Downloads");
-                }
-
-                if (LibraryFolder.Where((Folder) => Folder.Name == "Videos").FirstOrDefault() is StorageFolder VideosFolder)
-                {
-                    LibraryFolderList.Add(new LibraryFolder(VideosFolder, await VideosFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-                }
-                else
-                {
-                    FolderNotFoundList.Add("Videos");
-                }
-
-                if (LibraryFolder.Where((Folder) => Folder.Name == "3D Objects").FirstOrDefault() is StorageFolder ObjectsFolder)
-                {
-                    LibraryFolderList.Add(new LibraryFolder(ObjectsFolder, await ObjectsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-                }
-                else
-                {
-                    FolderNotFoundList.Add("3D Objects");
-                }
-
-                if (LibraryFolder.Where((Folder) => Folder.Name == "Pictures").FirstOrDefault() is StorageFolder PicturesFolder)
-                {
-                    LibraryFolderList.Add(new LibraryFolder(PicturesFolder, await PicturesFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-                }
-                else
-                {
-                    FolderNotFoundList.Add("Pictures");
-                }
-
-                if (LibraryFolder.Where((Folder) => Folder.Name == "Documents").FirstOrDefault() is StorageFolder DocumentsFolder)
-                {
-                    LibraryFolderList.Add(new LibraryFolder(DocumentsFolder, await DocumentsFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-                }
-                else
-                {
-                    FolderNotFoundList.Add("Documents");
-                }
-
-                if (LibraryFolder.Where((Folder) => Folder.Name == "Music").FirstOrDefault() is StorageFolder MusicFolder)
-                {
-                    LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-                }
-                else
-                {
-                    FolderNotFoundList.Add("Music");
-                }
-
-                if (FolderNotFoundList.Count > 0)
-                {
-                    UserFolderDialog Dialog = new UserFolderDialog(FolderNotFoundList);
-                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    try
                     {
-                        foreach (var Pair in Dialog.FolderPair)
+                        StorageFolder DownloadFolder = await StorageFolder.GetFolderFromPathAsync(UserDefinePath);
+                        LibraryFolderList.Add(new LibraryFolder(DownloadFolder, await DownloadFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                    }
+                    catch(FileNotFoundException)
+                    {
+                        UserFolderDialog Dialog = new UserFolderDialog(Globalization.Language == LanguageEnum.Chinese ? "下载" : "Downloads");
+                        if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                         {
-                            LibraryFolderList.Add(new LibraryFolder(Pair.Value, await Pair.Value.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                            LibraryFolderList.Add(new LibraryFolder(Dialog.MissingFolder, await Dialog.MissingFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                            ApplicationData.Current.LocalSettings.Values["UserDefineDownloadPath"] = Dialog.MissingFolder.Path;
                         }
                     }
                 }
-            }
-            catch (FileNotFoundException)
-            {
-                QueueContentDialog Tips;
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    Tips = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "无法正确解析用户文件夹，可能已经被移动或不存在",
-                        CloseButtonText = "确定"
-                    };
-                }
                 else
                 {
-                    Tips = new QueueContentDialog
+                    string UserPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                    if (!string.IsNullOrEmpty(UserPath))
                     {
-                        Title = "Error",
-                        Content = "Unable to parse user folder correctly，the folder may have been moved or does not exist",
-                        CloseButtonText = "Got it"
-                    };
+                        StorageFolder CurrentFolder = await StorageFolder.GetFolderFromPathAsync(UserPath);
+
+                        if ((await CurrentFolder.TryGetItemAsync("Downloads")) is StorageFolder DownloadFolder)
+                        {
+                            LibraryFolderList.Add(new LibraryFolder(DownloadFolder, await DownloadFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                        }
+                        else
+                        {
+                            UserFolderDialog Dialog = new UserFolderDialog(Globalization.Language == LanguageEnum.Chinese ? "下载" : "Downloads");
+                            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                            {
+                                LibraryFolderList.Add(new LibraryFolder(Dialog.MissingFolder, await Dialog.MissingFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                                ApplicationData.Current.LocalSettings.Values["UserDefineDownloadPath"] = Dialog.MissingFolder.Path;
+                            }
+                        }
+                    }
+                }
+
+                string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                if (!string.IsNullOrEmpty(DesktopPath))
+                {
+                    StorageFolder DesktopFolder = await StorageFolder.GetFolderFromPathAsync(DesktopPath);
+                    LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                }
+
+                string VideoPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+                if (!string.IsNullOrEmpty(VideoPath))
+                {
+                    StorageFolder VideoFolder = await StorageFolder.GetFolderFromPathAsync(VideoPath);
+                    LibraryFolderList.Add(new LibraryFolder(VideoFolder, await VideoFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                }
+
+                string PicturePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+                if (!string.IsNullOrEmpty(PicturePath))
+                {
+                    StorageFolder PictureFolder = await StorageFolder.GetFolderFromPathAsync(PicturePath);
+                    LibraryFolderList.Add(new LibraryFolder(PictureFolder, await PictureFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                }
+
+                string DocumentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                if (!string.IsNullOrEmpty(DocumentPath))
+                {
+                    StorageFolder DocumentFolder = await StorageFolder.GetFolderFromPathAsync(DocumentPath);
+                    LibraryFolderList.Add(new LibraryFolder(DocumentFolder, await DocumentFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                }
+
+                string MusicPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+                if (!string.IsNullOrEmpty(MusicPath))
+                {
+                    StorageFolder MusicFolder = await StorageFolder.GetFolderFromPathAsync(MusicPath);
+                    LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
                 }
             }
             catch (Exception)

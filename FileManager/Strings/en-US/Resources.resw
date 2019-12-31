@@ -987,17 +987,8 @@
   <data name="UpdateLogDialog.Title" xml:space="preserve">
     <value>Recently updated</value>
   </data>
-  <data name="UpdateTip.ActionButtonContent" xml:space="preserve">
-    <value>Update Now</value>
-  </data>
-  <data name="UpdateTip.CloseButtonContent" xml:space="preserve">
-    <value>Later</value>
-  </data>
-  <data name="UpdateTip.Title" xml:space="preserve">
-    <value>Update Available</value>
-  </data>
   <data name="UserFolderDialog.CloseButtonText" xml:space="preserve">
-    <value>Ignore</value>
+    <value>Ignore for now</value>
   </data>
   <data name="UserFolderDialog.PrimaryButtonText" xml:space="preserve">
     <value>Confirm</value>
@@ -1006,7 +997,7 @@
     <value>Choose library folder</value>
   </data>
   <data name="UserFolderNotReferTip.Subtitle" xml:space="preserve">
-    <value>Please specify all folders and click confirm</value>
+    <value>Please specify the folder and click confirm</value>
   </data>
   <data name="UserFolderReferButton.Content" xml:space="preserve">
     <value>Specify</value>

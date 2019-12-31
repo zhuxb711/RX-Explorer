@@ -5,56 +5,13 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:local="using:FileManager"
-      xmlns:controls1="using:Microsoft.UI.Xaml.Controls"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       NavigationCacheMode="Required"
       mc:Ignorable="d"
       Background="Transparent">
 
     <Page.Resources>
-        <Style TargetType="TreeView">
-            <Setter Property="IsTabStop"
-                    Value="False" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TreeView">
-                        <TreeViewList x:Name="ListControl"
-                                      ItemTemplate="{StaticResource Template}"
-                                      ItemContainerStyle="{StaticResource TreeViewItemStyle}"
-                                      CanDragItems="False"
-                                      AllowDrop="False"
-                                      CanReorderItems="False">
-                            <TreeViewList.ItemContainerTransitions>
-                                <TransitionCollection>
-                                    <ContentThemeTransition />
-                                    <ReorderThemeTransition />
-                                    <EntranceThemeTransition IsStaggeringEnabled="False" />
-                                </TransitionCollection>
-                            </TreeViewList.ItemContainerTransitions>
-                        </TreeViewList>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <local:FolderStateConverter x:Key="StateConverter" />
-
-        <DataTemplate x:Key="Template">
-            <StackPanel Height="40"
-                        Orientation="Horizontal">
-                <Viewbox Height="30"
-                         VerticalAlignment="Center">
-                    <FontIcon FontFamily="Segoe MDL2 Assets"
-                              Glyph="{Binding IsExpanded,Mode=OneWay,Converter={StaticResource StateConverter}}"
-                              Margin="0,5,5,0"
-                              Name="Icon" />
-                </Viewbox>
-                <TextBlock Text="{Binding Content.DisplayName,Mode=OneWay}"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Center"
-                           Style="{ThemeResource BodyTextBlockStyle}"
-                           FontSize="18" />
-            </StackPanel>
-        </DataTemplate>
 
         <CommandBarFlyout Placement="RightEdgeAlignedTop"
                           x:Name="RightTabFlyout">
@@ -87,7 +44,7 @@
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
-        <controls1:TeachingTip x:Name="SearchTip"
+        <muxc:TeachingTip x:Name="SearchTip"
                               x:Uid="SearchTip"
                               Grid.Row="1"
                               Title="Tips"
@@ -96,7 +53,7 @@
                               IsLightDismissEnabled="True"
                               Subtitle="清空这个搜索框或点击任意文件夹即可退出搜索状态哦！"
                               CloseButtonContent="知道啦">
-        </controls1:TeachingTip>
+        </muxc:TeachingTip>
     </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -224,21 +181,40 @@
             <Frame Grid.Column="2"
                    Name="Nav"
                    x:FieldModifier="Public"/>
-            <TreeView Name="FolderTree"
-                      x:FieldModifier="public"
-                      Expanding="FileTree_Expanding"
-                      ItemInvoked="FileTree_ItemInvoked"
-                      Collapsed="FileTree_Collapsed"
-                      HorizontalAlignment="Stretch"
-                      SelectionMode="Single"
-                      VerticalAlignment="Stretch"
-                      RightTapped="FolderTree_RightTapped">
-                <TreeView.Transitions>
+            <muxc:TreeView Name="FolderTree"
+                           x:FieldModifier="public"
+                           Expanding="FolderTree_Expanding"
+                           ItemInvoked="FolderTree_ItemInvoked"
+                           Collapsed="FolderTree_Collapsed"
+                           HorizontalAlignment="Stretch"
+                           SelectionMode="Single"
+                           VerticalAlignment="Stretch"
+                           RightTapped="FolderTree_RightTapped">
+                <muxc:TreeView.Transitions>
                     <TransitionCollection>
                         <PaneThemeTransition Edge="Left" />
                     </TransitionCollection>
-                </TreeView.Transitions>
-            </TreeView>
+                </muxc:TreeView.Transitions>
+                <muxc:TreeView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Height="40"
+                                    Orientation="Horizontal">
+                            <Viewbox Height="30"
+                                     VerticalAlignment="Center">
+                                <FontIcon FontFamily="Segoe MDL2 Assets"
+                                          Glyph="{Binding IsExpanded,Mode=OneWay,Converter={StaticResource StateConverter}}"
+                                          Margin="0,5,5,0"
+                                          Name="Icon" />
+                            </Viewbox>
+                            <TextBlock Text="{Binding Content.DisplayName,Mode=OneWay}"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center"
+                                       Style="{ThemeResource BodyTextBlockStyle}"
+                                       FontSize="18" />
+                        </StackPanel>
+                    </DataTemplate>
+                </muxc:TreeView.ItemTemplate>
+            </muxc:TreeView>
             <controls:InAppNotification Grid.Column="2"
                                         StackMode="Replace"
                                         Name="Notification"

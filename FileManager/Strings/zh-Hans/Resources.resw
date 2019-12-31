@@ -78,15 +78,6 @@
   <data name="ThisPC.Content" xml:space="preserve">
     <value>这台电脑</value>
   </data>
-  <data name="UpdateTip.ActionButtonContent" xml:space="preserve">
-    <value>立刻更新</value>
-  </data>
-  <data name="UpdateTip.CloseButtonContent" xml:space="preserve">
-    <value>稍后</value>
-  </data>
-  <data name="UpdateTip.Title" xml:space="preserve">
-    <value>更新可用</value>
-  </data>
   <data name="WebDelete.Label" xml:space="preserve">
     <value>删除</value>
   </data>
@@ -928,7 +919,7 @@
     <value>指定</value>
   </data>
   <data name="UserFolderDialog.CloseButtonText" xml:space="preserve">
-    <value>忽略</value>
+    <value>暂时忽略</value>
   </data>
   <data name="SettingBasicText.Text" xml:space="preserve">
     <value>基本</value>
@@ -967,7 +958,7 @@
     <value>恢复</value>
   </data>
   <data name="UserFolderNotReferTip.Subtitle" xml:space="preserve">
-    <value>请指定所有文件夹后再点击确定哦</value>
+    <value>请指定文件夹后再点击确定哦</value>
   </data>
   <data name="AttributeSecureLevel.Text" xml:space="preserve">
     <value>安全等级</value>

@@ -94,18 +94,6 @@
           <source>ThisPC</source>
           <target state="translated">这台电脑</target>
         </trans-unit>
-        <trans-unit id="UpdateTip.ActionButtonContent" translate="yes" xml:space="preserve">
-          <source>Update Now</source>
-          <target state="translated">立刻更新</target>
-        </trans-unit>
-        <trans-unit id="UpdateTip.CloseButtonContent" translate="yes" xml:space="preserve">
-          <source>Later</source>
-          <target state="translated">稍后</target>
-        </trans-unit>
-        <trans-unit id="UpdateTip.Title" translate="yes" xml:space="preserve">
-          <source>Update Available</source>
-          <target state="translated">更新可用</target>
-        </trans-unit>
         <trans-unit id="WebDelete.Label" translate="yes" xml:space="preserve">
           <source>Delete</source>
           <target state="translated">删除</target>
@@ -1227,8 +1215,8 @@
           <target state="translated">指定</target>
         </trans-unit>
         <trans-unit id="UserFolderDialog.CloseButtonText" translate="yes" xml:space="preserve">
-          <source>Ignore</source>
-          <target state="translated">忽略</target>
+          <source>Ignore for now</source>
+          <target state="translated">暂时忽略</target>
         </trans-unit>
         <trans-unit id="SettingBasicText.Text" translate="yes" xml:space="preserve">
           <source>Basic</source>
@@ -1279,8 +1267,8 @@
           <target state="translated">恢复</target>
         </trans-unit>
         <trans-unit id="UserFolderNotReferTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>Please specify all folders and click confirm</source>
-          <target state="translated">请指定所有文件夹后再点击确定哦</target>
+          <source>Please specify the folder and click confirm</source>
+          <target state="translated">请指定文件夹后再点击确定哦</target>
         </trans-unit>
         <trans-unit id="AttributeSecureLevel.Text" translate="yes" xml:space="preserve">
           <source>Security Level</source>

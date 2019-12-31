@@ -6,16 +6,15 @@
                           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                           xmlns:controls="using:Microsoft.UI.Xaml.Controls"
                           mc:Ignorable="d"
-                          Background="{StaticResource DialogAcrylicBrush}"
                           Title="选择库文件夹"
                           PrimaryButtonText="确定"
-                          CloseButtonText="忽略"
+                          CloseButtonText="暂时忽略"
                           x:Uid="UserFolderDialog"
                           PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
     <local:QueueContentDialog.Resources>
         <controls:TeachingTip x:Name="NotReferTip"
                               Title="Tips"
-                              Subtitle="请指定所有文件夹后再点击确定哦"
+                              Subtitle="请指定文件夹后再点击确定哦"
                               x:Uid="UserFolderNotReferTip"
                               IsLightDismissEnabled="True"
                               PreferredPlacement="TopRight" 

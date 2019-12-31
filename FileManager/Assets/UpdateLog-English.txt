@@ -1,4 +1,21 @@
 ﻿*****
+###What's new in Ver.3.8.2.0
+
+>#####Feature Update
+
+>>#####Now when navigating to a specified folder by file path, the left folder bar will follow the progress of folder expansion
+
+>>#####Improved the way to find the library folder, now libraries other than the "Downloads" folder will be automatically located without the need to manually specify
+
+>>#####Updated UI controls for folder bar
+
+>#####Bug fix
+
+>>#####Fixed the problem that RX fails to save the settings after the user specified the library folder, the dialog will pop up every time
+
+>>#####Cleaned up deprecated update tips
+
+*****
 ###What's new in Ver.3.8.0.0
 
 >#####Feature Update

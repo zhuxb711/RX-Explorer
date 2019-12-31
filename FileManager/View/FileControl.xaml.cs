@@ -14,7 +14,12 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
-
+using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
+using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
+using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
+using TreeViewExpandingEventArgs = Microsoft.UI.Xaml.Controls.TreeViewExpandingEventArgs;
+using TreeViewCollapsedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewCollapsedEventArgs;
+using TreeViewItemInvokedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewItemInvokedEventArgs;
 
 namespace FileManager
 {
@@ -93,7 +98,6 @@ namespace FileManager
             InitializeComponent();
             ThisPage = this;
             Nav.Navigate(typeof(FilePresenter), Nav, new DrillInNavigationTransitionInfo());
-
             OpenTargetFolder(Folder);
         }
 
@@ -335,7 +339,7 @@ namespace FileManager
             }
         }
 
-        private async void FileTree_Expanding(TreeView sender, TreeViewExpandingEventArgs args)
+        private async void FolderTree_Expanding(TreeView sender, TreeViewExpandingEventArgs args)
         {
             if (args.Node.HasUnrealizedChildren)
             {
@@ -343,7 +347,7 @@ namespace FileManager
             }
         }
 
-        private async void FileTree_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
+        private async void FolderTree_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
         {
             await DisplayItemsInFolder(args.InvokedItem as TreeViewNode);
         }
@@ -607,7 +611,7 @@ namespace FileManager
             }
         }
 
-        private async void FileTree_Collapsed(TreeView sender, TreeViewCollapsedEventArgs args)
+        private async void FolderTree_Collapsed(TreeView sender, TreeViewCollapsedEventArgs args)
         {
             FolderExpandCancel.Cancel();
 
@@ -1085,45 +1089,9 @@ namespace FileManager
                     {
                         var RootNode = FolderTree.RootNodes[0];
                         TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
-                        if (TargetNode == null)
+                        if (TargetNode != null)
                         {
-                            if (Globalization.Language == LanguageEnum.Chinese)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "无法定位文件夹，该文件夹可能已被删除或移动",
-                                    CloseButtonText = "确定"
-                                };
-                                _ = await dialog.ShowAsync();
-                            }
-                            else
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "Unable to locate folder, which may have been deleted or moved",
-                                    CloseButtonText = "Confirm"
-                                };
-                                _ = await dialog.ShowAsync();
-                            }
-                        }
-                        else
-                        {
-                            while (true)
-                            {
-                                if (FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Item)
-                                {
-                                    Item.IsSelected = true;
-                                    Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                                    await DisplayItemsInFolder(TargetNode);
-                                    break;
-                                }
-                                else
-                                {
-                                    await Task.Delay(300);
-                                }
-                            }
+                            await DisplayItemsInFolder(TargetNode);
 
                             await SQLite.Current.SetPathHistoryAsync(Folder.Path);
                         }
@@ -1189,6 +1157,8 @@ namespace FileManager
                 Node.IsExpanded = true;
             }
 
+            await Node.SelectNode(FolderTree);
+
             string NextPathLevel = Analysis.NextPathLevel();
 
             if (NextPathLevel == Analysis.FullPath)
@@ -1208,7 +1178,7 @@ namespace FileManager
                         }
                         else
                         {
-                            await Task.Delay(500);
+                            await Task.Delay(200);
                         }
                     }
                 }
@@ -1230,7 +1200,7 @@ namespace FileManager
                         }
                         else
                         {
-                            await Task.Delay(500);
+                            await Task.Delay(200);
                         }
                     }
                 }

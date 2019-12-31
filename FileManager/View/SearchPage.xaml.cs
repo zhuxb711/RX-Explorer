@@ -10,9 +10,10 @@ using Windows.Storage;
 using Windows.Storage.Search;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
+using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
+using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
 
 namespace FileManager
 {

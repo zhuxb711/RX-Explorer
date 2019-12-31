@@ -25,6 +25,8 @@ using Windows.UI.Xaml.Navigation;
 using ZXing;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
+using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
+using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
 
 namespace FileManager
 {

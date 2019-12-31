@@ -11,8 +11,9 @@ using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
+using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
 
 namespace FileManager
 {
@@ -182,7 +183,7 @@ namespace FileManager
 
         private async Task SetSelectedNodeInTreeAsync(TreeViewNode Node)
         {
-            if(!FileControl.ThisPage.CurrentNode.IsExpanded)
+            if (!FileControl.ThisPage.CurrentNode.IsExpanded)
             {
                 FileControl.ThisPage.CurrentNode.IsExpanded = true;
             }

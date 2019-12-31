@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml.Controls;
@@ -8,28 +7,18 @@ namespace FileManager
 {
     public sealed partial class UserFolderDialog : QueueContentDialog
     {
-        public Dictionary<string, StorageFolder> FolderPair { get; private set; } = new Dictionary<string, StorageFolder>();
+        public StorageFolder MissingFolder { get; private set; }
 
-        public UserFolderDialog(IEnumerable<string> MissingFolderGroup)
+        public UserFolderDialog(string MissingFolder)
         {
             InitializeComponent();
-            UserCombo.ItemsSource = MissingFolderGroup;
+            UserCombo.Items.Add(MissingFolder);
             UserCombo.SelectedIndex = 0;
         }
 
         private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            bool IsAllRefered = true;
-            foreach (string Item in UserCombo.Items)
-            {
-                if (!FolderPair.ContainsKey(Item))
-                {
-                    IsAllRefered = false;
-                    break;
-                }
-            }
-
-            if (!IsAllRefered)
+            if (MissingFolder == null)
             {
                 NotReferTip.IsOpen = true;
                 args.Cancel = true;
@@ -45,21 +34,7 @@ namespace FileManager
             };
             Picker.FileTypeFilter.Add("*");
 
-            StorageFolder Folder = await Picker.PickSingleFolderAsync();
-
-            if (Folder != null)
-            {
-                string Key = UserCombo.SelectedItem.ToString();
-                if (FolderPair.ContainsKey(Key))
-                {
-                    FolderPair.Remove(Key);
-                    FolderPair.Add(Key, Folder);
-                }
-                else
-                {
-                    FolderPair.Add(Key, Folder);
-                }
-            }
+            MissingFolder = await Picker.PickSingleFolderAsync();
         }
     }
 }
