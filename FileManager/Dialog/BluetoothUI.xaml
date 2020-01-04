@@ -9,7 +9,6 @@
                           Title="选择目标设备"
                           PrimaryButtonText="确定"
                           CloseButtonText="取消"
-                          Background="{StaticResource DialogAcrylicBrush}"
                           PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
     <StackPanel HorizontalAlignment="Stretch"
@@ -30,6 +29,7 @@
                   SelectionMode="Single"
                   IsItemClickEnabled="False"
                   ScrollViewer.VerticalScrollMode="Auto"
+                  ScrollViewer.VerticalScrollBarVisibility="Hidden"
                   Height="250">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="local:BluetoothList">
@@ -73,7 +73,7 @@
             <Button Content="是"
                     x:Uid="BluetoothUIPinYes"
                     Width="60"
-                    Style="{StaticResource ButtonRevealStyle}"
+                    Style="{ThemeResource ButtonRevealStyle}"
                     Name="PinConfirm"
                     Visibility="Collapsed"
                     Click="PinConfirm_Click" />
@@ -81,7 +81,7 @@
                     x:Uid="BluetoothUIPinNo"
                     Margin="5,0,0,0"
                     Width="60"
-                    Style="{StaticResource ButtonRevealStyle}"
+                    Style="{ThemeResource ButtonRevealStyle}"
                     Name="PinRefuse"
                     Visibility="Collapsed"
                     Click="PinRefuse_Click" />

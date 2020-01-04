@@ -9,8 +9,7 @@
     Title="正在初始化"
     x:Uid="BluetoothTranfer"
     SecondaryButtonText="中止"
-    SecondaryButtonClick="QueueContentDialog_SecondaryButtonClick"
-    Background="{StaticResource DialogAcrylicBrush}">
+    SecondaryButtonClick="QueueContentDialog_SecondaryButtonClick">
 
     <StackPanel Orientation="Vertical">
         <ProgressBar Name="ProgressControl" Height="15"/>

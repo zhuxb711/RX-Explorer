@@ -25,8 +25,8 @@ using Windows.UI.Xaml.Navigation;
 using ZXing;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
-using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
+using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace FileManager
 {
@@ -1429,13 +1429,17 @@ namespace FileManager
                                                 : "Zip Decompression";
                                     break;
                                 }
-                            case ".mkv":
                             case ".mp4":
                             case ".wmv":
+                                {
+                                    VideoEdit.IsEnabled = true;
+                                    Transcode.IsEnabled = true;
+                                    break;
+                                }
+                            case ".mkv":
                             case ".m4a":
                             case ".mov":
                                 {
-                                    VideoEdit.IsEnabled = true;
                                     Transcode.IsEnabled = true;
                                     break;
                                 }
@@ -1994,9 +1998,14 @@ namespace FileManager
                             {
                                 try
                                 {
-                                    StorageFile DestinationFile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(Source.DisplayName + "." + dialog.MediaTranscodeEncodingProfile.ToLower(), CreationCollisionOption.ReplaceExisting);
+                                    StorageFile DestinationFile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(Source.DisplayName + "." + dialog.MediaTranscodeEncodingProfile.ToLower(), CreationCollisionOption.GenerateUniqueName);
 
                                     await GeneralTransformer.TranscodeFromAudioOrVideoAsync(Source.File, DestinationFile, dialog.MediaTranscodeEncodingProfile, dialog.MediaTranscodeQuality, dialog.SpeedUp);
+
+                                    if (ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] is string Status && Status == "Success")
+                                    {
+                                        FileCollection.Add(new FileSystemStorageItem(DestinationFile, await DestinationFile.GetSizeDescriptionAsync(), await DestinationFile.GetThumbnailBitmapAsync(), await DestinationFile.GetModifiedTimeAsync()));
+                                    }
                                 }
                                 catch (UnauthorizedAccessException)
                                 {
@@ -2051,6 +2060,7 @@ namespace FileManager
                                 await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在转码" : "Transcoding");
                                 await GeneralTransformer.TranscodeFromImageAsync(Source.File, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode);
                                 await LoadingActivation(false);
+                                FileCollection.Add(new FileSystemStorageItem(Dialog.TargetFile, await Dialog.TargetFile.GetSizeDescriptionAsync(), await Dialog.TargetFile.GetThumbnailBitmapAsync(), await Dialog.TargetFile.GetModifiedTimeAsync()));
                             }
                             break;
                         }

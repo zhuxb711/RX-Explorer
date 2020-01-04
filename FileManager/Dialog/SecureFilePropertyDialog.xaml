@@ -8,8 +8,7 @@
     mc:Ignorable="d"
     x:Uid="AttributeDialog"
     Title="属性"
-    CloseButtonText="确定"
-    Background="{StaticResource DialogAcrylicBrush}">
+    CloseButtonText="确定">
 
     <Grid>
         <StackPanel Orientation="Horizontal">

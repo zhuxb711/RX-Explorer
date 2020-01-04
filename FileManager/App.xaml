@@ -2,8 +2,7 @@
     x:Class="FileManager.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:theme="using:FileManager"
-    RequestedTheme="Dark">
+    xmlns:theme="using:FileManager">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

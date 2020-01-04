@@ -10,8 +10,7 @@
                           x:Uid="ResetDialog"
                           PrimaryButtonText="确认"
                           CloseButtonText="取消"
-                          PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
-                          Background="{StaticResource DialogAcrylicBrush}">
+                          PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
 
     <local:QueueContentDialog.Resources>
         <controls:TeachingTip x:Name="ChoosePositionTip"

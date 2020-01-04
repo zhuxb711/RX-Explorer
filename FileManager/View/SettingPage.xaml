@@ -215,7 +215,7 @@
                             <Button Content="Acrylic主题颜色"
                                     x:Uid="SettingPageThemeColorButton"
                                     Name="AcrylicColor"
-                                    Style="{StaticResource ButtonRevealStyle}"
+                                    Style="{ThemeResource ButtonRevealStyle}"
                                     Click="AcrylicColor_Click" />
                             <StackPanel Margin="0,20,0,0"
                                         Orientation="Horizontal">
@@ -284,7 +284,7 @@
                     <Button Margin="0,20,0,0"
                             x:Uid="SettingClearHistory"
                             Content="清除搜索历史记录"
-                            Style="{StaticResource ButtonRevealStyle}">
+                            Style="{ThemeResource ButtonRevealStyle}">
                         <Button.Flyout>
                             <Flyout x:Name="ConfirmFly">
                                 <StackPanel>
@@ -313,7 +313,7 @@
                     <Button Margin="0,20,0,0"
                             Content="还原并初始化App"
                             x:Uid="SettingCleanup"
-                            Style="{StaticResource ButtonRevealStyle}"
+                            Style="{ThemeResource ButtonRevealStyle}"
                             Name="ClearUp"
                             Click="ClearUp_Click" />
                     <TextBlock Text="版本"

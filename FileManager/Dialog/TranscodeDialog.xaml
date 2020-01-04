@@ -8,8 +8,7 @@
                           x:Uid="TranscodeDialog"
                           Title="转码"
                           PrimaryButtonText="确定"
-                          CloseButtonText="取消"
-                          Background="{StaticResource DialogAcrylicBrush}">
+                          CloseButtonText="取消">
     <Grid>
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal">

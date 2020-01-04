@@ -76,7 +76,7 @@
                     Click="GoBackRecord_Click"
                     AllowFocusWhenDisabled="True"
                     IsEnabled="False"
-                    Style="{StaticResource ButtonRevealStyle}"
+                    Style="{ThemeResource ButtonRevealStyle}"
                     Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
                 <Viewbox>
                     <SymbolIcon Symbol="Back" />
@@ -91,7 +91,7 @@
                     IsEnabled="False"
                     ToolTipService.ToolTip="前进"
                     AllowFocusWhenDisabled="True"
-                    Style="{StaticResource ButtonRevealStyle}"
+                    Style="{ThemeResource ButtonRevealStyle}"
                     Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
                 <Viewbox>
                     <SymbolIcon Symbol="Forward" />
@@ -104,7 +104,7 @@
                     x:Name="GoParentFolder"
                     IsEnabled="False"
                     Click="GoParentFolder_Click"
-                    Style="{StaticResource ButtonRevealStyle}"
+                    Style="{ThemeResource ButtonRevealStyle}"
                     ToolTipService.ToolTip="返回上级"
                     AllowFocusWhenDisabled="True"
                     Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">

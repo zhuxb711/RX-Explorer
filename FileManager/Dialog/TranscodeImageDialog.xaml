@@ -11,8 +11,7 @@
     Title="转码"
     PrimaryButtonText="确定"
     CloseButtonText="取消"
-    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
-    Background="{StaticResource DialogAcrylicBrush}">
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
 
     <ContentDialog.Resources>
         <controls:TeachingTip x:Name="SaveErrorTip"
@@ -42,7 +41,7 @@
                       Width="200"
                       Margin="0,15,0,0"
                       SelectionChanged="Format_SelectionChanged"
-                      Background="{StaticResource ComboBoxDisabledBackgroundThemeBrush}">
+                      Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}">
                 <x:String>PNG (.png)</x:String>
                 <x:String>JPEG (.jpg)</x:String>
                 <x:String>BMP (.bmp)</x:String>
@@ -63,7 +62,7 @@
                               Name="ScaleCombo"
                               Width="140"
                               SelectionChanged="ScaleCombo_SelectionChanged"
-                              Background="{StaticResource ComboBoxDisabledBackgroundThemeBrush}">
+                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}">
                         <x:String>100%</x:String>
                         <x:String>90%</x:String>
                         <x:String>80%</x:String>
@@ -82,7 +81,7 @@
                               SelectedIndex="0"
                               Name="ScaleMode"
                               SelectionChanged="ScaleMode_SelectionChanged"
-                              Background="{StaticResource ComboBoxDisabledBackgroundThemeBrush}">
+                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}">
                         <x:String>Fant</x:String>
                         <x:String>Cubic</x:String>
                         <x:String>Linear</x:String>

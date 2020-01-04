@@ -2018,7 +2018,7 @@ namespace FileManager
         public static async Task<string> GetModifiedTimeAsync(this IStorageItem Item)
         {
             var Properties = await Item.GetBasicPropertiesAsync();
-            return Properties.DateModified.Year + "年" + Properties.DateModified.Month + "月" + Properties.DateModified.Day + "日, " + (Properties.DateModified.Hour < 10 ? "0" + Properties.DateModified.Hour : Properties.DateModified.Hour.ToString()) + ":" + (Properties.DateModified.Minute < 10 ? "0" + Properties.DateModified.Minute : Properties.DateModified.Minute.ToString()) + ":" + (Properties.DateModified.Second < 10 ? "0" + Properties.DateModified.Second : Properties.DateModified.Second.ToString());
+            return $"{Properties.DateModified.Year}年{Properties.DateModified.Month}月{Properties.DateModified.Day}日, {(Properties.DateModified.Hour < 10 ? "0" + Properties.DateModified.Hour : Properties.DateModified.Hour.ToString())}:{(Properties.DateModified.Minute < 10 ? "0" + Properties.DateModified.Minute : Properties.DateModified.Minute.ToString())}:{(Properties.DateModified.Second < 10 ? "0" + Properties.DateModified.Second : Properties.DateModified.Second.ToString())}";
         }
 
         public static async Task<BitmapImage> GetThumbnailBitmapAsync(this IStorageItem Item)
@@ -2027,35 +2027,39 @@ namespace FileManager
             {
                 if (Item is StorageFolder Folder)
                 {
-                    var Thumbnail = await Folder.GetThumbnailAsync(ThumbnailMode.ListView, 100);
-                    if (Thumbnail == null)
+                    using (StorageItemThumbnail Thumbnail = await Folder.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 100))
                     {
-                        return null;
-                    }
+                        if (Thumbnail == null || Thumbnail.Size == 0 || Thumbnail.OriginalHeight == 0 || Thumbnail.OriginalWidth == 0)
+                        {
+                            return null;
+                        }
 
-                    BitmapImage bitmapImage = new BitmapImage
-                    {
-                        DecodePixelHeight = 100,
-                        DecodePixelWidth = 100
-                    };
-                    await bitmapImage.SetSourceAsync(Thumbnail);
-                    return bitmapImage;
+                        BitmapImage bitmapImage = new BitmapImage
+                        {
+                            DecodePixelHeight = 100,
+                            DecodePixelWidth = 100
+                        };
+                        await bitmapImage.SetSourceAsync(Thumbnail);
+                        return bitmapImage;
+                    }
                 }
                 else if (Item is StorageFile File)
                 {
-                    var Thumbnail = await File.GetThumbnailAsync(ThumbnailMode.ListView, 100);
-                    if (Thumbnail == null)
+                    using (StorageItemThumbnail Thumbnail = await File.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 100))
                     {
-                        return null;
-                    }
+                        if (Thumbnail == null)
+                        {
+                            return null;
+                        }
 
-                    BitmapImage bitmapImage = new BitmapImage
-                    {
-                        DecodePixelHeight = 100,
-                        DecodePixelWidth = 100
-                    };
-                    await bitmapImage.SetSourceAsync(Thumbnail);
-                    return bitmapImage;
+                        BitmapImage bitmapImage = new BitmapImage
+                        {
+                            DecodePixelHeight = 100,
+                            DecodePixelWidth = 100
+                        };
+                        await bitmapImage.SetSourceAsync(Thumbnail);
+                        return bitmapImage;
+                    }
                 }
                 else
                 {
@@ -3170,6 +3174,7 @@ namespace FileManager
         public QueueContentDialog()
         {
             Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush;
+            //RequestedTheme = ElementTheme.Light;
         }
     }
     #endregion
@@ -3789,7 +3794,7 @@ namespace FileManager
                             {
                                 SequenceNumber = 0
                             };
-                            data.Values["ProgressValue"] = Math.Round(CurrentValue / 100, 2, MidpointRounding.AwayFromZero).ToString();
+                            data.Values["ProgressValue"] = (Math.Ceiling(CurrentValue) / 100).ToString();
                             data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
 
                             ToastNotificationManager.CreateToastNotifier().Update(data, Tag);

@@ -1,0 +1,67 @@
+﻿<local:QueueContentDialog
+    x:Class="FileManager.VideoMergeDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FileManager"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="合并"
+    PrimaryButtonText="确定"
+    SecondaryButtonText="取消"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+
+    <StackPanel>
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Center">
+            <StackPanel>
+                <Image Width="100"
+                       Height="70"
+                       Name="SourceThumbnail"
+                       Stretch="UniformToFill" />
+                <TextBlock x:Name="SourceFileName"
+                           Width="100"
+                           TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+            <StackPanel VerticalAlignment="Center"
+                        Margin="10,-10,10,0">
+                <TextBlock Text="合并"
+                           TextAlignment="Center"/>
+                <TextBlock Text="→→→→→→"
+                           TextAlignment="Center"
+                           Margin="0,-10,0,0"
+                           FontSize="18" />
+            </StackPanel>
+            <StackPanel>
+                <Button Content="选取片段"
+                        FontSize="16"
+                        Width="100"
+                        Height="70"
+                        Name="SelectClipButton"
+                        Click="SelectClipButton_Click"/>
+                <Image Width="100"
+                       Height="70"
+                       Name="ClipThumbnail"
+                       Stretch="UniformToFill" 
+                       Visibility="Collapsed"/>
+                <TextBlock TextTrimming="CharacterEllipsis"
+                           Width="100"
+                           Name="ClipName"/>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel Margin="0,10,0,0">
+            <TextBlock Text="输出编码配置"
+                       FontSize="16"/>
+            <ComboBox Width="200"
+                      Margin="0,5,0,0"
+                      Name="EncodingProfile" />
+        </StackPanel>
+        <StackPanel Margin="0,10,0,0">
+            <TextBlock Text="输出质量"
+                       FontSize="16" />
+            <ComboBox Width="200"
+                      Margin="0,5,0,0"
+                      Name="EncodingQuality" />
+        </StackPanel>
+    </StackPanel>
+</local:QueueContentDialog>

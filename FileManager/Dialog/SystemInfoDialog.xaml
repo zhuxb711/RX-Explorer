@@ -7,8 +7,7 @@
                           mc:Ignorable="d"
                           Title="系统信息"
                           CloseButtonText="关闭"
-                          x:Uid="SystemInfoDialog"
-                          Background="{StaticResource DialogAcrylicBrush}">
+                          x:Uid="SystemInfoDialog">
 
     <Grid>
         <ScrollViewer VerticalScrollMode="Enabled"

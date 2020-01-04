@@ -161,6 +161,9 @@
     <Compile Include="Dialog\VideoEditDialog.xaml.cs">
       <DependentUpon>VideoEditDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\VideoMergeDialog.xaml.cs">
+      <DependentUpon>VideoMergeDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\WhatIsNew.xaml.cs">
       <DependentUpon>WhatIsNew.xaml</DependentUpon>
     </Compile>
@@ -425,6 +428,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\VideoEditDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\VideoMergeDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

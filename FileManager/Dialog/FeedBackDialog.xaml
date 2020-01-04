@@ -10,7 +10,6 @@
     x:Uid="FeedBackDialog"
     PrimaryButtonText="提交"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
-    Background="{StaticResource DialogAcrylicBrush}"
     CloseButtonText="取消">
 
     <Grid>

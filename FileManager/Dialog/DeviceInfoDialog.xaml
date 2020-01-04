@@ -7,8 +7,7 @@
                           xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
                           mc:Ignorable="d"
                           x:Uid="DeviceDialog"
-                          CloseButtonText="确定"
-                          Background="{StaticResource DialogAcrylicBrush}">
+                          CloseButtonText="确定">
 
     <local:QueueContentDialog.Resources>
         <Storyboard x:Name="Animation">

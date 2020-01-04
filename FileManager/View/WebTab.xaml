@@ -32,7 +32,7 @@
                 Margin="-1,0,0,0"
                 BorderThickness="1"
                 Background="Transparent"
-                Style="{StaticResource ButtonRevealStyle}" Click="AddTabButtonUpper_Click">
+                Style="{ThemeResource ButtonRevealStyle}" Click="AddTabButtonUpper_Click">
                 <Viewbox MaxWidth="18" MaxHeight="18">
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE710;" />
                 </Viewbox>

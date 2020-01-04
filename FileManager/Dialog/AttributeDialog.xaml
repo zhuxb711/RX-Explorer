@@ -9,8 +9,7 @@
     x:Uid="AttributeDialog"
     Title="属性"
     CloseButtonText="确定"
-    CloseButtonClick="QueueContentDialog_CloseButtonClick"
-    Background="{StaticResource DialogAcrylicBrush}">
+    CloseButtonClick="QueueContentDialog_CloseButtonClick">
 
     <Grid>
         <StackPanel Orientation="Horizontal">

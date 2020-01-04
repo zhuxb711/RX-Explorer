@@ -152,7 +152,7 @@
                    Name="SettingPane"
                    PaneOpening="SettingPane_PaneOpening"
                    PaneClosing="SettingPane_PaneClosing"
-                   PaneBackground="{StaticResource SystemControlAcrylicElementMediumHighBrush}">
+                   PaneBackground="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
             <SplitView.Pane>
                 <StackPanel Padding="20">
                     <TextBlock FontSize="24"

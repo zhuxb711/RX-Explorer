@@ -10,8 +10,7 @@
     Title="重命名"
     CloseButtonText="取消"
     PrimaryButtonText="确定"
-    PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick"
-    Background="{StaticResource DialogAcrylicBrush}">
+    PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
     <Grid>
         <StackPanel Orientation="Vertical">
