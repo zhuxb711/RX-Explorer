@@ -41,68 +41,49 @@ namespace FileManager
 
         private async void OnFirstLoad()
         {
-            if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
-            {
-                if (Enable)
-                {
-                    Gr.ColumnDefinitions[0].Width = new GridLength(300);
-                }
-                else
-                {
-                    Gr.ColumnDefinitions[0].Width = new GridLength(0);
-                }
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
-            }
-
-            await foreach (var Item in SQLite.Current.GetQuickStartItemAsync())
-            {
-                if (Item.Key == QuickStartType.Application)
-                {
-                    QuickStartList.Add(Item.Value);
-                }
-                else
-                {
-                    HotWebList.Add(Item.Value);
-                }
-            }
-
-            QuickStartList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
-            HotWebList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
-
             try
             {
-                if (ApplicationData.Current.LocalSettings.Values["UserDefineDownloadPath"] is string UserDefinePath)
+                if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
                 {
-                    try
+                    if (Enable)
                     {
-                        StorageFolder DownloadFolder = await StorageFolder.GetFolderFromPathAsync(UserDefinePath);
-                        LibraryFolderList.Add(new LibraryFolder(DownloadFolder, await DownloadFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                        Gr.ColumnDefinitions[0].Width = new GridLength(300);
                     }
-                    catch(FileNotFoundException)
+                    else
                     {
-                        UserFolderDialog Dialog = new UserFolderDialog(Globalization.Language == LanguageEnum.Chinese ? "下载" : "Downloads");
-                        if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
-                        {
-                            LibraryFolderList.Add(new LibraryFolder(Dialog.MissingFolder, await Dialog.MissingFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-                            ApplicationData.Current.LocalSettings.Values["UserDefineDownloadPath"] = Dialog.MissingFolder.Path;
-                        }
+                        Gr.ColumnDefinitions[0].Width = new GridLength(0);
                     }
                 }
                 else
                 {
-                    string UserPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-                    if (!string.IsNullOrEmpty(UserPath))
-                    {
-                        StorageFolder CurrentFolder = await StorageFolder.GetFolderFromPathAsync(UserPath);
+                    ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
+                }
 
-                        if ((await CurrentFolder.TryGetItemAsync("Downloads")) is StorageFolder DownloadFolder)
+                await foreach (var Item in SQLite.Current.GetQuickStartItemAsync())
+                {
+                    if (Item.Key == QuickStartType.Application)
+                    {
+                        QuickStartList.Add(Item.Value);
+                    }
+                    else
+                    {
+                        HotWebList.Add(Item.Value);
+                    }
+                }
+
+                QuickStartList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
+                HotWebList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
+
+                try
+                {
+                    if (ApplicationData.Current.LocalSettings.Values["UserDefineDownloadPath"] is string UserDefinePath)
+                    {
+                        try
                         {
+                            StorageFolder DownloadFolder = await StorageFolder.GetFolderFromPathAsync(UserDefinePath);
                             LibraryFolderList.Add(new LibraryFolder(DownloadFolder, await DownloadFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
                         }
-                        else
+                        catch (FileNotFoundException)
                         {
                             UserFolderDialog Dialog = new UserFolderDialog(Globalization.Language == LanguageEnum.Chinese ? "下载" : "Downloads");
                             if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
@@ -112,149 +93,190 @@ namespace FileManager
                             }
                         }
                     }
-                }
-
-                string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-                if (!string.IsNullOrEmpty(DesktopPath))
-                {
-                    StorageFolder DesktopFolder = await StorageFolder.GetFolderFromPathAsync(DesktopPath);
-                    LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-                }
-
-                string VideoPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
-                if (!string.IsNullOrEmpty(VideoPath))
-                {
-                    StorageFolder VideoFolder = await StorageFolder.GetFolderFromPathAsync(VideoPath);
-                    LibraryFolderList.Add(new LibraryFolder(VideoFolder, await VideoFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-                }
-
-                string PicturePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                if (!string.IsNullOrEmpty(PicturePath))
-                {
-                    StorageFolder PictureFolder = await StorageFolder.GetFolderFromPathAsync(PicturePath);
-                    LibraryFolderList.Add(new LibraryFolder(PictureFolder, await PictureFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-                }
-
-                string DocumentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                if (!string.IsNullOrEmpty(DocumentPath))
-                {
-                    StorageFolder DocumentFolder = await StorageFolder.GetFolderFromPathAsync(DocumentPath);
-                    LibraryFolderList.Add(new LibraryFolder(DocumentFolder, await DocumentFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-                }
-
-                string MusicPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-                if (!string.IsNullOrEmpty(MusicPath))
-                {
-                    StorageFolder MusicFolder = await StorageFolder.GetFolderFromPathAsync(MusicPath);
-                    LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
-                }
-            }
-            catch (Exception)
-            {
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    else
                     {
-                        Title = "Opoos...",
-                        Content = "由于某些无法预料的原因，无法导入库文件夹",
-                        CloseButtonText = "确定"
-                    };
-                    _ = await Dialog.ShowAsync();
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                        string UserPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                        if (!string.IsNullOrEmpty(UserPath))
+                        {
+                            StorageFolder CurrentFolder = await StorageFolder.GetFolderFromPathAsync(UserPath);
+
+                            if ((await CurrentFolder.TryGetItemAsync("Downloads")) is StorageFolder DownloadFolder)
+                            {
+                                LibraryFolderList.Add(new LibraryFolder(DownloadFolder, await DownloadFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                            }
+                            else
+                            {
+                                UserFolderDialog Dialog = new UserFolderDialog(Globalization.Language == LanguageEnum.Chinese ? "下载" : "Downloads");
+                                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                                {
+                                    LibraryFolderList.Add(new LibraryFolder(Dialog.MissingFolder, await Dialog.MissingFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                                    ApplicationData.Current.LocalSettings.Values["UserDefineDownloadPath"] = Dialog.MissingFolder.Path;
+                                }
+                            }
+                        }
+                    }
+
+                    string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                    if (!string.IsNullOrEmpty(DesktopPath))
                     {
-                        Title = "Opoos...",
-                        Content = "Unable to import library folder for some unforeseen reasons",
-                        CloseButtonText = "Got it"
-                    };
-                    _ = await Dialog.ShowAsync();
-                }
-            }
+                        StorageFolder DesktopFolder = await StorageFolder.GetFolderFromPathAsync(DesktopPath);
+                        LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                    }
 
-            Queue<string> ErrorList = new Queue<string>();
-            await foreach (var FolderPath in SQLite.Current.GetFolderLibraryAsync())
-            {
-                try
-                {
-                    StorageFolder PinFile = await StorageFolder.GetFolderFromPathAsync(FolderPath);
-                    BitmapImage Thumbnail = await PinFile.GetThumbnailBitmapAsync();
-                    LibraryFolderList.Add(new LibraryFolder(PinFile, Thumbnail, LibrarySource.UserAdded));
-                }
-                catch (FileNotFoundException)
-                {
-                    ErrorList.Enqueue(FolderPath);
-                    await SQLite.Current.DeleteFolderLibraryAsync(FolderPath);
-                }
-            }
-
-            foreach (string DriveRootPath in DriveInfo.GetDrives()
-                                                      .Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
-                                                      .GroupBy((Item) => Item.RootDirectory.FullName)
-                                                      .Select((Group) => Group.FirstOrDefault().RootDirectory.FullName))
-            {
-                var Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
-                BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-
-                HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
-            }
-
-            if (ErrorList.Count > 0)
-            {
-                string Display = string.Empty;
-                while (ErrorList.Count > 0)
-                {
-                    Display += "   " + ErrorList.Dequeue() + "\r";
-                }
-
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    string VideoPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+                    if (!string.IsNullOrEmpty(VideoPath))
                     {
-                        Title = "警告",
-                        Content = "部分已固定的文件夹已无法找到，将自动移除\r\r"
-                        + "包括：\r" + Display,
-                        CloseButtonText = "知道了"
-                    };
-                    _ = await dialog.ShowAsync();
-                }
-                else
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
+                        StorageFolder VideoFolder = await StorageFolder.GetFolderFromPathAsync(VideoPath);
+                        LibraryFolderList.Add(new LibraryFolder(VideoFolder, await VideoFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                    }
+
+                    string PicturePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+                    if (!string.IsNullOrEmpty(PicturePath))
                     {
-                        Title = "Warning",
-                        Content = "Some of the fixed folders are no longer found and will be automatically removed\r\r"
-                        + "Including：\r" + Display,
-                        CloseButtonText = "Got it"
-                    };
-                    _ = await dialog.ShowAsync();
+                        StorageFolder PictureFolder = await StorageFolder.GetFolderFromPathAsync(PicturePath);
+                        LibraryFolderList.Add(new LibraryFolder(PictureFolder, await PictureFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                    }
+
+                    string DocumentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    if (!string.IsNullOrEmpty(DocumentPath))
+                    {
+                        StorageFolder DocumentFolder = await StorageFolder.GetFolderFromPathAsync(DocumentPath);
+                        LibraryFolderList.Add(new LibraryFolder(DocumentFolder, await DocumentFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                    }
+
+                    string MusicPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+                    if (!string.IsNullOrEmpty(MusicPath))
+                    {
+                        StorageFolder MusicFolder = await StorageFolder.GetFolderFromPathAsync(MusicPath);
+                        LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync(), LibrarySource.SystemBase));
+                    }
+                }
+                catch (Exception)
+                {
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "Opoos...",
+                            Content = "由于某些无法预料的原因，无法导入库文件夹",
+                            CloseButtonText = "确定"
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "Opoos...",
+                            Content = "Unable to import library folder for some unforeseen reasons",
+                            CloseButtonText = "Got it"
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                }
+
+                Queue<string> ErrorList = new Queue<string>();
+                await foreach (var FolderPath in SQLite.Current.GetFolderLibraryAsync())
+                {
+                    try
+                    {
+                        StorageFolder PinFile = await StorageFolder.GetFolderFromPathAsync(FolderPath);
+                        BitmapImage Thumbnail = await PinFile.GetThumbnailBitmapAsync();
+                        LibraryFolderList.Add(new LibraryFolder(PinFile, Thumbnail, LibrarySource.UserAdded));
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        ErrorList.Enqueue(FolderPath);
+                        await SQLite.Current.DeleteFolderLibraryAsync(FolderPath);
+                    }
+                }
+
+                foreach (string DriveRootPath in DriveInfo.GetDrives()
+                                                          .Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                                                          .GroupBy((Item) => Item.RootDirectory.FullName)
+                                                          .Select((Group) => Group.FirstOrDefault().RootDirectory.FullName))
+                {
+                    var Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
+                    BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+
+                    HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
+                }
+
+                if (ErrorList.Count > 0)
+                {
+                    string Display = string.Empty;
+                    while (ErrorList.Count > 0)
+                    {
+                        Display += "   " + ErrorList.Dequeue() + "\r";
+                    }
+
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "警告",
+                            Content = "部分已固定的文件夹已无法找到，将自动移除\r\r"
+                            + "包括：\r" + Display,
+                            CloseButtonText = "知道了"
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "Warning",
+                            Content = "Some of the fixed folders are no longer found and will be automatically removed\r\r"
+                            + "Including：\r" + Display,
+                            CloseButtonText = "Got it"
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                }
+
+                if (MainPage.ThisPage.IsUSBActivate && !string.IsNullOrWhiteSpace(MainPage.ThisPage.ActivateUSBDevicePath))
+                {
+                    MainPage.ThisPage.IsUSBActivate = false;
+                    var HardDevice = HardDeviceList.Where((Device) => Device.Folder.Path == MainPage.ThisPage.ActivateUSBDevicePath).FirstOrDefault();
+                    await Task.Delay(1000);
+                    MainPage.ThisPage.Nav.Navigate(typeof(FileControl), HardDevice.Folder, new DrillInNavigationTransitionInfo());
                 }
             }
-
-            if (MainPage.ThisPage.IsUSBActivate && !string.IsNullOrWhiteSpace(MainPage.ThisPage.ActivateUSBDevicePath))
+            catch (Exception ex)
             {
-                MainPage.ThisPage.IsUSBActivate = false;
-                var HardDevice = HardDeviceList.Where((Device) => Device.Folder.Path == MainPage.ThisPage.ActivateUSBDevicePath).FirstOrDefault();
-                await Task.Delay(1000);
-                MainPage.ThisPage.Nav.Navigate(typeof(FileControl), HardDevice.Folder, new DrillInNavigationTransitionInfo());
+                ExceptionTracer.RequestBlueScreen(ex);
             }
         }
 
         private void DeviceGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Device)
+            try
             {
-                MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Device.Folder, new DrillInNavigationTransitionInfo());
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Device)
+                {
+                    MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Device.Folder, new DrillInNavigationTransitionInfo());
+                }
+            }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
             }
         }
 
         private void LibraryGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Library)
+            try
             {
-                MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Library.Folder, new DrillInNavigationTransitionInfo());
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Library)
+                {
+                    MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Library.Folder, new DrillInNavigationTransitionInfo());
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
             }
         }
 
@@ -275,7 +297,14 @@ namespace FileManager
         {
             if (e.ClickedItem is QuickStartItem Item && Item.ProtocalUri != null)
             {
-                MainPage.ThisPage.Nav.Navigate(typeof(WebTab), Item.ProtocalUri, new DrillInNavigationTransitionInfo());
+                try
+                {
+                    MainPage.ThisPage.Nav.Navigate(typeof(WebTab), Item.ProtocalUri, new DrillInNavigationTransitionInfo());
+                }
+                catch (Exception ex)
+                {
+                    ExceptionTracer.RequestBlueScreen(ex);
+                }
             }
             else
             {
@@ -359,9 +388,16 @@ namespace FileManager
 
         private void OpenDevice_Click(object sender, RoutedEventArgs e)
         {
-            if (DeviceGrid.SelectedItem is HardDeviceInfo Device)
+            try
             {
-                MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Device.Folder, new DrillInNavigationTransitionInfo());
+                if (DeviceGrid.SelectedItem is HardDeviceInfo Device)
+                {
+                    MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Device.Folder, new DrillInNavigationTransitionInfo());
+                }
+            }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
             }
         }
 
@@ -421,17 +457,31 @@ namespace FileManager
 
         private void OpenSystemLibrary_Click(object sender, RoutedEventArgs e)
         {
-            if (LibraryGrid.SelectedItem is LibraryFolder Library)
+            try
             {
-                MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Library.Folder, new DrillInNavigationTransitionInfo());
+                if (LibraryGrid.SelectedItem is LibraryFolder Library)
+                {
+                    MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Library.Folder, new DrillInNavigationTransitionInfo());
+                }
+            }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
             }
         }
 
         private void OpenUserLibrary_Click(object sender, RoutedEventArgs e)
         {
-            if (LibraryGrid.SelectedItem is LibraryFolder Library)
+            try
             {
-                MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Library.Folder, new DrillInNavigationTransitionInfo());
+                if (LibraryGrid.SelectedItem is LibraryFolder Library)
+                {
+                    MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Library.Folder, new DrillInNavigationTransitionInfo());
+                }
+            }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
             }
         }
 
@@ -471,23 +521,37 @@ namespace FileManager
 
         private void DeviceGrid_ItemClick(object sender, ItemClickEventArgs e)
         {
-            if (!SettingPage.IsDoubleClickEnable)
+            try
             {
-                if (e.ClickedItem is HardDeviceInfo Device)
+                if (!SettingPage.IsDoubleClickEnable)
                 {
-                    MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Device.Folder, new DrillInNavigationTransitionInfo());
+                    if (e.ClickedItem is HardDeviceInfo Device)
+                    {
+                        MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Device.Folder, new DrillInNavigationTransitionInfo());
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
             }
         }
 
         private void LibraryGrid_ItemClick(object sender, ItemClickEventArgs e)
         {
-            if (!SettingPage.IsDoubleClickEnable)
+            try
             {
-                if (e.ClickedItem is LibraryFolder Library)
+                if (!SettingPage.IsDoubleClickEnable)
                 {
-                    MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Library.Folder, new DrillInNavigationTransitionInfo());
+                    if (e.ClickedItem is LibraryFolder Library)
+                    {
+                        MainPage.ThisPage.Nav.Navigate(typeof(FileControl), Library.Folder, new DrillInNavigationTransitionInfo());
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
             }
         }
     }

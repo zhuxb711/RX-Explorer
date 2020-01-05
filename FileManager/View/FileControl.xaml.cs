@@ -88,7 +88,14 @@ namespace FileManager
         {
             InitializeComponent();
             ThisPage = this;
-            Nav.Navigate(typeof(FilePresenter), Nav, new DrillInNavigationTransitionInfo());
+            try
+            {
+                Nav.Navigate(typeof(FilePresenter), Nav, new DrillInNavigationTransitionInfo());
+            }
+            catch(Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
+            }
 
             Loaded += FileControl_Loaded;
         }
@@ -97,8 +104,16 @@ namespace FileManager
         {
             InitializeComponent();
             ThisPage = this;
-            Nav.Navigate(typeof(FilePresenter), Nav, new DrillInNavigationTransitionInfo());
-            OpenTargetFolder(Folder);
+
+            try
+            {
+                Nav.Navigate(typeof(FilePresenter), Nav, new DrillInNavigationTransitionInfo());
+                OpenTargetFolder(Folder);
+            }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
+            }
         }
 
         private async void OpenTargetFolder(StorageFolder Folder)
@@ -1003,46 +1018,53 @@ namespace FileManager
 
         private void SearchConfirm_Click(object sender, RoutedEventArgs e)
         {
-            SearchFlyout.Hide();
-
-            if (ApplicationData.Current.LocalSettings.Values["LaunchSearchTips"] == null)
+            try
             {
-                ApplicationData.Current.LocalSettings.Values["LaunchSearchTips"] = true;
-                SearchTip.IsOpen = true;
-            }
+                SearchFlyout.Hide();
 
-            QueryOptions Options;
-            if ((bool)ShallowRadio.IsChecked)
-            {
-                Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
+                if (ApplicationData.Current.LocalSettings.Values["LaunchSearchTips"] == null)
                 {
-                    FolderDepth = FolderDepth.Shallow,
-                    IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-                    ApplicationSearchFilter = "System.FileName:*" + GlobeSearch.Text + "*"
-                };
-            }
-            else
-            {
-                Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
+                    ApplicationData.Current.LocalSettings.Values["LaunchSearchTips"] = true;
+                    SearchTip.IsOpen = true;
+                }
+
+                QueryOptions Options;
+                if ((bool)ShallowRadio.IsChecked)
                 {
-                    FolderDepth = FolderDepth.Deep,
-                    IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-                    ApplicationSearchFilter = "System.FileName:*" + GlobeSearch.Text + "*"
-                };
+                    Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
+                    {
+                        FolderDepth = FolderDepth.Shallow,
+                        IndexerOption = IndexerOption.UseIndexerWhenAvailable,
+                        ApplicationSearchFilter = "System.FileName:*" + GlobeSearch.Text + "*"
+                    };
+                }
+                else
+                {
+                    Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
+                    {
+                        FolderDepth = FolderDepth.Deep,
+                        IndexerOption = IndexerOption.UseIndexerWhenAvailable,
+                        ApplicationSearchFilter = "System.FileName:*" + GlobeSearch.Text + "*"
+                    };
+                }
+
+                Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.ResizeThumbnail);
+                Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.FileName", "System.Size", "System.DateModified" });
+
+                if (Nav.CurrentSourcePageType.Name != "SearchPage")
+                {
+                    StorageItemQueryResult FileQuery = CurrentFolder.CreateItemQueryWithOptions(Options);
+
+                    Nav.Navigate(typeof(SearchPage), FileQuery, new DrillInNavigationTransitionInfo());
+                }
+                else
+                {
+                    SearchPage.ThisPage.SetSearchTarget = Options;
+                }
             }
-
-            Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.ResizeThumbnail);
-            Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.FileName", "System.Size", "System.DateModified" });
-
-            if (Nav.CurrentSourcePageType.Name != "SearchPage")
+            catch (Exception ex)
             {
-                StorageItemQueryResult FileQuery = CurrentFolder.CreateItemQueryWithOptions(Options);
-
-                Nav.Navigate(typeof(SearchPage), FileQuery, new DrillInNavigationTransitionInfo());
-            }
-            else
-            {
-                SearchPage.ThisPage.SetSearchTarget = Options;
+                ExceptionTracer.RequestBlueScreen(ex);
             }
         }
 

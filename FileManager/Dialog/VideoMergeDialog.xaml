@@ -5,29 +5,43 @@
     xmlns:local="using:FileManager"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
+                          xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+                          mc:Ignorable="d"
     Title="合并"
     PrimaryButtonText="确定"
     SecondaryButtonText="取消"
+    x:Uid="MergeDialog"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+
+    <local:QueueContentDialog.Resources>
+        <controls:TeachingTip x:Name="EmptyTip"
+                              PreferredPlacement="TopRight"
+                              IsLightDismissEnabled="True"
+                              Title="提示"
+                              x:Uid="MergeDialogEmptyTip"
+                              Subtitle="必须添加要合并的视频才可以继续"
+                              Target="{x:Bind SelectClipButton}"/>
+    </local:QueueContentDialog.Resources>
 
     <StackPanel>
         <StackPanel Orientation="Horizontal"
                     HorizontalAlignment="Center">
             <StackPanel>
-                <Image Width="100"
-                       Height="70"
+                <Image Width="160"
+                       Height="90"
                        Name="SourceThumbnail"
                        Stretch="UniformToFill" />
                 <TextBlock x:Name="SourceFileName"
-                           Width="100"
+                           Width="160"
                            TextTrimming="CharacterEllipsis"/>
             </StackPanel>
             <StackPanel VerticalAlignment="Center"
                         Margin="10,-10,10,0">
                 <TextBlock Text="合并"
-                           TextAlignment="Center"/>
-                <TextBlock Text="→→→→→→"
+                           TextAlignment="Center"
+                           FontSize="16"
+                           x:Uid="MergeDialogText"/>
+                <TextBlock Text="→→→→→→→→"
                            TextAlignment="Center"
                            Margin="0,-10,0,0"
                            FontSize="18" />
@@ -35,33 +49,39 @@
             <StackPanel>
                 <Button Content="选取片段"
                         FontSize="16"
-                        Width="100"
-                        Height="70"
+                        Width="160"
+                        Height="90"
+                        x:Uid="MergeDialogPickClip"
                         Name="SelectClipButton"
                         Click="SelectClipButton_Click"/>
-                <Image Width="100"
-                       Height="70"
+                <Image Width="160"
+                       Height="90"
                        Name="ClipThumbnail"
                        Stretch="UniformToFill" 
                        Visibility="Collapsed"/>
                 <TextBlock TextTrimming="CharacterEllipsis"
-                           Width="100"
+                           Width="160"
                            Name="ClipName"/>
             </StackPanel>
         </StackPanel>
-        <StackPanel Margin="0,10,0,0">
-            <TextBlock Text="输出编码配置"
-                       FontSize="16"/>
-            <ComboBox Width="200"
-                      Margin="0,5,0,0"
-                      Name="EncodingProfile" />
-        </StackPanel>
-        <StackPanel Margin="0,10,0,0">
-            <TextBlock Text="输出质量"
-                       FontSize="16" />
-            <ComboBox Width="200"
-                      Margin="0,5,0,0"
-                      Name="EncodingQuality" />
+        <StackPanel Orientation="Horizontal"
+                    Margin="0,20,0,0">
+            <StackPanel>
+                <TextBlock Text="输出编码配置"
+                           FontSize="16" 
+                           x:Uid="MergeDialogEncodingProfile"/>
+                <ComboBox Width="200"
+                          Margin="0,5,0,0"
+                          Name="EncodingProfile" />
+            </StackPanel>
+            <StackPanel Margin="65,0,0,0">
+                <TextBlock Text="输出质量"
+                           x:Uid="MergeDialogEncodingQuality"
+                           FontSize="16" />
+                <ComboBox Width="200"
+                          Margin="0,5,0,0"
+                          Name="EncodingQuality" />
+            </StackPanel>
         </StackPanel>
     </StackPanel>
 </local:QueueContentDialog>

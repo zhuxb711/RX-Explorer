@@ -53,6 +53,14 @@
                                     <SymbolIcon Symbol="Cut"/>
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
+                            <MenuFlyoutItem Text="合并"
+                                            Name="VideoMerge"
+                                            Click="VideoMerge_Click"
+                                            x:Uid="VideoMerge">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE71B;"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
                             <MenuFlyoutItem Text="转码"
                                             Name="Transcode"
                                             x:Uid="Transcode"

@@ -79,8 +79,17 @@ namespace FileManager
             {
                 goto FLAG;
             }
-            InitHistoryList();
-            InitializeWebView();
+
+            try
+            {
+                InitHistoryList();
+                InitializeWebView();
+            }
+            catch(Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
+            }
+
             Loaded += WebPage_Loaded;
 
             if (uri != null)

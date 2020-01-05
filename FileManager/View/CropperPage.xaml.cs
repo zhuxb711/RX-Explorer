@@ -46,17 +46,24 @@ namespace FileManager
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            PhotoDisplaySupport Item = e.Parameter as PhotoDisplaySupport;
-            OriginFile = Item.PhotoFile;
-            OriginImage = await Item.GenerateImageWithRotation();
-            OriginBackupImage = SoftwareBitmap.Copy(OriginImage);
+            try
+            {
+                PhotoDisplaySupport Item = e.Parameter as PhotoDisplaySupport;
+                OriginFile = Item.PhotoFile;
+                OriginImage = await Item.GenerateImageWithRotation();
+                OriginBackupImage = SoftwareBitmap.Copy(OriginImage);
 
-            WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
-            OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
-            Cropper.Source = WBitmap;
-            UnchangeRegion = Cropper.CroppedRegion;
+                WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
+                OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
+                Cropper.Source = WBitmap;
+                UnchangeRegion = Cropper.CroppedRegion;
 
-            await AddEffectsToPane();
+                await AddEffectsToPane();
+            }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
+            }
         }
 
         private async Task AddEffectsToPane()

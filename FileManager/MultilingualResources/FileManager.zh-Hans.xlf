@@ -1546,6 +1546,46 @@
           <source>Montage</source>
           <target state="translated">剪辑</target>
         </trans-unit>
+        <trans-unit id="MergeDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="MergeDialog.SecondaryButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="MergeDialog.Title" translate="yes" xml:space="preserve">
+          <source>Merge</source>
+          <target state="translated">合并</target>
+        </trans-unit>
+        <trans-unit id="MergeDialogEmptyTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Video must be added to continue</source>
+          <target state="translated">必须添加要合并的视频才可以继续</target>
+        </trans-unit>
+        <trans-unit id="MergeDialogEmptyTip.Title" translate="yes" xml:space="preserve">
+          <source>Tips</source>
+          <target state="translated">提示</target>
+        </trans-unit>
+        <trans-unit id="MergeDialogEncodingProfile.Text" translate="yes" xml:space="preserve">
+          <source>Encoding config</source>
+          <target state="translated">输出编码配置</target>
+        </trans-unit>
+        <trans-unit id="MergeDialogEncodingQuality.Text" translate="yes" xml:space="preserve">
+          <source>Quality</source>
+          <target state="translated">输出质量</target>
+        </trans-unit>
+        <trans-unit id="MergeDialogPickClip.Content" translate="yes" xml:space="preserve">
+          <source>Select a clip</source>
+          <target state="translated">选择片段</target>
+        </trans-unit>
+        <trans-unit id="MergeDialogText.Text" translate="yes" xml:space="preserve">
+          <source>Merge</source>
+          <target state="translated">合并</target>
+        </trans-unit>
+        <trans-unit id="VideoMerge.Text" translate="yes" xml:space="preserve">
+          <source>Merge</source>
+          <target state="translated">合并</target>
+        </trans-unit>
       </group>
     </body>
   </file>

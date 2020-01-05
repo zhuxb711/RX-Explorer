@@ -80,30 +80,32 @@ namespace FileManager
 
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
-            PortalDeviceWatcher.Added += PortalDeviceWatcher_Added;
-            PortalDeviceWatcher.Removed += PortalDeviceWatcher_Removed;
-            PortalDeviceWatcher.Start();
+            try
+            {
+                PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
+                PortalDeviceWatcher.Added += PortalDeviceWatcher_Added;
+                PortalDeviceWatcher.Removed += PortalDeviceWatcher_Removed;
+                PortalDeviceWatcher.Start();
 
-            if (!(ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is string Mode))
-            {
-                ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = Globalization.Language == LanguageEnum.Chinese
-                            ? "推荐"
-                            : "Recommand";
-            }
+                if (!(ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is string Mode))
+                {
+                    ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = Globalization.Language == LanguageEnum.Chinese
+                                ? "推荐"
+                                : "Recommand";
+                }
 
-            if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)
-            {
-                SettingPage.IsDoubleClickEnable = IsDoubleClick;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = true;
-            }
+                if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)
+                {
+                    SettingPage.IsDoubleClickEnable = IsDoubleClick;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = true;
+                }
 
-            if (Globalization.Language == LanguageEnum.Chinese)
-            {
-                PageDictionary = new Dictionary<Type, string>()
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    PageDictionary = new Dictionary<Type, string>()
                 {
                     {typeof(WebTab), "浏览器"},
                     {typeof(ThisPC),"这台电脑" },
@@ -111,10 +113,10 @@ namespace FileManager
                     {typeof(AboutMe),"这台电脑" },
                     {typeof(SecureArea),"安全域" }
                 };
-            }
-            else
-            {
-                PageDictionary = new Dictionary<Type, string>()
+                }
+                else
+                {
+                    PageDictionary = new Dictionary<Type, string>()
                 {
                     {typeof(WebTab), "Browser"},
                     {typeof(ThisPC),"ThisPC" },
@@ -122,51 +124,57 @@ namespace FileManager
                     {typeof(AboutMe),"ThisPC" },
                     {typeof(SecureArea),"Security Area" }
                 };
-            }
+                }
 
-            Nav.Navigate(typeof(ThisPC));
+                Nav.Navigate(typeof(ThisPC));
 
-            EntranceEffectProvider.AnimationCompleted += (s, t) =>
-            {
-                _ = MySQL.Current.StartConnectToDataBaseAsync();
-            };
-
-            EntranceEffectProvider.StartEntranceEffect();
-
-            var PictureUri = await SQLite.Current.GetBackgroundPictureAsync();
-            var FileList = await (await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists)).GetFilesAsync();
-            foreach (var ToDeletePicture in FileList.Where((File) => PictureUri.All((ImageUri) => ImageUri.ToString().Replace("ms-appdata:///local/CustomImageFolder/", string.Empty) != File.Name)))
-            {
-                await ToDeletePicture.DeleteAsync(StorageDeleteOption.PermanentDelete);
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["LastRunVersion"] is string Version)
-            {
-                var VersionSplit = Version.Split(".").Select((Item) => ushort.Parse(Item));
-                if (VersionSplit.ElementAt(0) < Package.Current.Id.Version.Major || VersionSplit.ElementAt(1) < Package.Current.Id.Version.Minor || VersionSplit.ElementAt(2) < Package.Current.Id.Version.Build || VersionSplit.ElementAt(3) < Package.Current.Id.Version.Revision)
+                EntranceEffectProvider.AnimationCompleted += (s, t) =>
                 {
+                    _ = MySQL.Current.StartConnectToDataBaseAsync();
+                };
+
+                EntranceEffectProvider.StartEntranceEffect();
+
+                var PictureUri = await SQLite.Current.GetBackgroundPictureAsync();
+                var FileList = await (await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists)).GetFilesAsync();
+                foreach (var ToDeletePicture in FileList.Where((File) => PictureUri.All((ImageUri) => ImageUri.ToString().Replace("ms-appdata:///local/CustomImageFolder/", string.Empty) != File.Name)))
+                {
+                    await ToDeletePicture.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["LastRunVersion"] is string Version)
+                {
+                    var VersionSplit = Version.Split(".").Select((Item) => ushort.Parse(Item));
+                    if (VersionSplit.ElementAt(0) < Package.Current.Id.Version.Major || VersionSplit.ElementAt(1) < Package.Current.Id.Version.Minor || VersionSplit.ElementAt(2) < Package.Current.Id.Version.Build || VersionSplit.ElementAt(3) < Package.Current.Id.Version.Revision)
+                    {
+                        WhatIsNew Dialog = new WhatIsNew();
+                        await Task.Delay(2000);
+                        _ = await Dialog.ShowAsync();
+
+                        ApplicationData.Current.LocalSettings.Values["LastRunVersion"] = string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
+                    }
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["LastRunVersion"] = string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
                     WhatIsNew Dialog = new WhatIsNew();
                     await Task.Delay(2000);
                     _ = await Dialog.ShowAsync();
-
-                    ApplicationData.Current.LocalSettings.Values["LastRunVersion"] = string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
                 }
+
+                await RegisterBackgroundTask();
+
+                await DonateDeveloper();
+
+                await Task.Delay(10000);
+
+                await PinApplicationToTaskBar();
+
             }
-            else
+            catch (Exception ex)
             {
-                ApplicationData.Current.LocalSettings.Values["LastRunVersion"] = string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
-                WhatIsNew Dialog = new WhatIsNew();
-                await Task.Delay(2000);
-                _ = await Dialog.ShowAsync();
-            }
-
-            await RegisterBackgroundTask();
-
-            await DonateDeveloper();
-
-            await Task.Delay(10000);
-
-            await PinApplicationToTaskBar();
+                ExceptionTracer.RequestBlueScreen(ex);
+            }   
         }
 
         private async Task RegisterBackgroundTask()
@@ -636,49 +644,56 @@ namespace FileManager
 
         private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
-            LastPageName = Nav.CurrentSourcePageType == null ? nameof(ThisPC) : Nav.CurrentSourcePageType.Name;
+            try
+            {
+                LastPageName = Nav.CurrentSourcePageType == null ? nameof(ThisPC) : Nav.CurrentSourcePageType.Name;
 
-            if (args.IsSettingsInvoked)
-            {
-                Nav.Navigate(typeof(SettingPage), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
-            }
-            else
-            {
-                switch (args.InvokedItem.ToString())
+                if (args.IsSettingsInvoked)
                 {
-                    case "这台电脑":
-                    case "ThisPC":
-                        {
-                            Nav.Navigate(typeof(ThisPC), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
-                            break;
-                        }
-                    case "浏览器":
-                    case "Browser":
-                        {
-                            if (LastPageName == nameof(SecureArea) || LastPageName == nameof(SettingPage))
-                            {
-                                Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
-                            }
-                            else
-                            {
-                                Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
-                            }
-                            break;
-                        }
-                    case "安全域":
-                    case "Security Area":
-                        {
-                            if (LastPageName == nameof(SettingPage))
-                            {
-                                Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
-                            }
-                            else
-                            {
-                                Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
-                            }
-                            break;
-                        }
+                    Nav.Navigate(typeof(SettingPage), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
                 }
+                else
+                {
+                    switch (args.InvokedItem.ToString())
+                    {
+                        case "这台电脑":
+                        case "ThisPC":
+                            {
+                                Nav.Navigate(typeof(ThisPC), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                                break;
+                            }
+                        case "浏览器":
+                        case "Browser":
+                            {
+                                if (LastPageName == nameof(SecureArea) || LastPageName == nameof(SettingPage))
+                                {
+                                    Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                                }
+                                else
+                                {
+                                    Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+                                }
+                                break;
+                            }
+                        case "安全域":
+                        case "Security Area":
+                            {
+                                if (LastPageName == nameof(SettingPage))
+                                {
+                                    Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                                }
+                                else
+                                {
+                                    Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+                                }
+                                break;
+                            }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
             }
         }
 

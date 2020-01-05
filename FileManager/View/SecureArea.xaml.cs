@@ -49,181 +49,188 @@ namespace FileManager
 
         private async void SecureArea_Loaded(object sender, RoutedEventArgs e)
         {
-            if (ApplicationData.Current.LocalSettings.Values.ContainsKey("IsFirstEnterSecureArea"))
+            try
             {
-                UnlockPassword = CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword");
-                FileEncryptionAesKey = KeyGenerator.GetMD5FromKey(UnlockPassword, 16);
-                AESKeySize = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"]);
-
-                if (!(ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] is string LockMode) || LockMode != nameof(CloseLockMode) || IsNewStart)
+                if (ApplicationData.Current.LocalSettings.Values.ContainsKey("IsFirstEnterSecureArea"))
                 {
-                    if (Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"]))
-                    {
-                    RETRY:
-                        switch (await WindowsHelloAuthenticator.VerifyUserAsync())
-                        {
-                            case AuthenticatorState.VerifyPassed:
-                                {
-                                    break;
-                                }
-                            case AuthenticatorState.UnknownError:
-                            case AuthenticatorState.VerifyFailed:
-                                {
-                                    QueueContentDialog Dialog;
-                                    if (Globalization.Language == LanguageEnum.Chinese)
-                                    {
-                                        Dialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "Windows Hello认证不通过，您无进入安全域的权限",
-                                            PrimaryButtonText = "再次尝试",
-                                            SecondaryButtonText = "使用密码",
-                                            CloseButtonText = "返回"
-                                        };
-                                    }
-                                    else
-                                    {
-                                        Dialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "Windows Hello authentication failed, you do not have permission to enter the Security Area",
-                                            PrimaryButtonText = "Try again",
-                                            SecondaryButtonText = "Use password",
-                                            CloseButtonText = "Go back"
-                                        };
-                                    }
-
-                                    ContentDialogResult Result = await Dialog.ShowAsync();
-
-                                    if (Result == ContentDialogResult.Primary)
-                                    {
-                                        goto RETRY;
-                                    }
-                                    else if (Result == ContentDialogResult.Secondary)
-                                    {
-                                        if (!await EnterByPassword())
-                                        {
-                                            return;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        GoBack();
-                                        return;
-                                    }
-                                    break;
-                                }
-                            case AuthenticatorState.UserNotRegistered:
-                            case AuthenticatorState.CredentialNotFound:
-                                {
-                                    if (Globalization.Language == LanguageEnum.Chinese)
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "Windows Hello认证凭据丢失，无法使用Windows Hello，请使用密码进入\r\r您可以在重新进入安全域后，进入设置重新注册Windows Hello",
-                                            CloseButtonText = "确定"
-                                        };
-                                        _ = await Dialog.ShowAsync();
-                                    }
-                                    else
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "Windows Hello authentication credentials are lost, you cannot use Windows Hello, please use the password to enter \r \rAfter you re-enter the security domain, enter settings to re-register Windows Hello",
-                                            CloseButtonText = "Confirm"
-                                        };
-                                        _ = await Dialog.ShowAsync();
-                                    }
-
-                                    ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
-
-                                    if (!await EnterByPassword())
-                                    {
-                                        return;
-                                    }
-                                    break;
-                                }
-                            case AuthenticatorState.WindowsHelloUnsupport:
-                                {
-                                    QueueContentDialog Dialog;
-                                    if (Globalization.Language == LanguageEnum.Chinese)
-                                    {
-                                        Dialog = new QueueContentDialog
-                                        {
-                                            Title = "警告",
-                                            Content = "Windows Hello已被禁用，无法通过Windows Hello进入安全域",
-                                            PrimaryButtonText = "使用密码",
-                                            CloseButtonText = "返回"
-                                        };
-                                    }
-                                    else
-                                    {
-                                        Dialog = new QueueContentDialog
-                                        {
-                                            Title = "Warning",
-                                            Content = "Windows Hello is disabled and cannot enter the Security Area through Windows Hello",
-                                            PrimaryButtonText = "Use password",
-                                            CloseButtonText = "Go back"
-                                        };
-                                    }
-
-                                    ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
-
-                                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
-                                    {
-                                        if (!await EnterByPassword())
-                                        {
-                                            return;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        GoBack();
-                                        return;
-                                    }
-                                    break;
-                                }
-                        }
-                    }
-                    else
-                    {
-                        if (!await EnterByPassword())
-                        {
-                            return;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                SecureAreaWelcomeDialog Dialog = new SecureAreaWelcomeDialog();
-                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
-                {
-                    AESKeySize = Dialog.AESKeySize;
-                    UnlockPassword = Dialog.Password;
+                    UnlockPassword = CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword");
                     FileEncryptionAesKey = KeyGenerator.GetMD5FromKey(UnlockPassword, 16);
-                    CredentialProtector.RequestProtectPassword("SecureAreaPrimaryPassword", UnlockPassword);
+                    AESKeySize = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"]);
 
-                    ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] = Dialog.AESKeySize;
-                    ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = Dialog.IsEnableWindowsHello;
-                    ApplicationData.Current.LocalSettings.Values["IsFirstEnterSecureArea"] = false;
+                    if (!(ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] is string LockMode) || LockMode != nameof(CloseLockMode) || IsNewStart)
+                    {
+                        if (Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"]))
+                        {
+                        RETRY:
+                            switch (await WindowsHelloAuthenticator.VerifyUserAsync())
+                            {
+                                case AuthenticatorState.VerifyPassed:
+                                    {
+                                        break;
+                                    }
+                                case AuthenticatorState.UnknownError:
+                                case AuthenticatorState.VerifyFailed:
+                                    {
+                                        QueueContentDialog Dialog;
+                                        if (Globalization.Language == LanguageEnum.Chinese)
+                                        {
+                                            Dialog = new QueueContentDialog
+                                            {
+                                                Title = "错误",
+                                                Content = "Windows Hello认证不通过，您无进入安全域的权限",
+                                                PrimaryButtonText = "再次尝试",
+                                                SecondaryButtonText = "使用密码",
+                                                CloseButtonText = "返回"
+                                            };
+                                        }
+                                        else
+                                        {
+                                            Dialog = new QueueContentDialog
+                                            {
+                                                Title = "Error",
+                                                Content = "Windows Hello authentication failed, you do not have permission to enter the Security Area",
+                                                PrimaryButtonText = "Try again",
+                                                SecondaryButtonText = "Use password",
+                                                CloseButtonText = "Go back"
+                                            };
+                                        }
+
+                                        ContentDialogResult Result = await Dialog.ShowAsync();
+
+                                        if (Result == ContentDialogResult.Primary)
+                                        {
+                                            goto RETRY;
+                                        }
+                                        else if (Result == ContentDialogResult.Secondary)
+                                        {
+                                            if (!await EnterByPassword())
+                                            {
+                                                return;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            GoBack();
+                                            return;
+                                        }
+                                        break;
+                                    }
+                                case AuthenticatorState.UserNotRegistered:
+                                case AuthenticatorState.CredentialNotFound:
+                                    {
+                                        if (Globalization.Language == LanguageEnum.Chinese)
+                                        {
+                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            {
+                                                Title = "错误",
+                                                Content = "Windows Hello认证凭据丢失，无法使用Windows Hello，请使用密码进入\r\r您可以在重新进入安全域后，进入设置重新注册Windows Hello",
+                                                CloseButtonText = "确定"
+                                            };
+                                            _ = await Dialog.ShowAsync();
+                                        }
+                                        else
+                                        {
+                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            {
+                                                Title = "Error",
+                                                Content = "Windows Hello authentication credentials are lost, you cannot use Windows Hello, please use the password to enter \r \rAfter you re-enter the security domain, enter settings to re-register Windows Hello",
+                                                CloseButtonText = "Confirm"
+                                            };
+                                            _ = await Dialog.ShowAsync();
+                                        }
+
+                                        ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
+
+                                        if (!await EnterByPassword())
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                    }
+                                case AuthenticatorState.WindowsHelloUnsupport:
+                                    {
+                                        QueueContentDialog Dialog;
+                                        if (Globalization.Language == LanguageEnum.Chinese)
+                                        {
+                                            Dialog = new QueueContentDialog
+                                            {
+                                                Title = "警告",
+                                                Content = "Windows Hello已被禁用，无法通过Windows Hello进入安全域",
+                                                PrimaryButtonText = "使用密码",
+                                                CloseButtonText = "返回"
+                                            };
+                                        }
+                                        else
+                                        {
+                                            Dialog = new QueueContentDialog
+                                            {
+                                                Title = "Warning",
+                                                Content = "Windows Hello is disabled and cannot enter the Security Area through Windows Hello",
+                                                PrimaryButtonText = "Use password",
+                                                CloseButtonText = "Go back"
+                                            };
+                                        }
+
+                                        ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
+
+                                        if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                                        {
+                                            if (!await EnterByPassword())
+                                            {
+                                                return;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            GoBack();
+                                            return;
+                                        }
+                                        break;
+                                    }
+                            }
+                        }
+                        else
+                        {
+                            if (!await EnterByPassword())
+                            {
+                                return;
+                            }
+                        }
+                    }
                 }
                 else
                 {
-                    if (Dialog.IsEnableWindowsHello)
+                    SecureAreaWelcomeDialog Dialog = new SecureAreaWelcomeDialog();
+                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
-                        await WindowsHelloAuthenticator.DeleteUserAsync();
+                        AESKeySize = Dialog.AESKeySize;
+                        UnlockPassword = Dialog.Password;
+                        FileEncryptionAesKey = KeyGenerator.GetMD5FromKey(UnlockPassword, 16);
+                        CredentialProtector.RequestProtectPassword("SecureAreaPrimaryPassword", UnlockPassword);
+
+                        ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] = Dialog.AESKeySize;
+                        ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = Dialog.IsEnableWindowsHello;
+                        ApplicationData.Current.LocalSettings.Values["IsFirstEnterSecureArea"] = false;
                     }
+                    else
+                    {
+                        if (Dialog.IsEnableWindowsHello)
+                        {
+                            await WindowsHelloAuthenticator.DeleteUserAsync();
+                        }
 
-                    GoBack();
+                        GoBack();
 
-                    return;
+                        return;
+                    }
                 }
-            }
 
-            await StartLoadFile();
+                await StartLoadFile();
+            }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
+            }
         }
 
         private async Task<bool> EnterByPassword()
@@ -242,23 +249,30 @@ namespace FileManager
 
         private void GoBack()
         {
-            switch (MainPage.ThisPage.LastPageName)
+            try
             {
-                case nameof(WebTab):
-                    {
-                        MainPage.ThisPage.Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
-                        break;
-                    }
-                case nameof(SettingPage):
-                    {
-                        MainPage.ThisPage.Nav.Navigate(typeof(SettingPage), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
-                        break;
-                    }
-                default:
-                    {
-                        MainPage.ThisPage.Nav.Navigate(typeof(ThisPC), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
-                        break;
-                    }
+                switch (MainPage.ThisPage.LastPageName)
+                {
+                    case nameof(WebTab):
+                        {
+                            MainPage.ThisPage.Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                            break;
+                        }
+                    case nameof(SettingPage):
+                        {
+                            MainPage.ThisPage.Nav.Navigate(typeof(SettingPage), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+                            break;
+                        }
+                    default:
+                        {
+                            MainPage.ThisPage.Nav.Navigate(typeof(ThisPC), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                            break;
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
             }
         }
 

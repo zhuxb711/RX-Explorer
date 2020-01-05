@@ -11,15 +11,15 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
             <RowDefinition Height="50" />
-            <RowDefinition Height="150" />
+            <RowDefinition Height="120" />
             <RowDefinition Height="40" />
-            <RowDefinition Height="80" />
+            <RowDefinition Height="55" />
             <RowDefinition />
             <RowDefinition Height="100" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="100" />
-            <ColumnDefinition Width="150" />
+            <ColumnDefinition Width="100" />
             <ColumnDefinition Width="289*" />
             <ColumnDefinition Width="21*" />
         </Grid.ColumnDefinitions>
@@ -29,26 +29,26 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch" />
         <TextBlock Text="):"
-                   FontSize="90"
+                   FontSize="70"
                    Grid.Column="1"
                    Grid.Row="2" />
         <TextBlock Grid.Column="2"
                    Grid.Row="2"
                    Text="Oops..."
-                   FontSize="90" />
+                   FontSize="70" />
         <TextBlock x:Uid="CrashText"
                    Grid.Row="4"
                    Grid.Column="1"
                    Grid.ColumnSpan="2"
                    Text="RX不小心崩溃了...(￣▽￣)/"
-                   FontSize="50" />
+                   FontSize="40" />
         <ScrollViewer Grid.Row="5"
                       Grid.Column="1"
                       Grid.ColumnSpan="2"
                       VerticalScrollMode="Enabled"
                       VerticalScrollBarVisibility="Visible"
                       IsVerticalScrollChainingEnabled="True">
-            <TextBlock FontSize="25"
+            <TextBlock FontSize="20"
                        Name="Message"
                        TextTrimming="CharacterEllipsis"
                        TextWrapping="Wrap" />

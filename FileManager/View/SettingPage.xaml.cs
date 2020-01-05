@@ -93,43 +93,58 @@ namespace FileManager
             {
                 FolderOpenMethod.IsOn = IsDoubleClick;
             }
+
+            if (AppThemeController.Current.Theme == ElementTheme.Light)
+            {
+                CustomFontColor.IsOn = true;
+            }
         }
 
         private async void SettingPage_Loaded(object sender, RoutedEventArgs e)
         {
             Loaded -= SettingPage_Loaded;
 
-            if ((await User.FindAllAsync()).Where(p => p.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && p.Type == UserType.LocalUser).FirstOrDefault() is User CurrentUser)
+            try
             {
-                string FirstName = (await CurrentUser.GetPropertyAsync(KnownUserProperties.FirstName))?.ToString();
-                string LastName = (await CurrentUser.GetPropertyAsync(KnownUserProperties.LastName))?.ToString();
-                UserID = (await CurrentUser.GetPropertyAsync(KnownUserProperties.AccountName))?.ToString();
-                if (string.IsNullOrEmpty(UserID))
+                if ((await User.FindAllAsync()).Where(p => p.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && p.Type == UserType.LocalUser).FirstOrDefault() is User CurrentUser)
                 {
-                    var Token = HardwareIdentification.GetPackageSpecificToken(null);
-                    HashAlgorithmProvider md5 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
-                    IBuffer hashedData = md5.HashData(Token.Id);
-                    UserID = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
-                }
-
-                if (!(string.IsNullOrEmpty(FirstName) || string.IsNullOrEmpty(LastName)))
-                {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    string FirstName = (await CurrentUser.GetPropertyAsync(KnownUserProperties.FirstName))?.ToString();
+                    string LastName = (await CurrentUser.GetPropertyAsync(KnownUserProperties.LastName))?.ToString();
+                    UserID = (await CurrentUser.GetPropertyAsync(KnownUserProperties.AccountName))?.ToString();
+                    if (string.IsNullOrEmpty(UserID))
                     {
-                        UserFullName = $"{LastName} {FirstName}";
+                        var Token = HardwareIdentification.GetPackageSpecificToken(null);
+                        HashAlgorithmProvider md5 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
+                        IBuffer hashedData = md5.HashData(Token.Id);
+                        UserID = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
+                    }
+
+                    if (!(string.IsNullOrEmpty(FirstName) || string.IsNullOrEmpty(LastName)))
+                    {
+                        if (Globalization.Language == LanguageEnum.Chinese)
+                        {
+                            UserFullName = $"{LastName} {FirstName}";
+                        }
+                        else
+                        {
+                            UserFullName = $"{FirstName} {LastName}";
+                        }
+                    }
+                    else if (!string.IsNullOrEmpty(FirstName))
+                    {
+                        UserFullName = FirstName;
+                    }
+                    else if (!string.IsNullOrEmpty(LastName))
+                    {
+                        UserFullName = LastName;
                     }
                     else
                     {
-                        UserFullName = $"{FirstName} {LastName}";
+                        var Token = HardwareIdentification.GetPackageSpecificToken(null);
+                        HashAlgorithmProvider md5 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
+                        IBuffer hashedData = md5.HashData(Token.Id);
+                        UserFullName = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
                     }
-                }
-                else if (!string.IsNullOrEmpty(FirstName))
-                {
-                    UserFullName = FirstName;
-                }
-                else if (!string.IsNullOrEmpty(LastName))
-                {
-                    UserFullName = LastName;
                 }
                 else
                 {
@@ -138,90 +153,88 @@ namespace FileManager
                     IBuffer hashedData = md5.HashData(Token.Id);
                     UserFullName = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
                 }
-            }
-            else
-            {
-                var Token = HardwareIdentification.GetPackageSpecificToken(null);
-                HashAlgorithmProvider md5 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
-                IBuffer hashedData = md5.HashData(Token.Id);
-                UserFullName = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
-            }
 
-            if (PictureMode.IsChecked.GetValueOrDefault() == true)
-            {
-                PictureGirdView.ScrollIntoViewSmoothly(PictureGirdView.SelectedItem);
-            }
-
-            FeedBackCollection = new ObservableCollection<FeedBackItem>();
-            FeedBackCollection.CollectionChanged += (s, t) =>
-            {
-                if (FeedBackCollection.Count == 0)
+                if (PictureMode.IsChecked.GetValueOrDefault() == true)
                 {
-                    EmptyFeedBack.Visibility = Visibility.Visible;
-                    FeedBackList.Visibility = Visibility.Collapsed;
+                    PictureGirdView.ScrollIntoViewSmoothly(PictureGirdView.SelectedItem);
                 }
-                else
+
+                FeedBackCollection = new ObservableCollection<FeedBackItem>();
+                FeedBackCollection.CollectionChanged += (s, t) =>
                 {
-                    EmptyFeedBack.Visibility = Visibility.Collapsed;
-                    FeedBackList.Visibility = Visibility.Visible;
-                }
-            };
-            FeedBackList.ItemsSource = FeedBackCollection;
+                    if (FeedBackCollection.Count == 0)
+                    {
+                        EmptyFeedBack.Visibility = Visibility.Visible;
+                        FeedBackList.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        EmptyFeedBack.Visibility = Visibility.Collapsed;
+                        FeedBackList.Visibility = Visibility.Visible;
+                    }
+                };
+                FeedBackList.ItemsSource = FeedBackCollection;
 
-            foreach (var FeedBackItem in await MySQL.Current.GetAllFeedBackAsync())
-            {
-                FeedBackCollection.Add(FeedBackItem);
-
-                await MySQL.Current.GetExtraFeedBackInfo(FeedBackItem);
-
-                switch (FeedBackItem.UserVoteAction)
+                foreach (var FeedBackItem in await MySQL.Current.GetAllFeedBackAsync())
                 {
-                    case "+":
-                        {
-                            while (true)
+                    FeedBackCollection.Add(FeedBackItem);
+
+                    await MySQL.Current.GetExtraFeedBackInfo(FeedBackItem);
+
+                    switch (FeedBackItem.UserVoteAction)
+                    {
+                        case "+":
                             {
-                                if (FeedBackList.ContainerFromItem(FeedBackItem) is ListViewItem ListItem)
+                                while (true)
                                 {
-                                    ToggleButton Button = ListItem.FindChildOfName<ToggleButton>("FeedBackLike");
-                                    if (!Button.IsChecked.GetValueOrDefault())
+                                    if (FeedBackList.ContainerFromItem(FeedBackItem) is ListViewItem ListItem)
                                     {
-                                        Button.Checked -= FeedBackLike_Checked;
-                                        Button.IsChecked = true;
-                                        Button.Checked += FeedBackLike_Checked;
+                                        ToggleButton Button = ListItem.FindChildOfName<ToggleButton>("FeedBackLike");
+                                        if (!Button.IsChecked.GetValueOrDefault())
+                                        {
+                                            Button.Checked -= FeedBackLike_Checked;
+                                            Button.IsChecked = true;
+                                            Button.Checked += FeedBackLike_Checked;
+                                        }
+                                        break;
                                     }
-                                    break;
+                                    else
+                                    {
+                                        await Task.Delay(200);
+                                    }
                                 }
-                                else
-                                {
-                                    await Task.Delay(200);
-                                }
+                                break;
                             }
-                            break;
-                        }
-                    case "-":
-                        {
-                            while (true)
+                        case "-":
                             {
-                                if (FeedBackList.ContainerFromItem(FeedBackItem) is ListViewItem ListItem)
+                                while (true)
                                 {
-                                    ToggleButton Button = ListItem.FindChildOfName<ToggleButton>("FeedDislike");
-                                    if (!Button.IsChecked.GetValueOrDefault())
+                                    if (FeedBackList.ContainerFromItem(FeedBackItem) is ListViewItem ListItem)
                                     {
-                                        Button.Checked -= FeedDislike_Checked;
-                                        Button.IsChecked = true;
-                                        Button.Checked += FeedDislike_Checked;
+                                        ToggleButton Button = ListItem.FindChildOfName<ToggleButton>("FeedDislike");
+                                        if (!Button.IsChecked.GetValueOrDefault())
+                                        {
+                                            Button.Checked -= FeedDislike_Checked;
+                                            Button.IsChecked = true;
+                                            Button.Checked += FeedDislike_Checked;
+                                        }
+                                        break;
                                     }
-                                    break;
+                                    else
+                                    {
+                                        await Task.Delay(200);
+                                    }
                                 }
-                                else
-                                {
-                                    await Task.Delay(200);
-                                }
+                                break;
                             }
-                            break;
-                        }
+                    }
                 }
+
             }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
+            }  
         }
 
         private void Like_PointerEntered(object sender, PointerRoutedEventArgs e)
@@ -1243,6 +1256,18 @@ namespace FileManager
             else
             {
                 PictureGirdView.ContextFlyout = null;
+            }
+        }
+
+        private void CustomFontColor_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (CustomFontColor.IsOn)
+            {
+                AppThemeController.Current.ChangeThemeTo(ElementTheme.Light);
+            }
+            else
+            {
+                AppThemeController.Current.ChangeThemeTo(ElementTheme.Dark);
             }
         }
     }

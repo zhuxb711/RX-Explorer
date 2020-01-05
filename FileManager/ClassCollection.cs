@@ -3056,34 +3056,6 @@ namespace FileManager
     }
     #endregion
 
-    #region DebugLog
-#if DEBUG
-    public static class Log
-    {
-        static Log()
-        {
-            System.Diagnostics.Debug.WriteLine(ApplicationData.Current.LocalCacheFolder.Path);
-        }
-
-        public static void Write(Exception Ex)
-        {
-            string Message = Ex.Message + Environment.NewLine + Ex.StackTrace;
-            Write(Message);
-        }
-
-        public static void Write(string Message)
-        {
-            lock (SyncRootProvider.SyncRoot)
-            {
-                StorageFolder BaseFolder = ApplicationData.Current.LocalCacheFolder;
-                StorageFile TempFile = BaseFolder.CreateFileAsync("RX_Error_Message.txt", CreationCollisionOption.OpenIfExists).AsTask().Result;
-                FileIO.AppendTextAsync(TempFile, Message + Environment.NewLine).AsTask().Wait();
-            }
-        }
-    }
-#endif
-    #endregion
-
     #region 搜索建议Json解析类
     public class BaiduSearchSuggestionResult
     {
@@ -3173,8 +3145,15 @@ namespace FileManager
 
         public QueueContentDialog()
         {
-            Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush;
-            //RequestedTheme = ElementTheme.Light;
+            if (AppThemeController.Current.Theme == ElementTheme.Dark)
+            {
+                Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush;
+                RequestedTheme = ElementTheme.Dark;
+            }
+            else
+            {
+                RequestedTheme = ElementTheme.Light;
+            }
         }
     }
     #endregion
@@ -3549,6 +3528,103 @@ namespace FileManager
         private static CancellationTokenSource AVTranscodeCancellation;
 
         public static bool IsAnyTransformTaskRunning { get; private set; } = false;
+
+        public static Task GenerateMergeVideoFromOriginAsync(StorageFile DestinationFile, MediaComposition Composition, MediaEncodingProfile EncodingProfile)
+        {
+            return Task.Factory.StartNew((ob) =>
+            {
+                IsAnyTransformTaskRunning = true;
+
+                AVTranscodeCancellation = new CancellationTokenSource();
+
+                var Para = (ValueTuple<StorageFile, MediaComposition, MediaEncodingProfile>)ob;
+
+                SendUpdatableToastWithProgressForMergeVideo();
+                Progress<double> CropVideoProgress = new Progress<double>((CurrentValue) =>
+                {
+                    string Tag = "MergeVideoNotification";
+
+                    var data = new NotificationData
+                    {
+                        SequenceNumber = 0
+                    };
+                    data.Values["ProgressValue"] = Math.Round(CurrentValue / 100, 2, MidpointRounding.AwayFromZero).ToString();
+                    data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
+
+                    ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                });
+
+                try
+                {
+                    Para.Item2.RenderToFileAsync(Para.Item1, MediaTrimmingPreference.Precise, Para.Item3).AsTask(AVTranscodeCancellation.Token, CropVideoProgress).Wait();
+                    ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"] = "Success";
+                }
+                catch (AggregateException)
+                {
+                    ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"] = "Cancel";
+                    Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                }
+                catch (Exception e)
+                {
+                    ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"] = e.Message;
+                    Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                }
+
+            }, (DestinationFile, Composition, EncodingProfile), TaskCreationOptions.LongRunning).ContinueWith((task) =>
+            {
+                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        switch (ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"].ToString())
+                        {
+                            case "Success":
+                                {
+                                    FileControl.ThisPage.Notification.Show("视频已成功完成合并", 5000);
+                                    ShowMergeCompleteNotification();
+                                    break;
+                                }
+                            case "Cancel":
+                                {
+                                    FileControl.ThisPage.Notification.Show("视频合并任务被取消", 5000);
+                                    ShowMergeCancelNotification();
+                                    break;
+                                }
+                            default:
+                                {
+                                    FileControl.ThisPage.Notification.Show("合并视频时遇到未知错误", 5000);
+                                    break;
+                                }
+                        }
+                    }
+                    else
+                    {
+                        switch (ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"].ToString())
+                        {
+                            case "Success":
+                                {
+                                    FileControl.ThisPage.Notification.Show("Video successfully merged", 5000);
+                                    ShowMergeCompleteNotification();
+                                    break;
+                                }
+                            case "Cancel":
+                                {
+                                    FileControl.ThisPage.Notification.Show("Video merge task was canceled", 5000);
+                                    ShowMergeCancelNotification();
+                                    break;
+                                }
+                            default:
+                                {
+                                    FileControl.ThisPage.Notification.Show("Encountered unknown error while merging video", 5000);
+                                    break;
+                                }
+                        }
+                    }
+                }).AsTask().Wait();
+
+                IsAnyTransformTaskRunning = false;
+            });
+        }
 
         public static Task GenerateCroppedVideoFromOriginAsync(StorageFile DestinationFile, MediaComposition Composition, MediaEncodingProfile EncodingProfile, MediaTrimmingPreference TrimmingPreference)
         {
@@ -3933,6 +4009,60 @@ namespace FileManager
             ToastNotificationManager.CreateToastNotifier().Show(Toast);
         }
 
+        private static void SendUpdatableToastWithProgressForMergeVideo()
+        {
+            var content = new ToastContent()
+            {
+                Launch = "Transcode",
+                Scenario = ToastScenario.Reminder,
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                        {
+                            new AdaptiveText()
+                            {
+                                Text = Globalization.Language==LanguageEnum.Chinese
+                                ? "正在合并视频文件..."
+                                : "Merging the video..."
+                            },
+
+                            new AdaptiveProgressBar()
+                            {
+                                Title = Globalization.Language==LanguageEnum.Chinese?"正在处理...":"Processing",
+                                Value = new BindableProgressBarValue("ProgressValue"),
+                                ValueStringOverride = new BindableString("ProgressValueString"),
+                                Status = new BindableString("ProgressStatus")
+                            }
+                        }
+                    }
+                }
+            };
+
+            var Toast = new ToastNotification(content.GetXml())
+            {
+                Tag = "MergeVideoNotification",
+                Data = new NotificationData()
+            };
+            Toast.Data.Values["ProgressValue"] = "0";
+            Toast.Data.Values["ProgressValueString"] = "0%";
+            Toast.Data.Values["ProgressStatus"] = Globalization.Language == LanguageEnum.Chinese
+                ? "点击该提示以取消"
+                : "Click the prompt to cancel";
+            Toast.Data.SequenceNumber = 0;
+
+            Toast.Activated += (s, e) =>
+            {
+                if (s.Tag == "MergeVideoNotification")
+                {
+                    AVTranscodeCancellation.Cancel();
+                }
+            };
+
+            ToastNotificationManager.CreateToastNotifier().Show(Toast);
+        }
+
         private static void SendUpdatableToastWithProgressForTranscode(StorageFile SourceFile, StorageFile DestinationFile)
         {
             string Tag = "TranscodeNotification";
@@ -4035,6 +4165,66 @@ namespace FileManager
                                 new AdaptiveText()
                                 {
                                     Text = "Cropping has been completed！"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "Click to remove the prompt"
+                                }
+                            }
+                        }
+                    },
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+        }
+
+        private static void ShowMergeCompleteNotification()
+        {
+            ToastNotificationManager.History.Remove("MergeVideoNotification");
+
+            if (Globalization.Language == LanguageEnum.Chinese)
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "合并已完成！"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "点击以消除提示"
+                                }
+                            }
+                        }
+                    },
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            else
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "Merging has been completed！"
                                 },
 
                                 new AdaptiveText()
@@ -4170,6 +4360,76 @@ namespace FileManager
                                 new AdaptiveText()
                                 {
                                     Text = "Cropping task has been cancelled"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                   Text = "You can try restarting the task"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "Click to remove the prompt"
+                                }
+                            }
+                        }
+                    }
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+        }
+
+        private static void ShowMergeCancelNotification()
+        {
+            ToastNotificationManager.History.Remove("MergeVideoNotification");
+
+            if (Globalization.Language == LanguageEnum.Chinese)
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "合并任务已被取消"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                   Text = "您可以尝试重新启动此任务"
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "点击以消除提示"
+                                }
+                            }
+                        }
+                    }
+                };
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            else
+            {
+                var Content = new ToastContent()
+                {
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
+                    {
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = "Merging task has been cancelled"
                                 },
 
                                 new AdaptiveText()
@@ -4349,6 +4609,106 @@ namespace FileManager
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
             throw new NotImplementedException();
+        }
+    }
+    #endregion
+
+    #region 主题转换器
+    public sealed class AppThemeController : INotifyPropertyChanged
+    {
+        public ElementTheme Theme { get; private set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private static AppThemeController Instance;
+
+        private static readonly object Lock = new object();
+
+        public static AppThemeController Current
+        {
+            get
+            {
+                lock (Lock)
+                {
+                    return Instance ?? (Instance = new AppThemeController());
+                }
+            }
+        }
+
+        public void ChangeThemeTo(ElementTheme Theme)
+        {
+            this.Theme = Theme;
+            ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = Enum.GetName(typeof(ElementTheme), Theme);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Theme)));
+        }
+
+        public AppThemeController()
+        {
+            if (ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] is string Mode)
+            {
+                Theme = (ElementTheme)Enum.Parse(typeof(ElementTheme), Mode);
+            }
+            else
+            {
+                Theme = ElementTheme.Dark;
+                ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = "Dark";
+            }
+        }
+    }
+    #endregion
+
+    #region 错误追踪器
+    public static class ExceptionTracer
+    {
+        private static AutoResetEvent Locker = new AutoResetEvent(true);
+
+        public static void RequestBlueScreen(Exception e)
+        {
+            if (!(Window.Current.Content is Frame rootFrame))
+            {
+                rootFrame = new Frame();
+
+                Window.Current.Content = rootFrame;
+            }
+
+            if (GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
+            {
+                string Message =
+                "\r\r以下是错误信息：\r\rException Code错误代码：" + e.HResult +
+                "\r\rMessage错误消息：" + e.Message +
+                "\r\rSource来源：" + (string.IsNullOrEmpty(e.Source) ? "Unknown" : e.Source) +
+                "\r\rStackTrace堆栈追踪：\r" + (string.IsNullOrEmpty(e.StackTrace) ? "Unknown" : e.StackTrace);
+
+                rootFrame.Navigate(typeof(BlueScreen), Message);
+            }
+            else
+            {
+                string Message =
+                "\r\rThe following is the error message：\r\rException Code：" + e.HResult +
+                "\r\rMessage：" + e.Message +
+                "\r\rSource：" + (string.IsNullOrEmpty(e.Source) ? "Unknown" : e.Source) +
+                "\r\rStackTrace：\r" + (string.IsNullOrEmpty(e.StackTrace) ? "Unknown" : e.StackTrace);
+
+                rootFrame.Navigate(typeof(BlueScreen), Message);
+            }
+        }
+
+        public static async Task LogAsync(Exception Ex)
+        {
+            await LogAsync(Ex.Message + Environment.NewLine + Ex.StackTrace);
+        }
+
+        public static async Task LogAsync(string Message)
+        {
+            await Task.Run(() =>
+            {
+                Locker.WaitOne();
+            });
+
+            StorageFile TempFile = await ApplicationData.Current.LocalCacheFolder.CreateFileAsync("RX_Error_Message.txt", CreationCollisionOption.OpenIfExists);
+            await FileIO.AppendTextAsync(TempFile, Message + Environment.NewLine);
+
+            Locker.Set();
         }
     }
     #endregion

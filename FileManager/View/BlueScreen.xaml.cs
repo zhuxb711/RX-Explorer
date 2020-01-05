@@ -19,6 +19,13 @@ namespace FileManager
         {
             InitializeComponent();
             Window.Current.SetTitleBar(TitleBar);
+            Loaded += BlueScreen_Loaded;
+        }
+
+        private async void BlueScreen_Loaded(object sender, RoutedEventArgs e)
+        {
+            await Task.Delay(5000);
+            await SendEmailAsync(Message.Text);
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -36,18 +43,18 @@ namespace FileManager
                 messageBody = "版本: "
                             + string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)
                             + messageBody
-                            + "\r\r问题复现方法：\r1、\r\r2、\r\r3、\r";
+                            + "\r\r问题复现方法：\r\r1、\r\r2、\r\r3、\r";
             }
             else
             {
                 messageBody = "Version: "
                             + string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)
                             + messageBody
-                            + "\r\rProblem recurrence method：\r1、\r\r2、\r\r3、\r";
+                            + "\r\rProblem recurrence method：\r\r1、\r\r2、\r\r3、\r";
             }
 
             messageBody = Uri.EscapeDataString(messageBody);
-            string url = "mailto:zhuxb711@yeah.net?subject=RX_BugReport&body=" + messageBody;
+            string url = "mailto:zhuxb711@yeah.net?subject=BugReport&body=" + messageBody;
             await Launcher.LaunchUriAsync(new Uri(url));
         }
 

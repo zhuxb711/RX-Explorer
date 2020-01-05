@@ -6,7 +6,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d"
-      RequestedTheme="Light"
+      RequestedTheme="{x:Bind local:AppThemeController.Current.Theme,Mode=OneWay}"
       Background="{x:Bind local:BackgroundController.Current.BackgroundBrush,Mode=TwoWay}">
 
     <Page.Resources>

@@ -153,11 +153,19 @@
                                FontSize="24"
                                Margin="0,30,0,0" />
 
+                    <ToggleSwitch Header="自定义字体颜色"
+                                  OnContent="黑色"
+                                  OffContent="白色"
+                                  Margin="0,20,0,0"
+                                  Name="CustomFontColor"
+                                  Toggled="CustomFontColor_Toggled" />
+
                     <ComboBox Header="调整UI显示模式"
                               x:Uid="SettingPageUIMode"
                               Margin="0,20,0,0"
                               SelectionChanged="UIMode_SelectionChanged"
                               Name="UIMode"
+                              Width="120"
                               Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
 
                     <StackPanel Margin="0,10,0,0"

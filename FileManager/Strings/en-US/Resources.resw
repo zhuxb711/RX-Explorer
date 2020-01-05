@@ -435,6 +435,33 @@
   <data name="LibraryOpenButton.Label" xml:space="preserve">
     <value>Open</value>
   </data>
+  <data name="MergeDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="MergeDialog.SecondaryButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="MergeDialog.Title" xml:space="preserve">
+    <value>Merge</value>
+  </data>
+  <data name="MergeDialogEmptyTip.Subtitle" xml:space="preserve">
+    <value>Video must be added to continue</value>
+  </data>
+  <data name="MergeDialogEmptyTip.Title" xml:space="preserve">
+    <value>Tips</value>
+  </data>
+  <data name="MergeDialogEncodingProfile.Text" xml:space="preserve">
+    <value>Encoding config</value>
+  </data>
+  <data name="MergeDialogEncodingQuality.Text" xml:space="preserve">
+    <value>Quality</value>
+  </data>
+  <data name="MergeDialogPickClip.Content" xml:space="preserve">
+    <value>Select a clip</value>
+  </data>
+  <data name="MergeDialogText.Text" xml:space="preserve">
+    <value>Merge</value>
+  </data>
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>Open</value>
   </data>
@@ -1037,6 +1064,9 @@
   </data>
   <data name="VideoEditDialogUseSameProfile.Text" xml:space="preserve">
     <value>Use the same encoding configuration as the source video</value>
+  </data>
+  <data name="VideoMerge.Text" xml:space="preserve">
+    <value>Merge</value>
   </data>
   <data name="VideoMontage.Text" xml:space="preserve">
     <value>Montage</value>

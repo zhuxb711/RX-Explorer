@@ -46,36 +46,7 @@ namespace FileManager
 
         private void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
-            if (!(Window.Current.Content is Frame rootFrame))
-            {
-                rootFrame = new Frame();
-
-                rootFrame.NavigationFailed += OnNavigationFailed;
-
-                Window.Current.Content = rootFrame;
-            }
-
-            if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
-            {
-                string Message =
-                "\r\r以下是错误信息：\r\rException Code错误代码：" + e.Exception.HResult +
-                "\r\rMessage错误消息：" + e.Exception.Message +
-                "\r\rSource来源：" + (string.IsNullOrEmpty(e.Exception.Source) ? "Unknown" : e.Exception.Source) +
-                "\r\rStackTrace堆栈追踪：" + (string.IsNullOrEmpty(e.Exception.StackTrace) ? "Unknown" : e.Exception.StackTrace);
-
-                rootFrame.Navigate(typeof(BlueScreen), Message);
-            }
-            else
-            {
-                string Message =
-                "\r\rThe following is the error message：\r\rException Code：" + e.Exception.HResult +
-                "\r\rMessage：" + e.Exception.Message +
-                "\r\rSource：" + (string.IsNullOrEmpty(e.Exception.Source) ? "Unknown" : e.Exception.Source) +
-                "\r\rStackTrace：" + (string.IsNullOrEmpty(e.Exception.StackTrace) ? "Unknown" : e.Exception.StackTrace);
-
-                rootFrame.Navigate(typeof(BlueScreen), Message);
-            }
-
+            ExceptionTracer.RequestBlueScreen(e.Exception);
             e.Handled = true;
         }
 
@@ -119,44 +90,51 @@ namespace FileManager
 
         protected override async void OnFileActivated(FileActivatedEventArgs args)
         {
-            if (args.Verb == "USBArrival")
+            try
             {
-                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
-                var viewTitleBar = ApplicationView.GetForCurrentView().TitleBar;
-                viewTitleBar.ButtonBackgroundColor = Colors.Transparent;
-                viewTitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-                viewTitleBar.ButtonForegroundColor = (Color)Resources["SystemBaseHighColor"];
-
-                if (Window.Current.Content is Frame)
+                if (args.Verb == "USBArrival")
                 {
-                    if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name == "FileControl")
+                    CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
+                    var viewTitleBar = ApplicationView.GetForCurrentView().TitleBar;
+                    viewTitleBar.ButtonBackgroundColor = Colors.Transparent;
+                    viewTitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                    viewTitleBar.ButtonForegroundColor = (Color)Resources["SystemBaseHighColor"];
+
+                    if (Window.Current.Content is Frame)
                     {
-                        MainPage.ThisPage.Nav.GoBack();
-                        MainPage.ThisPage.Nav.Navigate(typeof(FileControl), ThisPC.ThisPage.HardDeviceList.Last().Folder, new DrillInNavigationTransitionInfo());
+                        if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name == "FileControl")
+                        {
+                            MainPage.ThisPage.Nav.GoBack();
+                            MainPage.ThisPage.Nav.Navigate(typeof(FileControl), ThisPC.ThisPage.HardDeviceList.Last().Folder, new DrillInNavigationTransitionInfo());
+                        }
+                        else
+                        {
+                            MainPage.ThisPage.Nav.Navigate(typeof(FileControl), ThisPC.ThisPage.HardDeviceList.Last().Folder, new DrillInNavigationTransitionInfo());
+                        }
                     }
                     else
                     {
-                        MainPage.ThisPage.Nav.Navigate(typeof(FileControl), ThisPC.ThisPage.HardDeviceList.Last().Folder, new DrillInNavigationTransitionInfo());
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        _ = await StorageFolder.GetFolderFromPathAsync(Directory.GetLogicalDrives().FirstOrDefault());
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
-                        Window.Current.Content = extendedSplash;
+                        try
+                        {
+                            _ = await StorageFolder.GetFolderFromPathAsync(Directory.GetLogicalDrives().FirstOrDefault());
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
+                            Window.Current.Content = extendedSplash;
+                        }
+
+                        Frame rootFrame = new Frame();
+                        Window.Current.Content = rootFrame;
+                        rootFrame.Navigate(typeof(MainPage), new Tuple<string, Rect>("USBActivate||" + args.Files.FirstOrDefault().Path, args.SplashScreen.ImageLocation));
                     }
 
-                    Frame rootFrame = new Frame();
-                    Window.Current.Content = rootFrame;
-                    rootFrame.Navigate(typeof(MainPage), new Tuple<string, Rect>("USBActivate||" + args.Files.FirstOrDefault().Path, args.SplashScreen.ImageLocation));
+                    Window.Current.Activate();
                 }
-
-                Window.Current.Activate();
+            }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
             }
         }
 

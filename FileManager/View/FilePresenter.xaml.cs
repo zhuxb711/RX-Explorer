@@ -2002,7 +2002,7 @@ namespace FileManager
 
                                     await GeneralTransformer.TranscodeFromAudioOrVideoAsync(Source.File, DestinationFile, dialog.MediaTranscodeEncodingProfile, dialog.MediaTranscodeQuality, dialog.SpeedUp);
 
-                                    if (ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] is string Status && Status == "Success")
+                                    if (Path.GetDirectoryName(DestinationFile.Path) == FileControl.ThisPage.CurrentFolder.Path && ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] is string Status && Status == "Success")
                                     {
                                         FileCollection.Add(new FileSystemStorageItem(DestinationFile, await DestinationFile.GetSizeDescriptionAsync(), await DestinationFile.GetThumbnailBitmapAsync(), await DestinationFile.GetModifiedTimeAsync()));
                                     }
@@ -2557,79 +2557,100 @@ namespace FileManager
 
         private async void EnterSelectedItem(FileSystemStorageItem ReFile)
         {
-            if (Interlocked.Exchange(ref DoubleTabTarget, ReFile) == null)
+            try
             {
-                if (DoubleTabTarget.ContentType == ContentType.File)
+                if (Interlocked.Exchange(ref DoubleTabTarget, ReFile) == null)
                 {
-                    if (!await ReFile.File.CheckExist())
+                    if (DoubleTabTarget.ContentType == ContentType.File)
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        if (!await ReFile.File.CheckExist())
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "无法找到对应的文件，该文件可能已被移动或删除",
-                                CloseButtonText = "刷新"
-                            };
-                            _ = await Dialog.ShowAsync();
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "Could not find the corresponding file, it may have been moved or deleted",
-                                CloseButtonText = "Refresh"
-                            };
-                            _ = await Dialog.ShowAsync();
-                        }
-                        await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
-                        Interlocked.Exchange(ref DoubleTabTarget, null);
-                        return;
-                    }
-
-                    switch (DoubleTabTarget.File.FileType)
-                    {
-                        case ".zip":
-                            Nav.Navigate(typeof(ZipExplorer), DoubleTabTarget, new DrillInNavigationTransitionInfo());
-                            break;
-                        case ".jpg":
-                        case ".png":
-                        case ".bmp":
-                        case ".heic":
-                        case ".gif":
-                        case ".tiff":
-                            Nav.Navigate(typeof(PhotoViewer), DoubleTabTarget.File.FolderRelativeId, new DrillInNavigationTransitionInfo());
-                            break;
-                        case ".mkv":
-                        case ".mp4":
-                        case ".mp3":
-                        case ".flac":
-                        case ".wma":
-                        case ".wmv":
-                        case ".m4a":
-                        case ".mov":
-                        case ".alac":
-                            Nav.Navigate(typeof(MediaPlayer), DoubleTabTarget.File, new DrillInNavigationTransitionInfo());
-                            break;
-                        case ".txt":
-                            Nav.Navigate(typeof(TextViewer), DoubleTabTarget, new DrillInNavigationTransitionInfo());
-                            break;
-                        case ".pdf":
-                            Nav.Navigate(typeof(PdfReader), DoubleTabTarget.File, new DrillInNavigationTransitionInfo());
-                            break;
-                        default:
                             if (Globalization.Language == LanguageEnum.Chinese)
                             {
-                                QueueContentDialog dialog = new QueueContentDialog
+                                QueueContentDialog Dialog = new QueueContentDialog
                                 {
-                                    Title = "提示",
-                                    Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
-                                    PrimaryButtonText = "默认应用打开",
-                                    CloseButtonText = "取消"
+                                    Title = "错误",
+                                    Content = "无法找到对应的文件，该文件可能已被移动或删除",
+                                    CloseButtonText = "刷新"
                                 };
-                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                _ = await Dialog.ShowAsync();
+                            }
+                            else
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
                                 {
+                                    Title = "Error",
+                                    Content = "Could not find the corresponding file, it may have been moved or deleted",
+                                    CloseButtonText = "Refresh"
+                                };
+                                _ = await Dialog.ShowAsync();
+                            }
+                            await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                            Interlocked.Exchange(ref DoubleTabTarget, null);
+                            return;
+                        }
+
+                        switch (DoubleTabTarget.File.FileType)
+                        {
+                            case ".zip":
+                                Nav.Navigate(typeof(ZipExplorer), DoubleTabTarget, new DrillInNavigationTransitionInfo());
+                                break;
+                            case ".jpg":
+                            case ".png":
+                            case ".bmp":
+                            case ".heic":
+                            case ".gif":
+                            case ".tiff":
+                                Nav.Navigate(typeof(PhotoViewer), DoubleTabTarget.File.FolderRelativeId, new DrillInNavigationTransitionInfo());
+                                break;
+                            case ".mkv":
+                            case ".mp4":
+                            case ".mp3":
+                            case ".flac":
+                            case ".wma":
+                            case ".wmv":
+                            case ".m4a":
+                            case ".mov":
+                            case ".alac":
+                                Nav.Navigate(typeof(MediaPlayer), DoubleTabTarget.File, new DrillInNavigationTransitionInfo());
+                                break;
+                            case ".txt":
+                                Nav.Navigate(typeof(TextViewer), DoubleTabTarget, new DrillInNavigationTransitionInfo());
+                                break;
+                            case ".pdf":
+                                Nav.Navigate(typeof(PdfReader), DoubleTabTarget.File, new DrillInNavigationTransitionInfo());
+                                break;
+                            default:
+                                if (Globalization.Language == LanguageEnum.Chinese)
+                                {
+                                    QueueContentDialog dialog = new QueueContentDialog
+                                    {
+                                        Title = "提示",
+                                        Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
+                                        PrimaryButtonText = "默认应用打开",
+                                        CloseButtonText = "取消"
+                                    };
+                                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                    {
+                                        if (!await Launcher.LaunchFileAsync(DoubleTabTarget.File))
+                                        {
+                                            LauncherOptions options = new LauncherOptions
+                                            {
+                                                DisplayApplicationPicker = true
+                                            };
+                                            _ = await Launcher.LaunchFileAsync(DoubleTabTarget.File, options);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    QueueContentDialog dialog = new QueueContentDialog
+                                    {
+                                        Title = "Tips",
+                                        Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
+                                        PrimaryButtonText = "Open with default app",
+                                        CloseButtonText = "Cancel"
+                                    };
                                     if (!await Launcher.LaunchFileAsync(DoubleTabTarget.File))
                                     {
                                         LauncherOptions options = new LauncherOptions
@@ -2639,94 +2660,80 @@ namespace FileManager
                                         _ = await Launcher.LaunchFileAsync(DoubleTabTarget.File, options);
                                     }
                                 }
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        if (!await ReFile.Folder.CheckExist())
+                        {
+                            if (Globalization.Language == LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "无法找到对应的文件夹，该文件可能已被移动或删除",
+                                    CloseButtonText = "刷新"
+                                };
+                                _ = await Dialog.ShowAsync();
                             }
                             else
                             {
-                                QueueContentDialog dialog = new QueueContentDialog
+                                QueueContentDialog Dialog = new QueueContentDialog
                                 {
-                                    Title = "Tips",
-                                    Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
-                                    PrimaryButtonText = "Open with default app",
-                                    CloseButtonText = "Cancel"
+                                    Title = "Error",
+                                    Content = "Could not find the corresponding folder, it may have been moved or deleted",
+                                    CloseButtonText = "Refresh"
                                 };
-                                if (!await Launcher.LaunchFileAsync(DoubleTabTarget.File))
+                                _ = await Dialog.ShowAsync();
+                            }
+                            await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                            Interlocked.Exchange(ref DoubleTabTarget, null);
+                            return;
+                        }
+
+                        if (FileControl.ThisPage.CurrentNode.HasUnrealizedChildren && !FileControl.ThisPage.CurrentNode.IsExpanded)
+                        {
+                            FileControl.ThisPage.CurrentNode.IsExpanded = true;
+                        }
+
+                        while (true)
+                        {
+                            TreeViewNode TargetNode = FileControl.ThisPage.CurrentNode?.Children.Where((Node) => (Node.Content as StorageFolder).Name == DoubleTabTarget.Name).FirstOrDefault();
+                            if (TargetNode != null)
+                            {
+                                while (true)
                                 {
-                                    LauncherOptions options = new LauncherOptions
+                                    if (FileControl.ThisPage.FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Container)
                                     {
-                                        DisplayApplicationPicker = true
-                                    };
-                                    _ = await Launcher.LaunchFileAsync(DoubleTabTarget.File, options);
+                                        Container.IsSelected = true;
+                                        Container.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
+                                        _ = FileControl.ThisPage.DisplayItemsInFolder(TargetNode);
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        await Task.Delay(300);
+                                    }
                                 }
+                                break;
                             }
-                            break;
-                    }
-                }
-                else
-                {
-                    if (!await ReFile.Folder.CheckExist())
-                    {
-                        if (Globalization.Language == LanguageEnum.Chinese)
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            else if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name != "FileControl")
                             {
-                                Title = "错误",
-                                Content = "无法找到对应的文件夹，该文件可能已被移动或删除",
-                                CloseButtonText = "刷新"
-                            };
-                            _ = await Dialog.ShowAsync();
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "Could not find the corresponding folder, it may have been moved or deleted",
-                                CloseButtonText = "Refresh"
-                            };
-                            _ = await Dialog.ShowAsync();
-                        }
-                        await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
-                        Interlocked.Exchange(ref DoubleTabTarget, null);
-                        return;
-                    }
-
-                    if (FileControl.ThisPage.CurrentNode.HasUnrealizedChildren && !FileControl.ThisPage.CurrentNode.IsExpanded)
-                    {
-                        FileControl.ThisPage.CurrentNode.IsExpanded = true;
-                    }
-
-                    while (true)
-                    {
-                        TreeViewNode TargetNode = FileControl.ThisPage.CurrentNode?.Children.Where((Node) => (Node.Content as StorageFolder).Name == DoubleTabTarget.Name).FirstOrDefault();
-                        if (TargetNode != null)
-                        {
-                            while (true)
-                            {
-                                if (FileControl.ThisPage.FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Container)
-                                {
-                                    Container.IsSelected = true;
-                                    Container.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                                    _ = FileControl.ThisPage.DisplayItemsInFolder(TargetNode);
-                                    break;
-                                }
-                                else
-                                {
-                                    await Task.Delay(300);
-                                }
+                                break;
                             }
-                            break;
-                        }
-                        else if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name != "FileControl")
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            await Task.Delay(300);
+                            else
+                            {
+                                await Task.Delay(300);
+                            }
                         }
                     }
+                    Interlocked.Exchange(ref DoubleTabTarget, null);
                 }
-                Interlocked.Exchange(ref DoubleTabTarget, null);
+            }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
             }
         }
 
@@ -2766,7 +2773,54 @@ namespace FileManager
                 {
                     StorageFile ExportFile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync($"{Item.DisplayName} - {(Globalization.Language == LanguageEnum.Chinese ? "裁剪" : "Cropped")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
                     await GeneralTransformer.GenerateCroppedVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding, Dialog.TrimmingPreference);
-                    FileCollection.Add(new FileSystemStorageItem(ExportFile, await ExportFile.GetSizeDescriptionAsync(), await ExportFile.GetThumbnailBitmapAsync(), await ExportFile.GetModifiedTimeAsync()));
+                    if (Path.GetDirectoryName(ExportFile.Path) == FileControl.ThisPage.CurrentFolder.Path && ApplicationData.Current.LocalSettings.Values["MediaCropStatus"] is string Status && Status == "Success")
+                    {
+                        FileCollection.Add(new FileSystemStorageItem(ExportFile, await ExportFile.GetSizeDescriptionAsync(), await ExportFile.GetThumbnailBitmapAsync(), await ExportFile.GetModifiedTimeAsync()));
+                    }
+                }
+            }
+        }
+
+        private async void VideoMerge_Click(object sender, RoutedEventArgs e)
+        {
+            Restore();
+
+            if (GeneralTransformer.IsAnyTransformTaskRunning)
+            {
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "提示",
+                        Content = "已存在正在进行中的任务，请等待其完成",
+                        CloseButtonText = "确定"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "Tips",
+                        Content = "There is already an ongoing task, please wait for it to complete",
+                        CloseButtonText = "Got it"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                return;
+            }
+
+            if (GridViewControl.SelectedItem is FileSystemStorageItem Item)
+            {
+                VideoMergeDialog Dialog = new VideoMergeDialog(Item.File);
+                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                {
+                    StorageFile ExportFile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync($"{Item.DisplayName} - {(Globalization.Language == LanguageEnum.Chinese ? "合并" : "Merged")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
+                    await GeneralTransformer.GenerateMergeVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding);
+                    if (Path.GetDirectoryName(ExportFile.Path) == FileControl.ThisPage.CurrentFolder.Path && ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"] is string Status && Status == "Success")
+                    {
+                        FileCollection.Add(new FileSystemStorageItem(ExportFile, await ExportFile.GetSizeDescriptionAsync(), await ExportFile.GetThumbnailBitmapAsync(), await ExportFile.GetModifiedTimeAsync()));
+                    }
                 }
             }
         }

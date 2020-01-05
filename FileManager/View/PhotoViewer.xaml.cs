@@ -37,55 +37,62 @@ namespace FileManager
 
         private async void PhotoViewer_Loaded(object sender, RoutedEventArgs e)
         {
-            if (IsNavigateToCropperPage)
+            try
             {
-                IsNavigateToCropperPage = false;
-                await PhotoCollection[Flip.SelectedIndex].UpdateImage();
-                return;
-            }
-
-            LoadingControl.IsLoading = true;
-
-            Behavior.Attach(Flip);
-
-            QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
-            {
-                FolderDepth = FolderDepth.Shallow,
-                IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-                ApplicationSearchFilter = "System.Kind:=System.Kind#Picture"
-            };
-            Options.SetThumbnailPrefetch(ThumbnailMode.SingleItem, 200, ThumbnailOptions.UseCurrentScale);
-            QueryResult = FileControl.ThisPage.CurrentFolder.CreateFileQueryWithOptions(Options);
-
-            ProBar.Maximum = await QueryResult.GetItemCountAsync();
-            ProBar.Value = 0;
-
-            var FileCollection = await QueryResult.GetFilesAsync();
-            foreach (var File in FileCollection)
-            {
-                using (StorageItemThumbnail ThumbnailStream = await File.GetThumbnailAsync(ThumbnailMode.SingleItem))
+                if (IsNavigateToCropperPage)
                 {
-                    BitmapImage ImageSource = new BitmapImage();
-                    await ImageSource.SetSourceAsync(ThumbnailStream);
-                    PhotoCollection.Add(new PhotoDisplaySupport(ImageSource, File));
+                    IsNavigateToCropperPage = false;
+                    await PhotoCollection[Flip.SelectedIndex].UpdateImage();
+                    return;
+                }
 
-                    ProBar.Value++;
+                LoadingControl.IsLoading = true;
 
-                    if (File.FolderRelativeId == SelectedPhotoID)
+                Behavior.Attach(Flip);
+
+                QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
+                {
+                    FolderDepth = FolderDepth.Shallow,
+                    IndexerOption = IndexerOption.UseIndexerWhenAvailable,
+                    ApplicationSearchFilter = "System.Kind:=System.Kind#Picture"
+                };
+                Options.SetThumbnailPrefetch(ThumbnailMode.SingleItem, 200, ThumbnailOptions.UseCurrentScale);
+                QueryResult = FileControl.ThisPage.CurrentFolder.CreateFileQueryWithOptions(Options);
+
+                ProBar.Maximum = await QueryResult.GetItemCountAsync();
+                ProBar.Value = 0;
+
+                var FileCollection = await QueryResult.GetFilesAsync();
+                foreach (var File in FileCollection)
+                {
+                    using (StorageItemThumbnail ThumbnailStream = await File.GetThumbnailAsync(ThumbnailMode.SingleItem))
                     {
-                        Flip.SelectedIndex = PhotoCollection.Count - 1;
-                        LastSelectIndex = Flip.SelectedIndex;
+                        BitmapImage ImageSource = new BitmapImage();
+                        await ImageSource.SetSourceAsync(ThumbnailStream);
+                        PhotoCollection.Add(new PhotoDisplaySupport(ImageSource, File));
+
+                        ProBar.Value++;
+
+                        if (File.FolderRelativeId == SelectedPhotoID)
+                        {
+                            Flip.SelectedIndex = PhotoCollection.Count - 1;
+                            LastSelectIndex = Flip.SelectedIndex;
+                        }
                     }
                 }
+
+                Flip.SelectionChanged += Flip_SelectionChanged;
+
+                await Task.Delay(500);
+                await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmap();
+
+                LoadingControl.IsLoading = false;
+                OpacityAnimation.Begin();
             }
-
-            Flip.SelectionChanged += Flip_SelectionChanged;
-
-            await Task.Delay(500);
-            await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmap();
-
-            LoadingControl.IsLoading = false;
-            OpacityAnimation.Begin();
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
+            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -253,7 +260,14 @@ namespace FileManager
         private void Adjust_Click(object sender, RoutedEventArgs e)
         {
             IsNavigateToCropperPage = true;
-            FileControl.ThisPage.Nav.Navigate(typeof(CropperPage), Flip.SelectedItem, new DrillInNavigationTransitionInfo());
+            try
+            {
+                FileControl.ThisPage.Nav.Navigate(typeof(CropperPage), Flip.SelectedItem, new DrillInNavigationTransitionInfo());
+            }
+            catch(Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
+            }
         }
     }
 }
