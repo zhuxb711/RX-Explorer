@@ -1,4 +1,5 @@
 ﻿using AnimationEffectProvider;
+using SQLConnectionPoolProvider;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -174,7 +175,7 @@ namespace FileManager
             catch (Exception ex)
             {
                 ExceptionTracer.RequestBlueScreen(ex);
-            }   
+            }
         }
 
         private async Task RegisterBackgroundTask()
@@ -326,7 +327,7 @@ namespace FileManager
                 NavView.IsBackEnabled = true;
             }
 
-            if (Nav.SourcePageType == typeof(SettingPage)|| Nav.SourcePageType == typeof(AboutMe))
+            if (Nav.SourcePageType == typeof(SettingPage) || Nav.SourcePageType == typeof(AboutMe))
             {
                 NavView.SelectedItem = NavView.SettingsItem as NavigationViewItem;
             }

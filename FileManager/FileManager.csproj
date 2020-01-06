@@ -22,7 +22,7 @@
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x64</AppxBundlePlatforms>
-    <PackageCertificateThumbprint>40BD28AE2338B8EFF63414C99FD6038760F0C564</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>0A9F1C61FF4FA2944C1C28F2D0FB09249F9CEE1B</PackageCertificateThumbprint>
     <AppInstallerUpdateFrequency>0</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
@@ -630,6 +630,10 @@
     <ProjectReference Include="..\OpenCV\OpenCV.vcxproj">
       <Project>{f9be798f-758f-41d2-be7e-24614ffa696f}</Project>
       <Name>OpenCV</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SQLConnectionPoolProvider\SQLConnectionPoolProvider.csproj">
+      <Project>{48d8d03d-e12c-433c-a9d9-a4311e12fb78}</Project>
+      <Name>SQLConnectionPoolProvider</Name>
     </ProjectReference>
     <ProjectReference Include="..\SystemInformationProvider\SystemInformationProvider.vcxproj">
       <Project>{b7beef6e-1f7f-43b6-a1ec-f447b3f995df}</Project>

@@ -56,11 +56,27 @@ namespace FileManager
     {
         private bool IsDisposed = false;
         private static SQLite SQL = null;
+        private SqliteConnection OLEDB = new SqliteConnection("Filename=RX_Sqlite.db;");
         private SQLite()
         {
             SQLitePCL.Batteries_V2.Init();
             SQLitePCL.raw.sqlite3_win32_set_directory(1, ApplicationData.Current.LocalFolder.Path);
             SQLitePCL.raw.sqlite3_win32_set_directory(2, ApplicationData.Current.TemporaryFolder.Path);
+
+            OLEDB.Open();
+            string Command = @"Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));
+                                   Create Table If Not Exists WebFavourite (Subject Text Not Null, WebSite Text Not Null, Primary Key (WebSite));
+                                   Create Table If Not Exists WebHistory (Subject Text Not Null, WebSite Text Not Null, DateTime Text Not Null, Primary Key (Subject, WebSite, DateTime));
+                                   Create Table If Not Exists DownloadHistory (UniqueID Text Not Null, ActualName Text Not Null, Uri Text Not Null, State Text Not Null, Primary Key(UniqueID));
+                                   Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
+                                   Create Table If Not Exists FolderLibrary (Path Text Not Null, Primary Key (Path));
+                                   Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
+                                   Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));";
+
+            using (SqliteCommand CreateTable = new SqliteCommand(Command, OLEDB))
+            {
+                _ = CreateTable.ExecuteNonQuery();
+            }
 
             InitializeBackgroundPicture();
         }
@@ -76,25 +92,25 @@ namespace FileManager
             }
         }
 
-        private SqliteConnection CreateConnectionToDataBase()
-        {
-            SqliteConnection Connection = new SqliteConnection("Filename=RX_Sqlite.db");
+        //private SqliteConnection CreateConnectionToDataBase()
+        //{
+        //    SqliteConnection Connection = new SqliteConnection("Filename=RX_Sqlite.db");
 
-            Connection.Open();
-            string Command = @"Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));
-                                   Create Table If Not Exists WebFavourite (Subject Text Not Null, WebSite Text Not Null, Primary Key (WebSite));
-                                   Create Table If Not Exists WebHistory (Subject Text Not Null, WebSite Text Not Null, DateTime Text Not Null, Primary Key (Subject, WebSite, DateTime));
-                                   Create Table If Not Exists DownloadHistory (UniqueID Text Not Null, ActualName Text Not Null, Uri Text Not Null, State Text Not Null, Primary Key(UniqueID));
-                                   Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
-                                   Create Table If Not Exists FolderLibrary (Path Text Not Null, Primary Key (Path));
-                                   Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
-                                   Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));";
+        //    Connection.Open();
+        //    string Command = @"Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));
+        //                           Create Table If Not Exists WebFavourite (Subject Text Not Null, WebSite Text Not Null, Primary Key (WebSite));
+        //                           Create Table If Not Exists WebHistory (Subject Text Not Null, WebSite Text Not Null, DateTime Text Not Null, Primary Key (Subject, WebSite, DateTime));
+        //                           Create Table If Not Exists DownloadHistory (UniqueID Text Not Null, ActualName Text Not Null, Uri Text Not Null, State Text Not Null, Primary Key(UniqueID));
+        //                           Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
+        //                           Create Table If Not Exists FolderLibrary (Path Text Not Null, Primary Key (Path));
+        //                           Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
+        //                           Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));";
 
-            using (SqliteCommand CreateTable = new SqliteCommand(Command, Connection))
-            {
-                _ = CreateTable.ExecuteNonQuery();
-            }
-        }
+        //    using (SqliteCommand CreateTable = new SqliteCommand(Command, Connection))
+        //    {
+        //        _ = CreateTable.ExecuteNonQuery();
+        //    }
+        //}
 
         private void InitializeBackgroundPicture()
         {
