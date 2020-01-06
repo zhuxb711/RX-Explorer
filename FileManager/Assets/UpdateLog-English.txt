@@ -1,4 +1,27 @@
 ﻿*****
+###What's new in Ver.3.8.5.0
+
+>#####Feature Update
+
+>>#####Add new merge function of video files
+
+>>#####Added setting to switch black / white font
+
+>>#####Added memory reclamation mechanism when the RX file manager reaches the system memory limit and is in a minimized or other inactive state
+
+>>#####Improved the information acquisition mechanism when a problem occurs, and will provide richer tracking information when an exception occurs
+
+>#####Bug fix
+
+>>#####Fixed the problem that after transcoding files, the new files generated will not be automatically displayed in the RX explorer
+
+>>#####Solved the problem of allowing MKV files to be cropped by mistake, now only allows operations on WMV and MP4 files
+
+>>#####Solved the problem that some files could not get preview icons
+
+>>#####Fixed the problem that some resources could not be released correctly when getting the file preview icon
+
+*****
 ###What's new in Ver.3.8.2.0
 
 >#####Feature Update

@@ -1,5 +1,4 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -8,6 +7,7 @@ using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Storage;
+using Windows.System;
 using Windows.UI;
 using Windows.UI.Notifications;
 using Windows.UI.ViewManagement;
@@ -23,6 +23,7 @@ namespace FileManager
     /// </summary>
     sealed partial class App : Application
     {
+        bool IsInBackgroundMode = false;
         /// <summary>
         /// 初始化单一实例应用程序对象。这是执行的创作代码的第一行，
         /// 已执行，逻辑上等同于 main() 或 WinMain()。
@@ -42,6 +43,51 @@ namespace FileManager
 
             Suspending += OnSuspending;
             UnhandledException += App_UnhandledException;
+            EnteredBackground += App_EnteredBackground;
+            LeavingBackground += App_LeavingBackground;
+            MemoryManager.AppMemoryUsageIncreased += MemoryManager_AppMemoryUsageIncreased;
+            MemoryManager.AppMemoryUsageLimitChanging += MemoryManager_AppMemoryUsageLimitChanging;
+        }
+
+        private void MemoryManager_AppMemoryUsageLimitChanging(object sender, AppMemoryUsageLimitChangingEventArgs e)
+        {
+            if (IsInBackgroundMode)
+            {
+                if (MemoryManager.AppMemoryUsage >= e.NewLimit)
+                {
+                    ReduceMemoryUsage();
+                }
+            }
+        }
+
+        private void MemoryManager_AppMemoryUsageIncreased(object sender, object e)
+        {
+            if (IsInBackgroundMode)
+            {
+                AppMemoryUsageLevel level = MemoryManager.AppMemoryUsageLevel;
+
+                if (level == AppMemoryUsageLevel.OverLimit || level == AppMemoryUsageLevel.High)
+                {
+                    ReduceMemoryUsage();
+                }
+            }
+        }
+
+        private void ReduceMemoryUsage()
+        {
+            SQLite.Current.Dispose();
+            MySQL.Current.Dispose();
+            GC.Collect();
+        }
+
+        private void App_LeavingBackground(object sender, LeavingBackgroundEventArgs e)
+        {
+            IsInBackgroundMode = false;
+        }
+
+        private void App_EnteredBackground(object sender, EnteredBackgroundEventArgs e)
+        {
+            IsInBackgroundMode = true;
         }
 
         private void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)

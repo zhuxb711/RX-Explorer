@@ -54,7 +54,6 @@ namespace FileManager
     #region SQLite数据库
     public sealed class SQLite : IDisposable
     {
-        private SqliteConnection OLEDB;
         private bool IsDisposed = false;
         private static SQLite SQL = null;
         private SQLite()
@@ -62,22 +61,6 @@ namespace FileManager
             SQLitePCL.Batteries_V2.Init();
             SQLitePCL.raw.sqlite3_win32_set_directory(1, ApplicationData.Current.LocalFolder.Path);
             SQLitePCL.raw.sqlite3_win32_set_directory(2, ApplicationData.Current.TemporaryFolder.Path);
-
-            OLEDB = new SqliteConnection("Filename=RX_Sqlite.db");
-            OLEDB.Open();
-            string Command = @"Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));
-                               Create Table If Not Exists WebFavourite (Subject Text Not Null, WebSite Text Not Null, Primary Key (WebSite));
-                               Create Table If Not Exists WebHistory (Subject Text Not Null, WebSite Text Not Null, DateTime Text Not Null, Primary Key (Subject, WebSite, DateTime));
-                               Create Table If Not Exists DownloadHistory (UniqueID Text Not Null, ActualName Text Not Null, Uri Text Not Null, State Text Not Null, Primary Key(UniqueID));
-                               Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
-                               Create Table If Not Exists FolderLibrary (Path Text Not Null, Primary Key (Path));
-                               Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
-                               Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));";
-
-            using (SqliteCommand CreateTable = new SqliteCommand(Command, OLEDB))
-            {
-                _ = CreateTable.ExecuteNonQuery();
-            }
 
             InitializeBackgroundPicture();
         }
@@ -90,6 +73,26 @@ namespace FileManager
                 {
                     return SQL ?? (SQL = new SQLite());
                 }
+            }
+        }
+
+        private SqliteConnection CreateConnectionToDataBase()
+        {
+            SqliteConnection Connection = new SqliteConnection("Filename=RX_Sqlite.db");
+
+            Connection.Open();
+            string Command = @"Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));
+                                   Create Table If Not Exists WebFavourite (Subject Text Not Null, WebSite Text Not Null, Primary Key (WebSite));
+                                   Create Table If Not Exists WebHistory (Subject Text Not Null, WebSite Text Not Null, DateTime Text Not Null, Primary Key (Subject, WebSite, DateTime));
+                                   Create Table If Not Exists DownloadHistory (UniqueID Text Not Null, ActualName Text Not Null, Uri Text Not Null, State Text Not Null, Primary Key(UniqueID));
+                                   Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
+                                   Create Table If Not Exists FolderLibrary (Path Text Not Null, Primary Key (Path));
+                                   Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
+                                   Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));";
+
+            using (SqliteCommand CreateTable = new SqliteCommand(Command, Connection))
+            {
+                _ = CreateTable.ExecuteNonQuery();
             }
         }
 
@@ -492,10 +495,6 @@ namespace FileManager
     {
         private static MySQL Instance;
 
-        private MySqlConnection Connection;
-
-        private static readonly object Locker = new object();
-
         private bool IsDisposed = false;
 
         private AutoResetEvent ConnectionLocker;
@@ -504,7 +503,7 @@ namespace FileManager
         {
             get
             {
-                lock (Locker)
+                lock (SyncRootProvider.SyncRoot)
                 {
                     return Instance ?? (Instance = new MySQL());
                 }
@@ -516,277 +515,270 @@ namespace FileManager
             ConnectionLocker = new AutoResetEvent(true);
         }
 
-        public Task<bool> StartConnectToDataBaseAsync()
+        public Task<MySqlConnection> CreateConnectionToDataBaseAsync()
         {
             return Task.Run(() =>
             {
                 ConnectionLocker.WaitOne();
 
+                MySqlConnection Connection = new MySqlConnection("Data Source=zhuxb711.rdsmt2onuvpvh1v.rds.gz.baidubce.com;port=3306;CharSet=utf8;User id=zhuxb711;password=password123;Database=FeedBackDataBase;");
+
                 try
                 {
-                    if (Connection == null)
+                    Connection.Open();
+                    const string CommandText = @"Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);
+                                                 Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null)";
+                    using (MySqlCommand Command = new MySqlCommand(CommandText, Connection))
                     {
-                        Connection = new MySqlConnection("Data Source=zhuxb711.rdsmt2onuvpvh1v.rds.gz.baidubce.com;port=3306;CharSet=utf8;User id=zhuxb711;password=password123;Database=FeedBackDataBase;");
-                        Connection.Open();
-                        const string CommandText = @"Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);
-                                                     Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null)";
-                        using (MySqlCommand Command = new MySqlCommand(CommandText, Connection))
-                        {
-                            _ = Command.ExecuteNonQuery();
-                        }
-                        return true;
+                        _ = Command.ExecuteNonQuery();
                     }
-                    else if (Connection.State != System.Data.ConnectionState.Open)
-                    {
-                        Connection.Open();
-                        const string CommandText = @"Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);
-                                                     Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null)";
-                        using (MySqlCommand Command = new MySqlCommand(CommandText, Connection))
-                        {
-                            _ = Command.ExecuteNonQuery();
-                        }
-                        return true;
-                    }
-                    else
-                    {
-                        return true;
-                    }
-                }
-                catch (Exception)
-                {
-                    return false;
                 }
                 finally
                 {
                     ConnectionLocker.Set();
                 }
+
+                return Connection;
             });
         }
 
-        public Task<List<FeedBackItem>> GetAllFeedBackAsync()
+        public async IAsyncEnumerable<FeedBackItem> GetAllFeedBackAsync()
         {
-            return StartConnectToDataBaseAsync().ContinueWith((Result) =>
+            using (MySqlConnection Connection = await CreateConnectionToDataBaseAsync())
             {
-                try
+                if (Connection.State == System.Data.ConnectionState.Open)
                 {
-                    List<FeedBackItem> list = new List<FeedBackItem>();
                     using (MySqlCommand Command = new MySqlCommand("Select * From FeedBackTable", Connection))
-                    using (DbDataReader Reader = Command.ExecuteReader())
+                    using (DbDataReader Reader = await Command.ExecuteReaderAsync())
                     {
                         var CurrentLanguage = Globalization.Language;
-                        while (Reader.Read())
+                        while (await Reader.ReadAsync())
                         {
-                            string TitleTranslation = Reader["Title"].ToString().TranslateTo(CurrentLanguage);
-                            string SuggestionTranslation = Reader["Suggestion"].ToString().TranslateTo(CurrentLanguage);
-                            list.Add(new FeedBackItem(CurrentLanguage == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString().TranslateToPinyinOrStayInEnglish(), string.IsNullOrEmpty(TitleTranslation) ? Reader["Title"].ToString() : TitleTranslation, string.IsNullOrEmpty(SuggestionTranslation) ? Reader["Suggestion"].ToString() : SuggestionTranslation, Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString()));
+                            string TitleTranslation = await Reader["Title"].ToString().TranslateToAsync(CurrentLanguage);
+                            string SuggestionTranslation = await Reader["Suggestion"].ToString().TranslateToAsync(CurrentLanguage);
+                            yield return new FeedBackItem(CurrentLanguage == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString().TranslateToPinyinOrStayInEnglish(), string.IsNullOrEmpty(TitleTranslation) ? Reader["Title"].ToString() : TitleTranslation, string.IsNullOrEmpty(SuggestionTranslation) ? Reader["Suggestion"].ToString() : SuggestionTranslation, Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString());
                         }
-                    }
-                    return list;
-                }
-                catch (Exception)
-                {
-                    return new List<FeedBackItem>();
-                }
-            });
-        }
-
-        public Task<bool> GetExtraFeedBackInfo(FeedBackItem list)
-        {
-            return StartConnectToDataBaseAsync().ContinueWith((Result, Para) =>
-            {
-                if (Result.Result)
-                {
-                    try
-                    {
-                        FeedBackItem Item = (FeedBackItem)Para;
-                        using (MySqlCommand Command1 = new MySqlCommand("Select Behavior From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
-                        {
-                            _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                            _ = Command1.Parameters.AddWithValue("@GUID", Item.GUID);
-
-                            string Behaivor = Convert.ToString(Command1.ExecuteScalar());
-                            if (!string.IsNullOrEmpty(Behaivor))
-                            {
-                                Item.UserVoteAction = Behaivor;
-                            }
-                        }
-
-                        return true;
-                    }
-                    catch (Exception)
-                    {
-                        return false;
                     }
                 }
                 else
                 {
-                    return false;
+                    yield break;
+                }
+            }
+        }
+
+        public Task<bool> GetExtraFeedBackInfo(FeedBackItem list)
+        {
+            return CreateConnectionToDataBaseAsync().ContinueWith((task, Para) =>
+            {
+                using (MySqlConnection Connection = task.Result)
+                {
+                    if (Connection.State == System.Data.ConnectionState.Open)
+                    {
+                        try
+                        {
+                            FeedBackItem Item = (FeedBackItem)Para;
+                            using (MySqlCommand Command1 = new MySqlCommand("Select Behavior From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
+                            {
+                                _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                                _ = Command1.Parameters.AddWithValue("@GUID", Item.GUID);
+
+                                string Behaivor = Convert.ToString(Command1.ExecuteScalar());
+                                if (!string.IsNullOrEmpty(Behaivor))
+                                {
+                                    Item.UserVoteAction = Behaivor;
+                                }
+                            }
+
+                            return true;
+                        }
+                        catch (Exception)
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
             }, list);
         }
 
         public Task<bool> UpdateFeedBackVoteAsync(FeedBackItem Item)
         {
-            return StartConnectToDataBaseAsync().ContinueWith((Result) =>
+            return CreateConnectionToDataBaseAsync().ContinueWith((task) =>
             {
-                if (Result.Result)
+                using (MySqlConnection Connection = task.Result)
                 {
-                    try
+                    if (Connection.State == System.Data.ConnectionState.Open)
                     {
-                        using (MySqlCommand Command = new MySqlCommand("Update FeedBackTable Set LikeNum=@LikeNum, DislikeNum=@DislikeNum Where GUID=@GUID", Connection))
+                        try
                         {
-                            _ = Command.Parameters.AddWithValue("@LikeNum", Item.LikeNum);
-                            _ = Command.Parameters.AddWithValue("@DislikeNum", Item.DislikeNum);
-                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                            _ = Command.ExecuteNonQuery();
-                        }
-
-                        using (MySqlCommand Command1 = new MySqlCommand("Select count(*) From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
-                        {
-                            _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                            _ = Command1.Parameters.AddWithValue("@GUID", Item.GUID);
-                            if (Convert.ToInt16(Command1.ExecuteScalar()) == 0)
+                            using (MySqlCommand Command = new MySqlCommand("Update FeedBackTable Set LikeNum=@LikeNum, DislikeNum=@DislikeNum Where GUID=@GUID", Connection))
                             {
-                                if (Item.UserVoteAction != "=")
-                                {
-                                    using (MySqlCommand Command = new MySqlCommand("Insert Into VoteRecordTable Values (@UserID,@GUID,@Behaivor)", Connection))
-                                    {
-                                        _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                        _ = Command.Parameters.AddWithValue("@Behaivor", Item.UserVoteAction);
-                                        _ = Command.ExecuteNonQuery();
-                                    }
-                                }
+                                _ = Command.Parameters.AddWithValue("@LikeNum", Item.LikeNum);
+                                _ = Command.Parameters.AddWithValue("@DislikeNum", Item.DislikeNum);
+                                _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                _ = Command.ExecuteNonQuery();
                             }
-                            else
+
+                            using (MySqlCommand Command1 = new MySqlCommand("Select count(*) From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
                             {
-                                if (Item.UserVoteAction != "=")
+                                _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                                _ = Command1.Parameters.AddWithValue("@GUID", Item.GUID);
+                                if (Convert.ToInt16(Command1.ExecuteScalar()) == 0)
                                 {
-                                    using (MySqlCommand Command = new MySqlCommand("Update VoteRecordTable Set Behavior=@Behaivor Where UserID=@UserID And GUID=@GUID", Connection))
+                                    if (Item.UserVoteAction != "=")
                                     {
-                                        _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                        _ = Command.Parameters.AddWithValue("@Behaivor", Item.UserVoteAction);
-                                        _ = Command.ExecuteNonQuery();
+                                        using (MySqlCommand Command = new MySqlCommand("Insert Into VoteRecordTable Values (@UserID,@GUID,@Behaivor)", Connection))
+                                        {
+                                            _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                            _ = Command.Parameters.AddWithValue("@Behaivor", Item.UserVoteAction);
+                                            _ = Command.ExecuteNonQuery();
+                                        }
                                     }
                                 }
                                 else
                                 {
-                                    using (MySqlCommand Command = new MySqlCommand("Delete From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
+                                    if (Item.UserVoteAction != "=")
                                     {
-                                        _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                        _ = Command.ExecuteNonQuery();
+                                        using (MySqlCommand Command = new MySqlCommand("Update VoteRecordTable Set Behavior=@Behaivor Where UserID=@UserID And GUID=@GUID", Connection))
+                                        {
+                                            _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                            _ = Command.Parameters.AddWithValue("@Behaivor", Item.UserVoteAction);
+                                            _ = Command.ExecuteNonQuery();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        using (MySqlCommand Command = new MySqlCommand("Delete From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
+                                        {
+                                            _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                            _ = Command.ExecuteNonQuery();
+                                        }
                                     }
                                 }
                             }
+                            return true;
                         }
-                        return true;
+                        catch (Exception)
+                        {
+                            return false;
+                        }
                     }
-                    catch (Exception)
+                    else
                     {
                         return false;
                     }
-                }
-                else
-                {
-                    return false;
                 }
             });
         }
 
         public Task<bool> UpdateFeedBackTitleAndSuggestionAsync(string Title, string Suggestion, string GUID)
         {
-            return StartConnectToDataBaseAsync().ContinueWith((Result) =>
+            return CreateConnectionToDataBaseAsync().ContinueWith((task) =>
             {
-                if (Result.Result)
+                using (MySqlConnection Connection = task.Result)
                 {
-                    try
+                    if (Connection.State == System.Data.ConnectionState.Open)
                     {
-                        using (MySqlCommand Command = new MySqlCommand("Update FeedBackTable Set Title=@NewTitle, Suggestion=@NewSuggestion Where GUID=@GUID", Connection))
+                        try
                         {
-                            _ = Command.Parameters.AddWithValue("@NewTitle", Title);
-                            _ = Command.Parameters.AddWithValue("@NewSuggestion", Suggestion);
-                            _ = Command.Parameters.AddWithValue("@GUID", GUID);
-                            _ = Command.ExecuteNonQuery();
+                            using (MySqlCommand Command = new MySqlCommand("Update FeedBackTable Set Title=@NewTitle, Suggestion=@NewSuggestion Where GUID=@GUID", Connection))
+                            {
+                                _ = Command.Parameters.AddWithValue("@NewTitle", Title);
+                                _ = Command.Parameters.AddWithValue("@NewSuggestion", Suggestion);
+                                _ = Command.Parameters.AddWithValue("@GUID", GUID);
+                                _ = Command.ExecuteNonQuery();
+                            }
+                            return true;
                         }
-                        return true;
+                        catch (Exception)
+                        {
+                            return false;
+                        }
                     }
-                    catch (Exception)
+                    else
                     {
                         return false;
                     }
-                }
-                else
-                {
-                    return false;
                 }
             });
         }
 
         public Task<bool> DeleteFeedBackAsync(FeedBackItem Item)
         {
-            return StartConnectToDataBaseAsync().ContinueWith((Result) =>
+            return CreateConnectionToDataBaseAsync().ContinueWith((task) =>
             {
-                if (Result.Result)
+                using (MySqlConnection Connection = task.Result)
                 {
-                    try
+                    if (Connection.State == System.Data.ConnectionState.Open)
                     {
-                        using (MySqlCommand Command = new MySqlCommand("Delete From FeedBackTable Where GUID=@GUID", Connection))
+                        try
                         {
-                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                            _ = Command.ExecuteNonQuery();
-                        }
+                            using (MySqlCommand Command = new MySqlCommand("Delete From FeedBackTable Where GUID=@GUID", Connection))
+                            {
+                                _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                _ = Command.ExecuteNonQuery();
+                            }
 
-                        using (MySqlCommand Command = new MySqlCommand("Delete From VoteRecordTable Where GUID=@GUID", Connection))
+                            using (MySqlCommand Command = new MySqlCommand("Delete From VoteRecordTable Where GUID=@GUID", Connection))
+                            {
+                                _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                _ = Command.ExecuteNonQuery();
+                            }
+
+                            return true;
+                        }
+                        catch (Exception)
                         {
-                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                            _ = Command.ExecuteNonQuery();
+                            return false;
                         }
-
-                        return true;
                     }
-                    catch (Exception)
+                    else
                     {
                         return false;
                     }
-                }
-                else
-                {
-                    return false;
                 }
             });
         }
 
         public Task<bool> SetFeedBackAsync(FeedBackItem Item)
         {
-            return StartConnectToDataBaseAsync().ContinueWith((Result) =>
+            return CreateConnectionToDataBaseAsync().ContinueWith((task) =>
             {
-                if (Result.Result)
+                using (MySqlConnection Connection = task.Result)
                 {
-                    try
+                    if (Connection.State == System.Data.ConnectionState.Open)
                     {
-                        using (MySqlCommand Command = new MySqlCommand("Insert Into FeedBackTable Values (@UserName,@Title,@Suggestion,@Like,@Dislike,@UserID,@GUID)", Connection))
+                        try
                         {
-                            _ = Command.Parameters.AddWithValue("@UserName", Item.UserName);
-                            _ = Command.Parameters.AddWithValue("@Title", Item.Title);
-                            _ = Command.Parameters.AddWithValue("@Suggestion", Item.Suggestion);
-                            _ = Command.Parameters.AddWithValue("@Like", Item.LikeNum);
-                            _ = Command.Parameters.AddWithValue("@Dislike", Item.DislikeNum);
-                            _ = Command.Parameters.AddWithValue("@UserID", Item.UserID);
-                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                            _ = Command.ExecuteNonQuery();
+                            using (MySqlCommand Command = new MySqlCommand("Insert Into FeedBackTable Values (@UserName,@Title,@Suggestion,@Like,@Dislike,@UserID,@GUID)", Connection))
+                            {
+                                _ = Command.Parameters.AddWithValue("@UserName", Item.UserName);
+                                _ = Command.Parameters.AddWithValue("@Title", Item.Title);
+                                _ = Command.Parameters.AddWithValue("@Suggestion", Item.Suggestion);
+                                _ = Command.Parameters.AddWithValue("@Like", Item.LikeNum);
+                                _ = Command.Parameters.AddWithValue("@Dislike", Item.DislikeNum);
+                                _ = Command.Parameters.AddWithValue("@UserID", Item.UserID);
+                                _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                _ = Command.ExecuteNonQuery();
+                            }
+                            return true;
                         }
-                        return true;
+                        catch (Exception)
+                        {
+                            return false;
+                        }
                     }
-                    catch (Exception)
+                    else
                     {
                         return false;
                     }
-                }
-                else
-                {
-                    return false;
                 }
             });
         }
@@ -796,9 +788,7 @@ namespace FileManager
             if (!IsDisposed)
             {
                 IsDisposed = true;
-                ConnectionLocker.Dispose();
-                Connection?.Dispose();
-                Connection = null;
+                ConnectionLocker?.Dispose();
                 ConnectionLocker = null;
                 Instance = null;
             }

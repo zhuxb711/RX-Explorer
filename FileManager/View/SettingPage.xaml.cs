@@ -175,7 +175,7 @@ namespace FileManager
                 };
                 FeedBackList.ItemsSource = FeedBackCollection;
 
-                foreach (var FeedBackItem in await MySQL.Current.GetAllFeedBackAsync())
+                await foreach (var FeedBackItem in MySQL.Current.GetAllFeedBackAsync())
                 {
                     FeedBackCollection.Add(FeedBackItem);
 

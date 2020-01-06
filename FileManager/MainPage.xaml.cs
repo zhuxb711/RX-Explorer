@@ -130,7 +130,7 @@ namespace FileManager
 
                 EntranceEffectProvider.AnimationCompleted += (s, t) =>
                 {
-                    _ = MySQL.Current.StartConnectToDataBaseAsync();
+                    _ = MySQL.Current.CreateConnectionToDataBaseAsync();
                 };
 
                 EntranceEffectProvider.StartEntranceEffect();
