@@ -273,6 +273,15 @@
   <data name="CropperPageSavingTips.Text" xml:space="preserve">
     <value>Saving</value>
   </data>
+  <data name="CustionFontColor.Header" xml:space="preserve">
+    <value>Custom font color</value>
+  </data>
+  <data name="CustionFontColor.OffContent" xml:space="preserve">
+    <value>White</value>
+  </data>
+  <data name="CustionFontColor.OnContent" xml:space="preserve">
+    <value>Black</value>
+  </data>
   <data name="CustomUISubtype1.Content" xml:space="preserve">
     <value>Acrylic background</value>
   </data>

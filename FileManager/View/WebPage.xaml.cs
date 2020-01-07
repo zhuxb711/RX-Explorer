@@ -50,6 +50,7 @@ namespace FileManager
             PermissionLocker = new AutoResetEvent(false);
             FavouriteList.ItemsSource = WebTab.ThisPage.FavouriteCollection;
             DownloadList.ItemsSource = WebDownloader.DownloadList;
+
             if (Globalization.Language == LanguageEnum.Chinese)
             {
                 TabOpenMethod.Items.Add("空白页");
@@ -69,32 +70,37 @@ namespace FileManager
                 SearchEngine.Items.Add("Baidu");
             }
 
-        //由于未知原因此处new WebView时，若选择多进程模型则可能会引发异常
+            Loading += WebPage_Loading;
+            Loaded += WebPage_Loaded;
+
         FLAG:
             try
             {
-                WebBrowser = new WebView(WebViewExecutionMode.SeparateProcess);
+                WebBrowser = new WebView(WebViewExecutionMode.SeparateThread);
             }
             catch (Exception)
             {
                 goto FLAG;
             }
 
+            if (uri != null)
+            {
+                WebBrowser.Navigate(uri);
+            }
+        }
+
+        private void WebPage_Loading(FrameworkElement sender, object args)
+        {
+            Loading -= WebPage_Loading;
+
             try
             {
                 InitHistoryList();
                 InitializeWebView();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ExceptionTracer.RequestBlueScreen(ex);
-            }
-
-            Loaded += WebPage_Loaded;
-
-            if (uri != null)
-            {
-                WebBrowser.Navigate(uri);
             }
         }
 
@@ -256,165 +262,172 @@ namespace FileManager
             //包括其他标签页向收藏列表新增的条目，或其他标签页通过访问网页而向历史记录添加的新条目
 
             //确定历史记录或收藏列表是否为空，若空则显示“无内容”提示标签
-            FavEmptyTips.Visibility = WebTab.ThisPage.FavouriteCollection.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-            HistoryEmptyTips.Visibility = WebTab.ThisPage.HistoryCollection.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-            DownloadEmptyTips.Visibility = WebDownloader.DownloadList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            try
+            {
+                FavEmptyTips.Visibility = WebTab.ThisPage.FavouriteCollection.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                HistoryEmptyTips.Visibility = WebTab.ThisPage.HistoryCollection.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                DownloadEmptyTips.Visibility = WebDownloader.DownloadList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
-            //其他标签页已执行清空历史记录时，当前标签页也必须删除历史记录树内的所有节点
-            if (WebTab.ThisPage.HistoryCollection.Count == 0)
-            {
-                HistoryTree.RootNodes.Clear();
-            }
-            else
-            {
-                var TreeNodes = from Item in HistoryTree.RootNodes
-                                let Subject = Globalization.Language == LanguageEnum.Chinese ? "今天" : "Today"
-                                where (Item.Content as WebSiteItem).Subject == Subject
-                                select Item;
-                var TodayNode = TreeNodes.FirstOrDefault();
-                if (TodayNode != null)
+                //其他标签页已执行清空历史记录时，当前标签页也必须删除历史记录树内的所有节点
+                if (WebTab.ThisPage.HistoryCollection.Count == 0)
                 {
-                    TodayNode.Children.Clear();
-
-                    foreach (var HistoryItem in WebTab.ThisPage.HistoryCollection)
+                    HistoryTree.RootNodes.Clear();
+                }
+                else
+                {
+                    var TreeNodes = from Item in HistoryTree.RootNodes
+                                    let Subject = Globalization.Language == LanguageEnum.Chinese ? "今天" : "Today"
+                                    where (Item.Content as WebSiteItem).Subject == Subject
+                                    select Item;
+                    var TodayNode = TreeNodes.FirstOrDefault();
+                    if (TodayNode != null)
                     {
-                        TodayNode.Children.Add(new TreeViewNode
+                        TodayNode.Children.Clear();
+
+                        foreach (var HistoryItem in WebTab.ThisPage.HistoryCollection)
                         {
-                            Content = HistoryItem.Value,
-                            HasUnrealizedChildren = false,
-                            IsExpanded = false
-                        });
+                            TodayNode.Children.Add(new TreeViewNode
+                            {
+                                Content = HistoryItem.Value,
+                                HasUnrealizedChildren = false,
+                                IsExpanded = false
+                            });
+                        }
                     }
                 }
-            }
 
-            //以下为检索各存储设置以同步各标签页之间对设置界面选项的更改
-            if (ApplicationData.Current.LocalSettings.Values["WebTabOpenMethod"] is string Method)
-            {
-                foreach (var Item in from string Item in TabOpenMethod.Items
-                                     where Method == Item
-                                     select Item)
+                //以下为检索各存储设置以同步各标签页之间对设置界面选项的更改
+                if (ApplicationData.Current.LocalSettings.Values["WebTabOpenMethod"] is string Method)
                 {
-                    TabOpenMethod.SelectedItem = Item;
-                }
-            }
-            else
-            {
-                TabOpenMethod.SelectedIndex = 0;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["WebTabMainPage"] is string Page)
-            {
-                MainUrl.Text = Page;
-            }
-            else
-            {
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    ApplicationData.Current.LocalSettings.Values["WebTabMainPage"] = "https://www.baidu.com";
-                    MainUrl.Text = "https://www.baidu.com";
+                    foreach (var Item in from string Item in TabOpenMethod.Items
+                                         where Method == Item
+                                         select Item)
+                    {
+                        TabOpenMethod.SelectedItem = Item;
+                    }
                 }
                 else
                 {
-                    ApplicationData.Current.LocalSettings.Values["WebTabMainPage"] = "https://www.bing.com";
-                    MainUrl.Text = "https://www.bing.com";
+                    TabOpenMethod.SelectedIndex = 0;
                 }
-            }
 
-            if (ApplicationData.Current.LocalSettings.Values["WebTabSpecifiedPage"] is string Specified)
-            {
-                SpecificUrl.Text = Specified;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["WebTabSpecifiedPage"] = "about:blank";
-                SpecificUrl.Text = "about:blank";
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["WebShowMainButton"] is bool IsShow)
-            {
-                ShowMainButton.IsOn = IsShow;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["WebShowMainButton"] = true;
-                ShowMainButton.IsOn = true;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["WebEnableJS"] is bool IsEnableJS)
-            {
-                AllowJS.IsOn = IsEnableJS;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["WebEnableJS"] = true;
-                AllowJS.IsOn = true;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["WebEnableDB"] is bool IsEnableDB)
-            {
-                AllowIndexedDB.IsOn = IsEnableDB;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["WebEnableDB"] = true;
-                AllowIndexedDB.IsOn = true;
-            }
-
-            if (!StorageApplicationPermissions.FutureAccessList.ContainsItem("DownloadPath"))
-            {
-                StorageFolder Folder = ThisPC.ThisPage.LibraryFolderList.Where((Library) => Library.Name == "Downloads").FirstOrDefault().Folder;
-                StorageApplicationPermissions.FutureAccessList.AddOrReplace("DownloadPath", Folder);
-                DownloadPath.Text = Folder.Path;
-            }
-            else
-            {
-                StorageFolder Folder = await StorageApplicationPermissions.FutureAccessList.GetItemAsync("DownloadPath") as StorageFolder;
-                DownloadPath.Text = Folder.Path;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["WebSearchEngine"] is string Engine)
-            {
-                SearchEngine.SelectedItem = SearchEngine.Items.Where((Item) => Item.ToString() == Engine).FirstOrDefault();
-            }
-            else
-            {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                if (ApplicationData.Current.LocalSettings.Values["WebTabMainPage"] is string Page)
                 {
-                    ApplicationData.Current.LocalSettings.Values["WebSearchEngine"] = "百度";
-                    SearchEngine.SelectedIndex = 0;
+                    MainUrl.Text = Page;
                 }
                 else
                 {
-                    ApplicationData.Current.LocalSettings.Values["WebSearchEngine"] = "Google";
-                    SearchEngine.SelectedIndex = 0;
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        ApplicationData.Current.LocalSettings.Values["WebTabMainPage"] = "https://www.baidu.com";
+                        MainUrl.Text = "https://www.baidu.com";
+                    }
+                    else
+                    {
+                        ApplicationData.Current.LocalSettings.Values["WebTabMainPage"] = "https://www.bing.com";
+                        MainUrl.Text = "https://www.bing.com";
+                    }
                 }
-            }
 
-            //切换不同标签页时，应当同步InPrivate模式的设置
-            //同时因为改变InPrivate设置将导致Toggled事件触发，因此先解除，改变后再绑定
-            InPrivate.Toggled -= InPrivate_Toggled;
-            if (ApplicationData.Current.LocalSettings.Values["WebActivateInPrivate"] is bool EnableInPrivate)
-            {
-                InPrivate.IsOn = EnableInPrivate;
-                if (EnableInPrivate)
+                if (ApplicationData.Current.LocalSettings.Values["WebTabSpecifiedPage"] is string Specified)
                 {
-                    Favourite.Visibility = Visibility.Collapsed;
+                    SpecificUrl.Text = Specified;
                 }
                 else
                 {
-                    Favourite.Visibility = Visibility.Visible;
+                    ApplicationData.Current.LocalSettings.Values["WebTabSpecifiedPage"] = "about:blank";
+                    SpecificUrl.Text = "about:blank";
                 }
-                InPrivate.Toggled += InPrivate_Toggled;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["WebActivateInPrivate"] = false;
-                InPrivate.IsOn = false;
-                InPrivate.Toggled += InPrivate_Toggled;
-            }
 
-            WebDownloader.DownloadList.CollectionChanged += DownloadList_CollectionChanged;
+                if (ApplicationData.Current.LocalSettings.Values["WebShowMainButton"] is bool IsShow)
+                {
+                    ShowMainButton.IsOn = IsShow;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["WebShowMainButton"] = true;
+                    ShowMainButton.IsOn = true;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["WebEnableJS"] is bool IsEnableJS)
+                {
+                    AllowJS.IsOn = IsEnableJS;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["WebEnableJS"] = true;
+                    AllowJS.IsOn = true;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["WebEnableDB"] is bool IsEnableDB)
+                {
+                    AllowIndexedDB.IsOn = IsEnableDB;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["WebEnableDB"] = true;
+                    AllowIndexedDB.IsOn = true;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["DownloadPath"] is string Path)
+                {
+                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
+                    DownloadPath.Text = Path;
+                }
+                else
+                {
+                    StorageFolder Folder = ThisPC.ThisPage.LibraryFolderList.Where((Library) => Library.Name == "Downloads").FirstOrDefault().Folder;
+                    ApplicationData.Current.LocalSettings.Values["DownloadPath"] = Folder.Path;
+                    DownloadPath.Text = Folder.Path;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["WebSearchEngine"] is string Engine)
+                {
+                    SearchEngine.SelectedItem = SearchEngine.Items.Where((Item) => Item.ToString() == Engine).FirstOrDefault();
+                }
+                else
+                {
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        ApplicationData.Current.LocalSettings.Values["WebSearchEngine"] = "百度";
+                        SearchEngine.SelectedIndex = 0;
+                    }
+                    else
+                    {
+                        ApplicationData.Current.LocalSettings.Values["WebSearchEngine"] = "Google";
+                        SearchEngine.SelectedIndex = 0;
+                    }
+                }
+
+                //切换不同标签页时，应当同步InPrivate模式的设置
+                //同时因为改变InPrivate设置将导致Toggled事件触发，因此先解除，改变后再绑定
+                InPrivate.Toggled -= InPrivate_Toggled;
+                if (ApplicationData.Current.LocalSettings.Values["WebActivateInPrivate"] is bool EnableInPrivate)
+                {
+                    InPrivate.IsOn = EnableInPrivate;
+                    if (EnableInPrivate)
+                    {
+                        Favourite.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        Favourite.Visibility = Visibility.Visible;
+                    }
+                    InPrivate.Toggled += InPrivate_Toggled;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["WebActivateInPrivate"] = false;
+                    InPrivate.IsOn = false;
+                    InPrivate.Toggled += InPrivate_Toggled;
+                }
+
+                WebDownloader.DownloadList.CollectionChanged += DownloadList_CollectionChanged;
+            }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
+            }
         }
 
         private void DownloadList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -2188,7 +2201,7 @@ namespace FileManager
             if (SaveFolder != null)
             {
                 DownloadPath.Text = SaveFolder.Path;
-                StorageApplicationPermissions.FutureAccessList.AddOrReplace("DownloadPath", SaveFolder);
+                ApplicationData.Current.LocalSettings.Values["DownloadPath"] = SaveFolder.Path;
             }
         }
 
@@ -2248,7 +2261,7 @@ namespace FileManager
 
         private async void OpenDownloadLocation_Click(object sender, RoutedEventArgs e)
         {
-            StorageFolder Folder = await StorageApplicationPermissions.FutureAccessList.GetItemAsync("DownloadPath") as StorageFolder;
+            StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(ApplicationData.Current.LocalSettings.Values["DownloadPath"].ToString());
             _ = await Launcher.LaunchFolderAsync(Folder);
         }
     }

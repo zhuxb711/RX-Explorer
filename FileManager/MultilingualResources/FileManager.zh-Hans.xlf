@@ -1586,6 +1586,18 @@
           <source>Merge</source>
           <target state="translated">合并</target>
         </trans-unit>
+        <trans-unit id="CustionFontColor.Header" translate="yes" xml:space="preserve">
+          <source>Custom font color</source>
+          <target state="translated">自定义字体颜色</target>
+        </trans-unit>
+        <trans-unit id="CustionFontColor.OffContent" translate="yes" xml:space="preserve">
+          <source>White</source>
+          <target state="translated">白色</target>
+        </trans-unit>
+        <trans-unit id="CustionFontColor.OnContent" translate="yes" xml:space="preserve">
+          <source>Black</source>
+          <target state="translated">黑色</target>
+        </trans-unit>
       </group>
     </body>
   </file>

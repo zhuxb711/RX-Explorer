@@ -493,8 +493,9 @@ namespace DownloaderProvider
                 throw new ArgumentNullException();
             }
 
-            if (await StorageApplicationPermissions.FutureAccessList.GetItemAsync("DownloadPath") is StorageFolder SaveFolder)
+            if (ApplicationData.Current.LocalSettings.Values["DownloadPath"] is string Path)
             {
+                StorageFolder SaveFolder = await StorageFolder.GetFolderFromPathAsync(Path);
                 string UniqueID = Guid.NewGuid().ToString("N");
                 StorageFile TempFile = await SaveFolder.CreateFileAsync("RX_DownloadFile_" + UniqueID + ".tmp", CreationCollisionOption.GenerateUniqueName);
                 return new DownloadOperator(Address, TempFile, SaveFileName, UniqueID);

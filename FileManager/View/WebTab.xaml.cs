@@ -29,11 +29,13 @@ namespace FileManager
         {
             InitializeComponent();
             ThisPage = this;
-            OnFirstLoad();
+            Loading += WebTab_Loading;
         }
 
-        private async void OnFirstLoad()
+        private async void WebTab_Loading(FrameworkElement sender, object args)
         {
+            Loading -= WebTab_Loading;
+
             try
             {
                 await SQLite.Current.GetDownloadHistoryAsync();

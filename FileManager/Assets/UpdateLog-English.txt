@@ -1,5 +1,5 @@
 ﻿*****
-###What's new in Ver.3.8.5.0
+###What's new in Ver.3.8.7.0
 
 >#####Feature Update
 
@@ -11,6 +11,12 @@
 
 >>#####Improved the information acquisition mechanism when a problem occurs, and will provide richer tracking information when an exception occurs
 
+>#####Performance improvements
+
+>>#####Using C# 8.0 features, greatly improving the speed of obtaining feedback content
+
+>>#####Using a custom adaptive SQL database connection pool to improve SQL concurrency and throughput
+
 >#####Bug fix
 
 >>#####Fixed the problem that after transcoding files, the new files generated will not be automatically displayed in the RX explorer
@@ -20,6 +26,8 @@
 >>#####Solved the problem that some files could not get preview icons
 
 >>#####Fixed the problem that some resources could not be released correctly when getting the file preview icon
+
+>>#####Resolved the error problem that may be caused by entering the browser module, at the cost of more stuttering when the web page loads
 
 *****
 ###What's new in Ver.3.8.2.0

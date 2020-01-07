@@ -157,6 +157,7 @@
                                   OnContent="黑色"
                                   OffContent="白色"
                                   Margin="0,20,0,0"
+                                  x:Uid="CustionFontColor"
                                   Name="CustomFontColor"
                                   Toggled="CustomFontColor_Toggled" />
 
@@ -165,7 +166,7 @@
                               Margin="0,20,0,0"
                               SelectionChanged="UIMode_SelectionChanged"
                               Name="UIMode"
-                              Width="120"
+                              Width="150"
                               Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
 
                     <StackPanel Margin="0,10,0,0"

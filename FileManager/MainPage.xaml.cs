@@ -129,9 +129,9 @@ namespace FileManager
 
                 Nav.Navigate(typeof(ThisPC));
 
-                EntranceEffectProvider.AnimationCompleted += (s, t) =>
+                EntranceEffectProvider.AnimationCompleted += async(s, t) =>
                 {
-                    _ = MySQL.Current.CreateConnectionToDataBaseAsync();
+                    (await MySQL.Current.GetConnectionFromPoolAsync()).Dispose();
                 };
 
                 EntranceEffectProvider.StartEntranceEffect();

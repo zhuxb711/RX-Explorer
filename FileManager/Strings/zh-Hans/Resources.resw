@@ -1197,4 +1197,13 @@
   <data name="VideoMerge.Text" xml:space="preserve">
     <value>合并</value>
   </data>
+  <data name="CustionFontColor.Header" xml:space="preserve">
+    <value>自定义字体颜色</value>
+  </data>
+  <data name="CustionFontColor.OffContent" xml:space="preserve">
+    <value>白色</value>
+  </data>
+  <data name="CustionFontColor.OnContent" xml:space="preserve">
+    <value>黑色</value>
+  </data>
 </root>

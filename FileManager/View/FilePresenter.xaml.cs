@@ -2373,7 +2373,7 @@ namespace FileManager
             else
             {
                 BitmapImage Thumbnail = await folder.GetThumbnailBitmapAsync();
-                ThisPC.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, Thumbnail, LibrarySource.UserAdded));
+                ThisPC.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, Thumbnail, LibrarySource.UserCustom));
                 await SQLite.Current.SetFolderLibraryAsync(folder.Path);
             }
         }

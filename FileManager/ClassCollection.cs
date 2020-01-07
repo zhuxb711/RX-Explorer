@@ -6,6 +6,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.Toolkit.Uwp.Notifications;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
+using SQLConnectionPoolProvider;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -52,35 +53,32 @@ using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 namespace FileManager
 {
     #region SQLite数据库
+    /// <summary>
+    /// 提供对SQLite数据库的访问支持
+    /// </summary>
     public sealed class SQLite : IDisposable
     {
         private bool IsDisposed = false;
         private static SQLite SQL = null;
-        private SqliteConnection OLEDB = new SqliteConnection("Filename=RX_Sqlite.db;");
+        private SQLConnectionPool<SqliteConnection> ConnectionPool;
+
+        /// <summary>
+        /// 初始化SQLite的实例
+        /// </summary>
         private SQLite()
         {
             SQLitePCL.Batteries_V2.Init();
             SQLitePCL.raw.sqlite3_win32_set_directory(1, ApplicationData.Current.LocalFolder.Path);
             SQLitePCL.raw.sqlite3_win32_set_directory(2, ApplicationData.Current.TemporaryFolder.Path);
 
-            OLEDB.Open();
-            string Command = @"Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));
-                                   Create Table If Not Exists WebFavourite (Subject Text Not Null, WebSite Text Not Null, Primary Key (WebSite));
-                                   Create Table If Not Exists WebHistory (Subject Text Not Null, WebSite Text Not Null, DateTime Text Not Null, Primary Key (Subject, WebSite, DateTime));
-                                   Create Table If Not Exists DownloadHistory (UniqueID Text Not Null, ActualName Text Not Null, Uri Text Not Null, State Text Not Null, Primary Key(UniqueID));
-                                   Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
-                                   Create Table If Not Exists FolderLibrary (Path Text Not Null, Primary Key (Path));
-                                   Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
-                                   Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));";
+            ConnectionPool = new SQLConnectionPool<SqliteConnection>("Filename=RX_Sqlite.db;", 3, 0);
 
-            using (SqliteCommand CreateTable = new SqliteCommand(Command, OLEDB))
-            {
-                _ = CreateTable.ExecuteNonQuery();
-            }
-
-            InitializeBackgroundPicture();
+            InitializeDatabase();
         }
 
+        /// <summary>
+        /// 提供SQLite的实例
+        /// </summary>
         public static SQLite Current
         {
             get
@@ -92,29 +90,20 @@ namespace FileManager
             }
         }
 
-        //private SqliteConnection CreateConnectionToDataBase()
-        //{
-        //    SqliteConnection Connection = new SqliteConnection("Filename=RX_Sqlite.db");
-
-        //    Connection.Open();
-        //    string Command = @"Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));
-        //                           Create Table If Not Exists WebFavourite (Subject Text Not Null, WebSite Text Not Null, Primary Key (WebSite));
-        //                           Create Table If Not Exists WebHistory (Subject Text Not Null, WebSite Text Not Null, DateTime Text Not Null, Primary Key (Subject, WebSite, DateTime));
-        //                           Create Table If Not Exists DownloadHistory (UniqueID Text Not Null, ActualName Text Not Null, Uri Text Not Null, State Text Not Null, Primary Key(UniqueID));
-        //                           Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
-        //                           Create Table If Not Exists FolderLibrary (Path Text Not Null, Primary Key (Path));
-        //                           Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
-        //                           Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));";
-
-        //    using (SqliteCommand CreateTable = new SqliteCommand(Command, Connection))
-        //    {
-        //        _ = CreateTable.ExecuteNonQuery();
-        //    }
-        //}
-
-        private void InitializeBackgroundPicture()
+        /// <summary>
+        /// 初始化数据库预先导入的数据
+        /// </summary>
+        private void InitializeDatabase()
         {
-            string Command = @"Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');
+            string Command = @"Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));
+                               Create Table If Not Exists WebFavourite (Subject Text Not Null, WebSite Text Not Null, Primary Key (WebSite));
+                               Create Table If Not Exists WebHistory (Subject Text Not Null, WebSite Text Not Null, DateTime Text Not Null, Primary Key (Subject, WebSite, DateTime));
+                               Create Table If Not Exists DownloadHistory (UniqueID Text Not Null, ActualName Text Not Null, Uri Text Not Null, State Text Not Null, Primary Key(UniqueID));
+                               Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
+                               Create Table If Not Exists FolderLibrary (Path Text Not Null, Primary Key (Path));
+                               Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
+                               Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));
+                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');
                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');
                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture3.jpg');
                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture4.jpg');
@@ -128,26 +117,37 @@ namespace FileManager
                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture12.jpg');
                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture13.jpg');
                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');";
-
-            using (SqliteCommand CreateTable = new SqliteCommand(Command, OLEDB))
+            using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBaseAsync().Result)
+            using (SqliteCommand CreateTable = Connection.CreateDbCommandFromConnection<SqliteCommand>(Command))
             {
                 _ = CreateTable.ExecuteNonQuery();
             }
         }
 
+        /// <summary>
+        /// 保存背景图片的Uri路径
+        /// </summary>
+        /// <param name="uri">图片Uri</param>
+        /// <returns></returns>
         public async Task SetBackgroundPictureAsync(string uri)
         {
-            using (SqliteCommand Command = new SqliteCommand("Insert Into BackgroundPicture Values (@FileName)", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into BackgroundPicture Values (@FileName)"))
             {
                 _ = Command.Parameters.AddWithValue("@FileName", uri);
                 _ = await Command.ExecuteNonQueryAsync();
             }
         }
 
+        /// <summary>
+        /// 获取背景图片的Uri信息
+        /// </summary>
+        /// <returns></returns>
         public async Task<List<Uri>> GetBackgroundPictureAsync()
         {
             List<Uri> list = new List<Uri>();
-            using (SqliteCommand Command = new SqliteCommand("Select * From BackgroundPicture", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From BackgroundPicture"))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync())
             {
                 while (query.Read())
@@ -158,18 +158,29 @@ namespace FileManager
             return list;
         }
 
+        /// <summary>
+        /// 删除背景图片的Uri信息
+        /// </summary>
+        /// <param name="uri">图片Uri</param>
+        /// <returns></returns>
         public async Task DeleteBackgroundPictureAsync(string uri)
         {
-            using (SqliteCommand Command = new SqliteCommand("Delete From BackgroundPicture Where FileName=@FileName", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From BackgroundPicture Where FileName=@FileName"))
             {
                 _ = Command.Parameters.AddWithValue("@FileName", uri);
                 _ = await Command.ExecuteNonQueryAsync();
             }
         }
 
+        /// <summary>
+        /// 获取文件夹和库区域内用户自定义的文件夹路径
+        /// </summary>
+        /// <returns></returns>
         public async IAsyncEnumerable<string> GetFolderLibraryAsync()
         {
-            using (SqliteCommand Command = new SqliteCommand("Select * From FolderLibrary", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From FolderLibrary"))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync())
             {
                 while (query.Read())
@@ -179,30 +190,48 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 删除文件夹和库区域的用户自定义文件夹的数据
+        /// </summary>
+        /// <param name="Path">自定义文件夹的路径</param>
+        /// <returns></returns>
         public async Task DeleteFolderLibraryAsync(string Path)
         {
-            using (SqliteCommand Command = new SqliteCommand("Delete From FolderLibrary Where Path = @Path", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From FolderLibrary Where Path = @Path"))
             {
                 _ = Command.Parameters.AddWithValue("@Path", Path);
                 _ = await Command.ExecuteNonQueryAsync();
             }
         }
 
+        /// <summary>
+        /// 保存文件路径栏的记录
+        /// </summary>
+        /// <param name="Path">输入的文件路径</param>
+        /// <returns></returns>
         public async Task SetPathHistoryAsync(string Path)
         {
-            using (SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into PathHistory Values (@Para)", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Or Ignore Into PathHistory Values (@Para)"))
             {
                 _ = Command.Parameters.AddWithValue("@Para", Path);
                 _ = await Command.ExecuteNonQueryAsync();
             }
         }
 
+        /// <summary>
+        /// 模糊查询与文件路径栏相关的输入历史记录
+        /// </summary>
+        /// <param name="Target">输入内容</param>
+        /// <returns></returns>
         public async Task<List<string>> GetRelatedPathHistoryAsync(string Target)
         {
             List<string> PathList = new List<string>();
-            using (SqliteCommand Command = new SqliteCommand("Select * From PathHistory Where Path Like @Target", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From PathHistory Where Path Like @Target"))
             {
-                _ = Command.Parameters.AddWithValue("@Target", "%" + Target + "%");
+                _ = Command.Parameters.AddWithValue("@Target", $"%{Target}%");
                 using (SqliteDataReader query = await Command.ExecuteReaderAsync())
                 {
                     while (query.Read())
@@ -214,27 +243,48 @@ namespace FileManager
             return PathList;
         }
 
+        /// <summary>
+        /// 保存在文件夹和库区域显示的用户自定义文件夹路径
+        /// </summary>
+        /// <param name="Path">文件夹路径</param>
+        /// <returns></returns>
         public async Task SetFolderLibraryAsync(string Path)
         {
-            using (SqliteCommand Command = new SqliteCommand("Insert Into FolderLibrary Values (@Path)", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into FolderLibrary Values (@Path)"))
             {
                 _ = Command.Parameters.AddWithValue("@Path", Path);
                 _ = await Command.ExecuteNonQueryAsync();
             }
         }
 
+        /// <summary>
+        /// 保存搜索历史记录
+        /// </summary>
+        /// <param name="SearchText">搜索内容</param>
+        /// <returns></returns>
         public async Task SetSearchHistoryAsync(string SearchText)
         {
-            using (SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into SearchHistory Values (@Para)", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Or Ignore Into SearchHistory Values (@Para)"))
             {
                 _ = Command.Parameters.AddWithValue("@Para", SearchText);
                 _ = await Command.ExecuteNonQueryAsync();
             }
         }
 
+        /// <summary>
+        /// 保存快速启动栏内的信息
+        /// </summary>
+        /// <param name="Name">显示标题</param>
+        /// <param name="FullPath">图标所在的路径</param>
+        /// <param name="Protocal">使用的协议</param>
+        /// <param name="Type">快速启动类型</param>
+        /// <returns></returns>
         public async Task SetQuickStartItemAsync(string Name, string FullPath, string Protocal, QuickStartType Type)
         {
-            using (SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into QuickStart Values (@Name,@Path,@Protocal,@Type)", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Or Ignore Into QuickStart Values (@Name,@Path,@Protocal,@Type)"))
             {
                 _ = Command.Parameters.AddWithValue("@Name", Name);
                 _ = Command.Parameters.AddWithValue("@Path", FullPath);
@@ -244,36 +294,54 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 更新快速启动项的内容
+        /// </summary>
+        /// <param name="OldName">旧名称</param>
+        /// <param name="NewName">新名称</param>
+        /// <param name="FullPath">图片路径</param>
+        /// <param name="Protocal">协议</param>
+        /// <param name="Type">快速启动项类型</param>
+        /// <returns></returns>
         public async Task UpdateQuickStartItemAsync(string OldName, string NewName, string FullPath, string Protocal, QuickStartType Type)
         {
-            if (FullPath != null)
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
             {
-                using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName, FullPath=@Path, Protocal=@Protocal Where Name=@OldName And Type=@Type", OLEDB))
+                if (FullPath != null)
                 {
-                    _ = Command.Parameters.AddWithValue("@OldName", OldName);
-                    _ = Command.Parameters.AddWithValue("@Path", FullPath);
-                    _ = Command.Parameters.AddWithValue("@NewName", NewName);
-                    _ = Command.Parameters.AddWithValue("@Protocal", Protocal);
-                    _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                    _ = await Command.ExecuteNonQueryAsync();
+                    using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Update QuickStart Set Name=@NewName, FullPath=@Path, Protocal=@Protocal Where Name=@OldName And Type=@Type"))
+                    {
+                        _ = Command.Parameters.AddWithValue("@OldName", OldName);
+                        _ = Command.Parameters.AddWithValue("@Path", FullPath);
+                        _ = Command.Parameters.AddWithValue("@NewName", NewName);
+                        _ = Command.Parameters.AddWithValue("@Protocal", Protocal);
+                        _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
+                        _ = await Command.ExecuteNonQueryAsync();
+                    }
                 }
-            }
-            else
-            {
-                using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName, Protocal=@Protocal Where Name=@OldName And Type=@Type", OLEDB))
+                else
                 {
-                    _ = Command.Parameters.AddWithValue("@OldName", OldName);
-                    _ = Command.Parameters.AddWithValue("@NewName", NewName);
-                    _ = Command.Parameters.AddWithValue("@Protocal", Protocal);
-                    _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                    _ = await Command.ExecuteNonQueryAsync();
+                    using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Update QuickStart Set Name=@NewName, Protocal=@Protocal Where Name=@OldName And Type=@Type"))
+                    {
+                        _ = Command.Parameters.AddWithValue("@OldName", OldName);
+                        _ = Command.Parameters.AddWithValue("@NewName", NewName);
+                        _ = Command.Parameters.AddWithValue("@Protocal", Protocal);
+                        _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
+                        _ = await Command.ExecuteNonQueryAsync();
+                    }
                 }
             }
         }
 
+        /// <summary>
+        /// 删除快速启动项的内容
+        /// </summary>
+        /// <param name="Item">要删除的项</param>
+        /// <returns></returns>
         public async Task DeleteQuickStartItemAsync(QuickStartItem Item)
         {
-            using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type"))
             {
                 _ = Command.Parameters.AddWithValue("@Name", Item.DisplayName);
                 _ = Command.Parameters.AddWithValue("@FullPath", Item.RelativePath);
@@ -282,9 +350,14 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 获取所有快速启动项
+        /// </summary>
+        /// <returns></returns>
         public async IAsyncEnumerable<KeyValuePair<QuickStartType, QuickStartItem>> GetQuickStartItemAsync()
         {
-            using (SqliteCommand Command = new SqliteCommand("Select * From QuickStart", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From QuickStart"))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync())
             {
                 while (query.Read())
@@ -296,7 +369,8 @@ namespace FileManager
                     }
                     catch (Exception)
                     {
-                        using (SqliteCommand Command1 = new SqliteCommand("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type", OLEDB))
+                        using (SQLConnection Connection1 = await ConnectionPool.GetConnectionFromDataBaseAsync())
+                        using (SqliteCommand Command1 = Connection1.CreateDbCommandFromConnection<SqliteCommand>("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type"))
                         {
                             _ = Command1.Parameters.AddWithValue("@Name", query[0].ToString());
                             _ = Command1.Parameters.AddWithValue("@FullPath", query[1].ToString());
@@ -329,10 +403,16 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 获取与搜索内容有关的搜索历史
+        /// </summary>
+        /// <param name="Target">搜索内容</param>
+        /// <returns></returns>
         public async Task<List<string>> GetRelatedSearchHistoryAsync(string Target)
         {
             List<string> HistoryList = new List<string>();
-            using (SqliteCommand Command = new SqliteCommand("Select * From SearchHistory Where SearchText Like @Target", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From SearchHistory Where SearchText Like @Target"))
             {
                 _ = Command.Parameters.AddWithValue("@Target", "%" + Target + "%");
                 using (SqliteDataReader query = await Command.ExecuteReaderAsync())
@@ -346,9 +426,14 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 获取下载历史
+        /// </summary>
+        /// <returns></returns>
         public async Task GetDownloadHistoryAsync()
         {
-            using (SqliteCommand Command = new SqliteCommand("Select * From DownloadHistory", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From DownloadHistory"))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync())
             {
                 for (int i = 0; query.Read(); i++)
@@ -364,9 +449,15 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 保存下载历史
+        /// </summary>
+        /// <param name="Task">下载对象</param>
+        /// <returns></returns>
         public async Task SetDownloadHistoryAsync(DownloadOperator Task)
         {
-            using (SqliteCommand Command = new SqliteCommand("Insert Into DownloadHistory Values (@UniqueID,@ActualName,@Uri,@State)", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into DownloadHistory Values (@UniqueID,@ActualName,@Uri,@State)"))
             {
                 _ = Command.Parameters.AddWithValue("@UniqueID", Task.UniqueID);
                 _ = Command.Parameters.AddWithValue("@ActualName", Task.ActualFileName);
@@ -376,27 +467,45 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 清空特定的数据表
+        /// </summary>
+        /// <param name="TableName">数据表名</param>
+        /// <returns></returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "<挂起>")]
         public async Task ClearTableAsync(string TableName)
         {
-            using (SqliteCommand Command = new SqliteCommand("Delete From " + TableName, OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From " + TableName))
             {
                 _ = await Command.ExecuteNonQueryAsync();
             }
         }
 
+        /// <summary>
+        /// 删除下载历史记录
+        /// </summary>
+        /// <param name="Task">下载对象</param>
+        /// <returns></returns>
         public async Task DeleteDownloadHistoryAsync(DownloadOperator Task)
         {
-            using (SqliteCommand Command = new SqliteCommand("Delete From DownloadHistory Where UniqueID = @UniqueID", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From DownloadHistory Where UniqueID = @UniqueID"))
             {
                 _ = Command.Parameters.AddWithValue("@UniqueID", Task.UniqueID);
                 _ = await Command.ExecuteNonQueryAsync();
             }
         }
 
+        /// <summary>
+        /// 更新下载历史的状态
+        /// </summary>
+        /// <param name="Task">下载对象</param>
+        /// <returns></returns>
         public async Task UpdateDownloadHistoryAsync(DownloadOperator Task)
         {
-            using (SqliteCommand Command = new SqliteCommand("Update DownloadHistory Set State = @State Where UniqueID = @UniqueID", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Update DownloadHistory Set State = @State Where UniqueID = @UniqueID"))
             {
                 _ = Command.Parameters.AddWithValue("@UniqueID", Task.UniqueID);
                 _ = Command.Parameters.AddWithValue("@State", Enum.GetName(typeof(DownloadState), Task.State));
@@ -404,9 +513,15 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 保存网页收藏夹
+        /// </summary>
+        /// <param name="Info">网站对象</param>
+        /// <returns></returns>
         public async Task SetWebFavouriteListAsync(WebSiteItem Info)
         {
-            using (SqliteCommand Command = new SqliteCommand("Insert Into WebFavourite Values (@Subject,@WebSite)", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into WebFavourite Values (@Subject,@WebSite)"))
             {
                 _ = Command.Parameters.AddWithValue("@Subject", Info.Subject);
                 _ = Command.Parameters.AddWithValue("@WebSite", Info.WebSite);
@@ -414,18 +529,29 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 删除网页收藏夹
+        /// </summary>
+        /// <param name="Info">网页对象</param>
+        /// <returns></returns>
         public async Task DeleteWebFavouriteListAsync(WebSiteItem Info)
         {
-            using (SqliteCommand Command = new SqliteCommand("Delete From WebFavourite Where WebSite = @WebSite", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From WebFavourite Where WebSite = @WebSite"))
             {
                 _ = Command.Parameters.AddWithValue("@WebSite", Info.WebSite);
                 _ = await Command.ExecuteNonQueryAsync();
             }
         }
 
+        /// <summary>
+        /// 删除网页浏览历史记录
+        /// </summary>
+        /// <param name="Info">相关信息</param>
         public void DeleteWebHistory(KeyValuePair<DateTime, WebSiteItem> Info)
         {
-            using (SqliteCommand Command = new SqliteCommand("Delete From WebHistory Where Subject=@Subject And WebSite=@WebSite And DateTime=@DateTime", OLEDB))
+            using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBaseAsync().Result)
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From WebHistory Where Subject=@Subject And WebSite=@WebSite And DateTime=@DateTime"))
             {
                 _ = Command.Parameters.AddWithValue("@Subject", Info.Value.Subject);
                 _ = Command.Parameters.AddWithValue("@WebSite", Info.Value.WebSite);
@@ -435,9 +561,14 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 保存网页浏览历史
+        /// </summary>
+        /// <param name="Info">相关信息</param>
         public void SetWebHistoryList(KeyValuePair<DateTime, WebSiteItem> Info)
         {
-            using (SqliteCommand Command = new SqliteCommand("Insert Into WebHistory Values (@Subject,@WebSite,@DateTime)", OLEDB))
+            using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBaseAsync().Result)
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into WebHistory Values (@Subject,@WebSite,@DateTime)"))
             {
                 _ = Command.Parameters.AddWithValue("@Subject", Info.Value.Subject);
                 _ = Command.Parameters.AddWithValue("@WebSite", Info.Value.WebSite);
@@ -447,9 +578,14 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 获取网页历史记录
+        /// </summary>
+        /// <returns></returns>
         public async Task<List<KeyValuePair<DateTime, WebSiteItem>>> GetWebHistoryListAsync()
         {
-            using (SqliteCommand Command = new SqliteCommand("Select * From WebHistory", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From WebHistory"))
             using (SqliteDataReader Query = await Command.ExecuteReaderAsync())
             {
                 List<KeyValuePair<DateTime, WebSiteItem>> HistoryList = new List<KeyValuePair<DateTime, WebSiteItem>>();
@@ -464,9 +600,14 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 获取网页收藏夹
+        /// </summary>
+        /// <returns></returns>
         public async Task<List<WebSiteItem>> GetWebFavouriteListAsync()
         {
-            using (SqliteCommand Command = new SqliteCommand("Select * From WebFavourite", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From WebFavourite"))
             using (SqliteDataReader Query = await Command.ExecuteReaderAsync())
             {
                 List<WebSiteItem> FavList = new List<WebSiteItem>();
@@ -480,23 +621,32 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 清空搜索历史记录
+        /// </summary>
+        /// <returns></returns>
         public async Task ClearSearchHistoryRecord()
         {
-            using (SqliteCommand Command = new SqliteCommand("Delete From SearchHistory", OLEDB))
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From SearchHistory"))
             {
                 _ = await Command.ExecuteNonQueryAsync();
             }
         }
 
+        /// <summary>
+        /// 调用此方法以注销数据库连接
+        /// </summary>
         public void Dispose()
         {
             if (!IsDisposed)
             {
-                OLEDB.Dispose();
-                OLEDB = null;
+                IsDisposed = true;
+
+                ConnectionPool.Dispose();
+                ConnectionPool = null;
                 SQL = null;
             }
-            IsDisposed = true;
         }
 
         ~SQLite()
@@ -507,6 +657,9 @@ namespace FileManager
     #endregion
 
     #region MySQL数据库
+    /// <summary>
+    /// 提供对MySQL数据库的访问支持
+    /// </summary>
     public sealed class MySQL : IDisposable
     {
         private static MySQL Instance;
@@ -515,6 +668,11 @@ namespace FileManager
 
         private AutoResetEvent ConnectionLocker;
 
+        private SQLConnectionPool<MySqlConnection> ConnectionPool;
+
+        /// <summary>
+        /// 提供对MySQL实例的访问
+        /// </summary>
         public static MySQL Current
         {
             get
@@ -526,45 +684,54 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 初始化MySQL实例
+        /// </summary>
         private MySQL()
         {
             ConnectionLocker = new AutoResetEvent(true);
+            ConnectionPool = new SQLConnectionPool<MySqlConnection>("Data Source=zhuxb711.rdsmt2onuvpvh1v.rds.gz.baidubce.com;port=3306;CharSet=utf8;User id=zhuxb711;password=password123;Database=FeedBackDataBase;", 4, 2);
         }
 
-        public Task<MySqlConnection> CreateConnectionToDataBaseAsync()
+        /// <summary>
+        /// 从数据库连接池中获取连接对象
+        /// </summary>
+        /// <returns></returns>
+        public Task<SQLConnection> GetConnectionFromPoolAsync()
         {
             return Task.Run(() =>
             {
                 ConnectionLocker.WaitOne();
 
-                MySqlConnection Connection = new MySqlConnection("Data Source=zhuxb711.rdsmt2onuvpvh1v.rds.gz.baidubce.com;port=3306;CharSet=utf8;User id=zhuxb711;password=password123;Database=FeedBackDataBase;");
+                SQLConnection Connection = ConnectionPool.GetConnectionFromDataBaseAsync().Result;
 
-                try
+                if (Connection.IsConnected)
                 {
-                    Connection.Open();
                     const string CommandText = @"Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);
                                                  Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null)";
-                    using (MySqlCommand Command = new MySqlCommand(CommandText, Connection))
+                    using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>(CommandText))
                     {
                         _ = Command.ExecuteNonQuery();
                     }
                 }
-                finally
-                {
-                    ConnectionLocker.Set();
-                }
+
+                ConnectionLocker.Set();
 
                 return Connection;
             });
         }
 
+        /// <summary>
+        /// 获取所有反馈对象
+        /// </summary>
+        /// <returns></returns>
         public async IAsyncEnumerable<FeedBackItem> GetAllFeedBackAsync()
         {
-            using (MySqlConnection Connection = await CreateConnectionToDataBaseAsync())
+            using (SQLConnection Connection = await GetConnectionFromPoolAsync())
             {
-                if (Connection.State == System.Data.ConnectionState.Open)
+                if (Connection.IsConnected)
                 {
-                    using (MySqlCommand Command = new MySqlCommand("Select * From FeedBackTable", Connection))
+                    using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Select * From FeedBackTable"))
                     using (DbDataReader Reader = await Command.ExecuteReaderAsync())
                     {
                         var CurrentLanguage = Globalization.Language;
@@ -583,228 +750,244 @@ namespace FileManager
             }
         }
 
-        public Task<bool> GetExtraFeedBackInfo(FeedBackItem list)
+        /// <summary>
+        /// 获取现有反馈对象的额外信息
+        /// </summary>
+        /// <param name="Item">反馈对象</param>
+        /// <returns></returns>
+        public async Task<bool> GetExtraFeedBackInfo(FeedBackItem Item)
         {
-            return CreateConnectionToDataBaseAsync().ContinueWith((task, Para) =>
+            using (SQLConnection Connection = await GetConnectionFromPoolAsync())
             {
-                using (MySqlConnection Connection = task.Result)
+                if (Connection.IsConnected)
                 {
-                    if (Connection.State == System.Data.ConnectionState.Open)
+                    try
                     {
-                        try
+                        using (MySqlCommand Command1 = Connection.CreateDbCommandFromConnection<MySqlCommand>("Select Behavior From VoteRecordTable Where UserID=@UserID And GUID=@GUID"))
                         {
-                            FeedBackItem Item = (FeedBackItem)Para;
-                            using (MySqlCommand Command1 = new MySqlCommand("Select Behavior From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
+                            _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                            _ = Command1.Parameters.AddWithValue("@GUID", Item.GUID);
+
+                            string Behaivor = Convert.ToString(Command1.ExecuteScalar());
+                            if (!string.IsNullOrEmpty(Behaivor))
                             {
-                                _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                                _ = Command1.Parameters.AddWithValue("@GUID", Item.GUID);
-
-                                string Behaivor = Convert.ToString(Command1.ExecuteScalar());
-                                if (!string.IsNullOrEmpty(Behaivor))
-                                {
-                                    Item.UserVoteAction = Behaivor;
-                                }
+                                Item.UserVoteAction = Behaivor;
                             }
+                        }
 
-                            return true;
-                        }
-                        catch (Exception)
-                        {
-                            return false;
-                        }
+                        return true;
                     }
-                    else
+                    catch (Exception)
                     {
                         return false;
                     }
                 }
-            }, list);
+                else
+                {
+                    return false;
+                }
+            }
         }
 
-        public Task<bool> UpdateFeedBackVoteAsync(FeedBackItem Item)
+        /// <summary>
+        /// 更新反馈对象的投票信息
+        /// </summary>
+        /// <param name="Item">反馈对象</param>
+        /// <returns></returns>
+        public async Task<bool> UpdateFeedBackVoteAsync(FeedBackItem Item)
         {
-            return CreateConnectionToDataBaseAsync().ContinueWith((task) =>
+            using (SQLConnection Connection = await GetConnectionFromPoolAsync())
             {
-                using (MySqlConnection Connection = task.Result)
+                if (Connection.IsConnected)
                 {
-                    if (Connection.State == System.Data.ConnectionState.Open)
+                    try
                     {
-                        try
+                        using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Update FeedBackTable Set LikeNum=@LikeNum, DislikeNum=@DislikeNum Where GUID=@GUID"))
                         {
-                            using (MySqlCommand Command = new MySqlCommand("Update FeedBackTable Set LikeNum=@LikeNum, DislikeNum=@DislikeNum Where GUID=@GUID", Connection))
-                            {
-                                _ = Command.Parameters.AddWithValue("@LikeNum", Item.LikeNum);
-                                _ = Command.Parameters.AddWithValue("@DislikeNum", Item.DislikeNum);
-                                _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                _ = Command.ExecuteNonQuery();
-                            }
+                            _ = Command.Parameters.AddWithValue("@LikeNum", Item.LikeNum);
+                            _ = Command.Parameters.AddWithValue("@DislikeNum", Item.DislikeNum);
+                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                            _ = Command.ExecuteNonQuery();
+                        }
 
-                            using (MySqlCommand Command1 = new MySqlCommand("Select count(*) From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
+                        using (MySqlCommand Command1 = Connection.CreateDbCommandFromConnection<MySqlCommand>("Select count(*) From VoteRecordTable Where UserID=@UserID And GUID=@GUID"))
+                        {
+                            _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                            _ = Command1.Parameters.AddWithValue("@GUID", Item.GUID);
+                            if (Convert.ToInt16(Command1.ExecuteScalar()) == 0)
                             {
-                                _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                                _ = Command1.Parameters.AddWithValue("@GUID", Item.GUID);
-                                if (Convert.ToInt16(Command1.ExecuteScalar()) == 0)
+                                if (Item.UserVoteAction != "=")
                                 {
-                                    if (Item.UserVoteAction != "=")
+                                    using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Insert Into VoteRecordTable Values (@UserID,@GUID,@Behaivor)"))
                                     {
-                                        using (MySqlCommand Command = new MySqlCommand("Insert Into VoteRecordTable Values (@UserID,@GUID,@Behaivor)", Connection))
-                                        {
-                                            _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                            _ = Command.Parameters.AddWithValue("@Behaivor", Item.UserVoteAction);
-                                            _ = Command.ExecuteNonQuery();
-                                        }
+                                        _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                        _ = Command.Parameters.AddWithValue("@Behaivor", Item.UserVoteAction);
+                                        _ = Command.ExecuteNonQuery();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (Item.UserVoteAction != "=")
+                                {
+                                    using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Update VoteRecordTable Set Behavior=@Behaivor Where UserID=@UserID And GUID=@GUID"))
+                                    {
+                                        _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                        _ = Command.Parameters.AddWithValue("@Behaivor", Item.UserVoteAction);
+                                        _ = Command.ExecuteNonQuery();
                                     }
                                 }
                                 else
                                 {
-                                    if (Item.UserVoteAction != "=")
+                                    using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Delete From VoteRecordTable Where UserID=@UserID And GUID=@GUID"))
                                     {
-                                        using (MySqlCommand Command = new MySqlCommand("Update VoteRecordTable Set Behavior=@Behaivor Where UserID=@UserID And GUID=@GUID", Connection))
-                                        {
-                                            _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                            _ = Command.Parameters.AddWithValue("@Behaivor", Item.UserVoteAction);
-                                            _ = Command.ExecuteNonQuery();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        using (MySqlCommand Command = new MySqlCommand("Delete From VoteRecordTable Where UserID=@UserID And GUID=@GUID", Connection))
-                                        {
-                                            _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                            _ = Command.ExecuteNonQuery();
-                                        }
+                                        _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                        _ = Command.ExecuteNonQuery();
                                     }
                                 }
                             }
-                            return true;
                         }
-                        catch (Exception)
-                        {
-                            return false;
-                        }
+                        return true;
                     }
-                    else
+                    catch (Exception)
                     {
                         return false;
                     }
                 }
-            });
-        }
-
-        public Task<bool> UpdateFeedBackTitleAndSuggestionAsync(string Title, string Suggestion, string GUID)
-        {
-            return CreateConnectionToDataBaseAsync().ContinueWith((task) =>
-            {
-                using (MySqlConnection Connection = task.Result)
+                else
                 {
-                    if (Connection.State == System.Data.ConnectionState.Open)
-                    {
-                        try
-                        {
-                            using (MySqlCommand Command = new MySqlCommand("Update FeedBackTable Set Title=@NewTitle, Suggestion=@NewSuggestion Where GUID=@GUID", Connection))
-                            {
-                                _ = Command.Parameters.AddWithValue("@NewTitle", Title);
-                                _ = Command.Parameters.AddWithValue("@NewSuggestion", Suggestion);
-                                _ = Command.Parameters.AddWithValue("@GUID", GUID);
-                                _ = Command.ExecuteNonQuery();
-                            }
-                            return true;
-                        }
-                        catch (Exception)
-                        {
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                    return false;
                 }
-            });
+            }
         }
 
-        public Task<bool> DeleteFeedBackAsync(FeedBackItem Item)
+        /// <summary>
+        /// 更新反馈对象的标题和建议内容
+        /// </summary>
+        /// <param name="Title">标题</param>
+        /// <param name="Suggestion">建议</param>
+        /// <param name="GUID">唯一标识</param>
+        /// <returns></returns>
+        public async Task<bool> UpdateFeedBackTitleAndSuggestionAsync(string Title, string Suggestion, string GUID)
         {
-            return CreateConnectionToDataBaseAsync().ContinueWith((task) =>
+            using (SQLConnection Connection = await GetConnectionFromPoolAsync())
             {
-                using (MySqlConnection Connection = task.Result)
+                if (Connection.IsConnected)
                 {
-                    if (Connection.State == System.Data.ConnectionState.Open)
+                    try
                     {
-                        try
+                        using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Update FeedBackTable Set Title=@NewTitle, Suggestion=@NewSuggestion Where GUID=@GUID"))
                         {
-                            using (MySqlCommand Command = new MySqlCommand("Delete From FeedBackTable Where GUID=@GUID", Connection))
-                            {
-                                _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                _ = Command.ExecuteNonQuery();
-                            }
-
-                            using (MySqlCommand Command = new MySqlCommand("Delete From VoteRecordTable Where GUID=@GUID", Connection))
-                            {
-                                _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                _ = Command.ExecuteNonQuery();
-                            }
-
-                            return true;
+                            _ = Command.Parameters.AddWithValue("@NewTitle", Title);
+                            _ = Command.Parameters.AddWithValue("@NewSuggestion", Suggestion);
+                            _ = Command.Parameters.AddWithValue("@GUID", GUID);
+                            _ = Command.ExecuteNonQuery();
                         }
-                        catch (Exception)
-                        {
-                            return false;
-                        }
+                        return true;
                     }
-                    else
+                    catch (Exception)
                     {
                         return false;
                     }
                 }
-            });
+                else
+                {
+                    return false;
+                }
+            }
         }
 
-        public Task<bool> SetFeedBackAsync(FeedBackItem Item)
+        /// <summary>
+        /// 删除反馈内容
+        /// </summary>
+        /// <param name="Item">反馈对象</param>
+        /// <returns></returns>
+        public async Task<bool> DeleteFeedBackAsync(FeedBackItem Item)
         {
-            return CreateConnectionToDataBaseAsync().ContinueWith((task) =>
+            using (SQLConnection Connection = await GetConnectionFromPoolAsync())
             {
-                using (MySqlConnection Connection = task.Result)
+                if (Connection.IsConnected)
                 {
-                    if (Connection.State == System.Data.ConnectionState.Open)
+                    try
                     {
-                        try
+                        using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Delete From FeedBackTable Where GUID=@GUID"))
                         {
-                            using (MySqlCommand Command = new MySqlCommand("Insert Into FeedBackTable Values (@UserName,@Title,@Suggestion,@Like,@Dislike,@UserID,@GUID)", Connection))
-                            {
-                                _ = Command.Parameters.AddWithValue("@UserName", Item.UserName);
-                                _ = Command.Parameters.AddWithValue("@Title", Item.Title);
-                                _ = Command.Parameters.AddWithValue("@Suggestion", Item.Suggestion);
-                                _ = Command.Parameters.AddWithValue("@Like", Item.LikeNum);
-                                _ = Command.Parameters.AddWithValue("@Dislike", Item.DislikeNum);
-                                _ = Command.Parameters.AddWithValue("@UserID", Item.UserID);
-                                _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                _ = Command.ExecuteNonQuery();
-                            }
-                            return true;
+                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                            _ = Command.ExecuteNonQuery();
                         }
-                        catch (Exception)
+
+                        using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Delete From VoteRecordTable Where GUID=@GUID"))
                         {
-                            return false;
+                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                            _ = Command.ExecuteNonQuery();
                         }
+
+                        return true;
                     }
-                    else
+                    catch (Exception)
                     {
                         return false;
                     }
                 }
-            });
+                else
+                {
+                    return false;
+                }
+            }
         }
 
+        /// <summary>
+        /// 提交反馈内容
+        /// </summary>
+        /// <param name="Item">反馈对象</param>
+        /// <returns></returns>
+        public async Task<bool> SetFeedBackAsync(FeedBackItem Item)
+        {
+            using (SQLConnection Connection = await GetConnectionFromPoolAsync())
+            {
+                if (Connection.IsConnected)
+                {
+                    try
+                    {
+                        using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Insert Into FeedBackTable Values (@UserName,@Title,@Suggestion,@Like,@Dislike,@UserID,@GUID)"))
+                        {
+                            _ = Command.Parameters.AddWithValue("@UserName", Item.UserName);
+                            _ = Command.Parameters.AddWithValue("@Title", Item.Title);
+                            _ = Command.Parameters.AddWithValue("@Suggestion", Item.Suggestion);
+                            _ = Command.Parameters.AddWithValue("@Like", Item.LikeNum);
+                            _ = Command.Parameters.AddWithValue("@Dislike", Item.DislikeNum);
+                            _ = Command.Parameters.AddWithValue("@UserID", Item.UserID);
+                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                            _ = Command.ExecuteNonQuery();
+                        }
+                        return true;
+                    }
+                    catch (Exception)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 调用此方法以完全释放MySQL的资源
+        /// </summary>
         public void Dispose()
         {
             if (!IsDisposed)
             {
                 IsDisposed = true;
+                ConnectionPool.Dispose();
                 ConnectionLocker?.Dispose();
+                ConnectionPool = null;
                 ConnectionLocker = null;
                 Instance = null;
             }
@@ -813,185 +996,6 @@ namespace FileManager
         ~MySQL()
         {
             Dispose();
-        }
-    }
-    #endregion
-
-    #region 文件系统StorageFile类
-
-    public enum ContentType
-    {
-        Folder = 0,
-        File = 1
-    }
-
-    /// <summary>
-    /// 提供对设备中的存储对象的描述
-    /// </summary>
-    public sealed class FileSystemStorageItem : INotifyPropertyChanged
-    {
-        /// <summary>
-        /// 获取文件大小
-        /// </summary>
-        public string Size { get; private set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        /// <summary>
-        /// 获取此文件的StorageFile对象
-        /// </summary>
-        public StorageFile File { get; private set; }
-
-        public StorageFolder Folder { get; private set; }
-
-        public ContentType ContentType { get; private set; }
-
-        /// <summary>
-        /// 获取此文件的缩略图
-        /// </summary>
-        public BitmapImage Thumbnail { get; private set; }
-
-        /// <summary>
-        /// 创建RemovableDeviceFile实例
-        /// </summary>
-        /// <param name="Size">文件大小</param>
-        /// <param name="Item">文件StorageFile对象</param>
-        /// <param name="Thumbnail">文件缩略图</param>
-        public FileSystemStorageItem(IStorageItem Item, string Size, BitmapImage Thumbnail, string ModifiedTime)
-        {
-            if (Item.IsOfType(StorageItemTypes.File))
-            {
-                File = Item as StorageFile;
-                ContentType = ContentType.File;
-            }
-            else if (Item.IsOfType(StorageItemTypes.Folder))
-            {
-                Folder = Item as StorageFolder;
-                ContentType = ContentType.Folder;
-            }
-            else
-            {
-                throw new Exception("Item must be folder or file");
-            }
-            this.Size = Size;
-            this.Thumbnail = Thumbnail;
-            this.ModifiedTime = ModifiedTime;
-        }
-
-        private void OnPropertyChanged(string name)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-        /// <summary>
-        /// 更新文件以及文件大小，并通知UI界面
-        /// </summary>
-        /// <param name="File"></param>
-        public async Task UpdateRequested(IStorageItem Item)
-        {
-            if (Item is StorageFolder Folder && ContentType == ContentType.Folder)
-            {
-                this.Folder = Folder;
-            }
-            else if (Item is StorageFile File && ContentType == ContentType.File)
-            {
-                this.File = File;
-            }
-            else
-            {
-                throw new Exception("Unsupport IStorageItem Or IStorageItem does not match the RemovableDeviceFile");
-            }
-
-            Size = await Item.GetSizeDescriptionAsync();
-            OnPropertyChanged("DisplayName");
-            OnPropertyChanged("Size");
-        }
-
-        /// <summary>
-        /// 更新文件大小，并通知UI界面
-        /// </summary>
-        public async Task SizeUpdateRequested()
-        {
-            switch (ContentType)
-            {
-                case ContentType.File:
-                    Size = await File.GetSizeDescriptionAsync();
-                    break;
-                case ContentType.Folder:
-                    throw new Exception("Could not update folder size");
-            }
-            OnPropertyChanged("Size");
-        }
-
-        /// <summary>
-        /// 获取文件的文件名(不包含后缀)
-        /// </summary>
-        public string DisplayName
-        {
-            get
-            {
-                return ContentType == ContentType.Folder ?
-                    (string.IsNullOrEmpty(Folder.DisplayName) ? Folder.Name : Folder.DisplayName) :
-                    (string.IsNullOrEmpty(File.DisplayName) ? File.Name : (File.DisplayName.EndsWith(File.FileType) ? File.DisplayName.Remove(File.DisplayName.LastIndexOf(".")) : File.DisplayName));
-            }
-        }
-
-        public string ModifiedTime { get; private set; }
-
-        public string Path
-        {
-            get
-            {
-                return ContentType == ContentType.Folder ? Folder.Path : File.Path;
-            }
-        }
-
-        /// <summary>
-        /// 获取文件的完整文件名(包括后缀)
-        /// </summary>
-        public string Name
-        {
-            get
-            {
-                return ContentType == ContentType.Folder ? Folder.Name : File.Name;
-            }
-        }
-
-        /// <summary>
-        /// 获取文件类型描述
-        /// </summary>
-        public string DisplayType
-        {
-            get
-            {
-                return ContentType == ContentType.Folder ? Folder.DisplayType : File.DisplayType;
-            }
-        }
-
-        /// <summary>
-        /// 获取文件的类型
-        /// </summary>
-        public string Type
-        {
-            get
-            {
-                return ContentType == ContentType.Folder ? Folder.DisplayType : File.FileType;
-            }
-        }
-
-        /// <summary>
-        /// 获取文件唯一标识符
-        /// </summary>
-        public string RelativeId
-        {
-            get
-            {
-                return ContentType == ContentType.Folder ? Folder.FolderRelativeId : File.FolderRelativeId;
-            }
-        }
-
-        public override string ToString()
-        {
-            return Name;
         }
     }
     #endregion
@@ -1032,11 +1036,15 @@ namespace FileManager
         /// </summary>
         public string IsCrypted { get; private set; }
 
+        /// <summary>
+        /// 文件全名
+        /// </summary>
         public string FullName { get; private set; }
 
         /// <summary>
-        /// 创建ZipFileDisplay的实例
+        /// 初始化ZipFileDisplay的实例
         /// </summary>
+        /// <param name="Entry">入口点</param>
         public ZipFileDisplay(ZipEntry Entry)
         {
             FullName = Entry.Name;
@@ -1193,6 +1201,24 @@ namespace FileManager
     }
     #endregion
 
+    #region Zip自定义静态数据源
+    public sealed class CustomStaticDataSource : IStaticDataSource
+    {
+        private Stream stream;
+
+        public Stream GetSource()
+        {
+            return stream;
+        }
+
+        public void SetStream(Stream inputStream)
+        {
+            stream = inputStream;
+            stream.Position = 0;
+        }
+    }
+    #endregion
+
     #region 图片展示类
     /// <summary>
     /// 为图片查看提供支持
@@ -1215,8 +1241,14 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 指示当前的显示是否是缩略图
+        /// </summary>
         private bool IsThumbnailPicture = true;
 
+        /// <summary>
+        /// 旋转角度
+        /// </summary>
         public int RotateAngle { get; set; } = 0;
 
         /// <summary>
@@ -1226,12 +1258,21 @@ namespace FileManager
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// 初始化PhotoDisplaySupport的实例
+        /// </summary>
+        /// <param name="ImageSource">缩略图</param>
+        /// <param name="File">文件</param>
         public PhotoDisplaySupport(BitmapImage ImageSource, StorageFile File)
         {
             BitmapSource = ImageSource;
             PhotoFile = File;
         }
 
+        /// <summary>
+        /// 使用原图替换缩略图
+        /// </summary>
+        /// <returns></returns>
         public async Task ReplaceThumbnailBitmap()
         {
             if (IsThumbnailPicture)
@@ -1245,6 +1286,10 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 更新图片的显示
+        /// </summary>
+        /// <returns></returns>
         public async Task UpdateImage()
         {
             using (var Stream = await PhotoFile.OpenAsync(FileAccessMode.Read))
@@ -1254,6 +1299,10 @@ namespace FileManager
             OnPropertyChanged("BitmapSource");
         }
 
+        /// <summary>
+        /// 根据RotateAngle的值来旋转图片
+        /// </summary>
+        /// <returns></returns>
         public async Task<SoftwareBitmap> GenerateImageWithRotation()
         {
             using (var stream = await PhotoFile.OpenAsync(FileAccessMode.Read))
@@ -1309,29 +1358,77 @@ namespace FileManager
     #endregion
 
     #region 图片查看器相关
+    /// <summary>
+    /// 图片滤镜类型
+    /// </summary>
     public enum FilterType
     {
+        /// <summary>
+        /// 原图
+        /// </summary>
         Origin = 0,
+        /// <summary>
+        /// 反色滤镜
+        /// </summary>
         Invert = 1,
+        /// <summary>
+        /// 灰度滤镜
+        /// </summary>
         Gray = 2,
+        /// <summary>
+        /// 二值化滤镜
+        /// </summary>
         Threshold = 4,
+        /// <summary>
+        /// 素描滤镜
+        /// </summary>
         Sketch = 8,
+        /// <summary>
+        /// 高斯模糊滤镜
+        /// </summary>
         GaussianBlur = 16,
+        /// <summary>
+        /// 怀旧滤镜
+        /// </summary>
         Sepia = 32,
+        /// <summary>
+        /// 马赛克滤镜
+        /// </summary>
         Mosaic = 64,
+        /// <summary>
+        /// 油画滤镜
+        /// </summary>
         OilPainting = 128
     }
 
+    /// <summary>
+    /// 滤镜缩略效果图对象
+    /// </summary>
     public sealed class FilterItem : IDisposable
     {
+        /// <summary>
+        /// 滤镜名称
+        /// </summary>
         public string Text { get; private set; }
 
+        /// <summary>
+        /// 滤镜类型
+        /// </summary>
         public FilterType Type { get; private set; }
 
+        /// <summary>
+        /// 缩略效果图
+        /// </summary>
         public SoftwareBitmapSource Bitmap { get; private set; }
 
         private bool IsDisposed = false;
 
+        /// <summary>
+        /// 初始化FilterItem对象
+        /// </summary>
+        /// <param name="Bitmap">缩略效果图</param>
+        /// <param name="Text">滤镜名称</param>
+        /// <param name="Type">滤镜类型</param>
         public FilterItem(SoftwareBitmapSource Bitmap, string Text, FilterType Type)
         {
             this.Bitmap = Bitmap;
@@ -1339,6 +1436,9 @@ namespace FileManager
             this.Type = Type;
         }
 
+        /// <summary>
+        /// 调用此方法以释放资源
+        /// </summary>
         public void Dispose()
         {
             if (!IsDisposed)
@@ -1378,24 +1478,6 @@ namespace FileManager
     }
     #endregion
 
-    #region Zip自定义静态数据源
-    public sealed class CustomStaticDataSource : IStaticDataSource
-    {
-        private Stream stream;
-
-        public Stream GetSource()
-        {
-            return stream;
-        }
-
-        public void SetStream(Stream inputStream)
-        {
-            stream = inputStream;
-            stream.Position = 0;
-        }
-    }
-    #endregion
-
     #region lock关键字同步锁全局对象提供器
     /// <summary>
     /// 提供全局锁定根
@@ -1406,6 +1488,207 @@ namespace FileManager
         /// 锁定根对象
         /// </summary>
         public static object SyncRoot { get; } = new object();
+    }
+    #endregion
+
+    #region 文件系统StorageFile类
+    /// <summary>
+    /// 文件对象内容的枚举
+    /// </summary>
+    public enum ContentType
+    {
+        /// <summary>
+        /// 文件夹
+        /// </summary>
+        Folder = 0,
+        /// <summary>
+        /// 文件
+        /// </summary>
+        File = 1
+    }
+
+    /// <summary>
+    /// 提供对设备中的存储对象的描述
+    /// </summary>
+    public sealed class FileSystemStorageItem : INotifyPropertyChanged
+    {
+        /// <summary>
+        /// 获取文件大小
+        /// </summary>
+        public string Size { get; private set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// 获取此对象的StorageFile
+        /// </summary>
+        public StorageFile File { get; private set; }
+
+        /// <summary>
+        /// 获取此对的StorageFolder
+        /// </summary>
+        public StorageFolder Folder { get; private set; }
+
+        /// <summary>
+        /// 获取内容类型
+        /// </summary>
+        public ContentType ContentType { get; private set; }
+
+        /// <summary>
+        /// 获取此文件的缩略图
+        /// </summary>
+        public BitmapImage Thumbnail { get; private set; }
+
+        /// <summary>
+        /// 初始化FileSystemStorageItem对象
+        /// </summary>
+        /// <param name="Item">文件或文件夹</param>
+        /// <param name="Size">大小</param>
+        /// <param name="Thumbnail">缩略图</param>
+        /// <param name="ModifiedTime">修改时间</param>
+        public FileSystemStorageItem(IStorageItem Item, string Size, BitmapImage Thumbnail, string ModifiedTime)
+        {
+            if (Item.IsOfType(StorageItemTypes.File))
+            {
+                File = Item as StorageFile;
+                ContentType = ContentType.File;
+            }
+            else if (Item.IsOfType(StorageItemTypes.Folder))
+            {
+                Folder = Item as StorageFolder;
+                ContentType = ContentType.Folder;
+            }
+            else
+            {
+                throw new Exception("Item must be folder or file");
+            }
+            this.Size = Size;
+            this.Thumbnail = Thumbnail;
+            this.ModifiedTime = ModifiedTime;
+        }
+
+        private void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        /// <summary>
+        /// 更新文件以及文件大小，并通知UI界面
+        /// </summary>
+        /// <param name="File"></param>
+        public async Task UpdateRequested(IStorageItem Item)
+        {
+            if (Item is StorageFolder Folder && ContentType == ContentType.Folder)
+            {
+                this.Folder = Folder;
+            }
+            else if (Item is StorageFile File && ContentType == ContentType.File)
+            {
+                this.File = File;
+            }
+            else
+            {
+                throw new Exception("Unsupport IStorageItem Or IStorageItem does not match the RemovableDeviceFile");
+            }
+
+            Size = await Item.GetSizeDescriptionAsync();
+            OnPropertyChanged("DisplayName");
+            OnPropertyChanged("Size");
+        }
+
+        /// <summary>
+        /// 更新文件大小，并通知UI界面
+        /// </summary>
+        public async Task SizeUpdateRequested()
+        {
+            switch (ContentType)
+            {
+                case ContentType.File:
+                    Size = await File.GetSizeDescriptionAsync();
+                    break;
+                case ContentType.Folder:
+                    throw new Exception("Could not update folder size");
+            }
+            OnPropertyChanged("Size");
+        }
+
+        /// <summary>
+        /// 获取文件的文件名(不包含后缀)
+        /// </summary>
+        public string DisplayName
+        {
+            get
+            {
+                return ContentType == ContentType.Folder ?
+                    (string.IsNullOrEmpty(Folder.DisplayName) ? Folder.Name : Folder.DisplayName) :
+                    (string.IsNullOrEmpty(File.DisplayName) ? File.Name : (File.DisplayName.EndsWith(File.FileType) ? File.DisplayName.Remove(File.DisplayName.LastIndexOf(".")) : File.DisplayName));
+            }
+        }
+
+        /// <summary>
+        /// 获取文件的修改时间
+        /// </summary>
+        public string ModifiedTime { get; private set; }
+
+        /// <summary>
+        /// 获取文件的路径
+        /// </summary>
+        public string Path
+        {
+            get
+            {
+                return ContentType == ContentType.Folder ? Folder.Path : File.Path;
+            }
+        }
+
+        /// <summary>
+        /// 获取文件的完整文件名(包括后缀)
+        /// </summary>
+        public string Name
+        {
+            get
+            {
+                return ContentType == ContentType.Folder ? Folder.Name : File.Name;
+            }
+        }
+
+        /// <summary>
+        /// 获取文件类型描述
+        /// </summary>
+        public string DisplayType
+        {
+            get
+            {
+                return ContentType == ContentType.Folder ? Folder.DisplayType : File.DisplayType;
+            }
+        }
+
+        /// <summary>
+        /// 获取文件的类型
+        /// </summary>
+        public string Type
+        {
+            get
+            {
+                return ContentType == ContentType.Folder ? Folder.DisplayType : File.FileType;
+            }
+        }
+
+        /// <summary>
+        /// 获取文件唯一标识符
+        /// </summary>
+        public string RelativeId
+        {
+            get
+            {
+                return ContentType == ContentType.Folder ? Folder.FolderRelativeId : File.FolderRelativeId;
+            }
+        }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
     #endregion
 
@@ -1500,8 +1783,17 @@ namespace FileManager
     #endregion
 
     #region 扩展方法类
+    /// <summary>
+    /// 提供扩展方法的静态类
+    /// </summary>
     public static class Extention
     {
+        /// <summary>
+        /// 选中TreeViewNode并将其滚动到UI中间
+        /// </summary>
+        /// <param name="Node">要选中的Node</param>
+        /// <param name="View">Node所属的TreeView控件</param>
+        /// <returns></returns>
         public static async Task SelectNode(this TreeViewNode Node, TreeView View)
         {
             if (View == null)
@@ -1524,6 +1816,11 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 检查文件是否存在于物理驱动器上
+        /// </summary>
+        /// <param name="File"></param>
+        /// <returns></returns>
         public static async Task<bool> CheckExist(this StorageFile File)
         {
             try
@@ -1559,6 +1856,11 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 检查文件夹是否存在于物理驱动器上
+        /// </summary>
+        /// <param name="Folder"></param>
+        /// <returns></returns>
         public static async Task<bool> CheckExist(this StorageFolder Folder)
         {
             try
@@ -1594,6 +1896,12 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 根据指定的密钥使用AES-128-CBC加密字符串
+        /// </summary>
+        /// <param name="OriginText">要加密的内容</param>
+        /// <param name="Key">密钥</param>
+        /// <returns></returns>
         public static async Task<string> EncryptAsync(this string OriginText, string Key)
         {
             try
@@ -1628,6 +1936,12 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 根据指定的密钥解密密文
+        /// </summary>
+        /// <param name="OriginText">密文</param>
+        /// <param name="Key">密钥</param>
+        /// <returns></returns>
         public static async Task<string> DecryptAsync(this string OriginText, string Key)
         {
             try
@@ -1658,6 +1972,14 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 根据指定的密钥、加密强度，使用AES将文件加密并保存至指定的文件夹
+        /// </summary>
+        /// <param name="OriginFile">要加密的文件</param>
+        /// <param name="ExportFolder">指定加密文件保存的文件夹</param>
+        /// <param name="Key">加密密钥</param>
+        /// <param name="KeySize">加密强度，值仅允许 128 和 256</param>
+        /// <returns></returns>
         public static async Task<StorageFile> EncryptAsync(this StorageFile OriginFile, StorageFolder ExportFolder, string Key, int KeySize)
         {
             if (ExportFolder == null)
@@ -1720,6 +2042,13 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 根据指定的密钥，使用AES将文件解密至指定的文件夹
+        /// </summary>
+        /// <param name="EncryptedFile">要解密的文件夹</param>
+        /// <param name="ExportFolder">指定解密文件的保存位置</param>
+        /// <param name="Key">解密密钥</param>
+        /// <returns></returns>
         public static async Task<StorageFile> DecryptAsync(this StorageFile EncryptedFile, StorageFolder ExportFolder, string Key)
         {
             if (ExportFolder == null)
@@ -1801,6 +2130,11 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 将中文转换为英文或拼音
+        /// </summary>
+        /// <param name="From">中文</param>
+        /// <returns></returns>
         public static string TranslateToPinyinOrStayInEnglish(this string From)
         {
             StringBuilder EnglishBuilder = new StringBuilder();
@@ -1835,6 +2169,12 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 根据指定的语言枚举，将原文转换为对应内容的翻译文字
+        /// </summary>
+        /// <param name="From">原文</param>
+        /// <param name="language">指定转换到的语言</param>
+        /// <returns></returns>
         public static async Task<string> TranslateToAsync(this string From, LanguageEnum language)
         {
             using (HttpClient Client = new HttpClient())
@@ -1886,6 +2226,12 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 根据指定的语言枚举，将原文转换为对应内容的翻译文字
+        /// </summary>
+        /// <param name="From">原文</param>
+        /// <param name="language">指定转换到的语言</param>
+        /// <returns></returns>
         public static string TranslateTo(this string From, LanguageEnum language)
         {
             using (HttpClient Client = new HttpClient())
@@ -1937,6 +2283,12 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 根据类型寻找指定UI元素的子元素
+        /// </summary>
+        /// <typeparam name="T">寻找的类型</typeparam>
+        /// <param name="root"></param>
+        /// <returns></returns>
         public static T FindChildOfType<T>(this DependencyObject root) where T : DependencyObject
         {
             Queue<DependencyObject> ObjectQueue = new Queue<DependencyObject>();
@@ -1960,6 +2312,13 @@ namespace FileManager
             return null;
         }
 
+        /// <summary>
+        /// 根据名称和类型寻找指定UI元素的子元素
+        /// </summary>
+        /// <typeparam name="T">类型</typeparam>
+        /// <param name="root"></param>
+        /// <param name="name">子元素名称</param>
+        /// <returns></returns>
         public static T FindChildOfName<T>(this DependencyObject root, string name) where T : DependencyObject
         {
             Queue<DependencyObject> ObjectQueue = new Queue<DependencyObject>();
@@ -1983,6 +2342,11 @@ namespace FileManager
             return null;
         }
 
+        /// <summary>
+        /// 更新TreeViewNode所有子节点所包含的文件夹对象
+        /// </summary>
+        /// <param name="ParentNode"></param>
+        /// <returns></returns>
         public static async Task UpdateAllSubNodeFolder(this TreeViewNode ParentNode)
         {
             StorageFolder ParentFolder = ParentNode.Content as StorageFolder;
@@ -1997,6 +2361,11 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 删除当前文件夹下的所有子文件和子文件夹
+        /// </summary>
+        /// <param name="Folder">当前文件夹</param>
+        /// <returns></returns>
         public static async Task DeleteAllSubFilesAndFolders(this StorageFolder Folder)
         {
             foreach (var Item in await Folder.GetItemsAsync())
@@ -2012,6 +2381,11 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 获取存储对象的大小描述
+        /// </summary>
+        /// <param name="Item">存储对象</param>
+        /// <returns></returns>
         public static async Task<string> GetSizeDescriptionAsync(this IStorageItem Item)
         {
             BasicProperties Properties = await Item.GetBasicPropertiesAsync();
@@ -2021,12 +2395,22 @@ namespace FileManager
             Math.Round(Properties.Size / Convert.ToDouble(1099511627776), 2).ToString() + " TB"));
         }
 
+        /// <summary>
+        /// 获取存储对象的修改日期
+        /// </summary>
+        /// <param name="Item">存储对象</param>
+        /// <returns></returns>
         public static async Task<string> GetModifiedTimeAsync(this IStorageItem Item)
         {
             var Properties = await Item.GetBasicPropertiesAsync();
             return $"{Properties.DateModified.Year}年{Properties.DateModified.Month}月{Properties.DateModified.Day}日, {(Properties.DateModified.Hour < 10 ? "0" + Properties.DateModified.Hour : Properties.DateModified.Hour.ToString())}:{(Properties.DateModified.Minute < 10 ? "0" + Properties.DateModified.Minute : Properties.DateModified.Minute.ToString())}:{(Properties.DateModified.Second < 10 ? "0" + Properties.DateModified.Second : Properties.DateModified.Second.ToString())}";
         }
 
+        /// <summary>
+        /// 获取存储对象的缩略图
+        /// </summary>
+        /// <param name="Item">存储对象</param>
+        /// <returns></returns>
         public static async Task<BitmapImage> GetThumbnailBitmapAsync(this IStorageItem Item)
         {
             try
@@ -2078,6 +2462,12 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 平滑滚动至指定的项
+        /// </summary>
+        /// <param name="listViewBase"></param>
+        /// <param name="item">指定项</param>
+        /// <param name="alignment">对齐方式</param>
         public static void ScrollIntoViewSmoothly(this ListViewBase listViewBase, object item, ScrollIntoViewAlignment alignment = ScrollIntoViewAlignment.Default)
         {
             if (listViewBase.FindChildOfType<ScrollViewer>() is ScrollViewer scrollViewer)
@@ -2254,14 +2644,25 @@ namespace FileManager
     #endregion
 
     #region 文件路径逐层解析类
+    /// <summary>
+    /// 提供对文件路径的逐层解析
+    /// </summary>
     public sealed class PathAnalysis
     {
+        /// <summary>
+        /// 完整路径
+        /// </summary>
         public string FullPath { get; private set; }
 
         private Queue<string> PathQueue;
 
         private string CurrentLevel;
 
+        /// <summary>
+        /// 初始化PathAnalysis对象
+        /// </summary>
+        /// <param name="FullPath">完整路径</param>
+        /// <param name="CurrentPath">当前路径</param>
         public PathAnalysis(string FullPath, string CurrentPath)
         {
             this.FullPath = FullPath;
@@ -2288,6 +2689,10 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 获取下一层路径
+        /// </summary>
+        /// <returns></returns>
         public string NextPathLevel()
         {
             if (PathQueue.Count != 0)
@@ -2303,12 +2708,24 @@ namespace FileManager
     #endregion
 
     #region 这台电脑相关驱动器和库显示类
+    /// <summary>
+    /// 提供驱动器的界面支持
+    /// </summary>
     public sealed class HardDeviceInfo
     {
+        /// <summary>
+        /// 驱动器缩略图
+        /// </summary>
         public BitmapImage Thumbnail { get; private set; }
 
+        /// <summary>
+        /// 驱动器对象
+        /// </summary>
         public StorageFolder Folder { get; private set; }
 
+        /// <summary>
+        /// 驱动器名称
+        /// </summary>
         public string Name
         {
             get
@@ -2317,16 +2734,34 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 容量百分比
+        /// </summary>
         public double Percent { get; private set; }
 
+        /// <summary>
+        /// 总容量的描述
+        /// </summary>
         public string Capacity { get; private set; }
 
+        /// <summary>
+        /// 总字节数
+        /// </summary>
         public ulong TotalByte { get; private set; }
 
+        /// <summary>
+        /// 空闲字节数
+        /// </summary>
         public ulong FreeByte { get; private set; }
 
+        /// <summary>
+        /// 可用空间的描述
+        /// </summary>
         public string FreeSpace { get; private set; }
 
+        /// <summary>
+        /// 容量显示条对可用空间不足的情况转换颜色
+        /// </summary>
         public SolidColorBrush ProgressBarForeground
         {
             get
@@ -2342,6 +2777,9 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 存储空间描述
+        /// </summary>
         public string StorageSpaceDescription
         {
             get
@@ -2357,6 +2795,12 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 初始化HardDeviceInfo对象
+        /// </summary>
+        /// <param name="Device">驱动器文件夹</param>
+        /// <param name="Thumbnail">缩略图</param>
+        /// <param name="PropertiesRetrieve">额外信息</param>
         public HardDeviceInfo(StorageFolder Device, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve)
         {
             Folder = Device ?? throw new FileNotFoundException();
@@ -2378,6 +2822,11 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 根据Size计算大小描述
+        /// </summary>
+        /// <param name="Size">大小</param>
+        /// <returns></returns>
         private string GetSizeDescription(ulong Size)
         {
             return Size / 1024f < 1024 ? Math.Round(Size / 1024f, 2).ToString("0.00") + " KB" :
@@ -2387,20 +2836,44 @@ namespace FileManager
         }
     }
 
+    /// <summary>
+    /// 指定文件夹和库是自带还是用户固定
+    /// </summary>
     public enum LibrarySource
     {
+        /// <summary>
+        /// 自带库
+        /// </summary>
         SystemBase = 0,
-        UserAdded = 1
+        /// <summary>
+        /// 用户自定义库
+        /// </summary>
+        UserCustom = 1
     }
 
+    /// <summary>
+    /// 提供对文件夹库的UI显示支持
+    /// </summary>
     public sealed class LibraryFolder
     {
+        /// <summary>
+        /// 文件夹名称
+        /// </summary>
         public string Name { get; private set; }
 
+        /// <summary>
+        /// 文件夹缩略图
+        /// </summary>
         public BitmapImage Thumbnail { get; private set; }
 
+        /// <summary>
+        /// 文件夹对象
+        /// </summary>
         public StorageFolder Folder { get; private set; }
 
+        /// <summary>
+        /// 文件夹的类型
+        /// </summary>
         public string DisplayType
         {
             get
@@ -2409,8 +2882,17 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 指示库的类型
+        /// </summary>
         public LibrarySource Source { get; private set; }
 
+        /// <summary>
+        /// 初始化LibraryFolder
+        /// </summary>
+        /// <param name="Folder">文件夹对象</param>
+        /// <param name="Thumbnail">缩略图</param>
+        /// <param name="Source">类型</param>
         public LibraryFolder(StorageFolder Folder, BitmapImage Thumbnail, LibrarySource Source)
         {
             if (Folder == null)
@@ -2427,6 +2909,10 @@ namespace FileManager
     #endregion
 
     #region 增量加载集合类
+    /// <summary>
+    /// 提供增量加载集合的实现
+    /// </summary>
+    /// <typeparam name="T">集合内容的类型</typeparam>
     public sealed class IncrementalLoadingCollection<T> : ObservableCollection<T>, ISupportIncrementalLoading
     {
         private StorageItemQueryResult Query;
@@ -2434,6 +2920,10 @@ namespace FileManager
         private Func<uint, uint, StorageItemQueryResult, Task<IEnumerable<T>>> MoreItemsNeed;
         private uint MaxNum = 0;
 
+        /// <summary>
+        /// 初始化IncrementalLoadingCollection
+        /// </summary>
+        /// <param name="MoreItemsNeed">提供需要加载更多数据时能够调用的委托</param>
         public IncrementalLoadingCollection(Func<uint, uint, StorageItemQueryResult, Task<IEnumerable<T>>> MoreItemsNeed)
         {
             this.MoreItemsNeed = MoreItemsNeed;
@@ -2582,9 +3072,21 @@ namespace FileManager
     [Flags]
     public enum HistoryTreeCategoryFlag
     {
+        /// <summary>
+        /// 今天的记录
+        /// </summary>
         Today = 1,
+        /// <summary>
+        /// 昨天的记录
+        /// </summary>
         Yesterday = 2,
+        /// <summary>
+        /// 更早的记录
+        /// </summary>
         Earlier = 4,
+        /// <summary>
+        /// 无指定
+        /// </summary>
         None = 8
     }
     #endregion
@@ -2626,28 +3128,68 @@ namespace FileManager
     #endregion
 
     #region 快速启动类
+    /// <summary>
+    /// 提供对快速启动项状态或类型的枚举
+    /// </summary>
     public enum QuickStartType
     {
+        /// <summary>
+        /// 应用区域的快速启动项
+        /// </summary>
         Application = 1,
+        /// <summary>
+        /// 网站区域的快速启动项
+        /// </summary>
         WebSite = 2,
+        /// <summary>
+        /// 指示此项用于更新应用区域
+        /// </summary>
         UpdateApp = 4,
+        /// <summary>
+        /// 指示此向用于更新网站区域
+        /// </summary>
         UpdateWeb = 8
     }
 
+    /// <summary>
+    /// 提供对快速启动区域的UI支持
+    /// </summary>
     public sealed class QuickStartItem : INotifyPropertyChanged
     {
+        /// <summary>
+        /// 图标
+        /// </summary>
         public BitmapImage Image { get; private set; }
 
+        /// <summary>
+        /// 显示名称
+        /// </summary>
         public string DisplayName { get; private set; }
 
+        /// <summary>
+        /// 图标位置
+        /// </summary>
         public string RelativePath { get; private set; }
 
+        /// <summary>
+        /// 快速启动项类型
+        /// </summary>
         public QuickStartType Type { get; private set; }
 
+        /// <summary>
+        /// 协议或网址
+        /// </summary>
         public Uri ProtocalUri { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// 更新快速启动项的信息
+        /// </summary>
+        /// <param name="Image">缩略图</param>
+        /// <param name="ProtocalUri">协议</param>
+        /// <param name="RelativePath">图标位置</param>
+        /// <param name="DisplayName">显示名称</param>
         public void Update(BitmapImage Image, Uri ProtocalUri, string RelativePath, string DisplayName)
         {
             this.Image = Image;
@@ -2669,6 +3211,14 @@ namespace FileManager
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
+        /// <summary>
+        /// 初始化QuickStartItem对象
+        /// </summary>
+        /// <param name="Image">图标</param>
+        /// <param name="Uri">协议</param>
+        /// <param name="Type">类型</param>
+        /// <param name="RelativePath">图标位置</param>
+        /// <param name="DisplayName">显示名称</param>
         public QuickStartItem(BitmapImage Image, Uri Uri, QuickStartType Type, string RelativePath, string DisplayName = null)
         {
             this.Image = Image;
@@ -2702,6 +3252,9 @@ namespace FileManager
     #endregion
 
     #region WIFI分享功能提供器
+    /// <summary>
+    /// 提供对WIFI分享功能支持的类
+    /// </summary>
     public sealed class WiFiShareProvider : IDisposable
     {
         private HttpListener Listener;
@@ -2718,6 +3271,9 @@ namespace FileManager
 
         public bool IsListeningThreadWorking { get; private set; } = false;
 
+        /// <summary>
+        /// 初始化WiFiShareProvider对象
+        /// </summary>
         public WiFiShareProvider()
         {
             Listener = new HttpListener();
@@ -2728,6 +3284,9 @@ namespace FileManager
             CurrentUri = "http://" + CurrentHostName + ":8125/";
         }
 
+        /// <summary>
+        /// 启动WIFI连接侦听器
+        /// </summary>
         public async void StartToListenRequest()
         {
             if (IsListeningThreadWorking)
@@ -2808,6 +3367,9 @@ namespace FileManager
             Cancellation = null;
         }
 
+        /// <summary>
+        /// 调用此方法以释放资源
+        /// </summary>
         public void Dispose()
         {
             if (IsDisposed)
@@ -2833,20 +3395,44 @@ namespace FileManager
     #endregion
 
     #region 全局背景控制器
+    /// <summary>
+    /// 背景图片类型的枚举
+    /// </summary>
     public enum BackgroundBrushType
     {
+        /// <summary>
+        /// 使用亚克力背景
+        /// </summary>
         Acrylic = 0,
+        /// <summary>
+        /// 使用图片背景
+        /// </summary>
         Picture = 1
     }
 
+    /// <summary>
+    /// 提供对全局背景的控制功能
+    /// </summary>
     public class BackgroundController : INotifyPropertyChanged
     {
+        /// <summary>
+        /// 亚克力背景刷
+        /// </summary>
         private readonly AcrylicBrush AcrylicBackgroundBrush;
 
+        /// <summary>
+        /// 图片背景刷
+        /// </summary>
         private readonly ImageBrush PictureBackgroundBrush;
 
+        /// <summary>
+        /// 指示当前的背景类型
+        /// </summary>
         private BackgroundBrushType CurrentType;
 
+        /// <summary>
+        /// 对外统一提供背景
+        /// </summary>
         public Brush BackgroundBrush
         {
             get
@@ -2859,23 +3445,27 @@ namespace FileManager
             }
         }
 
-        private static readonly object Locker = new object();
-
         private static BackgroundController Instance;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// 获取背景控制器的实例
+        /// </summary>
         public static BackgroundController Current
         {
             get
             {
-                lock (Locker)
+                lock (SyncRootProvider.SyncRoot)
                 {
                     return Instance ?? (Instance = new BackgroundController());
                 }
             }
         }
 
+        /// <summary>
+        /// 初始化BackgroundController对象
+        /// </summary>
         private BackgroundController()
         {
             if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is string Mode)
@@ -2935,6 +3525,9 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 提供颜色透明度的值
+        /// </summary>
         public double TintOpacity
         {
             get
@@ -2948,6 +3541,9 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 提供背景光透过率的值
+        /// </summary>
         public double TintLuminosityOpacity
         {
             get
@@ -2968,6 +3564,9 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 提供主题色的值
+        /// </summary>
         public Color AcrylicColor
         {
             get
@@ -2980,6 +3579,11 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 使用此方法以切换背景类型
+        /// </summary>
+        /// <param name="Type">背景类型</param>
+        /// <param name="uri">图片背景的Uri</param>
         public void SwitchTo(BackgroundBrushType Type, string uri = null)
         {
             CurrentType = Type;
@@ -3013,6 +3617,11 @@ namespace FileManager
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
         }
 
+        /// <summary>
+        /// 将16进制字符串转换成Color对象
+        /// </summary>
+        /// <param name="hex">十六进制字符串</param>
+        /// <returns></returns>
         public Color GetColorFromHexString(string hex)
         {
             hex = hex.Replace("#", string.Empty);
@@ -3055,6 +3664,13 @@ namespace FileManager
             return Color.FromArgb(a, r, g, b);
         }
 
+        /// <summary>
+        /// 将十六进制字符串转换成byte
+        /// </summary>
+        /// <param name="hex">十六进制字符串</param>
+        /// <param name="n">起始位置</param>
+        /// <param name="count">长度</param>
+        /// <returns></returns>
         private uint ConvertHexToByte(string hex, int n, int count = 2)
         {
             return Convert.ToUInt32(hex.Substring(n, count), 16);
@@ -3099,12 +3715,18 @@ namespace FileManager
     #endregion
 
     #region ContentDialog队列实现
+    /// <summary>
+    /// 提供ContentDialog队列(按序)弹出的实现
+    /// </summary>
     public class QueueContentDialog : ContentDialog
     {
         private static readonly AutoResetEvent Locker = new AutoResetEvent(true);
 
         private static int WaitCount = 0;
 
+        /// <summary>
+        /// 指示当前是否存在正处于弹出状态的ContentDialog
+        /// </summary>
         public static bool IsRunningOrWaiting
         {
             get
@@ -3116,6 +3738,10 @@ namespace FileManager
         private bool IsCloseRequested = false;
         private ContentDialogResult CloseWithResult;
 
+        /// <summary>
+        /// 显示对话框
+        /// </summary>
+        /// <returns></returns>
         public new async Task<ContentDialogResult> ShowAsync()
         {
             _ = Interlocked.Increment(ref WaitCount);
@@ -3142,6 +3768,10 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 关闭对话框并返回指定的枚举值
+        /// </summary>
+        /// <param name="CloseWithResult"></param>
         public void Close(ContentDialogResult CloseWithResult)
         {
             IsCloseRequested = true;
@@ -3149,6 +3779,9 @@ namespace FileManager
             Hide();
         }
 
+        /// <summary>
+        /// 初始化QueueContentDialog
+        /// </summary>
         public QueueContentDialog()
         {
             if (AppThemeController.Current.Theme == ElementTheme.Dark)
@@ -3165,26 +3798,66 @@ namespace FileManager
     #endregion
 
     #region 反馈对象
+    /// <summary>
+    /// 提供对反馈内容的UI支持
+    /// </summary>
     public sealed class FeedBackItem : INotifyPropertyChanged
     {
+        /// <summary>
+        /// 用户名
+        /// </summary>
         public string UserName { get; private set; }
 
+        /// <summary>
+        /// 建议或反馈内容
+        /// </summary>
         public string Suggestion { get; private set; }
 
+        /// <summary>
+        /// 支持的人数
+        /// </summary>
         public string LikeNum { get; private set; }
 
+        /// <summary>
+        /// 踩的人数
+        /// </summary>
         public string DislikeNum { get; private set; }
 
+        /// <summary>
+        /// 文字描述
+        /// </summary>
         public string SupportDescription { get; private set; }
 
+        /// <summary>
+        /// 标题
+        /// </summary>
         public string Title { get; private set; }
 
+        /// <summary>
+        /// 用户ID
+        /// </summary>
         public string UserID { get; private set; }
 
+        /// <summary>
+        /// 此反馈的GUID
+        /// </summary>
         public string GUID { get; private set; }
 
+        /// <summary>
+        /// 记录当前用户的操作
+        /// </summary>
         public string UserVoteAction { get; set; } = "=";
 
+        /// <summary>
+        /// 初始化FeedBackItem
+        /// </summary>
+        /// <param name="UserName">用户名</param>
+        /// <param name="Title">标题</param>
+        /// <param name="Suggestion">建议或反馈内容</param>
+        /// <param name="LikeNum">支持的人数</param>
+        /// <param name="DislikeNum">反对的人数</param>
+        /// <param name="UserID">用户ID</param>
+        /// <param name="GUID">反馈的GUID</param>
         public FeedBackItem(string UserName, string Title, string Suggestion, string LikeNum, string DislikeNum, string UserID, string GUID)
         {
             this.UserName = UserName;
@@ -3204,6 +3877,11 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 更新支持或反对的信息
+        /// </summary>
+        /// <param name="Type">更新类型</param>
+        /// <param name="IsAdding">点击还是取消</param>
         public void UpdateSupportInfo(FeedBackUpdateType Type, bool IsAdding)
         {
             if (Type == FeedBackUpdateType.Like)
@@ -3244,6 +3922,11 @@ namespace FileManager
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SupportDescription)));
         }
 
+        /// <summary>
+        /// 更新反馈内容
+        /// </summary>
+        /// <param name="Title">标题</param>
+        /// <param name="Suggestion">建议</param>
         public void UpdateTitleAndSuggestion(string Title, string Suggestion)
         {
             this.Title = Title;
@@ -3255,20 +3938,43 @@ namespace FileManager
         public event PropertyChangedEventHandler PropertyChanged;
     }
 
+    /// <summary>
+    /// 反馈更新的类型
+    /// </summary>
     public enum FeedBackUpdateType
     {
+        /// <summary>
+        /// 支持
+        /// </summary>
         Like = 0,
+        /// <summary>
+        /// 反对
+        /// </summary>
         Dislike = 1
     }
     #endregion
 
     #region 背景图片
+    /// <summary>
+    /// 提供对背景图片选择的UI支持
+    /// </summary>
     public sealed class BackgroundPicture
     {
+        /// <summary>
+        /// 背景图片
+        /// </summary>
         public BitmapImage Picture { get; private set; }
 
+        /// <summary>
+        /// 图片Uri
+        /// </summary>
         public Uri PictureUri { get; private set; }
 
+        /// <summary>
+        /// 初始化BackgroundPicture
+        /// </summary>
+        /// <param name="Picture">图片</param>
+        /// <param name="PictureUri">图片Uri</param>
         public BackgroundPicture(BitmapImage Picture, Uri PictureUri)
         {
             this.Picture = Picture;
@@ -3278,6 +3984,9 @@ namespace FileManager
     #endregion
 
     #region 错误类型
+    /// <summary>
+    /// 密码错误异常
+    /// </summary>
     public sealed class PasswordErrorException : Exception
     {
         public PasswordErrorException(string ErrorMessage) : base(ErrorMessage)
@@ -3289,6 +3998,9 @@ namespace FileManager
         }
     }
 
+    /// <summary>
+    /// 文件损坏异常
+    /// </summary>
     public sealed class FileDamagedException : Exception
     {
         public FileDamagedException(string ErrorMessage) : base(ErrorMessage)
@@ -3302,14 +4014,29 @@ namespace FileManager
     #endregion
 
     #region 本地化指示器
+    /// <summary>
+    /// 语言枚举
+    /// </summary>
     public enum LanguageEnum
     {
+        /// <summary>
+        /// 界面使用中文
+        /// </summary>
         Chinese = 1,
+        /// <summary>
+        /// 界面使用英文
+        /// </summary>
         English = 2
     }
 
+    /// <summary>
+    /// 指示UI语言类型
+    /// </summary>
     public static class Globalization
     {
+        /// <summary>
+        /// 当前使用的语言
+        /// </summary>
         public static LanguageEnum Language { get; private set; }
 
         static Globalization()
@@ -3320,29 +4047,73 @@ namespace FileManager
     #endregion
 
     #region WindowsHello授权管理器
+    /// <summary>
+    /// Windows Hello授权状态
+    /// </summary>
     public enum AuthenticatorState
     {
+        /// <summary>
+        /// 注册成功
+        /// </summary>
         RegisterSuccess = 0,
+        /// <summary>
+        /// 用户取消
+        /// </summary>
         UserCanceled = 1,
+        /// <summary>
+        /// 凭据丢失
+        /// </summary>
         CredentialNotFound = 2,
+        /// <summary>
+        /// 未知错误
+        /// </summary>
         UnknownError = 4,
+        /// <summary>
+        /// 系统不支持Windows Hello
+        /// </summary>
         WindowsHelloUnsupport = 8,
+        /// <summary>
+        /// 授权通过
+        /// </summary>
         VerifyPassed = 16,
+        /// <summary>
+        /// 授权失败
+        /// </summary>
         VerifyFailed = 32,
+        /// <summary>
+        /// 用户未注册
+        /// </summary>
         UserNotRegistered = 64
     }
 
+    /// <summary>
+    /// Windows Hello授权管理器
+    /// </summary>
     public static class WindowsHelloAuthenticator
     {
+        /// <summary>
+        /// 质询内容
+        /// </summary>
         private const string ChallengeText = "This is a challenge send by RX, to verify secure area access authorization";
 
+        /// <summary>
+        /// 凭据保存的名称
+        /// </summary>
         private const string CredentialName = "RX-SecureProtection";
 
+        /// <summary>
+        /// 检查系统是否支持Windows Hello
+        /// </summary>
+        /// <returns></returns>
         public static Task<bool> CheckSupportAsync()
         {
             return KeyCredentialManager.IsSupportedAsync().AsTask();
         }
 
+        /// <summary>
+        /// 请求注册用户
+        /// </summary>
+        /// <returns></returns>
         public static async Task<AuthenticatorState> RegisterUserAsync()
         {
             if (await CheckSupportAsync())
@@ -3372,6 +4143,10 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 认证用户授权
+        /// </summary>
+        /// <returns></returns>
         public static async Task<AuthenticatorState> VerifyUserAsync()
         {
             if (await CheckSupportAsync())
@@ -3416,6 +4191,10 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 删除并注销用户
+        /// </summary>
+        /// <returns></returns>
         public static async Task DeleteUserAsync()
         {
             if (await CheckSupportAsync())
@@ -3434,8 +4213,17 @@ namespace FileManager
     #endregion
 
     #region 密码生成器
+    /// <summary>
+    /// 提供密码或散列函数的实现
+    /// </summary>
     public static class KeyGenerator
     {
+        /// <summary>
+        /// 获取可变长度的MD5散列值
+        /// </summary>
+        /// <param name="OriginKey">要散列的内容</param>
+        /// <param name="Length">返回结果的长度</param>
+        /// <returns></returns>
         public static string GetMD5FromKey(string OriginKey, int Length = 32)
         {
             using (MD5 md5 = MD5.Create())
@@ -3460,6 +4248,11 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 生成指定长度的随机密钥
+        /// </summary>
+        /// <param name="Length">密钥长度</param>
+        /// <returns></returns>
         public static string GetRandomKey(uint Length)
         {
             StringBuilder Builder = new StringBuilder();
@@ -3493,8 +4286,16 @@ namespace FileManager
     #endregion
 
     #region 凭据保护器
+    /// <summary>
+    /// 提供对用户凭据的保护功能
+    /// </summary>
     public static class CredentialProtector
     {
+        /// <summary>
+        /// 从凭据保护器中取得密码
+        /// </summary>
+        /// <param name="Name">名称</param>
+        /// <returns></returns>
         public static string GetPasswordFromProtector(string Name)
         {
             PasswordVault Vault = new PasswordVault();
@@ -3512,6 +4313,11 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 请求保护指定的内容
+        /// </summary>
+        /// <param name="Name">用户名</param>
+        /// <param name="Password">密码</param>
         public static void RequestProtectPassword(string Name, string Password)
         {
             PasswordVault Vault = new PasswordVault();
@@ -3529,12 +4335,25 @@ namespace FileManager
     #endregion
 
     #region 通用文件转换器
+    /// <summary>
+    /// 提供各类文件的转换功能
+    /// </summary>
     public static class GeneralTransformer
     {
         private static CancellationTokenSource AVTranscodeCancellation;
 
+        /// <summary>
+        /// 指示是否存在正在进行中的任务
+        /// </summary>
         public static bool IsAnyTransformTaskRunning { get; private set; } = false;
 
+        /// <summary>
+        /// 将指定的视频文件合并并产生新文件
+        /// </summary>
+        /// <param name="DestinationFile">新文件</param>
+        /// <param name="Composition">片段</param>
+        /// <param name="EncodingProfile">编码</param>
+        /// <returns></returns>
         public static Task GenerateMergeVideoFromOriginAsync(StorageFile DestinationFile, MediaComposition Composition, MediaEncodingProfile EncodingProfile)
         {
             return Task.Factory.StartNew((ob) =>
@@ -3632,6 +4451,14 @@ namespace FileManager
             });
         }
 
+        /// <summary>
+        /// 将指定的视频文件裁剪后保存值新文件中
+        /// </summary>
+        /// <param name="DestinationFile">新文件</param>
+        /// <param name="Composition">片段</param>
+        /// <param name="EncodingProfile">编码</param>
+        /// <param name="TrimmingPreference">裁剪精度</param>
+        /// <returns></returns>
         public static Task GenerateCroppedVideoFromOriginAsync(StorageFile DestinationFile, MediaComposition Composition, MediaEncodingProfile EncodingProfile, MediaTrimmingPreference TrimmingPreference)
         {
             return Task.Factory.StartNew((ob) =>
@@ -3729,6 +4556,16 @@ namespace FileManager
              });
         }
 
+        /// <summary>
+        /// 提供图片转码
+        /// </summary>
+        /// <param name="SourceFile">源文件</param>
+        /// <param name="DestinationFile">目标文件</param>
+        /// <param name="IsEnableScale">是否启用缩放</param>
+        /// <param name="ScaleWidth">缩放宽度</param>
+        /// <param name="ScaleHeight">缩放高度</param>
+        /// <param name="InterpolationMode">插值模式</param>
+        /// <returns></returns>
         public static Task TranscodeFromImageAsync(StorageFile SourceFile, StorageFile DestinationFile, bool IsEnableScale = false, uint ScaleWidth = default, uint ScaleHeight = default, BitmapInterpolationMode InterpolationMode = default)
         {
             return Task.Run(() =>
@@ -3783,6 +4620,15 @@ namespace FileManager
             });
         }
 
+        /// <summary>
+        /// 提供音视频转码
+        /// </summary>
+        /// <param name="SourceFile">源文件</param>
+        /// <param name="DestinationFile">目标文件</param>
+        /// <param name="MediaTranscodeEncodingProfile">转码编码</param>
+        /// <param name="MediaTranscodeQuality">转码质量</param>
+        /// <param name="SpeedUp">是否启用硬件加速</param>
+        /// <returns></returns>
         public static Task TranscodeFromAudioOrVideoAsync(StorageFile SourceFile, StorageFile DestinationFile, string MediaTranscodeEncodingProfile, string MediaTranscodeQuality, bool SpeedUp)
         {
             return Task.Factory.StartNew((ob) =>
@@ -4620,27 +5466,35 @@ namespace FileManager
     #endregion
 
     #region 主题转换器
+    /// <summary>
+    /// 提供对字体颜色的切换功能
+    /// </summary>
     public sealed class AppThemeController : INotifyPropertyChanged
     {
+        /// <summary>
+        /// 指示当前应用的主题色
+        /// </summary>
         public ElementTheme Theme { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         private static AppThemeController Instance;
 
-        private static readonly object Lock = new object();
-
         public static AppThemeController Current
         {
             get
             {
-                lock (Lock)
+                lock (SyncRootProvider.SyncRoot)
                 {
                     return Instance ?? (Instance = new AppThemeController());
                 }
             }
         }
 
+        /// <summary>
+        /// 使用此方法切换主题色
+        /// </summary>
+        /// <param name="Theme"></param>
         public void ChangeThemeTo(ElementTheme Theme)
         {
             this.Theme = Theme;
@@ -4648,6 +5502,9 @@ namespace FileManager
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Theme)));
         }
 
+        /// <summary>
+        /// 初始化AppThemeController对象
+        /// </summary>
         public AppThemeController()
         {
             if (ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] is string Mode)
@@ -4664,10 +5521,17 @@ namespace FileManager
     #endregion
 
     #region 错误追踪器
+    /// <summary>
+    /// 提供对错误的捕获和记录，以及蓝屏的导向
+    /// </summary>
     public static class ExceptionTracer
     {
         private static AutoResetEvent Locker = new AutoResetEvent(true);
 
+        /// <summary>
+        /// 请求进入蓝屏状态
+        /// </summary>
+        /// <param name="e">错误内容</param>
         public static void RequestBlueScreen(Exception e)
         {
             if (!(Window.Current.Content is Frame rootFrame))
@@ -4699,11 +5563,21 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 记录错误
+        /// </summary>
+        /// <param name="Ex">错误</param>
+        /// <returns></returns>
         public static async Task LogAsync(Exception Ex)
         {
             await LogAsync(Ex.Message + Environment.NewLine + Ex.StackTrace);
         }
 
+        /// <summary>
+        /// 记录错误
+        /// </summary>
+        /// <param name="Message">错误消息</param>
+        /// <returns></returns>
         public static async Task LogAsync(string Message)
         {
             await Task.Run(() =>

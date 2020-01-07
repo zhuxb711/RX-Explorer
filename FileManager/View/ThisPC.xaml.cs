@@ -182,7 +182,7 @@ namespace FileManager
                     {
                         StorageFolder PinFile = await StorageFolder.GetFolderFromPathAsync(FolderPath);
                         BitmapImage Thumbnail = await PinFile.GetThumbnailBitmapAsync();
-                        LibraryFolderList.Add(new LibraryFolder(PinFile, Thumbnail, LibrarySource.UserAdded));
+                        LibraryFolderList.Add(new LibraryFolder(PinFile, Thumbnail, LibrarySource.UserCustom));
                     }
                     catch (FileNotFoundException)
                     {
@@ -440,7 +440,7 @@ namespace FileManager
             if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Context)
             {
                 LibraryGrid.SelectedItem = Context;
-                if (Context.Source == LibrarySource.UserAdded)
+                if (Context.Source == LibrarySource.UserCustom)
                 {
                     LibraryGrid.ContextFlyout = UserLibraryFlyout;
                 }
