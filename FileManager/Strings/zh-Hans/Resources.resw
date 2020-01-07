@@ -1206,4 +1206,13 @@
   <data name="CustionFontColor.OnContent" xml:space="preserve">
     <value>黑色</value>
   </data>
+  <data name="AutoBootOnStartup.OffContent" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="AutoBootOnStartup.OnContent" xml:space="preserve">
+    <value>启用</value>
+  </data>
+  <data name="AutoBootOnStartup.Header" xml:space="preserve">
+    <value>随系统自动启动</value>
+  </data>
 </root>

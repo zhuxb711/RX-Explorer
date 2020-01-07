@@ -126,8 +126,8 @@
     <EmbeddedResource Include="Properties\AnimationEffectProvider.rd.xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Net.Compilers">
-      <Version>3.3.1</Version>
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset">
+      <Version>3.4.0</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

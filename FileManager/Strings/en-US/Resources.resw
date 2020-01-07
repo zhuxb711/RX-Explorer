@@ -186,6 +186,15 @@
   <data name="AttributeType.Text" xml:space="preserve">
     <value>Type</value>
   </data>
+  <data name="AutoBootOnStartup.Header" xml:space="preserve">
+    <value>Auto start at boot</value>
+  </data>
+  <data name="AutoBootOnStartup.OffContent" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="AutoBootOnStartup.OnContent" xml:space="preserve">
+    <value>Enable</value>
+  </data>
   <data name="BlueScreenReport.Content" xml:space="preserve">
     <value>Report to Developer</value>
   </data>

@@ -41,8 +41,30 @@ namespace FileManager
             PictureGirdView.ItemsSource = PictureList;
 
             Loading += SettingPage_Loading;
+            Loading += SettingPage_Loading1;
             Loaded += SettingPage_Loaded1;
             Loaded += SettingPage_Loaded;
+        }
+
+        private async void SettingPage_Loading1(FrameworkElement sender, object args)
+        {
+            AutoBoot.Toggled -= AutoBoot_Toggled;
+            switch ((await StartupTask.GetAsync("RXExplorer")).State)
+            {
+                case StartupTaskState.DisabledByPolicy:
+                case StartupTaskState.DisabledByUser:
+                case StartupTaskState.Disabled:
+                    {
+                        AutoBoot.IsOn = false;
+                        break;
+                    }
+                default:
+                    {
+                        AutoBoot.IsOn = true;
+                        break;
+                    }
+            }
+            AutoBoot.Toggled += AutoBoot_Toggled;
         }
 
         private void SettingPage_Loaded1(object sender, RoutedEventArgs e)
@@ -56,17 +78,6 @@ namespace FileManager
         private async void SettingPage_Loading(FrameworkElement sender, object args)
         {
             Loading -= SettingPage_Loading;
-
-            foreach (Uri ImageUri in await SQLite.Current.GetBackgroundPictureAsync())
-            {
-                BitmapImage Image = new BitmapImage
-                {
-                    DecodePixelHeight = 90,
-                    DecodePixelWidth = 160
-                };
-                PictureList.Add(new BackgroundPicture(Image, ImageUri));
-                Image.UriSource = ImageUri;
-            }
 
             if (Globalization.Language == LanguageEnum.Chinese)
             {
@@ -97,6 +108,17 @@ namespace FileManager
             if (AppThemeController.Current.Theme == ElementTheme.Light)
             {
                 CustomFontColor.IsOn = true;
+            }
+
+            foreach (Uri ImageUri in await SQLite.Current.GetBackgroundPictureAsync())
+            {
+                BitmapImage Image = new BitmapImage
+                {
+                    DecodePixelHeight = 90,
+                    DecodePixelWidth = 160
+                };
+                PictureList.Add(new BackgroundPicture(Image, ImageUri));
+                Image.UriSource = ImageUri;
             }
         }
 
@@ -234,7 +256,7 @@ namespace FileManager
             catch (Exception ex)
             {
                 ExceptionTracer.RequestBlueScreen(ex);
-            }  
+            }
         }
 
         private void Like_PointerEntered(object sender, PointerRoutedEventArgs e)
@@ -1268,6 +1290,64 @@ namespace FileManager
             else
             {
                 AppThemeController.Current.ChangeThemeTo(ElementTheme.Dark);
+            }
+        }
+
+        private async void AutoBoot_Toggled(object sender, RoutedEventArgs e)
+        {
+            StartupTask BootTask = await StartupTask.GetAsync("RXExplorer");
+
+            if (AutoBoot.IsOn)
+            {
+                switch (await BootTask.RequestEnableAsync())
+                {
+                    case StartupTaskState.Disabled:
+                    case StartupTaskState.DisabledByPolicy:
+                    case StartupTaskState.DisabledByUser:
+                        {
+                            AutoBoot.Toggled -= AutoBoot_Toggled;
+                            AutoBoot.IsOn = false;
+                            AutoBoot.Toggled += AutoBoot_Toggled;
+
+                            if (Globalization.Language == LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "提示",
+                                    Content = "由于自动启动被系统禁用，RX无法自动开启此功能\r您可以前往[系统设置]页面管理",
+                                    PrimaryButtonText = "立即开启",
+                                    CloseButtonText = "暂不开启"
+                                };
+                                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                                {
+                                    await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
+                                }
+                            }
+                            else
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "Tips",
+                                    Content = "RX cannot be turned on automatically because startup is disabled by the system\rYou can go to the [System Settings] page to manage",
+                                    PrimaryButtonText = "Now",
+                                    CloseButtonText = "Later"
+                                };
+                                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                                {
+                                    await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
+                                }
+                            }
+                            break;
+                        }
+                    default:
+                        {
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                BootTask.Disable();
             }
         }
     }

@@ -1598,6 +1598,18 @@
           <source>Black</source>
           <target state="translated">黑色</target>
         </trans-unit>
+        <trans-unit id="AutoBootOnStartup.OffContent" translate="yes" xml:space="preserve">
+          <source>Disable</source>
+          <target state="translated">禁用</target>
+        </trans-unit>
+        <trans-unit id="AutoBootOnStartup.OnContent" translate="yes" xml:space="preserve">
+          <source>Enable</source>
+          <target state="translated">启用</target>
+        </trans-unit>
+        <trans-unit id="AutoBootOnStartup.Header" translate="yes" xml:space="preserve">
+          <source>Auto start at boot</source>
+          <target state="translated">随系统自动启动</target>
+        </trans-unit>
       </group>
     </body>
   </file>
