@@ -17,7 +17,6 @@ using Windows.UI.Xaml.Navigation;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
 using TreeViewCollapsedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewCollapsedEventArgs;
 using TreeViewExpandingEventArgs = Microsoft.UI.Xaml.Controls.TreeViewExpandingEventArgs;
-using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
 using TreeViewItemInvokedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewItemInvokedEventArgs;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
@@ -156,7 +155,7 @@ namespace FileManager
             }
             else
             {
-                await TargetNode.SelectNode(FolderTree);
+                FolderTree.SelectedNode = TargetNode;
             }
         }
 
@@ -522,7 +521,7 @@ namespace FileManager
                     TreeViewNode ParentNode = CurrentNode.Parent;
                     ParentNode.Children.Remove(CurrentNode);
 
-                    await ParentNode.SelectNode(FolderTree);
+                    FolderTree.SelectedNode = ParentNode;
 
                     ToDeleteFolderName = CurrentFolder.Name;
                     await DisplayItemsInFolder(ParentNode);
@@ -606,7 +605,7 @@ namespace FileManager
             {
                 FolderTree.ContextFlyout = RightTabFlyout;
 
-                await Node.SelectNode(FolderTree);
+                FolderTree.SelectedNode = Node;
 
                 await DisplayItemsInFolder(Node);
                 CurrentNode = Node;
@@ -808,7 +807,7 @@ namespace FileManager
                 var Thumbnail = await NewFolder.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
                 var ModifiedTime = await NewFolder.GetModifiedTimeAsync();
 
-                FilePresenter.ThisPage.FileCollection.Add(new FileSystemStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
+                FilePresenter.ThisPage.FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
 
                 if (CurrentNode.IsExpanded || !CurrentNode.HasChildren)
                 {
@@ -1138,7 +1137,7 @@ namespace FileManager
                 Node.IsExpanded = true;
             }
 
-            await Node.SelectNode(FolderTree);
+            FolderTree.SelectedNode = Node;
 
             string NextPathLevel = Analysis.NextPathLevel();
 
@@ -1201,7 +1200,7 @@ namespace FileManager
             if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
             {
                 var ParenetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
-                await ParenetNode.SelectNode(FolderTree);
+                FolderTree.SelectedNode = ParenetNode;
                 await DisplayItemsInFolder(ParenetNode);
             }
         }
@@ -1244,7 +1243,7 @@ namespace FileManager
                     }
                     else
                     {
-                        await TargetNode.SelectNode(FolderTree);
+                        FolderTree.SelectedNode = TargetNode;
 
                         await DisplayItemsInFolder(TargetNode);
 
@@ -1343,7 +1342,7 @@ namespace FileManager
                     }
                     else
                     {
-                        await TargetNode.SelectNode(FolderTree);
+                        FolderTree.SelectedNode = TargetNode;
 
                         await DisplayItemsInFolder(TargetNode);
 

@@ -1789,34 +1789,6 @@ namespace FileManager
     public static class Extention
     {
         /// <summary>
-        /// 选中TreeViewNode并将其滚动到UI中间
-        /// </summary>
-        /// <param name="Node">要选中的Node</param>
-        /// <param name="View">Node所属的TreeView控件</param>
-        /// <returns></returns>
-        public static async Task SelectNode(this TreeViewNode Node, TreeView View)
-        {
-            if (View == null)
-            {
-                throw new ArgumentException("View could not be null");
-            }
-
-            while (true)
-            {
-                if (View.ContainerFromNode(Node) is TreeViewItem Item)
-                {
-                    Item.IsSelected = true;
-                    Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                    break;
-                }
-                else
-                {
-                    await Task.Delay(200);
-                }
-            }
-        }
-
-        /// <summary>
         /// 检查文件是否存在于物理驱动器上
         /// </summary>
         /// <param name="File"></param>
