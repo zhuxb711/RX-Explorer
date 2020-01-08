@@ -4,14 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
-using Windows.Security.Cryptography;
-using Windows.Security.Cryptography.Core;
 using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.Pickers;
-using Windows.Storage.Streams;
 using Windows.System;
-using Windows.System.Profile;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -26,9 +22,13 @@ namespace FileManager
     public sealed partial class SettingPage : Page
     {
         private ObservableCollection<FeedBackItem> FeedBackCollection;
-        private string UserFullName = string.Empty;
-        public string UserID = string.Empty;
+
+        public string UserName { get; set; }
+
+        public string UserID { get; set; }
+
         public static SettingPage ThisPage { get; private set; }
+
         public static bool IsDoubleClickEnable { get; set; } = true;
 
         private ObservableCollection<BackgroundPicture> PictureList = new ObservableCollection<BackgroundPicture>();
@@ -42,8 +42,10 @@ namespace FileManager
 
             Loading += SettingPage_Loading;
             Loading += SettingPage_Loading1;
-            Loaded += SettingPage_Loaded1;
             Loaded += SettingPage_Loaded;
+
+            UserName = ApplicationData.Current.LocalSettings.Values["SystemUserName"].ToString();
+            UserID = ApplicationData.Current.LocalSettings.Values["SystemUserID"].ToString();
         }
 
         private async void SettingPage_Loading1(FrameworkElement sender, object args)
@@ -67,15 +69,16 @@ namespace FileManager
             AutoBoot.Toggled += AutoBoot_Toggled;
         }
 
-        private void SettingPage_Loaded1(object sender, RoutedEventArgs e)
+        private async void SettingPage_Loaded1(object sender, RoutedEventArgs e)
         {
-            if (PictureMode.IsChecked.GetValueOrDefault() == true && PictureGirdView.SelectedItem != null)
+            await Task.Delay(500);
+            if (PictureMode.IsChecked.GetValueOrDefault() && PictureGirdView.SelectedItem != null)
             {
                 PictureGirdView.ScrollIntoViewSmoothly(PictureGirdView.SelectedItem);
             }
         }
 
-        private async void SettingPage_Loading(FrameworkElement sender, object args)
+        private void SettingPage_Loading(FrameworkElement sender, object args)
         {
             Loading -= SettingPage_Loading;
 
@@ -94,6 +97,13 @@ namespace FileManager
             {
                 UIMode.SelectedItem = UIMode.Items.Where((Item) => Item.ToString() == Mode).FirstOrDefault();
             }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = Globalization.Language == LanguageEnum.Chinese
+                                                                                ? "推荐"
+                                                                                : "Recommand";
+                UIMode.SelectedIndex = 0;
+            }
 
             if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
             {
@@ -110,16 +120,7 @@ namespace FileManager
                 CustomFontColor.IsOn = true;
             }
 
-            foreach (Uri ImageUri in await SQLite.Current.GetBackgroundPictureAsync())
-            {
-                BitmapImage Image = new BitmapImage
-                {
-                    DecodePixelHeight = 90,
-                    DecodePixelWidth = 160
-                };
-                PictureList.Add(new BackgroundPicture(Image, ImageUri));
-                Image.UriSource = ImageUri;
-            }
+            Loaded += SettingPage_Loaded1;
         }
 
         private async void SettingPage_Loaded(object sender, RoutedEventArgs e)
@@ -128,59 +129,6 @@ namespace FileManager
 
             try
             {
-                if ((await User.FindAllAsync()).Where(p => p.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && p.Type == UserType.LocalUser).FirstOrDefault() is User CurrentUser)
-                {
-                    string FirstName = (await CurrentUser.GetPropertyAsync(KnownUserProperties.FirstName))?.ToString();
-                    string LastName = (await CurrentUser.GetPropertyAsync(KnownUserProperties.LastName))?.ToString();
-                    UserID = (await CurrentUser.GetPropertyAsync(KnownUserProperties.AccountName))?.ToString();
-                    if (string.IsNullOrEmpty(UserID))
-                    {
-                        var Token = HardwareIdentification.GetPackageSpecificToken(null);
-                        HashAlgorithmProvider md5 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
-                        IBuffer hashedData = md5.HashData(Token.Id);
-                        UserID = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
-                    }
-
-                    if (!(string.IsNullOrEmpty(FirstName) || string.IsNullOrEmpty(LastName)))
-                    {
-                        if (Globalization.Language == LanguageEnum.Chinese)
-                        {
-                            UserFullName = $"{LastName} {FirstName}";
-                        }
-                        else
-                        {
-                            UserFullName = $"{FirstName} {LastName}";
-                        }
-                    }
-                    else if (!string.IsNullOrEmpty(FirstName))
-                    {
-                        UserFullName = FirstName;
-                    }
-                    else if (!string.IsNullOrEmpty(LastName))
-                    {
-                        UserFullName = LastName;
-                    }
-                    else
-                    {
-                        var Token = HardwareIdentification.GetPackageSpecificToken(null);
-                        HashAlgorithmProvider md5 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
-                        IBuffer hashedData = md5.HashData(Token.Id);
-                        UserFullName = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
-                    }
-                }
-                else
-                {
-                    var Token = HardwareIdentification.GetPackageSpecificToken(null);
-                    HashAlgorithmProvider md5 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
-                    IBuffer hashedData = md5.HashData(Token.Id);
-                    UserFullName = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
-                }
-
-                if (PictureMode.IsChecked.GetValueOrDefault() == true)
-                {
-                    PictureGirdView.ScrollIntoViewSmoothly(PictureGirdView.SelectedItem);
-                }
-
                 FeedBackCollection = new ObservableCollection<FeedBackItem>();
                 FeedBackCollection.CollectionChanged += (s, t) =>
                 {
@@ -815,9 +763,9 @@ namespace FileManager
             {
                 if (FeedBackCollection.Count != 0)
                 {
-                    if (FeedBackCollection.FirstOrDefault((It) => It.UserName == UserFullName && It.Suggestion == Dialog.FeedBack && It.Title == Dialog.TitleName) == null)
+                    if (FeedBackCollection.FirstOrDefault((It) => It.UserName == UserName && It.Suggestion == Dialog.FeedBack && It.Title == Dialog.TitleName) == null)
                     {
-                        FeedBackItem Item = new FeedBackItem(UserFullName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
+                        FeedBackItem Item = new FeedBackItem(UserName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
                         if (!await MySQL.Current.SetFeedBackAsync(Item))
                         {
                             if (Globalization.Language == LanguageEnum.Chinese)
@@ -859,7 +807,7 @@ namespace FileManager
                 }
                 else
                 {
-                    FeedBackItem Item = new FeedBackItem(UserFullName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
+                    FeedBackItem Item = new FeedBackItem(UserName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
                     if (!await MySQL.Current.SetFeedBackAsync(Item))
                     {
                         if (Globalization.Language == LanguageEnum.Chinese)
@@ -1191,10 +1139,24 @@ namespace FileManager
             }
         }
 
-        private void PictureMode_Checked(object sender, RoutedEventArgs e)
+        private async void PictureMode_Checked(object sender, RoutedEventArgs e)
         {
             CustomAcrylicArea.Visibility = Visibility.Collapsed;
             CustomPictureArea.Visibility = Visibility.Visible;
+
+            if (PictureList.Count == 0)
+            {
+                foreach (Uri ImageUri in await SQLite.Current.GetBackgroundPictureAsync())
+                {
+                    BitmapImage Image = new BitmapImage
+                    {
+                        DecodePixelHeight = 90,
+                        DecodePixelWidth = 160
+                    };
+                    PictureList.Add(new BackgroundPicture(Image, ImageUri));
+                    Image.UriSource = ImageUri;
+                }
+            }
 
             ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Picture);
 

@@ -30,13 +30,13 @@
   <data name="DeviceAttribute.Label" xml:space="preserve">
     <value>属性</value>
   </data>
-  <data name="DeviceExpander.Header" xml:space="preserve">
+  <data name="DeviceExpander.Text" xml:space="preserve">
     <value>设备和驱动器</value>
   </data>
   <data name="HotWebTitle.Text" xml:space="preserve">
     <value>热门网站</value>
   </data>
-  <data name="LibraryExpander.Header" xml:space="preserve">
+  <data name="LibraryExpander.Text" xml:space="preserve">
     <value>文件夹和库</value>
   </data>
   <data name="OpenDevice.Label" xml:space="preserve">

@@ -15,11 +15,11 @@ using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
-using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
-using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
-using TreeViewExpandingEventArgs = Microsoft.UI.Xaml.Controls.TreeViewExpandingEventArgs;
 using TreeViewCollapsedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewCollapsedEventArgs;
+using TreeViewExpandingEventArgs = Microsoft.UI.Xaml.Controls.TreeViewExpandingEventArgs;
+using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
 using TreeViewItemInvokedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewItemInvokedEventArgs;
+using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace FileManager
 {
@@ -92,7 +92,7 @@ namespace FileManager
             {
                 Nav.Navigate(typeof(FilePresenter), Nav, new DrillInNavigationTransitionInfo());
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ExceptionTracer.RequestBlueScreen(ex);
             }
@@ -156,24 +156,11 @@ namespace FileManager
             }
             else
             {
-                while (true)
-                {
-                    if (FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Item)
-                    {
-                        Item.IsSelected = true;
-                        Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                        await DisplayItemsInFolder(TargetNode);
-                        break;
-                    }
-                    else
-                    {
-                        await Task.Delay(300);
-                    }
-                }
+                await TargetNode.SelectNode(FolderTree);
             }
         }
 
-        private async void FileControl_Loaded(object sender, RoutedEventArgs e)
+        private void FileControl_Loaded(object sender, RoutedEventArgs e)
         {
             if (CancelToken != null)
             {
@@ -183,28 +170,6 @@ namespace FileManager
             CancelToken = new CancellationTokenSource();
 
             Locker = new AutoResetEvent(false);
-
-            while (true)
-            {
-                var Node = FolderTree.RootNodes.FirstOrDefault();
-                if (Node == null)
-                {
-                    await Task.Delay(200);
-                    continue;
-                }
-                else
-                {
-                    if (!(FolderTree.ContainerFromNode(Node) is TreeViewItem Container))
-                    {
-                        await Task.Delay(200);
-                        continue;
-                    }
-
-                    Container.IsSelected = true;
-                    await DisplayItemsInFolder(Node);
-                    break;
-                }
-            }
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -230,7 +195,7 @@ namespace FileManager
 
         protected override async void OnNavigatedFrom(NavigationEventArgs e)
         {
-            while(Nav.CanGoBack)
+            while (Nav.CanGoBack)
             {
                 Nav.GoBack();
             }
@@ -282,7 +247,10 @@ namespace FileManager
                 FolderExpandCancel = new CancellationTokenSource();
                 ExitLocker = new ManualResetEvent(true);
 
-                await FillTreeNode(RootNode);
+                var FillTreeTask = FillTreeNode(RootNode);
+                var EnumFileTask = DisplayItemsInFolder(RootNode);
+
+                await Task.WhenAll(FillTreeTask, EnumFileTask);
             }
         }
 
@@ -294,7 +262,7 @@ namespace FileManager
         private async Task FillTreeNode(TreeViewNode Node)
         {
             StorageFolder folder;
-            if (Node.HasUnrealizedChildren == true)
+            if (Node.HasUnrealizedChildren)
             {
                 folder = Node.Content as StorageFolder;
             }
@@ -494,7 +462,7 @@ namespace FileManager
                 return;
             }
 
-            if(!await CurrentFolder.CheckExist())
+            if (!await CurrentFolder.CheckExist())
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -554,21 +522,11 @@ namespace FileManager
                     TreeViewNode ParentNode = CurrentNode.Parent;
                     ParentNode.Children.Remove(CurrentNode);
 
-                    while (true)
-                    {
-                        if (FolderTree.ContainerFromNode(ParentNode) is TreeViewItem Item)
-                        {
-                            Item.IsSelected = true;
-                            Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                            ToDeleteFolderName = CurrentFolder.Name;
-                            await DisplayItemsInFolder(ParentNode);
-                            break;
-                        }
-                        else
-                        {
-                            await Task.Delay(300);
-                        }
-                    }
+                    await ParentNode.SelectNode(FolderTree);
+
+                    ToDeleteFolderName = CurrentFolder.Name;
+                    await DisplayItemsInFolder(ParentNode);
+
                     CurrentNode = ParentNode;
                 }
                 catch (UnauthorizedAccessException)
@@ -648,7 +606,8 @@ namespace FileManager
             {
                 FolderTree.ContextFlyout = RightTabFlyout;
 
-                (FolderTree.ContainerFromNode(Node) as TreeViewItem).IsSelected = true;
+                await Node.SelectNode(FolderTree);
+
                 await DisplayItemsInFolder(Node);
                 CurrentNode = Node;
 
@@ -849,7 +808,7 @@ namespace FileManager
                 var Thumbnail = await NewFolder.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
                 var ModifiedTime = await NewFolder.GetModifiedTimeAsync();
 
-                FilePresenter.ThisPage.FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
+                FilePresenter.ThisPage.FileCollection.Add(new FileSystemStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
 
                 if (CurrentNode.IsExpanded || !CurrentNode.HasChildren)
                 {
@@ -1242,20 +1201,8 @@ namespace FileManager
             if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
             {
                 var ParenetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
-                while (true)
-                {
-                    if (FolderTree.ContainerFromNode(ParenetNode) is TreeViewItem Item)
-                    {
-                        Item.IsSelected = true;
-                        Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                        await DisplayItemsInFolder(ParenetNode);
-                        break;
-                    }
-                    else
-                    {
-                        await Task.Delay(300);
-                    }
-                }
+                await ParenetNode.SelectNode(FolderTree);
+                await DisplayItemsInFolder(ParenetNode);
             }
         }
 
@@ -1297,20 +1244,9 @@ namespace FileManager
                     }
                     else
                     {
-                        while (true)
-                        {
-                            if (FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Item)
-                            {
-                                Item.IsSelected = true;
-                                Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                                await DisplayItemsInFolder(TargetNode);
-                                break;
-                            }
-                            else
-                            {
-                                await Task.Delay(300);
-                            }
-                        }
+                        await TargetNode.SelectNode(FolderTree);
+
+                        await DisplayItemsInFolder(TargetNode);
 
                         await SQLite.Current.SetPathHistoryAsync(Folder.Path);
                     }
@@ -1407,20 +1343,9 @@ namespace FileManager
                     }
                     else
                     {
-                        while (true)
-                        {
-                            if (FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Item)
-                            {
-                                Item.IsSelected = true;
-                                Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                                await DisplayItemsInFolder(TargetNode);
-                                break;
-                            }
-                            else
-                            {
-                                await Task.Delay(300);
-                            }
-                        }
+                        await TargetNode.SelectNode(FolderTree);
+
+                        await DisplayItemsInFolder(TargetNode);
 
                         await SQLite.Current.SetPathHistoryAsync(Folder.Path);
                     }

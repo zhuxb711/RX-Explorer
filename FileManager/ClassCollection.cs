@@ -3479,6 +3479,8 @@ namespace FileManager
                         TintOpacity = 0.4,
                         FallbackColor = Colors.DimGray
                     };
+
+                    CurrentType = BackgroundBrushType.Acrylic;
                 }
                 else
                 {
@@ -3490,6 +3492,11 @@ namespace FileManager
                         TintLuminosityOpacity = 1 - Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]),
                         FallbackColor = Colors.DimGray
                     };
+
+                    if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string SubMode)
+                    {
+                        CurrentType = (BackgroundBrushType)Enum.Parse(typeof(BackgroundBrushType), SubMode);
+                    }
                 }
             }
             else
@@ -3501,6 +3508,8 @@ namespace FileManager
                     TintOpacity = 0.4,
                     FallbackColor = Colors.DimGray
                 };
+
+                CurrentType = BackgroundBrushType.Acrylic;
             }
 
             if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string uri)
@@ -3517,11 +3526,6 @@ namespace FileManager
                 {
                     Stretch = Stretch.UniformToFill
                 };
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string SubMode)
-            {
-                CurrentType = (BackgroundBrushType)Enum.Parse(typeof(BackgroundBrushType), SubMode);
             }
         }
 

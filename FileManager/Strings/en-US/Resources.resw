@@ -306,8 +306,8 @@
   <data name="DeviceDialog.CloseButtonText" xml:space="preserve">
     <value>Confirm</value>
   </data>
-  <data name="DeviceExpander.Header" xml:space="preserve">
-    <value>Devices and drives</value>
+  <data name="DeviceExpander.Text" xml:space="preserve">
+    <value>Devices</value>
   </data>
   <data name="DeviceFreeSpace.Text" xml:space="preserve">
     <value>Free space</value>
@@ -447,8 +447,8 @@
   <data name="LibraryCancelButton.Label" xml:space="preserve">
     <value>Unpin</value>
   </data>
-  <data name="LibraryExpander.Header" xml:space="preserve">
-    <value>Folders</value>
+  <data name="LibraryExpander.Text" xml:space="preserve">
+    <value>Library</value>
   </data>
   <data name="LibraryOpenButton.Label" xml:space="preserve">
     <value>Open</value>

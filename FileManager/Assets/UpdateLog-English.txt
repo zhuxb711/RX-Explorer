@@ -9,13 +9,19 @@
 
 >>#####Added memory reclamation mechanism when the RX file manager reaches the system memory limit and is in a minimized or other inactive state
 
->>#####Improved the information acquisition mechanism when a problem occurs, and will provide richer tracking information when an exception occurs
+>>#####Added support for automatic startup with the system, now RX can be started with the system as needed
 
 >#####Performance improvements
+
+>>#####Rewrites the appearance of the folded area, and now the "devices and drives" and "folders and libraries" will be more beautiful
+
+>>#####Improved the loading timing of custom background images
 
 >>#####Using C# 8.0 features, greatly improving the speed of obtaining feedback content
 
 >>#####Using a custom adaptive SQL database connection pool to improve SQL concurrency and throughput
+
+>>#####Improved the information acquisition mechanism when a problem occurs, and will provide richer tracking information when an exception occurs
 
 >#####Bug fix
 

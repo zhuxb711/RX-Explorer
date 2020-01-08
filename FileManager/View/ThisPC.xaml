@@ -249,9 +249,25 @@
                                ExpandDirection="Down"
                                HorizontalContentAlignment="Stretch"
                                VerticalContentAlignment="Top"
-                               Header="文件夹和库"
                                Margin="5"
-                               x:Uid="LibraryExpander">
+                               HeaderStyle="{StaticResource CustomExpanderHeaderStyle}">
+                <controls:Expander.HeaderTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="文件夹和库"
+                                       x:Uid="LibraryExpander"/>
+                            <Line Grid.Column="1"
+                                  Stroke="Gray"
+                                  StrokeThickness="2"
+                                  X1="0"
+                                  X2="2500"
+                                  Y1="4"
+                                  Y2="4"
+                                  Margin="15,0,0,0"
+                                  VerticalAlignment="Center" />
+                        </StackPanel>
+                    </DataTemplate>
+                </controls:Expander.HeaderTemplate>
                 <GridView Margin="0,20,0,0"
                           Name="LibraryGrid"
                           IsItemClickEnabled="True"
@@ -310,9 +326,25 @@
                                IsExpanded="True"
                                ExpandDirection="Down"
                                VerticalContentAlignment="Top"
-                               Header="设备和驱动器"
                                Margin="5"
-                               x:Uid="DeviceExpander">
+                               HeaderStyle="{StaticResource CustomExpanderHeaderStyle}">
+                <controls:Expander.HeaderTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="设备和驱动器"
+                                       x:Uid="DeviceExpander"/>
+                            <Line Grid.Column="1"
+                                  Stroke="Gray"
+                                  StrokeThickness="2"
+                                  X1="0"
+                                  X2="2500"
+                                  Y1="4"
+                                  Y2="4"
+                                  Margin="15,0,0,0"
+                                  VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </controls:Expander.HeaderTemplate>
                 <GridView Margin="0,20,0,0"
                           Name="DeviceGrid"
                           IsItemClickEnabled="True"

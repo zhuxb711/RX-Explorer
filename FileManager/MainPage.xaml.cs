@@ -10,10 +10,14 @@ using Windows.ApplicationModel.Background;
 using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
+using Windows.Security.Cryptography;
+using Windows.Security.Cryptography.Core;
 using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.Storage.Streams;
 using Windows.System;
+using Windows.System.Profile;
 using Windows.UI.Shell;
 using Windows.UI.StartScreen;
 using Windows.UI.Xaml;
@@ -88,13 +92,6 @@ namespace FileManager
                 PortalDeviceWatcher.Removed += PortalDeviceWatcher_Removed;
                 PortalDeviceWatcher.Start();
 
-                if (!(ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is string Mode))
-                {
-                    ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = Globalization.Language == LanguageEnum.Chinese
-                                ? "推荐"
-                                : "Recommand";
-                }
-
                 if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)
                 {
                     SettingPage.IsDoubleClickEnable = IsDoubleClick;
@@ -107,24 +104,24 @@ namespace FileManager
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
                     PageDictionary = new Dictionary<Type, string>()
-                {
-                    {typeof(WebTab), "浏览器"},
-                    {typeof(ThisPC),"这台电脑" },
-                    {typeof(FileControl),"这台电脑" },
-                    {typeof(AboutMe),"这台电脑" },
-                    {typeof(SecureArea),"安全域" }
-                };
+                    {
+                        {typeof(WebTab), "浏览器"},
+                        {typeof(ThisPC),"这台电脑" },
+                        {typeof(FileControl),"这台电脑" },
+                        {typeof(AboutMe),"这台电脑" },
+                        {typeof(SecureArea),"安全域" }
+                    };
                 }
                 else
                 {
                     PageDictionary = new Dictionary<Type, string>()
-                {
-                    {typeof(WebTab), "Browser"},
-                    {typeof(ThisPC),"ThisPC" },
-                    {typeof(FileControl),"ThisPC" },
-                    {typeof(AboutMe),"ThisPC" },
-                    {typeof(SecureArea),"Security Area" }
-                };
+                    {
+                        {typeof(WebTab), "Browser"},
+                        {typeof(ThisPC),"ThisPC" },
+                        {typeof(FileControl),"ThisPC" },
+                        {typeof(AboutMe),"ThisPC" },
+                        {typeof(SecureArea),"Security Area" }
+                    };
                 }
 
                 Nav.Navigate(typeof(ThisPC));
@@ -143,33 +140,17 @@ namespace FileManager
                     await ToDeletePicture.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 }
 
-                if (ApplicationData.Current.LocalSettings.Values["LastRunVersion"] is string Version)
-                {
-                    var VersionSplit = Version.Split(".").Select((Item) => ushort.Parse(Item));
-                    if (VersionSplit.ElementAt(0) < Package.Current.Id.Version.Major || VersionSplit.ElementAt(1) < Package.Current.Id.Version.Minor || VersionSplit.ElementAt(2) < Package.Current.Id.Version.Build || VersionSplit.ElementAt(3) < Package.Current.Id.Version.Revision)
-                    {
-                        WhatIsNew Dialog = new WhatIsNew();
-                        await Task.Delay(2000);
-                        _ = await Dialog.ShowAsync();
+                await GetUserInfoAsync();
 
-                        ApplicationData.Current.LocalSettings.Values["LastRunVersion"] = string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
-                    }
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["LastRunVersion"] = string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
-                    WhatIsNew Dialog = new WhatIsNew();
-                    await Task.Delay(2000);
-                    _ = await Dialog.ShowAsync();
-                }
+                await ShowReleaseLogDialogAsync();
 
-                await RegisterBackgroundTask();
+                await RegisterBackgroundTaskAsync();
 
-                await DonateDeveloper();
+                await DonateDeveloperAsync();
 
                 await Task.Delay(10000);
 
-                await PinApplicationToTaskBar();
+                await PinApplicationToTaskBarAsync();
 
             }
             catch (Exception ex)
@@ -178,7 +159,63 @@ namespace FileManager
             }
         }
 
-        private async Task RegisterBackgroundTask()
+        private async Task ShowReleaseLogDialogAsync()
+        {
+            if (ApplicationData.Current.LocalSettings.Values["LastRunVersion"] is string Version)
+            {
+                var VersionSplit = Version.Split(".").Select((Item) => ushort.Parse(Item));
+                if (VersionSplit.ElementAt(0) < Package.Current.Id.Version.Major || VersionSplit.ElementAt(1) < Package.Current.Id.Version.Minor || VersionSplit.ElementAt(2) < Package.Current.Id.Version.Build || VersionSplit.ElementAt(3) < Package.Current.Id.Version.Revision)
+                {
+                    WhatIsNew Dialog = new WhatIsNew();
+                    _ = await Dialog.ShowAsync();
+
+                    ApplicationData.Current.LocalSettings.Values["LastRunVersion"] = string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
+                }
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["LastRunVersion"] = string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
+                WhatIsNew Dialog = new WhatIsNew();
+                _ = await Dialog.ShowAsync();
+            }
+        }
+
+        private async Task GetUserInfoAsync()
+        {
+            if ((await User.FindAllAsync()).Where(p => p.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && p.Type == UserType.LocalUser).FirstOrDefault() is User CurrentUser)
+            {
+                string UserName = (await CurrentUser.GetPropertyAsync(KnownUserProperties.FirstName))?.ToString();
+                string UserID = (await CurrentUser.GetPropertyAsync(KnownUserProperties.AccountName))?.ToString();
+                if (string.IsNullOrEmpty(UserID))
+                {
+                    var Token = HardwareIdentification.GetPackageSpecificToken(null);
+                    HashAlgorithmProvider md5 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
+                    IBuffer hashedData = md5.HashData(Token.Id);
+                    UserID = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
+                }
+
+                if (string.IsNullOrEmpty(UserName))
+                {
+                    UserName = UserID.Substring(0, 10);
+                }
+
+                ApplicationData.Current.LocalSettings.Values["SystemUserName"] = UserName;
+                ApplicationData.Current.LocalSettings.Values["SystemUserID"] = UserID;
+            }
+            else
+            {
+                var Token = HardwareIdentification.GetPackageSpecificToken(null);
+                HashAlgorithmProvider md5 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
+                IBuffer hashedData = md5.HashData(Token.Id);
+                string UserID = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
+                string UserName = UserID.Substring(0, 10);
+
+                ApplicationData.Current.LocalSettings.Values["SystemUserName"] = UserName;
+                ApplicationData.Current.LocalSettings.Values["SystemUserID"] = UserID;
+            }
+        }
+
+        private async Task RegisterBackgroundTaskAsync()
         {
             switch (await BackgroundExecutionManager.RequestAccessAsync())
             {
@@ -343,7 +380,7 @@ namespace FileManager
             }
         }
 
-        private async Task PinApplicationToTaskBar()
+        private async Task PinApplicationToTaskBarAsync()
         {
             if (ApplicationData.Current.LocalSettings.Values.ContainsKey("IsPinToTaskBar"))
             {
@@ -442,7 +479,7 @@ namespace FileManager
             RateTip.IsOpen = true;
         }
 
-        private async Task DonateDeveloper()
+        private async Task DonateDeveloperAsync()
         {
             if (ApplicationData.Current.LocalSettings.Values["IsDonated"] is bool Donated)
             {

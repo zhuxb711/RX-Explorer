@@ -36,11 +36,13 @@ namespace FileManager
             QuickStartGridView.ItemsSource = QuickStartList;
             WebGridView.ItemsSource = HotWebList;
             ThisPage = this;
-            OnFirstLoad();
+            Loading += ThisPC_Loading;
         }
 
-        private async void OnFirstLoad()
+        private async void ThisPC_Loading(FrameworkElement sender, object args)
         {
+            Loading -= ThisPC_Loading;
+
             try
             {
                 if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
@@ -246,7 +248,7 @@ namespace FileManager
             catch (Exception ex)
             {
                 ExceptionTracer.RequestBlueScreen(ex);
-            }
+            }       
         }
 
         private void DeviceGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
