@@ -90,13 +90,40 @@ namespace FileManager
             try
             {
                 Nav.Navigate(typeof(FilePresenter), Nav, new DrillInNavigationTransitionInfo());
+
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    ItemDisplayMode.Items.Add("平铺");
+                    ItemDisplayMode.Items.Add("详细信息");
+                    ItemDisplayMode.Items.Add("列表");
+                    ItemDisplayMode.Items.Add("大图标");
+                    ItemDisplayMode.Items.Add("中图标");
+                    ItemDisplayMode.Items.Add("小图标");
+                }
+                else
+                {
+                    ItemDisplayMode.Items.Add("Tiles");
+                    ItemDisplayMode.Items.Add("Details");
+                    ItemDisplayMode.Items.Add("List");
+                    ItemDisplayMode.Items.Add("Large icons");
+                    ItemDisplayMode.Items.Add("Medium icons");
+                    ItemDisplayMode.Items.Add("Small icons");
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] is int Index)
+                {
+                    ItemDisplayMode.SelectedIndex = Index;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] = 0;
+                    ItemDisplayMode.SelectedIndex = 0;
+                }
             }
             catch (Exception ex)
             {
                 ExceptionTracer.RequestBlueScreen(ex);
             }
-
-            Loaded += FileControl_Loaded;
         }
 
         public FileControl(StorageFolder Folder)
@@ -107,6 +134,35 @@ namespace FileManager
             try
             {
                 Nav.Navigate(typeof(FilePresenter), Nav, new DrillInNavigationTransitionInfo());
+
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    ItemDisplayMode.Items.Add("平铺");
+                    ItemDisplayMode.Items.Add("详细信息");
+                    ItemDisplayMode.Items.Add("列表");
+                    ItemDisplayMode.Items.Add("大图标");
+                    ItemDisplayMode.Items.Add("中图标");
+                    ItemDisplayMode.Items.Add("小图标");
+                }
+                else
+                {
+                    ItemDisplayMode.Items.Add("Tiles");
+                    ItemDisplayMode.Items.Add("Details");
+                    ItemDisplayMode.Items.Add("List");
+                    ItemDisplayMode.Items.Add("Large icons");
+                    ItemDisplayMode.Items.Add("Medium icons");
+                    ItemDisplayMode.Items.Add("Small icons");
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] is int Index)
+                {
+                    ItemDisplayMode.SelectedIndex = Index;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] = 0;
+                    ItemDisplayMode.SelectedIndex = 0;
+                }
                 OpenTargetFolder(Folder);
             }
             catch (Exception ex)
@@ -117,16 +173,7 @@ namespace FileManager
 
         private async void OpenTargetFolder(StorageFolder Folder)
         {
-            if (CancelToken != null)
-            {
-                CancelToken.Dispose();
-                CancelToken = null;
-            }
-            CancelToken = new CancellationTokenSource();
-
-            Locker = new AutoResetEvent(false);
-
-            await InitializeTreeView(await StorageFolder.GetFolderFromPathAsync(Path.GetPathRoot(Folder.Path)));
+            await Initialize(await StorageFolder.GetFolderFromPathAsync(Path.GetPathRoot(Folder.Path)));
 
             var RootNode = FolderTree.RootNodes[0];
             TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, string.Empty));
@@ -155,27 +202,16 @@ namespace FileManager
             }
             else
             {
-                FolderTree.SelectedNode = TargetNode;
+                await FolderTree.SelectNode(TargetNode);
+                await DisplayItemsInFolder(TargetNode);
             }
-        }
-
-        private void FileControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (CancelToken != null)
-            {
-                CancelToken.Dispose();
-                CancelToken = null;
-            }
-            CancelToken = new CancellationTokenSource();
-
-            Locker = new AutoResetEvent(false);
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             if (e.Parameter is StorageFolder TargetFolder)
             {
-                await InitializeTreeView(TargetFolder);
+                await Initialize(TargetFolder);
 
                 string PlaceText;
                 if (TargetFolder.DisplayName.Length > 18)
@@ -230,7 +266,7 @@ namespace FileManager
         /// <summary>
         /// 执行文件目录的初始化
         /// </summary>
-        private async Task InitializeTreeView(StorageFolder InitFolder)
+        private async Task Initialize(StorageFolder InitFolder)
         {
             if (InitFolder != null)
             {
@@ -243,6 +279,9 @@ namespace FileManager
                 };
                 FolderTree.RootNodes.Add(RootNode);
 
+                CancelToken?.Dispose();
+                CancelToken = new CancellationTokenSource();
+                Locker = new AutoResetEvent(false);
                 FolderExpandCancel = new CancellationTokenSource();
                 ExitLocker = new ManualResetEvent(true);
 
@@ -315,6 +354,10 @@ namespace FileManager
             {
                 return;
             }
+            catch(Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
+            }
             finally
             {
                 ExitLocker.Set();
@@ -342,115 +385,123 @@ namespace FileManager
              * 此处激活取消指令，等待当前遍历结束，再开始下一次文件遍历
              * 确保不会出现异常
              */
-            //防止多次点击同一文件夹导致的多重查找            
-            if (Node.Content is StorageFolder folder)
+            //防止多次点击同一文件夹导致的多重查找       
+
+            try
             {
-                if (!ForceRefresh)
+                if (Node.Content is StorageFolder folder)
                 {
-                    if (folder.FolderRelativeId == CurrentFolder?.FolderRelativeId && Nav.CurrentSourcePageType == typeof(FilePresenter))
+                    if (!ForceRefresh)
                     {
-                        IsAdding = false;
-                        return;
-                    }
-                }
-
-                if (IsAdding)
-                {
-                    await Task.Run(() =>
-                    {
-                        lock (SyncRootProvider.SyncRoot)
+                        if (folder.FolderRelativeId == CurrentFolder?.FolderRelativeId && Nav.CurrentSourcePageType == typeof(FilePresenter))
                         {
-                            CancelToken.Cancel();
-                            Locker.WaitOne();
-                            CancelToken.Dispose();
-                            CancelToken = new CancellationTokenSource();
+                            IsAdding = false;
+                            return;
                         }
-                    });
-                }
-                IsAdding = true;
-
-                if (IsBackOrForwardAction)
-                {
-                    IsBackOrForwardAction = false;
-                }
-                else
-                {
-                    if (RecordIndex != GoAndBackRecord.Count - 1 && GoAndBackRecord.Count != 0)
-                    {
-                        GoAndBackRecord.RemoveRange(RecordIndex + 1, GoAndBackRecord.Count - RecordIndex - 1);
                     }
-                    GoAndBackRecord.Add(folder);
-                    RecordIndex = GoAndBackRecord.Count - 1;
-                }
 
-                CurrentNode = Node;
-
-                //当处于USB其他附加功能的页面时，若点击文件目录则自动执行返回导航
-                if (Nav.CurrentSourcePageType.Name != "FilePresenter")
-                {
-                    Nav.GoBack();
-                }
-
-                FilePresenter.ThisPage.FileCollection.Clear();
-
-                QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
-                {
-                    FolderDepth = FolderDepth.Shallow,
-                    IndexerOption = IndexerOption.UseIndexerWhenAvailable
-                };
-
-                Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.ResizeThumbnail);
-                Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.FileName", "System.Size", "System.DateModified" });
-
-                StorageItemQueryResult ItemQuery = folder.CreateItemQueryWithOptions(Options);
-
-                IReadOnlyList<IStorageItem> FileList = null;
-                try
-                {
-                    FilePresenter.ThisPage.FileCollection.HasMoreItems = false;
-                    FileList = await ItemQuery.GetItemsAsync(0, 100).AsTask(CancelToken.Token);
-                    await FilePresenter.ThisPage.FileCollection.SetStorageItemQueryAsync(ItemQuery);
-                }
-                catch (TaskCanceledException)
-                {
-                    goto FLAG;
-                }
-
-                FilePresenter.ThisPage.HasFile.Visibility = FileList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-
-                for (int i = 0; i < FileList.Count && !CancelToken.IsCancellationRequested; i++)
-                {
-                    var Item = FileList[i];
-                    if (Item is StorageFile)
+                    if (IsAdding)
                     {
-                        var Size = await Item.GetSizeDescriptionAsync();
-                        var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                        var ModifiedTime = await Item.GetModifiedTimeAsync();
-                        FilePresenter.ThisPage.FileCollection.Add(new FileSystemStorageItem(FileList[i], Size, Thumbnail, ModifiedTime));
+                        await Task.Run(() =>
+                        {
+                            lock (SyncRootProvider.SyncRoot)
+                            {
+                                CancelToken.Cancel();
+                                Locker.WaitOne();
+                                CancelToken.Dispose();
+                                CancelToken = new CancellationTokenSource();
+                            }
+                        });
+                    }
+                    IsAdding = true;
+
+                    if (IsBackOrForwardAction)
+                    {
+                        IsBackOrForwardAction = false;
                     }
                     else
                     {
-                        if (ToDeleteFolderName != Item.Name)
+                        if (RecordIndex != GoAndBackRecord.Count - 1 && GoAndBackRecord.Count != 0)
                         {
+                            GoAndBackRecord.RemoveRange(RecordIndex + 1, GoAndBackRecord.Count - RecordIndex - 1);
+                        }
+                        GoAndBackRecord.Add(folder);
+                        RecordIndex = GoAndBackRecord.Count - 1;
+                    }
+
+                    CurrentNode = Node;
+
+                    //当处于USB其他附加功能的页面时，若点击文件目录则自动执行返回导航
+                    if (Nav.CurrentSourcePageType.Name != "FilePresenter")
+                    {
+                        Nav.GoBack();
+                    }
+
+                    FilePresenter.ThisPage.FileCollection.Clear();
+
+                    QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
+                    {
+                        FolderDepth = FolderDepth.Shallow,
+                        IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                    };
+
+                    Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.ResizeThumbnail);
+                    Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.FileName", "System.Size", "System.DateModified" });
+
+                    StorageItemQueryResult ItemQuery = folder.CreateItemQueryWithOptions(Options);
+
+                    IReadOnlyList<IStorageItem> FileList = null;
+                    try
+                    {
+                        FilePresenter.ThisPage.FileCollection.HasMoreItems = false;
+                        FileList = await ItemQuery.GetItemsAsync(0, 100).AsTask(CancelToken.Token);
+                        await FilePresenter.ThisPage.FileCollection.SetStorageItemQueryAsync(ItemQuery);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        goto FLAG;
+                    }
+
+                    FilePresenter.ThisPage.HasFile.Visibility = FileList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+                    for (int i = 0; i < FileList.Count && !CancelToken.IsCancellationRequested; i++)
+                    {
+                        var Item = FileList[i];
+                        if (Item is StorageFile)
+                        {
+                            var Size = await Item.GetSizeDescriptionAsync();
                             var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                            FilePresenter.ThisPage.FileCollection.Add(new FileSystemStorageItem(FileList[i], string.Empty, Thumbnail, string.Empty));
+                            var ModifiedTime = await Item.GetModifiedTimeAsync();
+                            FilePresenter.ThisPage.FileCollection.Add(new FileSystemStorageItem(FileList[i], Size, Thumbnail, ModifiedTime));
                         }
                         else
                         {
-                            ToDeleteFolderName = null;
+                            if (ToDeleteFolderName != Item.Name)
+                            {
+                                var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                                FilePresenter.ThisPage.FileCollection.Add(new FileSystemStorageItem(FileList[i], string.Empty, Thumbnail, string.Empty));
+                            }
+                            else
+                            {
+                                ToDeleteFolderName = null;
+                            }
                         }
                     }
                 }
-            }
 
-        FLAG:
-            if (CancelToken.IsCancellationRequested)
-            {
-                Locker.Set();
+            FLAG:
+                if (CancelToken.IsCancellationRequested)
+                {
+                    Locker.Set();
+                }
+                else
+                {
+                    IsAdding = false;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                IsAdding = false;
+                ExceptionTracer.RequestBlueScreen(ex);
             }
         }
 
@@ -521,7 +572,7 @@ namespace FileManager
                     TreeViewNode ParentNode = CurrentNode.Parent;
                     ParentNode.Children.Remove(CurrentNode);
 
-                    FolderTree.SelectedNode = ParentNode;
+                    await FolderTree.SelectNode(ParentNode);
 
                     ToDeleteFolderName = CurrentFolder.Name;
                     await DisplayItemsInFolder(ParentNode);
@@ -605,10 +656,9 @@ namespace FileManager
             {
                 FolderTree.ContextFlyout = RightTabFlyout;
 
-                FolderTree.SelectedNode = Node;
+                await FolderTree.SelectNode(Node);
 
                 await DisplayItemsInFolder(Node);
-                CurrentNode = Node;
 
                 if (FolderTree.RootNodes.Contains(CurrentNode))
                 {
@@ -1137,7 +1187,7 @@ namespace FileManager
                 Node.IsExpanded = true;
             }
 
-            FolderTree.SelectedNode = Node;
+            await FolderTree.SelectNode(Node);
 
             string NextPathLevel = Analysis.NextPathLevel();
 
@@ -1200,7 +1250,7 @@ namespace FileManager
             if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
             {
                 var ParenetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
-                FolderTree.SelectedNode = ParenetNode;
+                await FolderTree.SelectNode(ParenetNode);
                 await DisplayItemsInFolder(ParenetNode);
             }
         }
@@ -1243,7 +1293,7 @@ namespace FileManager
                     }
                     else
                     {
-                        FolderTree.SelectedNode = TargetNode;
+                        await FolderTree.SelectNode(TargetNode);
 
                         await DisplayItemsInFolder(TargetNode);
 
@@ -1342,7 +1392,7 @@ namespace FileManager
                     }
                     else
                     {
-                        FolderTree.SelectedNode = TargetNode;
+                        await FolderTree.SelectNode(TargetNode);
 
                         await DisplayItemsInFolder(TargetNode);
 
@@ -1408,6 +1458,80 @@ namespace FileManager
             IsSearchOrPathBoxFocused = true;
 
             AddressBox.ItemsSource = await SQLite.Current.GetRelatedPathHistoryAsync(string.Empty);
+        }
+
+        private void ItemDisplayMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] = ItemDisplayMode.SelectedIndex;
+
+            switch (ItemDisplayMode.SelectedIndex)
+            {
+                case 0:
+                    {
+                        FilePresenter.ThisPage.GridViewControl.ItemTemplate = FilePresenter.ThisPage.TileDataTemplate;
+
+                        if (!FilePresenter.ThisPage.UseGridOrList)
+                        {
+                            FilePresenter.ThisPage.UseGridOrList = true;
+                        }
+                        break;
+                    }
+                case 1:
+                    {
+                        FilePresenter.ThisPage.ListViewControl.HeaderTemplate = FilePresenter.ThisPage.ListHeaderDataTemplate;
+                        FilePresenter.ThisPage.ListViewControl.ItemTemplate = FilePresenter.ThisPage.ListViewDetailDataTemplate;
+                        FilePresenter.ThisPage.ListViewControl.ItemsSource = FilePresenter.ThisPage.FileCollection;
+
+                        if (FilePresenter.ThisPage.UseGridOrList)
+                        {
+                            FilePresenter.ThisPage.UseGridOrList = false;
+                        }
+                        break;
+                    }
+
+                case 2:
+                    {
+                        FilePresenter.ThisPage.ListViewControl.HeaderTemplate = null;
+                        FilePresenter.ThisPage.ListViewControl.ItemTemplate = FilePresenter.ThisPage.ListViewSimpleDataTemplate;
+                        FilePresenter.ThisPage.ListViewControl.ItemsSource = FilePresenter.ThisPage.FileCollection;
+
+                        if (FilePresenter.ThisPage.UseGridOrList)
+                        {
+                            FilePresenter.ThisPage.UseGridOrList = false;
+                        }
+                        break;
+                    }
+                case 3:
+                    {
+                        FilePresenter.ThisPage.GridViewControl.ItemTemplate = FilePresenter.ThisPage.LargeImageDataTemplate;
+
+                        if (!FilePresenter.ThisPage.UseGridOrList)
+                        {
+                            FilePresenter.ThisPage.UseGridOrList = true;
+                        }
+                        break;
+                    }
+                case 4:
+                    {
+                        FilePresenter.ThisPage.GridViewControl.ItemTemplate = FilePresenter.ThisPage.MediumImageDataTemplate;
+
+                        if (!FilePresenter.ThisPage.UseGridOrList)
+                        {
+                            FilePresenter.ThisPage.UseGridOrList = true;
+                        }
+                        break;
+                    }
+                case 5:
+                    {
+                        FilePresenter.ThisPage.GridViewControl.ItemTemplate = FilePresenter.ThisPage.SmallImageDataTemplate;
+
+                        if (!FilePresenter.ThisPage.UseGridOrList)
+                        {
+                            FilePresenter.ThisPage.UseGridOrList = true;
+                        }
+                        break;
+                    }
+            }
         }
     }
 

@@ -1,7 +1,9 @@
 ﻿*****
-###What's new in Ver.3.8.7.0
+###What's new in Ver.3.9.0.0
 
 >#####Feature Update
+
+>>#####New file icon conversion function, now you can freely choose between "tile", "details", "list", "large, medium and small icons"
 
 >>#####Add new merge function of video files
 
@@ -34,6 +36,10 @@
 >>#####Fixed the problem that some resources could not be released correctly when getting the file preview icon
 
 >>#####Resolved the error problem that may be caused by entering the browser module, at the cost of more stuttering when the web page loads
+
+>>##### Solved the problem that the files in the corresponding folder will not be displayed when navigating directly to the corresponding folder through the address bar
+
+>>##### Solved the problem that on a slower computer or when entering the file immediately when RX starts, it will cause an abnormal crash
 
 *****
 ###What's new in Ver.3.8.2.0

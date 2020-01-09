@@ -19,6 +19,7 @@ using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
@@ -37,9 +38,115 @@ namespace FileManager
         public List<GridViewItem> ZipCollection = new List<GridViewItem>();
         private static StorageFile CopyFile;
         private static StorageFile CutFile;
+
+        private bool useGridorList;
+        public bool UseGridOrList
+        {
+            get
+            {
+                return useGridorList;
+            }
+            set
+            {
+                useGridorList = value;
+                if (value)
+                {
+                    GridViewControl.Visibility = Visibility.Visible;
+                    ListViewControl.Visibility = Visibility.Collapsed;
+                    GridViewControl.ItemsSource = FileCollection;
+                    ListViewControl.ItemsSource = null;
+                }
+                else
+                {
+                    ListViewControl.Visibility = Visibility.Visible;
+                    GridViewControl.Visibility = Visibility.Collapsed;
+                    ListViewControl.ItemsSource = FileCollection;
+                    GridViewControl.ItemsSource = null;
+                }
+            }
+        }
+
         Frame Nav;
         WiFiShareProvider WiFiProvider;
         FileSystemStorageItem DoubleTabTarget = null;
+
+        private int SelectedIndex
+        {
+            get
+            {
+                if (UseGridOrList)
+                {
+                    return GridViewControl.SelectedIndex;
+                }
+                else
+                {
+                    return ListViewControl.SelectedIndex;
+                }
+            }
+            set
+            {
+                if(UseGridOrList)
+                {
+                    GridViewControl.SelectedIndex = value;
+                }
+                else
+                {
+                    ListViewControl.SelectedIndex = value;
+                }
+            }
+        }
+
+        private FlyoutBase ControlContextFlyout
+        {
+            get
+            {
+                if(UseGridOrList)
+                {
+                    return GridViewControl.ContextFlyout;
+                }
+                else
+                {
+                    return ListViewControl.ContextFlyout;
+                }
+            }
+            set
+            {
+                if(UseGridOrList)
+                {
+                    GridViewControl.ContextFlyout = value;
+                }
+                else
+                {
+                    ListViewControl.ContextFlyout = value;
+                }
+            }
+        }
+
+        private object SelectedItem
+        {
+            get
+            {
+                if (UseGridOrList)
+                {
+                    return GridViewControl.SelectedItem;
+                }
+                else
+                {
+                    return ListViewControl.SelectedItem;
+                }
+            }
+            set
+            {
+                if(UseGridOrList)
+                {
+                    GridViewControl.SelectedItem = value;
+                }
+                else
+                {
+                    ListViewControl.SelectedItem = value;
+                }
+            }
+        }
 
         public FilePresenter()
         {
@@ -47,7 +154,6 @@ namespace FileManager
             ThisPage = this;
 
             FileCollection = new IncrementalLoadingCollection<FileSystemStorageItem>(GetMoreItemsFunction);
-            GridViewControl.ItemsSource = FileCollection;
             FileCollection.CollectionChanged += FileCollection_CollectionChanged;
 
             //必须注册这个东西才能使用中文解码
@@ -84,15 +190,29 @@ namespace FileManager
                                 Refresh_Click(null, null);
                                 break;
                             }
-                        case VirtualKey.Right when GridViewControl.SelectedIndex == -1:
+                        case VirtualKey.Right when SelectedIndex == -1:
                             {
-                                GridViewControl.Focus(FocusState.Programmatic);
-                                GridViewControl.SelectedIndex = 0;
+                                if (UseGridOrList)
+                                {
+                                    GridViewControl.Focus(FocusState.Programmatic);
+                                }
+                                else
+                                {
+                                    ListViewControl.Focus(FocusState.Programmatic);
+                                }
+                                SelectedIndex = 0;
                                 break;
                             }
-                        case VirtualKey.Enter when !QueueContentDialog.IsRunningOrWaiting && GridViewControl.SelectedItem is FileSystemStorageItem Item:
+                        case VirtualKey.Enter when !QueueContentDialog.IsRunningOrWaiting && SelectedItem is FileSystemStorageItem Item:
                             {
-                                GridViewControl.Focus(FocusState.Programmatic);
+                                if (UseGridOrList)
+                                {
+                                    GridViewControl.Focus(FocusState.Programmatic);
+                                }
+                                else
+                                {
+                                    ListViewControl.Focus(FocusState.Programmatic);
+                                }
                                 EnterSelectedItem(Item);
                                 break;
                             }
@@ -118,7 +238,7 @@ namespace FileManager
                                     CutFile = null;
                                 }
 
-                                CopyFile = (GridViewControl.SelectedItem as FileSystemStorageItem)?.File;
+                                CopyFile = (SelectedItem as FileSystemStorageItem)?.File;
                                 break;
                             }
                         case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
@@ -128,7 +248,7 @@ namespace FileManager
                                     CopyFile = null;
                                 }
 
-                                CutFile = (GridViewControl.SelectedItem as FileSystemStorageItem)?.File;
+                                CutFile = (SelectedItem as FileSystemStorageItem)?.File;
                                 break;
                             }
                         case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
@@ -207,7 +327,7 @@ namespace FileManager
                 CutFile = null;
             }
 
-            if (GridViewControl.SelectedItem is FileSystemStorageItem Item)
+            if (SelectedItem is FileSystemStorageItem Item)
             {
                 if (!await Item.File.CheckExist())
                 {
@@ -514,7 +634,7 @@ namespace FileManager
                 CopyFile = null;
             }
 
-            if (GridViewControl.SelectedItem is FileSystemStorageItem Item)
+            if (SelectedItem is FileSystemStorageItem Item)
             {
                 if (!await Item.File.CheckExist())
                 {
@@ -550,7 +670,7 @@ namespace FileManager
         {
             Restore();
 
-            if (GridViewControl.SelectedItem is FileSystemStorageItem ItemToDelete)
+            if (SelectedItem is FileSystemStorageItem ItemToDelete)
             {
                 if (ItemToDelete.ContentType == ContentType.File)
                 {
@@ -837,7 +957,7 @@ namespace FileManager
         {
             Restore();
 
-            if (GridViewControl.SelectedItem is FileSystemStorageItem RenameItem)
+            if (SelectedItem is FileSystemStorageItem RenameItem)
             {
                 if (RenameItem.ContentType == ContentType.File)
                 {
@@ -1092,7 +1212,7 @@ namespace FileManager
                             }
                         }
 
-                        await (GridViewControl.SelectedItem as FileSystemStorageItem).UpdateRequested(ReCreateFolder);
+                        await (SelectedItem as FileSystemStorageItem).UpdateRequested(ReCreateFolder);
                     }
                 }
             }
@@ -1113,7 +1233,7 @@ namespace FileManager
         {
             Restore();
 
-            FileSystemStorageItem SelectedFile = GridViewControl.SelectedItem as FileSystemStorageItem;
+            FileSystemStorageItem SelectedFile = SelectedItem as FileSystemStorageItem;
 
             if (!await SelectedFile.File.CheckExist())
             {
@@ -1332,7 +1452,7 @@ namespace FileManager
         {
             Restore();
 
-            FileSystemStorageItem ShareFile = GridViewControl.SelectedItem as FileSystemStorageItem;
+            FileSystemStorageItem ShareFile = SelectedItem as FileSystemStorageItem;
 
             if (!await ShareFile.File.CheckExist())
             {
@@ -1410,12 +1530,13 @@ namespace FileManager
         {
             lock (SyncRootProvider.SyncRoot)
             {
-                if (GridViewControl.SelectedItem is FileSystemStorageItem Item)
+                if (SelectedItem is FileSystemStorageItem Item)
                 {
                     if (Item.ContentType == ContentType.File)
                     {
                         Transcode.IsEnabled = false;
                         VideoEdit.IsEnabled = false;
+                        VideoMerge.IsEnabled = false;
 
                         Zip.Label = Globalization.Language == LanguageEnum.Chinese
                                     ? "Zip压缩"
@@ -1434,6 +1555,7 @@ namespace FileManager
                                 {
                                     VideoEdit.IsEnabled = true;
                                     Transcode.IsEnabled = true;
+                                    VideoMerge.IsEnabled = true;
                                     break;
                                 }
                             case ".mkv":
@@ -1469,7 +1591,7 @@ namespace FileManager
 
         private void GridViewControl_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            GridViewControl.SelectedIndex = -1;
+            SelectedIndex = -1;
             FileControl.ThisPage.IsSearchOrPathBoxFocused = false;
         }
 
@@ -1477,20 +1599,20 @@ namespace FileManager
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
             {
-                GridViewControl.SelectedIndex = FileCollection.IndexOf(Context);
+                SelectedIndex = FileCollection.IndexOf(Context);
 
                 if (Context.ContentType == ContentType.Folder)
                 {
-                    GridViewControl.ContextFlyout = FolderFlyout;
+                    ControlContextFlyout = FolderFlyout;
                 }
                 else
                 {
-                    GridViewControl.ContextFlyout = FileFlyout;
+                    ControlContextFlyout = FileFlyout;
                 }
             }
             else
             {
-                GridViewControl.ContextFlyout = EmptyFlyout;
+                ControlContextFlyout = EmptyFlyout;
             }
 
             e.Handled = true;
@@ -1500,7 +1622,7 @@ namespace FileManager
         {
             Restore();
 
-            FileSystemStorageItem Device = GridViewControl.SelectedItem as FileSystemStorageItem;
+            FileSystemStorageItem Device = SelectedItem as FileSystemStorageItem;
 
             if (!await Device.File.CheckExist())
             {
@@ -1536,9 +1658,9 @@ namespace FileManager
         {
             Restore();
 
-            FileSystemStorageItem SelectedItem = GridViewControl.SelectedItem as FileSystemStorageItem;
+            FileSystemStorageItem Item = SelectedItem as FileSystemStorageItem;
 
-            if (!await SelectedItem.File.CheckExist())
+            if (!await Item.File.CheckExist())
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -1564,9 +1686,9 @@ namespace FileManager
                 return;
             }
 
-            if (SelectedItem.Type == ".zip")
+            if (Item.Type == ".zip")
             {
-                if ((await UnZipAsync(SelectedItem)) is StorageFolder NewFolder)
+                if ((await UnZipAsync(Item)) is StorageFolder NewFolder)
                 {
                     TreeViewNode CurrentNode = null;
                     if (FileControl.ThisPage.CurrentNode.Children.All((Node) => (Node.Content as StorageFolder).Name != NewFolder.Name))
@@ -1587,7 +1709,7 @@ namespace FileManager
             }
             else
             {
-                ZipDialog dialog = new ZipDialog(true, SelectedItem.DisplayName);
+                ZipDialog dialog = new ZipDialog(true, Item.DisplayName);
 
                 if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
@@ -1597,11 +1719,11 @@ namespace FileManager
 
                     if (dialog.IsCryptionEnable)
                     {
-                        await CreateZipAsync(SelectedItem, dialog.FileName, (int)dialog.Level, true, dialog.Key, dialog.Password);
+                        await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, true, dialog.Key, dialog.Password);
                     }
                     else
                     {
-                        await CreateZipAsync(SelectedItem, dialog.FileName, (int)dialog.Level);
+                        await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level);
                     }
                 }
                 else
@@ -1927,7 +2049,7 @@ namespace FileManager
         {
             Restore();
 
-            if (GridViewControl.SelectedItem is FileSystemStorageItem Source)
+            if (SelectedItem is FileSystemStorageItem Source)
             {
                 if (!await Source.File.CheckExist())
                 {
@@ -2072,7 +2194,7 @@ namespace FileManager
         {
             Restore();
 
-            if (GridViewControl.SelectedItem is FileSystemStorageItem Item)
+            if (SelectedItem is FileSystemStorageItem Item)
             {
                 EnterSelectedItem(Item);
             }
@@ -2082,7 +2204,7 @@ namespace FileManager
         {
             Restore();
 
-            FileSystemStorageItem Device = GridViewControl.SelectedItem as FileSystemStorageItem;
+            FileSystemStorageItem Device = SelectedItem as FileSystemStorageItem;
             if (!await Device.Folder.CheckExist())
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
@@ -2122,7 +2244,7 @@ namespace FileManager
                 QRTeachTip.IsOpen = false;
             }
 
-            FileSystemStorageItem Item = GridViewControl.SelectedItem as FileSystemStorageItem;
+            FileSystemStorageItem Item = SelectedItem as FileSystemStorageItem;
 
             if (!await Item.File.CheckExist())
             {
@@ -2183,7 +2305,14 @@ namespace FileManager
                 await Source.SetBitmapAsync(TransferImage);
             }
 
-            QRTeachTip.Target = GridViewControl.ContainerFromItem(Item) as GridViewItem;
+            if (UseGridOrList)
+            {
+                QRTeachTip.Target = GridViewControl.ContainerFromItem(Item) as GridViewItem;
+            }
+            else
+            {
+                QRTeachTip.Target = ListViewControl.ContainerFromItem(Item) as ListViewItem;
+            }
             QRTeachTip.IsOpen = true;
 
             WiFiProvider.StartToListenRequest();
@@ -2304,7 +2433,7 @@ namespace FileManager
         {
             Restore();
 
-            if (GridViewControl.SelectedItem is FileSystemStorageItem ReFile)
+            if (SelectedItem is FileSystemStorageItem ReFile)
             {
                 EnterSelectedItem(ReFile);
             }
@@ -2319,7 +2448,7 @@ namespace FileManager
         {
             Restore();
 
-            StorageFolder folder = (GridViewControl.SelectedItem as FileSystemStorageItem).Folder;
+            StorageFolder folder = (SelectedItem as FileSystemStorageItem).Folder;
 
             if (!await folder.CheckExist())
             {
@@ -2472,7 +2601,7 @@ namespace FileManager
         {
             Restore();
 
-            if (GridViewControl.SelectedItem is FileSystemStorageItem ShareItem)
+            if (SelectedItem is FileSystemStorageItem ShareItem)
             {
                 if (!await ShareItem.File.CheckExist())
                 {
@@ -2766,7 +2895,7 @@ namespace FileManager
                 return;
             }
 
-            if (GridViewControl.SelectedItem is FileSystemStorageItem Item)
+            if (SelectedItem is FileSystemStorageItem Item)
             {
                 VideoEditDialog Dialog = new VideoEditDialog(Item.File);
                 if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
@@ -2810,7 +2939,7 @@ namespace FileManager
                 return;
             }
 
-            if (GridViewControl.SelectedItem is FileSystemStorageItem Item)
+            if (SelectedItem is FileSystemStorageItem Item)
             {
                 VideoMergeDialog Dialog = new VideoMergeDialog(Item.File);
                 if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
