@@ -1,9 +1,30 @@
 ﻿*****
 ###What's new in Ver.3.9.0.0
 
+>#####UI Update
+
+>>#####In response to Microsoft Store requirements, add a "User Privacy Statement" to the settings module for users to obtain the privacy statement of RX
+
 >#####Feature Update
 
 >>#####New file icon conversion function, now you can freely choose between "tile", "details", "list", "large, medium and small icons"
+
+>>#####Add new folder related operations: copy, move
+
+>>#####Implicitly supports the copy, move, and delete operations of multiple folders / files. Only keyboard shortcuts are allowed. You can use Ctrl and Shift to select multiple files, and then use the keyboard shortcuts Ctrl + D, Ctrl + X, Ctrl + C, Ctrl + V
+
+>#####Bug fix
+
+>>#####Solved the problem that the feedback module prompts "network error", the feedback module is back online
+
+>>#####Solved the problem that the files in the corresponding folder will not be displayed when navigating directly to the corresponding folder through the address bar
+
+>>#####Solved the problem that on a slower computer or when entering the file immediately when RX starts, it will cause an abnormal crash
+
+*****
+###What's new in Ver.3.8.7.0
+
+>#####Feature Update
 
 >>#####Add new merge function of video files
 
@@ -36,10 +57,6 @@
 >>#####Fixed the problem that some resources could not be released correctly when getting the file preview icon
 
 >>#####Resolved the error problem that may be caused by entering the browser module, at the cost of more stuttering when the web page loads
-
->>##### Solved the problem that the files in the corresponding folder will not be displayed when navigating directly to the corresponding folder through the address bar
-
->>##### Solved the problem that on a slower computer or when entering the file immediately when RX starts, it will cause an abnormal crash
 
 *****
 ###What's new in Ver.3.8.2.0

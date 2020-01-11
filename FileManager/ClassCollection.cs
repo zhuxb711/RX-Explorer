@@ -1788,6 +1788,38 @@ namespace FileManager
     /// </summary>
     public static class Extention
     {
+        public static async Task MoveSubFilesAndSubFoldersAsync(this StorageFolder Folder, StorageFolder TargetFolder)
+        {
+            foreach (var Item in await Folder.GetItemsAsync())
+            {
+                if (Item is StorageFolder SubFolder)
+                {
+                    StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(SubFolder.Name, CreationCollisionOption.OpenIfExists);
+                    await MoveSubFilesAndSubFoldersAsync(SubFolder, NewFolder);
+                }
+                else
+                {
+                    await ((StorageFile)Item).MoveAsync(TargetFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
+                }
+            }
+        }
+
+        public static async Task CopySubFilesAndSubFoldersAsync(this StorageFolder Folder, StorageFolder TargetFolder)
+        {
+            foreach (var Item in await Folder.GetItemsAsync())
+            {
+                if (Item is StorageFolder SubFolder)
+                {
+                    StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(SubFolder.Name, CreationCollisionOption.OpenIfExists);
+                    await CopySubFilesAndSubFoldersAsync(SubFolder, NewFolder);
+                }
+                else
+                {
+                    await ((StorageFile)Item).CopyAsync(TargetFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
+                }
+            }
+        }
+
         /// <summary>
         /// 选中TreeViewNode并将其滚动到UI中间
         /// </summary>

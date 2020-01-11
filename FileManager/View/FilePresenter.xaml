@@ -124,6 +124,18 @@
 
         <CommandBarFlyout x:Name="FolderFlyout"
                           Placement="RightEdgeAlignedTop">
+            <AppBarButton Icon="Copy"
+                          ToolTipService.ToolTip="复制"
+                          x:Uid="FileCopy"
+                          Click="Copy_Click" />
+            <AppBarButton Icon="Cut"
+                          ToolTipService.ToolTip="剪切"
+                          x:Uid="FileCut"
+                          Click="Cut_Click" />
+            <AppBarButton Icon="Delete"
+                          ToolTipService.ToolTip="删除"
+                          x:Uid="FileDelete"
+                          Click="Delete_Click" />
             <CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
@@ -135,11 +147,6 @@
                               x:Uid="FolderRename"
                               x:Name="FolderRename"
                               Click="Rename_Click" />
-                <AppBarButton Icon="Delete"
-                              Label="删除"
-                              x:Uid="FolderDelete"
-                              x:Name="FolderDelete"
-                              Click="Delete_Click" />
                 <AppBarButton Icon="Add" 
                               Label="固定至主界面"
                               x:Uid="PinToLibrary"
@@ -438,7 +445,7 @@
                   PointerPressed="GridViewControl_PointerPressed"
                   RightTapped="GridViewControl_RightTapped"
                   SelectionChanged="GridViewControl_SelectionChanged"
-                  SelectionMode="Single"
+                  SelectionMode="Extended"
                   ItemClick="GridViewControl_ItemClick"
                   CanDrag="False"
                   CanReorderItems="False"
@@ -465,7 +472,7 @@
                   PointerPressed="GridViewControl_PointerPressed"
                   RightTapped="GridViewControl_RightTapped"
                   SelectionChanged="GridViewControl_SelectionChanged"
-                  SelectionMode="Single"
+                  SelectionMode="Extended"
                   ItemClick="GridViewControl_ItemClick"
                   CanDrag="False"
                   CanReorderItems="False"
@@ -496,7 +503,7 @@
                    x:Uid="HasFile"
                    Text="无文件"
                    FontSize="22"
-                   Visibility="Visible" />
+                   Visibility="Collapsed" />
         <controls:Loading x:Name="LoadingControl"
                           IsLoading="False">
             <controls:Loading.Background>

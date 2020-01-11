@@ -131,7 +131,7 @@
           <target state="translated">复制</target>
         </trans-unit>
         <trans-unit id="FileCut.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Cut</source>
+          <source>Move</source>
           <target state="translated">剪切</target>
         </trans-unit>
         <trans-unit id="FileDelete.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
@@ -149,10 +149,6 @@
         <trans-unit id="FolderAttribute.Label" translate="yes" xml:space="preserve">
           <source>Properties</source>
           <target state="translated">属性</target>
-        </trans-unit>
-        <trans-unit id="FolderDelete.Label" translate="yes" xml:space="preserve">
-          <source>Delete</source>
-          <target state="translated">删除</target>
         </trans-unit>
         <trans-unit id="FolderOpen.Label" translate="yes" xml:space="preserve">
           <source>Open</source>
@@ -1609,6 +1605,14 @@
         <trans-unit id="AutoBootOnStartup.Header" translate="yes" xml:space="preserve">
           <source>Auto start at boot</source>
           <target state="translated">随系统自动启动</target>
+        </trans-unit>
+        <trans-unit id="SettingPrivacyPolicyLink.Content" translate="yes" xml:space="preserve">
+          <source>User Privacy Statement</source>
+          <target state="translated">用户隐私声明</target>
+        </trans-unit>
+        <trans-unit id="SettingSettingPrivacyPolicyTitle.Text" translate="yes" xml:space="preserve">
+          <source>Privacy</source>
+          <target state="translated">隐私</target>
         </trans-unit>
       </group>
     </body>

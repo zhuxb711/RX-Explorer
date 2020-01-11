@@ -26,7 +26,6 @@ using Windows.UI.Xaml.Navigation;
 using ZXing;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
-using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace FileManager
@@ -36,8 +35,9 @@ namespace FileManager
         public IncrementalLoadingCollection<FileSystemStorageItem> FileCollection;
         public static FilePresenter ThisPage { get; private set; }
         public List<GridViewItem> ZipCollection = new List<GridViewItem>();
-        private static StorageFile CopyFile;
-        private static StorageFile CutFile;
+        private static IStorageItem[] CopyFiles;
+        private static IStorageItem[] CutFiles;
+        private TreeViewNode LastNode;
 
         private bool useGridorList;
         public bool UseGridOrList
@@ -85,7 +85,7 @@ namespace FileManager
             }
             set
             {
-                if(UseGridOrList)
+                if (UseGridOrList)
                 {
                     GridViewControl.SelectedIndex = value;
                 }
@@ -100,7 +100,7 @@ namespace FileManager
         {
             get
             {
-                if(UseGridOrList)
+                if (UseGridOrList)
                 {
                     return GridViewControl.ContextFlyout;
                 }
@@ -111,7 +111,7 @@ namespace FileManager
             }
             set
             {
-                if(UseGridOrList)
+                if (UseGridOrList)
                 {
                     GridViewControl.ContextFlyout = value;
                 }
@@ -137,13 +137,28 @@ namespace FileManager
             }
             set
             {
-                if(UseGridOrList)
+                if (UseGridOrList)
                 {
                     GridViewControl.SelectedItem = value;
                 }
                 else
                 {
                     ListViewControl.SelectedItem = value;
+                }
+            }
+        }
+
+        private FileSystemStorageItem[] SelectedItems
+        {
+            get
+            {
+                if (UseGridOrList)
+                {
+                    return GridViewControl.SelectedItems.Select((Item) => Item as FileSystemStorageItem).ToArray();
+                }
+                else
+                {
+                    return ListViewControl.SelectedItems.Select((Item) => Item as FileSystemStorageItem).ToArray();
                 }
             }
         }
@@ -233,22 +248,12 @@ namespace FileManager
                             }
                         case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                             {
-                                if (CutFile != null)
-                                {
-                                    CutFile = null;
-                                }
-
-                                CopyFile = (SelectedItem as FileSystemStorageItem)?.File;
+                                Copy_Click(null, null);
                                 break;
                             }
                         case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                             {
-                                if (CopyFile != null)
-                                {
-                                    CopyFile = null;
-                                }
-
-                                CutFile = (SelectedItem as FileSystemStorageItem)?.File;
+                                Cut_Click(null, null);
                                 break;
                             }
                         case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
@@ -318,333 +323,129 @@ namespace FileManager
             EmptyFlyout.Hide();
         }
 
-        private async void Copy_Click(object sender, RoutedEventArgs e)
+        private void Copy_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            if (CutFile != null)
+            if (CutFiles != null)
             {
-                CutFile = null;
+                CutFiles = null;
             }
 
-            if (SelectedItem is FileSystemStorageItem Item)
-            {
-                if (!await Item.File.CheckExist())
-                {
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "无法找到对应的文件，该文件可能已被移动或删除",
-                            CloseButtonText = "刷新"
-                        };
-                        _ = await Dialog.ShowAsync();
-                    }
-                    else
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "Could not find the corresponding file, it may have been moved or deleted",
-                            CloseButtonText = "Refresh"
-                        };
-                        _ = await Dialog.ShowAsync();
-                    }
-                    await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
-                    return;
-                }
-
-                CopyFile = Item.File;
-            }
+            List<IGrouping<ContentType, FileSystemStorageItem>> GroupItem = SelectedItems.GroupBy((Item) => Item.ContentType).ToList();
+            CopyFiles = GroupItem.Where((Item) => Item.Key == ContentType.File).Select((It) => (IStorageItem)It.FirstOrDefault().File).Concat(GroupItem.Where((Item) => Item.Key == ContentType.Folder).Select((It) => (IStorageItem)It.FirstOrDefault().Folder)).ToArray();
         }
 
         private async void Paste_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            if (CutFile != null)
+            if (CutFiles != null)
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    await LoadingActivation(true, "正在剪切");
+                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在剪切" : "Cutting");
 
+                bool IsItemNotFound = false;
+                bool IsUnauthorized = false;
+                bool IsSpaceError = false;
+
+                foreach (IStorageItem Item in CutFiles)
+                {
                     try
                     {
-                        await CutFile.MoveAsync(FileControl.ThisPage.CurrentFolder, CutFile.Name, NameCollisionOption.GenerateUniqueName);
-                        if (FileCollection.Count > 0)
+                        if (Item is StorageFile File)
                         {
-                            int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.ContentType == ContentType.File));
-                            if (Index == -1)
+                            if (!await File.CheckExist())
                             {
-                                FileCollection.Add(new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                                IsItemNotFound = true;
+                                continue;
+                            }
+
+                            await File.MoveAsync(FileControl.ThisPage.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+                            if (FileCollection.Count > 0)
+                            {
+                                int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.ContentType == ContentType.File));
+                                if (Index == -1)
+                                {
+                                    FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeDescriptionAsync(), await File.GetThumbnailBitmapAsync(), await File.GetModifiedTimeAsync()));
+                                }
+                                else
+                                {
+                                    FileCollection.Insert(Index, new FileSystemStorageItem(File, await File.GetSizeDescriptionAsync(), await File.GetThumbnailBitmapAsync(), await File.GetModifiedTimeAsync()));
+                                }
                             }
                             else
                             {
-                                FileCollection.Insert(Index, new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                                FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeDescriptionAsync(), await File.GetThumbnailBitmapAsync(), await File.GetModifiedTimeAsync()));
                             }
                         }
-                        else
+                        else if (Item is StorageFolder Folder)
                         {
-                            FileCollection.Add(new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
-                        }
-
-                        CutFile = null;
-                        CopyFile = null;
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "因源文件已删除，无法剪切到指定位置",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await Dialog.ShowAsync();
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                            PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后"
-                        };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                        }
-                    }
-                    catch (System.Runtime.InteropServices.COMException)
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "因设备剩余空间大小不足，文件无法剪切",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await QueueContenDialog.ShowAsync();
-                    }
-                }
-                else
-                {
-                    await LoadingActivation(true, "Cutting");
-
-                    try
-                    {
-                        await CutFile.MoveAsync(FileControl.ThisPage.CurrentFolder, CutFile.Name, NameCollisionOption.GenerateUniqueName);
-                        if (FileCollection.Count > 0)
-                        {
-                            int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.ContentType == ContentType.File));
-                            if (Index == -1)
+                            if (!await Folder.CheckExist())
                             {
-                                FileCollection.Add(new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                                IsItemNotFound = true;
+                                continue;
+                            }
+
+                            StorageFolder NewFolder = await FileControl.ThisPage.CurrentFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.OpenIfExists);
+                            await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder);
+
+                            await Folder.DeleteAllSubFilesAndFolders();
+                            await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+
+                            if (FileCollection.Where((It) => It.ContentType == ContentType.Folder).All((Item) => Item.Folder.Name != NewFolder.Name))
+                            {
+                                FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync(), await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync()));
+                            }
+
+                            if (LastNode.IsExpanded)
+                            {
+                                LastNode.Children.Remove(LastNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == Folder.Name).FirstOrDefault());
                             }
                             else
                             {
-                                FileCollection.Insert(Index, new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
+                                if ((await (LastNode.Content as StorageFolder).CreateFolderQuery(CommonFolderQuery.DefaultQuery).GetItemCountAsync()) == 0)
+                                {
+                                    LastNode.HasUnrealizedChildren = false;
+                                }
                             }
-                        }
-                        else
-                        {
-                            FileCollection.Add(new FileSystemStorageItem(CutFile, await CutFile.GetSizeDescriptionAsync(), await CutFile.GetThumbnailBitmapAsync(), await CutFile.GetModifiedTimeAsync()));
-                        }
 
-                        CutFile = null;
-                        CopyFile = null;
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "Unable to cut to the specified location because the source file has been deleted",
-                            CloseButtonText = "Confirm"
-                        };
-                        _ = await Dialog.ShowAsync();
+                            if (FileControl.ThisPage.CurrentNode.IsExpanded || !FileControl.ThisPage.CurrentNode.HasChildren)
+                            {
+                                if(FileControl.ThisPage.CurrentNode.Children.FirstOrDefault((Node)=> (Node.Content as StorageFolder).Name == NewFolder.Name) is TreeViewNode ExistNode)
+                                {
+                                    ExistNode.HasUnrealizedChildren = (await NewFolder.GetItemsAsync(0, 1)).Count > 0;
+                                }
+                                else
+                                {
+                                    FileControl.ThisPage.CurrentNode.Children.Add(new TreeViewNode
+                                    {
+                                        Content = NewFolder,
+                                        HasUnrealizedChildren = (await NewFolder.GetItemsAsync(0, 1)).Count > 0
+                                    });
+                                }
+                            }
+                            FileControl.ThisPage.CurrentNode.IsExpanded = true;
+                        }
                     }
                     catch (UnauthorizedAccessException)
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                            PrimaryButtonText = "Enter",
-                            CloseButtonText = "Later"
-                        };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                        }
+                        IsUnauthorized = true;
                     }
                     catch (System.Runtime.InteropServices.COMException)
                     {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "The device has insufficient free space and the file cannot be cut.",
-                            CloseButtonText = "Confirm"
-                        };
-                        _ = await QueueContenDialog.ShowAsync();
+                        IsSpaceError = true;
                     }
                 }
 
-                await LoadingActivation(false);
-            }
-            else if (CopyFile != null)
-            {
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    await LoadingActivation(true, "正在复制");
-
-                    try
-                    {
-                        StorageFile NewFile = await CopyFile.CopyAsync(FileControl.ThisPage.CurrentFolder, CopyFile.Name, NameCollisionOption.GenerateUniqueName);
-                        if (FileCollection.Count > 0)
-                        {
-                            int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.ContentType == ContentType.File));
-                            if (Index == -1)
-                            {
-                                FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
-                            }
-                            else
-                            {
-                                FileCollection.Insert(Index, new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
-                            }
-                        }
-                        else
-                        {
-                            FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
-                        }
-
-                        CutFile = null;
-                        CopyFile = null;
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "因源文件已删除，无法复制到指定位置",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await Dialog.ShowAsync();
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                            PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后"
-                        };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                        }
-                    }
-                    catch (System.Runtime.InteropServices.COMException)
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "因设备剩余空间大小不足，文件无法复制",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await QueueContenDialog.ShowAsync();
-                    }
-                }
-                else
-                {
-                    await LoadingActivation(true, "Copying");
-
-                    try
-                    {
-                        StorageFile NewFile = await CopyFile.CopyAsync(FileControl.ThisPage.CurrentFolder, CopyFile.Name, NameCollisionOption.GenerateUniqueName);
-                        if (FileCollection.Count > 0)
-                        {
-                            int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.ContentType == ContentType.File));
-                            if (Index == -1)
-                            {
-                                FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
-                            }
-                            else
-                            {
-                                FileCollection.Insert(Index, new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
-                            }
-                        }
-                        else
-                        {
-                            FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
-                        }
-
-                        CutFile = null;
-                        CopyFile = null;
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "Unable to copy to the specified location because the source file has been deleted",
-                            CloseButtonText = "Confirm"
-                        };
-                        _ = await Dialog.ShowAsync();
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                            PrimaryButtonText = "Enter",
-                            CloseButtonText = "Later"
-                        };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                        }
-                    }
-                    catch (System.Runtime.InteropServices.COMException)
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "The device has insufficient free space and the file cannot be copy",
-                            CloseButtonText = "Confirm"
-                        };
-                        _ = await QueueContenDialog.ShowAsync();
-                    }
-                }
-
-                await LoadingActivation(false);
-            }
-
-            Paste.IsEnabled = false;
-        }
-
-        private async void Cut_Click(object sender, RoutedEventArgs e)
-        {
-            Restore();
-
-            if (CopyFile != null)
-            {
-                CopyFile = null;
-            }
-
-            if (SelectedItem is FileSystemStorageItem Item)
-            {
-                if (!await Item.File.CheckExist())
+                if (IsItemNotFound)
                 {
                     if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = "错误",
-                            Content = "无法找到对应的文件，该文件可能已被移动或删除",
-                            CloseButtonText = "刷新"
+                            Content = "部分文件不存在，无法移动到指定位置",
+                            CloseButtonText = "确定"
                         };
                         _ = await Dialog.ShowAsync();
                     }
@@ -653,270 +454,479 @@ namespace FileManager
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = "Error",
-                            Content = "Could not find the corresponding file, it may have been moved or deleted",
-                            CloseButtonText = "Refresh"
+                            Content = "Some files do not exist and cannot be moved to the specified location",
+                            CloseButtonText = "Got it"
                         };
                         _ = await Dialog.ShowAsync();
                     }
-                    await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
-                    return;
+                }
+                else if (IsUnauthorized)
+                {
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后"
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                            PrimaryButtonText = "Enter",
+                            CloseButtonText = "Later"
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
+                    }
+                }
+                else if (IsSpaceError)
+                {
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "因设备剩余空间大小不足，部分文件无法移动",
+                            CloseButtonText = "确定"
+                        };
+                        _ = await QueueContenDialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Some files cannot be moved due to insufficient free space on the device",
+                            CloseButtonText = "Confirm"
+                        };
+                        _ = await QueueContenDialog.ShowAsync();
+                    }
+                }
+            }
+            else if (CopyFiles != null)
+            {
+                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在复制" : "Copying");
+
+                bool IsItemNotFound = false;
+                bool IsUnauthorized = false;
+                bool IsSpaceError = false;
+
+                foreach (IStorageItem Item in CopyFiles)
+                {
+                    try
+                    {
+                        if (Item is StorageFile File)
+                        {
+                            if (!await File.CheckExist())
+                            {
+                                IsItemNotFound = true;
+                                continue;
+                            }
+
+                            StorageFile NewFile = await File.CopyAsync(FileControl.ThisPage.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+                            if (FileCollection.Count > 0)
+                            {
+                                int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.ContentType == ContentType.File));
+                                if (Index == -1)
+                                {
+                                    FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                                }
+                                else
+                                {
+                                    FileCollection.Insert(Index, new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                                }
+                            }
+                            else
+                            {
+                                FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                            }
+                        }
+                        else if (Item is StorageFolder Folder)
+                        {
+                            if (!await Folder.CheckExist())
+                            {
+                                IsItemNotFound = true;
+                                continue;
+                            }
+
+                            StorageFolder NewFolder = await FileControl.ThisPage.CurrentFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.OpenIfExists);
+                            await Folder.CopySubFilesAndSubFoldersAsync(NewFolder);
+
+                            if (FileCollection.Where((It) => It.ContentType == ContentType.Folder).All((Item) => Item.Folder.Name != NewFolder.Name))
+                            {
+                                FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync(), await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync()));
+                            }
+
+                            if (FileControl.ThisPage.CurrentNode.IsExpanded || !FileControl.ThisPage.CurrentNode.HasChildren)
+                            {
+                                if (FileControl.ThisPage.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as StorageFolder).Name == NewFolder.Name) is TreeViewNode ExistNode)
+                                {
+                                    ExistNode.HasUnrealizedChildren = (await NewFolder.GetItemsAsync(0, 1)).Count > 0;
+                                }
+                                else
+                                {
+                                    FileControl.ThisPage.CurrentNode.Children.Add(new TreeViewNode
+                                    {
+                                        Content = NewFolder,
+                                        HasUnrealizedChildren = (await NewFolder.GetItemsAsync(0, 1)).Count > 0
+                                    });
+                                }
+                            }
+                            FileControl.ThisPage.CurrentNode.IsExpanded = true;
+                        }
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        IsUnauthorized = true;
+                    }
+                    catch (System.Runtime.InteropServices.COMException)
+                    {
+                        IsSpaceError = true;
+                    }
                 }
 
-                CutFile = Item.File;
+                if (IsItemNotFound)
+                {
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "部分文件不存在，无法移动到指定位置",
+                            CloseButtonText = "确定"
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Some files do not exist and cannot be moved to the specified location",
+                            CloseButtonText = "Got it"
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                }
+                else if (IsUnauthorized)
+                {
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后"
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                            PrimaryButtonText = "Enter",
+                            CloseButtonText = "Later"
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
+                    }
+                }
+                else if (IsSpaceError)
+                {
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "因设备剩余空间大小不足，部分文件无法移动",
+                            CloseButtonText = "确定"
+                        };
+                        _ = await QueueContenDialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Some files cannot be moved due to insufficient free space on the device",
+                            CloseButtonText = "Confirm"
+                        };
+                        _ = await QueueContenDialog.ShowAsync();
+                    }
+                }
             }
+
+            CutFiles = null;
+            CopyFiles = null;
+            Paste.IsEnabled = false;
+
+            await LoadingActivation(false);
+        }
+
+        private void Cut_Click(object sender, RoutedEventArgs e)
+        {
+            Restore();
+
+            if (CopyFiles != null)
+            {
+                CopyFiles = null;
+            }
+
+            LastNode = FileControl.ThisPage.CurrentNode;
+
+            List<IGrouping<ContentType, FileSystemStorageItem>> GroupItem = SelectedItems.GroupBy((Item) => Item.ContentType).ToList();
+            CutFiles = GroupItem.Where((Item) => Item.Key == ContentType.File).Select((It) => (IStorageItem)It.FirstOrDefault().File).Concat(GroupItem.Where((Item) => Item.Key == ContentType.Folder).Select((It) => (IStorageItem)It.FirstOrDefault().Folder)).ToArray();
         }
 
         private async void Delete_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            if (SelectedItem is FileSystemStorageItem ItemToDelete)
+            bool IsItemNotFound = false;
+            bool IsUnauthorized = false;
+
+            if (SelectedItems.Length == 1)
             {
-                if (ItemToDelete.ContentType == ContentType.File)
+                FileSystemStorageItem ItemToDelete = SelectedItems.FirstOrDefault();
+
+                QueueContentDialog QueueContenDialog;
+
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
-                    if (!await ItemToDelete.File.CheckExist())
+                    QueueContenDialog = new QueueContentDialog
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "无法找到对应的文件，该文件可能已被移动或删除",
-                                CloseButtonText = "刷新"
-                            };
-                            _ = await Dialog.ShowAsync();
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "Could not find the corresponding file, it may have been moved or deleted",
-                                CloseButtonText = "Refresh"
-                            };
-                            _ = await Dialog.ShowAsync();
-                        }
-                        await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
-                        return;
-                    }
-
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = "警告",
-                            PrimaryButtonText = "是",
-                            Content = "此操作将永久删除 \" " + ItemToDelete.Name + " \"\r\r是否继续?",
-                            CloseButtonText = "否"
-                        };
-                        if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            await LoadingActivation(true, "正在删除");
-
-                            try
-                            {
-                                await ItemToDelete.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
-
-                                for (int i = 0; i < FileCollection.Count; i++)
-                                {
-                                    if (FileCollection[i].RelativeId == ItemToDelete.File.FolderRelativeId)
-                                    {
-                                        FileCollection.RemoveAt(i);
-                                        break;
-                                    }
-                                }
-                            }
-                            catch (UnauthorizedAccessException)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "RX无权删除此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                                    PrimaryButtonText = "立刻",
-                                    CloseButtonText = "稍后"
-                                };
-                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                                {
-                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = "Warning",
-                            PrimaryButtonText = "Continue",
-                            Content = "This action will permanently delete \" " + ItemToDelete.Name + " \"\r\rWhether to continue?",
-                            CloseButtonText = "Cancel"
-                        };
-                        if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            await LoadingActivation(true, "Deleting");
-
-                            try
-                            {
-                                await ItemToDelete.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
-
-                                for (int i = 0; i < FileCollection.Count; i++)
-                                {
-                                    if (FileCollection[i].RelativeId == ItemToDelete.File.FolderRelativeId)
-                                    {
-                                        FileCollection.RemoveAt(i);
-                                        break;
-                                    }
-                                }
-                            }
-                            catch (UnauthorizedAccessException)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "RX does not have permission to delete, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                                    PrimaryButtonText = "Enter",
-                                    CloseButtonText = "Later"
-                                };
-                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                                {
-                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                                }
-                            }
-                        }
-                    }
+                        Title = "警告",
+                        PrimaryButtonText = "是",
+                        Content = "此操作将永久删除 \" " + ItemToDelete.Name + " \"\r\r是否继续?",
+                        CloseButtonText = "否"
+                    };
                 }
                 else
                 {
-                    if (!await ItemToDelete.Folder.CheckExist())
+                    QueueContenDialog = new QueueContentDialog
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
-                                CloseButtonText = "刷新"
-                            };
-                            _ = await Dialog.ShowAsync();
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "Could not find the corresponding folder, it may have been moved or deleted",
-                                CloseButtonText = "Refresh"
-                            };
-                            _ = await Dialog.ShowAsync();
-                        }
-                        await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
-                        return;
-                    }
+                        Title = "Warning",
+                        PrimaryButtonText = "Continue",
+                        Content = "This action will permanently delete \" " + ItemToDelete.Name + " \"\r\rWhether to continue?",
+                        CloseButtonText = "Cancel"
+                    };
+                }
 
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                if ((await QueueContenDialog.ShowAsync()) == ContentDialogResult.Primary)
+                {
+                    await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在删除" : "Deleting");
+
+                    if (ItemToDelete.ContentType == ContentType.File)
                     {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        if (!await ItemToDelete.File.CheckExist())
                         {
-                            Title = "警告",
-                            PrimaryButtonText = "是",
-                            CloseButtonText = "否",
-                            Content = "此操作将永久删除 \"" + ItemToDelete.DisplayName + " \"\r\r是否继续?"
-                        };
+                            IsItemNotFound = true;
+                        }
 
-                        if ((await QueueContenDialog.ShowAsync()) == ContentDialogResult.Primary)
+                        try
                         {
-                            try
-                            {
-                                await LoadingActivation(true, "正在删除");
-
-                                await ItemToDelete.Folder.DeleteAllSubFilesAndFolders();
-                                await ItemToDelete.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                            }
-                            catch (UnauthorizedAccessException)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "RX无权删除此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
-                                    PrimaryButtonText = "立刻",
-                                    CloseButtonText = "稍后"
-                                };
-                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                                {
-                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                                }
-                                await LoadingActivation(false);
-                                return;
-                            }
+                            await ItemToDelete.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
                             FileCollection.Remove(ItemToDelete);
-                            if (FileControl.ThisPage.CurrentNode.IsExpanded)
-                            {
-                                FileControl.ThisPage.CurrentNode.Children.Remove(FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == ItemToDelete.RelativeId).FirstOrDefault());
-                            }
-                            else
-                            {
-                                if ((await FileControl.ThisPage.CurrentFolder.GetFoldersAsync()).Count == 0)
-                                {
-                                    FileControl.ThisPage.CurrentNode.HasUnrealizedChildren = false;
-                                }
-                            }
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            IsUnauthorized = true;
                         }
                     }
                     else
                     {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                        if (!await ItemToDelete.Folder.CheckExist())
                         {
-                            Title = "Warning",
-                            PrimaryButtonText = "Continue",
-                            CloseButtonText = "Cancel",
-                            Content = "This action will permanently delete \" " + ItemToDelete.DisplayName + " \"\r\rWhether to continue ?"
-                        };
+                            IsItemNotFound = true;
+                        }
 
-                        if ((await QueueContenDialog.ShowAsync()) == ContentDialogResult.Primary)
+                        try
                         {
-                            await LoadingActivation(true, "Deleting");
-
-                            try
-                            {
-                                await ItemToDelete.Folder.DeleteAllSubFilesAndFolders();
-                                await ItemToDelete.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                            }
-                            catch (UnauthorizedAccessException)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "RX does not have permission to delete, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                                    PrimaryButtonText = "Enter",
-                                    CloseButtonText = "Later"
-                                };
-                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                                {
-                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                                }
-                                await LoadingActivation(false);
-                                return;
-                            }
+                            await ItemToDelete.Folder.DeleteAllSubFilesAndFolders();
+                            await ItemToDelete.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
                             FileCollection.Remove(ItemToDelete);
+
                             if (FileControl.ThisPage.CurrentNode.IsExpanded)
                             {
-                                FileControl.ThisPage.CurrentNode.Children.Remove(FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).FolderRelativeId == ItemToDelete.RelativeId).FirstOrDefault());
+                                FileControl.ThisPage.CurrentNode.Children.Remove(FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == ItemToDelete.Name).FirstOrDefault());
                             }
                             else
                             {
-                                if ((await FileControl.ThisPage.CurrentFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count == 0)
+                                if ((await FileControl.ThisPage.CurrentFolder.CreateFolderQuery(CommonFolderQuery.DefaultQuery).GetItemCountAsync()) == 0)
                                 {
                                     FileControl.ThisPage.CurrentNode.HasUnrealizedChildren = false;
                                 }
                             }
                         }
+                        catch (UnauthorizedAccessException)
+                        {
+                            IsUnauthorized = true;
+                        }
                     }
                 }
-
-                await LoadingActivation(false);
             }
+            else
+            {
+                QueueContentDialog QueueContenDialog;
+
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContenDialog = new QueueContentDialog
+                    {
+                        Title = "警告",
+                        PrimaryButtonText = "是",
+                        Content = "此操作将永久删除这 " + SelectedItems.Length + " 项\r\r是否继续?",
+                        CloseButtonText = "否"
+                    };
+                }
+                else
+                {
+                    QueueContenDialog = new QueueContentDialog
+                    {
+                        Title = "Warning",
+                        PrimaryButtonText = "Continue",
+                        Content = "This action will permanently delete these " + SelectedItems.Length + " items\r\rWhether to continue?",
+                        CloseButtonText = "Cancel"
+                    };
+                }
+
+                if ((await QueueContenDialog.ShowAsync()) == ContentDialogResult.Primary)
+                {
+                    await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在删除" : "Deleting");
+
+                    foreach (FileSystemStorageItem ItemToDelete in SelectedItems)
+                    {
+                        if (ItemToDelete.ContentType == ContentType.File)
+                        {
+                            if (!await ItemToDelete.File.CheckExist())
+                            {
+                                IsItemNotFound = true;
+                            }
+
+                            try
+                            {
+                                await ItemToDelete.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+
+                                FileCollection.Remove(ItemToDelete);
+                            }
+                            catch (UnauthorizedAccessException)
+                            {
+                                IsUnauthorized = true;
+                            }
+                        }
+                        else
+                        {
+                            if (!await ItemToDelete.Folder.CheckExist())
+                            {
+                                IsItemNotFound = true;
+                            }
+
+                            try
+                            {
+                                await ItemToDelete.Folder.DeleteAllSubFilesAndFolders();
+                                await ItemToDelete.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+
+                                FileCollection.Remove(ItemToDelete);
+
+                                if (FileControl.ThisPage.CurrentNode.IsExpanded)
+                                {
+                                    FileControl.ThisPage.CurrentNode.Children.Remove(FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == ItemToDelete.Name).FirstOrDefault());
+                                }
+                                else
+                                {
+                                    if ((await FileControl.ThisPage.CurrentFolder.CreateFolderQuery(CommonFolderQuery.DefaultQuery).GetItemCountAsync()) == 0)
+                                    {
+                                        FileControl.ThisPage.CurrentNode.HasUnrealizedChildren = false;
+                                    }
+                                }
+                            }
+                            catch (UnauthorizedAccessException)
+                            {
+                                IsUnauthorized = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (IsItemNotFound)
+            {
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "错误",
+                        Content = "无法删除部分文件/文件夹，该文件/文件夹可能已被移动或删除",
+                        CloseButtonText = "刷新"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "Error",
+                        Content = "Unable to delete some files/folders, the file/folders may have been moved or deleted",
+                        CloseButtonText = "Refresh"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+            }
+            else if (IsUnauthorized)
+            {
+                QueueContentDialog dialog;
+
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    dialog = new QueueContentDialog
+                    {
+                        Title = "错误",
+                        Content = "RX无权删除此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                        PrimaryButtonText = "立刻",
+                        CloseButtonText = "稍后"
+                    };
+                }
+                else
+                {
+                    dialog = new QueueContentDialog
+                    {
+                        Title = "Error",
+                        Content = "RX does not have permission to delete, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                        PrimaryButtonText = "Enter",
+                        CloseButtonText = "Later"
+                    };
+                }
+
+                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                }
+            }
+
+            await LoadingActivation(false);
         }
 
         /// <summary>
@@ -956,6 +966,34 @@ namespace FileManager
         private async void Rename_Click(object sender, RoutedEventArgs e)
         {
             Restore();
+
+            if (SelectedItems.Length > 1)
+            {
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "错误",
+                        Content = "此操作一次仅允许重命名一个对象",
+                        CloseButtonText = "确定"
+                    };
+
+                    _ = await Dialog.ShowAsync();
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "Error",
+                        Content = "This operation allows only one object to be renamed at a time",
+                        CloseButtonText = "Got it"
+                    };
+
+                    _ = await Dialog.ShowAsync();
+                }
+
+                return;
+            }
 
             if (SelectedItem is FileSystemStorageItem RenameItem)
             {
@@ -1482,47 +1520,42 @@ namespace FileManager
 
             IReadOnlyList<Radio> RadioDevice = await Radio.GetRadiosAsync();
 
-            foreach (var Device in from Device in RadioDevice
-                                   where Device.Kind == RadioKind.Bluetooth
-                                   select Device)
+            if (RadioDevice.Any((Device) => Device.Kind == RadioKind.Bluetooth && Device.State == RadioState.On))
             {
-                if (Device.State != RadioState.On)
+                BluetoothUI Bluetooth = new BluetoothUI();
+                if ((await Bluetooth.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    BluetoothFileTransfer FileTransfer = new BluetoothFileTransfer
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "提示",
-                            Content = "请开启蓝牙开关后再试",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await dialog.ShowAsync();
-                    }
-                    else
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Tips",
-                            Content = "Please turn on Bluetooth and try again.",
-                            CloseButtonText = "Confirm"
-                        };
-                        _ = await dialog.ShowAsync();
-                    }
-                    return;
+                        FileToSend = ShareFile.File,
+                        FileName = ShareFile.File.Name,
+                        UseStorageFileRatherThanStream = true
+                    };
+                    await FileTransfer.ShowAsync();
                 }
             }
-
-            BluetoothUI Bluetooth = new BluetoothUI();
-            var result = await Bluetooth.ShowAsync();
-            if (result == ContentDialogResult.Primary)
+            else
             {
-                BluetoothFileTransfer FileTransfer = new BluetoothFileTransfer
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
-                    FileToSend = ShareFile.File,
-                    FileName = ShareFile.File.Name,
-                    UseStorageFileRatherThanStream = true
-                };
-                await FileTransfer.ShowAsync();
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = "提示",
+                        Content = "请开启蓝牙开关后再试",
+                        CloseButtonText = "确定"
+                    };
+                    _ = await dialog.ShowAsync();
+                }
+                else
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = "Tips",
+                        Content = "Please turn on Bluetooth and try again.",
+                        CloseButtonText = "Confirm"
+                    };
+                    _ = await dialog.ShowAsync();
+                }
             }
         }
 
@@ -2591,7 +2624,7 @@ namespace FileManager
 
         private void EmptyFlyout_Opening(object sender, object e)
         {
-            if (CutFile != null || CopyFile != null)
+            if (CutFiles != null || CopyFiles != null)
             {
                 Paste.IsEnabled = true;
             }
@@ -2831,20 +2864,8 @@ namespace FileManager
                             TreeViewNode TargetNode = FileControl.ThisPage.CurrentNode?.Children.Where((Node) => (Node.Content as StorageFolder).Name == DoubleTabTarget.Name).FirstOrDefault();
                             if (TargetNode != null)
                             {
-                                while (true)
-                                {
-                                    if (FileControl.ThisPage.FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Container)
-                                    {
-                                        Container.IsSelected = true;
-                                        Container.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                                        _ = FileControl.ThisPage.DisplayItemsInFolder(TargetNode);
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        await Task.Delay(300);
-                                    }
-                                }
+                                await FileControl.ThisPage.FolderTree.SelectNode(TargetNode);
+                                await FileControl.ThisPage.DisplayItemsInFolder(TargetNode);
                                 break;
                             }
                             else if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name != "FileControl")
@@ -2853,7 +2874,7 @@ namespace FileManager
                             }
                             else
                             {
-                                await Task.Delay(300);
+                                await Task.Delay(200);
                             }
                         }
                     }

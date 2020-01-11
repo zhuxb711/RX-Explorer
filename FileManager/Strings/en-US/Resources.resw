@@ -406,7 +406,7 @@
     <value>Copy</value>
   </data>
   <data name="FileCut.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Cut</value>
+    <value>Move</value>
   </data>
   <data name="FileDelete.ToolTipService.ToolTip" xml:space="preserve">
     <value>Delete</value>
@@ -428,9 +428,6 @@
   </data>
   <data name="FolderAttribute.Label" xml:space="preserve">
     <value>Properties</value>
-  </data>
-  <data name="FolderDelete.Label" xml:space="preserve">
-    <value>Delete</value>
   </data>
   <data name="FolderOpen.Label" xml:space="preserve">
     <value>Open</value>
@@ -873,8 +870,14 @@
   <data name="SettingPageUIMode.Header" xml:space="preserve">
     <value>Adjust UI display mode</value>
   </data>
+  <data name="SettingPrivacyPolicyLink.Content" xml:space="preserve">
+    <value>User Privacy Statement</value>
+  </data>
   <data name="SettingRecovery.Text" xml:space="preserve">
     <value>Recovery</value>
+  </data>
+  <data name="SettingSettingPrivacyPolicyTitle.Text" xml:space="preserve">
+    <value>Privacy</value>
   </data>
   <data name="SettingSupportDeveloper.Content" xml:space="preserve">
     <value>Donate</value>

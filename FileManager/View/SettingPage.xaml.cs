@@ -766,7 +766,11 @@ namespace FileManager
                     if (FeedBackCollection.FirstOrDefault((It) => It.UserName == UserName && It.Suggestion == Dialog.FeedBack && It.Title == Dialog.TitleName) == null)
                     {
                         FeedBackItem Item = new FeedBackItem(UserName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
-                        if (!await MySQL.Current.SetFeedBackAsync(Item))
+                        if (await MySQL.Current.SetFeedBackAsync(Item))
+                        {
+                            FeedBackCollection.Add(Item);
+                        }
+                        else
                         {
                             if (Globalization.Language == LanguageEnum.Chinese)
                             {
@@ -788,10 +792,6 @@ namespace FileManager
                                 };
                                 _ = await dialog.ShowAsync();
                             }
-                        }
-                        else
-                        {
-                            FeedBackCollection.Add(Item);
                         }
                     }
                     else

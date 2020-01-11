@@ -120,9 +120,6 @@
   <data name="FolderAttribute.Label" xml:space="preserve">
     <value>属性</value>
   </data>
-  <data name="FolderDelete.Label" xml:space="preserve">
-    <value>删除</value>
-  </data>
   <data name="FolderOpen.Label" xml:space="preserve">
     <value>打开</value>
   </data>
@@ -1214,5 +1211,11 @@
   </data>
   <data name="AutoBootOnStartup.Header" xml:space="preserve">
     <value>随系统自动启动</value>
+  </data>
+  <data name="SettingPrivacyPolicyLink.Content" xml:space="preserve">
+    <value>用户隐私声明</value>
+  </data>
+  <data name="SettingSettingPrivacyPolicyTitle.Text" xml:space="preserve">
+    <value>隐私</value>
   </data>
 </root>

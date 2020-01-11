@@ -126,56 +126,26 @@ namespace FileManager
             }
         }
 
-        public FileControl(StorageFolder Folder)
-        {
-            InitializeComponent();
-            ThisPage = this;
-
-            try
-            {
-                Nav.Navigate(typeof(FilePresenter), Nav, new DrillInNavigationTransitionInfo());
-
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    ItemDisplayMode.Items.Add("平铺");
-                    ItemDisplayMode.Items.Add("详细信息");
-                    ItemDisplayMode.Items.Add("列表");
-                    ItemDisplayMode.Items.Add("大图标");
-                    ItemDisplayMode.Items.Add("中图标");
-                    ItemDisplayMode.Items.Add("小图标");
-                }
-                else
-                {
-                    ItemDisplayMode.Items.Add("Tiles");
-                    ItemDisplayMode.Items.Add("Details");
-                    ItemDisplayMode.Items.Add("List");
-                    ItemDisplayMode.Items.Add("Large icons");
-                    ItemDisplayMode.Items.Add("Medium icons");
-                    ItemDisplayMode.Items.Add("Small icons");
-                }
-
-                if (ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] is int Index)
-                {
-                    ItemDisplayMode.SelectedIndex = Index;
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] = 0;
-                    ItemDisplayMode.SelectedIndex = 0;
-                }
-                OpenTargetFolder(Folder);
-            }
-            catch (Exception ex)
-            {
-                ExceptionTracer.RequestBlueScreen(ex);
-            }
-        }
-
         private async void OpenTargetFolder(StorageFolder Folder)
         {
-            await Initialize(await StorageFolder.GetFolderFromPathAsync(Path.GetPathRoot(Folder.Path)));
+            FilePresenter.ThisPage.FileCollection.Clear();
+            FolderTree.RootNodes.Clear();
+            FilePresenter.ThisPage.HasFile.Visibility = Visibility.Collapsed;
 
-            var RootNode = FolderTree.RootNodes[0];
+            StorageFolder RootFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetPathRoot(Folder.Path));
+
+            uint ItemCount = await RootFolder.CreateFolderQuery(CommonFolderQuery.DefaultQuery).GetItemCountAsync();
+            TreeViewNode RootNode = new TreeViewNode
+            {
+                Content = RootFolder,
+                IsExpanded = ItemCount != 0,
+                HasUnrealizedChildren = ItemCount != 0
+            };
+            FolderTree.RootNodes.Add(RootNode);
+
+            await FillTreeNode(RootNode);
+
+
             TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, string.Empty));
             if (TargetNode == null)
             {
@@ -202,7 +172,6 @@ namespace FileManager
             }
             else
             {
-                await FolderTree.SelectNode(TargetNode);
                 await DisplayItemsInFolder(TargetNode);
             }
         }
@@ -211,7 +180,8 @@ namespace FileManager
         {
             if (e.Parameter is StorageFolder TargetFolder)
             {
-                await Initialize(TargetFolder);
+                TreeViewNode RootNode = await Initialize(TargetFolder);
+                await DisplayItemsInFolder(RootNode);
 
                 string PlaceText;
                 if (TargetFolder.DisplayName.Length > 18)
@@ -253,7 +223,7 @@ namespace FileManager
 
             FolderTree.RootNodes.Clear();
             FilePresenter.ThisPage.FileCollection.Clear();
-            FilePresenter.ThisPage.HasFile.Visibility = Visibility.Visible;
+            FilePresenter.ThisPage.HasFile.Visibility = Visibility.Collapsed;
 
             RecordIndex = 0;
             GoAndBackRecord.Clear();
@@ -266,16 +236,18 @@ namespace FileManager
         /// <summary>
         /// 执行文件目录的初始化
         /// </summary>
-        private async Task Initialize(StorageFolder InitFolder)
+        private async Task<TreeViewNode> Initialize(StorageFolder InitFolder)
         {
             if (InitFolder != null)
             {
-                var SubFolders = await InitFolder.GetFoldersAsync();
+                FolderTree.RootNodes.Clear();
+
+                uint ItemCount = await InitFolder.CreateFolderQuery(CommonFolderQuery.DefaultQuery).GetItemCountAsync();
                 TreeViewNode RootNode = new TreeViewNode
                 {
                     Content = InitFolder,
-                    IsExpanded = SubFolders.Count != 0,
-                    HasUnrealizedChildren = SubFolders.Count != 0
+                    IsExpanded = ItemCount != 0,
+                    HasUnrealizedChildren = ItemCount != 0
                 };
                 FolderTree.RootNodes.Add(RootNode);
 
@@ -285,10 +257,13 @@ namespace FileManager
                 FolderExpandCancel = new CancellationTokenSource();
                 ExitLocker = new ManualResetEvent(true);
 
-                var FillTreeTask = FillTreeNode(RootNode);
-                var EnumFileTask = DisplayItemsInFolder(RootNode);
+                await FillTreeNode(RootNode);
 
-                await Task.WhenAll(FillTreeTask, EnumFileTask);
+                return RootNode;
+            }
+            else
+            {
+                return null;
             }
         }
 
@@ -297,7 +272,7 @@ namespace FileManager
         /// </summary>
         /// <param name="Node">节点</param>
         /// <returns></returns>
-        private async Task FillTreeNode(TreeViewNode Node)
+        public async Task FillTreeNode(TreeViewNode Node)
         {
             StorageFolder folder;
             if (Node.HasUnrealizedChildren)
@@ -354,7 +329,7 @@ namespace FileManager
             {
                 return;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ExceptionTracer.RequestBlueScreen(ex);
             }
@@ -430,6 +405,7 @@ namespace FileManager
                     }
 
                     CurrentNode = Node;
+                    await FolderTree.SelectNode(CurrentNode);
 
                     //当处于USB其他附加功能的页面时，若点击文件目录则自动执行返回导航
                     if (Nav.CurrentSourcePageType.Name != "FilePresenter")
@@ -442,7 +418,7 @@ namespace FileManager
                     QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
                     {
                         FolderDepth = FolderDepth.Shallow,
-                        IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                        IndexerOption = IndexerOption.UseIndexerWhenAvailable,
                     };
 
                     Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.ResizeThumbnail);
@@ -572,9 +548,8 @@ namespace FileManager
                     TreeViewNode ParentNode = CurrentNode.Parent;
                     ParentNode.Children.Remove(CurrentNode);
 
-                    await FolderTree.SelectNode(ParentNode);
-
                     ToDeleteFolderName = CurrentFolder.Name;
+
                     await DisplayItemsInFolder(ParentNode);
 
                     CurrentNode = ParentNode;
@@ -655,8 +630,6 @@ namespace FileManager
             if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
             {
                 FolderTree.ContextFlyout = RightTabFlyout;
-
-                await FolderTree.SelectNode(Node);
 
                 await DisplayItemsInFolder(Node);
 
@@ -1128,30 +1101,9 @@ namespace FileManager
                     }
                     else
                     {
-                        Locker.Dispose();
-
-                        FolderExpandCancel.Cancel();
-
-                        await Task.Run(() =>
-                        {
-                            ExitLocker.WaitOne();
-                        });
-
-                        ExitLocker.Dispose();
-                        ExitLocker = null;
-                        FolderExpandCancel.Dispose();
-                        FolderExpandCancel = null;
-
-                        CurrentNode = null;
-
-
-                        FolderTree.RootNodes.Clear();
-                        FilePresenter.ThisPage.FileCollection.Clear();
-                        FilePresenter.ThisPage.HasFile.Visibility = Visibility.Visible;
-
                         await SQLite.Current.SetPathHistoryAsync(Folder.Path);
 
-                        MainPage.ThisPage.Nav.Content = new FileControl(Folder);
+                        OpenTargetFolder(Folder);
                     }
                 }
                 catch (Exception)
@@ -1250,7 +1202,6 @@ namespace FileManager
             if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
             {
                 var ParenetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
-                await FolderTree.SelectNode(ParenetNode);
                 await DisplayItemsInFolder(ParenetNode);
             }
         }
@@ -1293,8 +1244,6 @@ namespace FileManager
                     }
                     else
                     {
-                        await FolderTree.SelectNode(TargetNode);
-
                         await DisplayItemsInFolder(TargetNode);
 
                         await SQLite.Current.SetPathHistoryAsync(Folder.Path);
@@ -1302,30 +1251,9 @@ namespace FileManager
                 }
                 else
                 {
-                    Locker.Dispose();
-
-                    FolderExpandCancel.Cancel();
-
-                    await Task.Run(() =>
-                    {
-                        ExitLocker.WaitOne();
-                    });
-
-                    ExitLocker.Dispose();
-                    ExitLocker = null;
-                    FolderExpandCancel.Dispose();
-                    FolderExpandCancel = null;
-
-                    CurrentNode = null;
-
-
-                    FolderTree.RootNodes.Clear();
-                    FilePresenter.ThisPage.FileCollection.Clear();
-                    FilePresenter.ThisPage.HasFile.Visibility = Visibility.Visible;
-
                     await SQLite.Current.SetPathHistoryAsync(Folder.Path);
 
-                    MainPage.ThisPage.Nav.Content = new FileControl(Folder);
+                    OpenTargetFolder(Folder);
                 }
             }
             catch (Exception)
@@ -1392,8 +1320,6 @@ namespace FileManager
                     }
                     else
                     {
-                        await FolderTree.SelectNode(TargetNode);
-
                         await DisplayItemsInFolder(TargetNode);
 
                         await SQLite.Current.SetPathHistoryAsync(Folder.Path);
@@ -1401,30 +1327,9 @@ namespace FileManager
                 }
                 else
                 {
-                    Locker.Dispose();
-
-                    FolderExpandCancel.Cancel();
-
-                    await Task.Run(() =>
-                    {
-                        ExitLocker.WaitOne();
-                    });
-
-                    ExitLocker.Dispose();
-                    ExitLocker = null;
-                    FolderExpandCancel.Dispose();
-                    FolderExpandCancel = null;
-
-                    CurrentNode = null;
-
-
-                    FolderTree.RootNodes.Clear();
-                    FilePresenter.ThisPage.FileCollection.Clear();
-                    FilePresenter.ThisPage.HasFile.Visibility = Visibility.Visible;
-
                     await SQLite.Current.SetPathHistoryAsync(Folder.Path);
 
-                    MainPage.ThisPage.Nav.Content = new FileControl(Folder);
+                    OpenTargetFolder(Folder);
                 }
             }
             catch (Exception)
