@@ -126,6 +126,9 @@
   <data name="AboutMeText3.Text" xml:space="preserve">
     <value>Contact me</value>
   </data>
+  <data name="AddDevice.Label" xml:space="preserve">
+    <value>Add drive</value>
+  </data>
   <data name="AESCheckBox.Content" xml:space="preserve">
     <value>Delete source file after encryption is complete</value>
   </data>
@@ -363,9 +366,6 @@
   <data name="FeedBackEditButton.Label" xml:space="preserve">
     <value>Edit</value>
   </data>
-  <data name="FeedBackListEmptyTips.Text" xml:space="preserve">
-    <value>No feedback or suggestions</value>
-  </data>
   <data name="FeedBackListHeader.Text" xml:space="preserve">
     <value>Feedback list</value>
   </data>
@@ -374,9 +374,6 @@
   </data>
   <data name="FeedBackTip.Title" xml:space="preserve">
     <value>Feedback description</value>
-  </data>
-  <data name="FileAES.Label" xml:space="preserve">
-    <value>AES Encryption</value>
   </data>
   <data name="FileAttribute.Label" xml:space="preserve">
     <value>Properties</value>
@@ -437,6 +434,9 @@
   </data>
   <data name="HasFile.Text" xml:space="preserve">
     <value>Empty</value>
+  </data>
+  <data name="HideDevice.Label" xml:space="preserve">
+    <value>Hide drive</value>
   </data>
   <data name="HotWebTitle.Text" xml:space="preserve">
     <value>Popular Website</value>

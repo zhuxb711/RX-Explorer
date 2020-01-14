@@ -118,10 +118,6 @@
           <source>RX Crashed Accidentally...(￣▽￣)/</source>
           <target state="translated">RX 不小心崩溃了...(￣▽￣)/</target>
         </trans-unit>
-        <trans-unit id="FileAES.Label" translate="yes" xml:space="preserve">
-          <source>AES Encryption</source>
-          <target state="translated">AES 加密</target>
-        </trans-unit>
         <trans-unit id="FileAttribute.Label" translate="yes" xml:space="preserve">
           <source>Properties</source>
           <target state="translated">属性</target>
@@ -1190,10 +1186,6 @@
           <source>Edit</source>
           <target state="translated">编辑</target>
         </trans-unit>
-        <trans-unit id="FeedBackListEmptyTips.Text" translate="yes" xml:space="preserve">
-          <source>No feedback or suggestions</source>
-          <target state="translated">无任何反馈或建议</target>
-        </trans-unit>
         <trans-unit id="FeedBackListHeader.Text" translate="yes" xml:space="preserve">
           <source>Feedback list</source>
           <target state="translated">反馈建议清单</target>
@@ -1613,6 +1605,14 @@
         <trans-unit id="SettingSettingPrivacyPolicyTitle.Text" translate="yes" xml:space="preserve">
           <source>Privacy</source>
           <target state="translated">隐私</target>
+        </trans-unit>
+        <trans-unit id="AddDevice.Label" translate="yes" xml:space="preserve">
+          <source>Add drive</source>
+          <target state="translated">添加驱动器</target>
+        </trans-unit>
+        <trans-unit id="HideDevice.Label" translate="yes" xml:space="preserve">
+          <source>Hide drive</source>
+          <target state="translated">隐藏驱动器</target>
         </trans-unit>
       </group>
     </body>

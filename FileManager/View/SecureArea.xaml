@@ -104,8 +104,8 @@
                   Padding="20">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="local:FileSystemStorageItem">
-                    <StackPanel Width="240"
-                                Padding="10"
+                    <StackPanel Width="215"
+                                Padding="5"
                                 Orientation="Horizontal"
                                 AllowDrop="True">
                         <Image IsHitTestVisible="False"
@@ -119,8 +119,8 @@
                                     Margin="5,0,0,0">
                             <TextBlock IsHitTestVisible="False"
                                        Text="{x:Bind DisplayName,Mode=OneWay}"
-                                       FontSize="17"
-                                       Width="160"
+                                       FontSize="16"
+                                       Width="140"
                                        TextTrimming="CharacterEllipsis" />
                             <TextBlock IsHitTestVisible="False"
                                        Text="{x:Bind DisplayType}"

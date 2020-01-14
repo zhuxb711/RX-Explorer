@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -37,6 +38,24 @@ namespace FileManager
             WebGridView.ItemsSource = HotWebList;
             ThisPage = this;
             Loading += ThisPC_Loading;
+        }
+
+        private void DeviceGrid_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+        {
+            ProgressBar ProBar = args.ItemContainer.FindChildOfType<ProgressBar>();
+            Storyboard Story = new Storyboard();
+            DoubleAnimation Animation = new DoubleAnimation()
+            {
+                To = (args.Item as HardDeviceInfo).Percent,
+                From = 0,
+                EnableDependentAnimation = true,
+                EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut },
+                Duration = new TimeSpan(0, 0, 0, 0, 800)
+            };
+            Storyboard.SetTarget(Animation, ProBar);
+            Storyboard.SetTargetProperty(Animation, "Value");
+            Story.Children.Add(Animation);
+            Story.Begin();
         }
 
         private async void ThisPC_Loading(FrameworkElement sender, object args)
@@ -193,16 +212,43 @@ namespace FileManager
                     }
                 }
 
+                Dictionary<string, bool> VisibilityMap = await SQLite.Current.GetDeviceVisibilityMapAsync();
+
                 foreach (string DriveRootPath in DriveInfo.GetDrives()
                                                           .Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
                                                           .GroupBy((Item) => Item.RootDirectory.FullName)
                                                           .Select((Group) => Group.FirstOrDefault().RootDirectory.FullName))
                 {
-                    var Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
+                    if (VisibilityMap.ContainsKey(DriveRootPath))
+                    {
+                        if (!VisibilityMap[DriveRootPath])
+                        {
+                            continue;
+                        }
+                    }
+
+                    StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
                     BasicProperties Properties = await Device.GetBasicPropertiesAsync();
                     IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
 
                     HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
+                }
+
+                foreach (string AdditionalDrivePath in VisibilityMap.Where((Item) => Item.Value && HardDeviceList.All((Device) => Item.Key != Device.Folder.Path)).Select((Result) => Result.Key))
+                {
+                    try
+                    {
+                        StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(AdditionalDrivePath);
+
+                        BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+
+                        HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
+                    }
+                    catch (Exception)
+                    {
+                        await SQLite.Current.SetDeviceVisibilityAsync(AdditionalDrivePath, false);
+                    }
                 }
 
                 if (ErrorList.Count > 0)
@@ -248,7 +294,7 @@ namespace FileManager
             catch (Exception ex)
             {
                 ExceptionTracer.RequestBlueScreen(ex);
-            }       
+            }
         }
 
         private void DeviceGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
@@ -385,7 +431,7 @@ namespace FileManager
 
         private void DeviceGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            DeviceGrid.ContextFlyout = DeviceGrid.SelectedItem != null ? DeviceFlyout : RefreshFlyout;
+            DeviceBackground.ContextFlyout = DeviceGrid.SelectedItem != null ? DeviceFlyout : EmptyFlyout;
         }
 
         private void OpenDevice_Click(object sender, RoutedEventArgs e)
@@ -423,18 +469,6 @@ namespace FileManager
         {
             DeviceGrid.SelectedIndex = -1;
             LibraryGrid.SelectedIndex = -1;
-        }
-
-        private async void StackPanel_Loaded(object sender, RoutedEventArgs e)
-        {
-            await Task.Delay(300);
-            var Story = ((StackPanel)sender).Resources["ProgressAnimation"] as Storyboard;
-            Story.Begin();
-        }
-
-        private void StackPanel_Unloaded(object sender, RoutedEventArgs e)
-        {
-            ((StackPanel)sender).FindChildOfType<ProgressBar>().Value = 0;
         }
 
         private void LibraryGrid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
@@ -508,16 +542,44 @@ namespace FileManager
         private async void Refresh_Click(object sender, RoutedEventArgs e)
         {
             HardDeviceList.Clear();
+
+            Dictionary<string, bool> VisibilityMap = await SQLite.Current.GetDeviceVisibilityMapAsync();
+
             foreach (string DriveRootPath in DriveInfo.GetDrives()
-                                          .Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
-                                          .GroupBy((Item) => Item.RootDirectory.FullName)
-                                          .Select((Group) => Group.FirstOrDefault().RootDirectory.FullName))
+                                                      .Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                                                      .GroupBy((Item) => Item.RootDirectory.FullName)
+                                                      .Select((Group) => Group.FirstOrDefault().RootDirectory.FullName))
             {
-                var Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
+                if (VisibilityMap.ContainsKey(DriveRootPath))
+                {
+                    if (!VisibilityMap[DriveRootPath])
+                    {
+                        continue;
+                    }
+                }
+
+                StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
                 BasicProperties Properties = await Device.GetBasicPropertiesAsync();
                 IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
 
                 HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
+            }
+
+            foreach (string AdditionalDrivePath in VisibilityMap.Where((Item) => Item.Value && HardDeviceList.All((Device) => Item.Key != Device.Folder.Path)).Select((Result) => Result.Key))
+            {
+                try
+                {
+                    StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(AdditionalDrivePath);
+
+                    BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+
+                    HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
+                }
+                catch (Exception)
+                {
+                    await SQLite.Current.SetDeviceVisibilityAsync(AdditionalDrivePath, false);
+                }
             }
         }
 
@@ -554,6 +616,87 @@ namespace FileManager
             catch (Exception ex)
             {
                 ExceptionTracer.RequestBlueScreen(ex);
+            }
+        }
+
+        private async void AddDevice_Click(object sender, RoutedEventArgs e)
+        {
+            FolderPicker Picker = new FolderPicker
+            {
+                SuggestedStartLocation = PickerLocationId.ComputerFolder,
+                ViewMode = PickerViewMode.Thumbnail
+            };
+            Picker.FileTypeFilter.Add("*");
+
+            StorageFolder Device = await Picker.PickSingleFolderAsync();
+
+            if (Device != null)
+            {
+                if (Device.Path == Path.GetPathRoot(Device.Path))
+                {
+                    if (HardDeviceList.All((Item) => Item.Folder.Path != Device.Path))
+                    {
+                        BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+                        HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
+                        await SQLite.Current.SetDeviceVisibilityAsync(Device.Path, true);
+                    }
+                    else
+                    {
+                        if (Globalization.Language == LanguageEnum.Chinese)
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = "提示",
+                                Content = "所选择的驱动器已经存在",
+                                CloseButtonText = "知道了"
+                            };
+                            _ = await Dialog.ShowAsync();
+                        }
+                        else
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = "Tips",
+                                Content = "The selected drive already exists",
+                                CloseButtonText = "Got it"
+                            };
+                            _ = await Dialog.ShowAsync();
+                        }
+                    }
+                }
+                else
+                {
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "提示",
+                            Content = "所选择的内容并非是驱动器",
+                            CloseButtonText = "知道了"
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "Tips",
+                            Content = "The selected content is not a drive",
+                            CloseButtonText = "Got it"
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                }
+            }
+        }
+
+        private async void HideDevice_Click(object sender, RoutedEventArgs e)
+        {
+            if (DeviceGrid.SelectedItem is HardDeviceInfo Device)
+            {
+                await SQLite.Current.SetDeviceVisibilityAsync(Device.Folder.Path, false);
+                HardDeviceList.Remove(Device);
             }
         }
     }

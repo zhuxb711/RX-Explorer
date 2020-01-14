@@ -73,11 +73,6 @@
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
-                <AppBarButton Icon="ProtectedDocument"
-                              x:Uid="FileAES"
-                              Name="AES"
-                              Label="AES加密"
-                              Click="AES_Click" />
                 <AppBarButton Icon="Share"
                               x:Uid="FileShare"
                               Label="共享">
@@ -265,20 +260,19 @@
         <DataTemplate x:Name="LargeImageDataTemplate"
                       x:FieldModifier="public"
                       x:DataType="local:FileSystemStorageItem">
-            <StackPanel Width="160"
-                        Padding="5"
+            <StackPanel Padding="5"
                         Orientation="Vertical">
                 <Image IsHitTestVisible="False"
                        HorizontalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
-                       Height="120"
+                       Height="95"
                        Width="120" />
                 <TextBlock IsHitTestVisible="False"
                            Text="{x:Bind DisplayName,Mode=OneWay}"
-                           FontSize="16"
-                           Width="140"
-                           Margin="0,5,0,0"
+                           FontSize="15"
+                           Width="120"
+                           Margin="0,3,0,0"
                            TextAlignment="Center"
                            HorizontalAlignment="Center"
                            TextTrimming="CharacterEllipsis" />
@@ -288,20 +282,19 @@
         <DataTemplate x:Name="MediumImageDataTemplate"
                       x:FieldModifier="public"
                       x:DataType="local:FileSystemStorageItem">
-            <StackPanel Width="120"
-                        Padding="5"
+            <StackPanel Padding="5"
                         Orientation="Vertical">
                 <Image IsHitTestVisible="False"
                        HorizontalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
-                       Height="80"
-                       Width="80" />
+                       Height="70"
+                       Width="90" />
                 <TextBlock IsHitTestVisible="False"
                            Text="{x:Bind DisplayName,Mode=OneWay}"
-                           FontSize="14"
-                           Width="100"
-                           Margin="0,5,0,0"
+                           FontSize="13"
+                           Width="90"
+                           Margin="0,3,0,0"
                            TextAlignment="Center"
                            HorizontalAlignment="Center"
                            TextTrimming="CharacterEllipsis" />
@@ -311,20 +304,19 @@
         <DataTemplate x:Name="SmallImageDataTemplate"
                       x:FieldModifier="public"
                       x:DataType="local:FileSystemStorageItem">
-            <StackPanel Width="80"
-                        Padding="5"
+            <StackPanel Padding="5"
                         Orientation="Vertical">
                 <Image IsHitTestVisible="False"
                        HorizontalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Height="40"
-                       Width="40" />
+                       Width="60" />
                 <TextBlock IsHitTestVisible="False"
                            Text="{x:Bind DisplayName,Mode=OneWay}"
-                           FontSize="12"
+                           FontSize="11"
                            Width="60"
-                           Margin="0,5,0,0"
+                           Margin="0,3,0,0"
                            TextAlignment="Center"
                            HorizontalAlignment="Center"
                            TextTrimming="CharacterEllipsis" />
@@ -333,7 +325,7 @@
 
         <DataTemplate x:Name="ListHeaderDataTemplate"
                       x:FieldModifier="public">
-            <Grid>
+            <Grid Height="25">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="5*" />
                     <ColumnDefinition Width="3*" />
@@ -384,25 +376,25 @@
                        Width="30" />
                 <TextBlock Margin="35,0,10,0"
                            VerticalAlignment="Center"
-                           FontSize="16"
+                           FontSize="15"
                            Text="{x:Bind DisplayName,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind DisplayName,Mode=OneWay}"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock VerticalAlignment="Center"
-                           FontSize="14"
+                           FontSize="15"
                            Text="{x:Bind ModifiedTime,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind ModifiedTime,Mode=OneWay}"
                            Grid.Column="1"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock VerticalAlignment="Center"
-                           FontSize="14"
+                           FontSize="15"
                            Margin="5,0,0,0"
                            Text="{x:Bind DisplayType}"
                            ToolTipService.ToolTip="{x:Bind DisplayType}"
                            Grid.Column="2"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock VerticalAlignment="Center"
-                           FontSize="14"
+                           FontSize="15"
                            Margin="8,0,0,0"
                            Text="{x:Bind Size,Mode=OneWay}"
                            TextTrimming="CharacterEllipsis"
@@ -423,7 +415,7 @@
                        Width="30" />
                 <TextBlock Margin="5,0,0,0"
                            VerticalAlignment="Center"
-                           FontSize="16"
+                           FontSize="14"
                            Text="{x:Bind DisplayName,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind DisplayName,Mode=OneWay}"
                            TextTrimming="CharacterEllipsis" />
@@ -456,6 +448,7 @@
                   DoubleTapped="GridViewControl_DoubleTapped"
                   x:FieldModifier="Public"
                   IncrementalLoadingTrigger="Edge"
+                  Visibility="Collapsed"
                   DataFetchSize="2">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
@@ -480,6 +473,7 @@
                   AllowDrop="False"
                   IsItemClickEnabled="True"
                   IsDoubleTapEnabled="True"
+                  ItemsSource="{x:Bind FileCollection}"
                   DoubleTapped="GridViewControl_DoubleTapped"
                   x:FieldModifier="Public"
                   IncrementalLoadingTrigger="Edge"

@@ -1,4 +1,29 @@
 ﻿*****
+###What's new in Ver.3.9.4.0
+
+>#####Feature Update
+
+>>#####When you manually enter the path into the address bar, intelligent prompts will be performed according to the content entered by the user to speed up the address input. Use Tab to select the first prompt path
+
+>>#####Optimized the display effect of large, medium and small icons, and adjusted the text size of the file directory tree
+
+>>#####Added the ability to manually add drives and hide specific drives
+
+>>#####Removed the ability to encrypt AES files separately, and the security domain is responsible
+
+>#####Performance enhancements
+
+>>#####Changed the design of the donation module and now it executes faster
+
+>#####Bug fix
+
+>>#####Solved the problem that when RX is started in a non-tiled display mode, the file cannot be clicked or manipulated
+
+>>#####Fixed the issue that "No suggestions or feedback" was displayed incorrectly when "Feedback Suggestion List" was loading
+
+>>#####Resolved the problem that after donating RX project, the prompt still pops up
+
+*****
 ###What's new in Ver.3.9.0.0
 
 >#####UI Update

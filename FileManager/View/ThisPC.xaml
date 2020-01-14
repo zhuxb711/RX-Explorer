@@ -105,7 +105,7 @@
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
-        <CommandBarFlyout x:Name="RefreshFlyout"
+        <CommandBarFlyout x:Name="EmptyFlyout"
                           Placement="RightEdgeAlignedTop">
             <CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Refresh"
@@ -113,6 +113,11 @@
                               x:Uid="RefreshView"
                               x:Name="Refresh"
                               Click="Refresh_Click" />
+                <AppBarButton Icon="Add"
+                              Label="添加驱动器"
+                              x:Uid="AddDevice"
+                              x:Name="AddDevice"
+                              Click="AddDevice_Click"/>
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
@@ -124,6 +129,11 @@
                               x:Uid="OpenDevice"
                               x:Name="OpenDevice"
                               Click="OpenDevice_Click" />
+                <AppBarButton Icon="UnPin"
+                              Label="隐藏驱动器"
+                              x:Uid="HideDevice"
+                              x:Name="HideDevice"
+                              Click="HideDevice_Click"/>
                 <AppBarButton Icon="Tag"
                               Label="属性"
                               x:Uid="DeviceAttribute"
@@ -235,8 +245,7 @@
         <StackPanel Grid.Column="2"
                     Margin="10"
                     Background="Transparent"
-                    IsRightTapEnabled="True"
-                    ContextFlyout="{x:Bind RefreshFlyout}">
+                    IsRightTapEnabled="True">
             <StackPanel.ChildrenTransitions>
                 <TransitionCollection>
                     <PaneThemeTransition Edge="Left" />
@@ -346,82 +355,70 @@
                         </StackPanel>
                     </DataTemplate>
                 </controls:Expander.HeaderTemplate>
-                <GridView Margin="0,20,0,0"
-                          Name="DeviceGrid"
-                          IsItemClickEnabled="True"
-                          IsDoubleTapEnabled="True"
-                          IsRightTapEnabled="True"
-                          ItemClick="DeviceGrid_ItemClick"
-                          ContextFlyout="{StaticResource RefreshFlyout}"
-                          PointerPressed="DeviceGrid_PointerPressed"
-                          RightTapped="DeviceGrid_RightTapped"
-                          SelectionChanged="DeviceGrid_SelectionChanged"
-                          DoubleTapped="DeviceGrid_DoubleTapped">
-                    <GridView.ItemTemplate>
-                        <DataTemplate x:DataType="local:HardDeviceInfo">
-                            <StackPanel Orientation="Horizontal"
-                                        HorizontalAlignment="Center"
-                                        Padding="5">
-                                <Image VerticalAlignment="Center"
-                                       IsHitTestVisible="False"
-                                       Height="55"
-                                       Width="55"
-                                       Source="{x:Bind Thumbnail}"
-                                       Stretch="Uniform" />
-                                <StackPanel VerticalAlignment="Center"
-                                            Orientation="Vertical"
-                                            Margin="10,0,0,0"
-                                            Loaded="StackPanel_Loaded"
-                                            Unloaded="StackPanel_Unloaded">
-                                    <StackPanel.Resources>
-                                        <Storyboard x:Name="ProgressAnimation">
-                                            <DoubleAnimation Duration="0:0:0.8"
-                                                             x:Name="DoubleAnimation"
-                                                             EnableDependentAnimation="True"
-                                                             From="0"
-                                                             To="{x:Bind Percent}"
-                                                             Storyboard.TargetName="Pro"
-                                                             Storyboard.TargetProperty="Value">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CircleEase EasingMode="EaseInOut"></CircleEase>
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                        </Storyboard>
-                                    </StackPanel.Resources>
-                                    <TextBlock IsHitTestVisible="False"
-                                               FontSize="16"
-                                               Width="200"
-                                               TextTrimming="CharacterEllipsis"
-                                               Text="{x:Bind Name}" />
-                                    <ProgressBar x:Name="Pro"
-                                                 Width="200"
-                                                 Height="14"
-                                                 Foreground="{x:Bind ProgressBarForeground}"
-                                                 IsHitTestVisible="False"
-                                                 Maximum="1"
-                                                 Minimum="0" />
-                                    <TextBlock IsHitTestVisible="False"
-                                               Width="200"
-                                               FontSize="14"
-                                               TextTrimming="CharacterEllipsis"
-                                               Text="{x:Bind StorageSpaceDescription}" />
+                <Grid ContextFlyout="{StaticResource EmptyFlyout}"
+                      x:Name="DeviceBackground"
+                      Height="400">
+                    <GridView Margin="0,20,0,0"
+                              Name="DeviceGrid"
+                              IsItemClickEnabled="True"
+                              IsDoubleTapEnabled="True"
+                              IsRightTapEnabled="True"
+                              ItemClick="DeviceGrid_ItemClick"
+                              ContainerContentChanging="DeviceGrid_ContainerContentChanging"
+                              PointerPressed="DeviceGrid_PointerPressed"
+                              RightTapped="DeviceGrid_RightTapped"
+                              SelectionChanged="DeviceGrid_SelectionChanged"
+                              DoubleTapped="DeviceGrid_DoubleTapped">
+                        <GridView.ItemTemplate>
+                            <DataTemplate x:DataType="local:HardDeviceInfo">
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Center"
+                                            Padding="5">
+                                    <Image VerticalAlignment="Center"
+                                           IsHitTestVisible="False"
+                                           Height="55"
+                                           Width="55"
+                                           Source="{x:Bind Thumbnail}"
+                                           Stretch="Uniform" />
+                                    <StackPanel VerticalAlignment="Center"
+                                                Orientation="Vertical"
+                                                Margin="10,0,0,0">
+                                        <TextBlock IsHitTestVisible="False"
+                                                   FontSize="16"
+                                                   Width="200"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Text="{x:Bind Name}" />
+                                        <ProgressBar x:Name="Pro"
+                                                     Width="200"
+                                                     Height="14"
+                                                     Foreground="{x:Bind ProgressBarForeground}"
+                                                     IsHitTestVisible="False"
+                                                     Maximum="1"
+                                                     Minimum="0" 
+                                                     Value="{x:Bind Percent}"/>
+                                        <TextBlock IsHitTestVisible="False"
+                                                   Width="200"
+                                                   FontSize="14"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Text="{x:Bind StorageSpaceDescription}" />
+                                    </StackPanel>
                                 </StackPanel>
-                            </StackPanel>
-                        </DataTemplate>
-                    </GridView.ItemTemplate>
-                    <GridView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsWrapGrid Orientation="Horizontal"
-                                           HorizontalAlignment="Stretch" />
-                        </ItemsPanelTemplate>
-                    </GridView.ItemsPanel>
-                    <GridView.ItemContainerTransitions>
-                        <TransitionCollection>
-                            <AddDeleteThemeTransition />
-                            <PaneThemeTransition Edge="Right"/>
-                        </TransitionCollection>
-                    </GridView.ItemContainerTransitions>
-                </GridView>
+                            </DataTemplate>
+                        </GridView.ItemTemplate>
+                        <GridView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid Orientation="Horizontal"
+                                               HorizontalAlignment="Stretch" />
+                            </ItemsPanelTemplate>
+                        </GridView.ItemsPanel>
+                        <GridView.ItemContainerTransitions>
+                            <TransitionCollection>
+                                <AddDeleteThemeTransition />
+                                <PaneThemeTransition Edge="Right" />
+                            </TransitionCollection>
+                        </GridView.ItemContainerTransitions>
+                    </GridView>
+                </Grid>
             </controls:Expander>
         </StackPanel>
     </Grid>

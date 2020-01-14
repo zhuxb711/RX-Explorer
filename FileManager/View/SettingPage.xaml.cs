@@ -46,6 +46,8 @@ namespace FileManager
 
             UserName = ApplicationData.Current.LocalSettings.Values["SystemUserName"].ToString();
             UserID = ApplicationData.Current.LocalSettings.Values["SystemUserID"].ToString();
+
+            EmptyFeedBack.Text = Globalization.Language == LanguageEnum.Chinese ? "正在加载..." : "Loading...";
         }
 
         private async void SettingPage_Loading1(FrameworkElement sender, object args)
@@ -134,6 +136,7 @@ namespace FileManager
                 {
                     if (FeedBackCollection.Count == 0)
                     {
+                        EmptyFeedBack.Text = Globalization.Language == LanguageEnum.Chinese ? "无任何反馈或建议" : "No feedback or suggestions";
                         EmptyFeedBack.Visibility = Visibility.Visible;
                         FeedBackList.Visibility = Visibility.Collapsed;
                     }
@@ -200,6 +203,10 @@ namespace FileManager
                     }
                 }
 
+                if (FeedBackCollection.Count == 0)
+                {
+                    EmptyFeedBack.Text = Globalization.Language == LanguageEnum.Chinese ? "无任何反馈或建议" : "No feedback or suggestions";
+                }
             }
             catch (Exception ex)
             {
@@ -535,76 +542,92 @@ namespace FileManager
                               "🎉您可以自愿为开发者贡献一点小零花钱🎉\r\r" +
                               "若您不愿意，则可以点击\"跪安\"以取消\r" +
                               "若您愿意支持开发者，则可以点击\"准奏\"\r\r" +
-                              "Tips: 无论支持与否，RX文件管理器都将继续运行，且无任何功能限制",
+                              "Tips: 支持的小伙伴可以解锁独有文件保险柜功能：“安全域”",
                     PrimaryButtonText = "准奏",
                     CloseButtonText = "跪安"
                 };
                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
                     StoreContext Store = StoreContext.GetDefault();
-                    StoreProductQueryResult StoreProductResult = await Store.GetAssociatedStoreProductsAsync(new string[] { "Durable" });
-                    if (StoreProductResult.ExtendedError == null)
+                    StoreProductQueryResult PurchasedProductResult = await Store.GetUserCollectionAsync(new string[] { "Durable" });
+                    if (PurchasedProductResult.ExtendedError == null)
                     {
-                        StoreProduct Product = StoreProductResult.Products.Values.FirstOrDefault();
-                        if (Product != null)
+                        if(PurchasedProductResult.Products.Count > 0)
                         {
-                            switch ((await Store.RequestPurchaseAsync(Product.StoreId)).Status)
+                            QueueContentDialog QueueContenDialog = new QueueContentDialog
                             {
-                                case StorePurchaseStatus.Succeeded:
+                                Title = "再次感谢",
+                                Content = "您已为RX支持过一次了，您的心意开发者已心领\r\r" +
+                                          "RX的初衷并非是赚钱，因此不可重复支持哦\r\r" +
+                                          "您可以向周围的人宣传一下RX，也是对RX的最好的支持哦（*＾-＾*）\r\r" +
+                                          "Ruofan,\r敬上",
+                                CloseButtonText = "朕知道了"
+                            };
+                            _ = await QueueContenDialog.ShowAsync();
+                        }
+                        else
+                        {
+                            StoreProductQueryResult StoreProductResult = await Store.GetAssociatedStoreProductsAsync(new string[] { "Durable" });
+                            if (StoreProductResult.ExtendedError == null)
+                            {
+                                StoreProduct Product = StoreProductResult.Products.Values.FirstOrDefault();
+                                if (Product != null)
+                                {
+                                    switch ((await Store.RequestPurchaseAsync(Product.StoreId)).Status)
                                     {
-                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                        {
-                                            Title = "感谢",
-                                            Content = "感谢您的支持，我们将努力将RX做得越来越好q(≧▽≦q)\r\r" +
-                                                       "RX文件管理器的诞生，是为了填补UWP文件管理器缺位的空白\r" +
-                                                       "它并非是一个盈利项目，因此下载和使用都是免费的，并且不含有广告\r" +
-                                                       "RX的目标是打造一个免费且功能全面文件管理器\r" +
-                                                       "RX文件管理器是我利用业余时间开发的项目\r" +
-                                                       "希望大家能够喜欢\r\r" +
-                                                       "Ruofan,\r敬上",
-                                            CloseButtonText = "朕知道了"
-                                        };
-                                        _ = await QueueContenDialog.ShowAsync();
-                                        break;
+                                        case StorePurchaseStatus.Succeeded:
+                                            {
+                                                QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                                {
+                                                    Title = "感谢",
+                                                    Content = "感谢您的支持，我们将努力将RX做得越来越好q(≧▽≦q)\r\r" +
+                                                              "RX文件管理器的诞生，是为了填补UWP文件管理器缺位的空白\r" +
+                                                              "它并非是一个盈利项目，因此下载和使用都是免费的，并且不含有广告\r" +
+                                                              "RX的目标是打造一个免费且功能全面文件管理器\r" +
+                                                              "RX文件管理器是我利用业余时间开发的项目\r" +
+                                                              "希望大家能够喜欢\r\r" +
+                                                              "Ruofan,\r敬上",
+                                                    CloseButtonText = "朕知道了"
+                                                };
+                                                _ = await QueueContenDialog.ShowAsync();
+                                                break;
+                                            }
+                                        case StorePurchaseStatus.NotPurchased:
+                                            {
+                                                QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                                {
+                                                    Title = "感谢",
+                                                    Content = "无论支持与否，RX始终如一\r\r" +
+                                                              "即使您最终决定放弃支持本项目，依然十分感谢您能够点进来看一看\r\r" +
+                                                              "Ruofan,\r敬上",
+                                                    CloseButtonText = "朕知道了"
+                                                };
+                                                _ = await QueueContenDialog.ShowAsync();
+                                                break;
+                                            }
+                                        default:
+                                            {
+                                                QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                                {
+                                                    Title = "抱歉",
+                                                    Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
+                                                    CloseButtonText = "朕知道了"
+                                                };
+                                                _ = await QueueContenDialog.ShowAsync();
+                                                break;
+                                            }
                                     }
-                                case StorePurchaseStatus.AlreadyPurchased:
-                                    {
-                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                        {
-                                            Title = "再次感谢",
-                                            Content = "您已为RX支持过一次了，您的心意开发者已心领\r\r" +
-                                                      "RX的初衷并非是赚钱，因此不可重复支持哦\r\r" +
-                                                      "您可以向周围的人宣传一下RX，也是对RX的最好的支持哦（*＾-＾*）\r\r" +
-                                                      "Ruofan,\r敬上",
-                                            CloseButtonText = "朕知道了"
-                                        };
-                                        _ = await QueueContenDialog.ShowAsync();
-                                        break;
-                                    }
-                                case StorePurchaseStatus.NotPurchased:
-                                    {
-                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                        {
-                                            Title = "感谢",
-                                            Content = "无论支持与否，RX始终如一\r\r" +
-                                                      "即使您最终决定放弃支持本项目，依然十分感谢您能够点进来看一看\r\r" +
-                                                      "Ruofan,\r敬上",
-                                            CloseButtonText = "朕知道了"
-                                        };
-                                        _ = await QueueContenDialog.ShowAsync();
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                        {
-                                            Title = "抱歉",
-                                            Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
-                                            CloseButtonText = "朕知道了"
-                                        };
-                                        _ = await QueueContenDialog.ShowAsync();
-                                        break;
-                                    }
+                                }
+                            }
+                            else
+                            {
+                                QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                {
+                                    Title = "抱歉",
+                                    Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
+                                    CloseButtonText = "朕知道了"
+                                };
+                                _ = await QueueContenDialog.ShowAsync();
                             }
                         }
                     }
@@ -630,76 +653,92 @@ namespace FileManager
                               "Please donate 0.99$ 🍪\r\r" +
                               "If you don't want to, you can click \"Later\" to cancel\r" +
                               "if you want to donate, you can click \"Donate\" to support developer\r\r" +
-                              "Tips: Whether donated or not, the RX File Manager will continue to run without any functional limitations",
+                              "Tips: Donator can unlock the unique file safe feature: \"Security Area\"",
                     PrimaryButtonText = "Donate",
                     CloseButtonText = "Later"
                 };
                 if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
                     StoreContext Store = StoreContext.GetDefault();
-                    StoreProductQueryResult StoreProductResult = await Store.GetAssociatedStoreProductsAsync(new string[] { "Durable" });
-                    if (StoreProductResult.ExtendedError == null)
+                    StoreProductQueryResult PurchasedProductResult = await Store.GetUserCollectionAsync(new string[] { "Durable" });
+                    if (PurchasedProductResult.ExtendedError == null)
                     {
-                        StoreProduct Product = StoreProductResult.Products.Values.FirstOrDefault();
-                        if (Product != null)
+                        if (PurchasedProductResult.Products.Count > 0)
                         {
-                            switch ((await Store.RequestPurchaseAsync(Product.StoreId)).Status)
+                            QueueContentDialog QueueContenDialog = new QueueContentDialog
                             {
-                                case StorePurchaseStatus.Succeeded:
+                                Title = "Thanks again",
+                                Content = "You have already supported RX once, thank you very much\r\r" +
+                                          "The original intention of RX is not to make money, so you can't repeat purchase it.\r\r" +
+                                          "You can advertise the RX to the people around you, and it is also the best support for RX（*＾-＾*）\r\r" +
+                                          "Sincerely,\rRuofan",
+                                CloseButtonText = "Got it"
+                            };
+                            _ = await QueueContenDialog.ShowAsync();
+                        }
+                        else
+                        {
+                            StoreProductQueryResult StoreProductResult = await Store.GetAssociatedStoreProductsAsync(new string[] { "Durable" });
+                            if (StoreProductResult.ExtendedError == null)
+                            {
+                                StoreProduct Product = StoreProductResult.Products.Values.FirstOrDefault();
+                                if (Product != null)
+                                {
+                                    switch ((await Store.RequestPurchaseAsync(Product.StoreId)).Status)
                                     {
-                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                        {
-                                            Title = "Appreciation",
-                                            Content = "Thank you for your support, we will work hard to make RX better and better q(≧▽≦q)\r\r" +
-                                                      "The RX file manager was born to fill the gaps in the UWP file manager\r" +
-                                                      "This is not a profitable project, so downloading and using are free and do not include ads\r" +
-                                                      "RX's goal is to create a free and full-featured file manager\r" +
-                                                      "RX File Manager is a project I developed in my spare time\r" +
-                                                      "I hope everyone likes\r\r" +
-                                                      "Sincerely,\rRuofan",
-                                            CloseButtonText = "Got it"
-                                        };
-                                        _ = await QueueContenDialog.ShowAsync();
-                                        break;
+                                        case StorePurchaseStatus.Succeeded:
+                                            {
+                                                QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                                {
+                                                    Title = "Appreciation",
+                                                    Content = "Thank you for your support, we will work hard to make RX better and better q(≧▽≦q)\r\r" +
+                                                              "The RX file manager was born to fill the gaps in the UWP file manager\r" +
+                                                              "This is not a profitable project, so downloading and using are free and do not include ads\r" +
+                                                              "RX's goal is to create a free and full-featured file manager\r" +
+                                                              "RX File Manager is a project I developed in my spare time\r" +
+                                                              "I hope everyone likes\r\r" +
+                                                              "Sincerely,\rRuofan",
+                                                    CloseButtonText = "Got it"
+                                                };
+                                                _ = await QueueContenDialog.ShowAsync();
+                                                break;
+                                            }
+                                        case StorePurchaseStatus.NotPurchased:
+                                            {
+                                                QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                                {
+                                                    Title = "Appreciation",
+                                                    Content = "Whether supported or not, RX is always the same\r\r" +
+                                                              "Even if you finally decide to give up supporting the project, thank you very much for being able to click to see it\r\r" +
+                                                              "Sincerely,\rRuofan",
+                                                    CloseButtonText = "Got it"
+                                                };
+                                                _ = await QueueContenDialog.ShowAsync();
+                                                break;
+                                            }
+                                        default:
+                                            {
+                                                QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                                {
+                                                    Title = "Sorry",
+                                                    Content = "Unable to open support page due to Microsoft Store or network, please try again later",
+                                                    CloseButtonText = "Got it"
+                                                };
+                                                _ = await QueueContenDialog.ShowAsync();
+                                                break;
+                                            }
                                     }
-                                case StorePurchaseStatus.AlreadyPurchased:
-                                    {
-                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                        {
-                                            Title = "Thanks again",
-                                            Content = "You have already supported RX once, thank you very much\r\r" +
-                                                      "The original intention of RX is not to make money, so you can't repeat purchase it.\r\r" +
-                                                      "You can advertise the RX to the people around you, and it is also the best support for RX（*＾-＾*）\r\r" +
-                                                      "Sincerely,\rRuofan",
-                                            CloseButtonText = "Got it"
-                                        };
-                                        _ = await QueueContenDialog.ShowAsync();
-                                        break;
-                                    }
-                                case StorePurchaseStatus.NotPurchased:
-                                    {
-                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                        {
-                                            Title = "Appreciation",
-                                            Content = "Whether supported or not, RX is always the same\r\r" +
-                                                      "Even if you finally decide to give up supporting the project, thank you very much for being able to click to see it\r\r" +
-                                                      "Sincerely,\rRuofan",
-                                            CloseButtonText = "Got it"
-                                        };
-                                        _ = await QueueContenDialog.ShowAsync();
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                        {
-                                            Title = "Sorry",
-                                            Content = "Unable to open support page due to Microsoft Store or network, please try again later",
-                                            CloseButtonText = "Got it"
-                                        };
-                                        _ = await QueueContenDialog.ShowAsync();
-                                        break;
-                                    }
+                                }
+                            }
+                            else
+                            {
+                                QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                {
+                                    Title = "Sorry",
+                                    Content = "Unable to open support page due to Microsoft Store or network, please try again later",
+                                    CloseButtonText = "Got it"
+                                };
+                                _ = await QueueContenDialog.ShowAsync();
                             }
                         }
                     }

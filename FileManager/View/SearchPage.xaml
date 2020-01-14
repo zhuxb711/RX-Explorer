@@ -32,7 +32,7 @@
                   SelectionChanged="SearchResultList_SelectionChanged">
             <ListView.HeaderTemplate>
                 <DataTemplate>
-                    <Grid>
+                    <Grid Height="25">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="4*" />
                             <ColumnDefinition Width="2*" />
@@ -43,24 +43,29 @@
                         <TextBlock Text="名称"
                                    x:Uid="SearchName"
                                    Margin="13,0,0,0"
+                                   FontSize="15"
                                    TextTrimming="CharacterEllipsis"
                                    Grid.Column="0" />
                         <TextBlock Text="修改日期"
                                    x:Uid="SearchModified"
+                                   FontSize="15"
                                    Margin="4,0,0,0"
                                    TextTrimming="CharacterEllipsis"
                                    Grid.Column="1" />
                         <TextBlock Text="类型"
                                    x:Uid="SearchType"
+                                   FontSize="15"
                                    TextTrimming="CharacterEllipsis"
                                    Grid.Column="2" />
                         <TextBlock Text="大小"
                                    x:Uid="SearchSize"
+                                   FontSize="15"
                                    TextTrimming="CharacterEllipsis"
                                    Grid.Column="3" />
                         <TextBlock Text="路径"
                                    x:Uid="SearchPath"
                                    Margin="-5,0,0,0"
+                                   FontSize="15"
                                    TextTrimming="CharacterEllipsis"
                                    Grid.Column="4" />
                     </Grid>

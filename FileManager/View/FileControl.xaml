@@ -118,6 +118,7 @@
                             VerticalAlignment="Center" 
                             Name="AddressBox"
                             UpdateTextOnSelect="True"
+                            KeyDown="AddressBox_KeyDown"
                             QueryIcon="Forward"
                             x:FieldModifier="public"
                             GotFocus="AddressBox_GotFocus"
@@ -218,7 +219,7 @@
                                        HorizontalAlignment="Left"
                                        VerticalAlignment="Center"
                                        Style="{ThemeResource BodyTextBlockStyle}"
-                                       FontSize="18" />
+                                       FontSize="16" />
                         </StackPanel>
                     </DataTemplate>
                 </muxc:TreeView.ItemTemplate>

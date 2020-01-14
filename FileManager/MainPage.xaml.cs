@@ -1,5 +1,4 @@
 ﻿using AnimationEffectProvider;
-using SQLConnectionPoolProvider;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -126,7 +125,7 @@ namespace FileManager
 
                 Nav.Navigate(typeof(ThisPC));
 
-                EntranceEffectProvider.AnimationCompleted += async(s, t) =>
+                EntranceEffectProvider.AnimationCompleted += async (s, t) =>
                 {
                     (await MySQL.Current.GetConnectionFromPoolAsync()).Dispose();
                 };
@@ -161,20 +160,8 @@ namespace FileManager
 
         private async Task ShowReleaseLogDialogAsync()
         {
-            if (ApplicationData.Current.LocalSettings.Values["LastRunVersion"] is string Version)
+            if (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.IsAppUpdated || Microsoft.Toolkit.Uwp.Helpers.SystemInformation.IsFirstRun)
             {
-                var VersionSplit = Version.Split(".").Select((Item) => ushort.Parse(Item));
-                if (VersionSplit.ElementAt(0) < Package.Current.Id.Version.Major || VersionSplit.ElementAt(1) < Package.Current.Id.Version.Minor || VersionSplit.ElementAt(2) < Package.Current.Id.Version.Build || VersionSplit.ElementAt(3) < Package.Current.Id.Version.Revision)
-                {
-                    WhatIsNew Dialog = new WhatIsNew();
-                    _ = await Dialog.ShowAsync();
-
-                    ApplicationData.Current.LocalSettings.Values["LastRunVersion"] = string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
-                }
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["LastRunVersion"] = string.Format("{0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
                 WhatIsNew Dialog = new WhatIsNew();
                 _ = await Dialog.ShowAsync();
             }
@@ -485,6 +472,12 @@ namespace FileManager
             {
                 if (Donated)
                 {
+                    StoreProductQueryResult PurchasedProductResult = await StoreContext.GetDefault().GetUserCollectionAsync(new string[] { "Durable" });
+                    if (PurchasedProductResult.ExtendedError == null && PurchasedProductResult.Products.Count > 0)
+                    {
+                        return;
+                    }
+
                     await Task.Delay(30000);
                     DonateTip.ActionButtonClick += async (s, e) =>
                     {
@@ -658,7 +651,7 @@ namespace FileManager
                                              "🎉您可以自愿为开发者贡献一点小零花钱🎉\r\r" +
                                              "若您不愿意，则可以点击\"跪安\"以取消\r" +
                                              "若您愿意支持开发者，则可以点击\"准奏\"\r\r" +
-                                             "Tips: 无论支持与否，RX文件管理器都将继续运行，且无任何功能限制";
+                                             "Tips: 支持的小伙伴可以解锁独有文件保险柜功能：“安全域”";
                     }
                     else
                     {
@@ -667,7 +660,7 @@ namespace FileManager
                                              "Please donate 0.99$ 🍪\r\r" +
                                              "If you don't want to, you can click \"Later\" to cancel\r" +
                                              "if you want to donate, you can click \"Donate\" to support developer\r\r" +
-                                             "Tips: Whether donated or not, the RX File Manager will continue to run without any functional limitations";
+                                             "Tips: Donator can unlock the unique file safe feature: \"Security Area\"";
                     }
 
                     DonateTip.IsOpen = true;

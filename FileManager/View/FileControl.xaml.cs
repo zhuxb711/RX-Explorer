@@ -61,6 +61,8 @@ namespace FileManager
             }
         }
 
+        private int TextChangeLockResource = 0;
+
         public StorageFolder CurrentFolder
         {
             get
@@ -1072,14 +1074,40 @@ namespace FileManager
         {
             try
             {
-                StorageFile File = await StorageFile.GetFileFromPathAsync(args.QueryText);
-                if (!await Launcher.LaunchFileAsync(File))
+                if (Path.IsPathRooted(sender.Text) && ThisPC.ThisPage.HardDeviceList.Any((Drive) => Drive.Folder.Path == Path.GetPathRoot(sender.Text)))
                 {
-                    LauncherOptions options = new LauncherOptions
+                    StorageFile File = await StorageFile.GetFileFromPathAsync(args.QueryText);
+                    if (!await Launcher.LaunchFileAsync(File))
                     {
-                        DisplayApplicationPicker = true
-                    };
-                    _ = await Launcher.LaunchFileAsync(File, options);
+                        LauncherOptions options = new LauncherOptions
+                        {
+                            DisplayApplicationPicker = true
+                        };
+                        _ = await Launcher.LaunchFileAsync(File, options);
+                    }
+                }
+                else
+                {
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = $"无法找到路径: \r\"{args.QueryText}\"",
+                            CloseButtonText = "确定"
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = $"Unable to locate the path: \r\"{args.QueryText}\"",
+                            CloseButtonText = "Confirm",
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
                 }
             }
             catch (Exception)
@@ -1113,7 +1141,7 @@ namespace FileManager
                         QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "错误",
-                            Content = "无法找到路径为: \r" + args.QueryText + "的文件夹",
+                            Content = $"无法找到路径: \r\"{args.QueryText}\"",
                             CloseButtonText = "确定"
                         };
                         _ = await dialog.ShowAsync();
@@ -1123,7 +1151,7 @@ namespace FileManager
                         QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = "Error",
-                            Content = "Unable to locate folder: " + args.QueryText,
+                            Content = $"Unable to locate the path: \r\"{args.QueryText}\"",
                             CloseButtonText = "Confirm",
                         };
                         _ = await dialog.ShowAsync();
@@ -1193,7 +1221,49 @@ namespace FileManager
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                sender.ItemsSource = await SQLite.Current.GetRelatedPathHistoryAsync(sender.Text);
+                if (Path.IsPathRooted(sender.Text)
+                    && Path.GetDirectoryName(sender.Text) is string DirectoryName
+                    && ThisPC.ThisPage.HardDeviceList.Any((Drive) => Drive.Folder.Path == Path.GetPathRoot(sender.Text)))
+                {
+                    if (Interlocked.Exchange(ref TextChangeLockResource, 1) == 0)
+                    {
+                        try
+                        {
+                            StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(DirectoryName);
+                            if (args.CheckCurrent())
+                            {
+                                QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
+                                {
+                                    FolderDepth = FolderDepth.Shallow,
+                                    IndexerOption = IndexerOption.UseIndexerWhenAvailable,
+                                    ApplicationSearchFilter = $"System.FileName:{Path.GetFileName(sender.Text)}*"
+                                };
+                                IReadOnlyList<StorageFolder> SearchResult = await Folder.CreateFolderQueryWithOptions(Options).GetFoldersAsync(0, 10);
+
+                                if (args.CheckCurrent())
+                                {
+                                    sender.ItemsSource = SearchResult.Select((Item) => Item.Path);
+                                }
+                                else
+                                {
+                                    sender.ItemsSource = null;
+                                }
+                            }
+                            else
+                            {
+                                sender.ItemsSource = null;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            sender.ItemsSource = null;
+                        }
+                        finally
+                        {
+                            _ = Interlocked.Exchange(ref TextChangeLockResource, 0);
+                        }
+                    }
+                }
             }
         }
 
@@ -1362,7 +1432,7 @@ namespace FileManager
         {
             IsSearchOrPathBoxFocused = true;
 
-            AddressBox.ItemsSource = await SQLite.Current.GetRelatedPathHistoryAsync(string.Empty);
+            AddressBox.ItemsSource = await SQLite.Current.GetRelatedPathHistoryAsync();
         }
 
         private void ItemDisplayMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1436,6 +1506,19 @@ namespace FileManager
                         }
                         break;
                     }
+            }
+        }
+
+        private void AddressBox_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Tab)
+            {
+                string FirstTip = AddressBox.Items.FirstOrDefault().ToString();
+                if (!string.IsNullOrEmpty(FirstTip))
+                {
+                    AddressBox.Text = FirstTip;
+                }
+                e.Handled = true;
             }
         }
     }

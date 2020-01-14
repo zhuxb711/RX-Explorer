@@ -96,9 +96,6 @@
   <data name="CrashText.Text" xml:space="preserve">
     <value>RX 不小心崩溃了...(￣▽￣)/</value>
   </data>
-  <data name="FileAES.Label" xml:space="preserve">
-    <value>AES 加密</value>
-  </data>
   <data name="FileAttribute.Label" xml:space="preserve">
     <value>属性</value>
   </data>
@@ -900,9 +897,6 @@
   <data name="FeedBackEditButton.Label" xml:space="preserve">
     <value>编辑</value>
   </data>
-  <data name="FeedBackListEmptyTips.Text" xml:space="preserve">
-    <value>无任何反馈或建议</value>
-  </data>
   <data name="FeedBackListHeader.Text" xml:space="preserve">
     <value>反馈建议清单</value>
   </data>
@@ -1217,5 +1211,11 @@
   </data>
   <data name="SettingSettingPrivacyPolicyTitle.Text" xml:space="preserve">
     <value>隐私</value>
+  </data>
+  <data name="AddDevice.Label" xml:space="preserve">
+    <value>添加驱动器</value>
+  </data>
+  <data name="HideDevice.Label" xml:space="preserve">
+    <value>隐藏驱动器</value>
   </data>
 </root>

@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
@@ -200,6 +201,105 @@ namespace FileManager
                 }
                 else
                 {
+                    if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("SecureAreaUsePermission"))
+                    {
+                        try
+                        {
+                            LoadingText.Text = Globalization.Language == LanguageEnum.Chinese ? "正在检查许可证..." : "Checking license...";
+                            LoadingControl.IsLoading = true;
+
+                            if (await CheckPurchaseStatusAsync())
+                            {
+                                if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name != nameof(SecureArea))
+                                {
+                                    GoBack();
+                                    return;
+                                }
+
+                                ApplicationData.Current.LocalSettings.Values["SecureAreaUsePermission"] = true;
+                                await Task.Delay(500);
+                            }
+                            else
+                            {
+                                if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name != nameof(SecureArea))
+                                {
+                                    GoBack();
+                                    return;
+                                }
+
+                                SecureAreaIntroDialog IntroDialog = new SecureAreaIntroDialog();
+                                if ((await IntroDialog.ShowAsync()) == ContentDialogResult.Primary)
+                                {
+                                    if (await PurchaseAsync())
+                                    {
+                                        ApplicationData.Current.LocalSettings.Values["SecureAreaUsePermission"] = true;
+
+                                        if (Globalization.Language == LanguageEnum.Chinese)
+                                        {
+                                            QueueContentDialog SuccessDialog = new QueueContentDialog
+                                            {
+                                                Title = "成功",
+                                                Content = "感谢您对RX文件管理器的支持，安全域功能已经解锁",
+                                                CloseButtonText = "知道了"
+                                            };
+                                            _ = await SuccessDialog.ShowAsync();
+                                        }
+                                        else
+                                        {
+                                            QueueContentDialog SuccessDialog = new QueueContentDialog
+                                            {
+                                                Title = "Success",
+                                                Content = "Thank you for your support of the RX Explorer, the security area has been unlocked",
+                                                CloseButtonText = "Got it"
+                                            };
+                                            _ = await SuccessDialog.ShowAsync();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        GoBack();
+                                        return;
+                                    }
+                                }
+                                else
+                                {
+                                    GoBack();
+                                    return;
+                                }
+                            }
+                        }
+                        catch (NetworkException)
+                        {
+                            if (Globalization.Language == LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog ErrorDialog = new QueueContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "当前网络不可用，无法更新许可证",
+                                    CloseButtonText = "返回"
+                                };
+                                _ = await ErrorDialog.ShowAsync();
+                            }
+                            else
+                            {
+                                QueueContentDialog ErrorDialog = new QueueContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "The current network is unavailable and the license cannot be updated",
+                                    CloseButtonText = "Back"
+                                };
+                                _ = await ErrorDialog.ShowAsync();
+                            }
+                            GoBack();
+                            return;
+                        }
+                        finally
+                        {
+                            await Task.Delay(500);
+                            LoadingControl.IsLoading = false;
+                        }
+                    }
+
                     SecureAreaWelcomeDialog Dialog = new SecureAreaWelcomeDialog();
                     if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
@@ -230,6 +330,53 @@ namespace FileManager
             catch (Exception ex)
             {
                 ExceptionTracer.RequestBlueScreen(ex);
+            }
+        }
+
+        private async Task<bool> CheckPurchaseStatusAsync()
+        {
+            StoreContext Store = StoreContext.GetDefault();
+
+            StoreProductQueryResult PurchasedProductResult = await Store.GetUserCollectionAsync(new string[] { "Durable" });
+            if (PurchasedProductResult.ExtendedError == null)
+            {
+                return PurchasedProductResult.Products.Count > 0;
+            }
+            else
+            {
+                throw new NetworkException("Network Exception");
+            }
+        }
+
+        private async Task<bool> PurchaseAsync()
+        {
+            StoreContext Store = StoreContext.GetDefault();
+
+            StoreProductQueryResult StoreProductResult = await Store.GetAssociatedStoreProductsAsync(new string[] { "Durable" });
+            if (StoreProductResult.ExtendedError == null)
+            {
+                StoreProduct Product = StoreProductResult.Products.Values.FirstOrDefault();
+                if (Product != null)
+                {
+                    StorePurchaseResult PurchaseResult = await Store.RequestPurchaseAsync(Product.StoreId);
+
+                    if (PurchaseResult.Status == StorePurchaseStatus.Succeeded)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                throw new NetworkException("Network Exception");
             }
         }
 

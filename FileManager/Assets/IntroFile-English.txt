@@ -1,0 +1,24 @@
+﻿###Secure Area
+
+*****
+####The security domain provides a file safe based on the AES encryption mechanism and fully supports Windows Hello for identity authentication
+
+![Local Image](/Assets/SAIntro1_en.png)
+
+###Security Features
+
+*****
+####Provides adjustable security level options to ensure file security
+
++ Free adjustable security encryption level
+
++ Support Windows Hello authentication
+
++ Accelerate encryption and decryption with hardware AES-NI instructions
+
++ Block access and extraction of other software
+
+*****
+###This feature is an additional feature that can be unlocked after donating the developer
+###This feature is permanently active after unlocking
+###Click↓↓↓Unlock

@@ -1,0 +1,27 @@
+﻿<local:QueueContentDialog
+    x:Class="FileManager.SecureAreaIntroDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FileManager"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                          xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+                          mc:Ignorable="d"
+    Title="安全域介绍"
+    PrimaryButtonText="解锁"
+    CloseButtonText="返回"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+
+    <Grid>
+        <ScrollViewer VerticalScrollMode="Enabled"
+                      IsVerticalScrollChainingEnabled="True"
+                      VerticalScrollBarVisibility="Hidden">
+            <controls:MarkdownTextBlock x:Name="MarkDown"
+                                        UriPrefix="ms-appx://"
+                                        Header1Foreground="{ThemeResource SystemControlForegroundAccentBrush}"
+                                        Header3Foreground="{ThemeResource SystemControlForegroundAccentBrush}"
+                                        Background="Transparent"
+                                        SchemeList="companyportal,randomscheme" />
+        </ScrollViewer>
+    </Grid>
+</local:QueueContentDialog>
