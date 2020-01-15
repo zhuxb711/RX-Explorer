@@ -216,8 +216,7 @@ namespace FileManager
 
                 foreach (string DriveRootPath in DriveInfo.GetDrives()
                                                           .Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
-                                                          .GroupBy((Item) => Item.RootDirectory.FullName)
-                                                          .Select((Group) => Group.FirstOrDefault().RootDirectory.FullName))
+                                                          .Select((Drive) => Drive.RootDirectory.FullName))
                 {
                     if (VisibilityMap.ContainsKey(DriveRootPath))
                     {
@@ -228,10 +227,12 @@ namespace FileManager
                     }
 
                     StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
-                    BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-
-                    HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
+                    if (HardDeviceList.All((Drive) => Drive.Folder.Path != Device.Path))
+                    {
+                        BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+                        HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
+                    }
                 }
 
                 foreach (string AdditionalDrivePath in VisibilityMap.Where((Item) => Item.Value && HardDeviceList.All((Device) => Item.Key != Device.Folder.Path)).Select((Result) => Result.Key))
@@ -547,8 +548,7 @@ namespace FileManager
 
             foreach (string DriveRootPath in DriveInfo.GetDrives()
                                                       .Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
-                                                      .GroupBy((Item) => Item.RootDirectory.FullName)
-                                                      .Select((Group) => Group.FirstOrDefault().RootDirectory.FullName))
+                                                      .Select((Drive) => Drive.RootDirectory.FullName))
             {
                 if (VisibilityMap.ContainsKey(DriveRootPath))
                 {
@@ -559,10 +559,12 @@ namespace FileManager
                 }
 
                 StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
-                BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-
-                HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
+                if (HardDeviceList.All((Drive) => Drive.Folder.Path != Device.Path))
+                {
+                    BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+                    HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
+                }
             }
 
             foreach (string AdditionalDrivePath in VisibilityMap.Where((Item) => Item.Value && HardDeviceList.All((Device) => Item.Key != Device.Folder.Path)).Select((Result) => Result.Key))
