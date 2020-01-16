@@ -499,7 +499,8 @@
                    FontSize="22"
                    Visibility="Collapsed" />
         <controls:Loading x:Name="LoadingControl"
-                          IsLoading="False">
+                          IsLoading="False"
+                          x:FieldModifier="public">
             <controls:Loading.Background>
                 <SolidColorBrush Color="Black"
                                  Opacity="0.65" />

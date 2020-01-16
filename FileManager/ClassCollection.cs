@@ -2730,6 +2730,8 @@ namespace FileManager
 
         private string CurrentLevel;
 
+        public bool HasNextLevel { get; private set; }
+
         /// <summary>
         /// 初始化PathAnalysis对象
         /// </summary>
@@ -2746,16 +2748,19 @@ namespace FileManager
                 string[] Split = FullPath.Split("\\", StringSplitOptions.RemoveEmptyEntries);
                 Split[0] = Split[0] + "\\";
                 PathQueue = new Queue<string>(Split);
+                HasNextLevel = true;
             }
             else
             {
                 if (FullPath != CurrentPath)
                 {
+                    HasNextLevel = true;
                     string[] Split = Path.GetRelativePath(CurrentPath, FullPath).Split("\\", StringSplitOptions.RemoveEmptyEntries);
                     PathQueue = new Queue<string>(Split);
                 }
                 else
                 {
+                    HasNextLevel = false;
                     PathQueue = new Queue<string>(0);
                 }
             }
@@ -2769,11 +2774,33 @@ namespace FileManager
         {
             if (PathQueue.Count != 0)
             {
-                return CurrentLevel = Path.Combine(CurrentLevel, PathQueue.Dequeue());
+                CurrentLevel = Path.Combine(CurrentLevel, PathQueue.Dequeue());
+                if (PathQueue.Count == 0)
+                {
+                    HasNextLevel = false;
+                }
+                return CurrentLevel;
             }
             else
             {
                 return CurrentLevel;
+            }
+        }
+
+        public string NextRelativePath()
+        {
+            if (PathQueue.Count != 0)
+            {
+                string RelativePath = PathQueue.Dequeue();
+                if (PathQueue.Count == 0)
+                {
+                    HasNextLevel = false;
+                }
+                return RelativePath;
+            }
+            else
+            {
+                return string.Empty;
             }
         }
     }
