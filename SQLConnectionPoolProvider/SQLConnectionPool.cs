@@ -117,7 +117,8 @@ namespace SQLConnectionPoolProvider
         /// <param name="ConnectString">数据库连接字符串</param>
         /// <param name="MaxConnections">最大连接数量，超过此数量的数据库连接请求将被排队直到空闲连接空出</param>
         /// <param name="MinConnections">最少连接数量，数据库连接池将始终保持大于或等于此值指定的数据库连接。若数据库总连接数超过此值且存在空闲连接，则一定时间后将自动关闭空闲连接</param>
-        public SQLConnectionPool(string ConnectString, ushort MaxConnections, ushort MinConnections)
+        /// <param name="ConnnectionKeepAlivePeriod">数据库连接回收时间。当数据库连接总数大于最小值并且某一连接连续空闲时间超过此值则回收此连接。单位：毫秒；默认值：30s</param>
+        public SQLConnectionPool(string ConnectString, ushort MaxConnections, ushort MinConnections, uint ConnnectionKeepAlivePeriod = 30000)
         {
             if (MaxConnections <= MinConnections)
             {
@@ -137,7 +138,7 @@ namespace SQLConnectionPoolProvider
 
             MaintainTimer = new System.Timers.Timer
             {
-                Interval = 30000,
+                Interval = ConnnectionKeepAlivePeriod,
                 AutoReset = true,
                 Enabled = true
             };
@@ -306,7 +307,10 @@ namespace SQLConnectionPoolProvider
 
                 AvaliableConnectionPool.Clear();
                 UsingConnectionPool.Clear();
+                AvaliableConnectionPool = null;
+                UsingConnectionPool = null;
                 Locker.Dispose();
+                Locker = null;
             }
         }
     }

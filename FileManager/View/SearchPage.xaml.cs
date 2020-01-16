@@ -223,7 +223,7 @@ namespace FileManager
                 Node.IsExpanded = true;
             }
 
-            string NextPathLevel = Analysis.NextPathLevel();
+            string NextPathLevel = Analysis.NextFullPath();
 
             if (NextPathLevel == Analysis.FullPath)
             {

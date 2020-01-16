@@ -71,13 +71,6 @@
                                   Glyph="&#xE8CC;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="浏览器"
-                                    x:Uid="Browser">
-                    <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
-                                  Glyph="&#xE909;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
                 <NavigationViewItem Content="安全域"
                                     x:Uid="SecureArea">
                     <NavigationViewItem.Icon>

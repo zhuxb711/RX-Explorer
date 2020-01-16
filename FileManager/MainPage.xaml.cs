@@ -104,7 +104,6 @@ namespace FileManager
                 {
                     PageDictionary = new Dictionary<Type, string>()
                     {
-                        {typeof(WebTab), "浏览器"},
                         {typeof(ThisPC),"这台电脑" },
                         {typeof(FileControl),"这台电脑" },
                         {typeof(AboutMe),"这台电脑" },
@@ -115,7 +114,6 @@ namespace FileManager
                 {
                     PageDictionary = new Dictionary<Type, string>()
                     {
-                        {typeof(WebTab), "Browser"},
                         {typeof(ThisPC),"ThisPC" },
                         {typeof(FileControl),"ThisPC" },
                         {typeof(AboutMe),"ThisPC" },
@@ -342,7 +340,7 @@ namespace FileManager
 
         private void Nav_Navigated(object sender, NavigationEventArgs e)
         {
-            if (Nav.CurrentSourcePageType == typeof(ThisPC) || Nav.CurrentSourcePageType == typeof(WebTab) || Nav.CurrentSourcePageType == typeof(SecureArea) || Nav.CurrentSourcePageType == typeof(SettingPage))
+            if (Nav.CurrentSourcePageType == typeof(ThisPC) || Nav.CurrentSourcePageType == typeof(SecureArea) || Nav.CurrentSourcePageType == typeof(SettingPage))
             {
                 NavView.IsBackEnabled = false;
             }
@@ -357,13 +355,7 @@ namespace FileManager
             }
             else
             {
-                foreach (var MenuItem in from NavigationViewItemBase MenuItem in NavView.MenuItems
-                                         where MenuItem is NavigationViewItem && MenuItem.Content.ToString() == PageDictionary[Nav.SourcePageType]
-                                         select MenuItem)
-                {
-                    MenuItem.IsSelected = true;
-                    break;
-                }
+                NavView.MenuItems.Select((Item) => Item as NavigationViewItem).FirstOrDefault((Item) => Item.Content.ToString() == PageDictionary[Nav.SourcePageType]).IsSelected = true;
             }
         }
 
@@ -691,19 +683,6 @@ namespace FileManager
                         case "ThisPC":
                             {
                                 Nav.Navigate(typeof(ThisPC), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
-                                break;
-                            }
-                        case "浏览器":
-                        case "Browser":
-                            {
-                                if (LastPageName == nameof(SecureArea) || LastPageName == nameof(SettingPage))
-                                {
-                                    Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
-                                }
-                                else
-                                {
-                                    Nav.Navigate(typeof(WebTab), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
-                                }
                                 break;
                             }
                         case "安全域":

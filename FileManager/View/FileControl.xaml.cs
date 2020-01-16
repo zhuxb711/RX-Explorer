@@ -35,8 +35,7 @@ namespace FileManager
             }
             set
             {
-                currentnode = value;
-                if (currentnode != null && currentnode.Content is StorageFolder Folder)
+                if (value != null && value.Content is StorageFolder Folder)
                 {
                     UpdateAddressButton(Folder);
 
@@ -59,10 +58,14 @@ namespace FileManager
                     GoBackRecord.IsEnabled = RecordIndex > 0;
                     GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
                 }
+
+                currentnode = value;
             }
         }
 
         private int TextChangeLockResource = 0;
+
+        private int AddressButtonLockResource = 0;
 
         private string AddressBoxTextBackup;
 
@@ -134,21 +137,89 @@ namespace FileManager
 
         private async void UpdateAddressButton(StorageFolder Folder)
         {
-            AddressButtonList.Clear();
-
-            string RootPath = Path.GetPathRoot(Folder.Path);
-
-            StorageFolder DriveRootFolder = await StorageFolder.GetFolderFromPathAsync(RootPath);
-            AddressButtonList.Add(DriveRootFolder.DisplayName);
-
-            PathAnalysis Analysis = new PathAnalysis(Folder.Path, RootPath);
-
-            while (Analysis.HasNextLevel)
+            if (Interlocked.Exchange(ref AddressButtonLockResource, 1) == 0)
             {
-                AddressButtonList.Add(Analysis.NextRelativePath());
-            }
+                try
+                {
+                    if (CurrentFolder == null)
+                    {
+                        string RootPath = Path.GetPathRoot(Folder.Path);
 
-            AddressButtonScrollViewer.ChangeView(AddressButtonScrollViewer.ExtentWidth, null, null);
+                        StorageFolder DriveRootFolder = await StorageFolder.GetFolderFromPathAsync(RootPath);
+                        AddressButtonList.Add(DriveRootFolder.DisplayName);
+
+                        PathAnalysis Analysis = new PathAnalysis(Folder.Path, RootPath);
+
+                        while (Analysis.HasNextLevel)
+                        {
+                            AddressButtonList.Add(Analysis.NextRelativePath());
+                        }
+                    }
+                    else
+                    {
+                        string OriginalString = string.Join("\\", AddressButtonList.Skip(1));
+                        string ActualString = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
+                        List<string> IntersectList = Folder.Path.Split('\\', StringSplitOptions.RemoveEmptyEntries).Intersect(ActualString.Split('\\', StringSplitOptions.RemoveEmptyEntries)).ToList();
+                        if (IntersectList.Count == 0)
+                        {
+                            AddressButtonList.Clear();
+
+                            string RootPath = Path.GetPathRoot(Folder.Path);
+
+                            StorageFolder DriveRootFolder = await StorageFolder.GetFolderFromPathAsync(RootPath);
+                            AddressButtonList.Add(DriveRootFolder.DisplayName);
+
+                            PathAnalysis Analysis = new PathAnalysis(Folder.Path, RootPath);
+
+                            while (Analysis.HasNextLevel)
+                            {
+                                AddressButtonList.Add(Analysis.NextRelativePath());
+                            }
+                        }
+                        else
+                        {
+                            for (int i = AddressButtonList.Count - 1; i >= 0; i--)
+                            {
+                                if (AddressButtonList[i] != IntersectList.Last())
+                                {
+                                    if (AddressButtonList.Count == 1)
+                                    {
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        AddressButtonList.RemoveAt(i);
+                                    }
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+
+                            List<string> ExceptList = Folder.Path.Split('\\', StringSplitOptions.RemoveEmptyEntries).Except(IntersectList).ToList();
+
+                            foreach (string SubPath in ExceptList)
+                            {
+                                AddressButtonList.Add(SubPath);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ExceptionTracer.RequestBlueScreen(ex);
+                }
+                finally
+                {
+                    if (AddressButtonScrollViewer.ActualWidth < AddressButtonScrollViewer.ExtentWidth)
+                    {
+                        AddressButtonScrollViewer.ChangeView(AddressButtonScrollViewer.ExtentWidth, null, null);
+                    }
+
+                    _ = Interlocked.Exchange(ref AddressButtonLockResource, 0);
+                }
+            }
         }
 
         private async void OpenTargetFolder(StorageFolder Folder)
@@ -1216,7 +1287,7 @@ namespace FileManager
 
             await FolderTree.SelectNode(Node);
 
-            string NextPathLevel = Analysis.NextPathLevel();
+            string NextPathLevel = Analysis.NextFullPath();
 
             if (NextPathLevel == Analysis.FullPath)
             {

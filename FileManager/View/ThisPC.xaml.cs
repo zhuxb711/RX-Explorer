@@ -346,14 +346,7 @@ namespace FileManager
         {
             if (e.ClickedItem is QuickStartItem Item && Item.ProtocalUri != null)
             {
-                try
-                {
-                    MainPage.ThisPage.Nav.Navigate(typeof(WebTab), Item.ProtocalUri, new DrillInNavigationTransitionInfo());
-                }
-                catch (Exception ex)
-                {
-                    ExceptionTracer.RequestBlueScreen(ex);
-                }
+                await Launcher.LaunchUriAsync(Item.ProtocalUri);
             }
             else
             {

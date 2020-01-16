@@ -22,7 +22,7 @@
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
-    <PackageCertificateThumbprint>A869B984E97751F36F86B94699613A47C05E4029</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>E585BAA76B9F73680026FA6337DDE81302A53A12</PackageCertificateThumbprint>
     <AppInstallerUpdateFrequency>0</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
@@ -253,12 +253,6 @@
     </Compile>
     <Compile Include="View\ZipExplorer.xaml.cs">
       <DependentUpon>ZipExplorer.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\WebPage.xaml.cs">
-      <DependentUpon>WebPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\WebTab.xaml.cs">
-      <DependentUpon>WebTab.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -555,21 +549,13 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\WebPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\WebTab.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Bluetooth.Services.Obex">
       <Version>1.0.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.Sqlite.Core">
-      <Version>3.1.0</Version>
+      <Version>3.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset">
       <Version>3.4.0</Version>
@@ -626,10 +612,6 @@
     <ProjectReference Include="..\AnimationEffectProvider\AnimationEffectProvider.csproj">
       <Project>{3b40a94d-6173-4b62-971e-27abdbece9d6}</Project>
       <Name>AnimationEffectProvider</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DownloaderProvider\WebDownloaderProvider.csproj">
-      <Project>{b127736a-e045-4bd2-9746-b7225736551b}</Project>
-      <Name>WebDownloaderProvider</Name>
     </ProjectReference>
     <ProjectReference Include="..\OpenCV\OpenCV.vcxproj">
       <Project>{f9be798f-758f-41d2-be7e-24614ffa696f}</Project>

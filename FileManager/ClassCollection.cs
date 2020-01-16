@@ -1,6 +1,5 @@
 ﻿using Bluetooth.Core.Services;
 using Bluetooth.Services.Obex;
-using DownloaderProvider;
 using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Data.Sqlite;
 using Microsoft.Toolkit.Uwp.Notifications;
@@ -467,14 +466,30 @@ namespace FileManager
         }
 
         /// <summary>
+        /// 清空特定的数据表
+        /// </summary>
+        /// <param name="TableName">数据表名</param>
+        /// <returns></returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "<挂起>")]
+        public async Task ClearTableAsync(string TableName)
+        {
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From " + TableName))
+            {
+                _ = await Command.ExecuteNonQueryAsync();
+            }
+        }
+
+        /*
+        /// <summary>
         /// 获取下载历史
         /// </summary>
         /// <returns></returns>
-        public async Task GetDownloadHistoryAsync()
+        public void GetDownloadHistory()
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBaseAsync().Result)
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From DownloadHistory"))
-            using (SqliteDataReader query = await Command.ExecuteReaderAsync())
+            using (SqliteDataReader query = Command.ExecuteReader())
             {
                 for (int i = 0; query.Read(); i++)
                 {
@@ -503,21 +518,6 @@ namespace FileManager
                 _ = Command.Parameters.AddWithValue("@ActualName", Task.ActualFileName);
                 _ = Command.Parameters.AddWithValue("@Uri", Task.Address.AbsoluteUri);
                 _ = Command.Parameters.AddWithValue("@State", Enum.GetName(typeof(DownloadState), Task.State));
-                _ = await Command.ExecuteNonQueryAsync();
-            }
-        }
-
-        /// <summary>
-        /// 清空特定的数据表
-        /// </summary>
-        /// <param name="TableName">数据表名</param>
-        /// <returns></returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "<挂起>")]
-        public async Task ClearTableAsync(string TableName)
-        {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From " + TableName))
-            {
                 _ = await Command.ExecuteNonQueryAsync();
             }
         }
@@ -622,11 +622,11 @@ namespace FileManager
         /// 获取网页历史记录
         /// </summary>
         /// <returns></returns>
-        public async Task<List<KeyValuePair<DateTime, WebSiteItem>>> GetWebHistoryListAsync()
+        public List<KeyValuePair<DateTime, WebSiteItem>> GetWebHistoryList()
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBaseAsync().Result)
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From WebHistory"))
-            using (SqliteDataReader Query = await Command.ExecuteReaderAsync())
+            using (SqliteDataReader Query = Command.ExecuteReader())
             {
                 List<KeyValuePair<DateTime, WebSiteItem>> HistoryList = new List<KeyValuePair<DateTime, WebSiteItem>>();
 
@@ -644,11 +644,11 @@ namespace FileManager
         /// 获取网页收藏夹
         /// </summary>
         /// <returns></returns>
-        public async Task<List<WebSiteItem>> GetWebFavouriteListAsync()
+        public List<WebSiteItem> GetWebFavouriteList()
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBaseAsync().Result)
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From WebFavourite"))
-            using (SqliteDataReader Query = await Command.ExecuteReaderAsync())
+            using (SqliteDataReader Query = Command.ExecuteReader())
             {
                 List<WebSiteItem> FavList = new List<WebSiteItem>();
 
@@ -660,6 +660,7 @@ namespace FileManager
                 return FavList;
             }
         }
+        */
 
         /// <summary>
         /// 清空搜索历史记录
@@ -1828,6 +1829,12 @@ namespace FileManager
     /// </summary>
     public static class Extention
     {
+        /// <summary>
+        /// 移动一个文件夹内的所有文件夹和文件到指定的文件夹
+        /// </summary>
+        /// <param name="Folder">源文件夹</param>
+        /// <param name="TargetFolder">目标文件夹</param>
+        /// <returns></returns>
         public static async Task MoveSubFilesAndSubFoldersAsync(this StorageFolder Folder, StorageFolder TargetFolder)
         {
             foreach (var Item in await Folder.GetItemsAsync())
@@ -1844,6 +1851,12 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 复制文件夹下的所有文件夹和文件到指定文件夹
+        /// </summary>
+        /// <param name="Folder">源文件夹</param>
+        /// <param name="TargetFolder">目标文件夹</param>
+        /// <returns></returns>
         public static async Task CopySubFilesAndSubFoldersAsync(this StorageFolder Folder, StorageFolder TargetFolder)
         {
             foreach (var Item in await Folder.GetItemsAsync())
@@ -2730,6 +2743,9 @@ namespace FileManager
 
         private string CurrentLevel;
 
+        /// <summary>
+        /// 指示是否还有下一级路径
+        /// </summary>
         public bool HasNextLevel { get; private set; }
 
         /// <summary>
@@ -2767,10 +2783,10 @@ namespace FileManager
         }
 
         /// <summary>
-        /// 获取下一层路径
+        /// 获取下一级文件夹的完整路径
         /// </summary>
         /// <returns></returns>
-        public string NextPathLevel()
+        public string NextFullPath()
         {
             if (PathQueue.Count != 0)
             {
@@ -2787,6 +2803,10 @@ namespace FileManager
             }
         }
 
+        /// <summary>
+        /// 获取下一级文件夹的相对路径
+        /// </summary>
+        /// <returns></returns>
         public string NextRelativePath()
         {
             if (PathQueue.Count != 0)
@@ -3191,6 +3211,7 @@ namespace FileManager
     #endregion
 
     #region 下载列表模板选择器
+    /*
     public sealed class DownloadTemplateSelector : DataTemplateSelector
     {
         public DataTemplate DownloadingTemplate { get; set; }
@@ -3224,6 +3245,7 @@ namespace FileManager
             }
         }
     }
+    */
     #endregion
 
     #region 快速启动类

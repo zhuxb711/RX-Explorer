@@ -207,6 +207,10 @@ namespace FileManager
                 {
                     EmptyFeedBack.Text = Globalization.Language == LanguageEnum.Chinese ? "无任何反馈或建议" : "No feedback or suggestions";
                 }
+                else
+                {
+                    FeedBackList.ScrollIntoViewSmoothly(FeedBackCollection.Last());
+                }
             }
             catch (Exception ex)
             {

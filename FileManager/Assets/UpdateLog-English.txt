@@ -1,11 +1,13 @@
 ﻿*****
-###What's new in Ver.3.9.4.0
+###What's new in Ver.3.9.5.0
 
 >#####Feature Update
 
->>#####When you manually enter the path into the address bar, intelligent prompts will be performed according to the content entered by the user to speed up the address input. Use Tab to select the first prompt path
+>>#####Add new address bar feature update, you can directly click to enter any folder on the current folder path
 
->>#####Optimized the display effect of large, medium and small icons, and adjusted the text size of the file directory tree
+>>#####Temporarily remove the "Browser" module to ensure the stability of RX and prepare for the kernel change of UWP browser
+
+>>#####When you manually enter the path into the address bar, intelligent prompts will be performed according to the content entered by the user to speed up the address input. Use Tab to select the first prompt path
 
 >>#####Added the ability to manually add drives and hide specific drives
 
@@ -14,6 +16,14 @@
 >#####Performance enhancements
 
 >>#####Changed the design of the donation module and now it executes faster
+
+>#####UI Update
+
+>>#####Optimized the display effect of large, medium and small icons, and adjusted the text size of the file directory tree
+
+>>#####Reduce the font size of the feedback module
+
+>>#####Disable the click function of the feedback module and hide the scroll bar
 
 >#####Bug fix
 
