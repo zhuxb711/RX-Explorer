@@ -19,7 +19,10 @@ namespace FileManager
         {
             InitializeComponent();
             Window.Current.SetTitleBar(TitleBar);
+
+#if !DEBUG
             Loaded += BlueScreen_Loaded;
+#endif
         }
 
         private async void BlueScreen_Loaded(object sender, RoutedEventArgs e)

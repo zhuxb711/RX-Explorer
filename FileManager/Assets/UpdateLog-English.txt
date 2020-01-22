@@ -1,4 +1,19 @@
 ﻿*****
+###What's new in Ver.4.0.0.0
+
+>#####Feature Update
+
+>>#####Added support for directly opening executable files (.exe)
+
+>>#####You can now enter powershell or cmd directly in the address bar to open a command prompt
+
+>#####Bug fix
+
+>>#####Solved the problem that the feedback module would crash when the network was abnormal
+
+>>#####Optimized the database implementation of the feedback module
+
+*****
 ###What's new in Ver.3.9.5.0
 
 >#####Feature Update

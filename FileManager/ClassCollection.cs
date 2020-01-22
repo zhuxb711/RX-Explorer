@@ -117,7 +117,7 @@ namespace FileManager
                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture12.jpg');
                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture13.jpg');
                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');";
-            using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBaseAsync().Result)
+            using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBasePoolAsync().Result)
             using (SqliteCommand CreateTable = Connection.CreateDbCommandFromConnection<SqliteCommand>(Command))
             {
                 _ = CreateTable.ExecuteNonQuery();
@@ -126,7 +126,7 @@ namespace FileManager
 
         public async Task<Dictionary<string, bool>> GetDeviceVisibilityMapAsync()
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From DeviceVisibility"))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync())
             {
@@ -141,7 +141,7 @@ namespace FileManager
 
         public async Task SetDeviceVisibilityAsync(string Path, bool IsVisible)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command1 = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select Count(*) From DeviceVisibility Where Path=@Path"))
             {
                 _ = Command1.Parameters.AddWithValue("@Path", Path);
@@ -173,7 +173,7 @@ namespace FileManager
         /// <returns></returns>
         public async Task SetBackgroundPictureAsync(string uri)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into BackgroundPicture Values (@FileName)"))
             {
                 _ = Command.Parameters.AddWithValue("@FileName", uri);
@@ -188,7 +188,7 @@ namespace FileManager
         public async Task<List<Uri>> GetBackgroundPictureAsync()
         {
             List<Uri> list = new List<Uri>();
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From BackgroundPicture"))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync())
             {
@@ -207,7 +207,7 @@ namespace FileManager
         /// <returns></returns>
         public async Task DeleteBackgroundPictureAsync(string uri)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From BackgroundPicture Where FileName=@FileName"))
             {
                 _ = Command.Parameters.AddWithValue("@FileName", uri);
@@ -221,7 +221,7 @@ namespace FileManager
         /// <returns></returns>
         public async IAsyncEnumerable<string> GetFolderLibraryAsync()
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From FolderLibrary"))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync())
             {
@@ -239,7 +239,7 @@ namespace FileManager
         /// <returns></returns>
         public async Task DeleteFolderLibraryAsync(string Path)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From FolderLibrary Where Path = @Path"))
             {
                 _ = Command.Parameters.AddWithValue("@Path", Path);
@@ -254,7 +254,7 @@ namespace FileManager
         /// <returns></returns>
         public async Task SetPathHistoryAsync(string Path)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Or Ignore Into PathHistory Values (@Para)"))
             {
                 _ = Command.Parameters.AddWithValue("@Para", Path);
@@ -270,7 +270,7 @@ namespace FileManager
         public async Task<List<string>> GetRelatedPathHistoryAsync()
         {
             List<string> PathList = new List<string>();
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From PathHistory"))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync())
             {
@@ -289,7 +289,7 @@ namespace FileManager
         /// <returns></returns>
         public async Task SetFolderLibraryAsync(string Path)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into FolderLibrary Values (@Path)"))
             {
                 _ = Command.Parameters.AddWithValue("@Path", Path);
@@ -304,7 +304,7 @@ namespace FileManager
         /// <returns></returns>
         public async Task SetSearchHistoryAsync(string SearchText)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Or Ignore Into SearchHistory Values (@Para)"))
             {
                 _ = Command.Parameters.AddWithValue("@Para", SearchText);
@@ -322,7 +322,7 @@ namespace FileManager
         /// <returns></returns>
         public async Task SetQuickStartItemAsync(string Name, string FullPath, string Protocal, QuickStartType Type)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Or Ignore Into QuickStart Values (@Name,@Path,@Protocal,@Type)"))
             {
                 _ = Command.Parameters.AddWithValue("@Name", Name);
@@ -344,7 +344,7 @@ namespace FileManager
         /// <returns></returns>
         public async Task UpdateQuickStartItemAsync(string OldName, string NewName, string FullPath, string Protocal, QuickStartType Type)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             {
                 if (FullPath != null)
                 {
@@ -379,7 +379,7 @@ namespace FileManager
         /// <returns></returns>
         public async Task DeleteQuickStartItemAsync(QuickStartItem Item)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type"))
             {
                 _ = Command.Parameters.AddWithValue("@Name", Item.DisplayName);
@@ -395,7 +395,7 @@ namespace FileManager
         /// <returns></returns>
         public async IAsyncEnumerable<KeyValuePair<QuickStartType, QuickStartItem>> GetQuickStartItemAsync()
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From QuickStart"))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync())
             {
@@ -408,7 +408,7 @@ namespace FileManager
                     }
                     catch (Exception)
                     {
-                        using (SQLConnection Connection1 = await ConnectionPool.GetConnectionFromDataBaseAsync())
+                        using (SQLConnection Connection1 = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
                         using (SqliteCommand Command1 = Connection1.CreateDbCommandFromConnection<SqliteCommand>("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type"))
                         {
                             _ = Command1.Parameters.AddWithValue("@Name", query[0].ToString());
@@ -450,7 +450,7 @@ namespace FileManager
         public async Task<List<string>> GetRelatedSearchHistoryAsync(string Target)
         {
             List<string> HistoryList = new List<string>();
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From SearchHistory Where SearchText Like @Target"))
             {
                 _ = Command.Parameters.AddWithValue("@Target", "%" + Target + "%");
@@ -473,7 +473,7 @@ namespace FileManager
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "<挂起>")]
         public async Task ClearTableAsync(string TableName)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From " + TableName))
             {
                 _ = await Command.ExecuteNonQueryAsync();
@@ -668,7 +668,7 @@ namespace FileManager
         /// <returns></returns>
         public async Task ClearSearchHistoryRecord()
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From SearchHistory"))
             {
                 _ = await Command.ExecuteNonQueryAsync();
@@ -744,7 +744,7 @@ namespace FileManager
             {
                 ConnectionLocker.WaitOne();
 
-                SQLConnection Connection = ConnectionPool.GetConnectionFromDataBaseAsync().Result;
+                SQLConnection Connection = ConnectionPool.GetConnectionFromDataBasePoolAsync().Result;
 
                 if (Connection.IsConnected)
                 {
@@ -780,52 +780,29 @@ namespace FileManager
                         {
                             string TitleTranslation = await Reader["Title"].ToString().TranslateToAsync(CurrentLanguage);
                             string SuggestionTranslation = await Reader["Suggestion"].ToString().TranslateToAsync(CurrentLanguage);
-                            yield return new FeedBackItem(CurrentLanguage == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString().TranslateToPinyinOrStayInEnglish(), string.IsNullOrEmpty(TitleTranslation) ? Reader["Title"].ToString() : TitleTranslation, string.IsNullOrEmpty(SuggestionTranslation) ? Reader["Suggestion"].ToString() : SuggestionTranslation, Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString());
+
+                            using(SQLConnection Connection1 = await GetConnectionFromPoolAsync())
+                            using (MySqlCommand Command1 = Connection1.CreateDbCommandFromConnection<MySqlCommand>("Select Behavior From VoteRecordTable Where UserID=@UserID And GUID=@GUID"))
+                            {
+                                _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
+                                _ = Command1.Parameters.AddWithValue("@GUID", Reader["GUID"].ToString());
+
+                                string Behaivor = Convert.ToString(Command1.ExecuteScalar());
+                                if (!string.IsNullOrEmpty(Behaivor))
+                                {
+                                    yield return new FeedBackItem(CurrentLanguage == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString().TranslateToPinyinOrStayInEnglish(), string.IsNullOrEmpty(TitleTranslation) ? Reader["Title"].ToString() : TitleTranslation, string.IsNullOrEmpty(SuggestionTranslation) ? Reader["Suggestion"].ToString() : SuggestionTranslation, Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString(), Behaivor);
+                                }
+                                else
+                                {
+                                    yield return new FeedBackItem(CurrentLanguage == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString().TranslateToPinyinOrStayInEnglish(), string.IsNullOrEmpty(TitleTranslation) ? Reader["Title"].ToString() : TitleTranslation, string.IsNullOrEmpty(SuggestionTranslation) ? Reader["Suggestion"].ToString() : SuggestionTranslation, Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString());
+                                }
+                            }
                         }
                     }
                 }
                 else
                 {
                     yield break;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 获取现有反馈对象的额外信息
-        /// </summary>
-        /// <param name="Item">反馈对象</param>
-        /// <returns></returns>
-        public async Task<bool> GetExtraFeedBackInfo(FeedBackItem Item)
-        {
-            using (SQLConnection Connection = await GetConnectionFromPoolAsync())
-            {
-                if (Connection.IsConnected)
-                {
-                    try
-                    {
-                        using (MySqlCommand Command1 = Connection.CreateDbCommandFromConnection<MySqlCommand>("Select Behavior From VoteRecordTable Where UserID=@UserID And GUID=@GUID"))
-                        {
-                            _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                            _ = Command1.Parameters.AddWithValue("@GUID", Item.GUID);
-
-                            string Behaivor = Convert.ToString(Command1.ExecuteScalar());
-                            if (!string.IsNullOrEmpty(Behaivor))
-                            {
-                                Item.UserVoteAction = Behaivor;
-                            }
-                        }
-
-                        return true;
-                    }
-                    catch (Exception)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
                 }
             }
         }
@@ -955,12 +932,6 @@ namespace FileManager
                     try
                     {
                         using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Delete From FeedBackTable Where GUID=@GUID"))
-                        {
-                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                            _ = Command.ExecuteNonQuery();
-                        }
-
-                        using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Delete From VoteRecordTable Where GUID=@GUID"))
                         {
                             _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
                             _ = Command.ExecuteNonQuery();
@@ -3971,7 +3942,7 @@ namespace FileManager
         /// <summary>
         /// 记录当前用户的操作
         /// </summary>
-        public string UserVoteAction { get; set; } = "=";
+        public string UserVoteAction { get; set; }
 
         /// <summary>
         /// 初始化FeedBackItem
@@ -3983,7 +3954,8 @@ namespace FileManager
         /// <param name="DislikeNum">反对的人数</param>
         /// <param name="UserID">用户ID</param>
         /// <param name="GUID">反馈的GUID</param>
-        public FeedBackItem(string UserName, string Title, string Suggestion, string LikeNum, string DislikeNum, string UserID, string GUID)
+        /// <param name="UserVoteAction">指示支持或反对</param>
+        public FeedBackItem(string UserName, string Title, string Suggestion, string LikeNum, string DislikeNum, string UserID, string GUID, string UserVoteAction = "=")
         {
             this.UserName = UserName;
             this.Title = Title;
@@ -3992,6 +3964,7 @@ namespace FileManager
             this.DislikeNum = DislikeNum;
             this.UserID = UserID;
             this.GUID = GUID;
+            this.UserVoteAction = UserVoteAction;
             if (Globalization.Language == LanguageEnum.Chinese)
             {
                 SupportDescription = $"({LikeNum} 人支持 , {DislikeNum} 人反对)";

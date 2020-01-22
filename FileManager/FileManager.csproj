@@ -22,13 +22,13 @@
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
-    <PackageCertificateThumbprint>E585BAA76B9F73680026FA6337DDE81302A53A12</PackageCertificateThumbprint>
     <AppInstallerUpdateFrequency>0</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <GenerateTestArtifacts>False</GenerateTestArtifacts>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+    <PackageCertificateThumbprint>65239A224312FD53C561AC3181666C207E1A3108</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -286,6 +286,9 @@
     <Content Include="CustomImage\Picture11.jpg" />
     <Content Include="CustomImage\Picture12.jpg" />
     <Content Include="CustomImage\Picture13.jpg" />
+    <Content Include="FullTrust\FullTrustProcess.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="HotWebImage\Baidu.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -295,6 +298,7 @@
     <Content Include="HotWebImage\Facebook.png" />
     <Content Include="HotWebImage\Instagram.png" />
     <Content Include="HotWebImage\Twitter.png" />
+    <None Include="Package.StoreAssociation.xml" />
     <Content Include="QuickStartImage\Calculator.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -383,7 +387,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include=".editorconfig" />
-    <None Include="Package.StoreAssociation.xml" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -613,6 +616,10 @@
       <Project>{3b40a94d-6173-4b62-971e-27abdbece9d6}</Project>
       <Name>AnimationEffectProvider</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CommunicateService\CommunicateService.csproj">
+      <Project>{7d62af29-e32f-4402-88e5-d8feeb062728}</Project>
+      <Name>CommunicateService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\OpenCV\OpenCV.vcxproj">
       <Project>{f9be798f-758f-41d2-be7e-24614ffa696f}</Project>
       <Name>OpenCV</Name>
@@ -634,6 +641,11 @@
     <XliffResource Include="MultilingualResources\FileManager.zh-Hans.xlf" />
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <SDKReference Include="WindowsDesktop, Version=10.0.18362.0">
+      <Name>Windows Desktop Extensions for the UWP</Name>
+    </SDKReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

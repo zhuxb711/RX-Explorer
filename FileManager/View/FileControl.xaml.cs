@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
@@ -1187,6 +1188,22 @@ namespace FileManager
 
             if (QueryText == CurrentFolder.Path)
             {
+                return;
+            }
+
+            if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase))
+            {
+                string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\WindowsPowerShell\\v1.0\\powershell.exe");
+                ApplicationData.Current.LocalSettings.Values["ExcutePath"] = ExcutePath;
+                await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+                return;
+            }
+
+            if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase))
+            {
+                string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\cmd.exe");
+                ApplicationData.Current.LocalSettings.Values["ExcutePath"] = ExcutePath;
+                await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
                 return;
             }
 

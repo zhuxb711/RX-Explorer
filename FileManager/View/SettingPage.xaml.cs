@@ -152,8 +152,6 @@ namespace FileManager
                 {
                     FeedBackCollection.Add(FeedBackItem);
 
-                    await MySQL.Current.GetExtraFeedBackInfo(FeedBackItem);
-
                     switch (FeedBackItem.UserVoteAction)
                     {
                         case "+":
@@ -212,9 +210,9 @@ namespace FileManager
                     FeedBackList.ScrollIntoViewSmoothly(FeedBackCollection.Last());
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ExceptionTracer.RequestBlueScreen(ex);
+
             }
         }
 

@@ -171,7 +171,7 @@ namespace SQLConnectionPoolProvider
         /// 从数据库连接池从获取一个数据库连接
         /// </summary>
         /// <returns>数据库连接</returns>
-        public Task<SQLConnection> GetConnectionFromDataBaseAsync()
+        public Task<SQLConnection> GetConnectionFromDataBasePoolAsync()
         {
             return Task.Run(() =>
             {

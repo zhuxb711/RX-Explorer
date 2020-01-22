@@ -239,7 +239,7 @@ namespace FileManager
 
         private async void NavigationButton_Click(object sender, RoutedEventArgs e)
         {
-            await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
+            await Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-broadfilesystemaccess"));
             if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
             {
                 ToastContent Content = new ToastContent()

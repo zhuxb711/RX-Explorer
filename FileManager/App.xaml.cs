@@ -31,7 +31,7 @@ namespace FileManager
         public App()
         {
             InitializeComponent();
-
+            System.Diagnostics.Debug.WriteLine(Package.Current.Id.FamilyName);
             try
             {
                 ToastNotificationManager.History.Clear();
