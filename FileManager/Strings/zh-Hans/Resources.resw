@@ -1218,4 +1218,25 @@
   <data name="HideDevice.Label" xml:space="preserve">
     <value>隐藏驱动器</value>
   </data>
+  <data name="ChooseOtherApp.Text" xml:space="preserve">
+    <value>选择其他应用</value>
+  </data>
+  <data name="OtherOpenMethod.Label" xml:space="preserve">
+    <value>打开方式...</value>
+  </data>
+  <data name="ProgramPickerDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="ProgramPickerDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="ProgramPickerDialog.Title" xml:space="preserve">
+    <value>选择打开方式</value>
+  </data>
+  <data name="ProgramPickerDialogPickOther.Content" xml:space="preserve">
+    <value>选择此电脑上的其他应用</value>
+  </data>
+  <data name="ProgramPickerDialogUseAsAdmin.Content" xml:space="preserve">
+    <value>默认使用此应用打开该类型文件</value>
+  </data>
 </root>

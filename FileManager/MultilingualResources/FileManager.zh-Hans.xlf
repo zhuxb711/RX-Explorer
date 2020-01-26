@@ -1614,6 +1614,34 @@
           <source>Hide drive</source>
           <target state="translated">隐藏驱动器</target>
         </trans-unit>
+        <trans-unit id="ChooseOtherApp.Text" translate="yes" xml:space="preserve">
+          <source>Choose another app</source>
+          <target state="translated">选择其他应用</target>
+        </trans-unit>
+        <trans-unit id="OtherOpenMethod.Label" translate="yes" xml:space="preserve">
+          <source>Open with...</source>
+          <target state="translated">打开方式...</target>
+        </trans-unit>
+        <trans-unit id="ProgramPickerDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="ProgramPickerDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="ProgramPickerDialog.Title" translate="yes" xml:space="preserve">
+          <source>Open with</source>
+          <target state="translated">选择打开方式</target>
+        </trans-unit>
+        <trans-unit id="ProgramPickerDialogPickOther.Content" translate="yes" xml:space="preserve">
+          <source>Choose another app on this computer</source>
+          <target state="translated">选择此电脑上的其他应用</target>
+        </trans-unit>
+        <trans-unit id="ProgramPickerDialogUseAsAdmin.Content" translate="yes" xml:space="preserve">
+          <source>Use this app to open this type of file by default</source>
+          <target state="translated">默认使用此应用打开该类型文件</target>
+        </trans-unit>
       </group>
     </body>
   </file>

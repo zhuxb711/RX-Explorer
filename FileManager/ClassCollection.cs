@@ -103,6 +103,7 @@ namespace FileManager
                                Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
                                Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));
                                Create Table If Not Exists DeviceVisibility (Path Text Not Null, IsVisible Text Not Null, Primary Key(Path));
+                               Create Table If Not Exists ProgramPickerRecord (Path Text Not Null);
                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');
                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');
                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture3.jpg');
@@ -121,6 +122,41 @@ namespace FileManager
             using (SqliteCommand CreateTable = Connection.CreateDbCommandFromConnection<SqliteCommand>(Command))
             {
                 _ = CreateTable.ExecuteNonQuery();
+            }
+        }
+
+        public async Task SetProgramPickerRecordAsync(string Path)
+        {
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into ProgramPickerRecord Values (@Path)"))
+            {
+                _ = Command.Parameters.AddWithValue("@Path", Path);
+                _ = await Command.ExecuteNonQueryAsync();
+            }
+        }
+
+        public async Task<List<string>> GetProgramPickerRecordAsync()
+        {
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From ProgramPickerRecord"))
+            using (SqliteDataReader query = await Command.ExecuteReaderAsync())
+            {
+                List<string> list = new List<string>();
+                while (query.Read())
+                {
+                    list.Add(query[0].ToString());
+                }
+                return list;
+            }
+        }
+
+        public async Task DeleteProgramPickerRecordAsync(string Path)
+        {
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From ProgramPickerRecord Where Path=@Path"))
+            {
+                _ = Command.Parameters.AddWithValue("@Path", Path);
+                _ = await Command.ExecuteNonQueryAsync();
             }
         }
 
@@ -781,7 +817,7 @@ namespace FileManager
                             string TitleTranslation = await Reader["Title"].ToString().TranslateToAsync(CurrentLanguage);
                             string SuggestionTranslation = await Reader["Suggestion"].ToString().TranslateToAsync(CurrentLanguage);
 
-                            using(SQLConnection Connection1 = await GetConnectionFromPoolAsync())
+                            using (SQLConnection Connection1 = await GetConnectionFromPoolAsync())
                             using (MySqlCommand Command1 = Connection1.CreateDbCommandFromConnection<MySqlCommand>("Select Behavior From VoteRecordTable Where UserID=@UserID And GUID=@GUID"))
                             {
                                 _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
@@ -5703,4 +5739,35 @@ namespace FileManager
         }
     }
     #endregion
+
+    public sealed class ProgramPickerItem
+    {
+        public BitmapImage Thumbnuil { get; private set; }
+
+        public string Description { get; private set; }
+
+        public string Name { get; private set; }
+
+        public string PackageName { get; private set; }
+
+        public string Path { get; private set; }
+
+        public bool IsCustomApp { get; private set; } = false;
+
+        public ProgramPickerItem(BitmapImage Thumbnuil, string Name, string Description, string PackageName = null, string Path = null)
+        {
+            this.Thumbnuil = Thumbnuil;
+            this.Name = Name;
+            this.Description = Description;
+            if (!string.IsNullOrEmpty(PackageName))
+            {
+                this.PackageName = PackageName;
+            }
+            else if (!string.IsNullOrEmpty(Path))
+            {
+                this.Path = Path;
+                IsCustomApp = true;
+            }
+        }
+    }
 }

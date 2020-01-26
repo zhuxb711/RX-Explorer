@@ -36,6 +36,19 @@
                               x:Uid="FileOpen"
                               x:Name="FileOpen"
                               Click="FileOpen_Click"/>
+                <AppBarButton Label="打开方式..."
+                              Name="OtherOpenMethod"
+                              x:Uid="OtherOpenMethod"
+                              Icon="AllApps">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout x:Name="FileOpenMethodFlyout">
+                            <MenuFlyoutItem Text="选择其他应用" 
+                                            x:Uid="ChooseOtherApp"
+                                            Name="ChooseOtherApp"
+                                            Click="ChooseOtherApp_Click"/>
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
                 <AppBarButton Icon="Rename"
                               Label="重命名"
                               x:Uid="FileRename"
@@ -456,6 +469,11 @@
                             Value="Stretch"></Setter>
                 </Style>
             </ListView.ItemContainerStyle>
+            <ListView.ItemContainerTransitions>
+                <TransitionCollection>
+                    <AddDeleteThemeTransition/>
+                </TransitionCollection>
+            </ListView.ItemContainerTransitions>
         </ListView>
         <GridView Name="GridViewControl"
                   Background="Transparent"

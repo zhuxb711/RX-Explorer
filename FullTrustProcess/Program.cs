@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
@@ -10,6 +12,12 @@ namespace FullTrustProcess
     {
         static async Task Main(string[] args)
         {
+            HashSet<string> SpecialStringMap = new HashSet<string>(2)
+            {
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\WindowsPowerShell\\v1.0\\powershell.exe"),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\cmd.exe")
+            };
+
             using (AppServiceConnection Connection = new AppServiceConnection
             {
                 AppServiceName = "CommunicateService",
@@ -35,7 +43,23 @@ namespace FullTrustProcess
 
                 if (!string.IsNullOrEmpty(ExcutePath))
                 {
-                    Process.Start(ExcutePath);
+                    if (ExcutePath.Contains("|"))
+                    {
+                        string[] ParaGroup = ExcutePath.Split('|');
+
+                        if (SpecialStringMap.Contains(ParaGroup[0]))
+                        {
+                            Process.Start(ParaGroup[0], ParaGroup[1]).Dispose();
+                        }
+                        else
+                        {
+                            Process.Start(ParaGroup[0], $"\"{ ParaGroup[1]}\"").Dispose();
+                        }
+                    }
+                    else
+                    {
+                        Process.Start(ExcutePath);
+                    }
                 }
             }
         }

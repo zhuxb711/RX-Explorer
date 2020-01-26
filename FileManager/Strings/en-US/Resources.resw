@@ -234,6 +234,9 @@
   <data name="Browser.Content" xml:space="preserve">
     <value>Browser</value>
   </data>
+  <data name="ChooseOtherApp.Text" xml:space="preserve">
+    <value>Choose another app</value>
+  </data>
   <data name="CloseButton.Content" xml:space="preserve">
     <value>Exit</value>
   </data>
@@ -480,6 +483,9 @@
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>Open</value>
   </data>
+  <data name="OtherOpenMethod.Label" xml:space="preserve">
+    <value>Open with...</value>
+  </data>
   <data name="ParentAttribute.Label" xml:space="preserve">
     <value>FolderProperties</value>
   </data>
@@ -515,6 +521,21 @@
   </data>
   <data name="PinToLibrary.Label" xml:space="preserve">
     <value>Pin to homepage</value>
+  </data>
+  <data name="ProgramPickerDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="ProgramPickerDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="ProgramPickerDialog.Title" xml:space="preserve">
+    <value>Open with</value>
+  </data>
+  <data name="ProgramPickerDialogPickOther.Content" xml:space="preserve">
+    <value>Choose another app on this computer</value>
+  </data>
+  <data name="ProgramPickerDialogUseAsAdmin.Content" xml:space="preserve">
+    <value>Use this app to open this type of file by default</value>
   </data>
   <data name="QRText.Header" xml:space="preserve">
     <value>Copy this link to your browser to download</value>

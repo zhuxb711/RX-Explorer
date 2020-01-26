@@ -55,7 +55,7 @@ namespace FileManager
                          ? "搜索 " + PlaceText
                          : "Search " + PlaceText;
 
-                    GoParentFolder.IsEnabled = CurrentNode != FolderTree.RootNodes[0];
+                    GoParentFolder.IsEnabled = value != FolderTree.RootNodes[0];
                     GoBackRecord.IsEnabled = RecordIndex > 0;
                     GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
                 }
@@ -1194,7 +1194,7 @@ namespace FileManager
             if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase))
             {
                 string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\WindowsPowerShell\\v1.0\\powershell.exe");
-                ApplicationData.Current.LocalSettings.Values["ExcutePath"] = ExcutePath;
+                ApplicationData.Current.LocalSettings.Values["ExcutePath"] = $"{ExcutePath}|-NoExit -Command \"Set-Location '{CurrentFolder.Path.Replace("\\","/")}'\"";
                 await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
                 return;
             }
@@ -1202,7 +1202,7 @@ namespace FileManager
             if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase))
             {
                 string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\cmd.exe");
-                ApplicationData.Current.LocalSettings.Values["ExcutePath"] = ExcutePath;
+                ApplicationData.Current.LocalSettings.Values["ExcutePath"] = $"{ExcutePath}|/k cd /d {CurrentFolder.Path}";
                 await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
                 return;
             }

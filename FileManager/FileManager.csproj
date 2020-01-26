@@ -144,6 +144,9 @@
     <Compile Include="Dialog\FeedBackDialog.xaml.cs">
       <DependentUpon>FeedBackDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\ProgramPickerDialog.xaml.cs">
+      <DependentUpon>ProgramPickerDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\ResetDialog.xaml.cs">
       <DependentUpon>ResetDialog.xaml</DependentUpon>
     </Compile>
@@ -272,6 +275,7 @@
     <Content Include="Assets\SAIntro1_en.png" />
     <Content Include="Assets\UpdateLog-Chinese.txt" />
     <Content Include="Assets\UpdateLog-English.txt" />
+    <Content Include="Assets\Viewer.png" />
     <Content Include="CustomImage\Picture14.jpg" />
     <Content Include="CustomImage\Picture10.jpg" />
     <Content Include="CustomImage\Picture7.jpg" />
@@ -405,6 +409,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Dialog\FeedBackDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\ProgramPickerDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

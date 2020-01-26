@@ -1,11 +1,13 @@
 ﻿*****
-###What's new in Ver.4.0.0.0
+###What's new in Ver.4.0.2.0
 
 >#####Feature Update
 
 >>#####Added support for directly opening executable files (.exe)
 
 >>#####You can now enter powershell or cmd directly in the address bar to open a command prompt
+
+>>#####Added "Open with", support to open specific types of files with custom applications
 
 >#####Bug fix
 
