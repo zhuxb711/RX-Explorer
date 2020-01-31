@@ -25,40 +25,66 @@ namespace FullTrustProcess
             })
             {
                 string ExcutePath = string.Empty;
+                string ExcuteParameter = string.Empty;
+                string ExcuteAuthority = string.Empty;
 
                 if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
                 {
                     ValueSet Value = new ValueSet
                     {
-                        { "RX_ExcutePath", string.Empty }
+                        { "RX_GetExcuteInfo", string.Empty }
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error") && Response.Message.ContainsKey("RX_ExcutePath"))
+                    if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error"))
                     {
                         ExcutePath = Response.Message["RX_ExcutePath"].ToString();
+                        ExcuteParameter = Response.Message["RX_ExcuteParameter"].ToString();
+                        ExcuteAuthority = Response.Message["RX_ExcuteAuthority"].ToString();
                     }
                 }
 
                 if (!string.IsNullOrEmpty(ExcutePath))
                 {
-                    if (ExcutePath.Contains("|"))
+                    if (string.IsNullOrEmpty(ExcuteParameter))
                     {
-                        string[] ParaGroup = ExcutePath.Split('|');
-
-                        if (SpecialStringMap.Contains(ParaGroup[0]))
+                        if (ExcuteAuthority == "Administrator")
                         {
-                            Process.Start(ParaGroup[0], ParaGroup[1]).Dispose();
+                            ProcessStartInfo Info = new ProcessStartInfo(ExcutePath) { Verb = "runAs" };
+                            Process.Start(Info).Dispose();
                         }
                         else
                         {
-                            Process.Start(ParaGroup[0], $"\"{ ParaGroup[1]}\"").Dispose();
+                            Process.Start(ExcutePath).Dispose();
                         }
                     }
                     else
                     {
-                        Process.Start(ExcutePath);
+                        if (SpecialStringMap.Contains(ExcutePath))
+                        {
+                            if (ExcuteAuthority == "Administrator")
+                            {
+                                ProcessStartInfo Info = new ProcessStartInfo(ExcutePath, ExcuteParameter) { Verb = "runAs" };
+                                Process.Start(Info).Dispose();
+                            }
+                            else
+                            {
+                                Process.Start(ExcutePath, ExcuteParameter).Dispose();
+                            }
+                        }
+                        else
+                        {
+                            if (ExcuteAuthority == "Administrator")
+                            {
+                                ProcessStartInfo Info = new ProcessStartInfo(ExcutePath, $"\"{ExcuteParameter}\"") { Verb = "runAs" };
+                                Process.Start(Info).Dispose();
+                            }
+                            else
+                            {
+                                Process.Start(ExcutePath, $"\"{ExcuteParameter}\"").Dispose();
+                            }
+                        }
                     }
                 }
             }

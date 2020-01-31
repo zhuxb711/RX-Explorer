@@ -1,4 +1,27 @@
 ﻿*****
+###What's new in Ver.4.0.5.0
+
+>#####Feature Update
+
+>>#####Add administrator permissions to open the application function, all applications started with administrator permissions may trigger UAC
+
+>>#####When starting Powershell and cmd from the address bar, it is started with administrator privileges by default, which may trigger UAC
+
+>#####UI improvements
+
+>>#####Solve the problem that the built-in document reader style is different from the theme style
+
+>#####Bug fix
+
+>>#####Resolved an issue where Notepad could not be set as the default open handler
+
+>>#####Solves many problems with the built-in PDF reader, including:
+
+>>>#####Due to the problems of the progressive loading of the built-in PDF, continuous page turning may cause the problem of page loss
+
+>>>######Because the built-in PDF will preload 10 pages at startup, this mechanism may conflict with the progressive loading logic, causing the problem of out-of-order loading
+
+*****
 ###What's new in Ver.4.0.2.0
 
 >#####Feature Update

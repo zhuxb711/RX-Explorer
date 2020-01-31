@@ -1642,6 +1642,10 @@
           <source>Use this app to open this type of file by default</source>
           <target state="translated">默认使用此应用打开该类型文件</target>
         </trans-unit>
+        <trans-unit id="RunWithSystemAuthority.Text" translate="yes" xml:space="preserve">
+          <source>Open as administrator</source>
+          <target state="translated">以管理员权限打开</target>
+        </trans-unit>
       </group>
     </body>
   </file>

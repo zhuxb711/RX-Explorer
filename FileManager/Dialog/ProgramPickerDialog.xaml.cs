@@ -92,9 +92,6 @@ namespace FileManager
                 }
             }
 
-            StorageFile NotepadFile = await StorageFile.GetFileFromPathAsync(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\notepad.exe"));
-            TempList.Add(new ProgramPickerItem(await NotepadFile.GetThumbnailBitmapAsync(), "记事本", string.Empty, Path: NotepadFile.Path));
-
             List<string> PickerRecord = await SQLite.Current.GetProgramPickerRecordAsync();
             foreach (var Path in PickerRecord)
             {
@@ -237,8 +234,7 @@ namespace FileManager
                 {
                     if (CurrentItem.IsCustomApp)
                     {
-                        ApplicationData.Current.LocalSettings.Values["ExcutePath"] = $"{CurrentItem.Path}|{OpenFile.Path}";
-                        await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+                        await FullTrustExcutorController.Run(CurrentItem.Path, OpenFile.Path);
                     }
                     else
                     {
@@ -276,8 +272,7 @@ namespace FileManager
                 {
                     if (OtherItem.IsCustomApp)
                     {
-                        ApplicationData.Current.LocalSettings.Values["ExcutePath"] = $"{OtherItem.Path}|{OpenFile.Path}";
-                        await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+                        await FullTrustExcutorController.Run(OtherItem.Path, OpenFile.Path);
                     }
                     else
                     {

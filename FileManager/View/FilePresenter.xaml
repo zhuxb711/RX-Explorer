@@ -42,7 +42,13 @@
                               Icon="AllApps">
                     <AppBarButton.Flyout>
                         <MenuFlyout x:Name="FileOpenMethodFlyout">
-                            <MenuFlyoutItem Text="选择其他应用" 
+                            <MenuFlyoutItem Text="以管理员权限打开"
+                                            Icon="Admin"
+                                            x:Uid="RunWithSystemAuthority"
+                                            Name="RunWithSystemAuthority"
+                                            Click="RunWithSystemAuthority_Click"/>
+                            <MenuFlyoutItem Text="选择其他应用"
+                                            Icon="SwitchApps"
                                             x:Uid="ChooseOtherApp"
                                             Name="ChooseOtherApp"
                                             Click="ChooseOtherApp_Click"/>

@@ -1342,7 +1342,8 @@ namespace FileManager
                         Transcode.IsEnabled = false;
                         VideoEdit.IsEnabled = false;
                         VideoMerge.IsEnabled = false;
-                        OtherOpenMethod.IsEnabled = true;
+                        ChooseOtherApp.IsEnabled = true;
+                        RunWithSystemAuthority.IsEnabled = false;
 
                         Zip.Label = Globalization.Language == LanguageEnum.Chinese
                                     ? "Zip压缩"
@@ -1387,7 +1388,8 @@ namespace FileManager
                                 }
                             case ".exe":
                                 {
-                                    OtherOpenMethod.IsEnabled = false;
+                                    ChooseOtherApp.IsEnabled = false;
+                                    RunWithSystemAuthority.IsEnabled = true;
                                     break;
                                 }
                         }
@@ -2491,7 +2493,7 @@ namespace FileManager
             }
         }
 
-        private async void EnterSelectedItem(FileSystemStorageItem ReFile)
+        private async void EnterSelectedItem(FileSystemStorageItem ReFile, bool RunAsAdministrator = false)
         {
             try
             {
@@ -2553,8 +2555,7 @@ namespace FileManager
                                         string AppName = (await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"].ToString();
                                         if (AppName == AdminExcuteProgram)
                                         {
-                                            ApplicationData.Current.LocalSettings.Values["ExcutePath"] = $"{Path}|{TabTarget.Path}";
-                                            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+                                            await FullTrustExcutorController.Run(Path, TabTarget.Path);
                                             break;
                                         }
                                     }
@@ -2610,8 +2611,14 @@ namespace FileManager
                                     }
                                 case ".exe":
                                     {
-                                        ApplicationData.Current.LocalSettings.Values["ExcutePath"] = TabTarget.Path;
-                                        await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+                                        if (RunAsAdministrator)
+                                        {
+                                            await FullTrustExcutorController.RunAsAdministrator(TabTarget.Path);
+                                        }
+                                        else
+                                        {
+                                            await FullTrustExcutorController.Run(TabTarget.Path);
+                                        }
                                         break;
                                     }
                                 default:
@@ -2874,6 +2881,16 @@ namespace FileManager
                         EnterSelectedItem(Item);
                     }
                 }
+            }
+        }
+
+        private void RunWithSystemAuthority_Click(object sender, RoutedEventArgs e)
+        {
+            Restore();
+
+            if (SelectedItem is FileSystemStorageItem ReFile)
+            {
+                EnterSelectedItem(ReFile, true);
             }
         }
     }

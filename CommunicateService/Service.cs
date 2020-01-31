@@ -32,9 +32,11 @@ namespace CommunicateService
             try
             {
                 ValueSet Value = new ValueSet();
-                if (args.Request.Message.ContainsKey("RX_ExcutePath"))
+                if (args.Request.Message.ContainsKey("RX_GetExcuteInfo"))
                 {
                     Value.Add("RX_ExcutePath", ApplicationData.Current.LocalSettings.Values["ExcutePath"]);
+                    Value.Add("RX_ExcuteParameter", ApplicationData.Current.LocalSettings.Values["ExcuteParameter"]);
+                    Value.Add("RX_ExcuteAuthority", ApplicationData.Current.LocalSettings.Values["ExcuteAuthority"]);
                 }
                 else
                 {

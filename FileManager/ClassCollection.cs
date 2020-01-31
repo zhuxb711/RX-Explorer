@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TinyPinyin.Core;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
@@ -94,30 +95,33 @@ namespace FileManager
         /// </summary>
         private void InitializeDatabase()
         {
-            string Command = @"Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));
-                               Create Table If Not Exists WebFavourite (Subject Text Not Null, WebSite Text Not Null, Primary Key (WebSite));
-                               Create Table If Not Exists WebHistory (Subject Text Not Null, WebSite Text Not Null, DateTime Text Not Null, Primary Key (Subject, WebSite, DateTime));
-                               Create Table If Not Exists DownloadHistory (UniqueID Text Not Null, ActualName Text Not Null, Uri Text Not Null, State Text Not Null, Primary Key(UniqueID));
-                               Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
-                               Create Table If Not Exists FolderLibrary (Path Text Not Null, Primary Key (Path));
-                               Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
-                               Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));
-                               Create Table If Not Exists DeviceVisibility (Path Text Not Null, IsVisible Text Not Null, Primary Key(Path));
-                               Create Table If Not Exists ProgramPickerRecord (Path Text Not Null);
-                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');
-                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');
-                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture3.jpg');
-                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture4.jpg');
-                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture5.jpg');
-                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture6.jpg');
-                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture7.jpg');
-                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture8.jpg');
-                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture9.jpg');
-                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture10.jpg');
-                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture11.jpg');
-                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture12.jpg');
-                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture13.jpg');
-                               Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');";
+            string NodePadPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\notepad.exe");
+            string Command = $@"Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));
+                                Create Table If Not Exists WebFavourite (Subject Text Not Null, WebSite Text Not Null, Primary Key (WebSite));
+                                Create Table If Not Exists WebHistory (Subject Text Not Null, WebSite Text Not Null, DateTime Text Not Null, Primary Key (Subject, WebSite, DateTime));
+                                Create Table If Not Exists DownloadHistory (UniqueID Text Not Null, ActualName Text Not Null, Uri Text Not Null, State Text Not Null, Primary Key(UniqueID));
+                                Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
+                                Create Table If Not Exists FolderLibrary (Path Text Not Null, Primary Key (Path));
+                                Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
+                                Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));
+                                Create Table If Not Exists DeviceVisibility (Path Text Not Null, IsVisible Text Not Null, Primary Key(Path));
+                                Create Table If Not Exists ProgramPickerRecord (Path Text Not Null);
+                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');
+                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');
+                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture3.jpg');
+                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture4.jpg');
+                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture5.jpg');
+                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture6.jpg');
+                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture7.jpg');
+                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture8.jpg');
+                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture9.jpg');
+                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture10.jpg');
+                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture11.jpg');
+                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture12.jpg');
+                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture13.jpg');
+                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');
+                                Delete From ProgramPickerRecord Where Path = '{NodePadPath}';
+                                Insert Into ProgramPickerRecord Values ('{NodePadPath}');";
             using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBasePoolAsync().Result)
             using (SqliteCommand CreateTable = Connection.CreateDbCommandFromConnection<SqliteCommand>(Command))
             {
@@ -5740,6 +5744,7 @@ namespace FileManager
     }
     #endregion
 
+    #region 选择应用程序项目
     public sealed class ProgramPickerItem
     {
         public BitmapImage Thumbnuil { get; private set; }
@@ -5770,4 +5775,42 @@ namespace FileManager
             }
         }
     }
+    #endregion
+
+    #region 完全信任执行过程控制器
+    public sealed class FullTrustExcutorController
+    {
+        public static async Task Run(string Path)
+        {
+            ApplicationData.Current.LocalSettings.Values["ExcutePath"] = Path;
+            ApplicationData.Current.LocalSettings.Values["ExcuteParameter"] = string.Empty;
+            ApplicationData.Current.LocalSettings.Values["ExcuteAuthority"] = "Normal";
+            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+        }
+
+        public static async Task Run(string Path, string Parameter)
+        {
+            ApplicationData.Current.LocalSettings.Values["ExcutePath"] = Path;
+            ApplicationData.Current.LocalSettings.Values["ExcuteParameter"] = Parameter;
+            ApplicationData.Current.LocalSettings.Values["ExcuteAuthority"] = "Normal";
+            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+        }
+
+        public static async Task RunAsAdministrator(string Path)
+        {
+            ApplicationData.Current.LocalSettings.Values["ExcutePath"] = Path;
+            ApplicationData.Current.LocalSettings.Values["ExcuteParameter"] = string.Empty;
+            ApplicationData.Current.LocalSettings.Values["ExcuteAuthority"] = "Administrator";
+            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+        }
+
+        public static async Task RunAsAdministrator(string Path, string Parameter)
+        {
+            ApplicationData.Current.LocalSettings.Values["ExcutePath"] = Path;
+            ApplicationData.Current.LocalSettings.Values["ExcuteParameter"] = Parameter;
+            ApplicationData.Current.LocalSettings.Values["ExcuteAuthority"] = "Administrator";
+            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+        }
+    }
+    #endregion
 }

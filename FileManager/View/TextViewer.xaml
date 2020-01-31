@@ -15,7 +15,7 @@
         <CommandBar VerticalAlignment="Stretch"
                     Name="CommandBarContorl"
                     FlowDirection="LeftToRight"
-                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}"
+                    Background="Transparent"
                     IsOpen="False"
                     DefaultLabelPosition="Right">
             <AppBarButton Icon="Save"
@@ -35,7 +35,7 @@
                    Name="Title" />
         <TextBox Name="Text"
                  Grid.Row="1"
-                 Background="{ThemeResource TextBoxDisabledBackgroundThemeBrush}"
+                 Background="Transparent"
                  AcceptsReturn="True"
                  IsSpellCheckEnabled="False" />
         <controls:Loading Name="LoadingControl"

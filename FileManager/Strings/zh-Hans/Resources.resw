@@ -1239,4 +1239,7 @@
   <data name="ProgramPickerDialogUseAsAdmin.Content" xml:space="preserve">
     <value>默认使用此应用打开该类型文件</value>
   </data>
+  <data name="RunWithSystemAuthority.Text" xml:space="preserve">
+    <value>以管理员权限打开</value>
+  </data>
 </root>

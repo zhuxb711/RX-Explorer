@@ -40,8 +40,7 @@ namespace FileManager
                 {
                     UpdateAddressButton(Folder);
 
-                    string PlaceText = string.Empty;
-
+                    string PlaceText;
                     if (Folder.DisplayName.Length > 22)
                     {
                         PlaceText = Folder.DisplayName.Substring(0, 22) + "...";
@@ -1194,16 +1193,14 @@ namespace FileManager
             if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase))
             {
                 string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\WindowsPowerShell\\v1.0\\powershell.exe");
-                ApplicationData.Current.LocalSettings.Values["ExcutePath"] = $"{ExcutePath}|-NoExit -Command \"Set-Location '{CurrentFolder.Path.Replace("\\","/")}'\"";
-                await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+                await FullTrustExcutorController.RunAsAdministrator(ExcutePath, $"-NoExit -Command \"Set-Location '{CurrentFolder.Path.Replace("\\", "/")}'\"");
                 return;
             }
 
             if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase))
             {
                 string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\cmd.exe");
-                ApplicationData.Current.LocalSettings.Values["ExcutePath"] = $"{ExcutePath}|/k cd /d {CurrentFolder.Path}";
-                await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+                await FullTrustExcutorController.RunAsAdministrator(ExcutePath, $"/k cd /d {CurrentFolder.Path}");
                 return;
             }
 
