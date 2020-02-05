@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
@@ -276,21 +275,11 @@ namespace FileManager
         {
             if (e.Parameter is StorageFolder TargetFolder)
             {
-                TreeViewNode RootNode = await Initialize(TargetFolder);
-                await DisplayItemsInFolder(RootNode);
+                string PlaceText = TargetFolder.DisplayName.Length > 18 ? TargetFolder.DisplayName.Substring(0, 18) + "..." : TargetFolder.DisplayName;
 
-                string PlaceText;
-                if (TargetFolder.DisplayName.Length > 18)
-                {
-                    PlaceText = TargetFolder.DisplayName.Substring(0, 18) + "...";
-                }
-                else
-                {
-                    PlaceText = TargetFolder.DisplayName;
-                }
-                GlobeSearch.PlaceholderText = Globalization.Language == LanguageEnum.Chinese
-                    ? "搜索 " + PlaceText
-                    : "Search " + PlaceText;
+                GlobeSearch.PlaceholderText = Globalization.Language == LanguageEnum.Chinese ? "搜索 " + PlaceText : "Search " + PlaceText;
+
+                await Initialize(TargetFolder);
             }
         }
 
@@ -332,7 +321,7 @@ namespace FileManager
         /// <summary>
         /// 执行文件目录的初始化
         /// </summary>
-        private async Task<TreeViewNode> Initialize(StorageFolder InitFolder)
+        private async Task Initialize(StorageFolder InitFolder)
         {
             if (InitFolder != null)
             {
@@ -353,13 +342,18 @@ namespace FileManager
                 FolderExpandCancel = new CancellationTokenSource();
                 ExitLocker = new ManualResetEvent(true);
 
+                #region 临时解决方案
+                CurrentNode = RootNode;
                 await FillTreeNode(RootNode);
+                await DisplayItemsInFolder(RootNode,true);
+                #endregion
 
-                return RootNode;
-            }
-            else
-            {
-                return null;
+                #region TreeView展开时选中子节点的BUG修复后启用
+                //Task DisplayLeftTask = FillTreeNode(RootNode);
+                //Task DisplayRightTask = DisplayItemsInFolder(RootNode);
+
+                //await Task.WhenAll(DisplayLeftTask, DisplayRightTask);
+                #endregion
             }
         }
 
@@ -448,7 +442,7 @@ namespace FileManager
             await DisplayItemsInFolder(args.InvokedItem as TreeViewNode);
         }
 
-        public async Task DisplayItemsInFolder(TreeViewNode Node, bool ForceRefresh = false)
+        public async Task DisplayItemsInFolder(TreeViewNode Node, bool ForceRefresh = false, KeyValuePair<string, bool>[] OrderByProperty = null)
         {
             /*
              * 同一文件夹内可能存在大量文件
@@ -501,9 +495,8 @@ namespace FileManager
                     }
 
                     CurrentNode = Node;
-                    await FolderTree.SelectNode(CurrentNode);
+                    await FolderTree.SelectNode(Node);
 
-                    //当处于USB其他附加功能的页面时，若点击文件目录则自动执行返回导航
                     if (Nav.CurrentSourcePageType.Name != "FilePresenter")
                     {
                         Nav.GoBack();
@@ -517,8 +510,25 @@ namespace FileManager
                         IndexerOption = IndexerOption.UseIndexerWhenAvailable,
                     };
 
+                    if (OrderByProperty != null)
+                    {
+                        Options.SortOrder.Clear();
+                        foreach (var Pair in OrderByProperty)
+                        {
+                            Options.SortOrder.Add(new SortEntry { PropertyName = Pair.Key, AscendingOrder = Pair.Value });
+                        }
+                    }
+                    else
+                    {
+                        Options.SortOrder.Clear();
+                        Options.SortOrder.Add(new SortEntry { PropertyName = "System.ItemNameDisplay", AscendingOrder = true });
+                        FilePresenter.ThisPage.SortMap["System.ItemNameDisplay"] = true;
+                        FilePresenter.ThisPage.SortMap["System.Size"] = true;
+                        FilePresenter.ThisPage.SortMap["System.DateModified"] = true;
+                    }
+
                     Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.ResizeThumbnail);
-                    Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.FileName", "System.Size", "System.DateModified" });
+                    Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.ItemNameDisplay", "System.Size", "System.DateModified" });
 
                     StorageItemQueryResult ItemQuery = folder.CreateItemQueryWithOptions(Options);
 
@@ -551,7 +561,8 @@ namespace FileManager
                             if (ToDeleteFolderName != Item.Name)
                             {
                                 var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                                FilePresenter.ThisPage.FileCollection.Add(new FileSystemStorageItem(FileList[i], string.Empty, Thumbnail, string.Empty));
+                                var ModifiedTime = await Item.GetModifiedTimeAsync();
+                                FilePresenter.ThisPage.FileCollection.Add(new FileSystemStorageItem(FileList[i], string.Empty, Thumbnail, ModifiedTime));
                             }
                             else
                             {
@@ -1593,7 +1604,7 @@ namespace FileManager
                     }
                 case 1:
                     {
-                        FilePresenter.ThisPage.ListViewControl.HeaderTemplate = FilePresenter.ThisPage.ListHeaderDataTemplate;
+                        FilePresenter.ThisPage.ListHeader.ContentTemplate = FilePresenter.ThisPage.ListHeaderDataTemplate;
                         FilePresenter.ThisPage.ListViewControl.ItemTemplate = FilePresenter.ThisPage.ListViewDetailDataTemplate;
                         FilePresenter.ThisPage.ListViewControl.ItemsSource = FilePresenter.ThisPage.FileCollection;
 
@@ -1606,7 +1617,7 @@ namespace FileManager
 
                 case 2:
                     {
-                        FilePresenter.ThisPage.ListViewControl.HeaderTemplate = null;
+                        FilePresenter.ThisPage.ListHeader.ContentTemplate = null;
                         FilePresenter.ThisPage.ListViewControl.ItemTemplate = FilePresenter.ThisPage.ListViewSimpleDataTemplate;
                         FilePresenter.ThisPage.ListViewControl.ItemsSource = FilePresenter.ThisPage.FileCollection;
 

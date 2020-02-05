@@ -459,8 +459,7 @@
                                         <StackPanel Orientation="Horizontal">
                                             <ToggleButton Background="Transparent"
                                                           x:Name="FeedBackLike"
-                                                          Checked="FeedBackLike_Checked"
-                                                          Unchecked="FeedBackLike_Unchecked">
+                                                          IsChecked="{x:Bind IsLike,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="18">
                                                         <SymbolIcon Symbol="Like" />
@@ -473,9 +472,8 @@
                                             </ToggleButton>
                                             <ToggleButton Background="Transparent"
                                                           Name="FeedDislike"
-                                                          Checked="FeedDislike_Checked"
-                                                          Unchecked="FeedDislike_Unchecked"
-                                                          Margin="10,0,0,0">
+                                                          Margin="10,0,0,0"
+                                                          IsChecked="{x:Bind IsDislike,Mode=TwoWay}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Viewbox Height="18">
                                                         <SymbolIcon Symbol="Dislike" />

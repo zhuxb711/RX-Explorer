@@ -293,6 +293,31 @@ namespace FileManager
                             GoBack();
                             return;
                         }
+                        catch(NotSignInException)
+                        {
+                            if (Globalization.Language == LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog ErrorDialog = new QueueContentDialog
+                                {
+                                    Title = "提示",
+                                    Content = "由于未将当前用户登录至微软商店，因此无法检查许可证状态",
+                                    CloseButtonText = "返回"
+                                };
+                                _ = await ErrorDialog.ShowAsync();
+                            }
+                            else
+                            {
+                                QueueContentDialog ErrorDialog = new QueueContentDialog
+                                {
+                                    Title = "Tips",
+                                    Content = "Unable to check license status because current user is not signed in to the Microsoft Store",
+                                    CloseButtonText = "Back"
+                                };
+                                _ = await ErrorDialog.ShowAsync();
+                            }
+                            GoBack();
+                            return;
+                        }
                         finally
                         {
                             await Task.Delay(500);
@@ -341,6 +366,10 @@ namespace FileManager
             if (PurchasedProductResult.ExtendedError == null)
             {
                 return PurchasedProductResult.Products.Count > 0;
+            }
+            else if (PurchasedProductResult.ExtendedError.HResult == unchecked((int)0x80070525) || PurchasedProductResult.ExtendedError.Message.Contains("ERROR_NO_SUCH_USER"))
+            {
+                throw new NotSignInException("Not Sign In");
             }
             else
             {

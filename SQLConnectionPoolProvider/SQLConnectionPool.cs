@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
@@ -46,12 +47,13 @@ namespace SQLConnectionPoolProvider
         /// <param name="CommandText">SQL命令</param>
         /// <returns>SQL命令对象</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "<挂起>")]
-        public T CreateDbCommandFromConnection<T>(string CommandText) where T : DbCommand, new()
+        public T CreateDbCommandFromConnection<T>(string CommandText, CommandType Type = CommandType.Text) where T : DbCommand, new()
         {
             T Command = new T
             {
                 Connection = InnerConnection,
-                CommandText = CommandText
+                CommandText = CommandText,
+                CommandType = Type
             };
 
             return Command;

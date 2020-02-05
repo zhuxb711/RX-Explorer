@@ -344,35 +344,68 @@
 
         <DataTemplate x:Name="ListHeaderDataTemplate"
                       x:FieldModifier="public">
-            <Grid Height="25">
+            <Grid Height="35">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="5*" />
                     <ColumnDefinition Width="3*" />
                     <ColumnDefinition Width="1.5*" />
                     <ColumnDefinition Width="1.5*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="名称"
-                           FontSize="14"
-                           x:Uid="SearchName"
-                           Margin="13,0,0,0"
-                           TextTrimming="CharacterEllipsis"
-                           Grid.Column="0" />
-                <TextBlock Text="修改日期"
-                           FontSize="14"
-                           x:Uid="SearchModified"
-                           Margin="2,0,0,0"
-                           TextTrimming="CharacterEllipsis"
-                           Grid.Column="1" />
-                <TextBlock Text="类型"
-                           FontSize="14"
-                           x:Uid="SearchType"
-                           TextTrimming="CharacterEllipsis"
-                           Grid.Column="2" />
-                <TextBlock Text="大小"
-                           FontSize="14"
-                           x:Uid="SearchSize"
-                           TextTrimming="CharacterEllipsis"
-                           Grid.Column="3" />
+                <Button HorizontalContentAlignment="Left"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Grid.Column="0"
+                        x:Name="ListHeaderName"
+                        Click="ListHeaderName_Click"
+                        Margin="0,0,9,0"
+                        Style="{ThemeResource ButtonRevealStyle}">
+                    <TextBlock Text="名称"
+                               FontSize="14"
+                               x:Uid="SearchName"
+                               VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" />
+                </Button>
+                <Button HorizontalContentAlignment="Left"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Grid.Column="1"
+                        Name="ListHeaderModifiedTime"
+                        Click="ListHeaderModifiedTime_Click"
+                        Margin="-9,0,9,0"
+                        Style="{ThemeResource ButtonRevealStyle}">
+                    <TextBlock Text="修改日期"
+                               FontSize="14"
+                               x:Uid="SearchModified"
+                               VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"/>
+                </Button>
+                <Button Grid.Column="2"
+                        HorizontalContentAlignment="Left"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Name="ListHeaderType"
+                        Margin="-9,0,9,0"
+                        Style="{ThemeResource ButtonRevealStyle}">
+                    <TextBlock Text="类型"
+                               FontSize="14"
+                               x:Uid="SearchType"
+                               VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" />
+                </Button>
+                <Button HorizontalContentAlignment="Left"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Name="ListHeaderSize"
+                        Grid.Column="3"
+                        Click="ListHeaderSize_Click"
+                        Margin="-9,0,0,0"
+                        Style="{ThemeResource ButtonRevealStyle}">
+                    <TextBlock Text="大小"
+                               FontSize="14"
+                               x:Uid="SearchSize"
+                               VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"/>
+                </Button>
             </Grid>
         </DataTemplate>
 
@@ -450,6 +483,7 @@
         </Grid.Transitions>
         <ListView Background="Transparent"
                   x:Name="ListViewControl"
+                  IsSwipeEnabled="True"
                   Margin="5,0,0,0"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
@@ -469,10 +503,16 @@
                   IncrementalLoadingTrigger="Edge"
                   Visibility="Collapsed"
                   DataFetchSize="2">
+            <ListView.Header>
+                <controls:ScrollHeader Mode="Sticky"
+                                       Name="ListHeader"
+                                       x:FieldModifier="public"/>
+            </ListView.Header>
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment"
-                            Value="Stretch"></Setter>
+                            Value="Stretch">
+                    </Setter>
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemContainerTransitions>

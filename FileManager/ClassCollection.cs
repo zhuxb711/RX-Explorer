@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
@@ -771,7 +772,7 @@ namespace FileManager
         private MySQL()
         {
             ConnectionLocker = new AutoResetEvent(true);
-            ConnectionPool = new SQLConnectionPool<MySqlConnection>("Data Source=zhuxb711.rdsmt2onuvpvh1v.rds.gz.baidubce.com;port=3306;CharSet=utf8;User id=zhuxb711;password=password123;Database=FeedBackDataBase;", 4, 2);
+            ConnectionPool = new SQLConnectionPool<MySqlConnection>("Data Source=zhuxb711.rdsmt2onuvpvh1v.rds.gz.baidubce.com;port=3306;CharSet=utf8;User id=zhuxb711;password=password123;Database=FeedBackDataBase;", 4, 1);
         }
 
         /// <summary>
@@ -786,15 +787,73 @@ namespace FileManager
 
                 SQLConnection Connection = ConnectionPool.GetConnectionFromDataBasePoolAsync().Result;
 
-                if (Connection.IsConnected)
-                {
-                    const string CommandText = @"Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);
-                                                 Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null)";
-                    using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>(CommandText))
-                    {
-                        _ = Command.ExecuteNonQuery();
-                    }
-                }
+                #region MySQL数据库存储过程和触发器初始化代码，仅首次运行时需要
+                //if (Connection.IsConnected)
+                //{
+                //    StringBuilder Builder = new StringBuilder();
+                //    Builder.AppendLine("Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);")
+                //           .AppendLine("Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null);")
+
+                //           .AppendLine("Drop Trigger RemoveVoteRecordTrigger;")
+                //           .AppendLine("Create Trigger RemoveVoteRecordTrigger After Delete On FeedBackTable For Each Row Delete From VoteRecordTable Where GUID=old.GUID;")
+
+                //           .AppendLine("Drop Procedure If Exists GetFeedBackProcedure;")
+                //           .AppendLine("Create Procedure GetFeedBackProcedure(IN Para Text)")
+                //           .AppendLine("Begin")
+                //           .AppendLine("Declare EndSignal int Default 0;")
+                //           .AppendLine("Declare P1 Text;")
+                //           .AppendLine("Declare P2 Text;")
+                //           .AppendLine("Declare P3 Text;")
+                //           .AppendLine("Declare P4 Text;")
+                //           .AppendLine("Declare P5 Text;")
+                //           .AppendLine("Declare P6 Text;")
+                //           .AppendLine("Declare P7 Text;")
+                //           .AppendLine("Declare P8 Text;")
+                //           .AppendLine("Declare RowData Cursor For Select * From FeedBackTable;")
+                //           .AppendLine("Declare Continue Handler For Not Found Set EndSignal=1;")
+                //           .AppendLine("Drop Table If Exists DataTemporary;")
+                //           .AppendLine("Create Temporary Table DataTemporary (UserName Text, Title Text, Suggestion Text, LikeNum Text, DislikeNum Text, UserID Text, GUID Text, Behavior Text);")
+                //           .AppendLine("Open RowData;")
+                //           .AppendLine("Fetch RowData Into P1,P2,P3,P4,P5,P6,P7;")
+                //           .AppendLine("While EndSignal<>1 Do")
+                //           .AppendLine("If (Select Count(*) From VoteRecordTable Where UserID=Para And GUID=P7) <> 0")
+                //           .AppendLine("Then")
+                //           .AppendLine("Select Behavior Into P8 From VoteRecordTable Where UserID=Para And GUID=P7;")
+                //           .AppendLine("Else")
+                //           .AppendLine("Set P8 = 'NULL';")
+                //           .AppendLine("End If;")
+                //           .AppendLine("Insert Into DataTemporary Values (P1,P2,P3,P4,P5,P6,P7,P8);")
+                //           .AppendLine("Fetch RowData Into P1,P2,P3,P4,P5,P6,P7;")
+                //           .AppendLine("End While;")
+                //           .AppendLine("Close RowData;")
+                //           .AppendLine("Select * From DataTemporary;")
+                //           .AppendLine("End;")
+
+                //           .AppendLine("Drop Procedure If Exists UpdateFeedBackVoteProcedure;")
+                //           .AppendLine("Create Procedure UpdateFeedBackVoteProcedure(IN LNum Text,IN DNum Text,IN UID Text,IN GID Text,IN Beh Text)")
+                //           .AppendLine("Begin")
+                //           .AppendLine("Update FeedBackTable Set LikeNum=LNum, DislikeNum=DNum Where GUID=GID;")
+                //           .AppendLine("If (Select Count(*) From VoteRecordTable Where UserID=UID And GUID=GID) <> 0")
+                //           .AppendLine("Then")
+                //           .AppendLine("If Beh <> '='")
+                //           .AppendLine("Then")
+                //           .AppendLine("Update VoteRecordTable Set Behavior=Beh Where UserID=UID And GUID=GID;")
+                //           .AppendLine("Else")
+                //           .AppendLine("Delete From VoteRecordTable Where UserID=UID And GUID=GID;")
+                //           .AppendLine("End If;")
+                //           .AppendLine("Else")
+                //           .AppendLine("If Beh <> '='")
+                //           .AppendLine("Then")
+                //           .AppendLine("Insert Into VoteRecordTable Values (UID,GID,Beh);")
+                //           .AppendLine("End If;")
+                //           .AppendLine("End If;")
+                //           .AppendLine("End;");
+                //    using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>(Builder.ToString()))
+                //    {
+                //        _ = Command.ExecuteNonQuery();
+                //    }
+                //}
+                #endregion
 
                 ConnectionLocker.Set();
 
@@ -812,29 +871,23 @@ namespace FileManager
             {
                 if (Connection.IsConnected)
                 {
-                    using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Select * From FeedBackTable"))
-                    using (DbDataReader Reader = await Command.ExecuteReaderAsync())
+                    using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("GetFeedBackProcedure", CommandType.StoredProcedure))
                     {
-                        var CurrentLanguage = Globalization.Language;
-                        while (await Reader.ReadAsync())
+                        _ = Command.Parameters.AddWithValue("Para", SettingPage.ThisPage.UserID);
+                        using (DbDataReader Reader = await Command.ExecuteReaderAsync())
                         {
-                            string TitleTranslation = await Reader["Title"].ToString().TranslateToAsync(CurrentLanguage);
-                            string SuggestionTranslation = await Reader["Suggestion"].ToString().TranslateToAsync(CurrentLanguage);
-
-                            using (SQLConnection Connection1 = await GetConnectionFromPoolAsync())
-                            using (MySqlCommand Command1 = Connection1.CreateDbCommandFromConnection<MySqlCommand>("Select Behavior From VoteRecordTable Where UserID=@UserID And GUID=@GUID"))
+                            while (await Reader.ReadAsync())
                             {
-                                _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                                _ = Command1.Parameters.AddWithValue("@GUID", Reader["GUID"].ToString());
+                                string TitleTranslation = await Reader["Title"].ToString().TranslateToAsync(Globalization.Language);
+                                string SuggestionTranslation = await Reader["Suggestion"].ToString().TranslateToAsync(Globalization.Language);
 
-                                string Behaivor = Convert.ToString(Command1.ExecuteScalar());
-                                if (!string.IsNullOrEmpty(Behaivor))
+                                if (Reader["Behavior"].ToString() != "NULL")
                                 {
-                                    yield return new FeedBackItem(CurrentLanguage == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString().TranslateToPinyinOrStayInEnglish(), string.IsNullOrEmpty(TitleTranslation) ? Reader["Title"].ToString() : TitleTranslation, string.IsNullOrEmpty(SuggestionTranslation) ? Reader["Suggestion"].ToString() : SuggestionTranslation, Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString(), Behaivor);
+                                    yield return new FeedBackItem(Globalization.Language == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString().TranslateToPinyinOrStayInEnglish(), string.IsNullOrEmpty(TitleTranslation) ? Reader["Title"].ToString() : TitleTranslation, string.IsNullOrEmpty(SuggestionTranslation) ? Reader["Suggestion"].ToString() : SuggestionTranslation, Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString(), Reader["Behavior"].ToString());
                                 }
                                 else
                                 {
-                                    yield return new FeedBackItem(CurrentLanguage == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString().TranslateToPinyinOrStayInEnglish(), string.IsNullOrEmpty(TitleTranslation) ? Reader["Title"].ToString() : TitleTranslation, string.IsNullOrEmpty(SuggestionTranslation) ? Reader["Suggestion"].ToString() : SuggestionTranslation, Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString());
+                                    yield return new FeedBackItem(Globalization.Language == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString().TranslateToPinyinOrStayInEnglish(), string.IsNullOrEmpty(TitleTranslation) ? Reader["Title"].ToString() : TitleTranslation, string.IsNullOrEmpty(SuggestionTranslation) ? Reader["Suggestion"].ToString() : SuggestionTranslation, Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString());
                                 }
                             }
                         }
@@ -860,53 +913,14 @@ namespace FileManager
                 {
                     try
                     {
-                        using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Update FeedBackTable Set LikeNum=@LikeNum, DislikeNum=@DislikeNum Where GUID=@GUID"))
+                        using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("UpdateFeedBackVoteProcedure", CommandType.StoredProcedure))
                         {
-                            _ = Command.Parameters.AddWithValue("@LikeNum", Item.LikeNum);
-                            _ = Command.Parameters.AddWithValue("@DislikeNum", Item.DislikeNum);
-                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                            _ = Command.ExecuteNonQuery();
-                        }
-
-                        using (MySqlCommand Command1 = Connection.CreateDbCommandFromConnection<MySqlCommand>("Select count(*) From VoteRecordTable Where UserID=@UserID And GUID=@GUID"))
-                        {
-                            _ = Command1.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                            _ = Command1.Parameters.AddWithValue("@GUID", Item.GUID);
-                            if (Convert.ToInt16(Command1.ExecuteScalar()) == 0)
-                            {
-                                if (Item.UserVoteAction != "=")
-                                {
-                                    using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Insert Into VoteRecordTable Values (@UserID,@GUID,@Behaivor)"))
-                                    {
-                                        _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                        _ = Command.Parameters.AddWithValue("@Behaivor", Item.UserVoteAction);
-                                        _ = Command.ExecuteNonQuery();
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (Item.UserVoteAction != "=")
-                                {
-                                    using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Update VoteRecordTable Set Behavior=@Behaivor Where UserID=@UserID And GUID=@GUID"))
-                                    {
-                                        _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                        _ = Command.Parameters.AddWithValue("@Behaivor", Item.UserVoteAction);
-                                        _ = Command.ExecuteNonQuery();
-                                    }
-                                }
-                                else
-                                {
-                                    using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Delete From VoteRecordTable Where UserID=@UserID And GUID=@GUID"))
-                                    {
-                                        _ = Command.Parameters.AddWithValue("@UserID", SettingPage.ThisPage.UserID);
-                                        _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                        _ = Command.ExecuteNonQuery();
-                                    }
-                                }
-                            }
+                            _ = Command.Parameters.AddWithValue("LNum", Item.LikeNum);
+                            _ = Command.Parameters.AddWithValue("DNum", Item.DislikeNum);
+                            _ = Command.Parameters.AddWithValue("Beh", Item.UserVoteAction);
+                            _ = Command.Parameters.AddWithValue("GID", Item.GUID);
+                            _ = Command.Parameters.AddWithValue("UID", SettingPage.ThisPage.UserID);
+                            _ = await Command.ExecuteNonQueryAsync();
                         }
                         return true;
                     }
@@ -1543,7 +1557,7 @@ namespace FileManager
     }
     #endregion
 
-    #region 文件系统StorageFile类
+    #region 文件系统对象
     /// <summary>
     /// 文件对象内容的枚举
     /// </summary>
@@ -2499,7 +2513,7 @@ namespace FileManager
         public static async Task<string> GetModifiedTimeAsync(this IStorageItem Item)
         {
             var Properties = await Item.GetBasicPropertiesAsync();
-            return $"{Properties.DateModified.Year}年{Properties.DateModified.Month}月{Properties.DateModified.Day}日, {(Properties.DateModified.Hour < 10 ? "0" + Properties.DateModified.Hour : Properties.DateModified.Hour.ToString())}:{(Properties.DateModified.Minute < 10 ? "0" + Properties.DateModified.Minute : Properties.DateModified.Minute.ToString())}:{(Properties.DateModified.Second < 10 ? "0" + Properties.DateModified.Second : Properties.DateModified.Second.ToString())}";
+            return Properties.DateModified.ToString("F");
         }
 
         /// <summary>
@@ -3982,7 +3996,95 @@ namespace FileManager
         /// <summary>
         /// 记录当前用户的操作
         /// </summary>
-        public string UserVoteAction { get; set; }
+        public string UserVoteAction
+        {
+            get
+            {
+                return userVoteAction;
+            }
+            set
+            {
+                switch (value)
+                {
+                    case "=":
+                        {
+                            isLike = false;
+                            isDislike = false;
+                            break;
+                        }
+                    case "+":
+                        {
+                            isLike = true;
+                            isDislike = false;
+                            break;
+                        }
+                    case "-":
+                        {
+                            isLike = false;
+                            isDislike = true;
+                            break;
+                        }
+                }
+                userVoteAction = value;
+            }
+        }
+
+        public bool? IsLike
+        {
+            get
+            {
+                return isLike;
+            }
+            set
+            {
+                if (value != isLike)
+                {
+                    if (value.GetValueOrDefault())
+                    {
+                        isLike = true;
+                        isDislike = false;
+                        UpdateSupportInfo(FeedBackUpdateType.AddLike);
+                    }
+                    else
+                    {
+                        isLike = false;
+                        isDislike = false;
+                        UpdateSupportInfo(FeedBackUpdateType.DelLike);
+                    }
+                }
+            }
+        }
+
+        public bool? IsDislike
+        {
+            get
+            {
+                return isDislike;
+            }
+            set
+            {
+                if (value != isDislike)
+                {
+                    if (value.GetValueOrDefault())
+                    {
+                        isLike = false;
+                        isDislike = true;
+                        UpdateSupportInfo(FeedBackUpdateType.AddDislike);
+                    }
+                    else
+                    {
+                        isLike = false;
+                        isDislike = false;
+                        UpdateSupportInfo(FeedBackUpdateType.DelDislike);
+                    }
+                }
+            }
+        }
+
+        private string userVoteAction;
+        private bool? isLike;
+        private bool? isDislike;
+        private static AutoResetEvent Locker = new AutoResetEvent(true);
 
         /// <summary>
         /// 初始化FeedBackItem
@@ -4019,45 +4121,89 @@ namespace FileManager
         /// 更新支持或反对的信息
         /// </summary>
         /// <param name="Type">更新类型</param>
-        /// <param name="IsAdding">点击还是取消</param>
-        public void UpdateSupportInfo(FeedBackUpdateType Type, bool IsAdding)
+        private async void UpdateSupportInfo(FeedBackUpdateType Type)
         {
-            if (Type == FeedBackUpdateType.Like)
+            switch (Type)
             {
-                if (IsAdding)
-                {
-                    LikeNum = (Convert.ToInt16(LikeNum) + 1).ToString();
-                    UserVoteAction = "+";
-                }
-                else
-                {
-                    LikeNum = (Convert.ToInt16(LikeNum) - 1).ToString();
-                    UserVoteAction = "=";
-                }
+                case FeedBackUpdateType.AddLike:
+                    {
+                        if (UserVoteAction == "-")
+                        {
+                            DislikeNum = (Convert.ToInt16(DislikeNum) - 1).ToString();
+                        }
 
-                SupportDescription = Globalization.Language == LanguageEnum.Chinese
-                    ? $"({LikeNum} 人支持 , {DislikeNum} 人反对)"
-                    : $"({LikeNum} people agree , {DislikeNum} people against)";
-            }
-            else
-            {
-                if (IsAdding)
-                {
-                    DislikeNum = (Convert.ToInt16(DislikeNum) + 1).ToString();
-                    UserVoteAction = "-";
-                }
-                else
-                {
-                    DislikeNum = (Convert.ToInt16(DislikeNum) - 1).ToString();
-                    UserVoteAction = "=";
-                }
+                        LikeNum = (Convert.ToInt16(LikeNum) + 1).ToString();
+                        UserVoteAction = "+";
+                        break;
+                    }
+                case FeedBackUpdateType.DelLike:
+                    {
+                        LikeNum = (Convert.ToInt16(LikeNum) - 1).ToString();
+                        UserVoteAction = "=";
+                        break;
+                    }
+                case FeedBackUpdateType.AddDislike:
+                    {
+                        if (UserVoteAction == "+")
+                        {
+                            LikeNum = (Convert.ToInt16(LikeNum) - 1).ToString();
+                        }
 
-                SupportDescription = Globalization.Language == LanguageEnum.Chinese
-                    ? $"({LikeNum} 人支持 , {DislikeNum} 人反对)"
-                    : $"({LikeNum} people agree , {DislikeNum} people against)";
+                        DislikeNum = (Convert.ToInt16(DislikeNum) + 1).ToString();
+                        UserVoteAction = "-";
+                        break;
+                    }
+                case FeedBackUpdateType.DelDislike:
+                    {
+                        DislikeNum = (Convert.ToInt16(DislikeNum) - 1).ToString();
+                        UserVoteAction = "=";
+                        break;
+                    }
             }
+
+            SupportDescription = Globalization.Language == LanguageEnum.Chinese
+                                 ? $"({LikeNum} 人支持 , {DislikeNum} 人反对)"
+                                 : $"({LikeNum} people agree , {DislikeNum} people against)";
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SupportDescription)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLike)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsDislike)));
+
+            await Task.Run(() =>
+            {
+                Locker.WaitOne();
+            });
+
+            try
+            {
+                if (!await MySQL.Current.UpdateFeedBackVoteAsync(this))
+                {
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "因网络原因无法进行此项操作",
+                            CloseButtonText = "确定"
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "This operation cannot be performed due to network reasons",
+                            CloseButtonText = "Got it"
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                }
+            }
+            finally
+            {
+                Locker.Set();
+            }
         }
 
         /// <summary>
@@ -4082,13 +4228,21 @@ namespace FileManager
     public enum FeedBackUpdateType
     {
         /// <summary>
-        /// 支持
+        /// 新增支持
         /// </summary>
-        Like = 0,
+        AddLike = 0,
         /// <summary>
-        /// 反对
+        /// 删除支持
         /// </summary>
-        Dislike = 1
+        DelLike = 1,
+        /// <summary>
+        /// 新增反对
+        /// </summary>
+        AddDislike = 2,
+        /// <summary>
+        /// 删除反对
+        /// </summary>
+        DelDislike = 4
     }
     #endregion
 
@@ -4158,6 +4312,19 @@ namespace FileManager
         }
 
         public NetworkException() : base()
+        {
+
+        }
+    }
+
+    public sealed class NotSignInException : Exception
+    {
+        public NotSignInException(string ErrorMessage) : base(ErrorMessage)
+        {
+
+        }
+
+        public NotSignInException() : base()
         {
 
         }
@@ -5745,20 +5912,49 @@ namespace FileManager
     #endregion
 
     #region 选择应用程序项目
+    /// <summary>
+    /// 提供对显示应用项目的支持
+    /// </summary>
     public sealed class ProgramPickerItem
     {
+        /// <summary>
+        /// 应用缩略图
+        /// </summary>
         public BitmapImage Thumbnuil { get; private set; }
 
+        /// <summary>
+        /// 应用描述
+        /// </summary>
         public string Description { get; private set; }
 
+        /// <summary>
+        /// 应用名称
+        /// </summary>
         public string Name { get; private set; }
 
+        /// <summary>
+        /// 应用包名称
+        /// </summary>
         public string PackageName { get; private set; }
 
+        /// <summary>
+        /// 应用可执行程序路径
+        /// </summary>
         public string Path { get; private set; }
 
+        /// <summary>
+        /// 是否是用户自定义应用
+        /// </summary>
         public bool IsCustomApp { get; private set; } = false;
 
+        /// <summary>
+        /// 初始化ProgramPickerItem实例
+        /// </summary>
+        /// <param name="Thumbnuil">应用缩略图</param>
+        /// <param name="Name">应用名称</param>
+        /// <param name="Description">应用描述</param>
+        /// <param name="PackageName">应用包名称</param>
+        /// <param name="Path">应用可执行文件路径</param>
         public ProgramPickerItem(BitmapImage Thumbnuil, string Name, string Description, string PackageName = null, string Path = null)
         {
             this.Thumbnuil = Thumbnuil;
@@ -5778,8 +5974,16 @@ namespace FileManager
     #endregion
 
     #region 完全信任执行过程控制器
+    /// <summary>
+    /// 用于启动具备完全权限的附加程序的控制器
+    /// </summary>
     public sealed class FullTrustExcutorController
     {
+        /// <summary>
+        /// 启动指定路径的程序
+        /// </summary>
+        /// <param name="Path">程序路径</param>
+        /// <returns></returns>
         public static async Task Run(string Path)
         {
             ApplicationData.Current.LocalSettings.Values["ExcutePath"] = Path;
@@ -5788,6 +5992,12 @@ namespace FileManager
             await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
         }
 
+        /// <summary>
+        /// 启动指定路径的程序，并传递指定的参数
+        /// </summary>
+        /// <param name="Path">程序路径</param>
+        /// <param name="Parameter">传递的参数</param>
+        /// <returns></returns>
         public static async Task Run(string Path, string Parameter)
         {
             ApplicationData.Current.LocalSettings.Values["ExcutePath"] = Path;
@@ -5796,6 +6006,11 @@ namespace FileManager
             await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
         }
 
+        /// <summary>
+        /// 使用管理员权限启动指定路径的程序
+        /// </summary>
+        /// <param name="Path">程序路径</param>
+        /// <returns></returns>
         public static async Task RunAsAdministrator(string Path)
         {
             ApplicationData.Current.LocalSettings.Values["ExcutePath"] = Path;
@@ -5804,6 +6019,12 @@ namespace FileManager
             await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
         }
 
+        /// <summary>
+        /// 使用管理员权限启动指定路径的程序，并传递指定的参数
+        /// </summary>
+        /// <param name="Path">程序路径</param>
+        /// <param name="Parameter">传递的参数</param>
+        /// <returns></returns>
         public static async Task RunAsAdministrator(string Path, string Parameter)
         {
             ApplicationData.Current.LocalSettings.Values["ExcutePath"] = Path;

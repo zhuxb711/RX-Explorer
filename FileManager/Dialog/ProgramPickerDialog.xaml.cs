@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using Windows.ApplicationModel;
 using Windows.Storage;
@@ -238,7 +237,14 @@ namespace FileManager
                     }
                     else
                     {
-                        OpenFailed = !await Launcher.LaunchFileAsync(OpenFile, new LauncherOptions { TargetApplicationPackageFamilyName = CurrentItem.PackageName, DisplayApplicationPicker = false });
+                        if (!await Launcher.LaunchFileAsync(OpenFile, new LauncherOptions { TargetApplicationPackageFamilyName = CurrentItem.PackageName, DisplayApplicationPicker = false }))
+                        {
+                            OpenFailed = true;
+                            if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute)
+                            {
+                                ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = ProgramExcute.Replace($"{OpenFile.FileType}|{CurrentItem.Name};", string.Empty);
+                            }
+                        }
                     }
                 }
             }
@@ -276,7 +282,14 @@ namespace FileManager
                     }
                     else
                     {
-                        OpenFailed = !await Launcher.LaunchFileAsync(OpenFile, new LauncherOptions { TargetApplicationPackageFamilyName = OtherItem.PackageName, DisplayApplicationPicker = false });
+                        if(!await Launcher.LaunchFileAsync(OpenFile, new LauncherOptions { TargetApplicationPackageFamilyName = OtherItem.PackageName, DisplayApplicationPicker = false }))
+                        {
+                            OpenFailed = true;
+                            if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute)
+                            {
+                                ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = ProgramExcute.Replace($"{OpenFile.FileType}|{OtherItem.Name};", string.Empty);
+                            }
+                        }
                     }
                 }
             }

@@ -15,11 +15,13 @@
     <Grid>
         <StackPanel>
             <TextBox Header="标题"
+                     IsSpellCheckEnabled="False"
                      x:Uid="FeedBackDialogTitle"
                      Text="{x:Bind TitleName,Mode=TwoWay}"
                      PlaceholderText="请输入标题"
                      Name="TitleBox"/>
             <TextBox Header="建议反馈"
+                     IsSpellCheckEnabled="False"
                      x:Uid="FeedBackDialogContent"
                      PlaceholderText="请输入正文"
                      Margin="0,10,0,0"

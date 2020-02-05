@@ -11,7 +11,6 @@ using Windows.System;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
@@ -129,90 +128,41 @@ namespace FileManager
         {
             Loaded -= SettingPage_Loaded;
 
+            FeedBackCollection = new ObservableCollection<FeedBackItem>();
+            FeedBackCollection.CollectionChanged += (s, t) =>
+            {
+                if (FeedBackCollection.Count == 0)
+                {
+                    EmptyFeedBack.Text = Globalization.Language == LanguageEnum.Chinese ? "无任何反馈或建议" : "No feedback or suggestions";
+                    EmptyFeedBack.Visibility = Visibility.Visible;
+                    FeedBackList.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    EmptyFeedBack.Visibility = Visibility.Collapsed;
+                    FeedBackList.Visibility = Visibility.Visible;
+                }
+            };
+            FeedBackList.ItemsSource = FeedBackCollection;
+
             try
             {
-                FeedBackCollection = new ObservableCollection<FeedBackItem>();
-                FeedBackCollection.CollectionChanged += (s, t) =>
-                {
-                    if (FeedBackCollection.Count == 0)
-                    {
-                        EmptyFeedBack.Text = Globalization.Language == LanguageEnum.Chinese ? "无任何反馈或建议" : "No feedback or suggestions";
-                        EmptyFeedBack.Visibility = Visibility.Visible;
-                        FeedBackList.Visibility = Visibility.Collapsed;
-                    }
-                    else
-                    {
-                        EmptyFeedBack.Visibility = Visibility.Collapsed;
-                        FeedBackList.Visibility = Visibility.Visible;
-                    }
-                };
-                FeedBackList.ItemsSource = FeedBackCollection;
-
-                await foreach (var FeedBackItem in MySQL.Current.GetAllFeedBackAsync())
+                await foreach (FeedBackItem FeedBackItem in MySQL.Current.GetAllFeedBackAsync())
                 {
                     FeedBackCollection.Add(FeedBackItem);
-
-                    switch (FeedBackItem.UserVoteAction)
-                    {
-                        case "+":
-                            {
-                                while (true)
-                                {
-                                    if (FeedBackList.ContainerFromItem(FeedBackItem) is ListViewItem ListItem)
-                                    {
-                                        ToggleButton Button = ListItem.FindChildOfName<ToggleButton>("FeedBackLike");
-                                        if (!Button.IsChecked.GetValueOrDefault())
-                                        {
-                                            Button.Checked -= FeedBackLike_Checked;
-                                            Button.IsChecked = true;
-                                            Button.Checked += FeedBackLike_Checked;
-                                        }
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        await Task.Delay(200);
-                                    }
-                                }
-                                break;
-                            }
-                        case "-":
-                            {
-                                while (true)
-                                {
-                                    if (FeedBackList.ContainerFromItem(FeedBackItem) is ListViewItem ListItem)
-                                    {
-                                        ToggleButton Button = ListItem.FindChildOfName<ToggleButton>("FeedDislike");
-                                        if (!Button.IsChecked.GetValueOrDefault())
-                                        {
-                                            Button.Checked -= FeedDislike_Checked;
-                                            Button.IsChecked = true;
-                                            Button.Checked += FeedDislike_Checked;
-                                        }
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        await Task.Delay(200);
-                                    }
-                                }
-                                break;
-                            }
-                    }
                 }
-
+            }
+            finally
+            {
                 if (FeedBackCollection.Count == 0)
                 {
                     EmptyFeedBack.Text = Globalization.Language == LanguageEnum.Chinese ? "无任何反馈或建议" : "No feedback or suggestions";
                 }
                 else
                 {
+                    await Task.Delay(1000);
                     FeedBackList.ScrollIntoViewSmoothly(FeedBackCollection.Last());
                 }
-            }
-            catch (Exception)
-            {
-
             }
         }
 
@@ -554,7 +504,7 @@ namespace FileManager
                     StoreProductQueryResult PurchasedProductResult = await Store.GetUserCollectionAsync(new string[] { "Durable" });
                     if (PurchasedProductResult.ExtendedError == null)
                     {
-                        if(PurchasedProductResult.Products.Count > 0)
+                        if (PurchasedProductResult.Products.Count > 0)
                         {
                             QueueContentDialog QueueContenDialog = new QueueContentDialog
                             {
@@ -810,6 +760,8 @@ namespace FileManager
                         if (await MySQL.Current.SetFeedBackAsync(Item))
                         {
                             FeedBackCollection.Add(Item);
+                            await Task.Delay(1000);
+                            FeedBackList.ScrollIntoViewSmoothly(FeedBackCollection.Last());
                         }
                         else
                         {
@@ -880,160 +832,12 @@ namespace FileManager
             }
         }
 
-        private async void FeedDislike_Checked(object sender, RoutedEventArgs e)
-        {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is FeedBackItem Item)
-            {
-                if (FeedBackList.ContainerFromItem(Item) is ListViewItem ListItem)
-                {
-                    ToggleButton Button = ListItem.FindChildOfName<ToggleButton>("FeedBackLike");
-                    if (Button.IsChecked.GetValueOrDefault())
-                    {
-                        Button.Unchecked -= FeedBackLike_Unchecked;
-                        Button.IsChecked = false;
-                        Button.Unchecked += FeedBackLike_Unchecked;
-                        Item.UpdateSupportInfo(FeedBackUpdateType.Like, false);
-                    }
-                }
-
-                Item.UpdateSupportInfo(FeedBackUpdateType.Dislike, true);
-                if (!await MySQL.Current.UpdateFeedBackVoteAsync(Item))
-                {
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "因网络原因无法进行此项操作",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await dialog.ShowAsync();
-                    }
-                    else
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "This operation cannot be performed due to network reasons",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await dialog.ShowAsync();
-                    }
-                }
-            }
-        }
-
-        private async void FeedDislike_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is FeedBackItem Item)
-            {
-                Item.UpdateSupportInfo(FeedBackUpdateType.Dislike, false);
-                if (!await MySQL.Current.UpdateFeedBackVoteAsync(Item))
-                {
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "因网络原因无法进行此项操作",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await dialog.ShowAsync();
-                    }
-                    else
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "This operation cannot be performed due to network reasons",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await dialog.ShowAsync();
-                    }
-                }
-            }
-        }
-
-        private async void FeedBackLike_Checked(object sender, RoutedEventArgs e)
-        {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is FeedBackItem Item)
-            {
-                if (FeedBackList.ContainerFromItem(Item) is ListViewItem ListItem)
-                {
-                    ToggleButton Button = ListItem.FindChildOfName<ToggleButton>("FeedDislike");
-                    if (Button.IsChecked.GetValueOrDefault())
-                    {
-                        Button.Unchecked -= FeedDislike_Unchecked;
-                        Button.IsChecked = false;
-                        Button.Unchecked += FeedDislike_Unchecked;
-                        Item.UpdateSupportInfo(FeedBackUpdateType.Dislike, false);
-                    }
-                }
-
-                Item.UpdateSupportInfo(FeedBackUpdateType.Like, true);
-                if (!await MySQL.Current.UpdateFeedBackVoteAsync(Item))
-                {
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "因网络原因无法进行此项操作",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await dialog.ShowAsync();
-                    }
-                    else
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "This operation cannot be performed due to network reasons",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await dialog.ShowAsync();
-                    }
-                }
-            }
-        }
-
-        private async void FeedBackLike_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is FeedBackItem Item)
-            {
-                Item.UpdateSupportInfo(FeedBackUpdateType.Like, false);
-                if (!await MySQL.Current.UpdateFeedBackVoteAsync(Item))
-                {
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "因网络原因无法进行此项操作",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await dialog.ShowAsync();
-                    }
-                    else
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "This operation cannot be performed due to network reasons",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await dialog.ShowAsync();
-                    }
-                }
-            }
-        }
-
         private void FeedBackList_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext is FeedBackItem Item)
             {
                 FeedBackList.SelectedItem = Item;
-                FeedBackList.ContextFlyout = Item.UserID == UserID ? FeedBackFlyout : null;
+                FeedBackList.ContextFlyout = UserID == "zhuxb711@yeah.net" ? FeedBackFlyout : (Item.UserID == UserID ? FeedBackFlyout : null);
             }
         }
 

@@ -123,11 +123,6 @@ namespace FileManager
 
                 Nav.Navigate(typeof(ThisPC));
 
-                EntranceEffectProvider.AnimationCompleted += async (s, t) =>
-                {
-                    (await MySQL.Current.GetConnectionFromPoolAsync()).Dispose();
-                };
-
                 EntranceEffectProvider.StartEntranceEffect();
 
                 var PictureUri = await SQLite.Current.GetBackgroundPictureAsync();

@@ -39,6 +39,12 @@ namespace FileManager
         private static IStorageItem[] CopyFiles;
         private static IStorageItem[] CutFiles;
         private TreeViewNode LastNode;
+        public Dictionary<string, bool> SortMap = new Dictionary<string, bool>
+        {
+            {"System.ItemNameDisplay",true },
+            {"System.Size",true },
+            {"System.DateModified",true }
+        };
 
         private bool useGridorList = true;
 
@@ -278,7 +284,7 @@ namespace FileManager
             }
         }
 
-        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+        private void Current_Suspending(object sender, SuspendingEventArgs e)
         {
             WiFiProvider?.Dispose();
         }
@@ -2892,6 +2898,24 @@ namespace FileManager
             {
                 EnterSelectedItem(ReFile, true);
             }
+        }
+
+        private async void ListHeaderName_Click(object sender, RoutedEventArgs e)
+        {
+            SortMap["System.ItemNameDisplay"] = !SortMap["System.ItemNameDisplay"];
+            await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.ItemNameDisplay", SortMap["System.ItemNameDisplay"]) });
+        }
+
+        private async void ListHeaderModifiedTime_Click(object sender, RoutedEventArgs e)
+        {
+            SortMap["System.DateModified"] = !SortMap["System.DateModified"];
+            await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.DateModified", SortMap["System.DateModified"]) });
+        }
+
+        private async void ListHeaderSize_Click(object sender, RoutedEventArgs e)
+        {
+            SortMap["System.Size"] = !SortMap["System.Size"];
+            await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.Size", SortMap["System.Size"]) });
         }
     }
 }

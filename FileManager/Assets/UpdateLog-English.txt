@@ -1,5 +1,5 @@
 ﻿*****
-###What's new in Ver.4.0.5.0
+###What's new in Ver.4.0.8.0
 
 >#####Feature Update
 
@@ -7,11 +7,29 @@
 
 >>#####When starting Powershell and cmd from the address bar, it is started with administrator privileges by default, which may trigger UAC
 
+>>###### Added sort function for name, modification time, and size in "Detail" mode. Unable to sort types due to UWP restrictions
+
 >#####UI improvements
 
 >>#####Solve the problem that the built-in document reader style is different from the theme style
 
+>#####Performance improvements
+
+>>#####Improved database performance, now feedback content loads and updates faster
+
 >#####Bug fix
+
+>>#####Fixed the problem of "network exception" when checking the license status of "Security Area", if the check fails because the user is not logged in to the Microsoft Store
+
+>>#####Solved the problem of mismatch when the user clicked the "Agree" and "Against" buttons of the feedback content and displayed again.
+
+>>#####Solved the problem that the feedback content dialog box would check the spelling of the input
+
+>>#####Fixed the problem that after adding feedback content, the list will not automatically scroll to the end
+
+>>#####Solved the problem that when the file of a certain type could not be opened with the specified software, the "Choose other Application" dialog box would not pop up when the corresponding file was opened next
+
+>>#####Solved the problem that when RX opens the slow response disk such as mechanical hard disk, clicking the address bar will cause a crash
 
 >>#####Resolved an issue where Notepad could not be set as the default open handler
 
@@ -19,7 +37,7 @@
 
 >>>#####Due to the problems of the progressive loading of the built-in PDF, continuous page turning may cause the problem of page loss
 
->>>######Because the built-in PDF will preload 10 pages at startup, this mechanism may conflict with the progressive loading logic, causing the problem of out-of-order loading
+>>>#####Because the built-in PDF will preload 10 pages at startup, this mechanism may conflict with the progressive loading logic, causing the problem of out-of-order loading
 
 *****
 ###What's new in Ver.4.0.2.0
