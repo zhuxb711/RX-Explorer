@@ -2054,11 +2054,6 @@ namespace FileManager
         {
             Restore();
 
-            if (QRTeachTip.IsOpen)
-            {
-                QRTeachTip.IsOpen = false;
-            }
-
             FileSystemStorageItem Item = SelectedItem as FileSystemStorageItem;
 
             if (!await Item.File.CheckExist())
@@ -2087,8 +2082,17 @@ namespace FileManager
                 return;
             }
 
+            if (QRTeachTip.IsOpen)
+            {
+                QRTeachTip.IsOpen = false;
+            }
+
+            while (WiFiProvider != null)
+            {
+                await Task.Delay(300);
+            }
+
             WiFiProvider = new WiFiShareProvider();
-            WiFiProvider.ThreadExitedUnexpectly -= WiFiProvider_ThreadExitedUnexpectly;
             WiFiProvider.ThreadExitedUnexpectly += WiFiProvider_ThreadExitedUnexpectly;
 
             string Hash = ComputeMD5Hash(Item.Path);
@@ -2128,9 +2132,10 @@ namespace FileManager
             {
                 QRTeachTip.Target = ListViewControl.ContainerFromItem(Item) as ListViewItem;
             }
+
             QRTeachTip.IsOpen = true;
 
-            WiFiProvider.StartToListenRequest();
+            await WiFiProvider.StartToListenRequest();
         }
 
         public string ComputeMD5Hash(string Data)
@@ -2175,12 +2180,6 @@ namespace FileManager
                     _ = await dialog.ShowAsync();
                 }
             });
-        }
-
-        private void QRTeachTip_Closed(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosedEventArgs args)
-        {
-            QRImage.Source = null;
-            WiFiProvider.Dispose();
         }
 
         private void CopyLinkButton_Click(object sender, RoutedEventArgs e)
@@ -2916,6 +2915,67 @@ namespace FileManager
         {
             SortMap["System.Size"] = !SortMap["System.Size"];
             await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.Size", SortMap["System.Size"]) });
+        }
+
+        private void QRTeachTip_Closing(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosingEventArgs args)
+        {
+            QRImage.Source = null;
+            WiFiProvider.Dispose();
+            WiFiProvider = null;
+        }
+
+        private async void NewFile_Click(object sender, RoutedEventArgs e)
+        {
+            Restore();
+
+            NewFileDialog Dialog = new NewFileDialog();
+            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+            {
+                try
+                {
+                    StorageFile NewFile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(Dialog.NewFileName, CreationCollisionOption.GenerateUniqueName);
+                    int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.ContentType == ContentType.File));
+                    if (Index == -1)
+                    {
+                        FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                    }
+                    else
+                    {
+                        FileCollection.Insert(Index, new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                    }
+                }
+                catch(UnauthorizedAccessException)
+                {
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "RX没有足够的权限在此文件夹新建文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                            PrimaryButtonText = "立刻",
+                            CloseButtonText = "稍后"
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "RX does not have sufficient permissions to create new files in this folder\r\rEnter the system file manager immediately ？",
+                            PrimaryButtonText = "Enter",
+                            CloseButtonText = "Later"
+                        };
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        }
+                    }
+                }
+            }
         }
     }
 }

@@ -346,7 +346,17 @@
                                      Margin="0,20,0,0"
                                      x:Uid="SettingUpdateLogButton"
                                      Click="UpdateLogLink_Click" />
-
+                    <TextBlock Margin="0,30,0,0"
+                               x:Uid="SettingSettingPrivacyPolicyTitle"
+                               Text="隐私"
+                               FontSize="24" />
+                    <HyperlinkButton Margin="0,20,0,0"
+                                     x:Uid="SettingPrivacyPolicyLink"
+                                     ToolTipService.ToolTip="https://github.com/zhuxb711/FileManager/blob/master/README.md"
+                                     FontSize="16"
+                                     NavigateUri="https://github.com/zhuxb711/FileManager/blob/master/README.md"
+                                     Content="用户隐私声明"
+                                     Name="PrivacyPolicy" />
                     <TextBlock Margin="0,30,0,0"
                                x:Uid="SettingOther"
                                Text="其他"
@@ -388,17 +398,6 @@
                             Margin="0,20,0,0"
                             x:Uid="SettingAbout"
                             Content="关于开发者→→" />
-                    <TextBlock Margin="0,30,0,0"
-                               x:Uid="SettingSettingPrivacyPolicyTitle"
-                               Text="隐私"
-                               FontSize="24" />
-                    <HyperlinkButton Margin="0,20,0,0"
-                                     x:Uid="SettingPrivacyPolicyLink"
-                                     ToolTipService.ToolTip="https://github.com/zhuxb711/FileManager/blob/master/README.md"
-                                     FontSize="16"
-                                     NavigateUri="https://github.com/zhuxb711/FileManager/blob/master/README.md"
-                                     Content="用户隐私声明"
-                                     Name="PrivacyPolicy"/>
                 </StackPanel>
                 <StackPanel Grid.Column="2">
                     <StackPanel Orientation="Horizontal">

@@ -333,6 +333,15 @@
   <data name="DonateTip.Title" xml:space="preserve">
     <value>Donate developer</value>
   </data>
+  <data name="EmptyFlyoutNew.Label" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="EmptyFlyoutNewFile.Text" xml:space="preserve">
+    <value>New file</value>
+  </data>
+  <data name="EmptyFlyoutNewFolder.Text" xml:space="preserve">
+    <value>New folder</value>
+  </data>
   <data name="FeedBackAddButton.Text" xml:space="preserve">
     <value>Add my feedback</value>
   </data>
@@ -479,6 +488,21 @@
   </data>
   <data name="MergeDialogText.Text" xml:space="preserve">
     <value>Merge</value>
+  </data>
+  <data name="NewFileDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="NewFileDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="NewFileDialog.Title" xml:space="preserve">
+    <value>Create new file</value>
+  </data>
+  <data name="NewFileDialogFileName.Header" xml:space="preserve">
+    <value>File name</value>
+  </data>
+  <data name="NewFileDialogFileName.PlaceholderText" xml:space="preserve">
+    <value>Enter file name (including suffix)</value>
   </data>
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>Open</value>

@@ -1646,6 +1646,38 @@
           <source>Open as administrator</source>
           <target state="translated">以管理员权限打开</target>
         </trans-unit>
+        <trans-unit id="EmptyFlyoutNew.Label" translate="yes" xml:space="preserve">
+          <source>Create</source>
+          <target state="translated">新建</target>
+        </trans-unit>
+        <trans-unit id="EmptyFlyoutNewFile.Text" translate="yes" xml:space="preserve">
+          <source>New file</source>
+          <target state="translated">新建文件</target>
+        </trans-unit>
+        <trans-unit id="EmptyFlyoutNewFolder.Text" translate="yes" xml:space="preserve">
+          <source>New folder</source>
+          <target state="translated">新建文件夹</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialog.Title" translate="yes" xml:space="preserve">
+          <source>Create new file</source>
+          <target state="translated">新建文件</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogFileName.Header" translate="yes" xml:space="preserve">
+          <source>File name</source>
+          <target state="translated">文件名</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogFileName.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter file name (including suffix)</source>
+          <target state="translated">输入新建文件名(包括后缀)</target>
+        </trans-unit>
       </group>
     </body>
   </file>

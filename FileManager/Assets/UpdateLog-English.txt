@@ -1,4 +1,23 @@
 ﻿*****
+###What's new in Ver.4.1.0.0
+
+>#####Feature Update
+
+>>#####Add "New File" function, merge with "New Folder"
+
+>#####Component updates
+
+>>#####Update add-ons to the latest version
+
+>#####Bug fix
+
+>>#####Fixed the problem that when sharing a file via WIFI, when the previous sharing interface is not closed, another file sharing interface is called again, which will cause RX to crash
+
+>>#####Added processing mechanism for situations such as Zip not being able to parse
+
+>>#####Fixed a possible crash when checking for update tasks
+
+*****
 ###What's new in Ver.4.0.8.0
 
 >#####Feature Update
@@ -7,7 +26,7 @@
 
 >>#####When starting Powershell and cmd from the address bar, it is started with administrator privileges by default, which may trigger UAC
 
->>###### Added sort function for name, modification time, and size in "Detail" mode. Unable to sort types due to UWP restrictions
+>>#####Added sort function for name, modification time, and size in "Detail" mode. Unable to sort types due to UWP restrictions
 
 >#####UI improvements
 

@@ -44,7 +44,34 @@ namespace FileManager
 
         private async void ZipExplorer_Loaded(object sender, RoutedEventArgs e)
         {
-            await GetFileItemInZip();
+            try
+            {
+                await GetFileItemInZip();
+            }
+            catch(Exception)
+            {
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "错误",
+                        Content = "此Zip文件无法被正确解析",
+                        CloseButtonText = "返回"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "Error",
+                        Content = "This Zip file cannot be parsed correctly",
+                        CloseButtonText = "Back"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                FileControl.ThisPage.Nav.GoBack();
+            }
         }
 
         public async Task GetFileItemInZip()

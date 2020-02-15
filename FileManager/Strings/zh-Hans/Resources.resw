@@ -1242,4 +1242,28 @@
   <data name="RunWithSystemAuthority.Text" xml:space="preserve">
     <value>以管理员权限打开</value>
   </data>
+  <data name="EmptyFlyoutNew.Label" xml:space="preserve">
+    <value>新建</value>
+  </data>
+  <data name="EmptyFlyoutNewFile.Text" xml:space="preserve">
+    <value>新建文件</value>
+  </data>
+  <data name="EmptyFlyoutNewFolder.Text" xml:space="preserve">
+    <value>新建文件夹</value>
+  </data>
+  <data name="NewFileDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="NewFileDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="NewFileDialog.Title" xml:space="preserve">
+    <value>新建文件</value>
+  </data>
+  <data name="NewFileDialogFileName.Header" xml:space="preserve">
+    <value>文件名</value>
+  </data>
+  <data name="NewFileDialogFileName.PlaceholderText" xml:space="preserve">
+    <value>输入新建文件名(包括后缀)</value>
+  </data>
 </root>

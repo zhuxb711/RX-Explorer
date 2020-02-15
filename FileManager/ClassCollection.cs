@@ -3427,13 +3427,13 @@ namespace FileManager
             Listener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
 
             HostName CurrentHostName = NetworkInformation.GetHostNames().Where((IP) => IP.Type == HostNameType.Ipv4).FirstOrDefault();
-            CurrentUri = "http://" + CurrentHostName + ":8125/";
+            CurrentUri = $"http://{ CurrentHostName }:8125/";
         }
 
         /// <summary>
         /// 启动WIFI连接侦听器
         /// </summary>
-        public async void StartToListenRequest()
+        public async Task StartToListenRequest()
         {
             if (IsListeningThreadWorking)
             {
@@ -3508,9 +3508,11 @@ namespace FileManager
                 IsListeningThreadWorking = false;
                 ThreadExitedUnexpectly?.Invoke(this, e);
             }
-
-            Cancellation?.Dispose();
-            Cancellation = null;
+            finally
+            {
+                Cancellation?.Dispose();
+                Cancellation = null;
+            }
         }
 
         /// <summary>
@@ -3518,11 +3520,7 @@ namespace FileManager
         /// </summary>
         public void Dispose()
         {
-            if (IsDisposed)
-            {
-                return;
-            }
-            else
+            if (!IsDisposed)
             {
                 IsDisposed = true;
                 Cancellation?.Cancel();

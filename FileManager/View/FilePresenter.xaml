@@ -31,7 +31,7 @@
                           x:Name="DeleteButton"
                           Click="Delete_Click" />
             <CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="BackToWindow"
+                <AppBarButton Icon="OpenFile"
                               Label="打开"
                               x:Uid="FileOpen"
                               x:Name="FileOpen"
@@ -185,11 +185,23 @@
                           Click="Paste_Click"
                           Name="Paste" />
             <CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="NewFolder"
-                              Label="新建文件夹"
-                              x:Uid="FileControlCreateFolder"
-                              x:Name="NewFolder"
-                              Click="NewFolder_Click"/>
+                <AppBarButton Icon="Add"
+                              Label="新建"
+                              x:Uid="EmptyFlyoutNew">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Icon="Page2"
+                                            Text="新建文件"
+                                            x:Uid="EmptyFlyoutNewFile"
+                                            Name="NewFile"
+                                            Click="NewFile_Click"/>
+                            <MenuFlyoutItem Icon="NewFolder"
+                                            Text="新建文件夹"
+                                            x:Uid="EmptyFlyoutNewFolder"
+                                            Click="NewFolder_Click" />
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
                 <AppBarButton Icon="Refresh" 
                               Label="刷新"
                               x:Uid="RefreshView"
@@ -212,7 +224,7 @@
                                Title="WIFI分享"
                                x:Uid="WIFIShareTip"
                                HeroContentPlacement="Auto"
-                               Closed="QRTeachTip_Closed"
+                               Closing="QRTeachTip_Closing"
                                x:Name="QRTeachTip">
             <controls1:TeachingTip.HeroContent>
                 <Image Stretch="UniformToFill"

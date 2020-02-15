@@ -7,6 +7,7 @@ using Windows.ApplicationModel.Background;
 using Windows.Services.Store;
 using Windows.System.UserProfile;
 using Windows.UI.Notifications;
+using Microsoft.Toolkit.Uwp.Connectivity;
 
 namespace UpdateCheckBackgroundTask
 {
@@ -20,14 +21,22 @@ namespace UpdateCheckBackgroundTask
 
         public async void Run(IBackgroundTaskInstance taskInstance)
         {
-            Instance = taskInstance;
-            Instance.Canceled += Instance_Canceled;
-            var Deferral = Instance.GetDeferral();
+            var Deferral = taskInstance.GetDeferral();
 
-            Cancellation = new CancellationTokenSource();
-            await CheckAndInstallUpdate();
+            try
+            {
+                Instance = taskInstance;
+                Instance.Canceled += Instance_Canceled;
 
-            Deferral.Complete();
+                if (NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable)
+                {
+                    await CheckAndInstallUpdate();
+                }
+            }
+            finally
+            {
+                Deferral.Complete();
+            }
         }
 
         private void Instance_Canceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
@@ -39,6 +48,8 @@ namespace UpdateCheckBackgroundTask
         {
             try
             {
+                Cancellation = new CancellationTokenSource();
+
                 StoreContext Context = StoreContext.GetDefault();
                 var Updates = await Context.GetAppAndOptionalStorePackageUpdatesAsync().AsTask(Cancellation.Token);
 

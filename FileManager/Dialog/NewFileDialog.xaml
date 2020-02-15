@@ -1,0 +1,22 @@
+﻿<local:QueueContentDialog
+    x:Class="FileManager.NewFileDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FileManager"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Uid="NewFileDialog"
+    Title="新建文件"
+    PrimaryButtonText="确定"
+    CloseButtonText="取消"
+    PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
+
+    <Grid>
+        <TextBox Header="文件名"
+                 x:Uid="NewFileDialogFileName"
+                 PlaceholderText="输入新建文件名(包括后缀)"
+                 Name="NewFileNameTextBox"
+                 Text="{x:Bind NewFileName,Mode=TwoWay}"/>
+    </Grid>
+</local:QueueContentDialog>
