@@ -1,6 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,13 +8,11 @@ using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Storage;
-using Windows.Storage.Search;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 
 namespace FileManager
 {
@@ -77,7 +74,7 @@ namespace FileManager
                     rootFrame.Navigate(typeof(MainPage), SplashImageRect);
                 });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ExceptionTracer.RequestBlueScreen(ex);
             }
@@ -197,7 +194,7 @@ namespace FileManager
                 {
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
-                        Display.Text = Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh")
+                        Display.Text = Globalization.Language == LanguageEnum.Chinese
                                         ? "请开启此应用的文件系统访问权限以正常工作\r然后重新启动该应用"
                                         : "Please enable file system access for this app to work properly\rThen restart the app";
                         ButtonPane.Visibility = Visibility.Visible;

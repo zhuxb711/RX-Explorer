@@ -46,6 +46,8 @@ namespace FileManager
             LeavingBackground += App_LeavingBackground;
             MemoryManager.AppMemoryUsageIncreased += MemoryManager_AppMemoryUsageIncreased;
             MemoryManager.AppMemoryUsageLimitChanging += MemoryManager_AppMemoryUsageLimitChanging;
+
+            Globalization.SetAppPrimaryLanguageAccordingToSystemLanguage();
         }
 
         private void MemoryManager_AppMemoryUsageLimitChanging(object sender, AppMemoryUsageLimitChangingEventArgs e)

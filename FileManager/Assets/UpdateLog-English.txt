@@ -1,5 +1,5 @@
 ﻿*****
-###What's new in Ver.4.1.0.0
+###What's new in Ver.4.1.2.0
 
 >#####Feature Update
 
@@ -9,6 +9,10 @@
 
 >>#####Update add-ons to the latest version
 
+>#####Performance improvement
+
+>>#####Improved the speed of obtaining feedback content and solved the problem that caused feedback content to fail to load
+
 >#####Bug fix
 
 >>#####Fixed the problem that when sharing a file via WIFI, when the previous sharing interface is not closed, another file sharing interface is called again, which will cause RX to crash
@@ -16,6 +20,8 @@
 >>#####Added processing mechanism for situations such as Zip not being able to parse
 
 >>#####Fixed a possible crash when checking for update tasks
+
+>>#####Solved the problem of incorrectly using Chinese as an alternative language when running in non-English and non-Chinese regions
 
 *****
 ###What's new in Ver.4.0.8.0

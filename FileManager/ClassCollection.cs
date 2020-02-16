@@ -4,7 +4,6 @@ using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Data.Sqlite;
 using Microsoft.Toolkit.Uwp.Notifications;
 using MySql.Data.MySqlClient;
-using Newtonsoft.Json;
 using SQLConnectionPoolProvider;
 using System;
 using System.Collections.Generic;
@@ -15,17 +14,16 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using TinyPinyin.Core;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
+using Windows.Globalization;
 using Windows.Graphics.Imaging;
 using Windows.Media.Editing;
 using Windows.Media.MediaProperties;
@@ -878,16 +876,13 @@ namespace FileManager
                         {
                             while (await Reader.ReadAsync())
                             {
-                                string TitleTranslation = await Reader["Title"].ToString().TranslateToAsync(Globalization.Language);
-                                string SuggestionTranslation = await Reader["Suggestion"].ToString().TranslateToAsync(Globalization.Language);
-
                                 if (Reader["Behavior"].ToString() != "NULL")
                                 {
-                                    yield return new FeedBackItem(Globalization.Language == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString().TranslateToPinyinOrStayInEnglish(), string.IsNullOrEmpty(TitleTranslation) ? Reader["Title"].ToString() : TitleTranslation, string.IsNullOrEmpty(SuggestionTranslation) ? Reader["Suggestion"].ToString() : SuggestionTranslation, Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString(), Reader["Behavior"].ToString());
+                                    yield return new FeedBackItem(Globalization.Language == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString(), Reader["Title"].ToString(), Reader["Suggestion"].ToString(), Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString(), Reader["Behavior"].ToString());
                                 }
                                 else
                                 {
-                                    yield return new FeedBackItem(Globalization.Language == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString().TranslateToPinyinOrStayInEnglish(), string.IsNullOrEmpty(TitleTranslation) ? Reader["Title"].ToString() : TitleTranslation, string.IsNullOrEmpty(SuggestionTranslation) ? Reader["Suggestion"].ToString() : SuggestionTranslation, Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString());
+                                    yield return new FeedBackItem(Globalization.Language == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString(), Reader["Title"].ToString(), Reader["Suggestion"].ToString(), Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString());
                                 }
                             }
                         }
@@ -2237,159 +2232,6 @@ namespace FileManager
             {
                 await DecryptedFile?.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 throw e;
-            }
-        }
-
-        /// <summary>
-        /// 将中文转换为英文或拼音
-        /// </summary>
-        /// <param name="From">中文</param>
-        /// <returns></returns>
-        public static string TranslateToPinyinOrStayInEnglish(this string From)
-        {
-            StringBuilder EnglishBuilder = new StringBuilder();
-            StringBuilder ChineseBuilder = new StringBuilder();
-            foreach (var Char in From)
-            {
-                if (PinyinHelper.IsChinese(Char))
-                {
-                    _ = ChineseBuilder.Append(Char);
-                }
-                else
-                {
-                    _ = EnglishBuilder.Append(Char);
-                }
-            }
-
-            if (ChineseBuilder.Length != 0 && EnglishBuilder.Length != 0)
-            {
-                return EnglishBuilder.ToString() + " " + PinyinHelper.GetPinyin(ChineseBuilder.ToString());
-            }
-            else if (ChineseBuilder.Length == 0 && EnglishBuilder.Length != 0)
-            {
-                return EnglishBuilder.ToString();
-            }
-            else if (ChineseBuilder.Length != 0 && EnglishBuilder.Length == 0)
-            {
-                return PinyinHelper.GetPinyin(ChineseBuilder.ToString());
-            }
-            else
-            {
-                return string.Empty;
-            }
-        }
-
-        /// <summary>
-        /// 根据指定的语言枚举，将原文转换为对应内容的翻译文字
-        /// </summary>
-        /// <param name="From">原文</param>
-        /// <param name="language">指定转换到的语言</param>
-        /// <returns></returns>
-        public static async Task<string> TranslateToAsync(this string From, LanguageEnum language)
-        {
-            using (HttpClient Client = new HttpClient())
-            using (HttpRequestMessage Request = new HttpRequestMessage())
-            {
-
-                Request.Method = HttpMethod.Post;
-                Request.RequestUri = new Uri($"https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to={(language == LanguageEnum.Chinese ? "zh-Hans" : "en")}");
-                Request.Content = new StringContent(JsonConvert.SerializeObject(new object[] { new { Text = From } }), Encoding.UTF8, "application/json");
-                Request.Headers.Add("Ocp-Apim-Subscription-Key", "3e0230e26b134d7ab9ffdc566deadf9c");
-
-                try
-                {
-                    HttpResponseMessage Response = await Client.SendAsync(Request);
-                    string result = await Response.Content.ReadAsStringAsync();
-                    if (!string.IsNullOrEmpty(result))
-                    {
-                        TranslationResult[] deserializedOutput = JsonConvert.DeserializeObject<TranslationResult[]>(result);
-
-                        if (deserializedOutput.FirstOrDefault() is TranslationResult Result)
-                        {
-                            if (Result.DetectedLanguage.Language.StartsWith("en") && language == LanguageEnum.English)
-                            {
-                                return From;
-                            }
-                            else if (Result.DetectedLanguage.Language.StartsWith("zh") && language == LanguageEnum.Chinese)
-                            {
-                                return From;
-                            }
-                            else
-                            {
-                                return Result.Translations.FirstOrDefault()?.Text;
-                            }
-                        }
-                        else
-                        {
-                            return null;
-                        }
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-                catch (Exception)
-                {
-                    return null;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 根据指定的语言枚举，将原文转换为对应内容的翻译文字
-        /// </summary>
-        /// <param name="From">原文</param>
-        /// <param name="language">指定转换到的语言</param>
-        /// <returns></returns>
-        public static string TranslateTo(this string From, LanguageEnum language)
-        {
-            using (HttpClient Client = new HttpClient())
-            using (HttpRequestMessage Request = new HttpRequestMessage())
-            {
-
-                Request.Method = HttpMethod.Post;
-                Request.RequestUri = new Uri($"https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to={(language == LanguageEnum.Chinese ? "zh-Hans" : "en")}");
-                Request.Content = new StringContent(JsonConvert.SerializeObject(new object[] { new { Text = From } }), Encoding.UTF8, "application/json");
-                Request.Headers.Add("Ocp-Apim-Subscription-Key", "3e0230e26b134d7ab9ffdc566deadf9c");
-
-                try
-                {
-                    HttpResponseMessage Response = Client.SendAsync(Request).Result;
-                    string result = Response.Content.ReadAsStringAsync().Result;
-                    if (!string.IsNullOrEmpty(result))
-                    {
-                        TranslationResult[] deserializedOutput = JsonConvert.DeserializeObject<TranslationResult[]>(result);
-
-                        if (deserializedOutput.FirstOrDefault() is TranslationResult Result)
-                        {
-                            if (Result.DetectedLanguage.Language.StartsWith("en") && language == LanguageEnum.English)
-                            {
-                                return From;
-                            }
-                            else if (Result.DetectedLanguage.Language.StartsWith("zh") && language == LanguageEnum.Chinese)
-                            {
-                                return From;
-                            }
-                            else
-                            {
-                                return Result.Translations.FirstOrDefault()?.Text;
-                            }
-                        }
-                        else
-                        {
-                            return null;
-                        }
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-                catch (Exception)
-                {
-                    return null;
-                }
             }
         }
 
@@ -4354,6 +4196,11 @@ namespace FileManager
         /// 当前使用的语言
         /// </summary>
         public static LanguageEnum Language { get; private set; }
+
+        public static void SetAppPrimaryLanguageAccordingToSystemLanguage()
+        {
+            ApplicationLanguages.PrimaryLanguageOverride = Language == LanguageEnum.English ? "en-US" : "zh-Hans";
+        }
 
         static Globalization()
         {

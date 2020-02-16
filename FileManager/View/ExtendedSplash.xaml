@@ -1,21 +1,42 @@
-﻿<Page
-    x:Class="FileManager.ExtendedSplash"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:FileManager"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    NavigationCacheMode="Disabled"
-    Background="{ThemeResource SystemAccentColor}"
-    mc:Ignorable="d">
+﻿<Page x:Class="FileManager.ExtendedSplash"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:FileManager"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      NavigationCacheMode="Disabled"
+      Background="{ThemeResource SystemAccentColor}"
+      mc:Ignorable="d">
 
     <Grid>
         <Canvas>
-            <Image Name="extendedSplashImage" Source="ms-appx:///Assets/SplashScreen.png"/>
-            <TextBlock FontSize="15" Name="Display" TextAlignment="Center" Width="450" Height="50"/>
-            <StackPanel Orientation="Horizontal" Name="ButtonPane" Visibility="Collapsed" Width="250">
-                <Button Name="NavigationButton" x:Uid="PermissionButton" Content="授予权限" HorizontalAlignment="Center" FontSize="16" Width="120" Click="NavigationButton_Click"/>
-                <Button Name="CloseButton" Content="关闭应用" x:Uid="CloseButton" Margin="10,0,0,0" HorizontalAlignment="Center" FontSize="16" Width="120" Click="CloseButton_Click"/>
+            <Image Name="extendedSplashImage"
+                   Source="ms-appx:///Assets/SplashScreen.png" />
+            <TextBlock FontSize="15"
+                       Name="Display"
+                       x:Uid="PermissionDisplay"
+                       TextAlignment="Center"
+                       Width="450"
+                       Height="50" />
+            <StackPanel Orientation="Horizontal"
+                        Name="ButtonPane"
+                        Visibility="Collapsed"
+                        Width="250">
+                <Button Name="NavigationButton"
+                        x:Uid="PermissionButton"
+                        Content="授予权限"
+                        HorizontalAlignment="Center"
+                        FontSize="16"
+                        Width="120"
+                        Click="NavigationButton_Click" />
+                <Button Name="CloseButton"
+                        Content="关闭应用"
+                        x:Uid="CloseButton"
+                        Margin="10,0,0,0"
+                        HorizontalAlignment="Center"
+                        FontSize="16"
+                        Width="120"
+                        Click="CloseButton_Click" />
             </StackPanel>
         </Canvas>
     </Grid>
