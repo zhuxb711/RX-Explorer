@@ -23,6 +23,8 @@
 
 >>#####Solved the problem of incorrectly using Chinese as an alternative language when running in non-English and non-Chinese regions
 
+>>#####Addressed an issue that would cause a crash when deleting a file already in use by another application
+
 *****
 ###What's new in Ver.4.0.8.0
 

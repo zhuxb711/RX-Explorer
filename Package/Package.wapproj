@@ -56,7 +56,7 @@
     <DefaultLanguage>zh-CN</DefaultLanguage>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <EntryPointProjectUniqueName>..\FileManager\FileManager.csproj</EntryPointProjectUniqueName>
-    <PackageCertificateThumbprint>63664BA0A789920FD05EC9CAF08BFCF1758F0BC8</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>54D671843F34DE6EDFEFFE5BBCCD9197B037095A</PackageCertificateThumbprint>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>

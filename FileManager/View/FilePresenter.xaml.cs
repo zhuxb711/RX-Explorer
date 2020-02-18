@@ -355,6 +355,7 @@ namespace FileManager
                 bool IsItemNotFound = false;
                 bool IsUnauthorized = false;
                 bool IsSpaceError = false;
+                bool IsCaptured = false;
 
                 foreach (IStorageItem Item in CutFiles)
                 {
@@ -443,6 +444,10 @@ namespace FileManager
                     {
                         IsSpaceError = true;
                     }
+                    catch (FileLoadException)
+                    {
+                        IsCaptured = true;
+                    }
                 }
 
                 if (IsItemNotFound)
@@ -521,6 +526,31 @@ namespace FileManager
                         };
                         _ = await QueueContenDialog.ShowAsync();
                     }
+                }
+                else if (IsCaptured)
+                {
+                    QueueContentDialog dialog;
+
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        dialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "部分文件正在被其他应用程序使用，因此无法移动",
+                            CloseButtonText = "确定"
+                        };
+                    }
+                    else
+                    {
+                        dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Some files are in use by other applications and cannot be moved",
+                            CloseButtonText = "Got it"
+                        };
+                    }
+
+                    _ = await dialog.ShowAsync();
                 }
             }
             else if (CopyFiles != null)
@@ -612,7 +642,7 @@ namespace FileManager
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = "错误",
-                            Content = "部分文件不存在，无法移动到指定位置",
+                            Content = "部分文件不存在，无法复制到指定位置",
                             CloseButtonText = "确定"
                         };
                         _ = await Dialog.ShowAsync();
@@ -622,7 +652,7 @@ namespace FileManager
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = "Error",
-                            Content = "Some files do not exist and cannot be moved to the specified location",
+                            Content = "Some files do not exist and cannot be copyed to the specified location",
                             CloseButtonText = "Got it"
                         };
                         _ = await Dialog.ShowAsync();
@@ -666,7 +696,7 @@ namespace FileManager
                         QueueContentDialog QueueContenDialog = new QueueContentDialog
                         {
                             Title = "错误",
-                            Content = "因设备剩余空间大小不足，部分文件无法移动",
+                            Content = "因设备剩余空间大小不足，部分文件无法复制",
                             CloseButtonText = "确定"
                         };
                         _ = await QueueContenDialog.ShowAsync();
@@ -676,7 +706,7 @@ namespace FileManager
                         QueueContentDialog QueueContenDialog = new QueueContentDialog
                         {
                             Title = "Error",
-                            Content = "Some files cannot be moved due to insufficient free space on the device",
+                            Content = "Some files cannot be copyed due to insufficient free space on the device",
                             CloseButtonText = "Confirm"
                         };
                         _ = await QueueContenDialog.ShowAsync();
@@ -712,6 +742,7 @@ namespace FileManager
 
             bool IsItemNotFound = false;
             bool IsUnauthorized = false;
+            bool IsCaptured = false;
 
             if (SelectedItems.Length == 1)
             {
@@ -761,6 +792,10 @@ namespace FileManager
                         {
                             IsUnauthorized = true;
                         }
+                        catch (FileLoadException)
+                        {
+                            IsCaptured = true;
+                        }
                     }
                     else
                     {
@@ -791,6 +826,10 @@ namespace FileManager
                         catch (UnauthorizedAccessException)
                         {
                             IsUnauthorized = true;
+                        }
+                        catch (FileLoadException)
+                        {
+                            IsCaptured = true;
                         }
                     }
                 }
@@ -843,6 +882,10 @@ namespace FileManager
                             {
                                 IsUnauthorized = true;
                             }
+                            catch (FileLoadException)
+                            {
+                                IsCaptured = true;
+                            }
                         }
                         else
                         {
@@ -873,6 +916,10 @@ namespace FileManager
                             catch (UnauthorizedAccessException)
                             {
                                 IsUnauthorized = true;
+                            }
+                            catch (FileLoadException)
+                            {
+                                IsCaptured = true;
                             }
                         }
                     }
@@ -912,7 +959,7 @@ namespace FileManager
                     dialog = new QueueContentDialog
                     {
                         Title = "错误",
-                        Content = "RX无权删除此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                        Content = "RX无权删除此处的文件/文件夹，可能是您无权访问此文件/文件夹\r\r是否立即进入系统文件管理器进行相应操作?",
                         PrimaryButtonText = "立刻",
                         CloseButtonText = "稍后"
                     };
@@ -922,7 +969,7 @@ namespace FileManager
                     dialog = new QueueContentDialog
                     {
                         Title = "Error",
-                        Content = "RX does not have permission to delete, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                        Content = "RX does not have permission to delete, it may be that you do not have access to this files/folders\r\rEnter the system file manager immediately ?",
                         PrimaryButtonText = "Enter",
                         CloseButtonText = "Later"
                     };
@@ -932,6 +979,31 @@ namespace FileManager
                 {
                     _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
                 }
+            }
+            else if (IsCaptured)
+            {
+                QueueContentDialog dialog;
+
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    dialog = new QueueContentDialog
+                    {
+                        Title = "错误",
+                        Content = "部分文件/文件夹正在被其他应用程序使用，因此无法删除",
+                        CloseButtonText = "确定"
+                    };
+                }
+                else
+                {
+                    dialog = new QueueContentDialog
+                    {
+                        Title = "Error",
+                        Content = "Some files/folders are in use by other applications and cannot be deleted",
+                        CloseButtonText = "Got it"
+                    };
+                }
+
+                _ = await dialog.ShowAsync();
             }
 
             await LoadingActivation(false);
@@ -2944,7 +3016,7 @@ namespace FileManager
                         FileCollection.Insert(Index, new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
                     }
                 }
-                catch(UnauthorizedAccessException)
+                catch (UnauthorizedAccessException)
                 {
                     if (Globalization.Language == LanguageEnum.Chinese)
                     {
