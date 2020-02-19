@@ -197,7 +197,7 @@ namespace FileManager
                 }
 
                 Queue<string> ErrorList = new Queue<string>();
-                await foreach (var FolderPath in SQLite.Current.GetFolderLibraryAsync())
+                foreach (var FolderPath in await SQLite.Current.GetFolderLibraryAsync())
                 {
                     try
                     {

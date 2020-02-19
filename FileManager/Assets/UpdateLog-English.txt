@@ -25,6 +25,8 @@
 
 >>#####Addressed an issue that would cause a crash when deleting a file already in use by another application
 
+>>#####Solved the problem that when the folder fixed to the "Folders and Libraries" area has been moved and deleted, the next time you start Rx, it will cause an exception
+
 *****
 ###What's new in Ver.4.0.8.0
 

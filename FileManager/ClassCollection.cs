@@ -70,7 +70,7 @@ namespace FileManager
             SQLitePCL.raw.sqlite3_win32_set_directory(1, ApplicationData.Current.LocalFolder.Path);
             SQLitePCL.raw.sqlite3_win32_set_directory(2, ApplicationData.Current.TemporaryFolder.Path);
 
-            ConnectionPool = new SQLConnectionPool<SqliteConnection>("Filename=RX_Sqlite.db;", 3, 0);
+            ConnectionPool = new SQLConnectionPool<SqliteConnection>("Filename=RX_Sqlite.db;", 1, 0);
 
             InitializeDatabase();
         }
@@ -258,17 +258,19 @@ namespace FileManager
         /// 获取文件夹和库区域内用户自定义的文件夹路径
         /// </summary>
         /// <returns></returns>
-        public async IAsyncEnumerable<string> GetFolderLibraryAsync()
+        public async Task<List<string>> GetFolderLibraryAsync()
         {
+            List<string> list = new List<string>();
             using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From FolderLibrary"))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync())
             {
                 while (query.Read())
                 {
-                    yield return query[0].ToString();
+                    list.Add(query[0].ToString());
                 }
             }
+            return list;
         }
 
         /// <summary>
@@ -770,7 +772,7 @@ namespace FileManager
         private MySQL()
         {
             ConnectionLocker = new AutoResetEvent(true);
-            ConnectionPool = new SQLConnectionPool<MySqlConnection>("Data Source=zhuxb711.rdsmt2onuvpvh1v.rds.gz.baidubce.com;port=3306;CharSet=utf8;User id=zhuxb711;password=password123;Database=FeedBackDataBase;", 4, 1);
+            ConnectionPool = new SQLConnectionPool<MySqlConnection>("Data Source=zhuxb711.rdsmt2onuvpvh1v.rds.gz.baidubce.com;port=3306;CharSet=utf8;User id=zhuxb711;password=password123;Database=FeedBackDataBase;", 2, 1);
         }
 
         /// <summary>
