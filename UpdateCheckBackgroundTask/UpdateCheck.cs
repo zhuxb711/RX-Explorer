@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
+﻿using Microsoft.Toolkit.Uwp.Connectivity;
+using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Linq;
 using System.Threading;
@@ -7,7 +8,6 @@ using Windows.ApplicationModel.Background;
 using Windows.Services.Store;
 using Windows.System.UserProfile;
 using Windows.UI.Notifications;
-using Microsoft.Toolkit.Uwp.Connectivity;
 
 namespace UpdateCheckBackgroundTask
 {
@@ -23,20 +23,15 @@ namespace UpdateCheckBackgroundTask
         {
             var Deferral = taskInstance.GetDeferral();
 
-            try
-            {
-                Instance = taskInstance;
-                Instance.Canceled += Instance_Canceled;
+            Instance = taskInstance;
+            Instance.Canceled += Instance_Canceled;
 
-                if (NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable)
-                {
-                    await CheckAndInstallUpdate();
-                }
-            }
-            finally
+            if (NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable)
             {
-                Deferral.Complete();
+                await CheckAndInstallUpdate();
             }
+
+            Deferral.Complete();
         }
 
         private void Instance_Canceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
@@ -57,6 +52,10 @@ namespace UpdateCheckBackgroundTask
                 {
                     ShowUpdateNotification();
                 }
+            }
+            catch
+            {
+
             }
             finally
             {

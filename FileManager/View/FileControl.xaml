@@ -232,6 +232,8 @@
                            HorizontalAlignment="Stretch"
                            SelectionMode="Single"
                            VerticalAlignment="Stretch"
+                           CanReorderItems="False"
+                           CanDragItems="False"
                            RightTapped="FolderTree_RightTapped">
                 <muxc:TreeView.Transitions>
                     <TransitionCollection>

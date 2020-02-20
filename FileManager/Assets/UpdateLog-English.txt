@@ -27,6 +27,8 @@
 
 >>#####Solved the problem that when the folder fixed to the "Folders and Libraries" area has been moved and deleted, the next time you start Rx, it will cause an exception
 
+>>#####Solved the problem that the left file directory accidentally allows dragging, adjusting the position, and nesting. This problem may lead to chaotic folder relationships
+
 *****
 ###What's new in Ver.4.0.8.0
 
