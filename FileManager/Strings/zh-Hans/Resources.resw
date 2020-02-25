@@ -1266,4 +1266,13 @@
   <data name="NewFileDialogFileName.PlaceholderText" xml:space="preserve">
     <value>输入新建文件名(包括后缀)</value>
   </data>
+  <data name="SecureAreaIntroDialog.CloseButtonText" xml:space="preserve">
+    <value>返回</value>
+  </data>
+  <data name="SecureAreaIntroDialog.PrimaryButtonText" xml:space="preserve">
+    <value>解锁</value>
+  </data>
+  <data name="SecureAreaIntroDialog.Title" xml:space="preserve">
+    <value>安全域介绍</value>
+  </data>
 </root>

@@ -1678,6 +1678,18 @@
           <source>Enter file name (including suffix)</source>
           <target state="translated">输入新建文件名(包括后缀)</target>
         </trans-unit>
+        <trans-unit id="SecureAreaIntroDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Back</source>
+          <target state="translated">返回</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaIntroDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Unlock</source>
+          <target state="translated">解锁</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaIntroDialog.Title" translate="yes" xml:space="preserve">
+          <source>Introduction to Secure Area</source>
+          <target state="translated">安全域介绍</target>
+        </trans-unit>
       </group>
     </body>
   </file>

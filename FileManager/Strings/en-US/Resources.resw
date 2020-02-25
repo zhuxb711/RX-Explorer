@@ -789,6 +789,15 @@
   <data name="SecureAreaExportButton.Label" xml:space="preserve">
     <value>Export</value>
   </data>
+  <data name="SecureAreaIntroDialog.CloseButtonText" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="SecureAreaIntroDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Unlock</value>
+  </data>
+  <data name="SecureAreaIntroDialog.Title" xml:space="preserve">
+    <value>Introduction to Secure Area</value>
+  </data>
   <data name="SecureAreaProperty.Label" xml:space="preserve">
     <value>Property</value>
   </data>
