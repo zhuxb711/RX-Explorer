@@ -140,6 +140,11 @@ namespace FileManager
             {
                 try
                 {
+                    if(string.IsNullOrEmpty(Folder.Path))
+                    {
+                        return;
+                    }
+
                     if (CurrentFolder == null)
                     {
                         string RootPath = Path.GetPathRoot(Folder.Path);

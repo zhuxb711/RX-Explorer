@@ -115,6 +115,7 @@
 
     <Grid>
         <ScrollViewer IsVerticalScrollChainingEnabled="True"
+                      VerticalScrollBarVisibility="Hidden"
                       Padding="25">
             <Grid>
                 <Grid.ColumnDefinitions>

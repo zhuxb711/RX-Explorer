@@ -60,7 +60,7 @@
                          VerticalAlignment="Center"
                          Name="WindowsHelloPassed">
                     <FontIcon Glyph="&#xE001;"
-                              Foreground="Green"
+                              Foreground="LightGreen"
                               FontWeight="Bold" />
                 </Viewbox>
                 <Viewbox Margin="4,10,0,0"

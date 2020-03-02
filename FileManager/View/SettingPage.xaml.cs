@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using TinyPinyin.Core;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Services.Store;
@@ -149,6 +150,22 @@ namespace FileManager
             {
                 await foreach (FeedBackItem FeedBackItem in MySQL.Current.GetAllFeedBackAsync())
                 {
+                    if (FeedBackItem.Title.StartsWith("@"))
+                    {
+                        if (Globalization.Language == LanguageEnum.Chinese)
+                        {
+                            FeedBackItem.UpdateTitleAndSuggestion(FeedBackItem.Title, await FeedBackItem.Suggestion.Translate());
+                        }
+                        else
+                        {
+                            FeedBackItem.UpdateTitleAndSuggestion(FeedBackItem.Title.All((Char) => !PinyinHelper.IsChinese(Char)) ? FeedBackItem.Title : PinyinHelper.GetPinyin(FeedBackItem.Title), await FeedBackItem.Suggestion.Translate());
+                        }
+                    }
+                    else
+                    {
+                        FeedBackItem.UpdateTitleAndSuggestion(await FeedBackItem.Title.Translate(), await FeedBackItem.Suggestion.Translate());
+                    }
+
                     FeedBackCollection.Add(FeedBackItem);
                 }
             }

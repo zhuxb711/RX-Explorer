@@ -1,9 +1,11 @@
 ﻿using Bluetooth.Core.Services;
 using Bluetooth.Services.Obex;
+using Google.Cloud.Translation.V2;
 using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Data.Sqlite;
 using Microsoft.Toolkit.Uwp.Notifications;
 using MySql.Data.MySqlClient;
+using NetworkAccessKeyProvider;
 using SQLConnectionPoolProvider;
 using System;
 using System.Collections.Generic;
@@ -14,11 +16,14 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TinyPinyin.Core;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
@@ -772,7 +777,30 @@ namespace FileManager
         private MySQL()
         {
             ConnectionLocker = new AutoResetEvent(true);
-            ConnectionPool = new SQLConnectionPool<MySqlConnection>("Data Source=zhuxb711.rdsmt2onuvpvh1v.rds.gz.baidubce.com;port=3306;CharSet=utf8;User id=zhuxb711;password=password123;Database=FeedBackDataBase;", 2, 1);
+            using (SecureString Secure = SecureKeyStorageController.GetMySQLAccessCredential(Package.Current))
+            {
+                IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
+                string AccessCredential = Marshal.PtrToStringBSTR(Bstr);
+
+                try
+                {
+                    ConnectionPool = new SQLConnectionPool<MySqlConnection>($"{AccessCredential}CharSet=utf8;Database=FeedBackDataBase;", 2, 1);
+                }
+                finally
+                {
+                    Marshal.ZeroFreeBSTR(Bstr);
+                    unsafe
+                    {
+                        fixed (char* ClearPtr = AccessCredential)
+                        {
+                            for (int i = 0; i < AccessCredential.Length; i++)
+                            {
+                                ClearPtr[i] = '\0';
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -880,11 +908,11 @@ namespace FileManager
                             {
                                 if (Reader["Behavior"].ToString() != "NULL")
                                 {
-                                    yield return new FeedBackItem(Globalization.Language == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString(), Reader["Title"].ToString(), Reader["Suggestion"].ToString(), Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString(), Reader["Behavior"].ToString());
+                                    yield return new FeedBackItem(Globalization.Language == LanguageEnum.Chinese ? Reader["UserName"].ToString() : (Reader["UserName"].ToString().All((Char) => !PinyinHelper.IsChinese(Char)) ? Reader["UserName"].ToString() : PinyinHelper.GetPinyin(Reader["UserName"].ToString())), Reader["Title"].ToString(), Reader["Suggestion"].ToString(), Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString(), Reader["Behavior"].ToString());
                                 }
                                 else
                                 {
-                                    yield return new FeedBackItem(Globalization.Language == LanguageEnum.Chinese ? Reader["UserName"].ToString() : Reader["UserName"].ToString(), Reader["Title"].ToString(), Reader["Suggestion"].ToString(), Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString());
+                                    yield return new FeedBackItem(Globalization.Language == LanguageEnum.Chinese ? Reader["UserName"].ToString() : (Reader["UserName"].ToString().All((Char) => !PinyinHelper.IsChinese(Char)) ? Reader["UserName"].ToString() : PinyinHelper.GetPinyin(Reader["UserName"].ToString())), Reader["Title"].ToString(), Reader["Suggestion"].ToString(), Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString());
                                 }
                             }
                         }
@@ -1804,53 +1832,64 @@ namespace FileManager
     }
     #endregion
 
-    #region Json翻译对象
-    public class TranslationResult
-    {
-        public DetectedLanguage DetectedLanguage { get; set; }
-        public TextResult SourceText { get; set; }
-        public Translation[] Translations { get; set; }
-    }
-
-    public class DetectedLanguage
-    {
-        public string Language { get; set; }
-        public float Score { get; set; }
-    }
-
-    public class TextResult
-    {
-        public string Text { get; set; }
-        public string Script { get; set; }
-    }
-
-    public class Translation
-    {
-        public string Text { get; set; }
-        public TextResult Transliteration { get; set; }
-        public string To { get; set; }
-        public Alignment Alignment { get; set; }
-        public SentenceLength SentLen { get; set; }
-    }
-
-    public class Alignment
-    {
-        public string Proj { get; set; }
-    }
-
-    public class SentenceLength
-    {
-        public int[] SrcSentLen { get; set; }
-        public int[] TransSentLen { get; set; }
-    }
-    #endregion
-
     #region 扩展方法类
     /// <summary>
     /// 提供扩展方法的静态类
     /// </summary>
     public static class Extention
     {
+        /// <summary>
+        /// 使用GoogleAPI自动检测语言并将文字翻译为对应语言
+        /// </summary>
+        /// <param name="Text">要翻译的内容</param>
+        /// <returns></returns>
+        public static Task<string> Translate(this string Text)
+        {
+            return Task.Run(() =>
+            {
+                using (SecureString Secure = SecureKeyStorageController.GetGoogleTranslateAccessKey(Package.Current))
+                {
+                    IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
+                    string APIKey = Marshal.PtrToStringBSTR(Bstr);
+
+                    try
+                    {
+                        using (TranslationClient Client = TranslationClient.CreateFromApiKey(APIKey, TranslationModel.ServiceDefault))
+                        {
+                            Detection DetectResult = Client.DetectLanguage(Text);
+
+                            string CurrentLanguage = Globalization.Language == LanguageEnum.Chinese ? LanguageCodes.ChineseSimplified : LanguageCodes.English;
+
+                            if (DetectResult.Language.StartsWith(CurrentLanguage))
+                            {
+                                return Text;
+                            }
+                            else
+                            {
+                                TranslationResult TranslateResult = Client.TranslateText(Text, CurrentLanguage, DetectResult.Language);
+                                return TranslateResult.TranslatedText;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        Marshal.ZeroFreeBSTR(Bstr);
+                        unsafe
+                        {
+                            fixed (char* ClearPtr = APIKey)
+                            {
+                                for (int i = 0; i < APIKey.Length; i++)
+                                {
+                                    ClearPtr[i] = '\0';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
         /// <summary>
         /// 移动一个文件夹内的所有文件夹和文件到指定的文件夹
         /// </summary>
@@ -2013,27 +2052,50 @@ namespace FileManager
         {
             try
             {
-                using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                using (SecureString Secure = SecureKeyStorageController.GetStringEncryptionAesIV(Package.Current))
                 {
-                    KeySize = 128,
-                    Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
-                    Mode = CipherMode.CBC,
-                    Padding = PaddingMode.PKCS7,
-                    IV = Encoding.UTF8.GetBytes("KUsaWlEy2XN5b6y8")
-                })
-                {
-                    using (MemoryStream EncryptStream = new MemoryStream())
+                    IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
+                    string IV = Marshal.PtrToStringBSTR(Bstr);
+
+                    try
                     {
-                        using (ICryptoTransform Encryptor = AES.CreateEncryptor())
-                        using (CryptoStream TransformStream = new CryptoStream(EncryptStream, Encryptor, CryptoStreamMode.Write))
+                        using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
-                            using (StreamWriter Writer = new StreamWriter(TransformStream))
+                            KeySize = 128,
+                            Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
+                            Mode = CipherMode.CBC,
+                            Padding = PaddingMode.PKCS7,
+                            IV = Encoding.UTF8.GetBytes(IV)
+                        })
+                        {
+                            using (MemoryStream EncryptStream = new MemoryStream())
                             {
-                                await Writer.WriteAsync(OriginText);
+                                using (ICryptoTransform Encryptor = AES.CreateEncryptor())
+                                using (CryptoStream TransformStream = new CryptoStream(EncryptStream, Encryptor, CryptoStreamMode.Write))
+                                {
+                                    using (StreamWriter Writer = new StreamWriter(TransformStream))
+                                    {
+                                        await Writer.WriteAsync(OriginText);
+                                    }
+                                }
+
+                                return Convert.ToBase64String(EncryptStream.ToArray());
                             }
                         }
-
-                        return Convert.ToBase64String(EncryptStream.ToArray());
+                    }
+                    finally
+                    {
+                        Marshal.ZeroFreeBSTR(Bstr);
+                        unsafe
+                        {
+                            fixed (char* ClearPtr = IV)
+                            {
+                                for (int i = 0; i < IV.Length; i++)
+                                {
+                                    ClearPtr[i] = '\0';
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -2053,22 +2115,45 @@ namespace FileManager
         {
             try
             {
-                using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                using (SecureString Secure = SecureKeyStorageController.GetStringEncryptionAesIV(Package.Current))
                 {
-                    KeySize = 128,
-                    Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
-                    Mode = CipherMode.CBC,
-                    Padding = PaddingMode.PKCS7,
-                    IV = Encoding.UTF8.GetBytes("KUsaWlEy2XN5b6y8")
-                })
-                {
-                    using (MemoryStream DecryptStream = new MemoryStream(Convert.FromBase64String(OriginText)))
+                    IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
+                    string IV = Marshal.PtrToStringBSTR(Bstr);
+
+                    try
                     {
-                        using (ICryptoTransform Decryptor = AES.CreateDecryptor())
-                        using (CryptoStream TransformStream = new CryptoStream(DecryptStream, Decryptor, CryptoStreamMode.Read))
-                        using (StreamReader Writer = new StreamReader(TransformStream, Encoding.UTF8))
+                        using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
-                            return await Writer.ReadToEndAsync();
+                            KeySize = 128,
+                            Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
+                            Mode = CipherMode.CBC,
+                            Padding = PaddingMode.PKCS7,
+                            IV = Encoding.UTF8.GetBytes(IV)
+                        })
+                        {
+                            using (MemoryStream DecryptStream = new MemoryStream(Convert.FromBase64String(OriginText)))
+                            {
+                                using (ICryptoTransform Decryptor = AES.CreateDecryptor())
+                                using (CryptoStream TransformStream = new CryptoStream(DecryptStream, Decryptor, CryptoStreamMode.Read))
+                                using (StreamReader Writer = new StreamReader(TransformStream, Encoding.UTF8))
+                                {
+                                    return await Writer.ReadToEndAsync();
+                                }
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        Marshal.ZeroFreeBSTR(Bstr);
+                        unsafe
+                        {
+                            fixed (char* ClearPtr = IV)
+                            {
+                                for (int i = 0; i < IV.Length; i++)
+                                {
+                                    ClearPtr[i] = '\0';
+                                }
+                            }
                         }
                     }
                 }
@@ -2112,30 +2197,53 @@ namespace FileManager
             {
                 EncryptedFile = await ExportFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(OriginFile.Name)}.sle", CreationCollisionOption.GenerateUniqueName);
 
-                using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                using (SecureString Secure = SecureKeyStorageController.GetFileEncryptionAesIV(Package.Current))
                 {
-                    KeySize = KeySize,
-                    Key = KeyArray,
-                    Mode = CipherMode.CBC,
-                    Padding = PaddingMode.Zeros,
-                    IV = Encoding.UTF8.GetBytes("HqVQ2YgUnUlRNp5Z")
-                })
-                {
-                    using (Stream OriginFileStream = await OriginFile.OpenStreamForReadAsync())
-                    using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForWriteAsync())
-                    using (ICryptoTransform Encryptor = AES.CreateEncryptor())
+                    IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
+                    string IV = Marshal.PtrToStringBSTR(Bstr);
+
+                    try
                     {
-                        byte[] Detail = Encoding.UTF8.GetBytes("$" + KeySize + "|" + OriginFile.FileType + "$");
-                        await EncryptFileStream.WriteAsync(Detail, 0, Detail.Length);
-
-                        byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
-                        byte[] EncryptPasswordFlag = Encryptor.TransformFinalBlock(PasswordFlag, 0, PasswordFlag.Length);
-                        await EncryptFileStream.WriteAsync(EncryptPasswordFlag, 0, EncryptPasswordFlag.Length);
-
-                        using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Encryptor, CryptoStreamMode.Write))
+                        using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
-                            await OriginFileStream.CopyToAsync(TransformStream);
-                            TransformStream.FlushFinalBlock();
+                            KeySize = KeySize,
+                            Key = KeyArray,
+                            Mode = CipherMode.CBC,
+                            Padding = PaddingMode.Zeros,
+                            IV = Encoding.UTF8.GetBytes(IV)
+                        })
+                        {
+                            using (Stream OriginFileStream = await OriginFile.OpenStreamForReadAsync())
+                            using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForWriteAsync())
+                            using (ICryptoTransform Encryptor = AES.CreateEncryptor())
+                            {
+                                byte[] Detail = Encoding.UTF8.GetBytes("$" + KeySize + "|" + OriginFile.FileType + "$");
+                                await EncryptFileStream.WriteAsync(Detail, 0, Detail.Length);
+
+                                byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
+                                byte[] EncryptPasswordFlag = Encryptor.TransformFinalBlock(PasswordFlag, 0, PasswordFlag.Length);
+                                await EncryptFileStream.WriteAsync(EncryptPasswordFlag, 0, EncryptPasswordFlag.Length);
+
+                                using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Encryptor, CryptoStreamMode.Write))
+                                {
+                                    await OriginFileStream.CopyToAsync(TransformStream);
+                                    TransformStream.FlushFinalBlock();
+                                }
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        Marshal.ZeroFreeBSTR(Bstr);
+                        unsafe
+                        {
+                            fixed (char* ClearPtr = IV)
+                            {
+                                for (int i = 0; i < IV.Length; i++)
+                                {
+                                    ClearPtr[i] = '\0';
+                                }
+                            }
                         }
                     }
                 }
@@ -2166,69 +2274,92 @@ namespace FileManager
             StorageFile DecryptedFile = null;
             try
             {
-                using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                using (SecureString Secure = SecureKeyStorageController.GetFileEncryptionAesIV(Package.Current))
                 {
-                    Mode = CipherMode.CBC,
-                    Padding = PaddingMode.Zeros,
-                    IV = Encoding.UTF8.GetBytes("HqVQ2YgUnUlRNp5Z")
-                })
-                {
-                    using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForReadAsync())
+                    IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
+                    string IV = Marshal.PtrToStringBSTR(Bstr);
+
+                    try
                     {
-                        byte[] DecryptByteBuffer = new byte[20];
-
-                        await EncryptFileStream.ReadAsync(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
-
-                        string FileType;
-                        if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
+                        using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
-                            string[] InfoGroup = Info.Split('|');
-                            if (InfoGroup.Length == 2)
-                            {
-                                int KeySize = Convert.ToInt32(InfoGroup[0]);
-                                FileType = InfoGroup[1];
-
-                                AES.KeySize = KeySize;
-
-                                int KeyLengthNeed = KeySize / 8;
-                                AES.Key = Key.Length > KeyLengthNeed ? Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed)) : Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
-                            }
-                            else
-                            {
-                                throw new FileDamagedException("文件损坏，无法解密");
-                            }
-                        }
-                        else
+                            Mode = CipherMode.CBC,
+                            Padding = PaddingMode.Zeros,
+                            IV = Encoding.UTF8.GetBytes(IV)
+                        })
                         {
-                            throw new FileDamagedException("文件损坏，无法解密");
-                        }
-
-                        DecryptedFile = await ExportFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(EncryptedFile.Name)}{FileType}", CreationCollisionOption.GenerateUniqueName);
-
-                        using (Stream DecryptFileStream = await DecryptedFile.OpenStreamForWriteAsync())
-                        using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
-                        {
-                            byte[] PasswordConfirm = new byte[16];
-                            EncryptFileStream.Seek(Info.Length + 2, SeekOrigin.Begin);
-                            await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length);
-
-                            if (Encoding.UTF8.GetString(Decryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length)) == "PASSWORD_CORRECT")
+                            using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForReadAsync())
                             {
-                                using (CryptoStream TransformStream = new CryptoStream(DecryptFileStream, Decryptor, CryptoStreamMode.Write))
+                                byte[] DecryptByteBuffer = new byte[20];
+
+                                await EncryptFileStream.ReadAsync(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
+
+                                string FileType;
+                                if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
                                 {
-                                    await EncryptFileStream.CopyToAsync(TransformStream);
-                                    TransformStream.FlushFinalBlock();
+                                    string[] InfoGroup = Info.Split('|');
+                                    if (InfoGroup.Length == 2)
+                                    {
+                                        int KeySize = Convert.ToInt32(InfoGroup[0]);
+                                        FileType = InfoGroup[1];
+
+                                        AES.KeySize = KeySize;
+
+                                        int KeyLengthNeed = KeySize / 8;
+                                        AES.Key = Key.Length > KeyLengthNeed ? Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed)) : Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
+                                    }
+                                    else
+                                    {
+                                        throw new FileDamagedException("文件损坏，无法解密");
+                                    }
+                                }
+                                else
+                                {
+                                    throw new FileDamagedException("文件损坏，无法解密");
+                                }
+
+                                DecryptedFile = await ExportFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(EncryptedFile.Name)}{FileType}", CreationCollisionOption.GenerateUniqueName);
+
+                                using (Stream DecryptFileStream = await DecryptedFile.OpenStreamForWriteAsync())
+                                using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
+                                {
+                                    byte[] PasswordConfirm = new byte[16];
+                                    EncryptFileStream.Seek(Info.Length + 2, SeekOrigin.Begin);
+                                    await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length);
+
+                                    if (Encoding.UTF8.GetString(Decryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length)) == "PASSWORD_CORRECT")
+                                    {
+                                        using (CryptoStream TransformStream = new CryptoStream(DecryptFileStream, Decryptor, CryptoStreamMode.Write))
+                                        {
+                                            await EncryptFileStream.CopyToAsync(TransformStream);
+                                            TransformStream.FlushFinalBlock();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new PasswordErrorException("密码错误");
+                                    }
                                 }
                             }
-                            else
+                        }
+                    }
+                    finally
+                    {
+                        Marshal.ZeroFreeBSTR(Bstr);
+                        unsafe
+                        {
+                            fixed (char* ClearPtr = IV)
                             {
-                                throw new PasswordErrorException("密码错误");
+                                for (int i = 0; i < IV.Length; i++)
+                                {
+                                    ClearPtr[i] = '\0';
+                                }
                             }
                         }
-
-                        return DecryptedFile;
                     }
                 }
+
+                return DecryptedFile;
             }
             catch (Exception e)
             {

@@ -350,8 +350,7 @@ namespace FileManager
             }
             else
             {
-                NavigationViewItem Item =NavView.MenuItems.Select((Item) => Item as NavigationViewItem).FirstOrDefault((Item) => Item.Content.ToString() == PageDictionary[Nav.SourcePageType]);
-                if (Item != null)
+                if (NavView.MenuItems.Select((Item) => Item as NavigationViewItem).FirstOrDefault((Item) => Item.Content.ToString() == PageDictionary[Nav.SourcePageType]) is NavigationViewItem Item)
                 {
                     Item.IsSelected = true;
                 }
