@@ -117,15 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AboutMeText1.Text" xml:space="preserve">
-    <value>Base on</value>
-  </data>
-  <data name="AboutMeText2.Text" xml:space="preserve">
-    <value>Developer</value>
-  </data>
-  <data name="AboutMeText3.Text" xml:space="preserve">
-    <value>Contact me</value>
-  </data>
   <data name="AddDevice.Label" xml:space="preserve">
     <value>Add drive</value>
   </data>
@@ -502,7 +493,19 @@
     <value>File name</value>
   </data>
   <data name="NewFileDialogFileName.PlaceholderText" xml:space="preserve">
-    <value>Enter file name (including suffix)</value>
+    <value>Enter file name</value>
+  </data>
+  <data name="NewFileDialogInvalidInputTip.Subtitle" xml:space="preserve">
+    <value>The file type you specified does not meet the specifications. Please re-enter</value>
+  </data>
+  <data name="NewFileDialogInvalidInputTip.Title" xml:space="preserve">
+    <value>Malformed</value>
+  </data>
+  <data name="NewFileDialogType.Header" xml:space="preserve">
+    <value>File type</value>
+  </data>
+  <data name="NewFileDialogType.PlaceholderText" xml:space="preserve">
+    <value>Enter or select a type</value>
   </data>
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>Open</value>
@@ -512,6 +515,21 @@
   </data>
   <data name="ParentAttribute.Label" xml:space="preserve">
     <value>FolderProperties</value>
+  </data>
+  <data name="PdfPasswordDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="PdfPasswordDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="PdfPasswordDialog.Title" xml:space="preserve">
+    <value>Need password</value>
+  </data>
+  <data name="PdfPasswordDialogPasswordBox.Header" xml:space="preserve">
+    <value>PDF password</value>
+  </data>
+  <data name="PdfPasswordDialogPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>Please enter the password to unlock this PDF</value>
   </data>
   <data name="PermissionButton.Content" xml:space="preserve">
     <value>Permission</value>
@@ -846,8 +864,8 @@
   <data name="SecureAreaWHTip.Title" xml:space="preserve">
     <value>Combine with Windows Hello</value>
   </data>
-  <data name="SettingAbout.Content" xml:space="preserve">
-    <value>About Developer→→</value>
+  <data name="SettingAbout.Text" xml:space="preserve">
+    <value>About</value>
   </data>
   <data name="SettingAdvance.Text" xml:space="preserve">
     <value>Advance</value>
@@ -869,6 +887,9 @@
   </data>
   <data name="SettingClearHistoryFlyoutContinueButton.Content" xml:space="preserve">
     <value>Continue</value>
+  </data>
+  <data name="SettingContactDeveloper.Content" xml:space="preserve">
+    <value>Contact the developer</value>
   </data>
   <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
     <value>Folder open method</value>
@@ -1336,7 +1357,7 @@
     <value>WiFi Share</value>
   </data>
   <data name="Zip.Label" xml:space="preserve">
-    <value>Zip Compression</value>
+    <value>Compression</value>
   </data>
   <data name="ZipCRC.Label" xml:space="preserve">
     <value>CRC integrity check</value>

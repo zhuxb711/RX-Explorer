@@ -126,7 +126,7 @@
                 <AppBarButton Icon="Bookmarks"
                               x:Name="Zip"
                               x:Uid="Zip"
-                              Label="Zip压缩"
+                              Label="压缩"
                               Click="Zip_Click" />
                 <AppBarButton Icon="Tag"
                               Name="Attribute"
@@ -161,6 +161,11 @@
                               x:Uid="FolderRename"
                               x:Name="FolderRename"
                               Click="Rename_Click" />
+                <AppBarButton Label="压缩"
+                              Icon="Bookmarks"
+                              x:Uid="Zip"
+                              Name="CompressFolder"
+                              Click="CompressFolder_Click"/>
                 <AppBarButton Icon="Add" 
                               Label="固定至主界面"
                               x:Uid="PinToLibrary"
@@ -191,12 +196,14 @@
                     <AppBarButton.Flyout>
                         <MenuFlyout>
                             <MenuFlyoutItem Icon="Page2"
+                                            MinWidth="150"
                                             Text="新建文件"
                                             x:Uid="EmptyFlyoutNewFile"
                                             Name="NewFile"
                                             Click="NewFile_Click"/>
                             <MenuFlyoutItem Icon="NewFolder"
                                             Text="新建文件夹"
+                                            MinWidth="150"
                                             x:Uid="EmptyFlyoutNewFolder"
                                             Click="NewFolder_Click" />
                         </MenuFlyout>

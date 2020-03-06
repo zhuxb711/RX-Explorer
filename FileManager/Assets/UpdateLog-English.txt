@@ -1,4 +1,33 @@
 ﻿*****
+###What's new in Ver.4.2.0.0
+
+>#####Feature Update
+
+>>#####Added the ability to decompress Zip archives containing folders
+
+>>#####Add the ability to open PDF files with password
+
+>>#####New ability to compress folders
+
+>>#####Add cancel button when encrypting and decrypting files in security zone
+
+>#####UI improvements
+
+>>#####Renewed icon
+
+>>#####Slightly extended the initial animation time
+
+>>#####Changed the content and layout of the settings page
+
+>#####Bug fix
+
+>>######Fixed the problem that after opening a blank compressed package, files could not be added to it
+
+>>######Solved the problem that the "Extract All" button was not disabled when there were no files in the compressed package
+
+>>######Fixed the issue that when starting the RX Explorer after connecting to a USB device, there may be multiple identical drive letters
+
+*****
 ###What's new in Ver.4.1.5.0
 
 >#####Feature Update

@@ -246,7 +246,7 @@
                          Grid.RowSpan="2">
             <control:Loading.Background>
                 <SolidColorBrush Color="Black"
-                                 Opacity="0.65" />
+                                 Opacity="0.9" />
             </control:Loading.Background>
             <StackPanel Padding="12"
                         Width="230">
@@ -255,6 +255,13 @@
                            TextAlignment="Center" />
                 <controls:ProgressBar IsIndeterminate="True"
                                       Margin="0,10,0,0" />
+                <Button Content="取消"
+                        Width="100"
+                        Margin="0,10,0,0"
+                        Name="CancelButton"
+                        HorizontalAlignment="Center"
+                        Click="CancelButton_Click"
+                        Style="{ThemeResource ButtonRevealStyle}"/>
             </StackPanel>
         </control:Loading>
     </Grid>

@@ -1113,19 +1113,9 @@ namespace FileManager
         public string ActualSize { get; private set; }
 
         /// <summary>
-        /// 获取文件修改时间
-        /// </summary>
-        public string Time { get; private set; }
-
-        /// <summary>
         /// 获取文件类型
         /// </summary>
         public string Type { get; private set; }
-
-        /// <summary>
-        /// 获取是否加密的描述
-        /// </summary>
-        public string IsCrypted { get; private set; }
 
         /// <summary>
         /// 文件全名
@@ -1144,7 +1134,6 @@ namespace FileManager
             {
                 CompresionSize = "压缩大小：" + GetSize(Entry.CompressedSize);
                 ActualSize = "解压大小：" + GetSize(Entry.Size);
-                Time = "创建时间：" + Entry.DateTime.ToString("F");
 
                 int index = FullName.LastIndexOf(".");
                 if (index != -1)
@@ -1157,21 +1146,11 @@ namespace FileManager
                     Name = FullName;
                     Type = "未知文件类型";
                 }
-
-                if (Entry.IsCrypted)
-                {
-                    IsCrypted = "密码保护：是";
-                }
-                else
-                {
-                    IsCrypted = "密码保护：否";
-                }
             }
             else
             {
                 CompresionSize = "Compressed：" + GetSize(Entry.CompressedSize);
                 ActualSize = "ActualSize：" + GetSize(Entry.Size);
-                Time = "Created：" + Entry.DateTime.ToString("F");
 
                 int index = FullName.LastIndexOf(".");
                 if (index != -1)
@@ -1183,15 +1162,6 @@ namespace FileManager
                 {
                     Name = FullName;
                     Type = "Unknown Type";
-                }
-
-                if (Entry.IsCrypted)
-                {
-                    IsCrypted = "Encrypted：True";
-                }
-                else
-                {
-                    IsCrypted = "Encrypted：False";
                 }
             }
         }
@@ -2171,8 +2141,9 @@ namespace FileManager
         /// <param name="ExportFolder">指定加密文件保存的文件夹</param>
         /// <param name="Key">加密密钥</param>
         /// <param name="KeySize">加密强度，值仅允许 128 和 256</param>
+        /// <param name="CancelToken">取消通知</param>
         /// <returns></returns>
-        public static async Task<StorageFile> EncryptAsync(this StorageFile OriginFile, StorageFolder ExportFolder, string Key, int KeySize)
+        public static async Task<StorageFile> EncryptAsync(this StorageFile OriginFile, StorageFolder ExportFolder, string Key, int KeySize, CancellationToken CancelToken = default)
         {
             if (ExportFolder == null)
             {
@@ -2226,7 +2197,7 @@ namespace FileManager
 
                                 using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Encryptor, CryptoStreamMode.Write))
                                 {
-                                    await OriginFileStream.CopyToAsync(TransformStream);
+                                    await OriginFileStream.CopyToAsync(TransformStream, 81920, CancelToken);
                                     TransformStream.FlushFinalBlock();
                                 }
                             }
@@ -2250,21 +2221,32 @@ namespace FileManager
 
                 return EncryptedFile;
             }
-            catch (Exception e)
+            catch (TaskCanceledException e)
             {
                 await EncryptedFile?.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 throw e;
+            }
+            catch (CryptographicException e)
+            {
+                await EncryptedFile?.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                throw e;
+            }
+            catch (Exception)
+            {
+                await EncryptedFile?.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                return null;
             }
         }
 
         /// <summary>
         /// 根据指定的密钥，使用AES将文件解密至指定的文件夹
         /// </summary>
-        /// <param name="EncryptedFile">要解密的文件夹</param>
+        /// <param name="EncryptedFile">要解密的文件</param>
         /// <param name="ExportFolder">指定解密文件的保存位置</param>
         /// <param name="Key">解密密钥</param>
+        /// <param name="CancelToken">取消通知</param>
         /// <returns></returns>
-        public static async Task<StorageFile> DecryptAsync(this StorageFile EncryptedFile, StorageFolder ExportFolder, string Key)
+        public static async Task<StorageFile> DecryptAsync(this StorageFile EncryptedFile, StorageFolder ExportFolder, string Key, CancellationToken CancelToken = default)
         {
             if (ExportFolder == null)
             {
@@ -2331,7 +2313,7 @@ namespace FileManager
                                     {
                                         using (CryptoStream TransformStream = new CryptoStream(DecryptFileStream, Decryptor, CryptoStreamMode.Write))
                                         {
-                                            await EncryptFileStream.CopyToAsync(TransformStream);
+                                            await EncryptFileStream.CopyToAsync(TransformStream, 81920, CancelToken);
                                             TransformStream.FlushFinalBlock();
                                         }
                                     }
@@ -2361,10 +2343,20 @@ namespace FileManager
 
                 return DecryptedFile;
             }
-            catch (Exception e)
+            catch (TaskCanceledException e)
             {
                 await DecryptedFile?.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 throw e;
+            }
+            catch(CryptographicException e)
+            {
+                await DecryptedFile?.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                throw e;
+            }
+            catch (Exception)
+            {
+                await DecryptedFile?.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                return null;
             }
         }
 

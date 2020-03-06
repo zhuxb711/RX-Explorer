@@ -12,8 +12,7 @@
         <Canvas>
             <Image Name="extendedSplashImage"
                    Source="ms-appx:///Assets/SplashScreen.png" />
-            <TextBlock FontSize="15"
-                       Name="Display"
+            <TextBlock Name="Display"
                        x:Uid="PermissionDisplay"
                        TextAlignment="Center"
                        Width="450"
@@ -26,7 +25,6 @@
                         x:Uid="PermissionButton"
                         Content="授予权限"
                         HorizontalAlignment="Center"
-                        FontSize="16"
                         Width="120"
                         Click="NavigationButton_Click" />
                 <Button Name="CloseButton"
@@ -34,7 +32,6 @@
                         x:Uid="CloseButton"
                         Margin="10,0,0,0"
                         HorizontalAlignment="Center"
-                        FontSize="16"
                         Width="120"
                         Click="CloseButton_Click" />
             </StackPanel>

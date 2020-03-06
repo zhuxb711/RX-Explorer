@@ -23,11 +23,14 @@
                           Click="AddNewFile_Click"/>
             <AppBarButton Icon="Bookmarks"
                           Label="解压全部" 
+                          IsEnabled="False"
                           x:Name="DecompressAll"
                           Click="DecompressAll_Click"/>
             <AppBarButton Icon="Remote"
                           x:Uid="ZipCRC"
                           Label="测试文件"
+                          Name="Crctest"
+                          IsEnabled="False"
                           Click="Test_Click"/>
         </CommandBar>
         <GridView Grid.Row="1"
@@ -52,14 +55,11 @@
                                    TextTrimming="CharacterEllipsis"
                                    HorizontalAlignment="Left"/>
                         <TextBlock Text="{x:Bind Type}"
-                                   FontSize="13" />
-                        <TextBlock Text="{x:Bind IsCrypted}"
-                                   FontSize="13" />
+                                   FontSize="13" 
+                                   Margin="0,5,0,0"/>
                         <TextBlock Text="{x:Bind CompresionSize}"
                                    FontSize="13" />
                         <TextBlock Text="{x:Bind ActualSize}"
-                                   FontSize="13" />
-                        <TextBlock Text="{x:Bind Time}"
                                    FontSize="13" />
                     </StackPanel>
                 </DataTemplate>
@@ -118,5 +118,12 @@
             </StackPanel>
         </controls:Loading>
 
+        <TextBlock Grid.RowSpan="2"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Text="此压缩包不包含任何文件"
+                   Name="EmptyTip"
+                   Visibility="Collapsed"
+                   FontSize="18"/>
     </Grid>
 </Page>

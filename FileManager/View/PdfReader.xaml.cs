@@ -82,29 +82,75 @@ namespace FileManager
             MaxLoad = 0;
             LastPageIndex = 0;
 
-            Pdf = await PdfDocument.LoadFromFileAsync(PdfFile);
-
-            for (uint i = 0; i < 10 && i < Pdf.PageCount && !Cancellation.IsCancellationRequested; i++)
+            try
             {
-                using (PdfPage Page = Pdf.GetPage(i))
-                using (InMemoryRandomAccessStream PageStream = new InMemoryRandomAccessStream())
+                try
                 {
-                    await Page.RenderToStreamAsync(PageStream);
-                    BitmapImage DisplayImage = new BitmapImage();
-                    PdfCollection.Add(DisplayImage);
-                    await DisplayImage.SetSourceAsync(PageStream);
+                    Pdf = await PdfDocument.LoadFromFileAsync(PdfFile);
+                }
+                catch (Exception)
+                {
+                    PdfPasswordDialog Dialog = new PdfPasswordDialog();
+                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    {
+                        Pdf = await PdfDocument.LoadFromFileAsync(PdfFile, Dialog.Password);
+                    }
+                    else
+                    {
+                        FileControl.ThisPage.Nav.GoBack();
+                        return;
+                    }
+                }
+
+                for (uint i = 0; i < 10 && i < Pdf.PageCount && !Cancellation.IsCancellationRequested; i++)
+                {
+                    using (PdfPage Page = Pdf.GetPage(i))
+                    using (InMemoryRandomAccessStream PageStream = new InMemoryRandomAccessStream())
+                    {
+                        await Page.RenderToStreamAsync(PageStream);
+                        BitmapImage DisplayImage = new BitmapImage();
+                        PdfCollection.Add(DisplayImage);
+                        await DisplayImage.SetSourceAsync(PageStream);
+                    }
                 }
             }
-
-            ExitLocker.Set();
-
-            if (!Cancellation.IsCancellationRequested)
+            catch (Exception)
             {
-                Flip.SelectionChanged += Flip_SelectionChanged;
-                Flip.SelectionChanged += Flip_SelectionChanged1;
-            }
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "错误",
+                        Content = "无法解析此PDF文件，PDF打开失败",
+                        CloseButtonText = "返回"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "Error",
+                        Content = "Unable to parse this PDF file, failed to open PDF",
+                        CloseButtonText = "Go back"
+                    };
+                    _ = await Dialog.ShowAsync();
+                }
 
-            LoadingControl.IsLoading = false;
+                FileControl.ThisPage.Nav.GoBack();
+            }
+            finally
+            {
+                ExitLocker.Set();
+
+                if (!Cancellation.IsCancellationRequested)
+                {
+                    Flip.SelectionChanged += Flip_SelectionChanged;
+                    Flip.SelectionChanged += Flip_SelectionChanged1;
+                }
+
+                LoadingControl.IsLoading = false;
+            }
         }
 
         private void Flip_SelectionChanged1(object sender, SelectionChangedEventArgs e)

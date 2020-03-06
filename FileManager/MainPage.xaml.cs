@@ -38,7 +38,7 @@ namespace FileManager
 
         private EntranceAnimationEffect EntranceEffectProvider;
 
-        private DeviceWatcher PortalDeviceWatcher;
+        public DeviceWatcher PortalDeviceWatcher;
 
         public string LastPageName { get; private set; }
 
@@ -86,11 +86,6 @@ namespace FileManager
         {
             try
             {
-                PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
-                PortalDeviceWatcher.Added += PortalDeviceWatcher_Added;
-                PortalDeviceWatcher.Removed += PortalDeviceWatcher_Removed;
-                PortalDeviceWatcher.Start();
-
                 if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)
                 {
                     SettingPage.IsDoubleClickEnable = IsDoubleClick;
@@ -106,7 +101,6 @@ namespace FileManager
                     {
                         {typeof(ThisPC),"这台电脑" },
                         {typeof(FileControl),"这台电脑" },
-                        {typeof(AboutMe),"这台电脑" },
                         {typeof(SecureArea),"安全域" }
                     };
                 }
@@ -116,7 +110,6 @@ namespace FileManager
                     {
                         {typeof(ThisPC),"ThisPC" },
                         {typeof(FileControl),"ThisPC" },
-                        {typeof(AboutMe),"ThisPC" },
                         {typeof(SecureArea),"Security Area" }
                     };
                 }
@@ -131,6 +124,10 @@ namespace FileManager
                 {
                     await ToDeletePicture.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 }
+
+                PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
+                PortalDeviceWatcher.Added += PortalDeviceWatcher_Added;
+                PortalDeviceWatcher.Removed += PortalDeviceWatcher_Removed;
 
                 await GetUserInfoAsync();
 
@@ -290,11 +287,6 @@ namespace FileManager
 
         private async void PortalDeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
         {
-            if (ThisPC.ThisPage == null)
-            {
-                return;
-            }
-
             var CurrentDrives = DriveInfo.GetDrives().TakeWhile((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
                                                      .GroupBy((Item) => Item.Name)
                                                      .Select((Group) => Group.FirstOrDefault().Name);
@@ -311,24 +303,47 @@ namespace FileManager
 
         private async void PortalDeviceWatcher_Added(DeviceWatcher sender, DeviceInformation args)
         {
-            if (ThisPC.ThisPage == null)
-            {
-                return;
-            }
-
-            var NewDriveAddedList = DriveInfo.GetDrives().TakeWhile((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
-                                                         .GroupBy((Item) => Item.Name)
-                                                         .Select((Group) => Group.FirstOrDefault().Name)
+            var NewDriveAddedList = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                                                         .Select((Item) => Item.RootDirectory.FullName)
                                                          .SkipWhile((NewItem) => ThisPC.ThisPage.HardDeviceList.Any((Item) => Item.Folder.Path == NewItem));
-            foreach (string DriveRootPath in NewDriveAddedList)
+            try
             {
-                StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
-                BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+                foreach (string DriveRootPath in NewDriveAddedList)
+                {
+                    StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
+                    BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
 
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                    {
+                        ThisPC.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
+                    });
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                 {
-                    ThisPC.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "提示",
+                            Content = $"由于缺少足够的访问权限，无法添加可移动设备：\"{args.Name}\"",
+                            CloseButtonText = "确定"
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
+                    else
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "Tips",
+                            Content = $"Cannot add removable device：\"{args.Name}\" due to lack of sufficient permissions",
+                            CloseButtonText = "Got it"
+                        };
+                        _ = await Dialog.ShowAsync();
+                    }
                 });
             }
         }
@@ -344,7 +359,7 @@ namespace FileManager
                 NavView.IsBackEnabled = true;
             }
 
-            if (Nav.SourcePageType == typeof(SettingPage) || Nav.SourcePageType == typeof(AboutMe))
+            if (Nav.SourcePageType == typeof(SettingPage))
             {
                 NavView.SelectedItem = NavView.SettingsItem as NavigationViewItem;
             }

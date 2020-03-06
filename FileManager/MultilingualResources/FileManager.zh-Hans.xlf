@@ -223,8 +223,8 @@
           <target state="translated">WiFi共享</target>
         </trans-unit>
         <trans-unit id="Zip.Label" translate="yes" xml:space="preserve">
-          <source>Zip Compression</source>
-          <target state="translated">Zip 压缩</target>
+          <source>Compression</source>
+          <target state="needs-review-translation">压缩</target>
         </trans-unit>
         <trans-unit id="SearchingText.Text" translate="yes" xml:space="preserve">
           <source>Searching</source>
@@ -405,10 +405,6 @@
         <trans-unit id="RenamePreview.Text" translate="yes" xml:space="preserve">
           <source>Preview</source>
           <target state="translated">预览</target>
-        </trans-unit>
-        <trans-unit id="SettingAbout.Content" translate="yes" xml:space="preserve">
-          <source>About Developer→→</source>
-          <target state="translated">关于开发者→→</target>
         </trans-unit>
         <trans-unit id="SettingAdvance.Text" translate="yes" xml:space="preserve">
           <source>Advance</source>
@@ -1474,18 +1470,6 @@
           <source>Donate developer</source>
           <target state="translated">捐赠开发者</target>
         </trans-unit>
-        <trans-unit id="AboutMeText1.Text" translate="yes" xml:space="preserve">
-          <source>Base on</source>
-          <target state="translated">基于</target>
-        </trans-unit>
-        <trans-unit id="AboutMeText2.Text" translate="yes" xml:space="preserve">
-          <source>Developer</source>
-          <target state="translated">开发者</target>
-        </trans-unit>
-        <trans-unit id="AboutMeText3.Text" translate="yes" xml:space="preserve">
-          <source>Contact me</source>
-          <target state="translated">联系方式</target>
-        </trans-unit>
         <trans-unit id="VideoEditDialog.CloseButtonText" translate="yes" xml:space="preserve">
           <source>Cancel</source>
           <target state="translated">取消</target>
@@ -1675,8 +1659,8 @@
           <target state="translated">文件名</target>
         </trans-unit>
         <trans-unit id="NewFileDialogFileName.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Enter file name (including suffix)</source>
-          <target state="translated">输入新建文件名(包括后缀)</target>
+          <source>Enter file name</source>
+          <target state="translated">输入新建文件名</target>
         </trans-unit>
         <trans-unit id="SecureAreaIntroDialog.CloseButtonText" translate="yes" xml:space="preserve">
           <source>Back</source>
@@ -1689,6 +1673,50 @@
         <trans-unit id="SecureAreaIntroDialog.Title" translate="yes" xml:space="preserve">
           <source>Introduction to Secure Area</source>
           <target state="translated">安全域介绍</target>
+        </trans-unit>
+        <trans-unit id="SettingAbout.Text" translate="yes" xml:space="preserve">
+          <source>About</source>
+          <target state="translated">关于</target>
+        </trans-unit>
+        <trans-unit id="SettingContactDeveloper.Content" translate="yes" xml:space="preserve">
+          <source>Contact the developer</source>
+          <target state="translated">联系开发者</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogInvalidInputTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>The file type you specified does not meet the specifications. Please re-enter</source>
+          <target state="translated">您所指定的文件类型不符合规范，请重新输入</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogInvalidInputTip.Title" translate="yes" xml:space="preserve">
+          <source>Malformed</source>
+          <target state="translated">格式不正确</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogType.Header" translate="yes" xml:space="preserve">
+          <source>File type</source>
+          <target state="translated">文件类型</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogType.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter or select a type</source>
+          <target state="translated">输入或选择一种类型</target>
+        </trans-unit>
+        <trans-unit id="PdfPasswordDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="PdfPasswordDialogPasswordBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please enter the password to unlock this PDF</source>
+          <target state="translated">请输入密码以解锁此PDF</target>
+        </trans-unit>
+        <trans-unit id="PdfPasswordDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="PdfPasswordDialog.Title" translate="yes" xml:space="preserve">
+          <source>Need password</source>
+          <target state="translated">需要密码</target>
+        </trans-unit>
+        <trans-unit id="PdfPasswordDialogPasswordBox.Header" translate="yes" xml:space="preserve">
+          <source>PDF password</source>
+          <target state="translated">PDF密码</target>
         </trans-unit>
       </group>
     </body>

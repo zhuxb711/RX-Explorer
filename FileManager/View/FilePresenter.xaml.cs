@@ -1,5 +1,4 @@
-﻿using ICSharpCode.SharpZipLib.Core;
-using ICSharpCode.SharpZipLib.Zip;
+﻿using ICSharpCode.SharpZipLib.Zip;
 using OpenCV;
 using System;
 using System.Collections.Generic;
@@ -1015,7 +1014,7 @@ namespace FileManager
         /// <param name="IsLoading">激活或关闭</param>
         /// <param name="Info">提示内容</param>
         /// <param name="DisableProbarIndeterminate">是否使用条状进度条替代圆形进度条</param>
-        private async Task LoadingActivation(bool IsLoading, string Info = null, bool DisableProbarIndeterminate = false)
+        private async Task LoadingActivation(bool IsLoading, string Info = null)
         {
             if (IsLoading)
             {
@@ -1024,16 +1023,7 @@ namespace FileManager
                     HasFile.Visibility = Visibility.Collapsed;
                 }
 
-                if (DisableProbarIndeterminate)
-                {
-                    ProBar.IsIndeterminate = false;
-                    ProgressInfo.Text = Info + "...0%";
-                }
-                else
-                {
-                    ProBar.IsIndeterminate = true;
-                    ProgressInfo.Text = Info + "...";
-                }
+                ProgressInfo.Text = Info + "...";
             }
             else
             {
@@ -1575,7 +1565,7 @@ namespace FileManager
 
             if (Item.Type == ".zip")
             {
-                if ((await UnZipAsync(Item)) is StorageFolder NewFolder)
+                if ((await UnZipAsync(Item.File)) is StorageFolder NewFolder)
                 {
                     TreeViewNode CurrentNode = null;
                     if (FileControl.ThisPage.CurrentNode.Children.All((Node) => (Node.Content as StorageFolder).Name != NewFolder.Name))
@@ -1586,7 +1576,7 @@ namespace FileManager
                             CurrentNode = new TreeViewNode
                             {
                                 Content = NewFolder,
-                                HasUnrealizedChildren = false
+                                HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
                             };
                             FileControl.ThisPage.CurrentNode.Children.Add(CurrentNode);
                         }
@@ -1600,22 +1590,16 @@ namespace FileManager
 
                 if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
-                        ? "正在压缩"
-                        : "Compressing", true);
+                    await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在压缩" : "Compressing");
 
                     if (dialog.IsCryptionEnable)
                     {
-                        await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, true, dialog.Key, dialog.Password);
+                        await CreateZipAsync(Item.File, dialog.FileName, (int)dialog.Level, true, dialog.Key, dialog.Password);
                     }
                     else
                     {
-                        await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level);
+                        await CreateZipAsync(Item.File, dialog.FileName, (int)dialog.Level);
                     }
-                }
-                else
-                {
-                    return;
                 }
             }
 
@@ -1627,24 +1611,28 @@ namespace FileManager
         /// </summary>
         /// <param name="ZFileList">ZIP文件</param>
         /// <returns>无</returns>
-        private async Task<StorageFolder> UnZipAsync(FileSystemStorageItem ZFile)
+        private async Task<StorageFolder> UnZipAsync(StorageFile ZFile)
         {
             StorageFolder NewFolder = null;
-            using (var ZipFileStream = await ZFile.File.OpenStreamForReadAsync())
+            using (Stream ZipFileStream = await ZFile.OpenStreamForReadAsync())
+            using (ZipFile ZipEntries = new ZipFile(ZipFileStream))
             {
-                ZipFile zipFile = new ZipFile(ZipFileStream);
+                ZipEntries.IsStreamOwner = false;
+
+                if (ZipEntries.Count == 0)
+                {
+                    return null;
+                }
 
                 try
                 {
-                    if (zipFile[0].IsCrypted)
+                    if (ZipEntries[0].IsCrypted)
                     {
-                        ZipDialog dialog = new ZipDialog(false);
-                        if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+                        ZipDialog Dialog = new ZipDialog(false);
+                        if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                         {
-                            await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
-                                ? "正在解压"
-                                : "Extracting", true);
-                            zipFile.Password = dialog.Password;
+                            await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在解压" : "Extracting");
+                            ZipEntries.Password = Dialog.Password;
                         }
                         else
                         {
@@ -1653,58 +1641,44 @@ namespace FileManager
                     }
                     else
                     {
-                        await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
-                            ? "正在解压"
-                            : "Extracting", true);
+                        await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在解压" : "Extracting");
                     }
 
-                    NewFolder = await FileControl.ThisPage.CurrentFolder.CreateFolderAsync(Path.GetFileNameWithoutExtension(ZFile.File.Name), CreationCollisionOption.OpenIfExists);
+                    NewFolder = await FileControl.ThisPage.CurrentFolder.CreateFolderAsync(Path.GetFileNameWithoutExtension(ZFile.Name), CreationCollisionOption.OpenIfExists);
 
-                    int HCounter = 0, TCounter = 0, RepeatFilter = -1;
-                    foreach (ZipEntry Entry in zipFile)
+                    foreach (ZipEntry Entry in ZipEntries)
                     {
-                        if (!Entry.IsFile)
+                        using (Stream ZipEntryStream = ZipEntries.GetInputStream(Entry))
                         {
-                            continue;
-                        }
-                        using (Stream ZipTempStream = zipFile.GetInputStream(Entry))
-                        {
-                            StorageFile NewFile = await NewFolder.CreateFileAsync(Entry.Name, CreationCollisionOption.ReplaceExisting);
-                            using (Stream stream = await NewFile.OpenStreamForWriteAsync())
+                            StorageFile NewFile = null;
+
+                            if (Entry.Name.Contains("/"))
                             {
-                                double FileSize = Entry.Size;
-                                await Task.Run(() =>
+                                string[] SplitFolderPath = Entry.Name.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                                StorageFolder TempFolder = NewFolder;
+                                for (int i = 0; i < SplitFolderPath.Length - 1; i++)
                                 {
-                                    StreamUtils.Copy(ZipTempStream, stream, new byte[4096], async (s, e) =>
-                                    {
-                                        await LoadingControl.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                                        {
-                                            lock (SyncRootProvider.SyncRoot)
-                                            {
-                                                string temp = ProgressInfo.Text.Remove(ProgressInfo.Text.LastIndexOf('.') + 1);
-                                                TCounter = Convert.ToInt32((e.Processed / FileSize) * 100);
-                                                if (RepeatFilter == TCounter)
-                                                {
-                                                    return;
-                                                }
-                                                else
-                                                {
-                                                    RepeatFilter = TCounter;
-                                                }
+                                    TempFolder = await TempFolder.CreateFolderAsync(SplitFolderPath[i], CreationCollisionOption.OpenIfExists);
+                                }
 
-                                                int CurrentProgress = Convert.ToInt32((HCounter + TCounter) / ((double)zipFile.Count));
-                                                ProgressInfo.Text = temp + CurrentProgress + "%";
-                                                ProBar.Value = CurrentProgress;
+                                if (Entry.Name.Last() == '/')
+                                {
+                                    await TempFolder.CreateFolderAsync(SplitFolderPath.Last(), CreationCollisionOption.OpenIfExists);
+                                    continue;
+                                }
+                                else
+                                {
+                                    NewFile = await TempFolder.CreateFileAsync(SplitFolderPath.Last(), CreationCollisionOption.ReplaceExisting);
+                                }
+                            }
+                            else
+                            {
+                                NewFile = await NewFolder.CreateFileAsync(Entry.Name, CreationCollisionOption.ReplaceExisting);
+                            }
 
-                                                if (TCounter == 100)
-                                                {
-                                                    HCounter += 100;
-                                                }
-                                            }
-                                        });
-
-                                    }, TimeSpan.FromMilliseconds(100), null, string.Empty);
-                                });
+                            using (Stream NewFileStream = await NewFile.OpenStreamForWriteAsync())
+                            {
+                                await ZipEntryStream.CopyToAsync(NewFileStream);
                             }
                         }
                     }
@@ -1763,11 +1737,6 @@ namespace FileManager
                         _ = await dialog.ShowAsync();
                     }
                 }
-                finally
-                {
-                    zipFile.IsStreamOwner = false;
-                    zipFile.Close();
-                }
             }
 
             return NewFolder;
@@ -1783,82 +1752,67 @@ namespace FileManager
         /// <param name="Size">AES加密密钥长度</param>
         /// <param name="Password">密码</param>
         /// <returns>无</returns>
-        private async Task CreateZipAsync(FileSystemStorageItem ZipFile, string NewZipName, int ZipLevel, bool EnableCryption = false, KeySize Size = KeySize.None, string Password = null)
+        private async Task CreateZipAsync(IStorageItem ZipTarget, string NewZipName, int ZipLevel, bool EnableCryption = false, KeySize Size = KeySize.None, string Password = null)
         {
             try
             {
-                var Newfile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(NewZipName, CreationCollisionOption.GenerateUniqueName);
-                using (var NewFileStream = await Newfile.OpenStreamForWriteAsync())
+                StorageFile Newfile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(NewZipName, CreationCollisionOption.GenerateUniqueName);
+
+                using (Stream NewFileStream = await Newfile.OpenStreamForWriteAsync())
+                using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                 {
-                    ZipOutputStream ZipStream = new ZipOutputStream(NewFileStream);
+                    OutputStream.IsStreamOwner = false;
+                    OutputStream.SetLevel(ZipLevel);
+                    OutputStream.UseZip64 = UseZip64.Off;
+                    if (EnableCryption)
+                    {
+                        OutputStream.Password = Password;
+                    }
+
                     try
                     {
-                        ZipStream.SetLevel(ZipLevel);
-                        ZipStream.UseZip64 = UseZip64.Off;
-                        if (EnableCryption)
+                        if (ZipTarget is StorageFile ZipFile)
                         {
-                            ZipStream.Password = Password;
-                            ZipEntry NewEntry = new ZipEntry(ZipFile.File.Name)
+                            if (EnableCryption)
                             {
-                                DateTime = DateTime.Now,
-                                AESKeySize = (int)Size,
-                                IsCrypted = true,
-                                CompressionMethod = CompressionMethod.Deflated
-                            };
-
-                            ZipStream.PutNextEntry(NewEntry);
-                            using (Stream stream = await ZipFile.File.OpenStreamForReadAsync())
-                            {
-                                await Task.Run(() =>
+                                ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
                                 {
-                                    StreamUtils.Copy(stream, ZipStream, new byte[4096], async (s, e) =>
-                                    {
-                                        await LoadingControl.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                                        {
-                                            lock (SyncRootProvider.SyncRoot)
-                                            {
-                                                string temp = ProgressInfo.Text.Remove(ProgressInfo.Text.LastIndexOf('.') + 1);
-                                                int CurrentProgress = (int)Math.Ceiling(e.PercentComplete);
-                                                ProgressInfo.Text = temp + CurrentProgress + "%";
-                                                ProBar.Value = CurrentProgress;
-                                            }
-                                        });
-                                    }, TimeSpan.FromMilliseconds(300), null, string.Empty);
-                                });
+                                    DateTime = DateTime.Now,
+                                    AESKeySize = (int)Size,
+                                    IsCrypted = true,
+                                    CompressionMethod = CompressionMethod.Deflated
+                                };
 
-                                ZipStream.CloseEntry();
+                                OutputStream.PutNextEntry(NewEntry);
+
+                                using (Stream FileStream = await ZipFile.OpenStreamForReadAsync())
+                                {
+                                    await FileStream.CopyToAsync(OutputStream);
+                                }
+                            }
+                            else
+                            {
+                                ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
+                                {
+                                    DateTime = DateTime.Now,
+                                    CompressionMethod = CompressionMethod.Deflated
+                                };
+
+                                OutputStream.PutNextEntry(NewEntry);
+
+                                using (Stream FileStream = await ZipFile.OpenStreamForReadAsync())
+                                {
+                                    await FileStream.CopyToAsync(OutputStream);
+                                }
                             }
                         }
-                        else
+                        else if (ZipTarget is StorageFolder ZipFolder)
                         {
-                            ZipEntry NewEntry = new ZipEntry(ZipFile.File.Name)
-                            {
-                                DateTime = DateTime.Now
-                            };
-
-                            ZipStream.PutNextEntry(NewEntry);
-                            using (Stream stream = await ZipFile.File.OpenStreamForReadAsync())
-                            {
-                                await Task.Run(() =>
-                                {
-                                    StreamUtils.Copy(stream, ZipStream, new byte[4096], async (s, e) =>
-                                    {
-                                        await LoadingControl.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                                        {
-                                            lock (SyncRootProvider.SyncRoot)
-                                            {
-                                                string temp = ProgressInfo.Text.Remove(ProgressInfo.Text.LastIndexOf('.') + 1);
-
-                                                int CurrentProgress = (int)Math.Ceiling(e.PercentComplete);
-                                                ProgressInfo.Text = temp + CurrentProgress + "%";
-                                                ProBar.Value = CurrentProgress;
-                                            }
-                                        });
-                                    }, TimeSpan.FromMilliseconds(300), null, string.Empty);
-                                });
-                                ZipStream.CloseEntry();
-                            }
+                            await ZipFolderCore(ZipFolder, OutputStream, string.Empty, EnableCryption, Size, Password);
                         }
+
+                        await OutputStream.FlushAsync();
+                        OutputStream.Finish();
                     }
                     catch (Exception e)
                     {
@@ -1883,12 +1837,8 @@ namespace FileManager
                             _ = await dialog.ShowAsync();
                         }
                     }
-                    finally
-                    {
-                        ZipStream.IsStreamOwner = false;
-                        ZipStream.Close();
-                    }
                 }
+
                 FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(Newfile, await Newfile.GetSizeDescriptionAsync(), await Newfile.GetThumbnailBitmapAsync(), await Newfile.GetModifiedTimeAsync()));
             }
             catch (UnauthorizedAccessException)
@@ -1919,6 +1869,143 @@ namespace FileManager
                     if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                    }
+                }
+            }
+        }
+
+        private async Task ZipFolderCore(StorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, bool EnableCryption = false, KeySize Size = KeySize.None, string Password = null)
+        {
+            foreach (IStorageItem Item in await Folder.GetItemsAsync())
+            {
+                if (Item is StorageFolder InnerFolder)
+                {
+                    if (string.IsNullOrEmpty(BaseFolderName))
+                    {
+                        if (EnableCryption)
+                        {
+                            ZipEntry NewEntry = new ZipEntry($"{InnerFolder.Name}/")
+                            {
+                                DateTime = DateTime.Now,
+                                AESKeySize = (int)Size,
+                                IsCrypted = true,
+                                CompressionMethod = CompressionMethod.Deflated
+                            };
+
+                            OutputStream.PutNextEntry(NewEntry);
+                            await ZipFolderCore(InnerFolder, OutputStream, NewEntry.Name, true, Size, Password);
+                        }
+                        else
+                        {
+                            ZipEntry NewEntry = new ZipEntry($"{InnerFolder.Name}/")
+                            {
+                                DateTime = DateTime.Now,
+                                CompressionMethod = CompressionMethod.Deflated
+                            };
+
+                            OutputStream.PutNextEntry(NewEntry);
+                            await ZipFolderCore(InnerFolder, OutputStream, NewEntry.Name);
+                        }
+                    }
+                    else
+                    {
+                        if (EnableCryption)
+                        {
+                            ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}{InnerFolder.Name}/")
+                            {
+                                DateTime = DateTime.Now,
+                                AESKeySize = (int)Size,
+                                IsCrypted = true,
+                                CompressionMethod = CompressionMethod.Deflated
+                            };
+
+                            OutputStream.PutNextEntry(NewEntry);
+                            await ZipFolderCore(InnerFolder, OutputStream, NewEntry.Name, true, Size, Password);
+                        }
+                        else
+                        {
+                            ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}{InnerFolder.Name}/")
+                            {
+                                DateTime = DateTime.Now,
+                                CompressionMethod = CompressionMethod.Deflated
+                            };
+
+                            OutputStream.PutNextEntry(NewEntry);
+                            await ZipFolderCore(InnerFolder, OutputStream, NewEntry.Name);
+                        }
+                    }
+                }
+                else if (Item is StorageFile InnerFile)
+                {
+                    if (string.IsNullOrEmpty(BaseFolderName))
+                    {
+                        if (EnableCryption)
+                        {
+                            ZipEntry NewEntry = new ZipEntry(InnerFile.Name)
+                            {
+                                DateTime = DateTime.Now,
+                                AESKeySize = (int)Size,
+                                IsCrypted = true,
+                                CompressionMethod = CompressionMethod.Deflated
+                            };
+
+                            OutputStream.PutNextEntry(NewEntry);
+
+                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync())
+                            {
+                                await FileStream.CopyToAsync(OutputStream);
+                            }
+                        }
+                        else
+                        {
+                            ZipEntry NewEntry = new ZipEntry(InnerFile.Name)
+                            {
+                                DateTime = DateTime.Now,
+                                CompressionMethod = CompressionMethod.Deflated
+                            };
+
+                            OutputStream.PutNextEntry(NewEntry);
+
+                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync())
+                            {
+                                await FileStream.CopyToAsync(OutputStream);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (EnableCryption)
+                        {
+                            ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}{InnerFile.Name}")
+                            {
+                                DateTime = DateTime.Now,
+                                AESKeySize = (int)Size,
+                                IsCrypted = true,
+                                CompressionMethod = CompressionMethod.Deflated
+                            };
+
+                            OutputStream.PutNextEntry(NewEntry);
+
+                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync())
+                            {
+                                await FileStream.CopyToAsync(OutputStream);
+                            }
+                        }
+                        else
+                        {
+                            ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}{InnerFile.Name}")
+                            {
+                                DateTime = DateTime.Now,
+                                CompressionMethod = CompressionMethod.Deflated
+                            };
+
+                            OutputStream.PutNextEntry(NewEntry);
+
+                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync())
+                            {
+                                await FileStream.CopyToAsync(OutputStream);
+                            }
+                        }
                     }
                 }
             }
@@ -3006,6 +3093,7 @@ namespace FileManager
                 try
                 {
                     StorageFile NewFile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(Dialog.NewFileName, CreationCollisionOption.GenerateUniqueName);
+
                     int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.ContentType == ContentType.File));
                     if (Index == -1)
                     {
@@ -3048,6 +3136,57 @@ namespace FileManager
                     }
                 }
             }
+        }
+
+        private async void CompressFolder_Click(object sender, RoutedEventArgs e)
+        {
+            Restore();
+
+            FileSystemStorageItem Item = SelectedItem as FileSystemStorageItem;
+
+            if (!await Item.Folder.CheckExist())
+            {
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog Dialog1 = new QueueContentDialog
+                    {
+                        Title = "错误",
+                        Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
+                        CloseButtonText = "刷新"
+                    };
+                    _ = await Dialog1.ShowAsync();
+                }
+                else
+                {
+                    QueueContentDialog Dialog1 = new QueueContentDialog
+                    {
+                        Title = "Error",
+                        Content = "Could not find the corresponding folder, it may have been moved or deleted",
+                        CloseButtonText = "Refresh"
+                    };
+                    _ = await Dialog1.ShowAsync();
+                }
+                await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                return;
+            }
+
+            ZipDialog dialog = new ZipDialog(true, Item.DisplayName);
+
+            if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+            {
+                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在压缩" : "Compressing");
+
+                if (dialog.IsCryptionEnable)
+                {
+                    await CreateZipAsync(Item.Folder, dialog.FileName, (int)dialog.Level, true, dialog.Key, dialog.Password);
+                }
+                else
+                {
+                    await CreateZipAsync(Item.Folder, dialog.FileName, (int)dialog.Level);
+                }
+            }
+
+            await LoadingActivation(false);
         }
     }
 }

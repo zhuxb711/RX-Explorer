@@ -175,7 +175,7 @@
     <value>WiFi共享</value>
   </data>
   <data name="Zip.Label" xml:space="preserve">
-    <value>Zip 压缩</value>
+    <value>压缩</value>
   </data>
   <data name="SearchingText.Text" xml:space="preserve">
     <value>搜索中</value>
@@ -311,9 +311,6 @@
   </data>
   <data name="RenamePreview.Text" xml:space="preserve">
     <value>预览</value>
-  </data>
-  <data name="SettingAbout.Content" xml:space="preserve">
-    <value>关于开发者→→</value>
   </data>
   <data name="SettingAdvance.Text" xml:space="preserve">
     <value>高级</value>
@@ -1113,15 +1110,6 @@
   <data name="DonateTip.Title" xml:space="preserve">
     <value>捐赠开发者</value>
   </data>
-  <data name="AboutMeText1.Text" xml:space="preserve">
-    <value>基于</value>
-  </data>
-  <data name="AboutMeText2.Text" xml:space="preserve">
-    <value>开发者</value>
-  </data>
-  <data name="AboutMeText3.Text" xml:space="preserve">
-    <value>联系方式</value>
-  </data>
   <data name="VideoEditDialog.CloseButtonText" xml:space="preserve">
     <value>取消</value>
   </data>
@@ -1264,7 +1252,7 @@
     <value>文件名</value>
   </data>
   <data name="NewFileDialogFileName.PlaceholderText" xml:space="preserve">
-    <value>输入新建文件名(包括后缀)</value>
+    <value>输入新建文件名</value>
   </data>
   <data name="SecureAreaIntroDialog.CloseButtonText" xml:space="preserve">
     <value>返回</value>
@@ -1274,5 +1262,38 @@
   </data>
   <data name="SecureAreaIntroDialog.Title" xml:space="preserve">
     <value>安全域介绍</value>
+  </data>
+  <data name="SettingAbout.Text" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="SettingContactDeveloper.Content" xml:space="preserve">
+    <value>联系开发者</value>
+  </data>
+  <data name="NewFileDialogInvalidInputTip.Subtitle" xml:space="preserve">
+    <value>您所指定的文件类型不符合规范，请重新输入</value>
+  </data>
+  <data name="NewFileDialogInvalidInputTip.Title" xml:space="preserve">
+    <value>格式不正确</value>
+  </data>
+  <data name="NewFileDialogType.Header" xml:space="preserve">
+    <value>文件类型</value>
+  </data>
+  <data name="NewFileDialogType.PlaceholderText" xml:space="preserve">
+    <value>输入或选择一种类型</value>
+  </data>
+  <data name="PdfPasswordDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="PdfPasswordDialogPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>请输入密码以解锁此PDF</value>
+  </data>
+  <data name="PdfPasswordDialog.PrimaryButtonText" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="PdfPasswordDialog.Title" xml:space="preserve">
+    <value>需要密码</value>
+  </data>
+  <data name="PdfPasswordDialogPasswordBox.Header" xml:space="preserve">
+    <value>PDF密码</value>
   </data>
 </root>

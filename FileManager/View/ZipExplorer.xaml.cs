@@ -1,6 +1,6 @@
-﻿using ICSharpCode.SharpZipLib.Core;
-using ICSharpCode.SharpZipLib.Zip;
+﻿using ICSharpCode.SharpZipLib.Zip;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -12,8 +12,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
-using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
-using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
 
 namespace FileManager
 {
@@ -32,7 +30,23 @@ namespace FileManager
         {
             OriginFile = e.Parameter as FileSystemStorageItem;
             FileCollection = new ObservableCollection<ZipFileDisplay>();
+            FileCollection.CollectionChanged += FileCollection_CollectionChanged;
             GridControl.ItemsSource = FileCollection;
+        }
+
+        private void FileCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (FileCollection.Count == 0)
+            {
+                EmptyTip.Visibility = Visibility.Visible;
+                DecompressAll.IsEnabled = false;
+                Crctest.IsEnabled = false;
+            }
+            else
+            {
+                DecompressAll.IsEnabled = true;
+                Crctest.IsEnabled = true;
+            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -47,8 +61,17 @@ namespace FileManager
             try
             {
                 await GetFileItemInZip();
+
+                if (FileCollection.Count == 0)
+                {
+                    EmptyTip.Visibility = Visibility.Visible;
+                }
             }
-            catch(Exception)
+            catch (ZipException)
+            {
+                EmptyTip.Visibility = Visibility.Visible;
+            }
+            catch (Exception)
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -76,25 +99,15 @@ namespace FileManager
 
         public async Task GetFileItemInZip()
         {
-            using (var ZipFileStream = await OriginFile.File.OpenStreamForReadAsync())
+            using (Stream ZipFileStream = await OriginFile.File.OpenStreamForReadAsync())
+            using (ZipInputStream InputStream = new ZipInputStream(ZipFileStream))
             {
-                ZipFile zipFile = new ZipFile(ZipFileStream);
-                try
+                while (InputStream.GetNextEntry() is ZipEntry Entry)
                 {
-                    foreach (ZipEntry Entry in zipFile)
+                    if (Entry.IsFile && FileCollection.All((Item) => Item.FullName != Entry.Name))
                     {
-                        if (!Entry.IsFile || FileCollection.Any((Item) => Item.FullName == Entry.Name))
-                        {
-                            continue;
-                        }
-
                         FileCollection.Add(new ZipFileDisplay(Entry));
                     }
-                }
-                finally
-                {
-                    zipFile.IsStreamOwner = false;
-                    zipFile.Close();
                 }
             }
         }
@@ -108,10 +121,9 @@ namespace FileManager
 
         private async void Delete_Click(object sender, RoutedEventArgs e)
         {
-            LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
-                ? "正在执行删除操作"
-                : "Deleting");
-            var file = GridControl.SelectedItem as ZipFileDisplay;
+            LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在执行删除操作" : "Deleting");
+
+            ZipFileDisplay file = GridControl.SelectedItem as ZipFileDisplay;
             using (var ZipFileStream = (await OriginFile.File.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
             {
                 ZipFile zipFile = new ZipFile(ZipFileStream);
@@ -125,7 +137,6 @@ namespace FileManager
                             zipFile.Delete(Entry);
                             zipFile.CommitUpdate();
                         });
-                        FileCollection.Remove(file);
                     }
                 }
                 finally
@@ -137,14 +148,15 @@ namespace FileManager
 
             await OriginFile.SizeUpdateRequested();
             await Task.Delay(500);
+
+            FileCollection.Remove(file);
             LoadingActivation(false);
         }
 
         private async void Test_Click(object sender, RoutedEventArgs e)
         {
-            LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
-                ? "正在检验文件"
-                : "Verifying");
+            LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在检验文件" : "Verifying");
+
             var file = GridControl.SelectedItem as ZipFileDisplay;
             using (var ZipFileStream = await OriginFile.File.OpenStreamForReadAsync())
             {
@@ -208,55 +220,30 @@ namespace FileManager
             LoadingControl.IsLoading = IsLoading;
         }
 
-        private async Task SetSelectedNodeInTreeAsync(TreeViewNode Node)
-        {
-            if (!FileControl.ThisPage.CurrentNode.IsExpanded)
-            {
-                FileControl.ThisPage.CurrentNode.IsExpanded = true;
-            }
-
-            while (true)
-            {
-                if (FileControl.ThisPage.FolderTree.ContainerFromNode(Node) is TreeViewItem Item)
-                {
-                    Item.IsSelected = true;
-                    Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                    await FileControl.ThisPage.DisplayItemsInFolder(Node);
-                    break;
-                }
-                else
-                {
-                    await Task.Delay(200);
-                }
-            }
-        }
-
-
         private async void Decompression_Click(object sender, RoutedEventArgs e)
         {
-            LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
-                ? "正在解压"
-                : "Extracting");
+            LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在解压" : "Extracting");
 
-            var file = GridControl.SelectedItem as ZipFileDisplay;
+            ZipFileDisplay file = GridControl.SelectedItem as ZipFileDisplay;
             using (Stream ZipFileStream = await OriginFile.File.OpenStreamForReadAsync())
+            using (ZipInputStream InputStream = new ZipInputStream(ZipFileStream))
             {
-                ZipFile zipFile = new ZipFile(ZipFileStream);
-                try
+                while (true)
                 {
-                    ZipEntry Entry = zipFile.GetEntry(file.FullName);
-                    if (Entry != null)
+                    if (InputStream.GetNextEntry() is ZipEntry Entry && Entry.Name == file.FullName)
                     {
-                        TreeViewNode CurrentNode = null;
-
                         StorageFolder NewFolder = await FileControl.ThisPage.CurrentFolder.CreateFolderAsync(OriginFile.DisplayName, CreationCollisionOption.OpenIfExists);
-                        StorageFile NewFile = await NewFolder.CreateFileAsync(Entry.Name, CreationCollisionOption.ReplaceExisting);
+
+                        if (FilePresenter.ThisPage.FileCollection.All((Item) => Item.Name != NewFolder.Name))
+                        {
+                            FilePresenter.ThisPage.FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync(), await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync()));
+                        }
 
                         if (FileControl.ThisPage.CurrentNode.Children.All((Node) => (Node.Content as StorageFolder).Name != NewFolder.Name))
                         {
                             if (FileControl.ThisPage.CurrentNode.IsExpanded || !FileControl.ThisPage.CurrentNode.HasChildren)
                             {
-                                CurrentNode = new TreeViewNode
+                                Microsoft.UI.Xaml.Controls.TreeViewNode CurrentNode = new Microsoft.UI.Xaml.Controls.TreeViewNode
                                 {
                                     Content = await FileControl.ThisPage.CurrentFolder.GetFolderAsync(NewFolder.Name),
                                     HasUnrealizedChildren = false
@@ -266,119 +253,63 @@ namespace FileManager
                             FileControl.ThisPage.CurrentNode.IsExpanded = true;
                         }
 
-                        using (Stream ZipTempStream = zipFile.GetInputStream(Entry))
-                        using (Stream stream = await NewFile.OpenStreamForWriteAsync())
+                        StorageFile NewFile = await NewFolder.CreateFileAsync(Entry.Name, CreationCollisionOption.GenerateUniqueName);
+
+                        using (Stream NewFileStream = await NewFile.OpenStreamForWriteAsync())
                         {
-                            await Task.Run(() =>
-                            {
-                                StreamUtils.Copy(ZipTempStream, stream, new byte[4096]);
-                            });
+                            await InputStream.CopyToAsync(NewFileStream);
                         }
 
-                        await Task.Delay(1000);
-
-                        if (CurrentNode == null)
-                        {
-                            while (true)
-                            {
-                                if (FileControl.ThisPage.CurrentNode.Children.Where((Item) => (Item.Content as StorageFolder).Name == NewFolder.Name).FirstOrDefault() is TreeViewNode TargetNode)
-                                {
-                                    await SetSelectedNodeInTreeAsync(TargetNode);
-                                    break;
-                                }
-                                else
-                                {
-                                    await Task.Delay(200);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            await SetSelectedNodeInTreeAsync(CurrentNode);
-                        }
+                        break;
                     }
-
-                }
-                finally
-                {
-                    zipFile.IsStreamOwner = false;
-                    zipFile.Close();
                 }
             }
+
+            await Task.Delay(500);
 
             LoadingActivation(false);
         }
 
         private async void DecompressAll_Click(object sender, RoutedEventArgs e)
         {
-            LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
-            ? "正在解压"
-            : "Extracting");
+            LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在解压" : "Extracting");
 
             using (Stream ZipFileStream = await OriginFile.File.OpenStreamForReadAsync())
+            using (ZipInputStream InputStream = new ZipInputStream(ZipFileStream))
             {
-                ZipFile zipFile = new ZipFile(ZipFileStream);
-                try
+                StorageFolder NewFolder = await FileControl.ThisPage.CurrentFolder.CreateFolderAsync(OriginFile.DisplayName, CreationCollisionOption.OpenIfExists);
+
+                if (FilePresenter.ThisPage.FileCollection.All((Item) => Item.Name != NewFolder.Name))
                 {
-                    TreeViewNode CurrentNode = null;
-                    StorageFolder NewFolder = await FileControl.ThisPage.CurrentFolder.CreateFolderAsync(OriginFile.DisplayName, CreationCollisionOption.OpenIfExists);
-
-                    foreach (ZipEntry Entry in zipFile)
-                    {
-                        StorageFile NewFile = await NewFolder.CreateFileAsync(Entry.Name, CreationCollisionOption.ReplaceExisting);
-
-                        if (FileControl.ThisPage.CurrentNode.Children.All((Node) => (Node.Content as StorageFolder).Name != NewFolder.Name))
-                        {
-                            if (FileControl.ThisPage.CurrentNode.IsExpanded || !FileControl.ThisPage.CurrentNode.HasChildren)
-                            {
-                                CurrentNode = new TreeViewNode
-                                {
-                                    Content = await FileControl.ThisPage.CurrentFolder.GetFolderAsync(NewFolder.Name),
-                                    HasUnrealizedChildren = false
-                                };
-                                FileControl.ThisPage.CurrentNode.Children.Add(CurrentNode);
-                            }
-                            FileControl.ThisPage.CurrentNode.IsExpanded = true;
-                        }
-
-                        using (Stream ZipTempStream = zipFile.GetInputStream(Entry))
-                        using (Stream stream = await NewFile.OpenStreamForWriteAsync())
-                        {
-                            await Task.Run(() =>
-                            {
-                                StreamUtils.Copy(ZipTempStream, stream, new byte[4096]);
-                            });
-                        }
-                    }
-
-                    await Task.Delay(1000);
-
-                    if (CurrentNode == null)
-                    {
-                        while (true)
-                        {
-                            if (FileControl.ThisPage.CurrentNode.Children.Where((Item) => (Item.Content as StorageFolder).Name == NewFolder.Name).FirstOrDefault() is TreeViewNode TargetNode)
-                            {
-                                await SetSelectedNodeInTreeAsync(TargetNode);
-                                break;
-                            }
-                            else
-                            {
-                                await Task.Delay(200);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        await SetSelectedNodeInTreeAsync(CurrentNode);
-                    }
+                    FilePresenter.ThisPage.FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync(), await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync()));
                 }
-                finally
+
+                if (FileControl.ThisPage.CurrentNode.Children.All((Node) => (Node.Content as StorageFolder).Name != NewFolder.Name))
                 {
-                    zipFile.IsStreamOwner = false;
-                    zipFile.Close();
+                    if (FileControl.ThisPage.CurrentNode.IsExpanded || !FileControl.ThisPage.CurrentNode.HasChildren)
+                    {
+                        Microsoft.UI.Xaml.Controls.TreeViewNode CurrentNode = new Microsoft.UI.Xaml.Controls.TreeViewNode
+                        {
+                            Content = await FileControl.ThisPage.CurrentFolder.GetFolderAsync(NewFolder.Name),
+                            HasUnrealizedChildren = false
+                        };
+                        FileControl.ThisPage.CurrentNode.Children.Add(CurrentNode);
+                    }
+                    FileControl.ThisPage.CurrentNode.IsExpanded = true;
+                }
+
+                while (InputStream.GetNextEntry() is ZipEntry Entry)
+                {
+                    StorageFile NewFile = await NewFolder.CreateFileAsync(Entry.Name, CreationCollisionOption.GenerateUniqueName);
+
+                    using (Stream NewFileStream = await NewFile.OpenStreamForWriteAsync())
+                    {
+                        await InputStream.CopyToAsync(NewFileStream);
+                    }
                 }
             }
+
+            await Task.Delay(500);
 
             LoadingActivation(false);
         }
@@ -391,41 +322,39 @@ namespace FileManager
                 ViewMode = PickerViewMode.List
             };
             Picker.FileTypeFilter.Add("*");
-            var AddList = await Picker.PickMultipleFilesAsync();
+
+            IReadOnlyList<StorageFile> AddList = await Picker.PickMultipleFilesAsync();
 
             if (AddList.Count != 0)
             {
-                LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese
-                ? "正在执行添加操作"
-                : "Adding");
-
-                using (var ZipFileStream = (await OriginFile.File.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
+                if (EmptyTip.Visibility == Visibility.Visible)
                 {
-                    ZipFile zipFile = new ZipFile(ZipFileStream);
-                    try
-                    {
-                        zipFile.BeginUpdate();
+                    EmptyTip.Visibility = Visibility.Collapsed;
+                }
 
-                        foreach (var ToAddFile in AddList)
+                LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在执行添加操作" : "Adding");
+
+                using (Stream ZipFileStream = (await OriginFile.File.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
+                using (ZipOutputStream OutputStream = new ZipOutputStream(ZipFileStream))
+                {
+                    foreach (StorageFile ToAddFile in AddList)
+                    {
+                        using (Stream FileStream = await ToAddFile.OpenStreamForReadAsync())
                         {
-                            using (var filestream = await ToAddFile.OpenStreamForReadAsync())
+                            ZipEntry Entry = new ZipEntry(ToAddFile.Name)
                             {
-                                await Task.Run(() =>
-                                {
-                                    CustomStaticDataSource CSD = new CustomStaticDataSource();
-                                    CSD.SetStream(filestream);
-                                    zipFile.Add(CSD, ToAddFile.Name);
-                                });
-                            }
-                        }
+                                DateTime = DateTime.Now,
+                                Size = FileStream.Length
+                            };
 
-                        zipFile.CommitUpdate();
+                            OutputStream.PutNextEntry(Entry);
+
+                            await FileStream.CopyToAsync(OutputStream);
+                        }
                     }
-                    finally
-                    {
-                        zipFile.IsStreamOwner = false;
-                        zipFile.Close();
-                    }
+
+                    await OutputStream.FlushAsync();
+                    OutputStream.Finish();
                 }
 
                 await GetFileItemInZip();

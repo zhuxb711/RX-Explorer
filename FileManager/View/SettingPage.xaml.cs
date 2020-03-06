@@ -14,7 +14,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace FileManager
@@ -193,11 +192,6 @@ namespace FileManager
         {
             LikeSymbol.Foreground = new SolidColorBrush(Colors.White);
             LikeText.Foreground = new SolidColorBrush(Colors.White);
-        }
-
-        private void Link_Click(object sender, RoutedEventArgs e)
-        {
-            MainPage.ThisPage.Nav.Navigate(typeof(AboutMe), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
         }
 
         private async void Like_PointerPressed(object sender, PointerRoutedEventArgs e)

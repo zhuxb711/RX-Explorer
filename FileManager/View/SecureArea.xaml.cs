@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Services.Store;
@@ -30,6 +32,8 @@ namespace FileManager
         private int AESKeySize;
 
         private bool IsNewStart = true;
+
+        private CancellationTokenSource Cancellation;
 
         public SecureArea()
         {
@@ -206,6 +210,7 @@ namespace FileManager
                         try
                         {
                             LoadingText.Text = Globalization.Language == LanguageEnum.Chinese ? "正在检查许可证..." : "Checking license...";
+                            CancelButton.Visibility = Visibility.Collapsed;
                             LoadingControl.IsLoading = true;
 
                             if (await CheckPurchaseStatusAsync())
@@ -293,7 +298,7 @@ namespace FileManager
                             GoBack();
                             return;
                         }
-                        catch(NotSignInException)
+                        catch (NotSignInException)
                         {
                             if (Globalization.Language == LanguageEnum.Chinese)
                             {
@@ -524,55 +529,13 @@ namespace FileManager
 
             ActivateLoading(true, true);
 
-            foreach (var File in FileList)
+            Cancellation = new CancellationTokenSource();
+
+            try
             {
-                if ((await File.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize)) is StorageFile EncryptedFile)
+                foreach (StorageFile File in FileList)
                 {
-                    var Size = await EncryptedFile.GetSizeDescriptionAsync();
-                    var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
-                    var ModifiedTime = await EncryptedFile.GetModifiedTimeAsync();
-                    SecureCollection.Add(new FileSystemStorageItem(EncryptedFile, Size, Thumbnail, ModifiedTime));
-                }
-                else
-                {
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "加密文件时出现意外错误，导入过程已经终止",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await Dialog.ShowAsync();
-                    }
-                    else
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "An unexpected error occurred while encrypting the file, the import process has ended",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await Dialog.ShowAsync();
-                    }
-                }
-            }
-
-            await Task.Delay(1500);
-            ActivateLoading(false);
-        }
-
-        private async void Grid_Drop(object sender, DragEventArgs e)
-        {
-            if (e.DataView.Contains(StandardDataFormats.StorageItems))
-            {
-                IReadOnlyList<IStorageItem> Items = await e.DataView.GetStorageItemsAsync();
-
-                ActivateLoading(true, true);
-
-                foreach (StorageFile Item in Items.OfType<StorageFile>())
-                {
-                    if ((await Item.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize)) is StorageFile EncryptedFile)
+                    if ((await File.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token)) is StorageFile EncryptedFile)
                     {
                         var Size = await EncryptedFile.GetSizeDescriptionAsync();
                         var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
@@ -603,6 +566,25 @@ namespace FileManager
                         }
                     }
                 }
+            }
+            catch (TaskCanceledException)
+            {
+
+            }
+            finally
+            {
+                Cancellation.Dispose();
+            }
+
+            await Task.Delay(1500);
+            ActivateLoading(false);
+        }
+
+        private async void Grid_Drop(object sender, DragEventArgs e)
+        {
+            if (e.DataView.Contains(StandardDataFormats.StorageItems))
+            {
+                IReadOnlyList<IStorageItem> Items = await e.DataView.GetStorageItemsAsync();
 
                 if (Items.Count((Item) => Item.IsOfType(StorageItemTypes.Folder)) != 0)
                 {
@@ -628,8 +610,57 @@ namespace FileManager
                     }
                 }
 
-                await Task.Delay(1500);
-                ActivateLoading(false);
+                ActivateLoading(true, true);
+
+                Cancellation = new CancellationTokenSource();
+
+                try
+                {
+                    foreach (StorageFile Item in Items.OfType<StorageFile>())
+                    {
+                        if ((await Item.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token)) is StorageFile EncryptedFile)
+                        {
+                            var Size = await EncryptedFile.GetSizeDescriptionAsync();
+                            var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
+                            var ModifiedTime = await EncryptedFile.GetModifiedTimeAsync();
+                            SecureCollection.Add(new FileSystemStorageItem(EncryptedFile, Size, Thumbnail, ModifiedTime));
+                        }
+                        else
+                        {
+                            if (Globalization.Language == LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "加密文件时出现意外错误，导入过程已经终止",
+                                    CloseButtonText = "确定"
+                                };
+                                _ = await Dialog.ShowAsync();
+                            }
+                            else
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "An unexpected error occurred while encrypting the file, the import process has ended",
+                                    CloseButtonText = "Got it"
+                                };
+                                _ = await Dialog.ShowAsync();
+                            }
+                        }
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+
+                }
+                finally
+                {
+                    Cancellation.Dispose();
+
+                    await Task.Delay(1500);
+                    ActivateLoading(false);
+                }
             }
         }
 
@@ -713,20 +744,42 @@ namespace FileManager
 
                 if ((await Picker.PickSingleFolderAsync()) is StorageFolder Folder)
                 {
+                    Cancellation = new CancellationTokenSource();
+
                     try
                     {
                         ActivateLoading(true, false);
 
-                        _ = await Item.File.DecryptAsync(Folder, FileEncryptionAesKey);
+                        if (await Item.File.DecryptAsync(Folder, FileEncryptionAesKey, Cancellation.Token) is StorageFile)
+                        {
+                            await Item.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                            SecureCollection.Remove(Item);
 
-                        await Item.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                        SecureCollection.Remove(Item);
-
-                        await Task.Delay(1500);
-                        ActivateLoading(false);
-                        await Task.Delay(500);
-
-                        _ = await Launcher.LaunchFolderAsync(Folder);
+                            _ = await Launcher.LaunchFolderAsync(Folder);
+                        }
+                        else
+                        {
+                            if (Globalization.Language == LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "解密文件时出现意外错误，导出过程已经终止",
+                                    CloseButtonText = "确定"
+                                };
+                                _ = await Dialog.ShowAsync();
+                            }
+                            else
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "An unexpected error occurred while decrypting the file, the export process has ended",
+                                    CloseButtonText = "Got it"
+                                };
+                                _ = await Dialog.ShowAsync();
+                            }
+                        }
                     }
                     catch (PasswordErrorException)
                     {
@@ -802,6 +855,21 @@ namespace FileManager
                             };
                             _ = await dialog.ShowAsync();
                         }
+
+                        await Task.Delay(1500);
+                        ActivateLoading(false);
+                    }
+                    catch (TaskCanceledException)
+                    {
+
+                    }
+                    catch (CryptographicException)
+                    {
+
+                    }
+                    finally
+                    {
+                        Cancellation.Dispose();
 
                         await Task.Delay(1500);
                         ActivateLoading(false);
@@ -885,6 +953,8 @@ namespace FileManager
                 LoadingText.Text = IsImport
                 ? Globalization.Language == LanguageEnum.Chinese ? "正在导入..." : "Importing..."
                 : Globalization.Language == LanguageEnum.Chinese ? "正在导出..." : "Exporting...";
+
+                CancelButton.Visibility = Visibility.Visible;
             }
             LoadingControl.IsLoading = ActivateOrNot;
         }
@@ -1022,6 +1092,11 @@ namespace FileManager
             AES256Mode.Checked -= AES256Mode_Checked;
             ImmediateLockMode.Checked -= ImmediateLockMode_Checked;
             CloseLockMode.Checked -= CloseLockMode_Checked;
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            Cancellation.Cancel();
         }
     }
 }

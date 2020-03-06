@@ -155,6 +155,9 @@
     <Compile Include="Dialog\NewFileDialog.xaml.cs">
       <DependentUpon>NewFileDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\PdfPasswordDialog.xaml.cs">
+      <DependentUpon>PdfPasswordDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\ProgramPickerDialog.xaml.cs">
       <DependentUpon>ProgramPickerDialog.xaml</DependentUpon>
     </Compile>
@@ -199,9 +202,6 @@
     </Compile>
     <Compile Include="Dialog\UserFolderDialog.xaml.cs">
       <DependentUpon>UserFolderDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\AboutMe.xaml.cs">
-      <DependentUpon>AboutMe.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialog\BluetoothFileTransfer.xaml.cs">
       <DependentUpon>BluetoothFileTransfer.xaml</DependentUpon>
@@ -325,8 +325,6 @@
     <Content Include="QuickStartImage\Email.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\EmailIcon.png" />
-    <Content Include="Assets\GithubIcon.png" />
     <Content Include="HotWebImage\iThome.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -420,6 +418,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Dialog\PdfPasswordDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialog\ProgramPickerDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -481,10 +483,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\UserFolderDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\AboutMe.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
