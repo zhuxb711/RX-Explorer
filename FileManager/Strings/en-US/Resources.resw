@@ -144,6 +144,9 @@
   <data name="AppDelete.Label" xml:space="preserve">
     <value>Delete</value>
   </data>
+  <data name="AppDisplayName" xml:space="preserve">
+    <value>RX Explorer</value>
+  </data>
   <data name="AppEdit.Label" xml:space="preserve">
     <value>Edit</value>
   </data>

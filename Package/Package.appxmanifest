@@ -15,7 +15,7 @@
     Version="4.2.0.0" />
 
   <Properties>
-    <DisplayName>RX文件管理器</DisplayName>
+    <DisplayName>ms-resource:AppDisplayName</DisplayName>
     <PublisherDisplayName>Ruo_Fan</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
@@ -34,12 +34,18 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="RX文件管理器"
-        Description="Package"
+        DisplayName="ms-resource:AppDisplayName"
+        Description="ms-resource:AppDisplayName"
         BackgroundColor="transparent"
         Square150x150Logo="Images\Square150x150Logo.png"
         Square44x44Logo="Images\Square44x44Logo.png">
-        <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png"  Square71x71Logo="Images\SmallTile.png" Square310x310Logo="Images\LargeTile.png"/>
+        <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png"  Square71x71Logo="Images\SmallTile.png" Square310x310Logo="Images\LargeTile.png" ShortName="ms-resource:AppDisplayName">
+          <uap:ShowNameOnTiles>
+            <uap:ShowOn Tile="square150x150Logo"/>
+            <uap:ShowOn Tile="wide310x150Logo"/>
+            <uap:ShowOn Tile="square310x310Logo"/>
+          </uap:ShowNameOnTiles>
+        </uap:DefaultTile >
         <uap:SplashScreen Image="Images\SplashScreen.png" />
       </uap:VisualElements>
       <Extensions>
@@ -54,7 +60,7 @@
         </Extension>
         <uap:Extension Category="windows.autoPlayContent">
           <uap:AutoPlayContent>
-            <uap:LaunchAction ActionDisplayName="USB管理" Verb="USBArrival" ContentEvent="StorageOnArrival"/>
+            <uap:LaunchAction ActionDisplayName="ms-resource:AppDisplayName" Verb="USBArrival" ContentEvent="StorageOnArrival"/>
           </uap:AutoPlayContent>
         </uap:Extension>
         <uap:Extension Category="windows.appService" EntryPoint="CommunicateService.Service">

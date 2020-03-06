@@ -224,7 +224,7 @@
         </trans-unit>
         <trans-unit id="Zip.Label" translate="yes" xml:space="preserve">
           <source>Compression</source>
-          <target state="needs-review-translation">压缩</target>
+          <target state="translated">压缩</target>
         </trans-unit>
         <trans-unit id="SearchingText.Text" translate="yes" xml:space="preserve">
           <source>Searching</source>
@@ -1717,6 +1717,10 @@
         <trans-unit id="PdfPasswordDialogPasswordBox.Header" translate="yes" xml:space="preserve">
           <source>PDF password</source>
           <target state="translated">PDF密码</target>
+        </trans-unit>
+        <trans-unit id="AppDisplayName" translate="yes" xml:space="preserve">
+          <source>RX Explorer</source>
+          <target state="translated">RX文件管理器</target>
         </trans-unit>
       </group>
     </body>

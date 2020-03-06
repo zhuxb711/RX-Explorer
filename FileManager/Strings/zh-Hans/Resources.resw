@@ -1296,4 +1296,7 @@
   <data name="PdfPasswordDialogPasswordBox.Header" xml:space="preserve">
     <value>PDF密码</value>
   </data>
+  <data name="AppDisplayName" xml:space="preserve">
+    <value>RX文件管理器</value>
+  </data>
 </root>
