@@ -1722,6 +1722,10 @@
           <source>RX Explorer</source>
           <target state="translated">RX文件管理器</target>
         </trans-unit>
+        <trans-unit id="USBDisplayName" translate="yes" xml:space="preserve">
+          <source>Open and view files</source>
+          <target state="translated">打开并查看文件</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -120,4 +120,7 @@
   <data name="AppDisplayName" xml:space="preserve">
     <value>RX Explorer</value>
   </data>
+  <data name="USBDisplayName" xml:space="preserve">
+    <value>Open and view files</value>
+  </data>
 </root>

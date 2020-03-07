@@ -1116,6 +1116,9 @@
   <data name="UpdateLogDialog.Title" xml:space="preserve">
     <value>Recently updated</value>
   </data>
+  <data name="USBDisplayName" xml:space="preserve">
+    <value>Open and view files</value>
+  </data>
   <data name="UserFolderDialog.CloseButtonText" xml:space="preserve">
     <value>Ignore for now</value>
   </data>

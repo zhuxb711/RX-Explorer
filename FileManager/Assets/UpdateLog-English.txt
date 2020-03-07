@@ -21,11 +21,15 @@
 
 >#####Bug fix
 
->>######Fixed the problem that after opening a blank compressed package, files could not be added to it
+>>#####Fixed the problem that after opening a blank compressed package, files could not be added to it
 
->>######Solved the problem that the "Extract All" button was not disabled when there were no files in the compressed package
+>>#####Solved the problem that the "Extract All" button was not disabled when there were no files in the compressed package
 
->>######Fixed the issue that when starting the RX Explorer after connecting to a USB device, there may be multiple identical drive letters
+>>#####Fixed the issue that when starting the RX Explorer after connecting to a USB device, there may be multiple identical drive letters
+
+>>#####Resolved an issue where opening a USB file using RX would cause a crash if "File System Access" permissions were not granted to RX
+
+>>#####Solved the display and localization of tile icon names
 
 *****
 ###What's new in Ver.4.1.5.0

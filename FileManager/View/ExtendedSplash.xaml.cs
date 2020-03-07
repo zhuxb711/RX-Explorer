@@ -24,7 +24,9 @@ namespace FileManager
 
         private AutoResetEvent ReleaseLock;
 
-        public ExtendedSplash(SplashScreen Screen)
+        private string USBActivateParameter = null;
+
+        public ExtendedSplash(SplashScreen Screen, string USBActivateParameter = null)
         {
             InitializeComponent();
 
@@ -40,6 +42,11 @@ namespace FileManager
                 SplashImageRect = Screen.ImageLocation;
 
                 SetControlPosition();
+            }
+
+            if (!string.IsNullOrEmpty(USBActivateParameter))
+            {
+                this.USBActivateParameter = USBActivateParameter;
             }
         }
 
@@ -71,7 +78,15 @@ namespace FileManager
                 {
                     var rootFrame = new Frame();
                     Window.Current.Content = rootFrame;
-                    rootFrame.Navigate(typeof(MainPage), SplashImageRect);
+
+                    if (string.IsNullOrEmpty(USBActivateParameter))
+                    {
+                        rootFrame.Navigate(typeof(MainPage), SplashImageRect);
+                    }
+                    else
+                    {
+                        rootFrame.Navigate(typeof(MainPage), new Tuple<string, Rect>(USBActivateParameter, SplashImageRect));
+                    }
                 });
             }
             catch (Exception ex)

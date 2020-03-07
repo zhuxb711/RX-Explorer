@@ -1,12 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
-using Windows.Foundation;
-using Windows.Storage;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Notifications;
@@ -135,7 +132,7 @@ namespace FileManager
             Window.Current.Activate();
         }
 
-        protected override async void OnFileActivated(FileActivatedEventArgs args)
+        protected override void OnFileActivated(FileActivatedEventArgs args)
         {
             try
             {
@@ -161,19 +158,8 @@ namespace FileManager
                     }
                     else
                     {
-                        try
-                        {
-                            _ = await StorageFolder.GetFolderFromPathAsync(Directory.GetLogicalDrives().FirstOrDefault());
-                        }
-                        catch (UnauthorizedAccessException)
-                        {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
-                            Window.Current.Content = extendedSplash;
-                        }
-
-                        Frame rootFrame = new Frame();
-                        Window.Current.Content = rootFrame;
-                        rootFrame.Navigate(typeof(MainPage), new Tuple<string, Rect>("USBActivate||" + args.Files.FirstOrDefault().Path, args.SplashScreen.ImageLocation));
+                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, $"USBActivate||{args.Files.FirstOrDefault().Path}");
+                        Window.Current.Content = extendedSplash;
                     }
 
                     Window.Current.Activate();
