@@ -1,6 +1,6 @@
-﻿using Microsoft.Toolkit.Uwp.Connectivity;
-using Microsoft.Toolkit.Uwp.Notifications;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,10 +26,7 @@ namespace UpdateCheckBackgroundTask
             Instance = taskInstance;
             Instance.Canceled += Instance_Canceled;
 
-            if (NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable)
-            {
-                await CheckAndInstallUpdate();
-            }
+            await CheckAndInstallUpdate();
 
             Deferral.Complete();
         }
@@ -46,11 +43,15 @@ namespace UpdateCheckBackgroundTask
                 Cancellation = new CancellationTokenSource();
 
                 StoreContext Context = StoreContext.GetDefault();
-                var Updates = await Context.GetAppAndOptionalStorePackageUpdatesAsync().AsTask(Cancellation.Token);
 
-                if (Updates.Count > 0)
+                if (Context != null)
                 {
-                    ShowUpdateNotification();
+                    IReadOnlyList<StorePackageUpdate> Updates = await Context.GetAppAndOptionalStorePackageUpdatesAsync().AsTask(Cancellation.Token);
+
+                    if (Updates.Count > 0)
+                    {
+                        ShowUpdateNotification();
+                    }
                 }
             }
             catch

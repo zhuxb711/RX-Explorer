@@ -14,11 +14,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimationEffectProvider", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SystemInformationProvider", "SystemInformationProvider\SystemInformationProvider.vcxproj", "{B7BEEF6E-1F7F-43B6-A1EC-F447B3F995DF}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7E11FBE3-28DF-4CEE-9871-CC9BBBBE52FD}"
-	ProjectSection(SolutionItems) = preProject
-		Directory.Build.props = Directory.Build.props
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateCheckBackgroundTask", "UpdateCheckBackgroundTask\UpdateCheckBackgroundTask.csproj", "{F6D7BF7B-AA4F-4F20-A6FE-45C60C75F88A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLConnectionPoolProvider", "SQLConnectionPoolProvider\SQLConnectionPoolProvider.csproj", "{48D8D03D-E12C-433C-A9D9-A4311E12FB78}"

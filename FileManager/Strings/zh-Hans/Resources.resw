@@ -1299,4 +1299,7 @@
   <data name="AppDisplayName" xml:space="preserve">
     <value>RX文件管理器</value>
   </data>
+  <data name="USBDisplayName" xml:space="preserve">
+    <value>打开并查看文件</value>
+  </data>
 </root>

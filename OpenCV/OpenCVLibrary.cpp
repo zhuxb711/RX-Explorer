@@ -72,8 +72,10 @@ Mat OpenCV::OpenCVLibrary::RGB2YCbCr(Mat src)
 	int row = src.rows;
 	int col = src.cols;
 	Mat dst(row, col, CV_8UC3);
-	for (int i = 0; i < row; i++) {
-		for (int j = 0; j < col; j++) {
+	for (int i = 0; i < row; i++) 
+	{
+		for (int j = 0; j < col; j++) 
+		{
 			int Blue = src.at<Vec3b>(i, j)[0];
 			int Green = src.at<Vec3b>(i, j)[1];
 			int Red = src.at<Vec3b>(i, j)[2];
@@ -90,8 +92,10 @@ Mat OpenCV::OpenCVLibrary::YCbCr2RGB(Mat src)
 	int row = src.rows;
 	int col = src.cols;
 	Mat dst(row, col, CV_8UC3);
-	for (int i = 0; i < row; i++) {
-		for (int j = 0; j < col; j++) {
+	for (int i = 0; i < row; i++) 
+	{
+		for (int j = 0; j < col; j++) 
+		{
 			int Y = src.at<Vec3b>(i, j)[0];
 			int Cb = src.at<Vec3b>(i, j)[1] - 128;
 			int Cr = src.at<Vec3b>(i, j)[2] - 128;
@@ -145,33 +149,41 @@ void OpenCV::OpenCVLibrary::AutoColorLevel(SoftwareBitmap^ input, SoftwareBitmap
 	//Blue Channel
 	float sum = 0;
 	sum = 0;
-	for (int i = 0; i < 256; i++) {
+	for (int i = 0; i < 256; i++) 
+	{
 		sum += HistBlue.at<float>(i);
-		if (sum >= totalPixel * LowCut * 0.01) {
+		if (sum >= totalPixel * LowCut * 0.01) 
+		{
 			MinBlue = i;
 			break;
 		}
 	}
 	sum = 0;
-	for (int i = 255; i >= 0; i--) {
+	for (int i = 255; i >= 0; i--) 
+	{
 		sum = sum + HistBlue.at<float>(i);
-		if (sum >= totalPixel * HighCut * 0.01) {
+		if (sum >= totalPixel * HighCut * 0.01) 
+		{
 			MaxBlue = i;
 			break;
 		}
 	}
 	//Red channel
-	for (int i = 0; i < 256; i++) {
+	for (int i = 0; i < 256; i++) 
+	{
 		sum += HistRed.at<float>(i);
-		if (sum >= totalPixel * LowCut * 0.01) {
+		if (sum >= totalPixel * LowCut * 0.01)
+		{
 			MinRed = i;
 			break;
 		}
 	}
 	sum = 0;
-	for (int i = 255; i >= 0; i--) {
+	for (int i = 255; i >= 0; i--) 
+	{
 		sum = sum + HistRed.at<float>(i);
-		if (sum >= totalPixel * HighCut * 0.01) {
+		if (sum >= totalPixel * HighCut * 0.01)
+		{
 			MaxRed = i;
 			break;
 		}
@@ -186,47 +198,62 @@ void OpenCV::OpenCVLibrary::AutoColorLevel(SoftwareBitmap^ input, SoftwareBitmap
 		}
 	}
 	sum = 0;
-	for (int i = 255; i >= 0; i--) {
+	for (int i = 255; i >= 0; i--) 
+	{
 		sum = sum + HistGreen.at<float>(i);
-		if (sum >= totalPixel * HighCut * 0.01) {
+		if (sum >= totalPixel * HighCut * 0.01) 
+		{
 			MaxGreen = i;
 			break;
 		}
 	}
 
-	for (int i = 0; i < 256; i++) {
-		if (i <= MinBlue) {
+	for (int i = 0; i < 256; i++) 
+	{
+		if (i <= MinBlue) 
+		{
 			Pixel[i * 3 + 2] = 0;
 		}
-		else {
-			if (i > MaxBlue) {
+		else 
+		{
+			if (i > MaxBlue) 
+			{
 				Pixel[i * 3 + 2] = 255;
 			}
-			else {
+			else 
+			{
 				float temp = (float)(i - MinBlue) / (MaxBlue - MinBlue);
 				Pixel[i * 3 + 2] = (uchar)(temp * 255);
 			}
 		}
-		if (i <= MinGreen) {
+		if (i <= MinGreen) 
+		{
 			Pixel[i * 3 + 1] = 0;
 		}
-		else {
-			if (i > MaxGreen) {
+		else 
+		{
+			if (i > MaxGreen) 
+			{
 				Pixel[i * 3 + 1] = 255;
 			}
-			else {
+			else 
+			{
 				float temp = (float)(i - MinGreen) / (MaxGreen - MinGreen);
 				Pixel[i * 3 + 1] = (uchar)(temp * 255);
 			}
 		}
-		if (i <= MinRed) {
+		if (i <= MinRed) 
+		{
 			Pixel[i * 3] = 0;
 		}
-		else {
-			if (i > MaxRed) {
+		else 
+		{
+			if (i > MaxRed) 
+			{
 				Pixel[i * 3] = 255;
 			}
-			else {
+			else 
+			{
 				float temp = (float)(i - MinRed) / (MaxRed - MinRed);
 				Pixel[i * 3] = (uchar)(temp * 255);
 			}
@@ -249,22 +276,28 @@ void OpenCV::OpenCVLibrary::AutoWhiteBalance(SoftwareBitmap^ input, SoftwareBitm
 	Mat src;
 	int row = inputMat.rows;
 	int col = inputMat.cols;
-	if (inputMat.channels() == 4) {
+	if (inputMat.channels() == 4) 
+	{
 		cvtColor(inputMat, src, CV_BGRA2BGR);
 	}
 	Mat in = RGB2YCbCr(src);
 	Mat mark(row, col, CV_8UC1);
 	int sum = 0;
-	for (int i = 0; i < row; i += 100) {
-		for (int j = 0; j < col; j += 100) {
-			if (i + 100 < row && j + 100 < col) {
+	for (int i = 0; i < row; i += 100) 
+	{
+		for (int j = 0; j < col; j += 100) 
+		{
+			if (i + 100 < row && j + 100 < col) 
+			{
 				cv::Rect rect(j, i, 100, 100);
 				Mat temp = in(rect);
 				Scalar global_mean = mean(temp);
 				double dr = 0, db = 0;
-				for (int x = 0; x < 100; x++) {
+				for (int x = 0; x < 100; x++)
+				{
 					uchar* ptr = temp.ptr<uchar>(x) + 1;
-					for (int y = 0; y < 100; y++) {
+					for (int y = 0; y < 100; y++) 
+					{
 						dr += pow(abs(*ptr - global_mean[1]), 2);
 						ptr++;
 						db += pow(abs(*ptr - global_mean[2]), 2);
@@ -278,19 +311,23 @@ void OpenCV::OpenCVLibrary::AutoWhiteBalance(SoftwareBitmap^ input, SoftwareBitm
 				double cr_right_criteria = 1.5 * dr;
 				double cb_left_criteria = global_mean[2] + db * global_mean[2];
 				double cb_right_criteria = 1.5 * db;
-				for (int x = 0; x < 100; x++) {
+				for (int x = 0; x < 100; x++) 
+				{
 					uchar* ptr = temp.ptr<uchar>(x) + 1;
-					for (int y = 0; y < 100; y++) {
+					for (int y = 0; y < 100; y++) 
+					{
 						uchar cr = *ptr;
 						ptr++;
 						uchar cb = *ptr;
 						ptr++;
 						ptr++;
-						if ((cr - cb_left_criteria) < cb_right_criteria && (cb - cr_left_criteria) < cr_right_criteria) {
+						if ((cr - cb_left_criteria) < cb_right_criteria && (cb - cr_left_criteria) < cr_right_criteria) 
+						{
 							sum++;
 							mark.at<uchar>(i + x, j + y) = 1;
 						}
-						else {
+						else 
+						{
 							mark.at<uchar>(i + x, j + y) = 0;
 						}
 					}
@@ -302,9 +339,12 @@ void OpenCV::OpenCVLibrary::AutoWhiteBalance(SoftwareBitmap^ input, SoftwareBitm
 	int Threshold = 0;
 	int Ymax = 0;
 	int Light[256] = { 0 };
-	for (int i = 0; i < row; i++) {
-		for (int j = 0; j < col; j++) {
-			if (mark.at<uchar>(i, j) == 1) {
+	for (int i = 0; i < row; i++) 
+	{
+		for (int j = 0; j < col; j++)
+		{
+			if (mark.at<uchar>(i, j) == 1) 
+			{
 				Light[(int)(in.at<Vec3b>(i, j)[0])]++;
 			}
 			Ymax = max(Ymax, (int)(in.at<Vec3b>(i, j)[0]));
@@ -312,9 +352,11 @@ void OpenCV::OpenCVLibrary::AutoWhiteBalance(SoftwareBitmap^ input, SoftwareBitm
 	}
 
 	int sum2 = 0;
-	for (int i = 255; i >= 0; i--) {
+	for (int i = 255; i >= 0; i--)
+	{
 		sum2 += Light[i];
-		if (sum2 >= sum * 0.1) {
+		if (sum2 >= sum * 0.1) 
+		{
 			Threshold = i;
 			break;
 		}
@@ -324,9 +366,12 @@ void OpenCV::OpenCVLibrary::AutoWhiteBalance(SoftwareBitmap^ input, SoftwareBitm
 	double Green = 0;
 	double Red = 0;
 	int cnt2 = 0;
-	for (int i = 0; i < row; i++) {
-		for (int j = 0; j < col; j++) {
-			if (mark.at<uchar>(i, j) == 1 && (int)(in.at<Vec3b>(i, j)[0]) >= Threshold) {
+	for (int i = 0; i < row; i++) 
+	{
+		for (int j = 0; j < col; j++)
+		{
+			if (mark.at<uchar>(i, j) == 1 && (int)(in.at<Vec3b>(i, j)[0]) >= Threshold)
+			{
 				Blue += 1.0 * src.at<Vec3b>(i, j)[0];
 				Green += 1.0 * src.at<Vec3b>(i, j)[1];
 				Red += 1.0 * src.at<Vec3b>(i, j)[2];
@@ -340,8 +385,10 @@ void OpenCV::OpenCVLibrary::AutoWhiteBalance(SoftwareBitmap^ input, SoftwareBitm
 
 	Mat dst(row, col, CV_8UC3);
 	double maxY = Ymax;
-	for (int i = 0; i < row; i++) {
-		for (int j = 0; j < col; j++) {
+	for (int i = 0; i < row; i++) 
+	{
+		for (int j = 0; j < col; j++)
+		{
 			int B = (int)(maxY * src.at<Vec3b>(i, j)[0] / Blue);
 			int G = (int)(maxY * src.at<Vec3b>(i, j)[1] / Green);
 			int R = (int)(maxY * src.at<Vec3b>(i, j)[2] / Red);
