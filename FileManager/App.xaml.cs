@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
+using Windows.Storage;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Notifications;
@@ -146,14 +147,14 @@ namespace FileManager
 
                     if (Window.Current.Content is Frame)
                     {
-                        if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name == "FileControl")
+                        if (TabViewContainer.CurrentPageNav.CurrentSourcePageType.Name == nameof(FileControl))
                         {
-                            MainPage.ThisPage.Nav.GoBack();
-                            MainPage.ThisPage.Nav.Navigate(typeof(FileControl), ThisPC.ThisPage.HardDeviceList.Last().Folder, new DrillInNavigationTransitionInfo());
+                            TabViewContainer.CurrentPageNav.GoBack();
+                            TabViewContainer.CurrentPageNav.Navigate(typeof(FileControl), new Tuple<Microsoft.UI.Xaml.Controls.TabViewItem, StorageFolder>(null, TabViewContainer.ThisPage.HardDeviceList.Last().Folder), new DrillInNavigationTransitionInfo());
                         }
                         else
                         {
-                            MainPage.ThisPage.Nav.Navigate(typeof(FileControl), ThisPC.ThisPage.HardDeviceList.Last().Folder, new DrillInNavigationTransitionInfo());
+                            TabViewContainer.CurrentPageNav.Navigate(typeof(FileControl), new Tuple<Microsoft.UI.Xaml.Controls.TabViewItem, StorageFolder>(null, TabViewContainer.ThisPage.HardDeviceList.Last().Folder), new DrillInNavigationTransitionInfo());
                         }
                     }
                     else

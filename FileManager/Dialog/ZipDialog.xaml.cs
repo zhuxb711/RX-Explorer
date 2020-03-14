@@ -92,12 +92,12 @@ namespace FileManager
         {
             if (IsZip)
             {
-                if ((bool)EnableCryption.IsChecked && (FName.Text == "" || Pass.Password == ""))
+                if ((bool)EnableCryption.IsChecked && (string.IsNullOrEmpty(FName.Text) || string.IsNullOrEmpty(Pass.Password)))
                 {
                     args.Cancel = true;
                     return;
                 }
-                else if (FName.Text == "")
+                else if (string.IsNullOrEmpty(FName.Text))
                 {
                     args.Cancel = true;
                     return;
@@ -131,7 +131,7 @@ namespace FileManager
             }
             else
             {
-                if (Pass.Password == "")
+                if (string.IsNullOrEmpty(Pass.Password))
                 {
                     args.Cancel = true;
                     return;

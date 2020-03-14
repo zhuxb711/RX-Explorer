@@ -13,13 +13,14 @@ namespace FileManager
     public sealed partial class TextViewer : Page
     {
         private FileSystemStorageItem SFile;
+        private FileControl FileControlInstance;
+
         public TextViewer()
         {
             InitializeComponent();
-            Loaded += TextViewer_Loaded;
         }
 
-        private async void TextViewer_Loaded(object sender, RoutedEventArgs e)
+        private async Task Initialize()
         {
             LoadingControl.IsLoading = true;
             try
@@ -28,7 +29,8 @@ namespace FileManager
 
                 Text.Text = FileText;
 
-                await Task.Delay(500);
+                await Task.Delay(500).ConfigureAwait(true);
+
                 LoadingControl.IsLoading = false;
             }
             catch (ArgumentOutOfRangeException)
@@ -44,17 +46,21 @@ namespace FileManager
 
                 Text.Text = FileText;
 
-                await Task.Delay(500);
+                await Task.Delay(500).ConfigureAwait(true);
+
                 LoadingControl.IsLoading = false;
             }
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is FileSystemStorageItem SFile)
+            if (e.Parameter is Tuple<FileControl, FileSystemStorageItem> Parameters)
             {
-                this.SFile = SFile;
+                FileControlInstance = Parameters.Item1;
+                SFile = Parameters.Item2;
                 Title.Text = SFile.Name;
+
+                await Initialize().ConfigureAwait(false);
             }
         }
 
@@ -69,13 +75,13 @@ namespace FileManager
             StorageFolder Folder = await SFile.File.GetParentAsync();
             StorageFile NewFile = await Folder.CreateFileAsync(SFile.Name, CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteTextAsync(NewFile, Text.Text);
-            await SFile.UpdateRequested(NewFile);
-            FileControl.ThisPage.Nav.GoBack();
+            await SFile.UpdateRequested(NewFile).ConfigureAwait(true);
+            FileControlInstance.Nav.GoBack();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
-            FileControl.ThisPage.Nav.GoBack();
+            FileControlInstance.Nav.GoBack();
         }
     }
 }

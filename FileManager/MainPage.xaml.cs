@@ -1,19 +1,16 @@
 ﻿using AnimationEffectProvider;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Background;
 using Windows.ApplicationModel.Core;
-using Windows.Devices.Enumeration;
 using Windows.Foundation;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
 using Windows.Services.Store;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.System.Profile;
@@ -38,8 +35,6 @@ namespace FileManager
 
         private EntranceAnimationEffect EntranceEffectProvider;
 
-        public DeviceWatcher PortalDeviceWatcher;
-
         public string LastPageName { get; private set; }
 
         public MainPage()
@@ -48,18 +43,6 @@ namespace FileManager
             ThisPage = this;
             Window.Current.SetTitleBar(TitleBar);
             Loaded += MainPage_Loaded;
-            Application.Current.Resuming += Current_Resuming;
-            Application.Current.Suspending += Current_Suspending;
-        }
-
-        private void Current_Suspending(object sender, SuspendingEventArgs e)
-        {
-            PortalDeviceWatcher?.Stop();
-        }
-
-        private void Current_Resuming(object sender, object e)
-        {
-            PortalDeviceWatcher.Start();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -99,7 +82,7 @@ namespace FileManager
                 {
                     PageDictionary = new Dictionary<Type, string>()
                     {
-                        {typeof(ThisPC),"这台电脑" },
+                        {typeof(TabViewContainer),"这台电脑" },
                         {typeof(FileControl),"这台电脑" },
                         {typeof(SecureArea),"安全域" }
                     };
@@ -108,38 +91,34 @@ namespace FileManager
                 {
                     PageDictionary = new Dictionary<Type, string>()
                     {
-                        {typeof(ThisPC),"ThisPC" },
+                        {typeof(TabViewContainer),"ThisPC" },
                         {typeof(FileControl),"ThisPC" },
                         {typeof(SecureArea),"Security Area" }
                     };
                 }
 
-                Nav.Navigate(typeof(ThisPC));
+                Nav.Navigate(typeof(TabViewContainer));
 
                 EntranceEffectProvider.StartEntranceEffect();
 
-                var PictureUri = await SQLite.Current.GetBackgroundPictureAsync();
+                var PictureUri = await SQLite.Current.GetBackgroundPictureAsync().ConfigureAwait(true);
                 var FileList = await (await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists)).GetFilesAsync();
                 foreach (var ToDeletePicture in FileList.Where((File) => PictureUri.All((ImageUri) => ImageUri.ToString().Replace("ms-appdata:///local/CustomImageFolder/", string.Empty) != File.Name)))
                 {
                     await ToDeletePicture.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 }
 
-                PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
-                PortalDeviceWatcher.Added += PortalDeviceWatcher_Added;
-                PortalDeviceWatcher.Removed += PortalDeviceWatcher_Removed;
+                await GetUserInfoAsync().ConfigureAwait(true);
 
-                await GetUserInfoAsync();
+                await ShowReleaseLogDialogAsync().ConfigureAwait(true);
 
-                await ShowReleaseLogDialogAsync();
+                await RegisterBackgroundTaskAsync().ConfigureAwait(true);
 
-                await RegisterBackgroundTaskAsync();
+                await DonateDeveloperAsync().ConfigureAwait(true);
 
-                await DonateDeveloperAsync();
+                await Task.Delay(10000).ConfigureAwait(true);
 
-                await Task.Delay(10000);
-
-                await PinApplicationToTaskBarAsync();
+                await PinApplicationToTaskBarAsync().ConfigureAwait(true);
 
             }
             catch (Exception ex)
@@ -153,7 +132,7 @@ namespace FileManager
             if (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.IsAppUpdated || Microsoft.Toolkit.Uwp.Helpers.SystemInformation.IsFirstRun)
             {
                 WhatIsNew Dialog = new WhatIsNew();
-                _ = await Dialog.ShowAsync();
+                _ = await Dialog.ShowAsync().ConfigureAwait(false);
             }
         }
 
@@ -233,7 +212,7 @@ namespace FileManager
                                     SecondaryButtonText = "稍后提醒",
                                     CloseButtonText = "不再提醒"
                                 };
-                                switch (await Dialog.ShowAsync())
+                                switch (await Dialog.ShowAsync().ConfigureAwait(false))
                                 {
                                     case ContentDialogResult.Primary:
                                         {
@@ -261,7 +240,7 @@ namespace FileManager
                                     SecondaryButtonText = "Remind later",
                                     CloseButtonText = "Never remind"
                                 };
-                                switch (await Dialog.ShowAsync())
+                                switch (await Dialog.ShowAsync().ConfigureAwait(false))
                                 {
                                     case ContentDialogResult.Primary:
                                         {
@@ -285,80 +264,8 @@ namespace FileManager
             }
         }
 
-        private async void PortalDeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
-        {
-            var CurrentDrives = DriveInfo.GetDrives().TakeWhile((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
-                                                     .GroupBy((Item) => Item.Name)
-                                                     .Select((Group) => Group.FirstOrDefault().Name);
-            var RemovedDriveList = ThisPC.ThisPage.HardDeviceList.SkipWhile((RemoveItem) => CurrentDrives.Any((Item) => Item == RemoveItem.Folder.Path));
-
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-            {
-                for (int i = 0; i < RemovedDriveList.Count(); i++)
-                {
-                    ThisPC.ThisPage.HardDeviceList.Remove(RemovedDriveList.ElementAt(i));
-                }
-            });
-        }
-
-        private async void PortalDeviceWatcher_Added(DeviceWatcher sender, DeviceInformation args)
-        {
-            var NewDriveAddedList = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
-                                                         .Select((Item) => Item.RootDirectory.FullName)
-                                                         .SkipWhile((NewItem) => ThisPC.ThisPage.HardDeviceList.Any((Item) => Item.Folder.Path == NewItem));
-            try
-            {
-                foreach (string DriveRootPath in NewDriveAddedList)
-                {
-                    StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
-                    BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-
-                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-                    {
-                        ThisPC.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync(), PropertiesRetrieve));
-                    });
-                }
-            }
-            catch (UnauthorizedAccessException)
-            {
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-                {
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "提示",
-                            Content = $"由于缺少足够的访问权限，无法添加可移动设备：\"{args.Name}\"",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await Dialog.ShowAsync();
-                    }
-                    else
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Tips",
-                            Content = $"Cannot add removable device：\"{args.Name}\" due to lack of sufficient permissions",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await Dialog.ShowAsync();
-                    }
-                });
-            }
-        }
-
         private void Nav_Navigated(object sender, NavigationEventArgs e)
         {
-            if (Nav.CurrentSourcePageType == typeof(ThisPC) || Nav.CurrentSourcePageType == typeof(SecureArea) || Nav.CurrentSourcePageType == typeof(SettingPage))
-            {
-                NavView.IsBackEnabled = false;
-            }
-            else
-            {
-                NavView.IsBackEnabled = true;
-            }
-
             if (Nav.SourcePageType == typeof(SettingPage))
             {
                 NavView.SelectedItem = NavView.SettingsItem as NavigationViewItem;
@@ -376,97 +283,85 @@ namespace FileManager
         {
             if (ApplicationData.Current.LocalSettings.Values.ContainsKey("IsPinToTaskBar"))
             {
-                if (ApplicationData.Current.LocalSettings.Values.ContainsKey("IsRated"))
+                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("IsRated"))
                 {
-                    return;
-                }
-                else
-                {
-                    await RequestRateApplication();
-                    return;
+                    await RequestRateApplication().ConfigureAwait(false);
                 }
             }
             else
             {
                 ApplicationData.Current.LocalSettings.Values["IsPinToTaskBar"] = true;
-            }
 
-            TaskbarManager BarManager = TaskbarManager.GetDefault();
-            StartScreenManager ScreenManager = StartScreenManager.GetDefault();
+                TaskbarManager BarManager = TaskbarManager.GetDefault();
+                StartScreenManager ScreenManager = StartScreenManager.GetDefault();
 
-            bool PinStartScreen = false, PinTaskBar = false;
+                bool PinStartScreen = false, PinTaskBar = false;
 
-            AppListEntry Entry = (await Package.Current.GetAppListEntriesAsync()).FirstOrDefault();
-            if (ScreenManager.SupportsAppListEntry(Entry) && !await ScreenManager.ContainsAppListEntryAsync(Entry))
-            {
-                PinStartScreen = true;
-            }
-            if (BarManager.IsPinningAllowed && !await BarManager.IsCurrentAppPinnedAsync())
-            {
-                PinTaskBar = true;
-            }
+                AppListEntry Entry = (await Package.Current.GetAppListEntriesAsync())[0];
+                if (ScreenManager.SupportsAppListEntry(Entry) && !await ScreenManager.ContainsAppListEntryAsync(Entry))
+                {
+                    PinStartScreen = true;
+                }
+                if (BarManager.IsPinningAllowed && !await BarManager.IsCurrentAppPinnedAsync())
+                {
+                    PinTaskBar = true;
+                }
 
-            if (PinStartScreen && PinTaskBar)
-            {
-                PinTip.ActionButtonClick += async (s, e) =>
+                if (PinStartScreen && PinTaskBar)
+                {
+                    PinTip.ActionButtonClick += async (s, e) =>
+                    {
+                        s.IsOpen = false;
+                        _ = await BarManager.RequestPinCurrentAppAsync();
+                        _ = await ScreenManager.RequestAddAppListEntryAsync(Entry);
+                    };
+                }
+                else if (PinStartScreen && !PinTaskBar)
+                {
+                    PinTip.ActionButtonClick += async (s, e) =>
+                    {
+                        s.IsOpen = false;
+                        _ = await ScreenManager.RequestAddAppListEntryAsync(Entry);
+                    };
+                }
+                else if (!PinStartScreen && PinTaskBar)
+                {
+                    PinTip.ActionButtonClick += async (s, e) =>
+                    {
+                        s.IsOpen = false;
+                        _ = await BarManager.RequestPinCurrentAppAsync();
+                    };
+                }
+                else
+                {
+                    PinTip.ActionButtonClick += (s, e) =>
+                    {
+                        s.IsOpen = false;
+                    };
+                }
+
+                PinTip.Closed += async (s, e) =>
                 {
                     s.IsOpen = false;
-                    _ = await BarManager.RequestPinCurrentAppAsync();
-                    _ = await ScreenManager.RequestAddAppListEntryAsync(Entry);
+                    await RequestRateApplication().ConfigureAwait(true);
                 };
-            }
-            else if (PinStartScreen && !PinTaskBar)
-            {
-                PinTip.ActionButtonClick += async (s, e) =>
-                {
-                    s.IsOpen = false;
-                    _ = await ScreenManager.RequestAddAppListEntryAsync(Entry);
-                };
-            }
-            else if (!PinStartScreen && PinTaskBar)
-            {
-                PinTip.ActionButtonClick += async (s, e) =>
-                {
-                    s.IsOpen = false;
-                    _ = await BarManager.RequestPinCurrentAppAsync();
-                };
-            }
-            else
-            {
-                PinTip.ActionButtonClick += (s, e) =>
-                {
-                    s.IsOpen = false;
-                };
-            }
 
-            PinTip.Closed += async (s, e) =>
-            {
-                s.IsOpen = false;
-                await RequestRateApplication();
-            };
-
-            PinTip.Subtitle = Globalization.Language == LanguageEnum.Chinese
-                ? "将RX文件管理器固定在和开始屏幕任务栏，启动更快更方便哦！\r\r★固定至开始菜单\r\r★固定至任务栏"
-                : "Pin the RX FileManager to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar";
-            PinTip.IsOpen = true;
+                PinTip.Subtitle = Globalization.Language == LanguageEnum.Chinese
+                    ? "将RX文件管理器固定在和开始屏幕任务栏，启动更快更方便哦！\r\r★固定至开始菜单\r\r★固定至任务栏"
+                    : "Pin the RX FileManager to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar";
+                PinTip.IsOpen = true;
+            }
         }
 
         private async Task RequestRateApplication()
         {
-            if (ApplicationData.Current.LocalSettings.Values.ContainsKey("IsRated"))
-            {
-                return;
-            }
-            else
-            {
-                await Task.Delay(60000);
-                ApplicationData.Current.LocalSettings.Values["IsRated"] = true;
-            }
+            await Task.Delay(60000).ConfigureAwait(true);
 
             RateTip.ActionButtonClick += async (s, e) =>
             {
                 s.IsOpen = false;
                 await Launcher.LaunchUriAsync(new Uri("ms-windows-store://review/?productid=9N88QBQKF2RS"));
+                ApplicationData.Current.LocalSettings.Values["IsRated"] = true;
             };
             RateTip.IsOpen = true;
         }
@@ -483,7 +378,7 @@ namespace FileManager
                         return;
                     }
 
-                    await Task.Delay(30000);
+                    await Task.Delay(30000).ConfigureAwait(true);
                     DonateTip.ActionButtonClick += async (s, e) =>
                     {
                         s.IsOpen = false;
@@ -513,7 +408,7 @@ namespace FileManager
                                                                "Ruofan,\r敬上",
                                                     CloseButtonText = "朕知道了"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync();
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                                                 break;
                                             }
                                         case StorePurchaseStatus.AlreadyPurchased:
@@ -527,7 +422,7 @@ namespace FileManager
                                                               "Ruofan,\r敬上",
                                                     CloseButtonText = "朕知道了"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync();
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                                                 break;
                                             }
                                         case StorePurchaseStatus.NotPurchased:
@@ -540,7 +435,7 @@ namespace FileManager
                                                               "Ruofan,\r敬上",
                                                     CloseButtonText = "朕知道了"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync();
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                                                 break;
                                             }
                                         default:
@@ -551,7 +446,7 @@ namespace FileManager
                                                     Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
                                                     CloseButtonText = "朕知道了"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync();
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                                                 break;
                                             }
                                     }
@@ -565,7 +460,7 @@ namespace FileManager
                                     Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
                                     CloseButtonText = "朕知道了"
                                 };
-                                _ = await QueueContenDialog.ShowAsync();
+                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                             }
                         }
                         else
@@ -593,7 +488,7 @@ namespace FileManager
                                                               "Sincerely,\rRuofan",
                                                     CloseButtonText = "Got it"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync();
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                                                 break;
                                             }
                                         case StorePurchaseStatus.AlreadyPurchased:
@@ -607,7 +502,7 @@ namespace FileManager
                                                               "Sincerely,\rRuofan",
                                                     CloseButtonText = "Got it"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync();
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                                                 break;
                                             }
                                         case StorePurchaseStatus.NotPurchased:
@@ -620,7 +515,7 @@ namespace FileManager
                                                               "Sincerely,\rRuofan",
                                                     CloseButtonText = "Got it"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync();
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                                                 break;
                                             }
                                         default:
@@ -631,7 +526,7 @@ namespace FileManager
                                                     Content = "Unable to open support page due to Microsoft Store or network, please try again later",
                                                     CloseButtonText = "Got it"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync();
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                                                 break;
                                             }
                                     }
@@ -645,7 +540,7 @@ namespace FileManager
                                     Content = "Unable to open support page due to Microsoft Store or network, please try again later",
                                     CloseButtonText = "Got it"
                                 };
-                                _ = await QueueContenDialog.ShowAsync();
+                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                             }
                         }
                     };
@@ -682,7 +577,7 @@ namespace FileManager
         {
             try
             {
-                LastPageName = Nav.CurrentSourcePageType == null ? nameof(ThisPC) : Nav.CurrentSourcePageType.Name;
+                LastPageName = Nav.CurrentSourcePageType == null ? nameof(TabViewContainer) : Nav.CurrentSourcePageType.Name;
 
                 if (args.IsSettingsInvoked)
                 {
@@ -695,7 +590,7 @@ namespace FileManager
                         case "这台电脑":
                         case "ThisPC":
                             {
-                                Nav.Navigate(typeof(ThisPC), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                                Nav.Navigate(typeof(TabViewContainer), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
                                 break;
                             }
                         case "安全域":
@@ -730,25 +625,7 @@ namespace FileManager
 
         private void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
-            switch (Nav.CurrentSourcePageType.Name)
-            {
-                case "FileControl":
-                    if (FileControl.ThisPage.Nav.CanGoBack)
-                    {
-                        FileControl.ThisPage.Nav.GoBack();
-                    }
-                    else if (Nav.CanGoBack)
-                    {
-                        Nav.GoBack();
-                    }
-                    break;
-                default:
-                    if (Nav.CanGoBack)
-                    {
-                        Nav.GoBack();
-                    }
-                    break;
-            }
+            TabViewContainer.GoBack();
         }
     }
 }

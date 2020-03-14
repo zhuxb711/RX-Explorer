@@ -19,19 +19,66 @@ namespace FileManager
     {
         ObservableCollection<ZipFileDisplay> FileCollection;
         FileSystemStorageItem OriginFile;
+        FileControl FileControlInstance;
 
         public ZipExplorer()
         {
             InitializeComponent();
-            Loaded += ZipExplorer_Loaded;
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            OriginFile = e.Parameter as FileSystemStorageItem;
-            FileCollection = new ObservableCollection<ZipFileDisplay>();
-            FileCollection.CollectionChanged += FileCollection_CollectionChanged;
-            GridControl.ItemsSource = FileCollection;
+            if (e.Parameter is Tuple<FileControl, FileSystemStorageItem> Parameters)
+            {
+                FileControlInstance = Parameters.Item1;
+                OriginFile = Parameters.Item2;
+                FileCollection = new ObservableCollection<ZipFileDisplay>();
+                FileCollection.CollectionChanged += FileCollection_CollectionChanged;
+                GridControl.ItemsSource = FileCollection;
+
+                await Initialize().ConfigureAwait(false);
+            }
+        }
+
+        private async Task Initialize()
+        {
+            try
+            {
+                await GetFileItemInZip().ConfigureAwait(true);
+
+                if (FileCollection.Count == 0)
+                {
+                    EmptyTip.Visibility = Visibility.Visible;
+                }
+            }
+            catch (ZipException)
+            {
+                EmptyTip.Visibility = Visibility.Visible;
+            }
+            catch (Exception)
+            {
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "错误",
+                        Content = "此Zip文件无法被正确解析",
+                        CloseButtonText = "返回"
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "Error",
+                        Content = "This Zip file cannot be parsed correctly",
+                        CloseButtonText = "Back"
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                }
+                FileControlInstance.Nav.GoBack();
+            }
         }
 
         private void FileCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -56,50 +103,9 @@ namespace FileManager
             OriginFile = null;
         }
 
-        private async void ZipExplorer_Loaded(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                await GetFileItemInZip();
-
-                if (FileCollection.Count == 0)
-                {
-                    EmptyTip.Visibility = Visibility.Visible;
-                }
-            }
-            catch (ZipException)
-            {
-                EmptyTip.Visibility = Visibility.Visible;
-            }
-            catch (Exception)
-            {
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "此Zip文件无法被正确解析",
-                        CloseButtonText = "返回"
-                    };
-                    _ = await Dialog.ShowAsync();
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "This Zip file cannot be parsed correctly",
-                        CloseButtonText = "Back"
-                    };
-                    _ = await Dialog.ShowAsync();
-                }
-                FileControl.ThisPage.Nav.GoBack();
-            }
-        }
-
         public async Task GetFileItemInZip()
         {
-            using (Stream ZipFileStream = await OriginFile.File.OpenStreamForReadAsync())
+            using (Stream ZipFileStream = await OriginFile.File.OpenStreamForReadAsync().ConfigureAwait(true))
             using (ZipInputStream InputStream = new ZipInputStream(ZipFileStream))
             {
                 while (InputStream.GetNextEntry() is ZipEntry Entry)
@@ -136,7 +142,7 @@ namespace FileManager
                             zipFile.BeginUpdate();
                             zipFile.Delete(Entry);
                             zipFile.CommitUpdate();
-                        });
+                        }).ConfigureAwait(true);
                     }
                 }
                 finally
@@ -146,8 +152,8 @@ namespace FileManager
                 }
             }
 
-            await OriginFile.SizeUpdateRequested();
-            await Task.Delay(500);
+            await OriginFile.SizeUpdateRequested().ConfigureAwait(true);
+            await Task.Delay(500).ConfigureAwait(true);
 
             FileCollection.Remove(file);
             LoadingActivation(false);
@@ -158,7 +164,7 @@ namespace FileManager
             LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在检验文件" : "Verifying");
 
             var file = GridControl.SelectedItem as ZipFileDisplay;
-            using (var ZipFileStream = await OriginFile.File.OpenStreamForReadAsync())
+            using (var ZipFileStream = await OriginFile.File.OpenStreamForReadAsync().ConfigureAwait(true))
             {
                 ZipFile zipFile = new ZipFile(ZipFileStream);
                 try
@@ -166,7 +172,7 @@ namespace FileManager
                     bool IsCorrect = await Task.Run(() =>
                     {
                         return zipFile.TestArchive(true);
-                    });
+                    }).ConfigureAwait(true);
 
                     QueueContentDialog QueueContenDialog;
                     if (Globalization.Language == LanguageEnum.Chinese)
@@ -188,8 +194,8 @@ namespace FileManager
                         };
                     }
                     LoadingActivation(false);
-                    await Task.Delay(500);
-                    await QueueContenDialog.ShowAsync();
+                    await Task.Delay(500).ConfigureAwait(true);
+                    await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                 }
                 finally
                 {
@@ -225,39 +231,39 @@ namespace FileManager
             LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在解压" : "Extracting");
 
             ZipFileDisplay file = GridControl.SelectedItem as ZipFileDisplay;
-            using (Stream ZipFileStream = await OriginFile.File.OpenStreamForReadAsync())
+            using (Stream ZipFileStream = await OriginFile.File.OpenStreamForReadAsync().ConfigureAwait(true))
             using (ZipInputStream InputStream = new ZipInputStream(ZipFileStream))
             {
                 while (true)
                 {
                     if (InputStream.GetNextEntry() is ZipEntry Entry && Entry.Name == file.FullName)
                     {
-                        StorageFolder NewFolder = await FileControl.ThisPage.CurrentFolder.CreateFolderAsync(OriginFile.DisplayName, CreationCollisionOption.OpenIfExists);
+                        StorageFolder NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(OriginFile.DisplayName, CreationCollisionOption.OpenIfExists);
 
-                        if (FilePresenter.ThisPage.FileCollection.All((Item) => Item.Name != NewFolder.Name))
+                        if (TabViewContainer.ThisPage.InstanceContainer[FileControlInstance].FileCollection.All((Item) => Item.Name != NewFolder.Name))
                         {
-                            FilePresenter.ThisPage.FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync(), await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync()));
+                            TabViewContainer.ThisPage.InstanceContainer[FileControlInstance].FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync(), await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync()));
                         }
 
-                        if (FileControl.ThisPage.CurrentNode.Children.All((Node) => (Node.Content as StorageFolder).Name != NewFolder.Name))
+                        if (FileControlInstance.CurrentNode.Children.All((Node) => (Node.Content as StorageFolder).Name != NewFolder.Name))
                         {
-                            if (FileControl.ThisPage.CurrentNode.IsExpanded || !FileControl.ThisPage.CurrentNode.HasChildren)
+                            if (FileControlInstance.CurrentNode.IsExpanded || !FileControlInstance.CurrentNode.HasChildren)
                             {
                                 Microsoft.UI.Xaml.Controls.TreeViewNode CurrentNode = new Microsoft.UI.Xaml.Controls.TreeViewNode
                                 {
-                                    Content = await FileControl.ThisPage.CurrentFolder.GetFolderAsync(NewFolder.Name),
+                                    Content = await FileControlInstance.CurrentFolder.GetFolderAsync(NewFolder.Name),
                                     HasUnrealizedChildren = false
                                 };
-                                FileControl.ThisPage.CurrentNode.Children.Add(CurrentNode);
+                                FileControlInstance.CurrentNode.Children.Add(CurrentNode);
                             }
-                            FileControl.ThisPage.CurrentNode.IsExpanded = true;
+                            FileControlInstance.CurrentNode.IsExpanded = true;
                         }
 
                         StorageFile NewFile = await NewFolder.CreateFileAsync(Entry.Name, CreationCollisionOption.GenerateUniqueName);
 
-                        using (Stream NewFileStream = await NewFile.OpenStreamForWriteAsync())
+                        using (Stream NewFileStream = await NewFile.OpenStreamForWriteAsync().ConfigureAwait(true))
                         {
-                            await InputStream.CopyToAsync(NewFileStream);
+                            await InputStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
                         }
 
                         break;
@@ -265,7 +271,7 @@ namespace FileManager
                 }
             }
 
-            await Task.Delay(500);
+            await Task.Delay(500).ConfigureAwait(true);
 
             LoadingActivation(false);
         }
@@ -274,42 +280,42 @@ namespace FileManager
         {
             LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在解压" : "Extracting");
 
-            using (Stream ZipFileStream = await OriginFile.File.OpenStreamForReadAsync())
+            using (Stream ZipFileStream = await OriginFile.File.OpenStreamForReadAsync().ConfigureAwait(true))
             using (ZipInputStream InputStream = new ZipInputStream(ZipFileStream))
             {
-                StorageFolder NewFolder = await FileControl.ThisPage.CurrentFolder.CreateFolderAsync(OriginFile.DisplayName, CreationCollisionOption.OpenIfExists);
+                StorageFolder NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(OriginFile.DisplayName, CreationCollisionOption.OpenIfExists);
 
-                if (FilePresenter.ThisPage.FileCollection.All((Item) => Item.Name != NewFolder.Name))
+                if (TabViewContainer.ThisPage.InstanceContainer[FileControlInstance].FileCollection.All((Item) => Item.Name != NewFolder.Name))
                 {
-                    FilePresenter.ThisPage.FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync(), await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync()));
+                    TabViewContainer.ThisPage.InstanceContainer[FileControlInstance].FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync(), await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync()));
                 }
 
-                if (FileControl.ThisPage.CurrentNode.Children.All((Node) => (Node.Content as StorageFolder).Name != NewFolder.Name))
+                if (FileControlInstance.CurrentNode.Children.All((Node) => (Node.Content as StorageFolder).Name != NewFolder.Name))
                 {
-                    if (FileControl.ThisPage.CurrentNode.IsExpanded || !FileControl.ThisPage.CurrentNode.HasChildren)
+                    if (FileControlInstance.CurrentNode.IsExpanded || !FileControlInstance.CurrentNode.HasChildren)
                     {
                         Microsoft.UI.Xaml.Controls.TreeViewNode CurrentNode = new Microsoft.UI.Xaml.Controls.TreeViewNode
                         {
-                            Content = await FileControl.ThisPage.CurrentFolder.GetFolderAsync(NewFolder.Name),
+                            Content = await FileControlInstance.CurrentFolder.GetFolderAsync(NewFolder.Name),
                             HasUnrealizedChildren = false
                         };
-                        FileControl.ThisPage.CurrentNode.Children.Add(CurrentNode);
+                        FileControlInstance.CurrentNode.Children.Add(CurrentNode);
                     }
-                    FileControl.ThisPage.CurrentNode.IsExpanded = true;
+                    FileControlInstance.CurrentNode.IsExpanded = true;
                 }
 
                 while (InputStream.GetNextEntry() is ZipEntry Entry)
                 {
                     StorageFile NewFile = await NewFolder.CreateFileAsync(Entry.Name, CreationCollisionOption.GenerateUniqueName);
 
-                    using (Stream NewFileStream = await NewFile.OpenStreamForWriteAsync())
+                    using (Stream NewFileStream = await NewFile.OpenStreamForWriteAsync().ConfigureAwait(true))
                     {
-                        await InputStream.CopyToAsync(NewFileStream);
+                        await InputStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
                     }
                 }
             }
 
-            await Task.Delay(500);
+            await Task.Delay(500).ConfigureAwait(true);
 
             LoadingActivation(false);
         }
@@ -339,7 +345,7 @@ namespace FileManager
                 {
                     foreach (StorageFile ToAddFile in AddList)
                     {
-                        using (Stream FileStream = await ToAddFile.OpenStreamForReadAsync())
+                        using (Stream FileStream = await ToAddFile.OpenStreamForReadAsync().ConfigureAwait(true))
                         {
                             ZipEntry Entry = new ZipEntry(ToAddFile.Name)
                             {
@@ -349,18 +355,18 @@ namespace FileManager
 
                             OutputStream.PutNextEntry(Entry);
 
-                            await FileStream.CopyToAsync(OutputStream);
+                            await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
                         }
                     }
 
-                    await OutputStream.FlushAsync();
+                    await OutputStream.FlushAsync().ConfigureAwait(true);
                     OutputStream.Finish();
                 }
 
-                await GetFileItemInZip();
-                await OriginFile.SizeUpdateRequested();
+                await GetFileItemInZip().ConfigureAwait(true);
+                await OriginFile.SizeUpdateRequested().ConfigureAwait(true);
 
-                await Task.Delay(500);
+                await Task.Delay(500).ConfigureAwait(true);
                 LoadingActivation(false);
             }
         }

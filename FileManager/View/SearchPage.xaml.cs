@@ -12,28 +12,33 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
-using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
+using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace FileManager
 {
     public sealed partial class SearchPage : Page
     {
-        public ObservableCollection<FileSystemStorageItem> SearchResult;
-        StorageItemQueryResult ItemQuery;
-        CancellationTokenSource Cancellation;
+        private ObservableCollection<FileSystemStorageItem> SearchResult;
+        private StorageItemQueryResult ItemQuery;
+        private CancellationTokenSource Cancellation;
+        private FileControl FileControlInstance;
 
         public static SearchPage ThisPage { get; private set; }
 
         public QueryOptions SetSearchTarget
         {
+            get
+            {
+                return ItemQuery.GetCurrentQueryOptions();
+            }
             set
             {
                 SearchResult.Clear();
 
                 ItemQuery.ApplyNewQueryOptions(value);
 
-                SearchPage_Loaded(null, null);
+                _ = Initialize();
             }
         }
 
@@ -45,10 +50,19 @@ namespace FileManager
             SearchResultList.ItemsSource = SearchResult;
         }
 
-        private async void SearchPage_Loaded(object sender, RoutedEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            Loaded -= SearchPage_Loaded;
+            if (e.Parameter is Tuple<FileControl, StorageItemQueryResult> Parameters)
+            {
+                FileControlInstance = Parameters.Item1;
+                ItemQuery = Parameters.Item2;
 
+                await Initialize();
+            }
+        }
+
+        private async Task Initialize()
+        {
             HasItem.Visibility = Visibility.Collapsed;
 
             LoadingControl.IsLoading = true;
@@ -66,7 +80,7 @@ namespace FileManager
 
                 IAsyncOperation<IReadOnlyList<IStorageItem>> SearchAsync = ItemQuery.GetItemsAsync(0, 100);
 
-                SearchItems = await SearchAsync.AsTask(Cancellation.Token);
+                SearchItems = await SearchAsync.AsTask(Cancellation.Token).ConfigureAwait(true);
             }
             catch (TaskCanceledException)
             {
@@ -78,7 +92,7 @@ namespace FileManager
                 Cancellation = null;
             }
 
-            await Task.Delay(1500);
+            await Task.Delay(1500).ConfigureAwait(true);
 
             LoadingControl.IsLoading = false;
 
@@ -90,19 +104,13 @@ namespace FileManager
             {
                 foreach (var Item in SearchItems)
                 {
-                    var Size = await Item.GetSizeDescriptionAsync();
-                    var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                    var ModifiedTime = await Item.GetModifiedTimeAsync();
+                    var Size = await Item.GetSizeDescriptionAsync().ConfigureAwait(true);
+                    var Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                    var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
 
                     SearchResult.Add(new FileSystemStorageItem(Item, Size, Thumbnail, ModifiedTime));
                 }
             }
-        }
-
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            ItemQuery = e.Parameter as StorageItemQueryResult;
-            Loaded += SearchPage_Loaded;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -117,8 +125,8 @@ namespace FileManager
 
             if (RemoveFile.ContentType == ContentType.Folder)
             {
-                var RootNode = FileControl.ThisPage.FolderTree.RootNodes[0];
-                TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(RemoveFile.Folder.Path, (RootNode.Content as StorageFolder).Path));
+                var RootNode = FileControlInstance.FolderTree.RootNodes[0];
+                TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(RemoveFile.Folder.Path, (RootNode.Content as StorageFolder).Path)).ConfigureAwait(true);
                 if (TargetNode == null)
                 {
                     if (Globalization.Language == LanguageEnum.Chinese)
@@ -129,7 +137,7 @@ namespace FileManager
                             Content = "无法定位文件夹，该文件夹可能已被删除或移动",
                             CloseButtonText = "确定"
                         };
-                        _ = await dialog.ShowAsync();
+                        _ = await dialog.ShowAsync().ConfigureAwait(false);
                     }
                     else
                     {
@@ -139,23 +147,23 @@ namespace FileManager
                             Content = "Unable to locate folder, which may have been deleted or moved",
                             CloseButtonText = "Confirm"
                         };
-                        _ = await dialog.ShowAsync();
+                        _ = await dialog.ShowAsync().ConfigureAwait(false);
                     }
                 }
                 else
                 {
                     while (true)
                     {
-                        if (FileControl.ThisPage.FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Item)
+                        if (FileControlInstance.FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Item)
                         {
                             Item.IsSelected = true;
                             Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                            await FileControl.ThisPage.DisplayItemsInFolder(TargetNode);
+                            await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
                             break;
                         }
                         else
                         {
-                            await Task.Delay(300);
+                            await Task.Delay(300).ConfigureAwait(true);
                         }
                     }
                 }
@@ -166,14 +174,14 @@ namespace FileManager
                 {
                     _ = await StorageFile.GetFileFromPathAsync(RemoveFile.Path);
 
-                    var RootNode = FileControl.ThisPage.FolderTree.RootNodes[0];
-                    var CurrentNode = await FindFolderLocationInTree(RootNode, new PathAnalysis((await RemoveFile.File.GetParentAsync()).Path, (RootNode.Content as StorageFolder).Path));
+                    var RootNode = FileControlInstance.FolderTree.RootNodes[0];
+                    var CurrentNode = await FindFolderLocationInTree(RootNode, new PathAnalysis((await RemoveFile.File.GetParentAsync()).Path, (RootNode.Content as StorageFolder).Path)).ConfigureAwait(true);
 
-                    var Container = FileControl.ThisPage.FolderTree.ContainerFromNode(CurrentNode) as TreeViewItem;
+                    var Container = FileControlInstance.FolderTree.ContainerFromNode(CurrentNode) as TreeViewItem;
                     Container.IsSelected = true;
                     Container.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
 
-                    await FileControl.ThisPage.DisplayItemsInFolder(CurrentNode);
+                    await FileControlInstance.DisplayItemsInFolder(CurrentNode).ConfigureAwait(false);
                 }
                 catch (FileNotFoundException)
                 {
@@ -185,7 +193,7 @@ namespace FileManager
                             Content = "无法定位文件，该文件可能已被删除或移动",
                             CloseButtonText = "确定"
                         };
-                        _ = await dialog.ShowAsync();
+                        _ = await dialog.ShowAsync().ConfigureAwait(false);
                     }
                     else
                     {
@@ -195,7 +203,7 @@ namespace FileManager
                             Content = "Unable to locate file, which may have been deleted or moved",
                             CloseButtonText = "Confirm"
                         };
-                        _ = await dialog.ShowAsync();
+                        _ = await dialog.ShowAsync().ConfigureAwait(false);
                     }
                 }
             }
@@ -207,12 +215,12 @@ namespace FileManager
             if (Device.File != null)
             {
                 AttributeDialog Dialog = new AttributeDialog(Device.File);
-                _ = await Dialog.ShowAsync();
+                _ = await Dialog.ShowAsync().ConfigureAwait(false);
             }
             else if (Device.Folder != null)
             {
                 AttributeDialog Dialog = new AttributeDialog(Device.Folder);
-                _ = await Dialog.ShowAsync();
+                _ = await Dialog.ShowAsync().ConfigureAwait(false);
             }
         }
 
@@ -242,7 +250,7 @@ namespace FileManager
                         }
                         else
                         {
-                            await Task.Delay(500);
+                            await Task.Delay(300).ConfigureAwait(true);
                         }
                     }
                 }
@@ -251,7 +259,7 @@ namespace FileManager
             {
                 if ((Node.Content as StorageFolder).Path == NextPathLevel)
                 {
-                    return await FindFolderLocationInTree(Node, Analysis);
+                    return await FindFolderLocationInTree(Node, Analysis).ConfigureAwait(true);
                 }
                 else
                 {
@@ -260,11 +268,11 @@ namespace FileManager
                         var TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
                         if (TargetNode != null)
                         {
-                            return await FindFolderLocationInTree(TargetNode, Analysis);
+                            return await FindFolderLocationInTree(TargetNode, Analysis).ConfigureAwait(true);
                         }
                         else
                         {
-                            await Task.Delay(500);
+                            await Task.Delay(500).ConfigureAwait(true);
                         }
                     }
                 }

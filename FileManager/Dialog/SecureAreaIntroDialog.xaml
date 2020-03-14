@@ -10,8 +10,7 @@
     Title="安全域介绍"
     PrimaryButtonText="解锁"
     CloseButtonText="返回"
-    x:Uid="SecureAreaIntroDialog"
-    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+    x:Uid="SecureAreaIntroDialog">
 
     <Grid>
         <ScrollViewer VerticalScrollMode="Enabled"

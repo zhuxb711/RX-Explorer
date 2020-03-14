@@ -19,26 +19,23 @@ namespace FileManager
         public MediaPlayer()
         {
             InitializeComponent();
-            Loaded += MediaPlayer_Loaded;
         }
 
-        private async void MediaPlayer_Loaded(object sender, RoutedEventArgs e)
+        private async Task Initialize()
         {
             if (MediaFile.FileType == ".mp3" || MediaFile.FileType == ".flac" || MediaFile.FileType == ".wma" || MediaFile.FileType == ".m4a" || MediaFile.FileType == ".alac")
             {
                 MusicCover.Visibility = Visibility.Visible;
 
-                var Artist = GetMusicCoverAsync();
-
                 MediaPlaybackItem Item = new MediaPlaybackItem(MediaSource.CreateFromStorageFile(MediaFile));
+
                 MediaItemDisplayProperties Props = Item.GetDisplayProperties();
-                //若为音乐此处必须设定为Music
                 Props.Type = Windows.Media.MediaPlaybackType.Music;
                 Props.MusicProperties.Title = MediaFile.DisplayName;
 
                 try
                 {
-                    Props.MusicProperties.AlbumArtist = await Artist;
+                    Props.MusicProperties.AlbumArtist = await GetMusicCoverAsync().ConfigureAwait(true);
                 }
                 catch (Exception)
                 {
@@ -57,14 +54,12 @@ namespace FileManager
 
                 MediaPlaybackItem Item = new MediaPlaybackItem(MediaSource.CreateFromStorageFile(MediaFile));
                 MediaItemDisplayProperties Props = Item.GetDisplayProperties();
-                //若为视频此处必须设定为Video
                 Props.Type = Windows.Media.MediaPlaybackType.Video;
                 Props.VideoProperties.Title = MediaFile.DisplayName;
                 Item.ApplyDisplayProperties(Props);
 
                 MVControl.Source = Item;
             }
-
         }
 
         /// <summary>
@@ -73,7 +68,7 @@ namespace FileManager
         /// <returns>艺术家名称</returns>
         private async Task<string> GetMusicCoverAsync()
         {
-            using (var fileStream = await MediaFile.OpenStreamForReadAsync())
+            using (var fileStream = await MediaFile.OpenStreamForReadAsync().ConfigureAwait(true))
             {
                 using (var TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, fileStream, fileStream)))
                 {
@@ -139,9 +134,10 @@ namespace FileManager
             Cover.Source = null;
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             MediaFile = e.Parameter as StorageFile;
+            await Initialize().ConfigureAwait(false);
         }
 
         private void MVControl_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)

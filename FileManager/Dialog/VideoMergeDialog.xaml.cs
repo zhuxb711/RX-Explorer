@@ -50,7 +50,7 @@ namespace FileManager
 
         private async void VideoMergeDialog_Loading(FrameworkElement sender, object args)
         {
-            SourceThumbnail.Source = await SourceFile.GetThumbnailBitmapAsync();
+            SourceThumbnail.Source = await SourceFile.GetThumbnailBitmapAsync().ConfigureAwait(true);
             SourceFileName.Text = SourceFile.Name;
         }
 
@@ -137,7 +137,7 @@ namespace FileManager
                 ClipThumbnail.Visibility = Visibility.Visible;
                 this.MergeFile = MergeFile;
                 ClipName.Text = MergeFile.Name;
-                ClipThumbnail.Source = await MergeFile.GetThumbnailBitmapAsync();
+                ClipThumbnail.Source = await MergeFile.GetThumbnailBitmapAsync().ConfigureAwait(false);
             }
         }
     }

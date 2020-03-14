@@ -72,7 +72,8 @@ namespace FileManager
 
         private async void SettingPage_Loaded1(object sender, RoutedEventArgs e)
         {
-            await Task.Delay(500);
+            await Task.Delay(500).ConfigureAwait(true);
+
             if (PictureMode.IsChecked.GetValueOrDefault() && PictureGirdView.SelectedItem != null)
             {
                 PictureGirdView.ScrollIntoViewSmoothly(PictureGirdView.SelectedItem);
@@ -153,16 +154,16 @@ namespace FileManager
                     {
                         if (Globalization.Language == LanguageEnum.Chinese)
                         {
-                            FeedBackItem.UpdateTitleAndSuggestion(FeedBackItem.Title, await FeedBackItem.Suggestion.Translate());
+                            FeedBackItem.UpdateTitleAndSuggestion(FeedBackItem.Title, await FeedBackItem.Suggestion.Translate().ConfigureAwait(true));
                         }
                         else
                         {
-                            FeedBackItem.UpdateTitleAndSuggestion(FeedBackItem.Title.All((Char) => !PinyinHelper.IsChinese(Char)) ? FeedBackItem.Title : PinyinHelper.GetPinyin(FeedBackItem.Title), await FeedBackItem.Suggestion.Translate());
+                            FeedBackItem.UpdateTitleAndSuggestion(FeedBackItem.Title.All((Char) => !PinyinHelper.IsChinese(Char)) ? FeedBackItem.Title : PinyinHelper.GetPinyin(FeedBackItem.Title), await FeedBackItem.Suggestion.Translate().ConfigureAwait(true));
                         }
                     }
                     else
                     {
-                        FeedBackItem.UpdateTitleAndSuggestion(await FeedBackItem.Title.Translate(), await FeedBackItem.Suggestion.Translate());
+                        FeedBackItem.UpdateTitleAndSuggestion(await FeedBackItem.Title.Translate().ConfigureAwait(true), await FeedBackItem.Suggestion.Translate().ConfigureAwait(true));
                     }
 
                     FeedBackCollection.Add(FeedBackItem);
@@ -176,7 +177,8 @@ namespace FileManager
                 }
                 else
                 {
-                    await Task.Delay(1000);
+                    await Task.Delay(1000).ConfigureAwait(true);
+
                     FeedBackList.ScrollIntoViewSmoothly(FeedBackCollection.Last());
                 }
             }
@@ -202,7 +204,7 @@ namespace FileManager
         private async void FlyoutContinue_Click(object sender, RoutedEventArgs e)
         {
             ConfirmFly.Hide();
-            await SQLite.Current.ClearSearchHistoryRecord();
+            await SQLite.Current.ClearSearchHistoryRecord().ConfigureAwait(true);
 
             if (Globalization.Language == LanguageEnum.Chinese)
             {
@@ -212,7 +214,7 @@ namespace FileManager
                     Content = "搜索历史记录清理完成",
                     CloseButtonText = "确定"
                 };
-                _ = await dialog.ShowAsync();
+                _ = await dialog.ShowAsync().ConfigureAwait(false);
             }
             else
             {
@@ -222,7 +224,7 @@ namespace FileManager
                     Content = "Search history cleanup completed",
                     CloseButtonText = "Confirm"
                 };
-                _ = await dialog.ShowAsync();
+                _ = await dialog.ShowAsync().ConfigureAwait(false);
             }
         }
 
@@ -234,7 +236,7 @@ namespace FileManager
         private async void ClearUp_Click(object sender, RoutedEventArgs e)
         {
             ResetDialog Dialog = new ResetDialog();
-            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+            if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
                 if (Dialog.IsClearSecureFolder)
                 {
@@ -247,9 +249,9 @@ namespace FileManager
                     catch (Exception)
                     {
                         ApplicationData.Current.LocalSettings.Values.Clear();
-                        await ApplicationData.Current.LocalFolder.DeleteAllSubFilesAndFolders();
-                        await ApplicationData.Current.TemporaryFolder.DeleteAllSubFilesAndFolders();
-                        await ApplicationData.Current.LocalCacheFolder.DeleteAllSubFilesAndFolders();
+                        await ApplicationData.Current.LocalFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
+                        await ApplicationData.Current.TemporaryFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
+                        await ApplicationData.Current.LocalCacheFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
                     }
 
                     Window.Current.Activate();
@@ -267,7 +269,7 @@ namespace FileManager
                                         Content = "自动重新启动过程中出现问题，请手动重启RX文件管理器",
                                         CloseButtonText = "确定"
                                     };
-                                    _ = await Dialog1.ShowAsync();
+                                    _ = await Dialog1.ShowAsync().ConfigureAwait(false);
                                 }
                                 else
                                 {
@@ -277,7 +279,7 @@ namespace FileManager
                                         Content = "There was a problem during the automatic restart, please restart the RX Explorer manually",
                                         CloseButtonText = "Got it"
                                     };
-                                    _ = await Dialog1.ShowAsync();
+                                    _ = await Dialog1.ShowAsync().ConfigureAwait(false);
                                 }
                                 break;
                             }
@@ -295,7 +297,7 @@ namespace FileManager
                     {
                         try
                         {
-                            _ = await Item.DecryptAsync(Dialog.ExportFolder, FileEncryptionAesKey);
+                            _ = await Item.DecryptAsync(Dialog.ExportFolder, FileEncryptionAesKey).ConfigureAwait(true);
 
                             await Item.DeleteAsync(StorageDeleteOption.PermanentDelete);
                         }
@@ -312,7 +314,7 @@ namespace FileManager
                                         Content = "由于解密密码错误，解密失败，导出任务已经终止\r\r这可能是由于待解密文件数据不匹配造成的",
                                         CloseButtonText = "确定"
                                     };
-                                    _ = await Dialog1.ShowAsync();
+                                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                                 }
                                 else
                                 {
@@ -322,7 +324,7 @@ namespace FileManager
                                         Content = "The decryption failed due to the wrong decryption password, the export task has been terminated \r \rThis may be caused by a mismatch in the data of the files to be decrypted",
                                         CloseButtonText = "Got it"
                                     };
-                                    _ = await Dialog1.ShowAsync();
+                                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                                 }
                             }
                             else if (ex is FileDamagedException)
@@ -335,7 +337,7 @@ namespace FileManager
                                         Content = "由于待解密文件的内部结构损坏，解密失败，导出任务已经终止\r\r这可能是由于文件数据已损坏或被修改造成的",
                                         CloseButtonText = "确定"
                                     };
-                                    _ = await Dialog1.ShowAsync();
+                                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                                 }
                                 else
                                 {
@@ -345,7 +347,7 @@ namespace FileManager
                                         Content = "Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r \rThis may be caused by the file data being damaged or modified",
                                         CloseButtonText = "Got it"
                                     };
-                                    _ = await Dialog1.ShowAsync();
+                                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                                 }
                             }
                         }
@@ -362,16 +364,16 @@ namespace FileManager
                     }
                     catch (Exception)
                     {
-                        await ApplicationData.Current.LocalFolder.DeleteAllSubFilesAndFolders();
-                        await ApplicationData.Current.TemporaryFolder.DeleteAllSubFilesAndFolders();
-                        await ApplicationData.Current.RoamingFolder.DeleteAllSubFilesAndFolders();
+                        await ApplicationData.Current.LocalFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
+                        await ApplicationData.Current.TemporaryFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
+                        await ApplicationData.Current.RoamingFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
                     }
 
-                    await Task.Delay(1000);
+                    await Task.Delay(1000).ConfigureAwait(true);
 
                     LoadingControl.IsLoading = false;
 
-                    await Task.Delay(1000);
+                    await Task.Delay(1000).ConfigureAwait(true);
 
                     Window.Current.Activate();
                     switch (await CoreApplication.RequestRestartAsync(string.Empty))
@@ -388,7 +390,7 @@ namespace FileManager
                                         Content = "自动重新启动过程中出现问题，请手动重启RX文件管理器",
                                         CloseButtonText = "确定"
                                     };
-                                    _ = await Dialog1.ShowAsync();
+                                    _ = await Dialog1.ShowAsync().ConfigureAwait(false);
                                 }
                                 else
                                 {
@@ -398,7 +400,7 @@ namespace FileManager
                                         Content = "There was a problem during the automatic restart, please restart the RX Explorer manually",
                                         CloseButtonText = "Got it"
                                     };
-                                    _ = await Dialog1.ShowAsync();
+                                    _ = await Dialog1.ShowAsync().ConfigureAwait(false);
                                 }
                                 break;
                             }
@@ -468,7 +470,7 @@ namespace FileManager
 
                     if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
                     {
-                        BackgroundController.Current.AcrylicColor = BackgroundController.Current.GetColorFromHexString(AcrylicColor);
+                        BackgroundController.Current.AcrylicColor = BackgroundController.GetColorFromHexString(AcrylicColor);
                     }
                 }
             }
@@ -509,7 +511,7 @@ namespace FileManager
                     PrimaryButtonText = "准奏",
                     CloseButtonText = "跪安"
                 };
-                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
                     StoreContext Store = StoreContext.GetDefault();
                     StoreProductQueryResult PurchasedProductResult = await Store.GetUserCollectionAsync(new string[] { "Durable" });
@@ -526,7 +528,7 @@ namespace FileManager
                                           "Ruofan,\r敬上",
                                 CloseButtonText = "朕知道了"
                             };
-                            _ = await QueueContenDialog.ShowAsync();
+                            _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                         }
                         else
                         {
@@ -552,7 +554,7 @@ namespace FileManager
                                                               "Ruofan,\r敬上",
                                                     CloseButtonText = "朕知道了"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync();
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                                                 break;
                                             }
                                         case StorePurchaseStatus.NotPurchased:
@@ -565,7 +567,7 @@ namespace FileManager
                                                               "Ruofan,\r敬上",
                                                     CloseButtonText = "朕知道了"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync();
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                                                 break;
                                             }
                                         default:
@@ -576,7 +578,7 @@ namespace FileManager
                                                     Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
                                                     CloseButtonText = "朕知道了"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync();
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                                                 break;
                                             }
                                     }
@@ -590,7 +592,7 @@ namespace FileManager
                                     Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
                                     CloseButtonText = "朕知道了"
                                 };
-                                _ = await QueueContenDialog.ShowAsync();
+                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                             }
                         }
                     }
@@ -602,7 +604,7 @@ namespace FileManager
                             Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
                             CloseButtonText = "朕知道了"
                         };
-                        _ = await QueueContenDialog.ShowAsync();
+                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                     }
                 }
             }
@@ -620,7 +622,7 @@ namespace FileManager
                     PrimaryButtonText = "Donate",
                     CloseButtonText = "Later"
                 };
-                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
                     StoreContext Store = StoreContext.GetDefault();
                     StoreProductQueryResult PurchasedProductResult = await Store.GetUserCollectionAsync(new string[] { "Durable" });
@@ -637,7 +639,7 @@ namespace FileManager
                                           "Sincerely,\rRuofan",
                                 CloseButtonText = "Got it"
                             };
-                            _ = await QueueContenDialog.ShowAsync();
+                            _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                         }
                         else
                         {
@@ -663,7 +665,7 @@ namespace FileManager
                                                               "Sincerely,\rRuofan",
                                                     CloseButtonText = "Got it"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync();
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                                                 break;
                                             }
                                         case StorePurchaseStatus.NotPurchased:
@@ -676,7 +678,7 @@ namespace FileManager
                                                               "Sincerely,\rRuofan",
                                                     CloseButtonText = "Got it"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync();
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                                                 break;
                                             }
                                         default:
@@ -687,7 +689,7 @@ namespace FileManager
                                                     Content = "Unable to open support page due to Microsoft Store or network, please try again later",
                                                     CloseButtonText = "Got it"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync();
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                                                 break;
                                             }
                                     }
@@ -701,7 +703,7 @@ namespace FileManager
                                     Content = "Unable to open support page due to Microsoft Store or network, please try again later",
                                     CloseButtonText = "Got it"
                                 };
-                                _ = await QueueContenDialog.ShowAsync();
+                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                             }
                         }
                     }
@@ -713,7 +715,7 @@ namespace FileManager
                             Content = "Unable to open support page due to Microsoft Store or network, please try again later",
                             CloseButtonText = "Got it"
                         };
-                        _ = await QueueContenDialog.ShowAsync();
+                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                     }
                 }
             }
@@ -722,7 +724,7 @@ namespace FileManager
         private async void UpdateLogLink_Click(object sender, RoutedEventArgs e)
         {
             WhatIsNew Dialog = new WhatIsNew();
-            await Dialog.ShowAsync();
+            _ = await Dialog.ShowAsync().ConfigureAwait(false);
         }
 
         private async void SystemInfoButton_Click(object sender, RoutedEventArgs e)
@@ -730,7 +732,7 @@ namespace FileManager
             if (Package.Current.Id.Architecture == ProcessorArchitecture.X64 || Package.Current.Id.Architecture == ProcessorArchitecture.X86)
             {
                 SystemInfoDialog dialog = new SystemInfoDialog();
-                _ = await dialog.ShowAsync();
+                _ = await dialog.ShowAsync().ConfigureAwait(false);
             }
             else
             {
@@ -742,7 +744,7 @@ namespace FileManager
                         Content = "系统信息窗口所依赖的部分组件仅支持在X86或X64处理器上实现\rARM处理器暂不支持，因此无法打开此窗口",
                         CloseButtonText = "知道了"
                     };
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -752,7 +754,7 @@ namespace FileManager
                         Content = "Some components that the system information dialog depends on only support X86 or X64 processors\rUnsupport ARM processor for now, so this dialog will not be opened",
                         CloseButtonText = "Got it"
                     };
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(false);
                 }
             }
 
@@ -761,17 +763,17 @@ namespace FileManager
         private async void AddFeedBack_Click(object sender, RoutedEventArgs e)
         {
             FeedBackDialog Dialog = new FeedBackDialog();
-            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+            if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
                 if (FeedBackCollection.Count != 0)
                 {
                     if (FeedBackCollection.FirstOrDefault((It) => It.UserName == UserName && It.Suggestion == Dialog.FeedBack && It.Title == Dialog.TitleName) == null)
                     {
                         FeedBackItem Item = new FeedBackItem(UserName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
-                        if (await MySQL.Current.SetFeedBackAsync(Item))
+                        if (await MySQL.Current.SetFeedBackAsync(Item).ConfigureAwait(true))
                         {
                             FeedBackCollection.Add(Item);
-                            await Task.Delay(1000);
+                            await Task.Delay(1000).ConfigureAwait(true);
                             FeedBackList.ScrollIntoViewSmoothly(FeedBackCollection.Last());
                         }
                         else
@@ -784,7 +786,7 @@ namespace FileManager
                                     Content = "因网络原因无法进行此项操作",
                                     CloseButtonText = "确定"
                                 };
-                                _ = await dialog.ShowAsync();
+                                _ = await dialog.ShowAsync().ConfigureAwait(false);
                             }
                             else
                             {
@@ -794,7 +796,7 @@ namespace FileManager
                                     Content = "This operation cannot be performed due to network reasons",
                                     CloseButtonText = "Got it"
                                 };
-                                _ = await dialog.ShowAsync();
+                                _ = await dialog.ShowAsync().ConfigureAwait(false);
                             }
                         }
                     }
@@ -806,13 +808,13 @@ namespace FileManager
                             Content = "The same feedback already exists, please do not submit it repeatedly",
                             CloseButtonText = "Got it"
                         };
-                        _ = await TipsDialog.ShowAsync();
+                        _ = await TipsDialog.ShowAsync().ConfigureAwait(false);
                     }
                 }
                 else
                 {
                     FeedBackItem Item = new FeedBackItem(UserName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
-                    if (!await MySQL.Current.SetFeedBackAsync(Item))
+                    if (!await MySQL.Current.SetFeedBackAsync(Item).ConfigureAwait(true))
                     {
                         if (Globalization.Language == LanguageEnum.Chinese)
                         {
@@ -822,7 +824,7 @@ namespace FileManager
                                 Content = "因网络原因无法进行此项操作",
                                 CloseButtonText = "确定"
                             };
-                            _ = await dialog.ShowAsync();
+                            _ = await dialog.ShowAsync().ConfigureAwait(false);
                         }
                         else
                         {
@@ -832,7 +834,7 @@ namespace FileManager
                                 Content = "This operation cannot be performed due to network reasons",
                                 CloseButtonText = "Got it"
                             };
-                            _ = await dialog.ShowAsync();
+                            _ = await dialog.ShowAsync().ConfigureAwait(false);
                         }
                     }
                     else
@@ -857,9 +859,9 @@ namespace FileManager
             if (FeedBackList.SelectedItem is FeedBackItem SelectItem)
             {
                 FeedBackDialog Dialog = new FeedBackDialog(SelectItem.Title, SelectItem.Suggestion);
-                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    if (!await MySQL.Current.UpdateFeedBackTitleAndSuggestionAsync(Dialog.TitleName, Dialog.FeedBack, SelectItem.GUID))
+                    if (!await MySQL.Current.UpdateFeedBackTitleAndSuggestionAsync(Dialog.TitleName, Dialog.FeedBack, SelectItem.GUID).ConfigureAwait(true))
                     {
                         if (Globalization.Language == LanguageEnum.Chinese)
                         {
@@ -869,7 +871,7 @@ namespace FileManager
                                 Content = "因网络原因无法进行此项操作",
                                 CloseButtonText = "确定"
                             };
-                            _ = await dialog.ShowAsync();
+                            _ = await dialog.ShowAsync().ConfigureAwait(false);
                         }
                         else
                         {
@@ -879,7 +881,7 @@ namespace FileManager
                                 Content = "This operation cannot be performed due to network reasons",
                                 CloseButtonText = "Got it"
                             };
-                            _ = await dialog.ShowAsync();
+                            _ = await dialog.ShowAsync().ConfigureAwait(false);
                         }
                     }
                     else
@@ -894,7 +896,7 @@ namespace FileManager
         {
             if (FeedBackList.SelectedItem is FeedBackItem SelectItem)
             {
-                if (!await MySQL.Current.DeleteFeedBackAsync(SelectItem))
+                if (!await MySQL.Current.DeleteFeedBackAsync(SelectItem).ConfigureAwait(true))
                 {
                     if (Globalization.Language == LanguageEnum.Chinese)
                     {
@@ -904,7 +906,7 @@ namespace FileManager
                             Content = "因网络原因无法进行此项操作",
                             CloseButtonText = "确定"
                         };
-                        _ = await dialog.ShowAsync();
+                        _ = await dialog.ShowAsync().ConfigureAwait(false);
                     }
                     else
                     {
@@ -914,7 +916,7 @@ namespace FileManager
                             Content = "This operation cannot be performed due to network reasons",
                             CloseButtonText = "Got it"
                         };
-                        _ = await dialog.ShowAsync();
+                        _ = await dialog.ShowAsync().ConfigureAwait(false);
                     }
                 }
                 else
@@ -934,12 +936,10 @@ namespace FileManager
             if (OpenLeftArea.IsOn)
             {
                 ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
-                ThisPC.ThisPage.Gr.ColumnDefinitions[0].Width = new GridLength(300);
             }
             else
             {
                 ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = false;
-                ThisPC.ThisPage.Gr.ColumnDefinitions[0].Width = new GridLength(0);
             }
         }
 
@@ -991,7 +991,7 @@ namespace FileManager
 
             if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
             {
-                BackgroundController.Current.AcrylicColor = BackgroundController.Current.GetColorFromHexString(AcrylicColor);
+                BackgroundController.Current.AcrylicColor = BackgroundController.GetColorFromHexString(AcrylicColor);
             }
         }
 
@@ -1002,7 +1002,7 @@ namespace FileManager
 
             if (PictureList.Count == 0)
             {
-                foreach (Uri ImageUri in await SQLite.Current.GetBackgroundPictureAsync())
+                foreach (Uri ImageUri in await SQLite.Current.GetBackgroundPictureAsync().ConfigureAwait(true))
                 {
                     BitmapImage Image = new BitmapImage
                     {
@@ -1022,12 +1022,12 @@ namespace FileManager
 
                 PictureGirdView.SelectedItem = PictureItem;
                 PictureGirdView.ScrollIntoViewSmoothly(PictureItem);
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, PictureItem.PictureUri.ToString());
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, PictureItem.PictureUri);
             }
             else
             {
                 PictureGirdView.SelectedIndex = 0;
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, PictureList.FirstOrDefault().PictureUri.ToString());
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, PictureList.FirstOrDefault().PictureUri);
             }
         }
 
@@ -1035,7 +1035,7 @@ namespace FileManager
         {
             if (PictureGirdView.SelectedItem is BackgroundPicture Picture)
             {
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Picture.PictureUri.ToString());
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Picture.PictureUri);
             }
         }
 
@@ -1069,7 +1069,7 @@ namespace FileManager
                 PictureGirdView.ScrollIntoViewSmoothly(Picture);
                 PictureGirdView.SelectedItem = Picture;
 
-                await SQLite.Current.SetBackgroundPictureAsync(Picture.PictureUri.ToString());
+                await SQLite.Current.SetBackgroundPictureAsync(Picture.PictureUri).ConfigureAwait(false);
             }
         }
 
@@ -1077,7 +1077,7 @@ namespace FileManager
         {
             if (PictureGirdView.SelectedItem is BackgroundPicture Picture)
             {
-                await SQLite.Current.DeleteBackgroundPictureAsync(Picture.PictureUri.ToString());
+                await SQLite.Current.DeleteBackgroundPictureAsync(Picture.PictureUri).ConfigureAwait(true);
                 PictureList.Remove(Picture);
                 PictureGirdView.SelectedIndex = PictureList.Count - 1;
             }
@@ -1136,7 +1136,7 @@ namespace FileManager
                                     PrimaryButtonText = "立即开启",
                                     CloseButtonText = "暂不开启"
                                 };
-                                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                                if ((await Dialog.ShowAsync().ConfigureAwait(false)) == ContentDialogResult.Primary)
                                 {
                                     await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
                                 }
@@ -1150,7 +1150,7 @@ namespace FileManager
                                     PrimaryButtonText = "Now",
                                     CloseButtonText = "Later"
                                 };
-                                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                                if ((await Dialog.ShowAsync().ConfigureAwait(false)) == ContentDialogResult.Primary)
                                 {
                                     await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
                                 }

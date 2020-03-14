@@ -11,10 +11,10 @@ namespace FileManager
 {
     public sealed partial class BluetoothFileTransfer : QueueContentDialog
     {
-        public Stream StreamToSend { private get; set; }
-        public StorageFile FileToSend { private get; set; }
-        public bool UseStorageFileRatherThanStream { private get; set; } = false;
-        public string FileName { private get; set; }
+        public Stream StreamToSend { get; set; }
+        public StorageFile FileToSend { get; set; }
+        public bool UseStorageFileRatherThanStream { get; set; } = false;
+        public string FileName { get; set; }
         private StorageFile ToDeleteFile;
         private ObexService ObexClient = ObexServiceProvider.GetObexNewInstance();
         private bool AbortFromHere = false;
@@ -52,25 +52,27 @@ namespace FileManager
             ObexClient.Disconnected += ObexClient_Disconnected;
             ObexClient.DeviceConnected += ObexClient_DeviceConnected;
 
-            await ObexClient.ConnectAsync();
+            await ObexClient.ConnectAsync().ConfigureAwait(false);
 
             if (UseStorageFileRatherThanStream)
             {
-                await ObexClient.SendFileAsync(FileToSend);
+                await ObexClient.SendFileAsync(FileToSend).ConfigureAwait(false);
             }
             else
             {
                 StorageFile file = await ApplicationData.Current.TemporaryFolder.CreateFileAsync(FileName, CreationCollisionOption.ReplaceExisting);
-                using (Stream stream = await file.OpenStreamForWriteAsync())
+                
+                using (Stream stream = await file.OpenStreamForWriteAsync().ConfigureAwait(false))
                 {
                     using (StreamToSend)
                     {
-                        await StreamToSend.CopyToAsync(stream);
+                        await StreamToSend.CopyToAsync(stream).ConfigureAwait(false);
                     }
                 }
+
                 ToDeleteFile = file;
 
-                await ObexClient.SendFileAsync(file);
+                await ObexClient.SendFileAsync(file).ConfigureAwait(false);
             }
         }
 
@@ -217,9 +219,12 @@ namespace FileManager
 
                     try
                     {
-                        await ObexClient.AbortAsync();
+                        await ObexClient.AbortAsync().ConfigureAwait(false);
                     }
-                    catch (Exception) { }
+                    catch (Exception)
+                    {
+
+                    }
                 }
                 else if (SecondaryButtonText == "重试")
                 {
@@ -249,8 +254,8 @@ namespace FileManager
                         ProgressControl.Value = 0;
                         CloseButtonText = "";
                         SecondaryButtonText = "中止";
-                        await ObexClient.ConnectAsync();
-                        await ObexClient.SendFileAsync(ToDeleteFile);
+                        await ObexClient.ConnectAsync().ConfigureAwait(true);
+                        await ObexClient.SendFileAsync(ToDeleteFile).ConfigureAwait(true);
                     }
                     catch (Exception)
                     {
@@ -267,9 +272,12 @@ namespace FileManager
 
                     try
                     {
-                        await ObexClient.AbortAsync();
+                        await ObexClient.AbortAsync().ConfigureAwait(false);
                     }
-                    catch (Exception) { }
+                    catch (Exception) 
+                    { 
+                    
+                    }
                 }
                 else if (SecondaryButtonText == "Retry")
                 {
@@ -299,8 +307,8 @@ namespace FileManager
                         ProgressControl.Value = 0;
                         CloseButtonText = "";
                         SecondaryButtonText = "Abort";
-                        await ObexClient.ConnectAsync();
-                        await ObexClient.SendFileAsync(ToDeleteFile);
+                        await ObexClient.ConnectAsync().ConfigureAwait(true);
+                        await ObexClient.SendFileAsync(ToDeleteFile).ConfigureAwait(true);
                     }
                     catch (Exception)
                     {

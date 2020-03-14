@@ -220,6 +220,9 @@
     <Compile Include="View\SecureArea.xaml.cs">
       <DependentUpon>SecureArea.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\TabViewContainer.xaml.cs">
+      <DependentUpon>TabViewContainer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\ThisPC.xaml.cs">
       <DependentUpon>ThisPC.xaml</DependentUpon>
     </Compile>
@@ -314,7 +317,7 @@
     <Content Include="HotWebImage\Facebook.png" />
     <Content Include="HotWebImage\Instagram.png" />
     <Content Include="HotWebImage\Twitter.png" />
-    <Content Include="SecureAccessKeyProvider\NetworkAccessKeyProvider.dll" />
+    <Content Include="SecureAccess\NetworkAccess.dll" />
     <None Include="Package.StoreAssociation.xml" />
     <Content Include="QuickStartImage\Calculator.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -400,7 +403,7 @@
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
-    <None Include="SecureAccessKeyProvider\NetworkAccessKeyProvider.pri" />
+    <None Include="SecureAccess\NetworkAccess.pri" />
     <PRIResource Include="Strings\zh-Hans\Resources.resw" />
     <PRIResource Include="Strings\en-US\Resources.resw">
       <SubType>Designer</SubType>
@@ -507,6 +510,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\TabViewContainer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\ThisPC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -574,6 +581,11 @@
     </PackageReference>
     <PackageReference Include="Google.Cloud.Translation.V2">
       <Version>2.0.0-beta01</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers">
+      <Version>2.9.8</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.Sqlite.Core">
       <Version>3.1.2</Version>
@@ -664,9 +676,9 @@
     </SDKReference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="NetworkAccessKeyProvider, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="NetworkAccess, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>SecureAccessKeyProvider\NetworkAccessKeyProvider.dll</HintPath>
+      <HintPath>SecureAccess\NetworkAccess.dll</HintPath>
     </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

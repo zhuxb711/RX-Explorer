@@ -23,6 +23,7 @@ namespace FileManager
         StorageFile OriginFile;
         Rect UnchangeRegion;
         ObservableCollection<FilterItem> FilterCollection = new ObservableCollection<FilterItem>();
+        Frame FileControlNav;
 
         public CropperPage()
         {
@@ -47,17 +48,22 @@ namespace FileManager
         {
             try
             {
-                PhotoDisplaySupport Item = e.Parameter as PhotoDisplaySupport;
-                OriginFile = Item.PhotoFile;
-                OriginImage = await Item.GenerateImageWithRotation();
-                OriginBackupImage = SoftwareBitmap.Copy(OriginImage);
+                if (e.Parameter is Tuple<Frame, object> Parameters)
+                {
+                    FileControlNav = Parameters.Item1;
 
-                WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
-                OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
-                Cropper.Source = WBitmap;
-                UnchangeRegion = Cropper.CroppedRegion;
+                    PhotoDisplaySupport Item = Parameters.Item2 as PhotoDisplaySupport;
+                    OriginFile = Item.PhotoFile;
+                    OriginImage = await Item.GenerateImageWithRotation().ConfigureAwait(true);
+                    OriginBackupImage = SoftwareBitmap.Copy(OriginImage);
 
-                await AddEffectsToPane();
+                    WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
+                    OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
+                    Cropper.Source = WBitmap;
+                    UnchangeRegion = Cropper.CroppedRegion;
+
+                    await AddEffectsToPane().ConfigureAwait(false);
+                }
             }
             catch (Exception ex)
             {
@@ -67,58 +73,77 @@ namespace FileManager
 
         private async Task AddEffectsToPane()
         {
-            SoftwareBitmap Bitmap1 = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 100, 100, BitmapAlphaMode.Premultiplied);
-            OpenCV.OpenCVLibrary.GenenateResizedThumbnail(OriginImage, Bitmap1, 100, 100);
             SoftwareBitmapSource Source1 = new SoftwareBitmapSource();
-            await Source1.SetBitmapAsync(Bitmap1);
-
-            SoftwareBitmap Bitmap2 = SoftwareBitmap.Copy(Bitmap1);
-            OpenCV.OpenCVLibrary.InvertEffect(Bitmap2, Bitmap2);
             SoftwareBitmapSource Source2 = new SoftwareBitmapSource();
-            await Source2.SetBitmapAsync(Bitmap2);
-
-            SoftwareBitmap Bitmap3 = SoftwareBitmap.Copy(Bitmap1);
-            WriteableBitmap WBitmap = new WriteableBitmap(Bitmap3.PixelWidth, Bitmap3.PixelHeight);
-            Bitmap3.CopyToBuffer(WBitmap.PixelBuffer);
-            Bitmap3.CopyFromBuffer(WBitmap.Gray().PixelBuffer);
             SoftwareBitmapSource Source3 = new SoftwareBitmapSource();
-            await Source3.SetBitmapAsync(Bitmap3);
-
-            SoftwareBitmap Bitmap4 = SoftwareBitmap.Copy(Bitmap1);
-            WriteableBitmap WBitmap1 = new WriteableBitmap(Bitmap4.PixelWidth, Bitmap4.PixelHeight);
-            Bitmap4.CopyToBuffer(WBitmap1.PixelBuffer);
-            Bitmap4.CopyFromBuffer(WBitmap1.Gray().PixelBuffer);
-            OpenCV.OpenCVLibrary.ThresholdEffect(Bitmap4, Bitmap4);
             SoftwareBitmapSource Source4 = new SoftwareBitmapSource();
-            await Source4.SetBitmapAsync(Bitmap4);
-
-            SoftwareBitmap Bitmap8 = SoftwareBitmap.Copy(Bitmap1);
-            OpenCV.OpenCVLibrary.SepiaEffect(Bitmap8, Bitmap8);
-            SoftwareBitmapSource Source8 = new SoftwareBitmapSource();
-            await Source8.SetBitmapAsync(Bitmap8);
-
-            SoftwareBitmap Bitmap9 = SoftwareBitmap.Copy(Bitmap1);
-            OpenCV.OpenCVLibrary.MosaicEffect(Bitmap9, Bitmap9);
-            SoftwareBitmapSource Source9 = new SoftwareBitmapSource();
-            await Source9.SetBitmapAsync(Bitmap9);
-
-            SoftwareBitmap Bitmap5 = SoftwareBitmap.Copy(Bitmap1);
-            WriteableBitmap WBitmap2 = new WriteableBitmap(Bitmap5.PixelWidth, Bitmap5.PixelHeight);
-            Bitmap5.CopyToBuffer(WBitmap2.PixelBuffer);
-            Bitmap5.CopyFromBuffer(WBitmap2.Gray().PixelBuffer);
-            OpenCV.OpenCVLibrary.SketchEffect(Bitmap5, Bitmap5);
             SoftwareBitmapSource Source5 = new SoftwareBitmapSource();
-            await Source5.SetBitmapAsync(Bitmap5);
-
-            SoftwareBitmap Bitmap6 = SoftwareBitmap.Copy(Bitmap1);
-            OpenCV.OpenCVLibrary.GaussianBlurEffect(Bitmap6, Bitmap6);
             SoftwareBitmapSource Source6 = new SoftwareBitmapSource();
-            await Source6.SetBitmapAsync(Bitmap6);
-
-            SoftwareBitmap Bitmap7 = SoftwareBitmap.Copy(Bitmap1);
-            OpenCV.OpenCVLibrary.OilPaintingEffect(Bitmap7, Bitmap7);
             SoftwareBitmapSource Source7 = new SoftwareBitmapSource();
-            await Source7.SetBitmapAsync(Bitmap7);
+            SoftwareBitmapSource Source8 = new SoftwareBitmapSource();
+            SoftwareBitmapSource Source9 = new SoftwareBitmapSource();
+
+            using (SoftwareBitmap Bitmap1 = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 100, 100, BitmapAlphaMode.Premultiplied))
+            {
+                OpenCV.OpenCVLibrary.GenenateResizedThumbnail(OriginImage, Bitmap1, 100, 100);
+                await Source1.SetBitmapAsync(Bitmap1);
+
+                using (SoftwareBitmap Bitmap2 = SoftwareBitmap.Copy(Bitmap1))
+                {
+                    OpenCV.OpenCVLibrary.InvertEffect(Bitmap2, Bitmap2);
+                    await Source2.SetBitmapAsync(Bitmap2);
+                }
+
+                using (SoftwareBitmap Bitmap3 = SoftwareBitmap.Copy(Bitmap1))
+                {
+                    WriteableBitmap WBitmap = new WriteableBitmap(Bitmap3.PixelWidth, Bitmap3.PixelHeight);
+                    Bitmap3.CopyToBuffer(WBitmap.PixelBuffer);
+                    Bitmap3.CopyFromBuffer(WBitmap.Gray().PixelBuffer);
+                    await Source3.SetBitmapAsync(Bitmap3);
+                }
+
+                using (SoftwareBitmap Bitmap4 = SoftwareBitmap.Copy(Bitmap1))
+                {
+                    WriteableBitmap WBitmap1 = new WriteableBitmap(Bitmap4.PixelWidth, Bitmap4.PixelHeight);
+                    Bitmap4.CopyToBuffer(WBitmap1.PixelBuffer);
+                    Bitmap4.CopyFromBuffer(WBitmap1.Gray().PixelBuffer);
+                    OpenCV.OpenCVLibrary.ThresholdEffect(Bitmap4, Bitmap4);
+                    await Source4.SetBitmapAsync(Bitmap4);
+                }
+
+                using (SoftwareBitmap Bitmap8 = SoftwareBitmap.Copy(Bitmap1))
+                {
+                    OpenCV.OpenCVLibrary.SepiaEffect(Bitmap8, Bitmap8);
+                    await Source8.SetBitmapAsync(Bitmap8);
+                }
+
+                using (SoftwareBitmap Bitmap9 = SoftwareBitmap.Copy(Bitmap1))
+                {
+                    OpenCV.OpenCVLibrary.MosaicEffect(Bitmap9, Bitmap9);
+                    await Source9.SetBitmapAsync(Bitmap9);
+                }
+
+                using (SoftwareBitmap Bitmap5 = SoftwareBitmap.Copy(Bitmap1))
+                {
+                    WriteableBitmap WBitmap2 = new WriteableBitmap(Bitmap5.PixelWidth, Bitmap5.PixelHeight);
+                    Bitmap5.CopyToBuffer(WBitmap2.PixelBuffer);
+                    Bitmap5.CopyFromBuffer(WBitmap2.Gray().PixelBuffer);
+                    OpenCV.OpenCVLibrary.SketchEffect(Bitmap5, Bitmap5);
+                    await Source5.SetBitmapAsync(Bitmap5);
+                }
+
+                using (SoftwareBitmap Bitmap6 = SoftwareBitmap.Copy(Bitmap1))
+                {
+                    OpenCV.OpenCVLibrary.GaussianBlurEffect(Bitmap6, Bitmap6);
+                    await Source6.SetBitmapAsync(Bitmap6);
+                }
+
+                using (SoftwareBitmap Bitmap7 = SoftwareBitmap.Copy(Bitmap1))
+                {
+                    OpenCV.OpenCVLibrary.OilPaintingEffect(Bitmap7, Bitmap7);
+                    await Source7.SetBitmapAsync(Bitmap7);
+                }
+            }
 
             if (Globalization.Language == LanguageEnum.Chinese)
             {
@@ -148,11 +173,13 @@ namespace FileManager
             FilterGrid.SelectedIndex = 0;
             FilterGrid.SelectionChanged += FilterGrid_SelectionChanged;
 
-            SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied);
-            OpenCV.OpenCVLibrary.CalculateHistogram(OriginImage, Histogram);
-            SoftwareBitmapSource Source = new SoftwareBitmapSource();
-            await Source.SetBitmapAsync(Histogram);
-            HistogramImage.Source = Source;
+            using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+            {
+                OpenCV.OpenCVLibrary.CalculateHistogram(OriginImage, Histogram);
+                SoftwareBitmapSource Source = new SoftwareBitmapSource();
+                await Source.SetBitmapAsync(Histogram);
+                HistogramImage.Source = Source;
+            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -180,7 +207,7 @@ namespace FileManager
 
         private void OptionCancel_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            FileControl.ThisPage.Nav.GoBack();
+            FileControlNav.GoBack();
         }
 
         private async void SaveAs_Click(SplitButton sender, SplitButtonClickEventArgs args)
@@ -227,29 +254,29 @@ namespace FileManager
                     switch (File.FileType)
                     {
                         case ".png":
-                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Png);
+                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Png).ConfigureAwait(true);
                             break;
                         case ".jpg":
                         case ".jpeg":
-                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Jpeg);
+                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Jpeg).ConfigureAwait(true);
                             break;
                         case ".bmp":
-                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Bmp);
+                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Bmp).ConfigureAwait(true);
                             break;
                         case ".gif":
-                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Gif);
+                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Gif).ConfigureAwait(true);
                             break;
                         case ".tiff":
-                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Tiff);
+                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Tiff).ConfigureAwait(true);
                             break;
                         default:
                             throw new InvalidOperationException("Unsupport image format");
                     }
                 }
 
-                await Task.Delay(1000);
+                await Task.Delay(1000).ConfigureAwait(true);
                 LoadingControl.IsLoading = false;
-                FileControl.ThisPage.Nav.GoBack();
+                FileControlNav.GoBack();
             }
         }
 
@@ -344,30 +371,32 @@ namespace FileManager
                 switch (OriginFile.FileType)
                 {
                     case ".png":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Png);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Png).ConfigureAwait(true);
                         break;
                     case ".jpg":
                     case ".jpeg":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Jpeg);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Jpeg).ConfigureAwait(true);
                         break;
                     case ".bmp":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Bmp);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Bmp).ConfigureAwait(true);
                         break;
                     case ".gif":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Gif);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Gif).ConfigureAwait(true);
                         break;
                     case ".tiff":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Tiff);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Tiff).ConfigureAwait(true);
                         break;
                     default:
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Png);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Png).ConfigureAwait(true);
                         await OriginFile.RenameAsync(Path.GetFileNameWithoutExtension(OriginFile.Name) + ".png", NameCollisionOption.GenerateUniqueName);
                         break;
                 }
             }
-            await Task.Delay(1000);
+
+            await Task.Delay(1000).ConfigureAwait(true);
+
             LoadingControl.IsLoading = false;
-            FileControl.ThisPage.Nav.GoBack();
+            FileControlNav.GoBack();
         }
 
         private void RotationButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)

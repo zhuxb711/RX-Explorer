@@ -5,7 +5,7 @@ using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Data.Sqlite;
 using Microsoft.Toolkit.Uwp.Notifications;
 using MySql.Data.MySqlClient;
-using NetworkAccessKeyProvider;
+using NetworkAccess;
 using SQLConnectionPoolProvider;
 using System;
 using System.Collections.Generic;
@@ -41,6 +41,7 @@ using Windows.Security.Cryptography.Core;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
+using Windows.Storage.Streams;
 using Windows.System.UserProfile;
 using Windows.UI;
 using Windows.UI.Core;
@@ -75,7 +76,7 @@ namespace FileManager
             SQLitePCL.raw.sqlite3_win32_set_directory(1, ApplicationData.Current.LocalFolder.Path);
             SQLitePCL.raw.sqlite3_win32_set_directory(2, ApplicationData.Current.TemporaryFolder.Path);
 
-            ConnectionPool = new SQLConnectionPool<SqliteConnection>("Filename=RX_Sqlite.db;", 1, 0);
+            ConnectionPool = new SQLConnectionPool<SqliteConnection>("Filename=RX_Sqlite.db;", 2, 0);
 
             InitializeDatabase();
         }
@@ -135,19 +136,19 @@ namespace FileManager
 
         public async Task SetProgramPickerRecordAsync(string Path)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into ProgramPickerRecord Values (@Path)"))
             {
                 _ = Command.Parameters.AddWithValue("@Path", Path);
-                _ = await Command.ExecuteNonQueryAsync();
+                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
         public async Task<List<string>> GetProgramPickerRecordAsync()
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From ProgramPickerRecord"))
-            using (SqliteDataReader query = await Command.ExecuteReaderAsync())
+            using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
             {
                 List<string> list = new List<string>();
                 while (query.Read())
@@ -160,19 +161,19 @@ namespace FileManager
 
         public async Task DeleteProgramPickerRecordAsync(string Path)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From ProgramPickerRecord Where Path=@Path"))
             {
                 _ = Command.Parameters.AddWithValue("@Path", Path);
-                _ = await Command.ExecuteNonQueryAsync();
+                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
         public async Task<Dictionary<string, bool>> GetDeviceVisibilityMapAsync()
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From DeviceVisibility"))
-            using (SqliteDataReader query = await Command.ExecuteReaderAsync())
+            using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
             {
                 Dictionary<string, bool> Dic = new Dictionary<string, bool>();
                 while (query.Read())
@@ -185,17 +186,17 @@ namespace FileManager
 
         public async Task SetDeviceVisibilityAsync(string Path, bool IsVisible)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command1 = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select Count(*) From DeviceVisibility Where Path=@Path"))
             {
                 _ = Command1.Parameters.AddWithValue("@Path", Path);
-                if (Convert.ToInt32(await Command1.ExecuteScalarAsync()) == 0)
+                if (Convert.ToInt32(await Command1.ExecuteScalarAsync().ConfigureAwait(false)) == 0)
                 {
                     using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into DeviceVisibility Values (@Path,@IsVisible)"))
                     {
                         _ = Command.Parameters.AddWithValue("@Path", Path);
                         _ = Command.Parameters.AddWithValue("@IsVisible", IsVisible.ToString());
-                        _ = Command.ExecuteNonQuery();
+                        _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
                 }
                 else
@@ -204,7 +205,7 @@ namespace FileManager
                     {
                         _ = Command.Parameters.AddWithValue("@Path", Path);
                         _ = Command.Parameters.AddWithValue("@IsVisible", IsVisible.ToString());
-                        _ = Command.ExecuteNonQuery();
+                        _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
                 }
             }
@@ -215,13 +216,20 @@ namespace FileManager
         /// </summary>
         /// <param name="uri">图片Uri</param>
         /// <returns></returns>
-        public async Task SetBackgroundPictureAsync(string uri)
+        public async Task SetBackgroundPictureAsync(Uri uri)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into BackgroundPicture Values (@FileName)"))
+            if (uri != null)
             {
-                _ = Command.Parameters.AddWithValue("@FileName", uri);
-                _ = await Command.ExecuteNonQueryAsync();
+                using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
+                using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into BackgroundPicture Values (@FileName)"))
+                {
+                    _ = Command.Parameters.AddWithValue("@FileName", uri.ToString());
+                    _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(uri), "Parameter could not be null");
             }
         }
 
@@ -232,9 +240,9 @@ namespace FileManager
         public async Task<List<Uri>> GetBackgroundPictureAsync()
         {
             List<Uri> list = new List<Uri>();
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From BackgroundPicture"))
-            using (SqliteDataReader query = await Command.ExecuteReaderAsync())
+            using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
             {
                 while (query.Read())
                 {
@@ -249,13 +257,20 @@ namespace FileManager
         /// </summary>
         /// <param name="uri">图片Uri</param>
         /// <returns></returns>
-        public async Task DeleteBackgroundPictureAsync(string uri)
+        public async Task DeleteBackgroundPictureAsync(Uri uri)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From BackgroundPicture Where FileName=@FileName"))
+            if (uri != null)
             {
-                _ = Command.Parameters.AddWithValue("@FileName", uri);
-                _ = await Command.ExecuteNonQueryAsync();
+                using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
+                using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From BackgroundPicture Where FileName=@FileName"))
+                {
+                    _ = Command.Parameters.AddWithValue("@FileName", uri.ToString());
+                    _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(uri), "Parameter could not be null");
             }
         }
 
@@ -266,9 +281,9 @@ namespace FileManager
         public async Task<List<string>> GetFolderLibraryAsync()
         {
             List<string> list = new List<string>();
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From FolderLibrary"))
-            using (SqliteDataReader query = await Command.ExecuteReaderAsync())
+            using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
             {
                 while (query.Read())
                 {
@@ -285,11 +300,11 @@ namespace FileManager
         /// <returns></returns>
         public async Task DeleteFolderLibraryAsync(string Path)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From FolderLibrary Where Path = @Path"))
             {
                 _ = Command.Parameters.AddWithValue("@Path", Path);
-                _ = await Command.ExecuteNonQueryAsync();
+                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -300,11 +315,11 @@ namespace FileManager
         /// <returns></returns>
         public async Task SetPathHistoryAsync(string Path)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Or Ignore Into PathHistory Values (@Para)"))
             {
                 _ = Command.Parameters.AddWithValue("@Para", Path);
-                _ = await Command.ExecuteNonQueryAsync();
+                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -316,9 +331,9 @@ namespace FileManager
         public async Task<List<string>> GetRelatedPathHistoryAsync()
         {
             List<string> PathList = new List<string>();
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From PathHistory"))
-            using (SqliteDataReader query = await Command.ExecuteReaderAsync())
+            using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
             {
                 while (query.Read())
                 {
@@ -335,11 +350,11 @@ namespace FileManager
         /// <returns></returns>
         public async Task SetFolderLibraryAsync(string Path)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into FolderLibrary Values (@Path)"))
             {
                 _ = Command.Parameters.AddWithValue("@Path", Path);
-                _ = await Command.ExecuteNonQueryAsync();
+                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -350,11 +365,11 @@ namespace FileManager
         /// <returns></returns>
         public async Task SetSearchHistoryAsync(string SearchText)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Or Ignore Into SearchHistory Values (@Para)"))
             {
                 _ = Command.Parameters.AddWithValue("@Para", SearchText);
-                _ = await Command.ExecuteNonQueryAsync();
+                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -368,14 +383,14 @@ namespace FileManager
         /// <returns></returns>
         public async Task SetQuickStartItemAsync(string Name, string FullPath, string Protocal, QuickStartType Type)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Or Ignore Into QuickStart Values (@Name,@Path,@Protocal,@Type)"))
             {
                 _ = Command.Parameters.AddWithValue("@Name", Name);
                 _ = Command.Parameters.AddWithValue("@Path", FullPath);
                 _ = Command.Parameters.AddWithValue("@Protocal", Protocal);
                 _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                _ = await Command.ExecuteNonQueryAsync();
+                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -390,7 +405,7 @@ namespace FileManager
         /// <returns></returns>
         public async Task UpdateQuickStartItemAsync(string OldName, string NewName, string FullPath, string Protocal, QuickStartType Type)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             {
                 if (FullPath != null)
                 {
@@ -401,7 +416,7 @@ namespace FileManager
                         _ = Command.Parameters.AddWithValue("@NewName", NewName);
                         _ = Command.Parameters.AddWithValue("@Protocal", Protocal);
                         _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                        _ = await Command.ExecuteNonQueryAsync();
+                        _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
                 }
                 else
@@ -412,7 +427,7 @@ namespace FileManager
                         _ = Command.Parameters.AddWithValue("@NewName", NewName);
                         _ = Command.Parameters.AddWithValue("@Protocal", Protocal);
                         _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                        _ = await Command.ExecuteNonQueryAsync();
+                        _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
                 }
             }
@@ -425,13 +440,20 @@ namespace FileManager
         /// <returns></returns>
         public async Task DeleteQuickStartItemAsync(QuickStartItem Item)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type"))
+            if (Item != null)
             {
-                _ = Command.Parameters.AddWithValue("@Name", Item.DisplayName);
-                _ = Command.Parameters.AddWithValue("@FullPath", Item.RelativePath);
-                _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Item.Type));
-                _ = await Command.ExecuteNonQueryAsync();
+                using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
+                using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type"))
+                {
+                    _ = Command.Parameters.AddWithValue("@Name", Item.DisplayName);
+                    _ = Command.Parameters.AddWithValue("@FullPath", Item.RelativePath);
+                    _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Item.Type));
+                    _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
             }
         }
 
@@ -441,48 +463,56 @@ namespace FileManager
         /// <returns></returns>
         public async IAsyncEnumerable<KeyValuePair<QuickStartType, QuickStartItem>> GetQuickStartItemAsync()
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From QuickStart"))
-            using (SqliteDataReader query = await Command.ExecuteReaderAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(true))
             {
-                while (query.Read())
-                {
-                    StorageFile ImageFile = null;
-                    try
-                    {
-                        ImageFile = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, query[1].ToString()));
-                    }
-                    catch (Exception)
-                    {
-                        using (SQLConnection Connection1 = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
-                        using (SqliteCommand Command1 = Connection1.CreateDbCommandFromConnection<SqliteCommand>("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type"))
-                        {
-                            _ = Command1.Parameters.AddWithValue("@Name", query[0].ToString());
-                            _ = Command1.Parameters.AddWithValue("@FullPath", query[1].ToString());
-                            _ = Command1.Parameters.AddWithValue("@Type", query[3].ToString());
-                            _ = await Command1.ExecuteNonQueryAsync();
-                        }
-                    }
+                List<Tuple<string, string, string>> ErrorList = new List<Tuple<string, string, string>>();
 
-                    if (ImageFile != null)
+                using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From QuickStart"))
+                using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(true))
+                {
+                    while (query.Read())
                     {
-                        using (var Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                        StorageFile ImageFile = null;
+                        try
                         {
-                            BitmapImage Bitmap = new BitmapImage
+                            ImageFile = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, query[1].ToString()));
+                        }
+                        catch (Exception)
+                        {
+                            ErrorList.Add(new Tuple<string, string, string>(query[0].ToString(), query[1].ToString(), query[3].ToString()));
+                        }
+
+                        if (ImageFile != null)
+                        {
+                            using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
                             {
-                                DecodePixelHeight = 80,
-                                DecodePixelWidth = 80
-                            };
-                            await Bitmap.SetSourceAsync(Stream);
-                            if ((QuickStartType)Enum.Parse(typeof(QuickStartType), query[3].ToString()) == QuickStartType.Application)
-                            {
-                                yield return new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.Application, query[1].ToString(), query[0].ToString()));
-                            }
-                            else
-                            {
-                                yield return new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.WebSite, query[1].ToString(), query[0].ToString()));
+                                BitmapImage Bitmap = new BitmapImage
+                                {
+                                    DecodePixelHeight = 80,
+                                    DecodePixelWidth = 80
+                                };
+                                await Bitmap.SetSourceAsync(Stream);
+                                if ((QuickStartType)Enum.Parse(typeof(QuickStartType), query[3].ToString()) == QuickStartType.Application)
+                                {
+                                    yield return new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.Application, query[1].ToString(), query[0].ToString()));
+                                }
+                                else
+                                {
+                                    yield return new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.WebSite, query[1].ToString(), query[0].ToString()));
+                                }
                             }
                         }
+                    }
+                }
+
+                foreach (var ErrorItem in ErrorList)
+                {
+                    using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type"))
+                    {
+                        _ = Command.Parameters.AddWithValue("@Name", ErrorItem.Item1);
+                        _ = Command.Parameters.AddWithValue("@FullPath", ErrorItem.Item2);
+                        _ = Command.Parameters.AddWithValue("@Type", ErrorItem.Item3);
+                        _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
                 }
             }
@@ -496,11 +526,11 @@ namespace FileManager
         public async Task<List<string>> GetRelatedSearchHistoryAsync(string Target)
         {
             List<string> HistoryList = new List<string>();
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From SearchHistory Where SearchText Like @Target"))
             {
                 _ = Command.Parameters.AddWithValue("@Target", "%" + Target + "%");
-                using (SqliteDataReader query = await Command.ExecuteReaderAsync())
+                using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
                 {
                     while (query.Read())
                     {
@@ -519,194 +549,12 @@ namespace FileManager
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "<挂起>")]
         public async Task ClearTableAsync(string TableName)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From " + TableName))
             {
-                _ = await Command.ExecuteNonQueryAsync();
+                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
-
-        /*
-        /// <summary>
-        /// 获取下载历史
-        /// </summary>
-        /// <returns></returns>
-        public void GetDownloadHistory()
-        {
-            using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBaseAsync().Result)
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From DownloadHistory"))
-            using (SqliteDataReader query = Command.ExecuteReader())
-            {
-                for (int i = 0; query.Read(); i++)
-                {
-                    DownloadState State = (DownloadState)Enum.Parse(typeof(DownloadState), query[3].ToString());
-                    if (State == DownloadState.Downloading || State == DownloadState.Paused)
-                    {
-                        State = DownloadState.Canceled;
-                    }
-
-                    WebDownloader.DownloadList.Add(WebDownloader.CreateDownloadOperatorFromDatabase(new Uri(query[2].ToString()), query[1].ToString(), State, query[0].ToString())); ;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 保存下载历史
-        /// </summary>
-        /// <param name="Task">下载对象</param>
-        /// <returns></returns>
-        public async Task SetDownloadHistoryAsync(DownloadOperator Task)
-        {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into DownloadHistory Values (@UniqueID,@ActualName,@Uri,@State)"))
-            {
-                _ = Command.Parameters.AddWithValue("@UniqueID", Task.UniqueID);
-                _ = Command.Parameters.AddWithValue("@ActualName", Task.ActualFileName);
-                _ = Command.Parameters.AddWithValue("@Uri", Task.Address.AbsoluteUri);
-                _ = Command.Parameters.AddWithValue("@State", Enum.GetName(typeof(DownloadState), Task.State));
-                _ = await Command.ExecuteNonQueryAsync();
-            }
-        }
-
-        /// <summary>
-        /// 删除下载历史记录
-        /// </summary>
-        /// <param name="Task">下载对象</param>
-        /// <returns></returns>
-        public async Task DeleteDownloadHistoryAsync(DownloadOperator Task)
-        {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From DownloadHistory Where UniqueID = @UniqueID"))
-            {
-                _ = Command.Parameters.AddWithValue("@UniqueID", Task.UniqueID);
-                _ = await Command.ExecuteNonQueryAsync();
-            }
-        }
-
-        /// <summary>
-        /// 更新下载历史的状态
-        /// </summary>
-        /// <param name="Task">下载对象</param>
-        /// <returns></returns>
-        public async Task UpdateDownloadHistoryAsync(DownloadOperator Task)
-        {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Update DownloadHistory Set State = @State Where UniqueID = @UniqueID"))
-            {
-                _ = Command.Parameters.AddWithValue("@UniqueID", Task.UniqueID);
-                _ = Command.Parameters.AddWithValue("@State", Enum.GetName(typeof(DownloadState), Task.State));
-                _ = await Command.ExecuteNonQueryAsync();
-            }
-        }
-
-        /// <summary>
-        /// 保存网页收藏夹
-        /// </summary>
-        /// <param name="Info">网站对象</param>
-        /// <returns></returns>
-        public async Task SetWebFavouriteListAsync(WebSiteItem Info)
-        {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into WebFavourite Values (@Subject,@WebSite)"))
-            {
-                _ = Command.Parameters.AddWithValue("@Subject", Info.Subject);
-                _ = Command.Parameters.AddWithValue("@WebSite", Info.WebSite);
-                _ = await Command.ExecuteNonQueryAsync();
-            }
-        }
-
-        /// <summary>
-        /// 删除网页收藏夹
-        /// </summary>
-        /// <param name="Info">网页对象</param>
-        /// <returns></returns>
-        public async Task DeleteWebFavouriteListAsync(WebSiteItem Info)
-        {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBaseAsync())
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From WebFavourite Where WebSite = @WebSite"))
-            {
-                _ = Command.Parameters.AddWithValue("@WebSite", Info.WebSite);
-                _ = await Command.ExecuteNonQueryAsync();
-            }
-        }
-
-        /// <summary>
-        /// 删除网页浏览历史记录
-        /// </summary>
-        /// <param name="Info">相关信息</param>
-        public void DeleteWebHistory(KeyValuePair<DateTime, WebSiteItem> Info)
-        {
-            using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBaseAsync().Result)
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From WebHistory Where Subject=@Subject And WebSite=@WebSite And DateTime=@DateTime"))
-            {
-                _ = Command.Parameters.AddWithValue("@Subject", Info.Value.Subject);
-                _ = Command.Parameters.AddWithValue("@WebSite", Info.Value.WebSite);
-                _ = Command.Parameters.AddWithValue("@DateTime", Info.Key.ToBinary().ToString());
-
-                _ = Command.ExecuteNonQuery();
-            }
-        }
-
-        /// <summary>
-        /// 保存网页浏览历史
-        /// </summary>
-        /// <param name="Info">相关信息</param>
-        public void SetWebHistoryList(KeyValuePair<DateTime, WebSiteItem> Info)
-        {
-            using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBaseAsync().Result)
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into WebHistory Values (@Subject,@WebSite,@DateTime)"))
-            {
-                _ = Command.Parameters.AddWithValue("@Subject", Info.Value.Subject);
-                _ = Command.Parameters.AddWithValue("@WebSite", Info.Value.WebSite);
-                _ = Command.Parameters.AddWithValue("@DateTime", Info.Key.ToBinary().ToString());
-
-                _ = Command.ExecuteNonQuery();
-            }
-        }
-
-        /// <summary>
-        /// 获取网页历史记录
-        /// </summary>
-        /// <returns></returns>
-        public List<KeyValuePair<DateTime, WebSiteItem>> GetWebHistoryList()
-        {
-            using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBaseAsync().Result)
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From WebHistory"))
-            using (SqliteDataReader Query = Command.ExecuteReader())
-            {
-                List<KeyValuePair<DateTime, WebSiteItem>> HistoryList = new List<KeyValuePair<DateTime, WebSiteItem>>();
-
-                while (Query.Read())
-                {
-                    HistoryList.Add(new KeyValuePair<DateTime, WebSiteItem>(DateTime.FromBinary(Convert.ToInt64(Query[2])), new WebSiteItem(Query[0].ToString(), Query[1].ToString())));
-                }
-
-                HistoryList.Reverse();
-                return HistoryList;
-            }
-        }
-
-        /// <summary>
-        /// 获取网页收藏夹
-        /// </summary>
-        /// <returns></returns>
-        public List<WebSiteItem> GetWebFavouriteList()
-        {
-            using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBaseAsync().Result)
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From WebFavourite"))
-            using (SqliteDataReader Query = Command.ExecuteReader())
-            {
-                List<WebSiteItem> FavList = new List<WebSiteItem>();
-
-                while (Query.Read())
-                {
-                    FavList.Add(new WebSiteItem(Query[0].ToString(), Query[1].ToString()));
-                }
-
-                return FavList;
-            }
-        }
-        */
 
         /// <summary>
         /// 清空搜索历史记录
@@ -714,10 +562,10 @@ namespace FileManager
         /// <returns></returns>
         public async Task ClearSearchHistoryRecord()
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync())
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From SearchHistory"))
             {
-                _ = await Command.ExecuteNonQueryAsync();
+                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -733,6 +581,8 @@ namespace FileManager
                 ConnectionPool.Dispose();
                 ConnectionPool = null;
                 SQL = null;
+
+                GC.SuppressFinalize(this);
             }
         }
 
@@ -777,7 +627,7 @@ namespace FileManager
         private MySQL()
         {
             ConnectionLocker = new AutoResetEvent(true);
-            using (SecureString Secure = SecureKeyStorageController.GetMySQLAccessCredential(Package.Current))
+            using (SecureString Secure = SecureAccessProvider.GetMySQLAccessCredential(Package.Current))
             {
                 IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
                 string AccessCredential = Marshal.PtrToStringBSTR(Bstr);
@@ -895,16 +745,16 @@ namespace FileManager
         /// <returns></returns>
         public async IAsyncEnumerable<FeedBackItem> GetAllFeedBackAsync()
         {
-            using (SQLConnection Connection = await GetConnectionFromPoolAsync())
+            using (SQLConnection Connection = await GetConnectionFromPoolAsync().ConfigureAwait(false))
             {
                 if (Connection.IsConnected)
                 {
                     using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("GetFeedBackProcedure", CommandType.StoredProcedure))
                     {
                         _ = Command.Parameters.AddWithValue("Para", SettingPage.ThisPage.UserID);
-                        using (DbDataReader Reader = await Command.ExecuteReaderAsync())
+                        using (DbDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
                         {
-                            while (await Reader.ReadAsync())
+                            while (await Reader.ReadAsync().ConfigureAwait(false))
                             {
                                 if (Reader["Behavior"].ToString() != "NULL")
                                 {
@@ -932,32 +782,39 @@ namespace FileManager
         /// <returns></returns>
         public async Task<bool> UpdateFeedBackVoteAsync(FeedBackItem Item)
         {
-            using (SQLConnection Connection = await GetConnectionFromPoolAsync())
+            if (Item != null)
             {
-                if (Connection.IsConnected)
+                using (SQLConnection Connection = await GetConnectionFromPoolAsync().ConfigureAwait(false))
                 {
-                    try
+                    if (Connection.IsConnected)
                     {
-                        using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("UpdateFeedBackVoteProcedure", CommandType.StoredProcedure))
+                        try
                         {
-                            _ = Command.Parameters.AddWithValue("LNum", Item.LikeNum);
-                            _ = Command.Parameters.AddWithValue("DNum", Item.DislikeNum);
-                            _ = Command.Parameters.AddWithValue("Beh", Item.UserVoteAction);
-                            _ = Command.Parameters.AddWithValue("GID", Item.GUID);
-                            _ = Command.Parameters.AddWithValue("UID", SettingPage.ThisPage.UserID);
-                            _ = await Command.ExecuteNonQueryAsync();
+                            using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("UpdateFeedBackVoteProcedure", CommandType.StoredProcedure))
+                            {
+                                _ = Command.Parameters.AddWithValue("LNum", Item.LikeNum);
+                                _ = Command.Parameters.AddWithValue("DNum", Item.DislikeNum);
+                                _ = Command.Parameters.AddWithValue("Beh", Item.UserVoteAction);
+                                _ = Command.Parameters.AddWithValue("GID", Item.GUID);
+                                _ = Command.Parameters.AddWithValue("UID", SettingPage.ThisPage.UserID);
+                                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            }
+                            return true;
                         }
-                        return true;
+                        catch (Exception)
+                        {
+                            return false;
+                        }
                     }
-                    catch (Exception)
+                    else
                     {
                         return false;
                     }
                 }
-                else
-                {
-                    return false;
-                }
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
             }
         }
 
@@ -966,11 +823,11 @@ namespace FileManager
         /// </summary>
         /// <param name="Title">标题</param>
         /// <param name="Suggestion">建议</param>
-        /// <param name="GUID">唯一标识</param>
+        /// <param name="Guid">唯一标识</param>
         /// <returns></returns>
-        public async Task<bool> UpdateFeedBackTitleAndSuggestionAsync(string Title, string Suggestion, string GUID)
+        public async Task<bool> UpdateFeedBackTitleAndSuggestionAsync(string Title, string Suggestion, string Guid)
         {
-            using (SQLConnection Connection = await GetConnectionFromPoolAsync())
+            using (SQLConnection Connection = await GetConnectionFromPoolAsync().ConfigureAwait(false))
             {
                 if (Connection.IsConnected)
                 {
@@ -980,7 +837,7 @@ namespace FileManager
                         {
                             _ = Command.Parameters.AddWithValue("@NewTitle", Title);
                             _ = Command.Parameters.AddWithValue("@NewSuggestion", Suggestion);
-                            _ = Command.Parameters.AddWithValue("@GUID", GUID);
+                            _ = Command.Parameters.AddWithValue("@GUID", Guid);
                             _ = Command.ExecuteNonQuery();
                         }
                         return true;
@@ -1004,29 +861,36 @@ namespace FileManager
         /// <returns></returns>
         public async Task<bool> DeleteFeedBackAsync(FeedBackItem Item)
         {
-            using (SQLConnection Connection = await GetConnectionFromPoolAsync())
+            if (Item != null)
             {
-                if (Connection.IsConnected)
+                using (SQLConnection Connection = await GetConnectionFromPoolAsync().ConfigureAwait(false))
                 {
-                    try
+                    if (Connection.IsConnected)
                     {
-                        using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Delete From FeedBackTable Where GUID=@GUID"))
+                        try
                         {
-                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                            _ = Command.ExecuteNonQuery();
-                        }
+                            using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Delete From FeedBackTable Where GUID=@GUID"))
+                            {
+                                _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                _ = Command.ExecuteNonQuery();
+                            }
 
-                        return true;
+                            return true;
+                        }
+                        catch (Exception)
+                        {
+                            return false;
+                        }
                     }
-                    catch (Exception)
+                    else
                     {
                         return false;
                     }
                 }
-                else
-                {
-                    return false;
-                }
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
             }
         }
 
@@ -1037,34 +901,41 @@ namespace FileManager
         /// <returns></returns>
         public async Task<bool> SetFeedBackAsync(FeedBackItem Item)
         {
-            using (SQLConnection Connection = await GetConnectionFromPoolAsync())
+            if (Item != null)
             {
-                if (Connection.IsConnected)
+                using (SQLConnection Connection = await GetConnectionFromPoolAsync().ConfigureAwait(false))
                 {
-                    try
+                    if (Connection.IsConnected)
                     {
-                        using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Insert Into FeedBackTable Values (@UserName,@Title,@Suggestion,@Like,@Dislike,@UserID,@GUID)"))
+                        try
                         {
-                            _ = Command.Parameters.AddWithValue("@UserName", Item.UserName);
-                            _ = Command.Parameters.AddWithValue("@Title", Item.Title);
-                            _ = Command.Parameters.AddWithValue("@Suggestion", Item.Suggestion);
-                            _ = Command.Parameters.AddWithValue("@Like", Item.LikeNum);
-                            _ = Command.Parameters.AddWithValue("@Dislike", Item.DislikeNum);
-                            _ = Command.Parameters.AddWithValue("@UserID", Item.UserID);
-                            _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                            _ = Command.ExecuteNonQuery();
+                            using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Insert Into FeedBackTable Values (@UserName,@Title,@Suggestion,@Like,@Dislike,@UserID,@GUID)"))
+                            {
+                                _ = Command.Parameters.AddWithValue("@UserName", Item.UserName);
+                                _ = Command.Parameters.AddWithValue("@Title", Item.Title);
+                                _ = Command.Parameters.AddWithValue("@Suggestion", Item.Suggestion);
+                                _ = Command.Parameters.AddWithValue("@Like", Item.LikeNum);
+                                _ = Command.Parameters.AddWithValue("@Dislike", Item.DislikeNum);
+                                _ = Command.Parameters.AddWithValue("@UserID", Item.UserID);
+                                _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                                _ = Command.ExecuteNonQuery();
+                            }
+                            return true;
                         }
-                        return true;
+                        catch (Exception)
+                        {
+                            return false;
+                        }
                     }
-                    catch (Exception)
+                    else
                     {
                         return false;
                     }
                 }
-                else
-                {
-                    return false;
-                }
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
             }
         }
 
@@ -1076,11 +947,14 @@ namespace FileManager
             if (!IsDisposed)
             {
                 IsDisposed = true;
+
                 ConnectionPool.Dispose();
                 ConnectionLocker?.Dispose();
                 ConnectionPool = null;
                 ConnectionLocker = null;
                 Instance = null;
+
+                GC.SuppressFinalize(this);
             }
         }
 
@@ -1128,41 +1002,48 @@ namespace FileManager
         /// <param name="Entry">入口点</param>
         public ZipFileDisplay(ZipEntry Entry)
         {
-            FullName = Entry.Name;
-
-            if (Globalization.Language == LanguageEnum.Chinese)
+            if (Entry != null)
             {
-                CompresionSize = "压缩大小：" + GetSize(Entry.CompressedSize);
-                ActualSize = "解压大小：" + GetSize(Entry.Size);
+                FullName = Entry.Name;
 
-                int index = FullName.LastIndexOf(".");
-                if (index != -1)
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
-                    Name = Path.GetFileNameWithoutExtension(FullName);
-                    Type = Path.GetExtension(FullName).Substring(1).ToUpper() + "文件";
+                    CompresionSize = "压缩大小：" + GetSize(Entry.CompressedSize);
+                    ActualSize = "解压大小：" + GetSize(Entry.Size);
+
+                    int index = FullName.LastIndexOf(".");
+                    if (index != -1)
+                    {
+                        Name = Path.GetFileNameWithoutExtension(FullName);
+                        Type = Path.GetExtension(FullName).Substring(1).ToUpper() + "文件";
+                    }
+                    else
+                    {
+                        Name = FullName;
+                        Type = "未知文件类型";
+                    }
                 }
                 else
                 {
-                    Name = FullName;
-                    Type = "未知文件类型";
+                    CompresionSize = "Compressed：" + GetSize(Entry.CompressedSize);
+                    ActualSize = "ActualSize：" + GetSize(Entry.Size);
+
+                    int index = FullName.LastIndexOf(".");
+                    if (index != -1)
+                    {
+                        Name = Path.GetFileNameWithoutExtension(FullName);
+                        Type = Path.GetExtension(FullName).Substring(1).ToUpper() + "File";
+                    }
+                    else
+                    {
+                        Name = FullName;
+                        Type = "Unknown Type";
+                    }
                 }
             }
             else
             {
-                CompresionSize = "Compressed：" + GetSize(Entry.CompressedSize);
-                ActualSize = "ActualSize：" + GetSize(Entry.Size);
-
-                int index = FullName.LastIndexOf(".");
-                if (index != -1)
-                {
-                    Name = Path.GetFileNameWithoutExtension(FullName);
-                    Type = Path.GetExtension(FullName).Substring(1).ToUpper() + "File";
-                }
-                else
-                {
-                    Name = FullName;
-                    Type = "Unknown Type";
-                }
+                throw new ArgumentNullException(nameof(Entry), "Parameter could not be null");
             }
         }
 
@@ -1258,24 +1139,6 @@ namespace FileManager
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
             throw new NotImplementedException();
-        }
-    }
-    #endregion
-
-    #region Zip自定义静态数据源
-    public sealed class CustomStaticDataSource : IStaticDataSource
-    {
-        private Stream stream;
-
-        public Stream GetSource()
-        {
-            return stream;
-        }
-
-        public void SetStream(Stream inputStream)
-        {
-            stream = inputStream;
-            stream.Position = 0;
         }
     }
     #endregion
@@ -1506,7 +1369,14 @@ namespace FileManager
             {
                 IsDisposed = true;
                 Bitmap.Dispose();
+
+                GC.SuppressFinalize(this);
             }
+        }
+
+        ~FilterItem()
+        {
+            Dispose();
         }
     }
 
@@ -1543,7 +1413,7 @@ namespace FileManager
     /// <summary>
     /// 提供全局锁定根
     /// </summary>
-    public class SyncRootProvider
+    public static class SyncRootProvider
     {
         /// <summary>
         /// 锁定根对象
@@ -1609,20 +1479,21 @@ namespace FileManager
         /// <param name="ModifiedTime">修改时间</param>
         public FileSystemStorageItem(IStorageItem Item, string Size, BitmapImage Thumbnail, string ModifiedTime)
         {
-            if (Item.IsOfType(StorageItemTypes.File))
+            if (Item is StorageFile File)
             {
-                File = Item as StorageFile;
+                this.File = File;
                 ContentType = ContentType.File;
             }
-            else if (Item.IsOfType(StorageItemTypes.Folder))
+            else if (Item is StorageFolder Folder)
             {
-                Folder = Item as StorageFolder;
+                this.Folder = Folder;
                 ContentType = ContentType.Folder;
             }
             else
             {
-                throw new Exception("Item must be folder or file");
+                throw new ArgumentException("Item must be folder or file", nameof(Item));
             }
+
             this.Size = Size;
             this.Thumbnail = Thumbnail;
             this.ModifiedTime = ModifiedTime;
@@ -1649,10 +1520,11 @@ namespace FileManager
             }
             else
             {
-                throw new Exception("Unsupport IStorageItem Or IStorageItem does not match the RemovableDeviceFile");
+                throw new ArgumentException("Unsupport IStorageItem Or IStorageItem does not match the RemovableDeviceFile", nameof(Item));
             }
 
-            Size = await Item.GetSizeDescriptionAsync();
+            Size = await Item.GetSizeDescriptionAsync().ConfigureAwait(true);
+
             OnPropertyChanged("DisplayName");
             OnPropertyChanged("Size");
         }
@@ -1665,11 +1537,16 @@ namespace FileManager
             switch (ContentType)
             {
                 case ContentType.File:
-                    Size = await File.GetSizeDescriptionAsync();
-                    break;
+                    {
+                        Size = await File.GetSizeDescriptionAsync().ConfigureAwait(true);
+                        break;
+                    }
                 case ContentType.Folder:
-                    throw new Exception("Could not update folder size");
+                    {
+                        throw new ArgumentException("Could not update folder size", string.Empty);
+                    }
             }
+
             OnPropertyChanged("Size");
         }
 
@@ -1817,7 +1694,7 @@ namespace FileManager
         {
             return Task.Run(() =>
             {
-                using (SecureString Secure = SecureKeyStorageController.GetGoogleTranslateAccessKey(Package.Current))
+                using (SecureString Secure = SecureAccessProvider.GetGoogleTranslateAccessKey(Package.Current))
                 {
                     IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
                     string APIKey = Marshal.PtrToStringBSTR(Bstr);
@@ -1841,6 +1718,10 @@ namespace FileManager
                             }
                         }
                     }
+                    catch
+                    {
+                        return Text;
+                    }
                     finally
                     {
                         Marshal.ZeroFreeBSTR(Bstr);
@@ -1859,7 +1740,6 @@ namespace FileManager
             });
         }
 
-
         /// <summary>
         /// 移动一个文件夹内的所有文件夹和文件到指定的文件夹
         /// </summary>
@@ -1868,12 +1748,22 @@ namespace FileManager
         /// <returns></returns>
         public static async Task MoveSubFilesAndSubFoldersAsync(this StorageFolder Folder, StorageFolder TargetFolder)
         {
+            if (Folder == null)
+            {
+                throw new ArgumentNullException(nameof(Folder), "Parameter could not be null");
+            }
+
+            if (TargetFolder == null)
+            {
+                throw new ArgumentNullException(nameof(TargetFolder), "Parameter could not be null");
+            }
+
             foreach (var Item in await Folder.GetItemsAsync())
             {
                 if (Item is StorageFolder SubFolder)
                 {
                     StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(SubFolder.Name, CreationCollisionOption.OpenIfExists);
-                    await MoveSubFilesAndSubFoldersAsync(SubFolder, NewFolder);
+                    await MoveSubFilesAndSubFoldersAsync(SubFolder, NewFolder).ConfigureAwait(false);
                 }
                 else
                 {
@@ -1890,12 +1780,22 @@ namespace FileManager
         /// <returns></returns>
         public static async Task CopySubFilesAndSubFoldersAsync(this StorageFolder Folder, StorageFolder TargetFolder)
         {
+            if (Folder == null)
+            {
+                throw new ArgumentNullException(nameof(Folder), "Parameter could not be null");
+            }
+
+            if (TargetFolder == null)
+            {
+                throw new ArgumentNullException(nameof(TargetFolder), "Parameter could not be null");
+            }
+
             foreach (var Item in await Folder.GetItemsAsync())
             {
                 if (Item is StorageFolder SubFolder)
                 {
                     StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(SubFolder.Name, CreationCollisionOption.OpenIfExists);
-                    await CopySubFilesAndSubFoldersAsync(SubFolder, NewFolder);
+                    await CopySubFilesAndSubFoldersAsync(SubFolder, NewFolder).ConfigureAwait(false);
                 }
                 else
                 {
@@ -1914,7 +1814,12 @@ namespace FileManager
         {
             if (Node == null)
             {
-                throw new ArgumentException("Node could not be null");
+                throw new ArgumentNullException(nameof(Node), "Parameter could not be null");
+            }
+
+            if (View == null)
+            {
+                throw new ArgumentNullException(nameof(View), "Parameter could not be null");
             }
 
             while (true)
@@ -1927,7 +1832,7 @@ namespace FileManager
                 }
                 else
                 {
-                    await Task.Delay(200);
+                    await Task.Delay(200).ConfigureAwait(true);
                 }
             }
         }
@@ -1939,6 +1844,11 @@ namespace FileManager
         /// <returns></returns>
         public static async Task<bool> CheckExist(this StorageFile File)
         {
+            if (File == null)
+            {
+                throw new ArgumentNullException(nameof(File), "Parameter could not be null");
+            }
+
             try
             {
                 if ((await File.GetParentAsync()) is StorageFolder ParentFolder)
@@ -1979,6 +1889,11 @@ namespace FileManager
         /// <returns></returns>
         public static async Task<bool> CheckExist(this StorageFolder Folder)
         {
+            if (Folder == null)
+            {
+                throw new ArgumentNullException(nameof(Folder), "Parameter could not be null");
+            }
+
             try
             {
                 if ((await Folder.GetParentAsync()) is StorageFolder ParenetFolder)
@@ -2020,9 +1935,19 @@ namespace FileManager
         /// <returns></returns>
         public static async Task<string> EncryptAsync(this string OriginText, string Key)
         {
+            if (string.IsNullOrEmpty(OriginText))
+            {
+                throw new ArgumentNullException(nameof(OriginText), "Parameter could not be null or empty");
+            }
+
+            if (string.IsNullOrEmpty(Key))
+            {
+                throw new ArgumentNullException(nameof(Key), "Parameter could not be null or empty");
+            }
+
             try
             {
-                using (SecureString Secure = SecureKeyStorageController.GetStringEncryptionAesIV(Package.Current))
+                using (SecureString Secure = SecureAccessProvider.GetStringEncryptionAesIV(Package.Current))
                 {
                     IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
                     string IV = Marshal.PtrToStringBSTR(Bstr);
@@ -2045,7 +1970,7 @@ namespace FileManager
                                 {
                                     using (StreamWriter Writer = new StreamWriter(TransformStream))
                                     {
-                                        await Writer.WriteAsync(OriginText);
+                                        await Writer.WriteAsync(OriginText).ConfigureAwait(false);
                                     }
                                 }
 
@@ -2083,9 +2008,19 @@ namespace FileManager
         /// <returns></returns>
         public static async Task<string> DecryptAsync(this string OriginText, string Key)
         {
+            if (string.IsNullOrEmpty(OriginText))
+            {
+                throw new ArgumentNullException(nameof(OriginText), "Parameter could not be null or empty");
+            }
+
+            if (string.IsNullOrEmpty(Key))
+            {
+                throw new ArgumentNullException(nameof(Key), "Parameter could not be null or empty");
+            }
+
             try
             {
-                using (SecureString Secure = SecureKeyStorageController.GetStringEncryptionAesIV(Package.Current))
+                using (SecureString Secure = SecureAccessProvider.GetStringEncryptionAesIV(Package.Current))
                 {
                     IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
                     string IV = Marshal.PtrToStringBSTR(Bstr);
@@ -2107,7 +2042,7 @@ namespace FileManager
                                 using (CryptoStream TransformStream = new CryptoStream(DecryptStream, Decryptor, CryptoStreamMode.Read))
                                 using (StreamReader Writer = new StreamReader(TransformStream, Encoding.UTF8))
                                 {
-                                    return await Writer.ReadToEndAsync();
+                                    return await Writer.ReadToEndAsync().ConfigureAwait(false);
                                 }
                             }
                         }
@@ -2145,14 +2080,24 @@ namespace FileManager
         /// <returns></returns>
         public static async Task<StorageFile> EncryptAsync(this StorageFile OriginFile, StorageFolder ExportFolder, string Key, int KeySize, CancellationToken CancelToken = default)
         {
+            if (OriginFile == null)
+            {
+                throw new ArgumentNullException(nameof(OriginFile), "OriginFile could not be null");
+            }
+
             if (ExportFolder == null)
             {
-                throw new ArgumentException("ExportFolder could not be null");
+                throw new ArgumentNullException(nameof(ExportFolder), "ExportFolder could not be null");
             }
 
             if (KeySize != 256 && KeySize != 128)
             {
                 throw new InvalidEnumArgumentException("AES密钥长度仅支持128或256任意一种");
+            }
+
+            if (string.IsNullOrEmpty(Key))
+            {
+                throw new ArgumentNullException(nameof(Key), "Parameter could not be null or empty");
             }
 
             byte[] KeyArray = null;
@@ -2168,7 +2113,7 @@ namespace FileManager
             {
                 EncryptedFile = await ExportFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(OriginFile.Name)}.sle", CreationCollisionOption.GenerateUniqueName);
 
-                using (SecureString Secure = SecureKeyStorageController.GetFileEncryptionAesIV(Package.Current))
+                using (SecureString Secure = SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
                 {
                     IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
                     string IV = Marshal.PtrToStringBSTR(Bstr);
@@ -2184,20 +2129,20 @@ namespace FileManager
                             IV = Encoding.UTF8.GetBytes(IV)
                         })
                         {
-                            using (Stream OriginFileStream = await OriginFile.OpenStreamForReadAsync())
-                            using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForWriteAsync())
+                            using (Stream OriginFileStream = await OriginFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                            using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForWriteAsync().ConfigureAwait(false))
                             using (ICryptoTransform Encryptor = AES.CreateEncryptor())
                             {
                                 byte[] Detail = Encoding.UTF8.GetBytes("$" + KeySize + "|" + OriginFile.FileType + "$");
-                                await EncryptFileStream.WriteAsync(Detail, 0, Detail.Length);
+                                await EncryptFileStream.WriteAsync(Detail, 0, Detail.Length).ConfigureAwait(false);
 
                                 byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
                                 byte[] EncryptPasswordFlag = Encryptor.TransformFinalBlock(PasswordFlag, 0, PasswordFlag.Length);
-                                await EncryptFileStream.WriteAsync(EncryptPasswordFlag, 0, EncryptPasswordFlag.Length);
+                                await EncryptFileStream.WriteAsync(EncryptPasswordFlag, 0, EncryptPasswordFlag.Length).ConfigureAwait(false);
 
                                 using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Encryptor, CryptoStreamMode.Write))
                                 {
-                                    await OriginFileStream.CopyToAsync(TransformStream, 81920, CancelToken);
+                                    await OriginFileStream.CopyToAsync(TransformStream, 81920, CancelToken).ConfigureAwait(false);
                                     TransformStream.FlushFinalBlock();
                                 }
                             }
@@ -2221,15 +2166,15 @@ namespace FileManager
 
                 return EncryptedFile;
             }
-            catch (TaskCanceledException e)
+            catch (TaskCanceledException)
             {
                 await EncryptedFile?.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                throw e;
+                throw;
             }
-            catch (CryptographicException e)
+            catch (CryptographicException)
             {
                 await EncryptedFile?.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                throw e;
+                throw;
             }
             catch (Exception)
             {
@@ -2250,13 +2195,23 @@ namespace FileManager
         {
             if (ExportFolder == null)
             {
-                throw new ArgumentException("ExportFolder could not be null");
+                throw new ArgumentNullException(nameof(ExportFolder), "ExportFolder could not be null");
+            }
+
+            if (EncryptedFile == null)
+            {
+                throw new ArgumentNullException(nameof(EncryptedFile), "EncryptedFile could not be null");
+            }
+
+            if (string.IsNullOrEmpty(Key))
+            {
+                throw new ArgumentNullException(nameof(Key), "Key could not be null or empty");
             }
 
             StorageFile DecryptedFile = null;
             try
             {
-                using (SecureString Secure = SecureKeyStorageController.GetFileEncryptionAesIV(Package.Current))
+                using (SecureString Secure = SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
                 {
                     IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
                     string IV = Marshal.PtrToStringBSTR(Bstr);
@@ -2270,11 +2225,11 @@ namespace FileManager
                             IV = Encoding.UTF8.GetBytes(IV)
                         })
                         {
-                            using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForReadAsync())
+                            using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForReadAsync().ConfigureAwait(false))
                             {
                                 byte[] DecryptByteBuffer = new byte[20];
 
-                                await EncryptFileStream.ReadAsync(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
+                                await EncryptFileStream.ReadAsync(DecryptByteBuffer, 0, DecryptByteBuffer.Length).ConfigureAwait(false);
 
                                 string FileType;
                                 if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
@@ -2302,18 +2257,18 @@ namespace FileManager
 
                                 DecryptedFile = await ExportFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(EncryptedFile.Name)}{FileType}", CreationCollisionOption.GenerateUniqueName);
 
-                                using (Stream DecryptFileStream = await DecryptedFile.OpenStreamForWriteAsync())
+                                using (Stream DecryptFileStream = await DecryptedFile.OpenStreamForWriteAsync().ConfigureAwait(false))
                                 using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
                                 {
                                     byte[] PasswordConfirm = new byte[16];
                                     EncryptFileStream.Seek(Info.Length + 2, SeekOrigin.Begin);
-                                    await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length);
+                                    await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length).ConfigureAwait(false);
 
                                     if (Encoding.UTF8.GetString(Decryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length)) == "PASSWORD_CORRECT")
                                     {
                                         using (CryptoStream TransformStream = new CryptoStream(DecryptFileStream, Decryptor, CryptoStreamMode.Write))
                                         {
-                                            await EncryptFileStream.CopyToAsync(TransformStream, 81920, CancelToken);
+                                            await EncryptFileStream.CopyToAsync(TransformStream, 81920, CancelToken).ConfigureAwait(false);
                                             TransformStream.FlushFinalBlock();
                                         }
                                     }
@@ -2343,15 +2298,15 @@ namespace FileManager
 
                 return DecryptedFile;
             }
-            catch (TaskCanceledException e)
+            catch (TaskCanceledException)
             {
                 await DecryptedFile?.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                throw e;
+                throw;
             }
-            catch(CryptographicException e)
+            catch (CryptographicException)
             {
                 await DecryptedFile?.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                throw e;
+                throw;
             }
             catch (Exception)
             {
@@ -2426,6 +2381,11 @@ namespace FileManager
         /// <returns></returns>
         public static async Task UpdateAllSubNodeFolder(this TreeViewNode ParentNode)
         {
+            if (ParentNode == null)
+            {
+                throw new ArgumentNullException(nameof(ParentNode), "Node could not be null");
+            }
+
             StorageFolder ParentFolder = ParentNode.Content as StorageFolder;
             foreach (var Package in ParentNode.Children.Select((SubNode) => new { (SubNode.Content as StorageFolder).Name, SubNode }))
             {
@@ -2433,7 +2393,7 @@ namespace FileManager
 
                 if (Package.SubNode.HasChildren)
                 {
-                    await UpdateAllSubNodeFolder(Package.SubNode);
+                    await UpdateAllSubNodeFolder(Package.SubNode).ConfigureAwait(false);
                 }
             }
         }
@@ -2445,11 +2405,16 @@ namespace FileManager
         /// <returns></returns>
         public static async Task DeleteAllSubFilesAndFolders(this StorageFolder Folder)
         {
+            if (Folder == null)
+            {
+                throw new ArgumentNullException(nameof(Folder), "Folder could not be null");
+            }
+
             foreach (var Item in await Folder.GetItemsAsync())
             {
                 if (Item is StorageFolder folder)
                 {
-                    await DeleteAllSubFilesAndFolders(folder);
+                    await DeleteAllSubFilesAndFolders(folder).ConfigureAwait(false);
                 }
                 else
                 {
@@ -2465,7 +2430,13 @@ namespace FileManager
         /// <returns></returns>
         public static async Task<string> GetSizeDescriptionAsync(this IStorageItem Item)
         {
+            if (Item == null)
+            {
+                throw new ArgumentNullException(nameof(Item), "Item could not be null");
+            }
+
             BasicProperties Properties = await Item.GetBasicPropertiesAsync();
+
             return Properties.Size / 1024f < 1024 ? Math.Round(Properties.Size / 1024f, 2).ToString("0.00") + " KB" :
             (Properties.Size / 1048576f < 1024 ? Math.Round(Properties.Size / 1048576f, 2).ToString("0.00") + " MB" :
             (Properties.Size / 1073741824f < 1024 ? Math.Round(Properties.Size / 1073741824f, 2).ToString("0.00") + " GB" :
@@ -2479,7 +2450,12 @@ namespace FileManager
         /// <returns></returns>
         public static async Task<string> GetModifiedTimeAsync(this IStorageItem Item)
         {
-            var Properties = await Item.GetBasicPropertiesAsync();
+            if (Item == null)
+            {
+                throw new ArgumentNullException(nameof(Item), "Item could not be null");
+            }
+
+            BasicProperties Properties = await Item.GetBasicPropertiesAsync();
             return Properties.DateModified.ToString("F");
         }
 
@@ -2547,6 +2523,11 @@ namespace FileManager
         /// <param name="alignment">对齐方式</param>
         public static void ScrollIntoViewSmoothly(this ListViewBase listViewBase, object item, ScrollIntoViewAlignment alignment = ScrollIntoViewAlignment.Default)
         {
+            if (listViewBase == null)
+            {
+                throw new ArgumentNullException(nameof(listViewBase), "listViewBase could not be null");
+            }
+
             if (listViewBase.FindChildOfType<ScrollViewer>() is ScrollViewer scrollViewer)
             {
                 double originHorizontalOffset = scrollViewer.HorizontalOffset;
@@ -2747,6 +2728,11 @@ namespace FileManager
         /// <param name="CurrentPath">当前路径</param>
         public PathAnalysis(string FullPath, string CurrentPath)
         {
+            if (string.IsNullOrEmpty(FullPath))
+            {
+                throw new ArgumentNullException(nameof(FullPath), "FullPath could not be null or empty");
+            }
+
             this.FullPath = FullPath;
 
             CurrentLevel = CurrentPath;
@@ -2915,6 +2901,12 @@ namespace FileManager
         public HardDeviceInfo(StorageFolder Device, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve)
         {
             Folder = Device ?? throw new FileNotFoundException();
+
+            if (PropertiesRetrieve == null)
+            {
+                throw new ArgumentNullException(nameof(PropertiesRetrieve), "Parameter could not be null");
+            }
+
             this.Thumbnail = Thumbnail;
 
             if (PropertiesRetrieve["System.Capacity"] is ulong TotalByte && PropertiesRetrieve["System.FreeSpace"] is ulong FreeByte)
@@ -3042,6 +3034,11 @@ namespace FileManager
 
         public async Task SetStorageItemQueryAsync(StorageItemQueryResult InputQuery)
         {
+            if (InputQuery == null)
+            {
+                throw new ArgumentNullException(nameof(InputQuery), "Parameter could not be null");
+            }
+
             Query = InputQuery;
 
             MaxNum = await Query.GetItemCountAsync();
@@ -3068,7 +3065,7 @@ namespace FileManager
                     }
                     else
                     {
-                        IEnumerable<T> Result = await MoreItemsNeed(CurrentIndex, ItemNeedNum, Query);
+                        IEnumerable<T> Result = await MoreItemsNeed(CurrentIndex, ItemNeedNum, Query).ConfigureAwait(true);
 
                         for (int i = 0; i < Result.Count() && HasMoreItems; i++)
                         {
@@ -3082,7 +3079,7 @@ namespace FileManager
                 }
                 else
                 {
-                    IEnumerable<T> Result = await MoreItemsNeed(CurrentIndex, count, Query);
+                    IEnumerable<T> Result = await MoreItemsNeed(CurrentIndex, count, Query).ConfigureAwait(true);
 
                     for (int i = 0; i < Result.Count() && HasMoreItems; i++)
                     {
@@ -3174,70 +3171,6 @@ namespace FileManager
             this.WebSite = WebSite;
         }
     }
-    #endregion
-
-    #region 网页历史记录标志枚举
-    /// <summary>
-    /// 历史记录分类标题种类枚举
-    /// </summary>
-    [Flags]
-    public enum HistoryTreeCategoryFlag
-    {
-        /// <summary>
-        /// 今天的记录
-        /// </summary>
-        Today = 1,
-        /// <summary>
-        /// 昨天的记录
-        /// </summary>
-        Yesterday = 2,
-        /// <summary>
-        /// 更早的记录
-        /// </summary>
-        Earlier = 4,
-        /// <summary>
-        /// 无指定
-        /// </summary>
-        None = 8
-    }
-    #endregion
-
-    #region 下载列表模板选择器
-    /*
-    public sealed class DownloadTemplateSelector : DataTemplateSelector
-    {
-        public DataTemplate DownloadingTemplate { get; set; }
-        public DataTemplate DownloadErrorTemplate { get; set; }
-        public DataTemplate DownloadCompleteTemplate { get; set; }
-        public DataTemplate DownloadCancelTemplate { get; set; }
-        public DataTemplate DownloadPauseTemplate { get; set; }
-
-        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
-        {
-            if (item is DownloadOperator Operator)
-            {
-                switch (Operator.State)
-                {
-                    case DownloadState.AlreadyFinished:
-                        return DownloadCompleteTemplate;
-                    case DownloadState.Canceled:
-                        return DownloadCancelTemplate;
-                    case DownloadState.Downloading:
-                        return DownloadingTemplate;
-                    case DownloadState.Error:
-                        return DownloadErrorTemplate;
-                    case DownloadState.Paused:
-                        return DownloadPauseTemplate;
-                    default: return null;
-                }
-            }
-            else
-            {
-                return null;
-            }
-        }
-    }
-    */
     #endregion
 
     #region 快速启动类
@@ -3419,51 +3352,51 @@ namespace FileManager
 
                 while (true)
                 {
-                    HttpListenerContext Context = await Listener.GetContextAsync();
+                    HttpListenerContext Context = await Listener.GetContextAsync().ConfigureAwait(false);
 
                     _ = Task.Factory.StartNew((Para) =>
-                     {
-                         try
-                         {
-                             HttpListenerContext HttpContext = Para as HttpListenerContext;
-                             if (HttpContext.Request.Url.LocalPath.Substring(1) == FilePathMap.Key)
-                             {
-                                 StorageFile File = StorageFile.GetFileFromPathAsync(FilePathMap.Value).AsTask().Result;
-                                 using (Stream FileStream = File.OpenStreamForReadAsync().Result)
-                                 {
-                                     Context.Response.ContentLength64 = FileStream.Length;
-                                     Context.Response.ContentType = File.ContentType;
-                                     Context.Response.AddHeader("Content-Disposition", "Attachment;filename=" + Uri.EscapeDataString(File.Name));
+                       {
+                           try
+                           {
+                               HttpListenerContext HttpContext = Para as HttpListenerContext;
+                               if (HttpContext.Request.Url.LocalPath.Substring(1) == FilePathMap.Key)
+                               {
+                                   StorageFile File = StorageFile.GetFileFromPathAsync(FilePathMap.Value).AsTask().Result;
+                                   using (Stream FileStream = File.OpenStreamForReadAsync().Result)
+                                   {
+                                       Context.Response.ContentLength64 = FileStream.Length;
+                                       Context.Response.ContentType = File.ContentType;
+                                       Context.Response.AddHeader("Content-Disposition", "Attachment;filename=" + Uri.EscapeDataString(File.Name));
 
-                                     try
-                                     {
-                                         FileStream.CopyTo(Context.Response.OutputStream);
-                                     }
-                                     catch (HttpListenerException) { }
-                                     finally
-                                     {
-                                         Context.Response.Close();
-                                     }
-                                 }
-                             }
-                             else
-                             {
-                                 string ErrorMessage = "<html><head><title>Error 404 Bad Request</title></head><body><p style=\"font-size:50px\">HTTP ERROR 404</p><p style=\"font-size:40px\">无法找到指定的资源，请检查URL</p></body></html>";
-                                 byte[] SendByte = Encoding.UTF8.GetBytes(ErrorMessage);
+                                       try
+                                       {
+                                           FileStream.CopyTo(Context.Response.OutputStream);
+                                       }
+                                       catch (HttpListenerException) { }
+                                       finally
+                                       {
+                                           Context.Response.Close();
+                                       }
+                                   }
+                               }
+                               else
+                               {
+                                   string ErrorMessage = "<html><head><title>Error 404 Bad Request</title></head><body><p style=\"font-size:50px\">HTTP ERROR 404</p><p style=\"font-size:40px\">无法找到指定的资源，请检查URL</p></body></html>";
+                                   byte[] SendByte = Encoding.UTF8.GetBytes(ErrorMessage);
 
-                                 Context.Response.StatusCode = 404;
-                                 Context.Response.StatusDescription = "Bad Request";
-                                 Context.Response.ContentType = "text/html";
-                                 Context.Response.ContentLength64 = SendByte.Length;
-                                 Context.Response.OutputStream.Write(SendByte, 0, SendByte.Length);
-                                 Context.Response.Close();
-                             }
-                         }
-                         catch (Exception e)
-                         {
-                             ThreadExitedUnexpectly?.Invoke(this, e);
-                         }
-                     }, Context, Cancellation.Token);
+                                   Context.Response.StatusCode = 404;
+                                   Context.Response.StatusDescription = "Bad Request";
+                                   Context.Response.ContentType = "text/html";
+                                   Context.Response.ContentLength64 = SendByte.Length;
+                                   Context.Response.OutputStream.Write(SendByte, 0, SendByte.Length);
+                                   Context.Response.Close();
+                               }
+                           }
+                           catch (Exception e)
+                           {
+                               ThreadExitedUnexpectly?.Invoke(this, e);
+                           }
+                       }, Context, Cancellation.Token, TaskCreationOptions.LongRunning, TaskScheduler.Current);
                 }
             }
             catch (ObjectDisposedException)
@@ -3495,6 +3428,8 @@ namespace FileManager
                 Listener.Abort();
                 Listener.Close();
                 Listener = null;
+
+                GC.SuppressFinalize(this);
             }
         }
 
@@ -3699,33 +3634,33 @@ namespace FileManager
         /// </summary>
         /// <param name="Type">背景类型</param>
         /// <param name="uri">图片背景的Uri</param>
-        public void SwitchTo(BackgroundBrushType Type, string uri = null)
+        public void SwitchTo(BackgroundBrushType Type, Uri uri = null)
         {
             CurrentType = Type;
 
             if (Type == BackgroundBrushType.Picture)
             {
-                if (string.IsNullOrEmpty(uri))
+                if (uri == null)
                 {
-                    throw new ArgumentNullException("if parameter: 'Type' is BackgroundBrushType.Picture, parameter: 'uri' could not be null or empty");
+                    throw new ArgumentNullException(nameof(Type), "if parameter: 'Type' is BackgroundBrushType.Picture, parameter: 'uri' could not be null or empty");
                 }
 
                 if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string Ur)
                 {
-                    if (Ur != uri)
+                    if (Ur != uri.ToString())
                     {
                         BitmapImage Bitmap = new BitmapImage();
                         PictureBackgroundBrush.ImageSource = Bitmap;
-                        Bitmap.UriSource = new Uri(uri);
-                        ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = uri;
+                        Bitmap.UriSource = uri;
+                        ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = uri.ToString();
                     }
                 }
                 else
                 {
                     BitmapImage Bitmap = new BitmapImage();
                     PictureBackgroundBrush.ImageSource = Bitmap;
-                    Bitmap.UriSource = new Uri(uri);
-                    ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = uri;
+                    Bitmap.UriSource = uri;
+                    ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = uri.ToString();
                 }
             }
 
@@ -3735,28 +3670,33 @@ namespace FileManager
         /// <summary>
         /// 将16进制字符串转换成Color对象
         /// </summary>
-        /// <param name="hex">十六进制字符串</param>
+        /// <param name="Hex">十六进制字符串</param>
         /// <returns></returns>
-        public Color GetColorFromHexString(string hex)
+        public static Color GetColorFromHexString(string Hex)
         {
-            hex = hex.Replace("#", string.Empty);
+            if (string.IsNullOrWhiteSpace(Hex))
+            {
+                throw new ArgumentException("Hex could not be null or empty", nameof(Hex));
+            }
 
-            bool existAlpha = hex.Length == 8 || hex.Length == 4;
-            bool isDoubleHex = hex.Length == 8 || hex.Length == 6;
+            Hex = Hex.Replace("#", string.Empty);
 
-            if (!existAlpha && hex.Length != 6 && hex.Length != 3)
+            bool ExistAlpha = Hex.Length == 8 || Hex.Length == 4;
+            bool IsDoubleHex = Hex.Length == 8 || Hex.Length == 6;
+
+            if (!ExistAlpha && Hex.Length != 6 && Hex.Length != 3)
             {
                 throw new ArgumentException("输入的hex不是有效颜色");
             }
 
             int n = 0;
             byte a;
-            int hexCount = isDoubleHex ? 2 : 1;
-            if (existAlpha)
+            int HexCount = IsDoubleHex ? 2 : 1;
+            if (ExistAlpha)
             {
-                n = hexCount;
-                a = (byte)ConvertHexToByte(hex, 0, hexCount);
-                if (!isDoubleHex)
+                n = HexCount;
+                a = (byte)ConvertHexToByte(Hex, 0, HexCount);
+                if (!IsDoubleHex)
                 {
                     a = (byte)(a * 16 + a);
                 }
@@ -3766,10 +3706,10 @@ namespace FileManager
                 a = 0xFF;
             }
 
-            var r = (byte)ConvertHexToByte(hex, n, hexCount);
-            var g = (byte)ConvertHexToByte(hex, n + hexCount, hexCount);
-            var b = (byte)ConvertHexToByte(hex, n + 2 * hexCount, hexCount);
-            if (!isDoubleHex)
+            var r = (byte)ConvertHexToByte(Hex, n, HexCount);
+            var g = (byte)ConvertHexToByte(Hex, n + HexCount, HexCount);
+            var b = (byte)ConvertHexToByte(Hex, n + 2 * HexCount, HexCount);
+            if (!IsDoubleHex)
             {
                 r = (byte)(r * 16 + r);
                 g = (byte)(g * 16 + g);
@@ -3786,7 +3726,7 @@ namespace FileManager
         /// <param name="n">起始位置</param>
         /// <param name="count">长度</param>
         /// <returns></returns>
-        private uint ConvertHexToByte(string hex, int n, int count = 2)
+        private static uint ConvertHexToByte(string hex, int n, int count = 2)
         {
             return Convert.ToUInt32(hex.Substring(n, count), 16);
         }
@@ -4137,11 +4077,11 @@ namespace FileManager
             await Task.Run(() =>
             {
                 Locker.WaitOne();
-            });
+            }).ConfigureAwait(true);
 
             try
             {
-                if (!await MySQL.Current.UpdateFeedBackVoteAsync(this))
+                if (!await MySQL.Current.UpdateFeedBackVoteAsync(this).ConfigureAwait(true))
                 {
                     if (Globalization.Language == LanguageEnum.Chinese)
                     {
@@ -4151,7 +4091,7 @@ namespace FileManager
                             Content = "因网络原因无法进行此项操作",
                             CloseButtonText = "确定"
                         };
-                        _ = await dialog.ShowAsync();
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
                     }
                     else
                     {
@@ -4161,7 +4101,7 @@ namespace FileManager
                             Content = "This operation cannot be performed due to network reasons",
                             CloseButtonText = "Got it"
                         };
-                        _ = await dialog.ShowAsync();
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
             }
@@ -4253,6 +4193,10 @@ namespace FileManager
         public PasswordErrorException() : base()
         {
         }
+
+        public PasswordErrorException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
     }
 
     /// <summary>
@@ -4265,6 +4209,10 @@ namespace FileManager
         }
 
         public FileDamagedException() : base()
+        {
+        }
+
+        public FileDamagedException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }
@@ -4280,6 +4228,10 @@ namespace FileManager
         {
 
         }
+
+        public NetworkException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
     }
 
     public sealed class NotSignInException : Exception
@@ -4292,6 +4244,10 @@ namespace FileManager
         public NotSignInException() : base()
         {
 
+        }
+
+        public NotSignInException(string message, Exception innerException) : base(message, innerException)
+        {
         }
     }
     #endregion
@@ -4329,7 +4285,7 @@ namespace FileManager
 
         static Globalization()
         {
-            Language = GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh", StringComparison.OrdinalIgnoreCase) ? LanguageEnum.Chinese : LanguageEnum.English;
+            Language = GlobalizationPreferences.Languages[0].StartsWith("zh", StringComparison.OrdinalIgnoreCase) ? LanguageEnum.Chinese : LanguageEnum.English;
         }
     }
     #endregion
@@ -4404,7 +4360,7 @@ namespace FileManager
         /// <returns></returns>
         public static async Task<AuthenticatorState> RegisterUserAsync()
         {
-            if (await CheckSupportAsync())
+            if (await CheckSupportAsync().ConfigureAwait(false))
             {
                 KeyCredentialRetrievalResult CredentiaResult = await KeyCredentialManager.RequestCreateAsync(CredentialName, KeyCredentialCreationOption.ReplaceExisting);
                 switch (CredentiaResult.Status)
@@ -4437,7 +4393,7 @@ namespace FileManager
         /// <returns></returns>
         public static async Task<AuthenticatorState> VerifyUserAsync()
         {
-            if (await CheckSupportAsync())
+            if (await CheckSupportAsync().ConfigureAwait(false))
             {
                 if (ApplicationData.Current.LocalSettings.Values["WindowsHelloPublicKeyForUser"] is string PublicKey)
                 {
@@ -4485,7 +4441,7 @@ namespace FileManager
         /// <returns></returns>
         public static async Task DeleteUserAsync()
         {
-            if (await CheckSupportAsync())
+            if (await CheckSupportAsync().ConfigureAwait(false))
             {
                 try
                 {
@@ -4683,60 +4639,61 @@ namespace FileManager
                     Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
                 }
 
-            }, (DestinationFile, Composition, EncodingProfile), TaskCreationOptions.LongRunning).ContinueWith((task) =>
-            {
-                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        switch (ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"].ToString())
-                        {
-                            case "Success":
-                                {
-                                    FileControl.ThisPage.Notification.Show("视频已成功完成合并", 5000);
-                                    ShowMergeCompleteNotification();
-                                    break;
-                                }
-                            case "Cancel":
-                                {
-                                    FileControl.ThisPage.Notification.Show("视频合并任务被取消", 5000);
-                                    ShowMergeCancelNotification();
-                                    break;
-                                }
-                            default:
-                                {
-                                    FileControl.ThisPage.Notification.Show("合并视频时遇到未知错误", 5000);
-                                    break;
-                                }
-                        }
-                    }
-                    else
-                    {
-                        switch (ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"].ToString())
-                        {
-                            case "Success":
-                                {
-                                    FileControl.ThisPage.Notification.Show("Video successfully merged", 5000);
-                                    ShowMergeCompleteNotification();
-                                    break;
-                                }
-                            case "Cancel":
-                                {
-                                    FileControl.ThisPage.Notification.Show("Video merge task was canceled", 5000);
-                                    ShowMergeCancelNotification();
-                                    break;
-                                }
-                            default:
-                                {
-                                    FileControl.ThisPage.Notification.Show("Encountered unknown error while merging video", 5000);
-                                    break;
-                                }
-                        }
-                    }
-                }).AsTask().Wait();
+            }, (DestinationFile, Composition, EncodingProfile), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Current).ContinueWith((task) =>
+              {
+                  CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                  {
+                      if (Globalization.Language == LanguageEnum.Chinese)
+                      {
+                          switch (ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"].ToString())
+                          {
+                              case "Success":
+                                  {
+                                      TabViewContainer.ThisPage.Notification.Show("视频已成功完成合并", 5000);
+                                      ShowMergeCompleteNotification();
+                                      break;
+                                  }
+                              case "Cancel":
+                                  {
+                                      TabViewContainer.ThisPage.Notification.Show("视频合并任务被取消", 5000);
+                                      ShowMergeCancelNotification();
+                                      break;
+                                  }
+                              default:
+                                  {
+                                      TabViewContainer.ThisPage.Notification.Show("合并视频时遇到未知错误", 5000);
+                                      break;
+                                  }
+                          }
+                      }
+                      else
+                      {
+                          switch (ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"].ToString())
+                          {
+                              case "Success":
+                                  {
+                                      TabViewContainer.ThisPage.Notification.Show("Video successfully merged", 5000);
+                                      ShowMergeCompleteNotification();
+                                      break;
+                                  }
+                              case "Cancel":
+                                  {
+                                      TabViewContainer.ThisPage.Notification.Show("Video merge task was canceled", 5000);
+                                      ShowMergeCancelNotification();
+                                      break;
+                                  }
+                              default:
+                                  {
+                                      TabViewContainer.ThisPage.Notification.Show("Encountered unknown error while merging video", 5000);
+                                      break;
+                                  }
+                          }
+                      }
+                  }).AsTask().Wait();
 
-                IsAnyTransformTaskRunning = false;
-            });
+                  IsAnyTransformTaskRunning = false;
+
+              }, TaskScheduler.Current);
         }
 
         /// <summary>
@@ -4788,60 +4745,61 @@ namespace FileManager
                     Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
                 }
 
-            }, (DestinationFile, Composition, EncodingProfile, TrimmingPreference), TaskCreationOptions.LongRunning).ContinueWith((task) =>
-             {
-                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                 {
-                     if (Globalization.Language == LanguageEnum.Chinese)
-                     {
-                         switch (ApplicationData.Current.LocalSettings.Values["MediaCropStatus"].ToString())
-                         {
-                             case "Success":
-                                 {
-                                     FileControl.ThisPage.Notification.Show("视频已成功完成裁剪", 5000);
-                                     ShowCropCompleteNotification();
-                                     break;
-                                 }
-                             case "Cancel":
-                                 {
-                                     FileControl.ThisPage.Notification.Show("视频裁剪任务被取消", 5000);
-                                     ShowCropCancelNotification();
-                                     break;
-                                 }
-                             default:
-                                 {
-                                     FileControl.ThisPage.Notification.Show("裁剪视频时遇到未知错误", 5000);
-                                     break;
-                                 }
-                         }
-                     }
-                     else
-                     {
-                         switch (ApplicationData.Current.LocalSettings.Values["MediaCropStatus"].ToString())
-                         {
-                             case "Success":
-                                 {
-                                     FileControl.ThisPage.Notification.Show("Video successfully cropped", 5000);
-                                     ShowCropCompleteNotification();
-                                     break;
-                                 }
-                             case "Cancel":
-                                 {
-                                     FileControl.ThisPage.Notification.Show("Video crop task was canceled", 5000);
-                                     ShowCropCancelNotification();
-                                     break;
-                                 }
-                             default:
-                                 {
-                                     FileControl.ThisPage.Notification.Show("Encountered unknown error while cropping video", 5000);
-                                     break;
-                                 }
-                         }
-                     }
-                 }).AsTask().Wait();
+            }, (DestinationFile, Composition, EncodingProfile, TrimmingPreference), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Current).ContinueWith((task) =>
+               {
+                   CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                   {
+                       if (Globalization.Language == LanguageEnum.Chinese)
+                       {
+                           switch (ApplicationData.Current.LocalSettings.Values["MediaCropStatus"].ToString())
+                           {
+                               case "Success":
+                                   {
+                                       TabViewContainer.ThisPage.Notification.Show("视频已成功完成裁剪", 5000);
+                                       ShowCropCompleteNotification();
+                                       break;
+                                   }
+                               case "Cancel":
+                                   {
+                                       TabViewContainer.ThisPage.Notification.Show("视频裁剪任务被取消", 5000);
+                                       ShowCropCancelNotification();
+                                       break;
+                                   }
+                               default:
+                                   {
+                                       TabViewContainer.ThisPage.Notification.Show("裁剪视频时遇到未知错误", 5000);
+                                       break;
+                                   }
+                           }
+                       }
+                       else
+                       {
+                           switch (ApplicationData.Current.LocalSettings.Values["MediaCropStatus"].ToString())
+                           {
+                               case "Success":
+                                   {
+                                       TabViewContainer.ThisPage.Notification.Show("Video successfully cropped", 5000);
+                                       ShowCropCompleteNotification();
+                                       break;
+                                   }
+                               case "Cancel":
+                                   {
+                                       TabViewContainer.ThisPage.Notification.Show("Video crop task was canceled", 5000);
+                                       ShowCropCancelNotification();
+                                       break;
+                                   }
+                               default:
+                                   {
+                                       TabViewContainer.ThisPage.Notification.Show("Encountered unknown error while cropping video", 5000);
+                                       break;
+                                   }
+                           }
+                       }
+                   }).AsTask().Wait();
 
-                 IsAnyTransformTaskRunning = false;
-             });
+                   IsAnyTransformTaskRunning = false;
+
+               }, TaskScheduler.Current);
         }
 
         /// <summary>
@@ -4898,7 +4856,38 @@ namespace FileManager
                             }
                             else
                             {
-                                throw;
+                                try
+                                {
+                                    DestinationFile.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                                }
+                                catch
+                                {
+
+                                }
+
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                                {
+                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    {
+                                        QueueContentDialog dialog = new QueueContentDialog
+                                        {
+                                            Title = "错误",
+                                            Content = "由于缺失编码器或操作不受支持，无法进行图像格式转换",
+                                            CloseButtonText = "确定"
+                                        };
+                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                    }
+                                    else
+                                    {
+                                        QueueContentDialog dialog = new QueueContentDialog
+                                        {
+                                            Title = "Error",
+                                            Content = "Cannot convert image format due to missing encoder or unsupported operation",
+                                            CloseButtonText = "Got it"
+                                        };
+                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                    }
+                                }).AsTask().Wait();
                             }
                         }
                     }
@@ -5036,63 +5025,63 @@ namespace FileManager
                     ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = e.Message;
                     Para.Item2.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
                 }
-            }, (SourceFile, DestinationFile, MediaTranscodeEncodingProfile, MediaTranscodeQuality, SpeedUp), TaskCreationOptions.LongRunning).ContinueWith((task, ob) =>
-             {
-                 AVTranscodeCancellation.Dispose();
-                 AVTranscodeCancellation = null;
+            }, (SourceFile, DestinationFile, MediaTranscodeEncodingProfile, MediaTranscodeQuality, SpeedUp), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Current).ContinueWith((task, ob) =>
+               {
+                   AVTranscodeCancellation.Dispose();
+                   AVTranscodeCancellation = null;
 
-                 var Para = (ValueTuple<StorageFile, StorageFile>)ob;
+                   var Para = (ValueTuple<StorageFile, StorageFile>)ob;
 
-                 if (ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] is string ExcuteStatus)
-                 {
-                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                     {
-                         if (Globalization.Language == LanguageEnum.Chinese)
-                         {
-                             switch (ExcuteStatus)
-                             {
-                                 case "Success":
-                                     FileControl.ThisPage.Notification.Show("转码已成功完成", 5000);
-                                     ShowTranscodeCompleteNotification(Para.Item1, Para.Item2);
-                                     break;
-                                 case "Cancel":
-                                     FileControl.ThisPage.Notification.Show("转码任务被取消", 5000);
-                                     ShowTranscodeCancelNotification();
-                                     break;
-                                 case "NotSupport":
-                                     FileControl.ThisPage.Notification.Show("转码格式不支持", 5000);
-                                     break;
-                                 default:
-                                     FileControl.ThisPage.Notification.Show("转码失败:" + ExcuteStatus, 5000);
-                                     break;
-                             }
-                         }
-                         else
-                         {
-                             switch (ExcuteStatus)
-                             {
-                                 case "Success":
-                                     FileControl.ThisPage.Notification.Show("Transcoding has been successfully completed", 5000);
-                                     ShowTranscodeCompleteNotification(Para.Item1, Para.Item2);
-                                     break;
-                                 case "Cancel":
-                                     FileControl.ThisPage.Notification.Show("Transcoding task is cancelled", 5000);
-                                     ShowTranscodeCancelNotification();
-                                     break;
-                                 case "NotSupport":
-                                     FileControl.ThisPage.Notification.Show("Transcoding format is not supported", 5000);
-                                     break;
-                                 default:
-                                     FileControl.ThisPage.Notification.Show("Transcoding failed:" + ExcuteStatus, 5000);
-                                     break;
-                             }
-                         }
-                     }).AsTask().Wait();
-                 }
+                   if (ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] is string ExcuteStatus)
+                   {
+                       CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                       {
+                           if (Globalization.Language == LanguageEnum.Chinese)
+                           {
+                               switch (ExcuteStatus)
+                               {
+                                   case "Success":
+                                       TabViewContainer.ThisPage.Notification.Show("转码已成功完成", 5000);
+                                       ShowTranscodeCompleteNotification(Para.Item1, Para.Item2);
+                                       break;
+                                   case "Cancel":
+                                       TabViewContainer.ThisPage.Notification.Show("转码任务被取消", 5000);
+                                       ShowTranscodeCancelNotification();
+                                       break;
+                                   case "NotSupport":
+                                       TabViewContainer.ThisPage.Notification.Show("转码格式不支持", 5000);
+                                       break;
+                                   default:
+                                       TabViewContainer.ThisPage.Notification.Show("转码失败:" + ExcuteStatus, 5000);
+                                       break;
+                               }
+                           }
+                           else
+                           {
+                               switch (ExcuteStatus)
+                               {
+                                   case "Success":
+                                       TabViewContainer.ThisPage.Notification.Show("Transcoding has been successfully completed", 5000);
+                                       ShowTranscodeCompleteNotification(Para.Item1, Para.Item2);
+                                       break;
+                                   case "Cancel":
+                                       TabViewContainer.ThisPage.Notification.Show("Transcoding task is cancelled", 5000);
+                                       ShowTranscodeCancelNotification();
+                                       break;
+                                   case "NotSupport":
+                                       TabViewContainer.ThisPage.Notification.Show("Transcoding format is not supported", 5000);
+                                       break;
+                                   default:
+                                       TabViewContainer.ThisPage.Notification.Show("Transcoding failed:" + ExcuteStatus, 5000);
+                                       break;
+                               }
+                           }
+                       }).AsTask().Wait();
+                   }
 
-                 IsAnyTransformTaskRunning = false;
+                   IsAnyTransformTaskRunning = false;
 
-             }, (SourceFile, DestinationFile));
+               }, (SourceFile, DestinationFile), TaskScheduler.Current);
         }
 
         private static void SendUpdatableToastWithProgressForCropVideo(StorageFile SourceFile)
@@ -5819,9 +5808,14 @@ namespace FileManager
         /// <summary>
         /// 请求进入蓝屏状态
         /// </summary>
-        /// <param name="e">错误内容</param>
-        public static void RequestBlueScreen(Exception e)
+        /// <param name="Ex">错误内容</param>
+        public static void RequestBlueScreen(Exception Ex)
         {
+            if (Ex == null)
+            {
+                throw new ArgumentNullException(nameof(Ex), "Exception could not be null");
+            }
+
             if (!(Window.Current.Content is Frame rootFrame))
             {
                 rootFrame = new Frame();
@@ -5829,23 +5823,23 @@ namespace FileManager
                 Window.Current.Content = rootFrame;
             }
 
-            if (GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 string Message =
-                "\r\r以下是错误信息：\r\rException Code错误代码：" + e.HResult +
-                "\r\rMessage错误消息：" + e.Message +
-                "\r\rSource来源：" + (string.IsNullOrEmpty(e.Source) ? "Unknown" : e.Source) +
-                "\r\rStackTrace堆栈追踪：\r" + (string.IsNullOrEmpty(e.StackTrace) ? "Unknown" : e.StackTrace);
+                "\r\r以下是错误信息：\r\rException Code错误代码：" + Ex.HResult +
+                "\r\rMessage错误消息：" + Ex.Message +
+                "\r\rSource来源：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
+                "\r\rStackTrace堆栈追踪：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
 
                 rootFrame.Navigate(typeof(BlueScreen), Message);
             }
             else
             {
                 string Message =
-                "\r\rThe following is the error message：\r\rException Code：" + e.HResult +
-                "\r\rMessage：" + e.Message +
-                "\r\rSource：" + (string.IsNullOrEmpty(e.Source) ? "Unknown" : e.Source) +
-                "\r\rStackTrace：\r" + (string.IsNullOrEmpty(e.StackTrace) ? "Unknown" : e.StackTrace);
+                "\r\rThe following is the error message：\r\rException Code：" + Ex.HResult +
+                "\r\rMessage：" + Ex.Message +
+                "\r\rSource：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
+                "\r\rStackTrace：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
 
                 rootFrame.Navigate(typeof(BlueScreen), Message);
             }
@@ -5858,7 +5852,12 @@ namespace FileManager
         /// <returns></returns>
         public static async Task LogAsync(Exception Ex)
         {
-            await LogAsync(Ex.Message + Environment.NewLine + Ex.StackTrace);
+            if (Ex == null)
+            {
+                throw new ArgumentNullException(nameof(Ex), "Exception could not be null");
+            }
+
+            await LogAsync(Ex.Message + Environment.NewLine + Ex.StackTrace).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -5871,7 +5870,7 @@ namespace FileManager
             await Task.Run(() =>
             {
                 Locker.WaitOne();
-            });
+            }).ConfigureAwait(false);
 
             StorageFile TempFile = await ApplicationData.Current.LocalCacheFolder.CreateFileAsync("RX_Error_Message.txt", CreationCollisionOption.OpenIfExists);
             await FileIO.AppendTextAsync(TempFile, Message + Environment.NewLine);

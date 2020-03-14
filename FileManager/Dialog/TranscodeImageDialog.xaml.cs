@@ -92,9 +92,10 @@ namespace FileManager
 
         private void Format_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            TargetFile = null;
+
             Picker = new FileSavePicker
             {
-                SuggestedFileName = "TranscodeImage",
                 SuggestedStartLocation = PickerLocationId.Desktop
             };
 
@@ -104,27 +105,32 @@ namespace FileManager
                 {
                     case "PNG":
                         {
-                            Picker.FileTypeChoices.Add("PNG格式", new List<string>() { ".png" });
+                            Picker.FileTypeChoices.Add("PNG格式", new string[] { ".png" });
+                            Picker.SuggestedFileName = "Image.png";
                             break;
                         }
                     case "BMP":
                         {
-                            Picker.FileTypeChoices.Add("BMP格式", new List<string>() { ".bmp" });
+                            Picker.FileTypeChoices.Add("BMP格式", new string[] { ".bmp" });
+                            Picker.SuggestedFileName = "Image.bmp";
                             break;
                         }
                     case "JPEG":
                         {
-                            Picker.FileTypeChoices.Add("JPEG格式", new List<string>() { ".jpg" });
+                            Picker.FileTypeChoices.Add("JPEG格式", new string[] { ".jpg" });
+                            Picker.SuggestedFileName = "Image.jpg";
                             break;
                         }
                     case "HEIF":
                         {
-                            Picker.FileTypeChoices.Add("HEIF格式", new List<string>() { ".heic" });
+                            Picker.FileTypeChoices.Add("HEIF格式", new string[] { ".heic" });
+                            Picker.SuggestedFileName = "Image.heic";
                             break;
                         }
                     case "TIFF":
                         {
-                            Picker.FileTypeChoices.Add("TIFF格式", new List<string>() { ".tiff" });
+                            Picker.FileTypeChoices.Add("TIFF格式", new string[] { ".tiff" });
+                            Picker.SuggestedFileName = "Image.tiff";
                             break;
                         }
                 }
@@ -135,27 +141,32 @@ namespace FileManager
                 {
                     case "PNG":
                         {
-                            Picker.FileTypeChoices.Add("PNG format", new List<string>() { ".png" });
+                            Picker.FileTypeChoices.Add("PNG format", new string[] { ".png" });
+                            Picker.SuggestedFileName = "Image.png";
                             break;
                         }
                     case "BMP":
                         {
-                            Picker.FileTypeChoices.Add("BMP format", new List<string>() { ".bmp" });
+                            Picker.FileTypeChoices.Add("BMP format", new string[] { ".bmp" });
+                            Picker.SuggestedFileName = "Image.bmp";
                             break;
                         }
                     case "JPEG":
                         {
-                            Picker.FileTypeChoices.Add("JPEG format", new List<string>() { ".jpg" });
+                            Picker.FileTypeChoices.Add("JPEG format", new string[] { ".jpg" });
+                            Picker.SuggestedFileName = "Image.jpg";
                             break;
                         }
                     case "HEIF":
                         {
-                            Picker.FileTypeChoices.Add("HEIF format", new List<string>() { ".heic" });
+                            Picker.FileTypeChoices.Add("HEIF format", new string[] { ".heic" });
+                            Picker.SuggestedFileName = "Image.heic";
                             break;
                         }
                     case "TIFF":
                         {
-                            Picker.FileTypeChoices.Add("TIFF format", new List<string>() { ".tiff" });
+                            Picker.FileTypeChoices.Add("TIFF format", new string[] { ".tiff" });
+                            Picker.SuggestedFileName = "Image.tiff";
                             break;
                         }
                 }

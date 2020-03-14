@@ -29,48 +29,25 @@ namespace FileManager
         private double OriginVerticalOffset;
         private Point OriginMousePosition;
         private int LockResource = 0;
+        private Frame FileControlNav;
 
         public PdfReader()
         {
             InitializeComponent();
-            Loaded += PdfReader_Loaded;
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is StorageFile file)
+            if (e.Parameter is Tuple<Frame, StorageFile> Parameters)
             {
-                PdfFile = file;
+                FileControlNav = Parameters.Item1;
+                PdfFile = Parameters.Item2;
+
+                await Initialize().ConfigureAwait(false);
             }
         }
 
-        protected override async void OnNavigatedFrom(NavigationEventArgs e)
-        {
-            Flip.SelectionChanged -= Flip_SelectionChanged;
-            Flip.SelectionChanged -= Flip_SelectionChanged1;
-
-            await Task.Run(() =>
-            {
-                Cancellation.Cancel();
-                ExitLocker.WaitOne();
-            });
-
-            PdfFile = null;
-            LoadQueue.Clear();
-            LoadQueue = null;
-
-            ExitLocker.Dispose();
-            ExitLocker = null;
-
-            Cancellation.Dispose();
-            Cancellation = null;
-
-            PdfCollection.Clear();
-            PdfCollection = null;
-            Pdf = null;
-        }
-
-        private async void PdfReader_Loaded(object sender, RoutedEventArgs e)
+        private async Task Initialize()
         {
             LoadingControl.IsLoading = true;
 
@@ -91,13 +68,13 @@ namespace FileManager
                 catch (Exception)
                 {
                     PdfPasswordDialog Dialog = new PdfPasswordDialog();
-                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         Pdf = await PdfDocument.LoadFromFileAsync(PdfFile, Dialog.Password);
                     }
                     else
                     {
-                        FileControl.ThisPage.Nav.GoBack();
+                        FileControlNav.GoBack();
                         return;
                     }
                 }
@@ -124,7 +101,7 @@ namespace FileManager
                         Content = "无法解析此PDF文件，PDF打开失败",
                         CloseButtonText = "返回"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -134,10 +111,10 @@ namespace FileManager
                         Content = "Unable to parse this PDF file, failed to open PDF",
                         CloseButtonText = "Go back"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
 
-                FileControl.ThisPage.Nav.GoBack();
+                FileControlNav.GoBack();
             }
             finally
             {
@@ -151,6 +128,32 @@ namespace FileManager
 
                 LoadingControl.IsLoading = false;
             }
+        }
+
+        protected override async void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            Flip.SelectionChanged -= Flip_SelectionChanged;
+            Flip.SelectionChanged -= Flip_SelectionChanged1;
+
+            await Task.Run(() =>
+            {
+                Cancellation.Cancel();
+                ExitLocker.WaitOne();
+            }).ConfigureAwait(true);
+
+            PdfFile = null;
+            LoadQueue.Clear();
+            LoadQueue = null;
+
+            ExitLocker.Dispose();
+            ExitLocker = null;
+
+            Cancellation.Dispose();
+            Cancellation = null;
+
+            PdfCollection.Clear();
+            PdfCollection = null;
+            Pdf = null;
         }
 
         private void Flip_SelectionChanged1(object sender, SelectionChangedEventArgs e)

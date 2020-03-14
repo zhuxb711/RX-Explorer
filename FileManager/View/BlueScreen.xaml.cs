@@ -1,12 +1,9 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
-using System;
-using System.Linq;
+﻿using System;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.System;
-using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -27,8 +24,8 @@ namespace FileManager
 
         private async void BlueScreen_Loaded(object sender, RoutedEventArgs e)
         {
-            await Task.Delay(5000);
-            await SendEmailAsync(Message.Text);
+            await Task.Delay(5000).ConfigureAwait(false);
+            await SendEmailAsync(Message.Text).ConfigureAwait(false);
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -41,7 +38,7 @@ namespace FileManager
 
         private async Task SendEmailAsync(string messageBody)
         {
-            if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 messageBody = "版本: "
                             + string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)
@@ -63,7 +60,7 @@ namespace FileManager
 
         private async void Report_Click(object sender, RoutedEventArgs e)
         {
-            await SendEmailAsync(Message.Text);
+            await SendEmailAsync(Message.Text).ConfigureAwait(false);
         }
 
         private async void Reset_Click(object sender, RoutedEventArgs e)
@@ -77,9 +74,9 @@ namespace FileManager
             catch (Exception)
             {
                 ApplicationData.Current.LocalSettings.Values.Clear();
-                await ApplicationData.Current.LocalFolder.DeleteAllSubFilesAndFolders();
-                await ApplicationData.Current.TemporaryFolder.DeleteAllSubFilesAndFolders();
-                await ApplicationData.Current.LocalCacheFolder.DeleteAllSubFilesAndFolders();
+                await ApplicationData.Current.LocalFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(false);
+                await ApplicationData.Current.TemporaryFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(false);
+                await ApplicationData.Current.LocalCacheFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(false);
             }
             _ = await CoreApplication.RequestRestartAsync(string.Empty);
         }

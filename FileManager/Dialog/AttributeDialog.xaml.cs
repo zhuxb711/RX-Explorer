@@ -101,7 +101,7 @@ namespace FileManager
                     {
                         Cancellation.Dispose();
                         Cancellation = null;
-                    });
+                    }).ConfigureAwait(false);
                 }
             };
         }
@@ -130,7 +130,7 @@ namespace FileManager
 
                 for (uint Index = 0; Index < TotalFiles && !Cancellation.IsCancellationRequested; Index += 100)
                 {
-                    var Files = await Query.GetFilesAsync(Index, 100).AsTask(Cancellation.Token);
+                    var Files = await Query.GetFilesAsync(Index, 100).AsTask(Cancellation.Token).ConfigureAwait(true);
 
                     for (int i = 0; i < Files.Count && !Cancellation.IsCancellationRequested; i++)
                     {
@@ -164,8 +164,8 @@ namespace FileManager
 
             try
             {
-                var FolderCount = await FolderQuery.GetItemCountAsync().AsTask(Cancellation.Token);
-                var FileCount = await FileQuery.GetItemCountAsync().AsTask(Cancellation.Token);
+                var FolderCount = await FolderQuery.GetItemCountAsync().AsTask(Cancellation.Token).ConfigureAwait(true);
+                var FileCount = await FileQuery.GetItemCountAsync().AsTask(Cancellation.Token).ConfigureAwait(true);
                 Include = Globalization.Language == LanguageEnum.Chinese
                             ? $"{FileCount} 个文件 , {FolderCount} 个文件夹"
                             : $"{FileCount} files , {FolderCount} folders";

@@ -260,12 +260,6 @@
                     </DataTemplate>
                 </muxc:TreeView.ItemTemplate>
             </muxc:TreeView>
-            <controls:InAppNotification Grid.Column="2"
-                                        StackMode="Replace"
-                                        Name="Notification"
-                                        x:FieldModifier="public"
-                                        ShowDismissButton="False"
-                                        HorizontalAlignment="Center" />
             <controls:GridSplitter Background="LightSlateGray"
                                    HorizontalAlignment="Center"
                                    ResizeBehavior="BasedOnAlignment"

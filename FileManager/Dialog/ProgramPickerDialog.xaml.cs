@@ -25,6 +25,11 @@ namespace FileManager
 
         public ProgramPickerDialog(StorageFile OpenFile)
         {
+            if (OpenFile == null)
+            {
+                throw new ArgumentNullException(nameof(OpenFile), "Parameter could not be null");
+            }
+
             InitializeComponent();
             this.OpenFile = OpenFile;
 
@@ -91,18 +96,18 @@ namespace FileManager
                 }
             }
 
-            List<string> PickerRecord = await SQLite.Current.GetProgramPickerRecordAsync();
+            List<string> PickerRecord = await SQLite.Current.GetProgramPickerRecordAsync().ConfigureAwait(true);
             foreach (var Path in PickerRecord)
             {
                 try
                 {
                     StorageFile ExcuteFile = await StorageFile.GetFileFromPathAsync(Path);
                     string ExtraAppName = (await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"].ToString();
-                    TempList.Add(new ProgramPickerItem(await ExcuteFile.GetThumbnailBitmapAsync(), ExtraAppName, string.Empty, Path: ExcuteFile.Path));
+                    TempList.Add(new ProgramPickerItem(await ExcuteFile.GetThumbnailBitmapAsync().ConfigureAwait(true), ExtraAppName, string.Empty, Path: ExcuteFile.Path));
                 }
                 catch (Exception)
                 {
-                    await SQLite.Current.DeleteProgramPickerRecordAsync(Path);
+                    await SQLite.Current.DeleteProgramPickerRecordAsync(Path).ConfigureAwait(true);
                 }
             }
 
@@ -192,10 +197,10 @@ namespace FileManager
             if ((await Picker.PickSingleFileAsync()) is StorageFile ExtraApp)
             {
                 string ExtraAppName = (await ExtraApp.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"].ToString();
-                ProgramCollection.Insert(0, new ProgramPickerItem(await ExtraApp.GetThumbnailBitmapAsync(), ExtraAppName, string.Empty, Path: ExtraApp.Path));
+                ProgramCollection.Insert(0, new ProgramPickerItem(await ExtraApp.GetThumbnailBitmapAsync().ConfigureAwait(true), ExtraAppName, string.Empty, Path: ExtraApp.Path));
                 OtherProgramList.SelectedIndex = 0;
 
-                await SQLite.Current.SetProgramPickerRecordAsync(ExtraApp.Path);
+                await SQLite.Current.SetProgramPickerRecordAsync(ExtraApp.Path).ConfigureAwait(false);
             }
         }
 
@@ -233,7 +238,7 @@ namespace FileManager
                 {
                     if (CurrentItem.IsCustomApp)
                     {
-                        await FullTrustExcutorController.Run(CurrentItem.Path, OpenFile.Path);
+                        await FullTrustExcutorController.Run(CurrentItem.Path, OpenFile.Path).ConfigureAwait(true);
                     }
                     else
                     {
@@ -278,11 +283,11 @@ namespace FileManager
                 {
                     if (OtherItem.IsCustomApp)
                     {
-                        await FullTrustExcutorController.Run(OtherItem.Path, OpenFile.Path);
+                        await FullTrustExcutorController.Run(OtherItem.Path, OpenFile.Path).ConfigureAwait(true);
                     }
                     else
                     {
-                        if(!await Launcher.LaunchFileAsync(OpenFile, new LauncherOptions { TargetApplicationPackageFamilyName = OtherItem.PackageName, DisplayApplicationPicker = false }))
+                        if (!await Launcher.LaunchFileAsync(OpenFile, new LauncherOptions { TargetApplicationPackageFamilyName = OtherItem.PackageName, DisplayApplicationPicker = false }))
                         {
                             OpenFailed = true;
                             if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute)

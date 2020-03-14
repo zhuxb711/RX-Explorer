@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
 using Windows.ApplicationModel.Background;
 using Windows.Foundation.Collections;
@@ -29,9 +26,10 @@ namespace CommunicateService
         {
             var Deferral = args.GetDeferral();
 
+            ValueSet Value = new ValueSet();
+
             try
             {
-                ValueSet Value = new ValueSet();
                 if (args.Request.Message.ContainsKey("RX_GetExcuteInfo"))
                 {
                     Value.Add("RX_ExcutePath", ApplicationData.Current.LocalSettings.Values["ExcutePath"]);
@@ -44,6 +42,10 @@ namespace CommunicateService
                 }
 
                 await args.Request.SendResponseAsync(Value);
+            }
+            catch
+            {
+                Value.Add("Error", "Unknown Error happened");
             }
             finally
             {

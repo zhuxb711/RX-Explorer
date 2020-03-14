@@ -23,6 +23,11 @@ namespace FileManager
 
         public SecureFilePropertyDialog(FileSystemStorageItem Item)
         {
+            if (Item == null)
+            {
+                throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
+            }
+
             InitializeComponent();
 
             FileSize = Item.Size;
@@ -35,11 +40,11 @@ namespace FileManager
 
         private async void SecureFilePropertyDialog_Loading(Windows.UI.Xaml.FrameworkElement sender, object args)
         {
-            using (Stream EncryptFileStream = await File.OpenStreamForReadAsync())
+            using (Stream EncryptFileStream = await File.OpenStreamForReadAsync().ConfigureAwait(true))
             {
                 byte[] DecryptByteBuffer = new byte[20];
 
-                await EncryptFileStream.ReadAsync(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
+                await EncryptFileStream.ReadAsync(DecryptByteBuffer, 0, DecryptByteBuffer.Length).ConfigureAwait(true);
 
                 if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
                 {
@@ -58,6 +63,7 @@ namespace FileManager
                     Level = "Unknown";
                 }
             }
+
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Level)));
         }
     }

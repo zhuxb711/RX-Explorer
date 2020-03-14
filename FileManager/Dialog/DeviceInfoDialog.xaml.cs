@@ -10,6 +10,11 @@ namespace FileManager
         HardDeviceInfo Device;
         public DeviceInfoDialog(HardDeviceInfo Device)
         {
+            if (Device == null)
+            {
+                throw new ArgumentNullException(nameof(Device), "Parameter could not be null");
+            }
+
             InitializeComponent();
             this.Device = Device;
             DeviceName.Text = Device.Name;

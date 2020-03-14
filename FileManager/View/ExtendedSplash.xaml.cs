@@ -99,7 +99,7 @@ namespace FileManager
         {
             try
             {
-                string CurrentLanguageString = Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault();
+                string CurrentLanguageString = Windows.System.UserProfile.GlobalizationPreferences.Languages[0];
 
                 if (ApplicationData.Current.LocalSettings.Values["LastStartupLanguage"] is string LastLanguageString)
                 {
@@ -118,7 +118,7 @@ namespace FileManager
                                     Content = "    自上次启动以来，系统语言设置发生了更改\r\r    语言更改:  " + LastLanguageString + " ⋙⋙⋙⋙ " + CurrentLanguageString + "\r\r    为了保证程序正常运行，RX已将所有已保存设置还原为默认值",
                                     CloseButtonText = "确定"
                                 };
-                                _ = await dialog.ShowAsync();
+                                _ = await dialog.ShowAsync().ConfigureAwait(true);
                                 ReleaseLock.Set();
                             });
                         }
@@ -132,7 +132,7 @@ namespace FileManager
                                     Content = "    The system language setting has changed since the last boot\r\r    Language changes:  " + LastLanguageString + " ⋙⋙⋙⋙ " + CurrentLanguageString + "\r\r    To ensure the program is running properly\r    RX has restored all saved settings to their default values",
                                     CloseButtonText = "Got it"
                                 };
-                                _ = await dialog.ShowAsync();
+                                _ = await dialog.ShowAsync().ConfigureAwait(true);
                                 ReleaseLock.Set();
                             });
                         }
@@ -153,7 +153,7 @@ namespace FileManager
                 if (!(ApplicationData.Current.LocalSettings.Values["IsInitialQuickStart"] is bool) || !(ApplicationData.Current.LocalSettings.Values["QuickStartInitialFinished"] is bool))
                 {
                     var SQL = SQLite.Current;
-                    await SQL.ClearTableAsync("QuickStart");
+                    await SQL.ClearTableAsync("QuickStart").ConfigureAwait(false);
                     ApplicationData.Current.LocalSettings.Values["IsInitialQuickStart"] = true;
 
                     var QuickFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.ReplaceExisting);
@@ -168,53 +168,55 @@ namespace FileManager
                         _ = await File.CopyAsync(WebFolder, File.Name, NameCollisionOption.ReplaceExisting);
                     }
 
-                    if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
-                        await SQL.SetQuickStartItemAsync("应用商店", "QuickStartImage\\MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application);
-                        await SQL.SetQuickStartItemAsync("计算器", "QuickStartImage\\Calculator.png", "calculator:", QuickStartType.Application);
-                        await SQL.SetQuickStartItemAsync("系统设置", "QuickStartImage\\Setting.png", "ms-settings:", QuickStartType.Application);
-                        await SQL.SetQuickStartItemAsync("邮件", "QuickStartImage\\Email.png", "mailto:", QuickStartType.Application);
-                        await SQL.SetQuickStartItemAsync("日历", "QuickStartImage\\Calendar.png", "outlookcal:", QuickStartType.Application);
-                        await SQL.SetQuickStartItemAsync("必应地图", "QuickStartImage\\Map.png", "bingmaps:", QuickStartType.Application);
-                        await SQL.SetQuickStartItemAsync("天气", "QuickStartImage\\Weather.png", "bingweather:", QuickStartType.Application);
-                        await SQL.SetQuickStartItemAsync("必应", "HotWebImage\\Bing.png", "https://www.bing.com/", QuickStartType.WebSite);
-                        await SQL.SetQuickStartItemAsync("百度", "HotWebImage\\Baidu.png", "https://www.baidu.com/", QuickStartType.WebSite);
-                        await SQL.SetQuickStartItemAsync("微信", "HotWebImage\\Wechat.png", "https://wx.qq.com/", QuickStartType.WebSite);
-                        await SQL.SetQuickStartItemAsync("IT之家", "HotWebImage\\iThome.jpg", "https://www.ithome.com/", QuickStartType.WebSite);
-                        await SQL.SetQuickStartItemAsync("微博", "HotWebImage\\Weibo.png", "https://www.weibo.com/", QuickStartType.WebSite);
+                        await SQL.SetQuickStartItemAsync("应用商店", "QuickStartImage\\MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("计算器", "QuickStartImage\\Calculator.png", "calculator:", QuickStartType.Application).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("系统设置", "QuickStartImage\\Setting.png", "ms-settings:", QuickStartType.Application).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("邮件", "QuickStartImage\\Email.png", "mailto:", QuickStartType.Application).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("日历", "QuickStartImage\\Calendar.png", "outlookcal:", QuickStartType.Application).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("必应地图", "QuickStartImage\\Map.png", "bingmaps:", QuickStartType.Application).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("天气", "QuickStartImage\\Weather.png", "bingweather:", QuickStartType.Application).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("必应", "HotWebImage\\Bing.png", "https://www.bing.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("百度", "HotWebImage\\Baidu.png", "https://www.baidu.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("微信", "HotWebImage\\Wechat.png", "https://wx.qq.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("IT之家", "HotWebImage\\iThome.jpg", "https://www.ithome.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("微博", "HotWebImage\\Weibo.png", "https://www.weibo.com/", QuickStartType.WebSite).ConfigureAwait(false);
                     }
                     else
                     {
-                        await SQL.SetQuickStartItemAsync("Microsoft Store", "QuickStartImage\\MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application);
-                        await SQL.SetQuickStartItemAsync("Calculator", "QuickStartImage\\Calculator.png", "calculator:", QuickStartType.Application);
-                        await SQL.SetQuickStartItemAsync("Setting", "QuickStartImage\\Setting.png", "ms-settings:", QuickStartType.Application);
-                        await SQL.SetQuickStartItemAsync("Email", "QuickStartImage\\Email.png", "mailto:", QuickStartType.Application);
-                        await SQL.SetQuickStartItemAsync("Calendar", "QuickStartImage\\Calendar.png", "outlookcal:", QuickStartType.Application);
-                        await SQL.SetQuickStartItemAsync("Bing Map", "QuickStartImage\\Map.png", "bingmaps:", QuickStartType.Application);
-                        await SQL.SetQuickStartItemAsync("Weather", "QuickStartImage\\Weather.png", "bingweather:", QuickStartType.Application);
-                        await SQL.SetQuickStartItemAsync("Bing", "HotWebImage\\Bing.png", "https://www.bing.com/", QuickStartType.WebSite);
-                        await SQL.SetQuickStartItemAsync("Facebook", "HotWebImage\\Facebook.png", "https://www.facebook.com/", QuickStartType.WebSite);
-                        await SQL.SetQuickStartItemAsync("Instagram", "HotWebImage\\Instagram.png", "https://www.instagram.com/", QuickStartType.WebSite);
-                        await SQL.SetQuickStartItemAsync("Twitter", "HotWebImage\\Twitter.png", "https://twitter.com", QuickStartType.WebSite);
+                        await SQL.SetQuickStartItemAsync("Microsoft Store", "QuickStartImage\\MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("Calculator", "QuickStartImage\\Calculator.png", "calculator:", QuickStartType.Application).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("Setting", "QuickStartImage\\Setting.png", "ms-settings:", QuickStartType.Application).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("Email", "QuickStartImage\\Email.png", "mailto:", QuickStartType.Application).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("Calendar", "QuickStartImage\\Calendar.png", "outlookcal:", QuickStartType.Application).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("Bing Map", "QuickStartImage\\Map.png", "bingmaps:", QuickStartType.Application).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("Weather", "QuickStartImage\\Weather.png", "bingweather:", QuickStartType.Application).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("Bing", "HotWebImage\\Bing.png", "https://www.bing.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("Facebook", "HotWebImage\\Facebook.png", "https://www.facebook.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("Instagram", "HotWebImage\\Instagram.png", "https://www.instagram.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                        await SQL.SetQuickStartItemAsync("Twitter", "HotWebImage\\Twitter.png", "https://twitter.com", QuickStartType.WebSite).ConfigureAwait(false);
                     }
 
                     ApplicationData.Current.LocalSettings.Values["QuickStartInitialFinished"] = true;
                 }
 
-                if (await CheckFileAccessAuthority())
+                bool IsFileAccessible = await CheckFileAccessAuthority().ConfigureAwait(true);
+
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    DismissExtendedSplash();
-                }
-                else
-                {
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    if (IsFileAccessible)
+                    {
+                        DismissExtendedSplash();
+                    }
+                    else
                     {
                         Display.Text = Globalization.Language == LanguageEnum.Chinese
                                         ? "请开启此应用的文件系统访问权限以正常工作\r然后重新启动该应用"
                                         : "Please enable file system access for this app to work properly\rThen restart the app";
                         ButtonPane.Visibility = Visibility.Visible;
-                    });
-                }
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -252,7 +254,7 @@ namespace FileManager
         private async void NavigationButton_Click(object sender, RoutedEventArgs e)
         {
             await Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-broadfilesystemaccess"));
-            if (Windows.System.UserProfile.GlobalizationPreferences.Languages.FirstOrDefault().StartsWith("zh"))
+            if (Globalization.Language == LanguageEnum.Chinese)
             {
                 ToastContent Content = new ToastContent()
                 {

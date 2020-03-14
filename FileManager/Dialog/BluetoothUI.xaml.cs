@@ -25,6 +25,7 @@ namespace FileManager
         private bool IsPinConfirm = false;
         private bool IsAdding = false;
         private Queue<DeviceInformation> AddQueue;
+
         public BluetoothUI()
         {
             InitializeComponent();
@@ -84,7 +85,7 @@ namespace FileManager
             try
             {
                 //首先连接到RFComm服务，获取到设备的规范名称
-                string CanonicalName = await ConnectToRfcommServiceAsync(BluetoothDeviceCollection[BluetoothControl.SelectedIndex]);
+                string CanonicalName = await ConnectToRfcommServiceAsync(BluetoothDeviceCollection[BluetoothControl.SelectedIndex]).ConfigureAwait(false);
 
                 BluetoothService BTService = BluetoothService.GetDefault();
                 BTService.SearchForPairedDevicesSucceeded += (s, e) =>
@@ -93,9 +94,8 @@ namespace FileManager
                 };
 
                 //能到这里说明该设备已经配对，启动搜索，完成后PairedBluetoothDeviceCollection被填充
-                await BTService.SearchForPairedDevicesAsync();
+                await BTService.SearchForPairedDevicesAsync().ConfigureAwait(false);
                 foreach (var BTDevice in from BTDevice in PairedBluetoothDeviceCollection
-                                             //找到符合刚刚RFComm服务获取到的规范名称的蓝牙设备
                                          where BTDevice.DeviceHost.CanonicalName == CanonicalName
                                          select BTDevice)
                 {
@@ -113,8 +113,11 @@ namespace FileManager
             }
             catch (Exception e)
             {
-                Tips.Text = e.Message;
-                Tips.Visibility = Visibility.Visible;
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    Tips.Text = e.Message;
+                    Tips.Visibility = Visibility.Visible;
+                });
             }
 
             Deferral.Complete();
@@ -260,14 +263,21 @@ namespace FileManager
         /// <returns>主机对象的规范名称</returns>
         public async Task<string> ConnectToRfcommServiceAsync(BluetoothList BL)
         {
+            if (BL == null)
+            {
+                throw new ArgumentNullException(nameof(BL), "Parameter could not be null");
+            }
+
             var Device = await Windows.Devices.Bluetooth.BluetoothDevice.FromIdAsync(BL.Id);
             var Services = await Device.GetRfcommServicesForIdAsync(RfcommServiceId.ObexObjectPush);
+
             if (Services.Services.Count == 0)
             {
                 throw new Exception(Globalization.Language == LanguageEnum.Chinese
                     ? "无法发现蓝牙设备的ObexObjectPush服务，该设备不受支持"
                     : "Unable to discover the ObexObjectPush service for Bluetooth devices, which is not supported");
             }
+
             RfcommDeviceService RfcService = Services.Services[0];
             return RfcService.ConnectionHostName.CanonicalName;
         }
@@ -279,7 +289,7 @@ namespace FileManager
             LastSelectIndex = BluetoothControl.SelectedIndex;
             if (btn.Content.ToString() == "配对" || btn.Content.ToString() == "Pair")
             {
-                await PairAsync(BluetoothDeviceCollection[LastSelectIndex].DeviceInfo);
+                await PairAsync(BluetoothDeviceCollection[LastSelectIndex].DeviceInfo).ConfigureAwait(false);
             }
             else
             {
@@ -360,7 +370,7 @@ namespace FileManager
                 {
                     args.Accept();
                 }
-            });
+            }).ConfigureAwait(false);
 
             PairDeferral.Complete();
         }

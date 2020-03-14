@@ -1,4 +1,29 @@
 ﻿*****
+###What's new in Ver.4.2.4.0
+
+>#####Feature Update
+
+>>#####Add multi-tab support
+
+>#####Performance improvement
+
+>>#####Optimize the performance of asynchronous operations, improve the response speed of the UI, reduce the busy time
+
+>#####Bug fix
+
+>>#####Fixed the problem of unclear suffix format when transcoding images
+
+>>#####Resolved an issue that caused a crash when the picture could not be transcoded due to missing codecs or other reasons
+
+>>#####Fixed an issue where clicking Cancel at the last moment of the process of importing files in a security domain would cause a crash
+
+>>#####Resolved an issue that could cause Google Translate to crash if the network was unavailable
+
+>>#####Solved the problem that the newly generated file was displayed in RX incorrectly when the picture was transcoded
+
+>>#####Solve some problems in English language environment
+
+*****
 ###What's new in Ver.4.2.0.0
 
 >#####Feature Update

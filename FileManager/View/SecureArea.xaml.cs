@@ -67,7 +67,7 @@ namespace FileManager
                         if (Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"]))
                         {
                         RETRY:
-                            switch (await WindowsHelloAuthenticator.VerifyUserAsync())
+                            switch (await WindowsHelloAuthenticator.VerifyUserAsync().ConfigureAwait(true))
                             {
                                 case AuthenticatorState.VerifyPassed:
                                     {
@@ -100,7 +100,7 @@ namespace FileManager
                                             };
                                         }
 
-                                        ContentDialogResult Result = await Dialog.ShowAsync();
+                                        ContentDialogResult Result = await Dialog.ShowAsync().ConfigureAwait(true);
 
                                         if (Result == ContentDialogResult.Primary)
                                         {
@@ -108,7 +108,7 @@ namespace FileManager
                                         }
                                         else if (Result == ContentDialogResult.Secondary)
                                         {
-                                            if (!await EnterByPassword())
+                                            if (!await EnterByPassword().ConfigureAwait(true))
                                             {
                                                 return;
                                             }
@@ -131,7 +131,7 @@ namespace FileManager
                                                 Content = "Windows Hello认证凭据丢失，无法使用Windows Hello，请使用密码进入\r\r您可以在重新进入安全域后，进入设置重新注册Windows Hello",
                                                 CloseButtonText = "确定"
                                             };
-                                            _ = await Dialog.ShowAsync();
+                                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                                         }
                                         else
                                         {
@@ -141,12 +141,12 @@ namespace FileManager
                                                 Content = "Windows Hello authentication credentials are lost, you cannot use Windows Hello, please use the password to enter \r \rAfter you re-enter the security domain, enter settings to re-register Windows Hello",
                                                 CloseButtonText = "Confirm"
                                             };
-                                            _ = await Dialog.ShowAsync();
+                                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                                         }
 
                                         ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
 
-                                        if (!await EnterByPassword())
+                                        if (!await EnterByPassword().ConfigureAwait(true))
                                         {
                                             return;
                                         }
@@ -178,9 +178,9 @@ namespace FileManager
 
                                         ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
 
-                                        if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                                         {
-                                            if (!await EnterByPassword())
+                                            if (!await EnterByPassword().ConfigureAwait(true))
                                             {
                                                 return;
                                             }
@@ -196,7 +196,7 @@ namespace FileManager
                         }
                         else
                         {
-                            if (!await EnterByPassword())
+                            if (!await EnterByPassword().ConfigureAwait(true))
                             {
                                 return;
                             }
@@ -213,7 +213,7 @@ namespace FileManager
                             CancelButton.Visibility = Visibility.Collapsed;
                             LoadingControl.IsLoading = true;
 
-                            if (await CheckPurchaseStatusAsync())
+                            if (await CheckPurchaseStatusAsync().ConfigureAwait(true))
                             {
                                 if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name != nameof(SecureArea))
                                 {
@@ -222,7 +222,7 @@ namespace FileManager
                                 }
 
                                 ApplicationData.Current.LocalSettings.Values["SecureAreaUsePermission"] = true;
-                                await Task.Delay(500);
+                                await Task.Delay(500).ConfigureAwait(true);
                             }
                             else
                             {
@@ -233,9 +233,9 @@ namespace FileManager
                                 }
 
                                 SecureAreaIntroDialog IntroDialog = new SecureAreaIntroDialog();
-                                if ((await IntroDialog.ShowAsync()) == ContentDialogResult.Primary)
+                                if ((await IntroDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                                 {
-                                    if (await PurchaseAsync())
+                                    if (await PurchaseAsync().ConfigureAwait(true))
                                     {
                                         ApplicationData.Current.LocalSettings.Values["SecureAreaUsePermission"] = true;
 
@@ -247,7 +247,7 @@ namespace FileManager
                                                 Content = "感谢您对RX文件管理器的支持，安全域功能已经解锁",
                                                 CloseButtonText = "知道了"
                                             };
-                                            _ = await SuccessDialog.ShowAsync();
+                                            _ = await SuccessDialog.ShowAsync().ConfigureAwait(true);
                                         }
                                         else
                                         {
@@ -257,7 +257,7 @@ namespace FileManager
                                                 Content = "Thank you for your support of the RX Explorer, the security area has been unlocked",
                                                 CloseButtonText = "Got it"
                                             };
-                                            _ = await SuccessDialog.ShowAsync();
+                                            _ = await SuccessDialog.ShowAsync().ConfigureAwait(true);
                                         }
                                     }
                                     else
@@ -283,7 +283,7 @@ namespace FileManager
                                     Content = "当前网络不可用，无法更新许可证",
                                     CloseButtonText = "返回"
                                 };
-                                _ = await ErrorDialog.ShowAsync();
+                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
                             }
                             else
                             {
@@ -293,7 +293,7 @@ namespace FileManager
                                     Content = "The current network is unavailable and the license cannot be updated",
                                     CloseButtonText = "Back"
                                 };
-                                _ = await ErrorDialog.ShowAsync();
+                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
                             }
                             GoBack();
                             return;
@@ -308,7 +308,7 @@ namespace FileManager
                                     Content = "由于未将当前用户登录至微软商店，因此无法检查许可证状态",
                                     CloseButtonText = "返回"
                                 };
-                                _ = await ErrorDialog.ShowAsync();
+                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
                             }
                             else
                             {
@@ -318,20 +318,20 @@ namespace FileManager
                                     Content = "Unable to check license status because current user is not signed in to the Microsoft Store",
                                     CloseButtonText = "Back"
                                 };
-                                _ = await ErrorDialog.ShowAsync();
+                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
                             }
                             GoBack();
                             return;
                         }
                         finally
                         {
-                            await Task.Delay(500);
+                            await Task.Delay(500).ConfigureAwait(true);
                             LoadingControl.IsLoading = false;
                         }
                     }
 
                     SecureAreaWelcomeDialog Dialog = new SecureAreaWelcomeDialog();
-                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         AESKeySize = Dialog.AESKeySize;
                         UnlockPassword = Dialog.Password;
@@ -346,7 +346,7 @@ namespace FileManager
                     {
                         if (Dialog.IsEnableWindowsHello)
                         {
-                            await WindowsHelloAuthenticator.DeleteUserAsync();
+                            await WindowsHelloAuthenticator.DeleteUserAsync().ConfigureAwait(true);
                         }
 
                         GoBack();
@@ -355,7 +355,7 @@ namespace FileManager
                     }
                 }
 
-                await StartLoadFile();
+                await StartLoadFile().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -363,7 +363,7 @@ namespace FileManager
             }
         }
 
-        private async Task<bool> CheckPurchaseStatusAsync()
+        private static async Task<bool> CheckPurchaseStatusAsync()
         {
             StoreContext Store = StoreContext.GetDefault();
 
@@ -382,7 +382,7 @@ namespace FileManager
             }
         }
 
-        private async Task<bool> PurchaseAsync()
+        private static async Task<bool> PurchaseAsync()
         {
             StoreContext Store = StoreContext.GetDefault();
 
@@ -417,7 +417,7 @@ namespace FileManager
         private async Task<bool> EnterByPassword()
         {
             SecureAreaVerifyDialog Dialog = new SecureAreaVerifyDialog(UnlockPassword);
-            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+            if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
                 return true;
             }
@@ -428,7 +428,7 @@ namespace FileManager
             }
         }
 
-        private void GoBack()
+        private static void GoBack()
         {
             try
             {
@@ -441,7 +441,7 @@ namespace FileManager
                         }
                     default:
                         {
-                            MainPage.ThisPage.Nav.Navigate(typeof(ThisPC), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                            MainPage.ThisPage.Nav.Navigate(typeof(TabViewContainer), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
                             break;
                         }
                 }
@@ -479,13 +479,13 @@ namespace FileManager
 
             foreach (var Item in EncryptedFileList)
             {
-                var Size = await Item.GetSizeDescriptionAsync();
+                var Size = await Item.GetSizeDescriptionAsync().ConfigureAwait(true);
                 var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
-                var ModifiedTime = await Item.GetModifiedTimeAsync();
+                var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
                 SecureCollection.Add(new FileSystemStorageItem(Item, Size, Thumbnail, ModifiedTime));
             }
 
-            await SecureCollection.SetStorageItemQueryAsync(ItemQuery);
+            await SecureCollection.SetStorageItemQueryAsync(ItemQuery).ConfigureAwait(false);
         }
 
         private void SecureCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -508,9 +508,9 @@ namespace FileManager
             List<FileSystemStorageItem> ItemList = new List<FileSystemStorageItem>();
             foreach (var Item in await Query.GetItemsAsync(Index, Num))
             {
-                var Size = await Item.GetSizeDescriptionAsync();
+                var Size = await Item.GetSizeDescriptionAsync().ConfigureAwait(true);
                 var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
-                var ModifiedTime = await Item.GetModifiedTimeAsync();
+                var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
                 ItemList.Add(new FileSystemStorageItem(Item, Size, Thumbnail, ModifiedTime));
             }
             return ItemList;
@@ -535,11 +535,11 @@ namespace FileManager
             {
                 foreach (StorageFile File in FileList)
                 {
-                    if ((await File.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token)) is StorageFile EncryptedFile)
+                    if ((await File.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true)) is StorageFile EncryptedFile)
                     {
-                        var Size = await EncryptedFile.GetSizeDescriptionAsync();
+                        var Size = await EncryptedFile.GetSizeDescriptionAsync().ConfigureAwait(true);
                         var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
-                        var ModifiedTime = await EncryptedFile.GetModifiedTimeAsync();
+                        var ModifiedTime = await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true);
                         SecureCollection.Add(new FileSystemStorageItem(EncryptedFile, Size, Thumbnail, ModifiedTime));
                     }
                     else
@@ -552,7 +552,7 @@ namespace FileManager
                                 Content = "加密文件时出现意外错误，导入过程已经终止",
                                 CloseButtonText = "确定"
                             };
-                            _ = await Dialog.ShowAsync();
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
                         else
                         {
@@ -562,7 +562,7 @@ namespace FileManager
                                 Content = "An unexpected error occurred while encrypting the file, the import process has ended",
                                 CloseButtonText = "Got it"
                             };
-                            _ = await Dialog.ShowAsync();
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
                     }
                 }
@@ -574,9 +574,10 @@ namespace FileManager
             finally
             {
                 Cancellation.Dispose();
+                Cancellation = null;
             }
 
-            await Task.Delay(1500);
+            await Task.Delay(1500).ConfigureAwait(true);
             ActivateLoading(false);
         }
 
@@ -586,7 +587,7 @@ namespace FileManager
             {
                 IReadOnlyList<IStorageItem> Items = await e.DataView.GetStorageItemsAsync();
 
-                if (Items.Count((Item) => Item.IsOfType(StorageItemTypes.Folder)) != 0)
+                if (Items.Any((Item) => Item.IsOfType(StorageItemTypes.Folder)))
                 {
                     if (Globalization.Language == LanguageEnum.Chinese)
                     {
@@ -596,7 +597,7 @@ namespace FileManager
                             Content = "安全域不支持导入文件夹类型，所有文件夹类型均已被过滤",
                             CloseButtonText = "确定"
                         };
-                        _ = await Dialog.ShowAsync();
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                     else
                     {
@@ -606,7 +607,7 @@ namespace FileManager
                             Content = "Security Area does not support importing folder, all folders have been filtered",
                             CloseButtonText = "Got it"
                         };
-                        _ = await Dialog.ShowAsync();
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
 
@@ -618,11 +619,11 @@ namespace FileManager
                 {
                     foreach (StorageFile Item in Items.OfType<StorageFile>())
                     {
-                        if ((await Item.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token)) is StorageFile EncryptedFile)
+                        if ((await Item.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true)) is StorageFile EncryptedFile)
                         {
-                            var Size = await EncryptedFile.GetSizeDescriptionAsync();
+                            var Size = await EncryptedFile.GetSizeDescriptionAsync().ConfigureAwait(true);
                             var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
-                            var ModifiedTime = await EncryptedFile.GetModifiedTimeAsync();
+                            var ModifiedTime = await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true);
                             SecureCollection.Add(new FileSystemStorageItem(EncryptedFile, Size, Thumbnail, ModifiedTime));
                         }
                         else
@@ -635,7 +636,7 @@ namespace FileManager
                                     Content = "加密文件时出现意外错误，导入过程已经终止",
                                     CloseButtonText = "确定"
                                 };
-                                _ = await Dialog.ShowAsync();
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
                             }
                             else
                             {
@@ -645,7 +646,7 @@ namespace FileManager
                                     Content = "An unexpected error occurred while encrypting the file, the import process has ended",
                                     CloseButtonText = "Got it"
                                 };
-                                _ = await Dialog.ShowAsync();
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
                             }
                         }
                     }
@@ -657,8 +658,9 @@ namespace FileManager
                 finally
                 {
                     Cancellation.Dispose();
+                    Cancellation = null;
 
-                    await Task.Delay(1500);
+                    await Task.Delay(1500).ConfigureAwait(true);
                     ActivateLoading(false);
                 }
             }
@@ -702,7 +704,7 @@ namespace FileManager
                         Content = "此操作将永久删除 \" " + Item.Name + " \"\r\r是否继续?",
                         CloseButtonText = "否"
                     };
-                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         await Item.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
                         SecureCollection.Remove(Item);
@@ -717,7 +719,7 @@ namespace FileManager
                         Content = "This action will permanently delete \" " + Item.Name + " \"\r\rWhether to continue?",
                         CloseButtonText = "Cancel"
                     };
-                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         await Item.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
                         SecureCollection.Remove(Item);
@@ -750,7 +752,7 @@ namespace FileManager
                     {
                         ActivateLoading(true, false);
 
-                        if (await Item.File.DecryptAsync(Folder, FileEncryptionAesKey, Cancellation.Token) is StorageFile)
+                        if (await Item.File.DecryptAsync(Folder, FileEncryptionAesKey, Cancellation.Token).ConfigureAwait(true) is StorageFile)
                         {
                             await Item.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
                             SecureCollection.Remove(Item);
@@ -767,7 +769,7 @@ namespace FileManager
                                     Content = "解密文件时出现意外错误，导出过程已经终止",
                                     CloseButtonText = "确定"
                                 };
-                                _ = await Dialog.ShowAsync();
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
                             }
                             else
                             {
@@ -777,7 +779,7 @@ namespace FileManager
                                     Content = "An unexpected error occurred while decrypting the file, the export process has ended",
                                     CloseButtonText = "Got it"
                                 };
-                                _ = await Dialog.ShowAsync();
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
                             }
                         }
                     }
@@ -791,7 +793,7 @@ namespace FileManager
                                 Content = "由于解密密码错误，解密失败，导出任务已经终止\r\r这可能是由于待解密文件数据不匹配造成的",
                                 CloseButtonText = "确定"
                             };
-                            _ = await Dialog.ShowAsync();
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
                         else
                         {
@@ -801,10 +803,10 @@ namespace FileManager
                                 Content = "The decryption failed due to the wrong decryption password, the export task has been terminated \r \rThis may be caused by a mismatch in the data of the files to be decrypted",
                                 CloseButtonText = "Got it"
                             };
-                            _ = await Dialog.ShowAsync();
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
 
-                        await Task.Delay(1500);
+                        await Task.Delay(1500).ConfigureAwait(true);
                         ActivateLoading(false);
                     }
                     catch (FileDamagedException)
@@ -817,7 +819,7 @@ namespace FileManager
                                 Content = "由于待解密文件的内部结构损坏，解密失败，导出任务已经终止\r\r这可能是由于文件数据已损坏或被修改造成的",
                                 CloseButtonText = "确定"
                             };
-                            _ = await Dialog.ShowAsync();
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
                         else
                         {
@@ -827,10 +829,10 @@ namespace FileManager
                                 Content = "Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r \rThis may be caused by the file data being damaged or modified",
                                 CloseButtonText = "Got it"
                             };
-                            _ = await Dialog.ShowAsync();
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
 
-                        await Task.Delay(1500);
+                        await Task.Delay(1500).ConfigureAwait(true);
                         ActivateLoading(false);
                     }
                     catch (UnauthorizedAccessException)
@@ -843,7 +845,7 @@ namespace FileManager
                                 Content = "RX无权在此处创建解密文件，可能是您无权访问此文件夹",
                                 CloseButtonText = "确定"
                             };
-                            _ = await dialog.ShowAsync();
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
                         }
                         else
                         {
@@ -853,10 +855,10 @@ namespace FileManager
                                 Content = "RX does not have permission to create an decrypted file here",
                                 CloseButtonText = "Got it"
                             };
-                            _ = await dialog.ShowAsync();
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
                         }
 
-                        await Task.Delay(1500);
+                        await Task.Delay(1500).ConfigureAwait(true);
                         ActivateLoading(false);
                     }
                     catch (TaskCanceledException)
@@ -870,8 +872,9 @@ namespace FileManager
                     finally
                     {
                         Cancellation.Dispose();
+                        Cancellation = null;
 
-                        await Task.Delay(1500);
+                        await Task.Delay(1500).ConfigureAwait(true);
                         ActivateLoading(false);
                     }
                 }
@@ -897,7 +900,7 @@ namespace FileManager
             if (SecureGridView.SelectedItem is FileSystemStorageItem Item)
             {
                 SecureFilePropertyDialog Dialog = new SecureFilePropertyDialog(Item);
-                _ = await Dialog.ShowAsync();
+                _ = await Dialog.ShowAsync().ConfigureAwait(false);
             }
         }
 
@@ -906,21 +909,19 @@ namespace FileManager
             if (SecureGridView.SelectedItem is FileSystemStorageItem RenameItem)
             {
                 RenameDialog dialog = new RenameDialog(RenameItem.File.DisplayName, RenameItem.File.FileType);
-                if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+                if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
                     if (dialog.DesireName == RenameItem.File.FileType)
                     {
                         if (Globalization.Language == LanguageEnum.Chinese)
                         {
-
                             QueueContentDialog content = new QueueContentDialog
                             {
                                 Title = "错误",
                                 Content = "文件名不能为空，重命名失败",
                                 CloseButtonText = "确定"
                             };
-                            await content.ShowAsync();
-                            return;
+                            await content.ShowAsync().ConfigureAwait(false);
                         }
                         else
                         {
@@ -930,9 +931,10 @@ namespace FileManager
                                 Content = "File name cannot be empty, rename failed",
                                 CloseButtonText = "Confirm"
                             };
-                            await content.ShowAsync();
-                            return;
+                            await content.ShowAsync().ConfigureAwait(false);
                         }
+
+                        return;
                     }
 
                     await RenameItem.File.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
@@ -940,7 +942,7 @@ namespace FileManager
                     var Item = SecureCollection.FirstOrDefault((It) => It.Name == dialog.DesireName);
                     if (Item != null)
                     {
-                        await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(RenameItem.File.Path));
+                        await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(RenameItem.File.Path)).ConfigureAwait(false);
                     }
                 }
             }
@@ -971,7 +973,7 @@ namespace FileManager
 
         private async void SettingPane_PaneOpening(SplitView sender, object args)
         {
-            if (await WindowsHelloAuthenticator.CheckSupportAsync())
+            if (await WindowsHelloAuthenticator.CheckSupportAsync().ConfigureAwait(true))
             {
                 UseWindowsHello.IsEnabled = true;
                 UseWindowsHello.IsOn = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"]);
@@ -1032,7 +1034,7 @@ namespace FileManager
             if (UseWindowsHello.IsOn)
             {
             RETRY:
-                if ((await WindowsHelloAuthenticator.RegisterUserAsync()) != AuthenticatorState.RegisterSuccess)
+                if ((await WindowsHelloAuthenticator.RegisterUserAsync().ConfigureAwait(true)) != AuthenticatorState.RegisterSuccess)
                 {
                     if (Globalization.Language == LanguageEnum.Chinese)
                     {
@@ -1043,7 +1045,7 @@ namespace FileManager
                             PrimaryButtonText = "重试",
                             CloseButtonText = "取消"
                         };
-                        if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                         {
                             goto RETRY;
                         }
@@ -1057,7 +1059,7 @@ namespace FileManager
                             PrimaryButtonText = "Retry",
                             CloseButtonText = "Cancel"
                         };
-                        if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                         {
                             goto RETRY;
                         }
@@ -1071,7 +1073,7 @@ namespace FileManager
             }
             else
             {
-                await WindowsHelloAuthenticator.DeleteUserAsync();
+                await WindowsHelloAuthenticator.DeleteUserAsync().ConfigureAwait(false);
             }
         }
 
@@ -1096,7 +1098,7 @@ namespace FileManager
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            Cancellation.Cancel();
+            Cancellation?.Cancel();
         }
     }
 }

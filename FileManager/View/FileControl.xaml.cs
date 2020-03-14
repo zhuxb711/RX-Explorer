@@ -56,6 +56,11 @@ namespace FileManager
                     GoParentFolder.IsEnabled = value != FolderTree.RootNodes[0];
                     GoBackRecord.IsEnabled = RecordIndex > 0;
                     GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
+
+                    if (TabItem != null)
+                    {
+                        TabItem.Header = Folder.DisplayName;
+                    }
                 }
 
                 currentnode = value;
@@ -76,28 +81,28 @@ namespace FileManager
             }
         }
 
-        public bool IsSearchOrPathBoxFocused = false;
+        public bool IsSearchOrPathBoxFocused { get; set; } = false;
 
-        public static FileControl ThisPage { get; private set; }
         private bool IsAdding = false;
         private CancellationTokenSource CancelToken;
         private CancellationTokenSource FolderExpandCancel;
         private AutoResetEvent Locker;
         private ManualResetEvent ExitLocker;
-        private static List<StorageFolder> GoAndBackRecord = new List<StorageFolder>();
+        private List<StorageFolder> GoAndBackRecord = new List<StorageFolder>();
         private ObservableCollection<string> AddressButtonList = new ObservableCollection<string>();
-        private static int RecordIndex = 0;
-        private static bool IsBackOrForwardAction = false;
+        private int RecordIndex = 0;
+        private bool IsBackOrForwardAction = false;
 
         private string ToDeleteFolderName;
+
+        private Microsoft.UI.Xaml.Controls.TabViewItem TabItem;
 
         public FileControl()
         {
             InitializeComponent();
-            ThisPage = this;
             try
             {
-                Nav.Navigate(typeof(FilePresenter), Nav, new DrillInNavigationTransitionInfo());
+                Nav.Navigate(typeof(FilePresenter), new Tuple<FileControl, Frame>(this, Nav), new DrillInNavigationTransitionInfo());
 
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -140,7 +145,7 @@ namespace FileManager
             {
                 try
                 {
-                    if(string.IsNullOrEmpty(Folder.Path))
+                    if (string.IsNullOrEmpty(Folder.Path))
                     {
                         return;
                     }
@@ -228,9 +233,9 @@ namespace FileManager
 
         private async void OpenTargetFolder(StorageFolder Folder)
         {
-            FilePresenter.ThisPage.FileCollection.Clear();
+            TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.Clear();
             FolderTree.RootNodes.Clear();
-            FilePresenter.ThisPage.HasFile.Visibility = Visibility.Collapsed;
+            TabViewContainer.ThisPage.InstanceContainer[this].HasFile.Visibility = Visibility.Collapsed;
 
             StorageFolder RootFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetPathRoot(Folder.Path));
 
@@ -243,10 +248,10 @@ namespace FileManager
             };
             FolderTree.RootNodes.Add(RootNode);
 
-            await FillTreeNode(RootNode);
+            await FillTreeNode(RootNode).ConfigureAwait(true);
 
 
-            TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, string.Empty));
+            TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, string.Empty)).ConfigureAwait(true);
             if (TargetNode == null)
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
@@ -257,7 +262,7 @@ namespace FileManager
                         Content = "无法定位文件夹，该文件夹可能已被删除或移动",
                         CloseButtonText = "确定"
                     };
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -267,24 +272,29 @@ namespace FileManager
                         Content = "Unable to locate folder, which may have been deleted or moved",
                         CloseButtonText = "Confirm"
                     };
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
             else
             {
-                await DisplayItemsInFolder(TargetNode);
+                await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
             }
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is StorageFolder TargetFolder)
+            if (e.Parameter is Tuple<Microsoft.UI.Xaml.Controls.TabViewItem, StorageFolder> Parameters)
             {
-                string PlaceText = TargetFolder.DisplayName.Length > 18 ? TargetFolder.DisplayName.Substring(0, 18) + "..." : TargetFolder.DisplayName;
+                string PlaceText = Parameters.Item2.DisplayName.Length > 18 ? Parameters.Item2.DisplayName.Substring(0, 18) + "..." : Parameters.Item2.DisplayName;
 
                 GlobeSearch.PlaceholderText = Globalization.Language == LanguageEnum.Chinese ? "搜索 " + PlaceText : "Search " + PlaceText;
 
-                await Initialize(TargetFolder);
+                if (Parameters.Item1 != null)
+                {
+                    TabItem = Parameters.Item1;
+                }
+
+                await Initialize(Parameters.Item2).ConfigureAwait(false);
             }
         }
 
@@ -302,7 +312,7 @@ namespace FileManager
             await Task.Run(() =>
             {
                 ExitLocker.WaitOne();
-            });
+            }).ConfigureAwait(true);
 
             ExitLocker.Dispose();
             ExitLocker = null;
@@ -312,8 +322,8 @@ namespace FileManager
             CurrentNode = null;
 
             FolderTree.RootNodes.Clear();
-            FilePresenter.ThisPage.FileCollection.Clear();
-            FilePresenter.ThisPage.HasFile.Visibility = Visibility.Collapsed;
+            TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.Clear();
+            TabViewContainer.ThisPage.InstanceContainer[this].HasFile.Visibility = Visibility.Collapsed;
 
             RecordIndex = 0;
             GoAndBackRecord.Clear();
@@ -349,13 +359,13 @@ namespace FileManager
 
                 #region 临时解决方案
                 CurrentNode = RootNode;
-                await FillTreeNode(RootNode);
-                await DisplayItemsInFolder(RootNode,true);
+                await FillTreeNode(RootNode).ConfigureAwait(true);
+                await DisplayItemsInFolder(RootNode, true).ConfigureAwait(true);
                 #endregion
 
                 #region TreeView展开时选中子节点的BUG修复后启用
-                //Task DisplayLeftTask = FillTreeNode(RootNode);
-                //Task DisplayRightTask = DisplayItemsInFolder(RootNode);
+                //Task DisplayLeftTask = FillTreeNode(RootNode).ConfigureAwait(true);
+                //Task DisplayRightTask = DisplayItemsInFolder(RootNode).ConfigureAwait(true);
 
                 //await Task.WhenAll(DisplayLeftTask, DisplayRightTask);
                 #endregion
@@ -369,68 +379,68 @@ namespace FileManager
         /// <returns></returns>
         public async Task FillTreeNode(TreeViewNode Node)
         {
-            StorageFolder folder;
+            if (Node == null)
+            {
+                throw new ArgumentNullException(nameof(Node), "Parameter could not be null");
+            }
+
             if (Node.HasUnrealizedChildren)
             {
-                folder = Node.Content as StorageFolder;
-            }
-            else
-            {
-                return;
-            }
+                StorageFolder folder = Node.Content as StorageFolder;
 
-            try
-            {
-                ExitLocker.Reset();
-                QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
+                try
                 {
-                    FolderDepth = FolderDepth.Shallow,
-                    IndexerOption = IndexerOption.UseIndexerWhenAvailable
-                };
-                Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FolderNameDisplay" });
+                    ExitLocker.Reset();
+                    QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
+                    {
+                        FolderDepth = FolderDepth.Shallow,
+                        IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                    };
+                    Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FolderNameDisplay" });
 
-                StorageFolderQueryResult FolderQuery = folder.CreateFolderQueryWithOptions(Options);
+                    StorageFolderQueryResult FolderQuery = folder.CreateFolderQueryWithOptions(Options);
 
-                uint FolderCount = await FolderQuery.GetItemCountAsync();
+                    uint FolderCount = await FolderQuery.GetItemCountAsync();
 
-                if (FolderCount == 0)
+                    if (FolderCount == 0)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        for (uint i = 0; i < FolderCount && !FolderExpandCancel.IsCancellationRequested; i += 50)
+                        {
+                            IReadOnlyList<StorageFolder> StorageFolderList = await FolderQuery.GetFoldersAsync(i, 50).AsTask(FolderExpandCancel.Token).ConfigureAwait(true);
+
+                            foreach (var SubFolder in StorageFolderList)
+                            {
+                                StorageFolderQueryResult SubFolderQuery = SubFolder.CreateFolderQueryWithOptions(Options);
+                                uint Count = await SubFolderQuery.GetItemCountAsync().AsTask(FolderExpandCancel.Token).ConfigureAwait(true);
+
+                                TreeViewNode NewNode = new TreeViewNode
+                                {
+                                    Content = SubFolder,
+                                    HasUnrealizedChildren = Count != 0
+                                };
+
+                                Node.Children.Add(NewNode);
+                            }
+                        }
+                        Node.HasUnrealizedChildren = false;
+                    }
+                }
+                catch (TaskCanceledException)
                 {
                     return;
                 }
-                else
+                catch (Exception ex)
                 {
-                    for (uint i = 0; i < FolderCount && !FolderExpandCancel.IsCancellationRequested; i += 50)
-                    {
-                        IReadOnlyList<StorageFolder> StorageFolderList = await FolderQuery.GetFoldersAsync(i, 50).AsTask(FolderExpandCancel.Token);
-
-                        foreach (var SubFolder in StorageFolderList)
-                        {
-                            StorageFolderQueryResult SubFolderQuery = SubFolder.CreateFolderQueryWithOptions(Options);
-                            uint Count = await SubFolderQuery.GetItemCountAsync().AsTask(FolderExpandCancel.Token);
-
-                            TreeViewNode NewNode = new TreeViewNode
-                            {
-                                Content = SubFolder,
-                                HasUnrealizedChildren = Count != 0
-                            };
-
-                            Node.Children.Add(NewNode);
-                        }
-                    }
-                    Node.HasUnrealizedChildren = false;
+                    ExceptionTracer.RequestBlueScreen(ex);
                 }
-            }
-            catch (TaskCanceledException)
-            {
-                return;
-            }
-            catch (Exception ex)
-            {
-                ExceptionTracer.RequestBlueScreen(ex);
-            }
-            finally
-            {
-                ExitLocker.Set();
+                finally
+                {
+                    ExitLocker.Set();
+                }
             }
         }
 
@@ -438,13 +448,13 @@ namespace FileManager
         {
             if (args.Node.HasUnrealizedChildren)
             {
-                await FillTreeNode(args.Node);
+                await FillTreeNode(args.Node).ConfigureAwait(false);
             }
         }
 
         private async void FolderTree_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
         {
-            await DisplayItemsInFolder(args.InvokedItem as TreeViewNode);
+            await DisplayItemsInFolder(args.InvokedItem as TreeViewNode).ConfigureAwait(false);
         }
 
         public async Task DisplayItemsInFolder(TreeViewNode Node, bool ForceRefresh = false, KeyValuePair<string, bool>[] OrderByProperty = null)
@@ -455,7 +465,11 @@ namespace FileManager
              * 此处激活取消指令，等待当前遍历结束，再开始下一次文件遍历
              * 确保不会出现异常
              */
-            //防止多次点击同一文件夹导致的多重查找       
+
+            if (Node == null)
+            {
+                throw new ArgumentNullException(nameof(Node), "Parameter could not be null");
+            }
 
             try
             {
@@ -481,7 +495,7 @@ namespace FileManager
                                 CancelToken.Dispose();
                                 CancelToken = new CancellationTokenSource();
                             }
-                        });
+                        }).ConfigureAwait(true);
                     }
                     IsAdding = true;
 
@@ -500,14 +514,14 @@ namespace FileManager
                     }
 
                     CurrentNode = Node;
-                    await FolderTree.SelectNode(Node);
+                    await FolderTree.SelectNode(Node).ConfigureAwait(true);
 
                     if (Nav.CurrentSourcePageType.Name != "FilePresenter")
                     {
                         Nav.GoBack();
                     }
 
-                    FilePresenter.ThisPage.FileCollection.Clear();
+                    TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.Clear();
 
                     QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
                     {
@@ -527,9 +541,9 @@ namespace FileManager
                     {
                         Options.SortOrder.Clear();
                         Options.SortOrder.Add(new SortEntry { PropertyName = "System.ItemNameDisplay", AscendingOrder = true });
-                        FilePresenter.ThisPage.SortMap["System.ItemNameDisplay"] = true;
-                        FilePresenter.ThisPage.SortMap["System.Size"] = true;
-                        FilePresenter.ThisPage.SortMap["System.DateModified"] = true;
+                        TabViewContainer.ThisPage.InstanceContainer[this].SortMap["System.ItemNameDisplay"] = true;
+                        TabViewContainer.ThisPage.InstanceContainer[this].SortMap["System.Size"] = true;
+                        TabViewContainer.ThisPage.InstanceContainer[this].SortMap["System.DateModified"] = true;
                     }
 
                     Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.ResizeThumbnail);
@@ -540,34 +554,34 @@ namespace FileManager
                     IReadOnlyList<IStorageItem> FileList = null;
                     try
                     {
-                        FilePresenter.ThisPage.FileCollection.HasMoreItems = false;
-                        FileList = await ItemQuery.GetItemsAsync(0, 100).AsTask(CancelToken.Token);
-                        await FilePresenter.ThisPage.FileCollection.SetStorageItemQueryAsync(ItemQuery);
+                        TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.HasMoreItems = false;
+                        FileList = await ItemQuery.GetItemsAsync(0, 100).AsTask(CancelToken.Token).ConfigureAwait(true);
+                        await TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.SetStorageItemQueryAsync(ItemQuery).ConfigureAwait(true);
                     }
                     catch (TaskCanceledException)
                     {
                         goto FLAG;
                     }
 
-                    FilePresenter.ThisPage.HasFile.Visibility = FileList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                    TabViewContainer.ThisPage.InstanceContainer[this].HasFile.Visibility = FileList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
                     for (int i = 0; i < FileList.Count && !CancelToken.IsCancellationRequested; i++)
                     {
                         var Item = FileList[i];
                         if (Item is StorageFile)
                         {
-                            var Size = await Item.GetSizeDescriptionAsync();
-                            var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                            var ModifiedTime = await Item.GetModifiedTimeAsync();
-                            FilePresenter.ThisPage.FileCollection.Add(new FileSystemStorageItem(FileList[i], Size, Thumbnail, ModifiedTime));
+                            var Size = await Item.GetSizeDescriptionAsync().ConfigureAwait(true);
+                            var Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                            var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
+                            TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.Add(new FileSystemStorageItem(FileList[i], Size, Thumbnail, ModifiedTime));
                         }
                         else
                         {
                             if (ToDeleteFolderName != Item.Name)
                             {
-                                var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                                var ModifiedTime = await Item.GetModifiedTimeAsync();
-                                FilePresenter.ThisPage.FileCollection.Add(new FileSystemStorageItem(FileList[i], string.Empty, Thumbnail, ModifiedTime));
+                                var Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                                var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
+                                TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.Add(new FileSystemStorageItem(FileList[i], string.Empty, Thumbnail, ModifiedTime));
                             }
                             else
                             {
@@ -600,7 +614,7 @@ namespace FileManager
                 return;
             }
 
-            if (!await CurrentFolder.CheckExist())
+            if (!await CurrentFolder.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -610,7 +624,7 @@ namespace FileManager
                         Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -620,9 +634,9 @@ namespace FileManager
                         Content = "Could not find the corresponding folder, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
-                await DisplayItemsInFolder(CurrentNode, true);
+                await DisplayItemsInFolder(CurrentNode, true).ConfigureAwait(false);
                 return;
             }
 
@@ -648,21 +662,21 @@ namespace FileManager
                 };
             }
 
-            if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
+            if (await QueueContenDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
             {
                 try
                 {
-                    await CurrentFolder.DeleteAllSubFilesAndFolders();
+                    await CurrentFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
                     await CurrentFolder.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
-                    FilePresenter.ThisPage.FileCollection.Remove(FilePresenter.ThisPage.FileCollection.Where((Item) => Item.RelativeId == CurrentFolder.FolderRelativeId).FirstOrDefault());
+                    TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.Where((Item) => Item.RelativeId == CurrentFolder.FolderRelativeId).FirstOrDefault());
 
                     TreeViewNode ParentNode = CurrentNode.Parent;
                     ParentNode.Children.Remove(CurrentNode);
 
                     ToDeleteFolderName = CurrentFolder.Name;
 
-                    await DisplayItemsInFolder(ParentNode);
+                    await DisplayItemsInFolder(ParentNode).ConfigureAwait(true);
 
                     CurrentNode = ParentNode;
                 }
@@ -690,7 +704,7 @@ namespace FileManager
                         };
                     }
 
-                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
                         _ = await Launcher.LaunchFolderAsync(CurrentFolder);
                     }
@@ -716,7 +730,7 @@ namespace FileManager
                             CloseButtonText = "Confirm"
                         };
                     }
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
         }
@@ -728,7 +742,7 @@ namespace FileManager
             await Task.Run(() =>
             {
                 ExitLocker.WaitOne();
-            });
+            }).ConfigureAwait(true);
 
             FolderExpandCancel.Dispose();
             FolderExpandCancel = new CancellationTokenSource();
@@ -743,7 +757,7 @@ namespace FileManager
             {
                 FolderTree.ContextFlyout = RightTabFlyout;
 
-                await DisplayItemsInFolder(Node);
+                await DisplayItemsInFolder(Node).ConfigureAwait(true);
 
                 if (FolderTree.RootNodes.Contains(CurrentNode))
                 {
@@ -771,7 +785,7 @@ namespace FileManager
                 return;
             }
 
-            if (!await CurrentFolder.CheckExist())
+            if (!await CurrentFolder.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -781,7 +795,7 @@ namespace FileManager
                         Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -791,17 +805,17 @@ namespace FileManager
                         Content = "Could not find the corresponding folder, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
-                await DisplayItemsInFolder(CurrentNode, true);
+                await DisplayItemsInFolder(CurrentNode, true).ConfigureAwait(false);
                 return;
             }
 
             var Folder = CurrentFolder;
             RenameDialog renameDialog = new RenameDialog(Folder.Name);
-            if (await renameDialog.ShowAsync() == ContentDialogResult.Primary)
+            if (await renameDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
             {
-                if (renameDialog.DesireName == "")
+                if (string.IsNullOrEmpty(renameDialog.DesireName))
                 {
                     if (Globalization.Language == LanguageEnum.Chinese)
                     {
@@ -811,7 +825,7 @@ namespace FileManager
                             Content = "文件夹名不能为空，重命名失败",
                             CloseButtonText = "确定"
                         };
-                        _ = await content.ShowAsync();
+                        _ = await content.ShowAsync().ConfigureAwait(false);
                     }
                     else
                     {
@@ -821,7 +835,7 @@ namespace FileManager
                             Content = "Folder name cannot be empty, rename failed",
                             CloseButtonText = "Confirm"
                         };
-                        _ = await content.ShowAsync();
+                        _ = await content.ShowAsync().ConfigureAwait(false);
                     }
                     return;
                 }
@@ -860,7 +874,7 @@ namespace FileManager
 
                         ChildCollection.Insert(index, NewNode);
                         ChildCollection.Remove(CurrentNode);
-                        await NewNode.UpdateAllSubNodeFolder();
+                        await NewNode.UpdateAllSubNodeFolder().ConfigureAwait(false);
                     }
                     else
                     {
@@ -897,7 +911,7 @@ namespace FileManager
                         };
                     }
 
-                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                     {
                         _ = await Launcher.LaunchFolderAsync(CurrentFolder);
                     }
@@ -907,7 +921,7 @@ namespace FileManager
 
         private async void CreateFolder_Click(object sender, RoutedEventArgs e)
         {
-            if (!await CurrentFolder.CheckExist())
+            if (!await CurrentFolder.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -917,7 +931,7 @@ namespace FileManager
                         Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -927,7 +941,7 @@ namespace FileManager
                         Content = "Could not find the corresponding folder, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
                 return;
             }
@@ -938,11 +952,11 @@ namespace FileManager
                     ? await CurrentFolder.CreateFolderAsync("新建文件夹", CreationCollisionOption.GenerateUniqueName)
                     : await CurrentFolder.CreateFolderAsync("New folder", CreationCollisionOption.GenerateUniqueName);
 
-                var Size = await NewFolder.GetSizeDescriptionAsync();
-                var Thumbnail = await NewFolder.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                var ModifiedTime = await NewFolder.GetModifiedTimeAsync();
+                var Size = await NewFolder.GetSizeDescriptionAsync().ConfigureAwait(true);
+                var Thumbnail = await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                var ModifiedTime = await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true);
 
-                FilePresenter.ThisPage.FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
+                TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
 
                 if (CurrentNode.IsExpanded || !CurrentNode.HasChildren)
                 {
@@ -978,7 +992,7 @@ namespace FileManager
                     };
                 }
 
-                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                 {
                     _ = await Launcher.LaunchFolderAsync(CurrentFolder);
                 }
@@ -987,7 +1001,7 @@ namespace FileManager
 
         private async void FolderAttribute_Click(object sender, RoutedEventArgs e)
         {
-            if (!await CurrentFolder.CheckExist())
+            if (!await CurrentFolder.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -997,7 +1011,7 @@ namespace FileManager
                         Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -1007,29 +1021,29 @@ namespace FileManager
                         Content = "Could not find the corresponding folder, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
-                await DisplayItemsInFolder(CurrentNode, true);
+                await DisplayItemsInFolder(CurrentNode, true).ConfigureAwait(false);
                 return;
             }
 
             if (CurrentNode == FolderTree.RootNodes.FirstOrDefault())
             {
-                if (ThisPC.ThisPage.HardDeviceList.FirstOrDefault((Device) => Device.Name == CurrentFolder.DisplayName) is HardDeviceInfo Info)
+                if (TabViewContainer.ThisPage.HardDeviceList.FirstOrDefault((Device) => Device.Name == CurrentFolder.DisplayName) is HardDeviceInfo Info)
                 {
                     DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(false);
                 }
                 else
                 {
                     AttributeDialog Dialog = new AttributeDialog(CurrentFolder);
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
             }
             else
             {
                 AttributeDialog Dialog = new AttributeDialog(CurrentFolder);
-                _ = await Dialog.ShowAsync();
+                _ = await Dialog.ShowAsync().ConfigureAwait(false);
             }
         }
 
@@ -1037,7 +1051,7 @@ namespace FileManager
         {
             StorageFolder folder = CurrentFolder;
 
-            if (!await folder.CheckExist())
+            if (!await folder.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -1047,7 +1061,7 @@ namespace FileManager
                         Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -1057,13 +1071,13 @@ namespace FileManager
                         Content = "Could not find the corresponding folder, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
-                await DisplayItemsInFolder(CurrentNode, true);
+                await DisplayItemsInFolder(CurrentNode, true).ConfigureAwait(false);
                 return;
             }
 
-            if (ThisPC.ThisPage.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
+            if (TabViewContainer.ThisPage.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -1071,13 +1085,13 @@ namespace FileManager
                     Content = "此文件夹已经添加到主界面了，不能重复添加哦",
                     CloseButtonText = "知道了"
                 };
-                _ = await dialog.ShowAsync();
+                _ = await dialog.ShowAsync().ConfigureAwait(false);
             }
             else
             {
-                BitmapImage Thumbnail = await folder.GetThumbnailBitmapAsync();
-                ThisPC.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, Thumbnail, LibrarySource.UserCustom));
-                await SQLite.Current.SetFolderLibraryAsync(folder.Path);
+                BitmapImage Thumbnail = await folder.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                TabViewContainer.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, Thumbnail, LibrarySource.UserCustom));
+                await SQLite.Current.SetFolderLibraryAsync(folder.Path).ConfigureAwait(false);
             }
         }
 
@@ -1090,7 +1104,7 @@ namespace FileManager
 
             FlyoutBase.ShowAttachedFlyout(sender);
 
-            await SQLite.Current.SetSearchHistoryAsync(args.QueryText);
+            await SQLite.Current.SetSearchHistoryAsync(args.QueryText).ConfigureAwait(false);
         }
 
         private async void GlobeSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -1103,9 +1117,10 @@ namespace FileManager
                 }
                 return;
             }
+
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                sender.ItemsSource = await SQLite.Current.GetRelatedSearchHistoryAsync(sender.Text);
+                sender.ItemsSource = await SQLite.Current.GetRelatedSearchHistoryAsync(sender.Text).ConfigureAwait(true);
             }
         }
 
@@ -1148,7 +1163,7 @@ namespace FileManager
                 {
                     StorageItemQueryResult FileQuery = CurrentFolder.CreateItemQueryWithOptions(Options);
 
-                    Nav.Navigate(typeof(SearchPage), FileQuery, new DrillInNavigationTransitionInfo());
+                    Nav.Navigate(typeof(SearchPage), new Tuple<FileControl, StorageItemQueryResult>(this, FileQuery), new DrillInNavigationTransitionInfo());
                 }
                 else
                 {
@@ -1176,13 +1191,13 @@ namespace FileManager
             IsSearchOrPathBoxFocused = true;
             if (string.IsNullOrEmpty(GlobeSearch.Text))
             {
-                GlobeSearch.ItemsSource = await SQLite.Current.GetRelatedSearchHistoryAsync(string.Empty);
+                GlobeSearch.ItemsSource = await SQLite.Current.GetRelatedSearchHistoryAsync(string.Empty).ConfigureAwait(true);
             }
         }
 
         private async void AddressBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            FilePresenter.ThisPage.LoadingControl.Focus(FocusState.Programmatic);
+            TabViewContainer.ThisPage.InstanceContainer[this].LoadingControl.Focus(FocusState.Programmatic);
 
             string QueryText = string.Empty;
             if (args.ChosenSuggestion == null)
@@ -1209,20 +1224,20 @@ namespace FileManager
             if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase))
             {
                 string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\WindowsPowerShell\\v1.0\\powershell.exe");
-                await FullTrustExcutorController.RunAsAdministrator(ExcutePath, $"-NoExit -Command \"Set-Location '{CurrentFolder.Path.Replace("\\", "/")}'\"");
+                await FullTrustExcutorController.RunAsAdministrator(ExcutePath, $"-NoExit -Command \"Set-Location '{CurrentFolder.Path.Replace("\\", "/")}'\"").ConfigureAwait(false);
                 return;
             }
 
             if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase))
             {
                 string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\cmd.exe");
-                await FullTrustExcutorController.RunAsAdministrator(ExcutePath, $"/k cd /d {CurrentFolder.Path}");
+                await FullTrustExcutorController.RunAsAdministrator(ExcutePath, $"/k cd /d {CurrentFolder.Path}").ConfigureAwait(false);
                 return;
             }
 
             try
             {
-                if (Path.IsPathRooted(QueryText) && ThisPC.ThisPage.HardDeviceList.Any((Drive) => Drive.Folder.Path == Path.GetPathRoot(QueryText)))
+                if (Path.IsPathRooted(QueryText) && TabViewContainer.ThisPage.HardDeviceList.Any((Drive) => Drive.Folder.Path == Path.GetPathRoot(QueryText)))
                 {
                     StorageFile File = await StorageFile.GetFileFromPathAsync(QueryText);
                     if (!await Launcher.LaunchFileAsync(File))
@@ -1244,7 +1259,7 @@ namespace FileManager
                             Content = $"无法找到路径: \r\"{QueryText}\"",
                             CloseButtonText = "确定"
                         };
-                        _ = await dialog.ShowAsync();
+                        _ = await dialog.ShowAsync().ConfigureAwait(false);
                     }
                     else
                     {
@@ -1254,7 +1269,7 @@ namespace FileManager
                             Content = $"Unable to locate the path: \r\"{QueryText}\"",
                             CloseButtonText = "Confirm",
                         };
-                        _ = await dialog.ShowAsync();
+                        _ = await dialog.ShowAsync().ConfigureAwait(false);
                     }
                 }
             }
@@ -1267,17 +1282,17 @@ namespace FileManager
 
                     if (QueryText.StartsWith((RootNode.Content as StorageFolder).Path))
                     {
-                        TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (RootNode.Content as StorageFolder).Path));
+                        TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (RootNode.Content as StorageFolder).Path)).ConfigureAwait(true);
                         if (TargetNode != null)
                         {
-                            await DisplayItemsInFolder(TargetNode);
+                            await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
 
-                            await SQLite.Current.SetPathHistoryAsync(Folder.Path);
+                            await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(false);
                         }
                     }
                     else
                     {
-                        await SQLite.Current.SetPathHistoryAsync(Folder.Path);
+                        await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
 
                         OpenTargetFolder(Folder);
                     }
@@ -1292,7 +1307,7 @@ namespace FileManager
                             Content = $"无法找到路径: \r\"{QueryText}\"",
                             CloseButtonText = "确定"
                         };
-                        _ = await dialog.ShowAsync();
+                        _ = await dialog.ShowAsync().ConfigureAwait(false);
                     }
                     else
                     {
@@ -1302,7 +1317,7 @@ namespace FileManager
                             Content = $"Unable to locate the path: \r\"{QueryText}\"",
                             CloseButtonText = "Confirm",
                         };
-                        _ = await dialog.ShowAsync();
+                        _ = await dialog.ShowAsync().ConfigureAwait(false);
                     }
                 }
             }
@@ -1315,7 +1330,7 @@ namespace FileManager
                 Node.IsExpanded = true;
             }
 
-            await FolderTree.SelectNode(Node);
+            await FolderTree.SelectNode(Node).ConfigureAwait(true);
 
             string NextPathLevel = Analysis.NextFullPath();
 
@@ -1336,7 +1351,7 @@ namespace FileManager
                         }
                         else
                         {
-                            await Task.Delay(200);
+                            await Task.Delay(200).ConfigureAwait(true);
                         }
                     }
                 }
@@ -1345,7 +1360,7 @@ namespace FileManager
             {
                 if ((Node.Content as StorageFolder).Path == NextPathLevel)
                 {
-                    return await FindFolderLocationInTree(Node, Analysis);
+                    return await FindFolderLocationInTree(Node, Analysis).ConfigureAwait(true);
                 }
                 else
                 {
@@ -1354,11 +1369,11 @@ namespace FileManager
                         var TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
                         if (TargetNode != null)
                         {
-                            return await FindFolderLocationInTree(TargetNode, Analysis);
+                            return await FindFolderLocationInTree(TargetNode, Analysis).ConfigureAwait(true);
                         }
                         else
                         {
-                            await Task.Delay(200);
+                            await Task.Delay(200).ConfigureAwait(true);
                         }
                     }
                 }
@@ -1373,7 +1388,7 @@ namespace FileManager
             {
                 if (Path.IsPathRooted(sender.Text)
                     && Path.GetDirectoryName(sender.Text) is string DirectoryName
-                    && ThisPC.ThisPage.HardDeviceList.Any((Drive) => Drive.Folder.Path == Path.GetPathRoot(sender.Text)))
+                    && TabViewContainer.ThisPage.HardDeviceList.Any((Drive) => Drive.Folder.Path == Path.GetPathRoot(sender.Text)))
                 {
                     if (Interlocked.Exchange(ref TextChangeLockResource, 1) == 0)
                     {
@@ -1417,16 +1432,16 @@ namespace FileManager
             }
         }
 
-        public async void GoParentFolder_Click(object sender, RoutedEventArgs e)
+        private async void GoParentFolder_Click(object sender, RoutedEventArgs e)
         {
             if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
             {
-                var ParenetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
-                await DisplayItemsInFolder(ParenetNode);
+                var ParenetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
+                await DisplayItemsInFolder(ParenetNode).ConfigureAwait(false);
             }
         }
 
-        private async void GoBackRecord_Click(object sender, RoutedEventArgs e)
+        public async void GoBackRecord_Click(object sender, RoutedEventArgs e)
         {
             RecordIndex--;
             string Path = GoAndBackRecord[RecordIndex].Path;
@@ -1438,7 +1453,7 @@ namespace FileManager
                 if (Path.StartsWith((FolderTree.RootNodes.First().Content as StorageFolder).Path))
                 {
                     var RootNode = FolderTree.RootNodes[0];
-                    TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
+                    TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
                     if (TargetNode == null)
                     {
                         if (Globalization.Language == LanguageEnum.Chinese)
@@ -1449,7 +1464,7 @@ namespace FileManager
                                 Content = "无法定位文件夹，该文件夹可能已被删除或移动",
                                 CloseButtonText = "确定",
                             };
-                            _ = await dialog.ShowAsync();
+                            _ = await dialog.ShowAsync().ConfigureAwait(false);
                         }
                         else
                         {
@@ -1459,21 +1474,21 @@ namespace FileManager
                                 Content = "Unable to locate folder, which may have been deleted or moved",
                                 CloseButtonText = "Confirm",
                             };
-                            _ = await dialog.ShowAsync();
+                            _ = await dialog.ShowAsync().ConfigureAwait(false);
                         }
                     }
                     else
                     {
-                        await DisplayItemsInFolder(TargetNode);
+                        await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
 
-                        await SQLite.Current.SetPathHistoryAsync(Folder.Path);
+                        await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(false);
                     }
                 }
                 else
                 {
-                    await SQLite.Current.SetPathHistoryAsync(Folder.Path);
-
                     OpenTargetFolder(Folder);
+
+                    await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(false);
                 }
             }
             catch (Exception)
@@ -1486,7 +1501,7 @@ namespace FileManager
                         Content = "无法找到以下文件夹，路径为: \r" + Path,
                         CloseButtonText = "确定"
                     };
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -1496,7 +1511,7 @@ namespace FileManager
                         Content = "Unable to locate folder: " + Path,
                         CloseButtonText = "Confirm"
                     };
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(false);
                 }
                 RecordIndex++;
             }
@@ -1514,7 +1529,7 @@ namespace FileManager
                 if (Path.StartsWith((FolderTree.RootNodes.First().Content as StorageFolder).Path))
                 {
                     var RootNode = FolderTree.RootNodes[0];
-                    TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path));
+                    TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
                     if (TargetNode == null)
                     {
                         if (Globalization.Language == LanguageEnum.Chinese)
@@ -1525,7 +1540,7 @@ namespace FileManager
                                 Content = "无法定位文件夹，该文件夹可能已被删除或移动",
                                 CloseButtonText = "确定"
                             };
-                            _ = await dialog.ShowAsync();
+                            _ = await dialog.ShowAsync().ConfigureAwait(false);
                         }
                         else
                         {
@@ -1535,21 +1550,21 @@ namespace FileManager
                                 Content = "Unable to locate folder, which may have been deleted or moved",
                                 CloseButtonText = "Confirm"
                             };
-                            _ = await dialog.ShowAsync();
+                            _ = await dialog.ShowAsync().ConfigureAwait(false);
                         }
                     }
                     else
                     {
-                        await DisplayItemsInFolder(TargetNode);
+                        await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
 
-                        await SQLite.Current.SetPathHistoryAsync(Folder.Path);
+                        await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(false);
                     }
                 }
                 else
                 {
-                    await SQLite.Current.SetPathHistoryAsync(Folder.Path);
-
                     OpenTargetFolder(Folder);
+
+                    await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(false);
                 }
             }
             catch (Exception)
@@ -1562,7 +1577,7 @@ namespace FileManager
                         Content = "无法找到以下文件夹，路径为: \r" + Path,
                         CloseButtonText = "确定"
                     };
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -1572,7 +1587,7 @@ namespace FileManager
                         Content = "Unable to locate folder: " + Path,
                         CloseButtonText = "Confirm"
                     };
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(false);
                 }
                 RecordIndex--;
             }
@@ -1588,7 +1603,7 @@ namespace FileManager
             }
             AddressButtonScrollViewer.Visibility = Visibility.Collapsed;
 
-            AddressBox.ItemsSource = await SQLite.Current.GetRelatedPathHistoryAsync();
+            AddressBox.ItemsSource = await SQLite.Current.GetRelatedPathHistoryAsync().ConfigureAwait(true);
         }
 
         private void ItemDisplayMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1599,66 +1614,66 @@ namespace FileManager
             {
                 case 0:
                     {
-                        FilePresenter.ThisPage.GridViewControl.ItemTemplate = FilePresenter.ThisPage.TileDataTemplate;
+                        TabViewContainer.ThisPage.InstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.InstanceContainer[this].TileDataTemplate;
 
-                        if (!FilePresenter.ThisPage.UseGridOrList)
+                        if (!TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList)
                         {
-                            FilePresenter.ThisPage.UseGridOrList = true;
+                            TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList = true;
                         }
                         break;
                     }
                 case 1:
                     {
-                        FilePresenter.ThisPage.ListHeader.ContentTemplate = FilePresenter.ThisPage.ListHeaderDataTemplate;
-                        FilePresenter.ThisPage.ListViewControl.ItemTemplate = FilePresenter.ThisPage.ListViewDetailDataTemplate;
-                        FilePresenter.ThisPage.ListViewControl.ItemsSource = FilePresenter.ThisPage.FileCollection;
+                        TabViewContainer.ThisPage.InstanceContainer[this].ListHeader.ContentTemplate = TabViewContainer.ThisPage.InstanceContainer[this].ListHeaderDataTemplate;
+                        TabViewContainer.ThisPage.InstanceContainer[this].ListViewControl.ItemTemplate = TabViewContainer.ThisPage.InstanceContainer[this].ListViewDetailDataTemplate;
+                        TabViewContainer.ThisPage.InstanceContainer[this].ListViewControl.ItemsSource = TabViewContainer.ThisPage.InstanceContainer[this].FileCollection;
 
-                        if (FilePresenter.ThisPage.UseGridOrList)
+                        if (TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList)
                         {
-                            FilePresenter.ThisPage.UseGridOrList = false;
+                            TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList = false;
                         }
                         break;
                     }
 
                 case 2:
                     {
-                        FilePresenter.ThisPage.ListHeader.ContentTemplate = null;
-                        FilePresenter.ThisPage.ListViewControl.ItemTemplate = FilePresenter.ThisPage.ListViewSimpleDataTemplate;
-                        FilePresenter.ThisPage.ListViewControl.ItemsSource = FilePresenter.ThisPage.FileCollection;
+                        TabViewContainer.ThisPage.InstanceContainer[this].ListHeader.ContentTemplate = null;
+                        TabViewContainer.ThisPage.InstanceContainer[this].ListViewControl.ItemTemplate = TabViewContainer.ThisPage.InstanceContainer[this].ListViewSimpleDataTemplate;
+                        TabViewContainer.ThisPage.InstanceContainer[this].ListViewControl.ItemsSource = TabViewContainer.ThisPage.InstanceContainer[this].FileCollection;
 
-                        if (FilePresenter.ThisPage.UseGridOrList)
+                        if (TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList)
                         {
-                            FilePresenter.ThisPage.UseGridOrList = false;
+                            TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList = false;
                         }
                         break;
                     }
                 case 3:
                     {
-                        FilePresenter.ThisPage.GridViewControl.ItemTemplate = FilePresenter.ThisPage.LargeImageDataTemplate;
+                        TabViewContainer.ThisPage.InstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.InstanceContainer[this].LargeImageDataTemplate;
 
-                        if (!FilePresenter.ThisPage.UseGridOrList)
+                        if (!TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList)
                         {
-                            FilePresenter.ThisPage.UseGridOrList = true;
+                            TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList = true;
                         }
                         break;
                     }
                 case 4:
                     {
-                        FilePresenter.ThisPage.GridViewControl.ItemTemplate = FilePresenter.ThisPage.MediumImageDataTemplate;
+                        TabViewContainer.ThisPage.InstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.InstanceContainer[this].MediumImageDataTemplate;
 
-                        if (!FilePresenter.ThisPage.UseGridOrList)
+                        if (!TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList)
                         {
-                            FilePresenter.ThisPage.UseGridOrList = true;
+                            TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList = true;
                         }
                         break;
                     }
                 case 5:
                     {
-                        FilePresenter.ThisPage.GridViewControl.ItemTemplate = FilePresenter.ThisPage.SmallImageDataTemplate;
+                        TabViewContainer.ThisPage.InstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.InstanceContainer[this].SmallImageDataTemplate;
 
-                        if (!FilePresenter.ThisPage.UseGridOrList)
+                        if (!TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList)
                         {
-                            FilePresenter.ThisPage.UseGridOrList = true;
+                            TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList = true;
                         }
                         break;
                     }
@@ -1699,19 +1714,19 @@ namespace FileManager
 
             if (ActualString.StartsWith((RootNode.Content as StorageFolder).Path))
             {
-                TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (RootNode.Content as StorageFolder).Path));
+                TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, (RootNode.Content as StorageFolder).Path)).ConfigureAwait(true);
                 if (TargetNode != null)
                 {
-                    await DisplayItemsInFolder(TargetNode);
+                    await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
 
-                    await SQLite.Current.SetPathHistoryAsync(Folder.Path);
+                    await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(false);
                 }
             }
             else
             {
-                await SQLite.Current.SetPathHistoryAsync(Folder.Path);
-
                 OpenTargetFolder(Folder);
+
+                await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(false);
             }
         }
     }

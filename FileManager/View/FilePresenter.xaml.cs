@@ -32,18 +32,18 @@ namespace FileManager
 {
     public sealed partial class FilePresenter : Page
     {
-        public IncrementalLoadingCollection<FileSystemStorageItem> FileCollection;
-        public static FilePresenter ThisPage { get; private set; }
-        public List<GridViewItem> ZipCollection = new List<GridViewItem>();
+        public IncrementalLoadingCollection<FileSystemStorageItem> FileCollection { get; private set; }
         private static IStorageItem[] CopyFiles;
         private static IStorageItem[] CutFiles;
         private TreeViewNode LastNode;
-        public Dictionary<string, bool> SortMap = new Dictionary<string, bool>
+        public Dictionary<string, bool> SortMap { get; private set; } = new Dictionary<string, bool>
         {
             {"System.ItemNameDisplay",true },
             {"System.Size",true },
             {"System.DateModified",true }
         };
+
+        private FileControl FileControlInstance;
 
         private bool useGridorList = true;
 
@@ -73,7 +73,6 @@ namespace FileManager
             }
         }
 
-        Frame Nav;
         WiFiShareProvider WiFiProvider;
         FileSystemStorageItem TabTarget = null;
 
@@ -173,112 +172,132 @@ namespace FileManager
         public FilePresenter()
         {
             InitializeComponent();
-            ThisPage = this;
 
             FileCollection = new IncrementalLoadingCollection<FileSystemStorageItem>(GetMoreItemsFunction);
             FileCollection.CollectionChanged += FileCollection_CollectionChanged;
 
-            //必须注册这个东西才能使用中文解码
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             ZipStrings.CodePage = 936;
 
             Application.Current.Suspending += Current_Suspending;
+            Loaded += FilePresenter_Loaded;
+            Unloaded += FilePresenter_Unloaded;
+        }
+
+        private void FilePresenter_Unloaded(object sender, RoutedEventArgs e)
+        {
+            CoreWindow.GetForCurrentThread().KeyDown -= Window_KeyDown;
+        }
+
+        private void FilePresenter_Loaded(object sender, RoutedEventArgs e)
+        {
+            CoreWindow.GetForCurrentThread().KeyDown += Window_KeyDown;
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            if (e.Parameter is Tuple<FileControl, Frame> Parameters)
+            {
+                FileControlInstance = Parameters.Item1;
+
+                if (!TabViewContainer.ThisPage.InstanceContainer.ContainsKey(Parameters.Item1))
+                {
+                    TabViewContainer.ThisPage.InstanceContainer.Add(Parameters.Item1, this);
+                }
+            }
         }
 
         private void Window_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name == nameof(FileControl))
-            {
-                var WindowInstance = CoreWindow.GetForCurrentThread();
-                var CtrlState = WindowInstance.GetKeyState(VirtualKey.Control);
-                var ShiftState = WindowInstance.GetKeyState(VirtualKey.Shift);
+            var WindowInstance = CoreWindow.GetForCurrentThread();
+            var CtrlState = WindowInstance.GetKeyState(VirtualKey.Control);
+            var ShiftState = WindowInstance.GetKeyState(VirtualKey.Shift);
 
-                if (!FileControl.ThisPage.IsSearchOrPathBoxFocused)
+            if (!FileControlInstance.IsSearchOrPathBoxFocused)
+            {
+                switch (args.VirtualKey)
                 {
-                    switch (args.VirtualKey)
-                    {
-                        case VirtualKey.Delete:
+                    case VirtualKey.Delete:
+                        {
+                            Delete_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.F2:
+                        {
+                            Rename_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.F5:
+                        {
+                            Refresh_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.Right when SelectedIndex == -1:
+                        {
+                            if (UseGridOrList)
                             {
-                                Delete_Click(null, null);
-                                break;
+                                GridViewControl.Focus(FocusState.Programmatic);
                             }
-                        case VirtualKey.F2:
+                            else
                             {
-                                Rename_Click(null, null);
-                                break;
+                                ListViewControl.Focus(FocusState.Programmatic);
                             }
-                        case VirtualKey.F5:
+                            SelectedIndex = 0;
+                            break;
+                        }
+                    case VirtualKey.Enter when !QueueContentDialog.IsRunningOrWaiting && SelectedItem is FileSystemStorageItem Item:
+                        {
+                            if (UseGridOrList)
                             {
-                                Refresh_Click(null, null);
-                                break;
+                                GridViewControl.Focus(FocusState.Programmatic);
                             }
-                        case VirtualKey.Right when SelectedIndex == -1:
+                            else
                             {
-                                if (UseGridOrList)
-                                {
-                                    GridViewControl.Focus(FocusState.Programmatic);
-                                }
-                                else
-                                {
-                                    ListViewControl.Focus(FocusState.Programmatic);
-                                }
-                                SelectedIndex = 0;
-                                break;
+                                ListViewControl.Focus(FocusState.Programmatic);
                             }
-                        case VirtualKey.Enter when !QueueContentDialog.IsRunningOrWaiting && SelectedItem is FileSystemStorageItem Item:
-                            {
-                                if (UseGridOrList)
-                                {
-                                    GridViewControl.Focus(FocusState.Programmatic);
-                                }
-                                else
-                                {
-                                    ListViewControl.Focus(FocusState.Programmatic);
-                                }
-                                EnterSelectedItem(Item);
-                                break;
-                            }
-                        case VirtualKey.Back when FileControl.ThisPage.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && !QueueContentDialog.IsRunningOrWaiting:
-                            {
-                                FileControl.ThisPage.GoParentFolder_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                FileControl.ThisPage.AddressBox.Focus(FocusState.Programmatic);
-                                break;
-                            }
-                        case VirtualKey.V when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                Paste_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                Copy_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                Cut_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                Delete_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.F when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                FileControl.ThisPage.GlobeSearch.Focus(FocusState.Programmatic);
-                                break;
-                            }
-                        case VirtualKey.N when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                NewFolder_Click(null, null);
-                                break;
-                            }
-                    }
+                            EnterSelectedItem(Item);
+                            break;
+                        }
+                    case VirtualKey.Back when FileControlInstance.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && !QueueContentDialog.IsRunningOrWaiting:
+                        {
+                            FileControlInstance.GoBackRecord_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            FileControlInstance.AddressBox.Focus(FocusState.Programmatic);
+                            break;
+                        }
+                    case VirtualKey.V when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            Paste_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            Copy_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            Cut_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            Delete_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.F when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            FileControlInstance.GlobeSearch.Focus(FocusState.Programmatic);
+                            break;
+                        }
+                    case VirtualKey.N when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            NewFolder_Click(null, null);
+                            break;
+                        }
                 }
             }
         }
@@ -293,9 +312,9 @@ namespace FileManager
             List<FileSystemStorageItem> ItemList = new List<FileSystemStorageItem>();
             foreach (var Item in await Query.GetItemsAsync(Index, Num))
             {
-                var Size = await Item.GetSizeDescriptionAsync();
-                var Thumbnail = await Item.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                var ModifiedTime = await Item.GetModifiedTimeAsync();
+                var Size = await Item.GetSizeDescriptionAsync().ConfigureAwait(true);
+                var Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
                 ItemList.Add(new FileSystemStorageItem(Item, Size, Thumbnail, ModifiedTime));
             }
             return ItemList;
@@ -307,17 +326,6 @@ namespace FileManager
             {
                 HasFile.Visibility = FileCollection.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             }
-        }
-
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            Nav = e.Parameter as Frame;
-            CoreWindow.GetForCurrentThread().KeyDown += Window_KeyDown;
-        }
-
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
-        {
-            CoreWindow.GetForCurrentThread().KeyDown -= Window_KeyDown;
         }
 
         /// <summary>
@@ -349,7 +357,7 @@ namespace FileManager
 
             if (CutFiles != null)
             {
-                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在剪切" : "Cutting");
+                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在剪切" : "Cutting").ConfigureAwait(true);
 
                 bool IsItemNotFound = false;
                 bool IsUnauthorized = false;
@@ -362,47 +370,47 @@ namespace FileManager
                     {
                         if (Item is StorageFile File)
                         {
-                            if (!await File.CheckExist())
+                            if (!await File.CheckExist().ConfigureAwait(true))
                             {
                                 IsItemNotFound = true;
                                 continue;
                             }
 
-                            await File.MoveAsync(FileControl.ThisPage.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+                            await File.MoveAsync(FileControlInstance.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
                             if (FileCollection.Count > 0)
                             {
                                 int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.ContentType == ContentType.File));
                                 if (Index == -1)
                                 {
-                                    FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeDescriptionAsync(), await File.GetThumbnailBitmapAsync(), await File.GetModifiedTimeAsync()));
+                                    FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeDescriptionAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
                                 }
                                 else
                                 {
-                                    FileCollection.Insert(Index, new FileSystemStorageItem(File, await File.GetSizeDescriptionAsync(), await File.GetThumbnailBitmapAsync(), await File.GetModifiedTimeAsync()));
+                                    FileCollection.Insert(Index, new FileSystemStorageItem(File, await File.GetSizeDescriptionAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
                                 }
                             }
                             else
                             {
-                                FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeDescriptionAsync(), await File.GetThumbnailBitmapAsync(), await File.GetModifiedTimeAsync()));
+                                FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeDescriptionAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
                             }
                         }
                         else if (Item is StorageFolder Folder)
                         {
-                            if (!await Folder.CheckExist())
+                            if (!await Folder.CheckExist().ConfigureAwait(true))
                             {
                                 IsItemNotFound = true;
                                 continue;
                             }
 
-                            StorageFolder NewFolder = await FileControl.ThisPage.CurrentFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.OpenIfExists);
-                            await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder);
+                            StorageFolder NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.OpenIfExists);
+                            await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
 
-                            await Folder.DeleteAllSubFilesAndFolders();
+                            await Folder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
                             await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
                             if (FileCollection.Where((It) => It.ContentType == ContentType.Folder).All((Item) => Item.Folder.Name != NewFolder.Name))
                             {
-                                FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync(), await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync()));
+                                FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
                             }
 
                             if (LastNode.IsExpanded)
@@ -417,22 +425,22 @@ namespace FileManager
                                 }
                             }
 
-                            if (FileControl.ThisPage.CurrentNode.IsExpanded || !FileControl.ThisPage.CurrentNode.HasChildren)
+                            if (FileControlInstance.CurrentNode.IsExpanded || !FileControlInstance.CurrentNode.HasChildren)
                             {
-                                if (FileControl.ThisPage.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as StorageFolder).Name == NewFolder.Name) is TreeViewNode ExistNode)
+                                if (FileControlInstance.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as StorageFolder).Name == NewFolder.Name) is TreeViewNode ExistNode)
                                 {
                                     ExistNode.HasUnrealizedChildren = (await NewFolder.GetItemsAsync(0, 1)).Count > 0;
                                 }
                                 else
                                 {
-                                    FileControl.ThisPage.CurrentNode.Children.Add(new TreeViewNode
+                                    FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
                                     {
                                         Content = NewFolder,
                                         HasUnrealizedChildren = (await NewFolder.GetItemsAsync(0, 1)).Count > 0
                                     });
                                 }
                             }
-                            FileControl.ThisPage.CurrentNode.IsExpanded = true;
+                            FileControlInstance.CurrentNode.IsExpanded = true;
                         }
                     }
                     catch (UnauthorizedAccessException)
@@ -459,7 +467,7 @@ namespace FileManager
                             Content = "部分文件不存在，无法移动到指定位置",
                             CloseButtonText = "确定"
                         };
-                        _ = await Dialog.ShowAsync();
+                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
                     }
                     else
                     {
@@ -469,7 +477,7 @@ namespace FileManager
                             Content = "Some files do not exist and cannot be moved to the specified location",
                             CloseButtonText = "Got it"
                         };
-                        _ = await Dialog.ShowAsync();
+                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
                     }
                 }
                 else if (IsUnauthorized)
@@ -483,9 +491,9 @@ namespace FileManager
                             PrimaryButtonText = "立刻",
                             CloseButtonText = "稍后"
                         };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                         {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                         }
                     }
                     else
@@ -497,9 +505,9 @@ namespace FileManager
                             PrimaryButtonText = "Enter",
                             CloseButtonText = "Later"
                         };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                         {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                         }
                     }
                 }
@@ -513,7 +521,7 @@ namespace FileManager
                             Content = "因设备剩余空间大小不足，部分文件无法移动",
                             CloseButtonText = "确定"
                         };
-                        _ = await QueueContenDialog.ShowAsync();
+                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                     }
                     else
                     {
@@ -523,7 +531,7 @@ namespace FileManager
                             Content = "Some files cannot be moved due to insufficient free space on the device",
                             CloseButtonText = "Confirm"
                         };
-                        _ = await QueueContenDialog.ShowAsync();
+                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
                     }
                 }
                 else if (IsCaptured)
@@ -549,12 +557,12 @@ namespace FileManager
                         };
                     }
 
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(false);
                 }
             }
             else if (CopyFiles != null)
             {
-                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在复制" : "Copying");
+                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在复制" : "Copying").ConfigureAwait(true);
 
                 bool IsItemNotFound = false;
                 bool IsUnauthorized = false;
@@ -566,62 +574,62 @@ namespace FileManager
                     {
                         if (Item is StorageFile File)
                         {
-                            if (!await File.CheckExist())
+                            if (!await File.CheckExist().ConfigureAwait(true))
                             {
                                 IsItemNotFound = true;
                                 continue;
                             }
 
-                            StorageFile NewFile = await File.CopyAsync(FileControl.ThisPage.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+                            StorageFile NewFile = await File.CopyAsync(FileControlInstance.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
                             if (FileCollection.Count > 0)
                             {
                                 int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.ContentType == ContentType.File));
                                 if (Index == -1)
                                 {
-                                    FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                                    FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                                 }
                                 else
                                 {
-                                    FileCollection.Insert(Index, new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                                    FileCollection.Insert(Index, new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                                 }
                             }
                             else
                             {
-                                FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                                FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                             }
                         }
                         else if (Item is StorageFolder Folder)
                         {
-                            if (!await Folder.CheckExist())
+                            if (!await Folder.CheckExist().ConfigureAwait(true))
                             {
                                 IsItemNotFound = true;
                                 continue;
                             }
 
-                            StorageFolder NewFolder = await FileControl.ThisPage.CurrentFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.OpenIfExists);
-                            await Folder.CopySubFilesAndSubFoldersAsync(NewFolder);
+                            StorageFolder NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.OpenIfExists);
+                            await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
 
                             if (FileCollection.Where((It) => It.ContentType == ContentType.Folder).All((Item) => Item.Folder.Name != NewFolder.Name))
                             {
-                                FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync(), await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync()));
+                                FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
                             }
 
-                            if (FileControl.ThisPage.CurrentNode.IsExpanded || !FileControl.ThisPage.CurrentNode.HasChildren)
+                            if (FileControlInstance.CurrentNode.IsExpanded || !FileControlInstance.CurrentNode.HasChildren)
                             {
-                                if (FileControl.ThisPage.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as StorageFolder).Name == NewFolder.Name) is TreeViewNode ExistNode)
+                                if (FileControlInstance.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as StorageFolder).Name == NewFolder.Name) is TreeViewNode ExistNode)
                                 {
                                     ExistNode.HasUnrealizedChildren = (await NewFolder.GetItemsAsync(0, 1)).Count > 0;
                                 }
                                 else
                                 {
-                                    FileControl.ThisPage.CurrentNode.Children.Add(new TreeViewNode
+                                    FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
                                     {
                                         Content = NewFolder,
                                         HasUnrealizedChildren = (await NewFolder.GetItemsAsync(0, 1)).Count > 0
                                     });
                                 }
                             }
-                            FileControl.ThisPage.CurrentNode.IsExpanded = true;
+                            FileControlInstance.CurrentNode.IsExpanded = true;
                         }
                     }
                     catch (UnauthorizedAccessException)
@@ -644,7 +652,7 @@ namespace FileManager
                             Content = "部分文件不存在，无法复制到指定位置",
                             CloseButtonText = "确定"
                         };
-                        _ = await Dialog.ShowAsync();
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                     else
                     {
@@ -654,7 +662,7 @@ namespace FileManager
                             Content = "Some files do not exist and cannot be copyed to the specified location",
                             CloseButtonText = "Got it"
                         };
-                        _ = await Dialog.ShowAsync();
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
                 else if (IsUnauthorized)
@@ -668,9 +676,9 @@ namespace FileManager
                             PrimaryButtonText = "立刻",
                             CloseButtonText = "稍后"
                         };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                         }
                     }
                     else
@@ -682,9 +690,9 @@ namespace FileManager
                             PrimaryButtonText = "Enter",
                             CloseButtonText = "Later"
                         };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                         }
                     }
                 }
@@ -698,7 +706,7 @@ namespace FileManager
                             Content = "因设备剩余空间大小不足，部分文件无法复制",
                             CloseButtonText = "确定"
                         };
-                        _ = await QueueContenDialog.ShowAsync();
+                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                     }
                     else
                     {
@@ -708,7 +716,7 @@ namespace FileManager
                             Content = "Some files cannot be copyed due to insufficient free space on the device",
                             CloseButtonText = "Confirm"
                         };
-                        _ = await QueueContenDialog.ShowAsync();
+                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
             }
@@ -717,7 +725,7 @@ namespace FileManager
             CopyFiles = null;
             Paste.IsEnabled = false;
 
-            await LoadingActivation(false);
+            await LoadingActivation(false).ConfigureAwait(false);
         }
 
         private void Cut_Click(object sender, RoutedEventArgs e)
@@ -729,7 +737,7 @@ namespace FileManager
                 CopyFiles = null;
             }
 
-            LastNode = FileControl.ThisPage.CurrentNode;
+            LastNode = FileControlInstance.CurrentNode;
 
             List<IGrouping<ContentType, FileSystemStorageItem>> GroupItem = SelectedItems.GroupBy((Item) => Item.ContentType).ToList();
             CutFiles = GroupItem.Where((Item) => Item.Key == ContentType.File).Select((It) => (IStorageItem)It.FirstOrDefault().File).Concat(GroupItem.Where((Item) => Item.Key == ContentType.Folder).Select((It) => (IStorageItem)It.FirstOrDefault().Folder)).ToArray();
@@ -770,13 +778,13 @@ namespace FileManager
                     };
                 }
 
-                if ((await QueueContenDialog.ShowAsync()) == ContentDialogResult.Primary)
+                if ((await QueueContenDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在删除" : "Deleting");
+                    await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在删除" : "Deleting").ConfigureAwait(true);
 
                     if (ItemToDelete.ContentType == ContentType.File)
                     {
-                        if (!await ItemToDelete.File.CheckExist())
+                        if (!await ItemToDelete.File.CheckExist().ConfigureAwait(true))
                         {
                             IsItemNotFound = true;
                         }
@@ -798,27 +806,27 @@ namespace FileManager
                     }
                     else
                     {
-                        if (!await ItemToDelete.Folder.CheckExist())
+                        if (!await ItemToDelete.Folder.CheckExist().ConfigureAwait(true))
                         {
                             IsItemNotFound = true;
                         }
 
                         try
                         {
-                            await ItemToDelete.Folder.DeleteAllSubFilesAndFolders();
+                            await ItemToDelete.Folder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
                             await ItemToDelete.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
                             FileCollection.Remove(ItemToDelete);
 
-                            if (FileControl.ThisPage.CurrentNode.IsExpanded)
+                            if (FileControlInstance.CurrentNode.IsExpanded)
                             {
-                                FileControl.ThisPage.CurrentNode.Children.Remove(FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == ItemToDelete.Name).FirstOrDefault());
+                                FileControlInstance.CurrentNode.Children.Remove(FileControlInstance.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == ItemToDelete.Name).FirstOrDefault());
                             }
                             else
                             {
-                                if ((await FileControl.ThisPage.CurrentFolder.CreateFolderQuery(CommonFolderQuery.DefaultQuery).GetItemCountAsync()) == 0)
+                                if ((await FileControlInstance.CurrentFolder.CreateFolderQuery(CommonFolderQuery.DefaultQuery).GetItemCountAsync()) == 0)
                                 {
-                                    FileControl.ThisPage.CurrentNode.HasUnrealizedChildren = false;
+                                    FileControlInstance.CurrentNode.HasUnrealizedChildren = false;
                                 }
                             }
                         }
@@ -858,15 +866,15 @@ namespace FileManager
                     };
                 }
 
-                if ((await QueueContenDialog.ShowAsync()) == ContentDialogResult.Primary)
+                if ((await QueueContenDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在删除" : "Deleting");
+                    await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在删除" : "Deleting").ConfigureAwait(true);
 
                     foreach (FileSystemStorageItem ItemToDelete in SelectedItems)
                     {
                         if (ItemToDelete.ContentType == ContentType.File)
                         {
-                            if (!await ItemToDelete.File.CheckExist())
+                            if (!await ItemToDelete.File.CheckExist().ConfigureAwait(true))
                             {
                                 IsItemNotFound = true;
                             }
@@ -888,27 +896,27 @@ namespace FileManager
                         }
                         else
                         {
-                            if (!await ItemToDelete.Folder.CheckExist())
+                            if (!await ItemToDelete.Folder.CheckExist().ConfigureAwait(true))
                             {
                                 IsItemNotFound = true;
                             }
 
                             try
                             {
-                                await ItemToDelete.Folder.DeleteAllSubFilesAndFolders();
+                                await ItemToDelete.Folder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
                                 await ItemToDelete.Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
                                 FileCollection.Remove(ItemToDelete);
 
-                                if (FileControl.ThisPage.CurrentNode.IsExpanded)
+                                if (FileControlInstance.CurrentNode.IsExpanded)
                                 {
-                                    FileControl.ThisPage.CurrentNode.Children.Remove(FileControl.ThisPage.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == ItemToDelete.Name).FirstOrDefault());
+                                    FileControlInstance.CurrentNode.Children.Remove(FileControlInstance.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == ItemToDelete.Name).FirstOrDefault());
                                 }
                                 else
                                 {
-                                    if ((await FileControl.ThisPage.CurrentFolder.CreateFolderQuery(CommonFolderQuery.DefaultQuery).GetItemCountAsync()) == 0)
+                                    if ((await FileControlInstance.CurrentFolder.CreateFolderQuery(CommonFolderQuery.DefaultQuery).GetItemCountAsync()) == 0)
                                     {
-                                        FileControl.ThisPage.CurrentNode.HasUnrealizedChildren = false;
+                                        FileControlInstance.CurrentNode.HasUnrealizedChildren = false;
                                     }
                                 }
                             }
@@ -935,7 +943,7 @@ namespace FileManager
                         Content = "无法删除部分文件/文件夹，该文件/文件夹可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -945,9 +953,9 @@ namespace FileManager
                         Content = "Unable to delete some files/folders, the file/folders may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
-                await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(true);
             }
             else if (IsUnauthorized)
             {
@@ -974,9 +982,9 @@ namespace FileManager
                     };
                 }
 
-                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
-                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                 }
             }
             else if (IsCaptured)
@@ -1002,10 +1010,10 @@ namespace FileManager
                     };
                 }
 
-                _ = await dialog.ShowAsync();
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
 
-            await LoadingActivation(false);
+            await LoadingActivation(false).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1027,7 +1035,7 @@ namespace FileManager
             }
             else
             {
-                await Task.Delay(1000);
+                await Task.Delay(1000).ConfigureAwait(true);
             }
 
             LoadingControl.IsLoading = IsLoading;
@@ -1048,7 +1056,7 @@ namespace FileManager
                         CloseButtonText = "确定"
                     };
 
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -1059,7 +1067,7 @@ namespace FileManager
                         CloseButtonText = "Got it"
                     };
 
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
 
                 return;
@@ -1069,7 +1077,7 @@ namespace FileManager
             {
                 if (RenameItem.ContentType == ContentType.File)
                 {
-                    if (!await RenameItem.File.CheckExist())
+                    if (!await RenameItem.File.CheckExist().ConfigureAwait(true))
                     {
                         if (Globalization.Language == LanguageEnum.Chinese)
                         {
@@ -1079,7 +1087,7 @@ namespace FileManager
                                 Content = "无法找到对应的文件，该文件可能已被移动或删除",
                                 CloseButtonText = "刷新"
                             };
-                            _ = await Dialog.ShowAsync();
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
                         else
                         {
@@ -1089,14 +1097,14 @@ namespace FileManager
                                 Content = "Could not find the corresponding file, it may have been moved or deleted",
                                 CloseButtonText = "Refresh"
                             };
-                            _ = await Dialog.ShowAsync();
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
-                        await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                        await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
                         return;
                     }
 
                     RenameDialog dialog = new RenameDialog(RenameItem.File.DisplayName, RenameItem.File.FileType);
-                    if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         if (Globalization.Language == LanguageEnum.Chinese)
                         {
@@ -1108,7 +1116,7 @@ namespace FileManager
                                     Content = "文件名不能为空，重命名失败",
                                     CloseButtonText = "确定"
                                 };
-                                await content.ShowAsync();
+                                await content.ShowAsync().ConfigureAwait(false);
                                 return;
                             }
 
@@ -1120,7 +1128,7 @@ namespace FileManager
                                                      where Item.Name == dialog.DesireName
                                                      select Item)
                                 {
-                                    await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(RenameItem.File.Path));
+                                    await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(RenameItem.File.Path)).ConfigureAwait(true);
                                 }
                             }
                             catch (UnauthorizedAccessException)
@@ -1132,9 +1140,9 @@ namespace FileManager
                                     PrimaryButtonText = "立刻",
                                     CloseButtonText = "稍后"
                                 };
-                                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                if (await Dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                                 {
-                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                                 }
                             }
                         }
@@ -1148,7 +1156,7 @@ namespace FileManager
                                     Content = "File name cannot be empty, rename failed",
                                     CloseButtonText = "Confirm"
                                 };
-                                await content.ShowAsync();
+                                await content.ShowAsync().ConfigureAwait(false);
                                 return;
                             }
 
@@ -1160,7 +1168,7 @@ namespace FileManager
                                                      where Item.Name == dialog.DesireName
                                                      select Item)
                                 {
-                                    await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(RenameItem.File.Path));
+                                    await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(RenameItem.File.Path)).ConfigureAwait(true);
                                 }
                             }
                             catch (UnauthorizedAccessException)
@@ -1172,9 +1180,9 @@ namespace FileManager
                                     PrimaryButtonText = "Enter",
                                     CloseButtonText = "Later"
                                 };
-                                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                if (await Dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                                 {
-                                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                                 }
                             }
                         }
@@ -1182,7 +1190,7 @@ namespace FileManager
                 }
                 else
                 {
-                    if (!await RenameItem.Folder.CheckExist())
+                    if (!await RenameItem.Folder.CheckExist().ConfigureAwait(true))
                     {
                         if (Globalization.Language == LanguageEnum.Chinese)
                         {
@@ -1192,7 +1200,7 @@ namespace FileManager
                                 Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
                                 CloseButtonText = "刷新"
                             };
-                            _ = await Dialog.ShowAsync();
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
                         else
                         {
@@ -1202,14 +1210,14 @@ namespace FileManager
                                 Content = "Could not find the corresponding folder, it may have been moved or deleted",
                                 CloseButtonText = "Refresh"
                             };
-                            _ = await Dialog.ShowAsync();
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
-                        await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                        await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
                         return;
                     }
 
                     RenameDialog dialog = new RenameDialog(RenameItem.Folder.DisplayName);
-                    if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+                    if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         if (string.IsNullOrWhiteSpace(dialog.DesireName))
                         {
@@ -1221,7 +1229,7 @@ namespace FileManager
                                     Content = "文件夹名不能为空，重命名失败",
                                     CloseButtonText = "确定"
                                 };
-                                await content.ShowAsync();
+                                await content.ShowAsync().ConfigureAwait(false);
                             }
                             else
                             {
@@ -1231,96 +1239,94 @@ namespace FileManager
                                     Content = "Folder name cannot be empty, rename failed",
                                     CloseButtonText = "Confirm"
                                 };
-                                await content.ShowAsync();
+                                await content.ShowAsync().ConfigureAwait(false);
                             }
                             return;
                         }
 
-                        StorageFolder ReCreateFolder = null;
-                        if (FileControl.ThisPage.CurrentNode.Children.Count != 0)
+                        if (FileControlInstance.CurrentNode.Children.Count != 0)
                         {
-                            var ChildCollection = FileControl.ThisPage.CurrentNode.Children;
-                            var TargetNode = FileControl.ThisPage.CurrentNode.Children.Where((Fold) => (Fold.Content as StorageFolder).FolderRelativeId == RenameItem.Folder.FolderRelativeId).FirstOrDefault();
-                            int index = FileControl.ThisPage.CurrentNode.Children.IndexOf(TargetNode);
+                            IList<TreeViewNode> ChildCollection = FileControlInstance.CurrentNode.Children;
+                            TreeViewNode TargetNode = FileControlInstance.CurrentNode.Children.Where((Fold) => (Fold.Content as StorageFolder).Name == RenameItem.Folder.Name).FirstOrDefault();
+                            int index = FileControlInstance.CurrentNode.Children.IndexOf(TargetNode);
 
-                            try
+                            if (TargetNode.HasUnrealizedChildren)
                             {
-                                await RenameItem.Folder.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
-                                ReCreateFolder = await StorageFolder.GetFolderFromPathAsync(RenameItem.Folder.Path);
-
-                                if (TargetNode.HasUnrealizedChildren)
+                                ChildCollection.Insert(index, new TreeViewNode()
                                 {
-                                    ChildCollection.Insert(index, new TreeViewNode()
-                                    {
-                                        Content = ReCreateFolder,
-                                        HasUnrealizedChildren = true,
-                                        IsExpanded = false
-                                    });
-                                    ChildCollection.Remove(TargetNode);
-                                }
-                                else if (TargetNode.HasChildren)
-                                {
-                                    var NewNode = new TreeViewNode()
-                                    {
-                                        Content = ReCreateFolder,
-                                        HasUnrealizedChildren = false,
-                                        IsExpanded = true
-                                    };
-
-                                    foreach (var SubNode in TargetNode.Children)
-                                    {
-                                        NewNode.Children.Add(SubNode);
-                                    }
-
-                                    ChildCollection.Insert(index, NewNode);
-                                    ChildCollection.Remove(TargetNode);
-                                    await NewNode.UpdateAllSubNodeFolder();
-                                }
-                                else
-                                {
-                                    ChildCollection.Insert(index, new TreeViewNode()
-                                    {
-                                        Content = ReCreateFolder,
-                                        HasUnrealizedChildren = false,
-                                        IsExpanded = false
-                                    });
-                                    ChildCollection.Remove(TargetNode);
-                                }
+                                    Content = RenameItem.Folder,
+                                    HasUnrealizedChildren = true,
+                                    IsExpanded = false
+                                });
+                                ChildCollection.Remove(TargetNode);
                             }
-                            catch (UnauthorizedAccessException)
+                            else if (TargetNode.HasChildren)
                             {
-                                if (Globalization.Language == LanguageEnum.Chinese)
+                                var NewNode = new TreeViewNode()
                                 {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = "错误",
-                                        Content = "RX无权重命名此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
-                                        PrimaryButtonText = "立刻",
-                                        CloseButtonText = "稍后"
-                                    };
-                                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                                    {
-                                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                                    }
-                                }
-                                else
+                                    Content = RenameItem.Folder,
+                                    HasUnrealizedChildren = false,
+                                    IsExpanded = true
+                                };
+
+                                foreach (var SubNode in TargetNode.Children)
                                 {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = "Error",
-                                        Content = "RX does not have permission to rename the folder, it may be that you do not have access to this file.\r\rEnter the system file manager immediately ？",
-                                        PrimaryButtonText = "Enter",
-                                        CloseButtonText = "Later"
-                                    };
-                                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                                    {
-                                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
-                                    }
+                                    NewNode.Children.Add(SubNode);
                                 }
+
+                                ChildCollection.Insert(index, NewNode);
+                                ChildCollection.Remove(TargetNode);
+                                await NewNode.UpdateAllSubNodeFolder().ConfigureAwait(true);
+                            }
+                            else
+                            {
+                                ChildCollection.Insert(index, new TreeViewNode()
+                                {
+                                    Content = RenameItem.Folder,
+                                    HasUnrealizedChildren = false,
+                                    IsExpanded = false
+                                });
+                                ChildCollection.Remove(TargetNode);
                             }
                         }
 
-                        await (SelectedItem as FileSystemStorageItem).UpdateRequested(ReCreateFolder);
+                        try
+                        {
+                            await RenameItem.Folder.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
+
+                            await (SelectedItem as FileSystemStorageItem).UpdateRequested(RenameItem.Folder).ConfigureAwait(true);
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            if (Globalization.Language == LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "RX无权重命名此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
+                                    PrimaryButtonText = "立刻",
+                                    CloseButtonText = "稍后"
+                                };
+                                if (await Dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                                {
+                                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                                }
+                            }
+                            else
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "RX does not have permission to rename the folder, it may be that you do not have access to this file.\r\rEnter the system file manager immediately ？",
+                                    PrimaryButtonText = "Enter",
+                                    CloseButtonText = "Later"
+                                };
+                                if (await Dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                                {
+                                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1332,7 +1338,7 @@ namespace FileManager
 
             FileSystemStorageItem ShareFile = SelectedItem as FileSystemStorageItem;
 
-            if (!await ShareFile.File.CheckExist())
+            if (!await ShareFile.File.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -1342,7 +1348,7 @@ namespace FileManager
                         Content = "无法找到对应的文件，该文件可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -1352,9 +1358,9 @@ namespace FileManager
                         Content = "Could not find the corresponding file, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
-                await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
                 return;
             }
 
@@ -1363,7 +1369,7 @@ namespace FileManager
             if (RadioDevice.Any((Device) => Device.Kind == RadioKind.Bluetooth && Device.State == RadioState.On))
             {
                 BluetoothUI Bluetooth = new BluetoothUI();
-                if ((await Bluetooth.ShowAsync()) == ContentDialogResult.Primary)
+                if ((await Bluetooth.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
                     BluetoothFileTransfer FileTransfer = new BluetoothFileTransfer
                     {
@@ -1371,7 +1377,7 @@ namespace FileManager
                         FileName = ShareFile.File.Name,
                         UseStorageFileRatherThanStream = true
                     };
-                    await FileTransfer.ShowAsync();
+                    _ = await FileTransfer.ShowAsync().ConfigureAwait(false);
                 }
             }
             else
@@ -1384,7 +1390,7 @@ namespace FileManager
                         Content = "请开启蓝牙开关后再试",
                         CloseButtonText = "确定"
                     };
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -1394,7 +1400,7 @@ namespace FileManager
                         Content = "Please turn on Bluetooth and try again.",
                         CloseButtonText = "Confirm"
                     };
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(false);
                 }
             }
         }
@@ -1469,7 +1475,7 @@ namespace FileManager
         private void GridViewControl_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             SelectedIndex = -1;
-            FileControl.ThisPage.IsSearchOrPathBoxFocused = false;
+            FileControlInstance.IsSearchOrPathBoxFocused = false;
         }
 
         private void GridViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
@@ -1501,7 +1507,7 @@ namespace FileManager
 
             FileSystemStorageItem Device = SelectedItem as FileSystemStorageItem;
 
-            if (!await Device.File.CheckExist())
+            if (!await Device.File.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -1511,7 +1517,7 @@ namespace FileManager
                         Content = "无法找到对应的文件，该文件可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog1.ShowAsync();
+                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -1521,14 +1527,14 @@ namespace FileManager
                         Content = "Could not find the corresponding file, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog1.ShowAsync();
+                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                 }
-                await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
                 return;
             }
 
             AttributeDialog Dialog = new AttributeDialog(Device.File);
-            await Dialog.ShowAsync();
+            _ = await Dialog.ShowAsync().ConfigureAwait(false);
         }
 
         private async void Zip_Click(object sender, RoutedEventArgs e)
@@ -1537,7 +1543,7 @@ namespace FileManager
 
             FileSystemStorageItem Item = SelectedItem as FileSystemStorageItem;
 
-            if (!await Item.File.CheckExist())
+            if (!await Item.File.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -1547,7 +1553,7 @@ namespace FileManager
                         Content = "无法找到对应的文件，该文件可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -1557,30 +1563,30 @@ namespace FileManager
                         Content = "Could not find the corresponding file, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
-                await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
                 return;
             }
 
             if (Item.Type == ".zip")
             {
-                if ((await UnZipAsync(Item.File)) is StorageFolder NewFolder)
+                if ((await UnZipAsync(Item.File).ConfigureAwait(true)) is StorageFolder NewFolder)
                 {
                     TreeViewNode CurrentNode = null;
-                    if (FileControl.ThisPage.CurrentNode.Children.All((Node) => (Node.Content as StorageFolder).Name != NewFolder.Name))
+                    if (FileControlInstance.CurrentNode.Children.All((Node) => (Node.Content as StorageFolder).Name != NewFolder.Name))
                     {
-                        FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync(), await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync()));
-                        if (FileControl.ThisPage.CurrentNode.IsExpanded || !FileControl.ThisPage.CurrentNode.HasChildren)
+                        FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                        if (FileControlInstance.CurrentNode.IsExpanded || !FileControlInstance.CurrentNode.HasChildren)
                         {
                             CurrentNode = new TreeViewNode
                             {
                                 Content = NewFolder,
                                 HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
                             };
-                            FileControl.ThisPage.CurrentNode.Children.Add(CurrentNode);
+                            FileControlInstance.CurrentNode.Children.Add(CurrentNode);
                         }
-                        FileControl.ThisPage.CurrentNode.IsExpanded = true;
+                        FileControlInstance.CurrentNode.IsExpanded = true;
                     }
                 }
             }
@@ -1588,22 +1594,22 @@ namespace FileManager
             {
                 ZipDialog dialog = new ZipDialog(true, Item.DisplayName);
 
-                if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+                if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在压缩" : "Compressing");
+                    await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在压缩" : "Compressing").ConfigureAwait(true);
 
                     if (dialog.IsCryptionEnable)
                     {
-                        await CreateZipAsync(Item.File, dialog.FileName, (int)dialog.Level, true, dialog.Key, dialog.Password);
+                        await CreateZipAsync(Item.File, dialog.FileName, (int)dialog.Level, true, dialog.Key, dialog.Password).ConfigureAwait(true);
                     }
                     else
                     {
-                        await CreateZipAsync(Item.File, dialog.FileName, (int)dialog.Level);
+                        await CreateZipAsync(Item.File, dialog.FileName, (int)dialog.Level).ConfigureAwait(true);
                     }
                 }
             }
 
-            await LoadingActivation(false);
+            await LoadingActivation(false).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1614,7 +1620,7 @@ namespace FileManager
         private async Task<StorageFolder> UnZipAsync(StorageFile ZFile)
         {
             StorageFolder NewFolder = null;
-            using (Stream ZipFileStream = await ZFile.OpenStreamForReadAsync())
+            using (Stream ZipFileStream = await ZFile.OpenStreamForReadAsync().ConfigureAwait(true))
             using (ZipFile ZipEntries = new ZipFile(ZipFileStream))
             {
                 ZipEntries.IsStreamOwner = false;
@@ -1629,9 +1635,9 @@ namespace FileManager
                     if (ZipEntries[0].IsCrypted)
                     {
                         ZipDialog Dialog = new ZipDialog(false);
-                        if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                         {
-                            await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在解压" : "Extracting");
+                            await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在解压" : "Extracting").ConfigureAwait(true);
                             ZipEntries.Password = Dialog.Password;
                         }
                         else
@@ -1641,10 +1647,10 @@ namespace FileManager
                     }
                     else
                     {
-                        await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在解压" : "Extracting");
+                        await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在解压" : "Extracting").ConfigureAwait(true);
                     }
 
-                    NewFolder = await FileControl.ThisPage.CurrentFolder.CreateFolderAsync(Path.GetFileNameWithoutExtension(ZFile.Name), CreationCollisionOption.OpenIfExists);
+                    NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(Path.GetFileNameWithoutExtension(ZFile.Name), CreationCollisionOption.OpenIfExists);
 
                     foreach (ZipEntry Entry in ZipEntries)
                     {
@@ -1676,9 +1682,9 @@ namespace FileManager
                                 NewFile = await NewFolder.CreateFileAsync(Entry.Name, CreationCollisionOption.ReplaceExisting);
                             }
 
-                            using (Stream NewFileStream = await NewFile.OpenStreamForWriteAsync())
+                            using (Stream NewFileStream = await NewFile.OpenStreamForWriteAsync().ConfigureAwait(true))
                             {
-                                await ZipEntryStream.CopyToAsync(NewFileStream);
+                                await ZipEntryStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
                             }
                         }
                     }
@@ -1694,9 +1700,9 @@ namespace FileManager
                             PrimaryButtonText = "立刻",
                             CloseButtonText = "稍后"
                         };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                         {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                         }
                     }
                     else
@@ -1708,9 +1714,9 @@ namespace FileManager
                             PrimaryButtonText = "Enter",
                             CloseButtonText = "Later"
                         };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                         {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                         }
                     }
                 }
@@ -1724,7 +1730,7 @@ namespace FileManager
                             Content = "解压文件时发生异常\r\r错误信息：\r\r" + e.Message,
                             CloseButtonText = "确定"
                         };
-                        _ = await dialog.ShowAsync();
+                        _ = await dialog.ShowAsync().ConfigureAwait(false);
                     }
                     else
                     {
@@ -1734,7 +1740,7 @@ namespace FileManager
                             Content = "An exception occurred while extracting the file\r\rError Message：\r\r" + e.Message,
                             CloseButtonText = "Confirm"
                         };
-                        _ = await dialog.ShowAsync();
+                        _ = await dialog.ShowAsync().ConfigureAwait(false);
                     }
                 }
             }
@@ -1756,9 +1762,9 @@ namespace FileManager
         {
             try
             {
-                StorageFile Newfile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(NewZipName, CreationCollisionOption.GenerateUniqueName);
+                StorageFile Newfile = await FileControlInstance.CurrentFolder.CreateFileAsync(NewZipName, CreationCollisionOption.GenerateUniqueName);
 
-                using (Stream NewFileStream = await Newfile.OpenStreamForWriteAsync())
+                using (Stream NewFileStream = await Newfile.OpenStreamForWriteAsync().ConfigureAwait(true))
                 using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                 {
                     OutputStream.IsStreamOwner = false;
@@ -1785,9 +1791,9 @@ namespace FileManager
 
                                 OutputStream.PutNextEntry(NewEntry);
 
-                                using (Stream FileStream = await ZipFile.OpenStreamForReadAsync())
+                                using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
                                 {
-                                    await FileStream.CopyToAsync(OutputStream);
+                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
                                 }
                             }
                             else
@@ -1800,18 +1806,18 @@ namespace FileManager
 
                                 OutputStream.PutNextEntry(NewEntry);
 
-                                using (Stream FileStream = await ZipFile.OpenStreamForReadAsync())
+                                using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
                                 {
-                                    await FileStream.CopyToAsync(OutputStream);
+                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
                                 }
                             }
                         }
                         else if (ZipTarget is StorageFolder ZipFolder)
                         {
-                            await ZipFolderCore(ZipFolder, OutputStream, string.Empty, EnableCryption, Size, Password);
+                            await ZipFolderCore(ZipFolder, OutputStream, string.Empty, EnableCryption, Size, Password).ConfigureAwait(true);
                         }
 
-                        await OutputStream.FlushAsync();
+                        await OutputStream.FlushAsync().ConfigureAwait(true);
                         OutputStream.Finish();
                     }
                     catch (Exception e)
@@ -1824,7 +1830,7 @@ namespace FileManager
                                 Content = "压缩文件时发生异常\r\r错误信息：\r\r" + e.Message,
                                 CloseButtonText = "确定"
                             };
-                            _ = await dialog.ShowAsync();
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
                         }
                         else
                         {
@@ -1834,12 +1840,19 @@ namespace FileManager
                                 Content = "An exception occurred while compressing the file\r\rError Message：\r\r" + e.Message,
                                 CloseButtonText = "Confirm"
                             };
-                            _ = await dialog.ShowAsync();
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
                         }
                     }
                 }
 
-                FileCollection.Insert(FileCollection.IndexOf(FileCollection.First((Item) => Item.ContentType == ContentType.File)), new FileSystemStorageItem(Newfile, await Newfile.GetSizeDescriptionAsync(), await Newfile.GetThumbnailBitmapAsync(), await Newfile.GetModifiedTimeAsync()));
+                if (FileCollection.FirstOrDefault((Item) => Item.ContentType == ContentType.File) is FileSystemStorageItem Item)
+                {
+                    FileCollection.Insert(FileCollection.IndexOf(Item), new FileSystemStorageItem(Newfile, await Newfile.GetSizeDescriptionAsync().ConfigureAwait(true), await Newfile.GetThumbnailBitmapAsync().ConfigureAwait(true), await Newfile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                }
+                else
+                {
+                    FileCollection.Add(new FileSystemStorageItem(Newfile, await Newfile.GetSizeDescriptionAsync().ConfigureAwait(true), await Newfile.GetThumbnailBitmapAsync().ConfigureAwait(true), await Newfile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                }
             }
             catch (UnauthorizedAccessException)
             {
@@ -1852,9 +1865,9 @@ namespace FileManager
                         PrimaryButtonText = "立刻",
                         CloseButtonText = "稍后"
                     };
-                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                     {
-                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                     }
                 }
                 else
@@ -1866,9 +1879,9 @@ namespace FileManager
                         PrimaryButtonText = "Enter",
                         CloseButtonText = "Later"
                     };
-                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                    if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                     {
-                        _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                     }
                 }
             }
@@ -1893,7 +1906,7 @@ namespace FileManager
                             };
 
                             OutputStream.PutNextEntry(NewEntry);
-                            await ZipFolderCore(InnerFolder, OutputStream, NewEntry.Name, true, Size, Password);
+                            await ZipFolderCore(InnerFolder, OutputStream, NewEntry.Name, true, Size, Password).ConfigureAwait(false);
                         }
                         else
                         {
@@ -1904,7 +1917,7 @@ namespace FileManager
                             };
 
                             OutputStream.PutNextEntry(NewEntry);
-                            await ZipFolderCore(InnerFolder, OutputStream, NewEntry.Name);
+                            await ZipFolderCore(InnerFolder, OutputStream, NewEntry.Name).ConfigureAwait(false);
                         }
                     }
                     else
@@ -1920,7 +1933,7 @@ namespace FileManager
                             };
 
                             OutputStream.PutNextEntry(NewEntry);
-                            await ZipFolderCore(InnerFolder, OutputStream, NewEntry.Name, true, Size, Password);
+                            await ZipFolderCore(InnerFolder, OutputStream, NewEntry.Name, true, Size, Password).ConfigureAwait(false);
                         }
                         else
                         {
@@ -1931,7 +1944,7 @@ namespace FileManager
                             };
 
                             OutputStream.PutNextEntry(NewEntry);
-                            await ZipFolderCore(InnerFolder, OutputStream, NewEntry.Name);
+                            await ZipFolderCore(InnerFolder, OutputStream, NewEntry.Name).ConfigureAwait(false);
                         }
                     }
                 }
@@ -1951,9 +1964,9 @@ namespace FileManager
 
                             OutputStream.PutNextEntry(NewEntry);
 
-                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync())
+                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
                             {
-                                await FileStream.CopyToAsync(OutputStream);
+                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
                             }
                         }
                         else
@@ -1966,9 +1979,9 @@ namespace FileManager
 
                             OutputStream.PutNextEntry(NewEntry);
 
-                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync())
+                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
                             {
-                                await FileStream.CopyToAsync(OutputStream);
+                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
                             }
                         }
                     }
@@ -1986,9 +1999,9 @@ namespace FileManager
 
                             OutputStream.PutNextEntry(NewEntry);
 
-                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync())
+                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
                             {
-                                await FileStream.CopyToAsync(OutputStream);
+                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
                             }
                         }
                         else
@@ -2001,9 +2014,9 @@ namespace FileManager
 
                             OutputStream.PutNextEntry(NewEntry);
 
-                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync())
+                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
                             {
-                                await FileStream.CopyToAsync(OutputStream);
+                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
                             }
                         }
                     }
@@ -2025,7 +2038,7 @@ namespace FileManager
 
             if (SelectedItem is FileSystemStorageItem Source)
             {
-                if (!await Source.File.CheckExist())
+                if (!await Source.File.CheckExist().ConfigureAwait(true))
                 {
                     if (Globalization.Language == LanguageEnum.Chinese)
                     {
@@ -2035,7 +2048,7 @@ namespace FileManager
                             Content = "无法找到对应的文件，该文件可能已被移动或删除",
                             CloseButtonText = "刷新"
                         };
-                        _ = await Dialog.ShowAsync();
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                     else
                     {
@@ -2045,9 +2058,9 @@ namespace FileManager
                             Content = "Could not find the corresponding file, it may have been moved or deleted",
                             CloseButtonText = "Refresh"
                         };
-                        _ = await Dialog.ShowAsync();
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
-                    await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
                     return;
                 }
 
@@ -2061,7 +2074,7 @@ namespace FileManager
                             Content = "已存在正在进行中的任务，请等待其完成",
                             CloseButtonText = "确定"
                         };
-                        _ = await Dialog.ShowAsync();
+                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
                     }
                     else
                     {
@@ -2071,7 +2084,7 @@ namespace FileManager
                             Content = "There is already an ongoing task, please wait for it to complete",
                             CloseButtonText = "Got it"
                         };
-                        _ = await Dialog.ShowAsync();
+                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
                     }
                     return;
                 }
@@ -2090,17 +2103,17 @@ namespace FileManager
                         {
                             TranscodeDialog dialog = new TranscodeDialog(Source.File);
 
-                            if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+                            if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                             {
                                 try
                                 {
-                                    StorageFile DestinationFile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(Source.DisplayName + "." + dialog.MediaTranscodeEncodingProfile.ToLower(), CreationCollisionOption.GenerateUniqueName);
+                                    StorageFile DestinationFile = await FileControlInstance.CurrentFolder.CreateFileAsync(Source.DisplayName + "." + dialog.MediaTranscodeEncodingProfile.ToLower(), CreationCollisionOption.GenerateUniqueName);
 
-                                    await GeneralTransformer.TranscodeFromAudioOrVideoAsync(Source.File, DestinationFile, dialog.MediaTranscodeEncodingProfile, dialog.MediaTranscodeQuality, dialog.SpeedUp);
+                                    await GeneralTransformer.TranscodeFromAudioOrVideoAsync(Source.File, DestinationFile, dialog.MediaTranscodeEncodingProfile, dialog.MediaTranscodeQuality, dialog.SpeedUp).ConfigureAwait(true);
 
-                                    if (Path.GetDirectoryName(DestinationFile.Path) == FileControl.ThisPage.CurrentFolder.Path && ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] is string Status && Status == "Success")
+                                    if (Path.GetDirectoryName(DestinationFile.Path) == FileControlInstance.CurrentFolder.Path && ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] is string Status && Status == "Success")
                                     {
-                                        FileCollection.Add(new FileSystemStorageItem(DestinationFile, await DestinationFile.GetSizeDescriptionAsync(), await DestinationFile.GetThumbnailBitmapAsync(), await DestinationFile.GetModifiedTimeAsync()));
+                                        FileCollection.Add(new FileSystemStorageItem(DestinationFile, await DestinationFile.GetSizeDescriptionAsync().ConfigureAwait(true), await DestinationFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await DestinationFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                                     }
                                 }
                                 catch (UnauthorizedAccessException)
@@ -2114,9 +2127,9 @@ namespace FileManager
                                             PrimaryButtonText = "立刻",
                                             CloseButtonText = "稍后"
                                         };
-                                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                        if (await Dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                                         {
-                                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                                         }
                                     }
                                     else
@@ -2128,9 +2141,9 @@ namespace FileManager
                                             PrimaryButtonText = "Enter",
                                             CloseButtonText = "Later"
                                         };
-                                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                        if (await Dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                                         {
-                                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                                         }
                                     }
                                 }
@@ -2151,12 +2164,13 @@ namespace FileManager
                                 Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
                             }
 
-                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                            if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                             {
-                                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在转码" : "Transcoding");
-                                await GeneralTransformer.TranscodeFromImageAsync(Source.File, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode);
-                                await LoadingActivation(false);
-                                FileCollection.Add(new FileSystemStorageItem(Dialog.TargetFile, await Dialog.TargetFile.GetSizeDescriptionAsync(), await Dialog.TargetFile.GetThumbnailBitmapAsync(), await Dialog.TargetFile.GetModifiedTimeAsync()));
+                                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在转码" : "Transcoding").ConfigureAwait(true);
+
+                                await GeneralTransformer.TranscodeFromImageAsync(Source.File, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode).ConfigureAwait(true);
+
+                                await LoadingActivation(false).ConfigureAwait(true);
                             }
                             break;
                         }
@@ -2179,7 +2193,7 @@ namespace FileManager
             Restore();
 
             FileSystemStorageItem Device = SelectedItem as FileSystemStorageItem;
-            if (!await Device.Folder.CheckExist())
+            if (!await Device.Folder.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -2189,7 +2203,7 @@ namespace FileManager
                         Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog1.ShowAsync();
+                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -2199,14 +2213,14 @@ namespace FileManager
                         Content = "Could not find the corresponding folder, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog1.ShowAsync();
+                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                 }
-                await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
                 return;
             }
 
             AttributeDialog Dialog = new AttributeDialog(Device.Folder);
-            _ = await Dialog.ShowAsync();
+            _ = await Dialog.ShowAsync().ConfigureAwait(false);
         }
 
         private async void WIFIShare_Click(object sender, RoutedEventArgs e)
@@ -2215,7 +2229,7 @@ namespace FileManager
 
             FileSystemStorageItem Item = SelectedItem as FileSystemStorageItem;
 
-            if (!await Item.File.CheckExist())
+            if (!await Item.File.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -2225,7 +2239,7 @@ namespace FileManager
                         Content = "无法找到对应的文件，该文件可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -2235,9 +2249,9 @@ namespace FileManager
                         Content = "Could not find the corresponding file, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
-                await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
                 return;
             }
 
@@ -2248,7 +2262,7 @@ namespace FileManager
 
             while (WiFiProvider != null)
             {
-                await Task.Delay(300);
+                await Task.Delay(300).ConfigureAwait(true);
             }
 
             WiFiProvider = new WiFiShareProvider();
@@ -2294,10 +2308,10 @@ namespace FileManager
 
             QRTeachTip.IsOpen = true;
 
-            await WiFiProvider.StartToListenRequest();
+            await WiFiProvider.StartToListenRequest().ConfigureAwait(false);
         }
 
-        public string ComputeMD5Hash(string Data)
+        public static string ComputeMD5Hash(string Data)
         {
             using (MD5 md5 = MD5.Create())
             {
@@ -2326,7 +2340,7 @@ namespace FileManager
                         Content = "WIFI传输出现意外错误：\r" + e.Message,
                         CloseButtonText = "确定"
                     };
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -2336,7 +2350,7 @@ namespace FileManager
                         Content = "WIFI transmission has an unexpected error：\r" + e.Message,
                         CloseButtonText = "Confirm"
                     };
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
             });
         }
@@ -2352,12 +2366,12 @@ namespace FileManager
         {
             Restore();
 
-            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
         }
 
         private async void ParentAttribute_Click(object sender, RoutedEventArgs e)
         {
-            if (!await FileControl.ThisPage.CurrentFolder.CheckExist())
+            if (!await FileControlInstance.CurrentFolder.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -2367,7 +2381,7 @@ namespace FileManager
                         Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -2377,28 +2391,28 @@ namespace FileManager
                         Content = "Could not find the corresponding folder, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
                 return;
             }
 
-            if (FileControl.ThisPage.CurrentNode == FileControl.ThisPage.FolderTree.RootNodes.FirstOrDefault())
+            if (FileControlInstance.CurrentNode == FileControlInstance.FolderTree.RootNodes.FirstOrDefault())
             {
-                if (ThisPC.ThisPage.HardDeviceList.FirstOrDefault((Device) => Device.Name == FileControl.ThisPage.CurrentFolder.DisplayName) is HardDeviceInfo Info)
+                if (TabViewContainer.ThisPage.HardDeviceList.FirstOrDefault((Device) => Device.Name == FileControlInstance.CurrentFolder.DisplayName) is HardDeviceInfo Info)
                 {
                     DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(false);
                 }
                 else
                 {
-                    AttributeDialog Dialog = new AttributeDialog(FileControl.ThisPage.CurrentFolder);
-                    _ = await Dialog.ShowAsync();
+                    AttributeDialog Dialog = new AttributeDialog(FileControlInstance.CurrentFolder);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
             }
             else
             {
-                AttributeDialog Dialog = new AttributeDialog(FileControl.ThisPage.CurrentFolder);
-                _ = await Dialog.ShowAsync();
+                AttributeDialog Dialog = new AttributeDialog(FileControlInstance.CurrentFolder);
+                _ = await Dialog.ShowAsync().ConfigureAwait(false);
             }
         }
 
@@ -2423,7 +2437,7 @@ namespace FileManager
 
             StorageFolder folder = (SelectedItem as FileSystemStorageItem).Folder;
 
-            if (!await folder.CheckExist())
+            if (!await folder.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -2433,7 +2447,7 @@ namespace FileManager
                         Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog1.ShowAsync();
+                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -2443,13 +2457,13 @@ namespace FileManager
                         Content = "Could not find the corresponding folder, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog1.ShowAsync();
+                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                 }
-                await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
                 return;
             }
 
-            if (ThisPC.ThisPage.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
+            if (TabViewContainer.ThisPage.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -2459,7 +2473,7 @@ namespace FileManager
                         Content = "此文件夹已经添加到主界面了，不能重复添加哦",
                         CloseButtonText = "知道了"
                     };
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -2469,14 +2483,14 @@ namespace FileManager
                         Content = "This folder has been added to the home page, can not be added repeatedly",
                         CloseButtonText = "知道了"
                     };
-                    _ = await dialog.ShowAsync();
+                    _ = await dialog.ShowAsync().ConfigureAwait(false);
                 }
             }
             else
             {
-                BitmapImage Thumbnail = await folder.GetThumbnailBitmapAsync();
-                ThisPC.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, Thumbnail, LibrarySource.UserCustom));
-                await SQLite.Current.SetFolderLibraryAsync(folder.Path);
+                BitmapImage Thumbnail = await folder.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                TabViewContainer.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, Thumbnail, LibrarySource.UserCustom));
+                await SQLite.Current.SetFolderLibraryAsync(folder.Path).ConfigureAwait(false);
             }
         }
 
@@ -2484,7 +2498,7 @@ namespace FileManager
         {
             Restore();
 
-            if (!await FileControl.ThisPage.CurrentFolder.CheckExist())
+            if (!await FileControlInstance.CurrentFolder.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -2494,7 +2508,7 @@ namespace FileManager
                         Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -2504,7 +2518,7 @@ namespace FileManager
                         Content = "Could not find the corresponding folder, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
                 return;
             }
@@ -2512,24 +2526,24 @@ namespace FileManager
             try
             {
                 var NewFolder = Globalization.Language == LanguageEnum.Chinese
-                    ? await FileControl.ThisPage.CurrentFolder.CreateFolderAsync("新建文件夹", CreationCollisionOption.GenerateUniqueName)
-                    : await FileControl.ThisPage.CurrentFolder.CreateFolderAsync("New folder", CreationCollisionOption.GenerateUniqueName);
+                    ? await FileControlInstance.CurrentFolder.CreateFolderAsync("新建文件夹", CreationCollisionOption.GenerateUniqueName)
+                    : await FileControlInstance.CurrentFolder.CreateFolderAsync("New folder", CreationCollisionOption.GenerateUniqueName);
 
-                var Size = await NewFolder.GetSizeDescriptionAsync();
-                var Thumbnail = await NewFolder.GetThumbnailBitmapAsync() ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                var ModifiedTime = await NewFolder.GetModifiedTimeAsync();
+                var Size = await NewFolder.GetSizeDescriptionAsync().ConfigureAwait(true);
+                var Thumbnail = await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                var ModifiedTime = await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true);
 
                 FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
 
-                if (FileControl.ThisPage.CurrentNode.IsExpanded || !FileControl.ThisPage.CurrentNode.HasChildren)
+                if (FileControlInstance.CurrentNode.IsExpanded || !FileControlInstance.CurrentNode.HasChildren)
                 {
-                    FileControl.ThisPage.CurrentNode.Children.Add(new TreeViewNode
+                    FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
                     {
                         Content = NewFolder,
                         HasUnrealizedChildren = false
                     });
                 }
-                FileControl.ThisPage.CurrentNode.IsExpanded = true;
+                FileControlInstance.CurrentNode.IsExpanded = true;
             }
             catch (UnauthorizedAccessException)
             {
@@ -2555,9 +2569,9 @@ namespace FileManager
                     };
                 }
 
-                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                 {
-                    _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                 }
             }
         }
@@ -2576,7 +2590,7 @@ namespace FileManager
 
             if (SelectedItem is FileSystemStorageItem ShareItem)
             {
-                if (!await ShareItem.File.CheckExist())
+                if (!await ShareItem.File.CheckExist().ConfigureAwait(true))
                 {
                     if (Globalization.Language == LanguageEnum.Chinese)
                     {
@@ -2586,7 +2600,7 @@ namespace FileManager
                             Content = "无法找到对应的文件，该文件可能已被移动或删除",
                             CloseButtonText = "刷新"
                         };
-                        _ = await Dialog.ShowAsync();
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                     else
                     {
@@ -2596,9 +2610,9 @@ namespace FileManager
                             Content = "Could not find the corresponding file, it may have been moved or deleted",
                             CloseButtonText = "Refresh"
                         };
-                        _ = await Dialog.ShowAsync();
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
-                    await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
                     return;
                 }
 
@@ -2619,7 +2633,7 @@ namespace FileManager
         {
             Restore();
 
-            if (!await FileControl.ThisPage.CurrentFolder.CheckExist())
+            if (!await FileControlInstance.CurrentFolder.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -2629,7 +2643,7 @@ namespace FileManager
                         Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -2639,17 +2653,17 @@ namespace FileManager
                         Content = "Could not find the corresponding folder, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
                 return;
             }
 
-            await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
         }
 
         private void GridViewControl_ItemClick(object sender, ItemClickEventArgs e)
         {
-            FileControl.ThisPage.IsSearchOrPathBoxFocused = false;
+            FileControlInstance.IsSearchOrPathBoxFocused = false;
 
             if (!SettingPage.IsDoubleClickEnable && e.ClickedItem is FileSystemStorageItem ReFile)
             {
@@ -2665,7 +2679,7 @@ namespace FileManager
                 {
                     if (TabTarget.ContentType == ContentType.File)
                     {
-                        if (!await TabTarget.File.CheckExist())
+                        if (!await TabTarget.File.CheckExist().ConfigureAwait(true))
                         {
                             if (Globalization.Language == LanguageEnum.Chinese)
                             {
@@ -2675,7 +2689,7 @@ namespace FileManager
                                     Content = "无法找到对应的文件，该文件可能已被移动或删除",
                                     CloseButtonText = "刷新"
                                 };
-                                _ = await Dialog.ShowAsync();
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
                             }
                             else
                             {
@@ -2685,9 +2699,9 @@ namespace FileManager
                                     Content = "Could not find the corresponding file, it may have been moved or deleted",
                                     CloseButtonText = "Refresh"
                                 };
-                                _ = await Dialog.ShowAsync();
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
                             }
-                            await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
                             Interlocked.Exchange(ref TabTarget, null);
                             return;
                         }
@@ -2710,7 +2724,7 @@ namespace FileManager
                             }
                             else
                             {
-                                List<string> PickerRecord = await SQLite.Current.GetProgramPickerRecordAsync();
+                                List<string> PickerRecord = await SQLite.Current.GetProgramPickerRecordAsync().ConfigureAwait(false);
                                 foreach (var Path in PickerRecord)
                                 {
                                     try
@@ -2719,13 +2733,13 @@ namespace FileManager
                                         string AppName = (await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"].ToString();
                                         if (AppName == AdminExcuteProgram)
                                         {
-                                            await FullTrustExcutorController.Run(Path, TabTarget.Path);
+                                            await FullTrustExcutorController.Run(Path, TabTarget.Path).ConfigureAwait(false);
                                             break;
                                         }
                                     }
                                     catch (Exception)
                                     {
-                                        await SQLite.Current.DeleteProgramPickerRecordAsync(Path);
+                                        await SQLite.Current.DeleteProgramPickerRecordAsync(Path).ConfigureAwait(false);
                                     }
                                 }
 
@@ -2737,7 +2751,7 @@ namespace FileManager
                             {
                                 case ".zip":
                                     {
-                                        Nav.Navigate(typeof(ZipExplorer), TabTarget, new DrillInNavigationTransitionInfo());
+                                        FileControlInstance.Nav.Navigate(typeof(ZipExplorer), new Tuple<FileControl, FileSystemStorageItem>(FileControlInstance, TabTarget), new DrillInNavigationTransitionInfo());
                                         break;
                                     }
                                 case ".jpg":
@@ -2747,7 +2761,7 @@ namespace FileManager
                                 case ".gif":
                                 case ".tiff":
                                     {
-                                        Nav.Navigate(typeof(PhotoViewer), TabTarget.File.FolderRelativeId, new DrillInNavigationTransitionInfo());
+                                        FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, TabTarget.File.FolderRelativeId), new DrillInNavigationTransitionInfo());
                                         break;
                                     }
                                 case ".mkv":
@@ -2760,35 +2774,35 @@ namespace FileManager
                                 case ".mov":
                                 case ".alac":
                                     {
-                                        Nav.Navigate(typeof(MediaPlayer), TabTarget.File, new DrillInNavigationTransitionInfo());
+                                        FileControlInstance.Nav.Navigate(typeof(MediaPlayer), TabTarget.File, new DrillInNavigationTransitionInfo());
                                         break;
                                     }
                                 case ".txt":
                                     {
-                                        Nav.Navigate(typeof(TextViewer), TabTarget, new DrillInNavigationTransitionInfo());
+                                        FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, FileSystemStorageItem>(FileControlInstance, TabTarget), new DrillInNavigationTransitionInfo());
                                         break;
                                     }
                                 case ".pdf":
                                     {
-                                        Nav.Navigate(typeof(PdfReader), TabTarget.File, new DrillInNavigationTransitionInfo());
+                                        FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, TabTarget.File), new DrillInNavigationTransitionInfo());
                                         break;
                                     }
                                 case ".exe":
                                     {
                                         if (RunAsAdministrator)
                                         {
-                                            await FullTrustExcutorController.RunAsAdministrator(TabTarget.Path);
+                                            await FullTrustExcutorController.RunAsAdministrator(TabTarget.Path).ConfigureAwait(false);
                                         }
                                         else
                                         {
-                                            await FullTrustExcutorController.Run(TabTarget.Path);
+                                            await FullTrustExcutorController.Run(TabTarget.Path).ConfigureAwait(false);
                                         }
                                         break;
                                     }
                                 default:
                                     {
                                         ProgramPickerDialog Dialog = new ProgramPickerDialog(TabTarget.File);
-                                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                                        if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                         {
                                             if (Dialog.OpenFailed)
                                             {
@@ -2801,7 +2815,7 @@ namespace FileManager
                                                         PrimaryButtonText = "默认应用打开",
                                                         CloseButtonText = "取消"
                                                     };
-                                                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                                                    if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                                                     {
                                                         if (!await Launcher.LaunchFileAsync(TabTarget.File))
                                                         {
@@ -2822,13 +2836,16 @@ namespace FileManager
                                                         PrimaryButtonText = "Open with default app",
                                                         CloseButtonText = "Cancel"
                                                     };
-                                                    if (!await Launcher.LaunchFileAsync(TabTarget.File))
+                                                    if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                                                     {
-                                                        LauncherOptions options = new LauncherOptions
+                                                        if (!await Launcher.LaunchFileAsync(TabTarget.File))
                                                         {
-                                                            DisplayApplicationPicker = true
-                                                        };
-                                                        _ = await Launcher.LaunchFileAsync(TabTarget.File, options);
+                                                            LauncherOptions options = new LauncherOptions
+                                                            {
+                                                                DisplayApplicationPicker = true
+                                                            };
+                                                            _ = await Launcher.LaunchFileAsync(TabTarget.File, options);
+                                                        }
                                                     }
                                                 }
                                             }
@@ -2840,7 +2857,7 @@ namespace FileManager
                     }
                     else
                     {
-                        if (!await ReFile.Folder.CheckExist())
+                        if (!await ReFile.Folder.CheckExist().ConfigureAwait(true))
                         {
                             if (Globalization.Language == LanguageEnum.Chinese)
                             {
@@ -2850,7 +2867,7 @@ namespace FileManager
                                     Content = "无法找到对应的文件夹，该文件可能已被移动或删除",
                                     CloseButtonText = "刷新"
                                 };
-                                _ = await Dialog.ShowAsync();
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
                             }
                             else
                             {
@@ -2860,34 +2877,30 @@ namespace FileManager
                                     Content = "Could not find the corresponding folder, it may have been moved or deleted",
                                     CloseButtonText = "Refresh"
                                 };
-                                _ = await Dialog.ShowAsync();
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
                             }
-                            await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
                             Interlocked.Exchange(ref TabTarget, null);
                             return;
                         }
 
-                        if (FileControl.ThisPage.CurrentNode.HasUnrealizedChildren && !FileControl.ThisPage.CurrentNode.IsExpanded)
+                        if (FileControlInstance.CurrentNode.HasUnrealizedChildren && !FileControlInstance.CurrentNode.IsExpanded)
                         {
-                            FileControl.ThisPage.CurrentNode.IsExpanded = true;
+                            FileControlInstance.CurrentNode.IsExpanded = true;
                         }
 
                         while (true)
                         {
-                            TreeViewNode TargetNode = FileControl.ThisPage.CurrentNode?.Children.Where((Node) => (Node.Content as StorageFolder).Name == TabTarget.Name).FirstOrDefault();
+                            TreeViewNode TargetNode = FileControlInstance.CurrentNode?.Children.Where((Node) => (Node.Content as StorageFolder).Name == TabTarget.Name).FirstOrDefault();
                             if (TargetNode != null)
                             {
-                                await FileControl.ThisPage.FolderTree.SelectNode(TargetNode);
-                                await FileControl.ThisPage.DisplayItemsInFolder(TargetNode);
-                                break;
-                            }
-                            else if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name != "FileControl")
-                            {
+                                await FileControlInstance.FolderTree.SelectNode(TargetNode).ConfigureAwait(true);
+                                await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
                                 break;
                             }
                             else
                             {
-                                await Task.Delay(200);
+                                await Task.Delay(200).ConfigureAwait(true);
                             }
                         }
                     }
@@ -2914,7 +2927,7 @@ namespace FileManager
                         Content = "已存在正在进行中的任务，请等待其完成",
                         CloseButtonText = "确定"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -2924,7 +2937,7 @@ namespace FileManager
                         Content = "There is already an ongoing task, please wait for it to complete",
                         CloseButtonText = "Got it"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
                 return;
             }
@@ -2932,13 +2945,13 @@ namespace FileManager
             if (SelectedItem is FileSystemStorageItem Item)
             {
                 VideoEditDialog Dialog = new VideoEditDialog(Item.File);
-                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    StorageFile ExportFile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync($"{Item.DisplayName} - {(Globalization.Language == LanguageEnum.Chinese ? "裁剪" : "Cropped")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
-                    await GeneralTransformer.GenerateCroppedVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding, Dialog.TrimmingPreference);
-                    if (Path.GetDirectoryName(ExportFile.Path) == FileControl.ThisPage.CurrentFolder.Path && ApplicationData.Current.LocalSettings.Values["MediaCropStatus"] is string Status && Status == "Success")
+                    StorageFile ExportFile = await FileControlInstance.CurrentFolder.CreateFileAsync($"{Item.DisplayName} - {(Globalization.Language == LanguageEnum.Chinese ? "裁剪" : "Cropped")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
+                    await GeneralTransformer.GenerateCroppedVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding, Dialog.TrimmingPreference).ConfigureAwait(true);
+                    if (Path.GetDirectoryName(ExportFile.Path) == FileControlInstance.CurrentFolder.Path && ApplicationData.Current.LocalSettings.Values["MediaCropStatus"] is string Status && Status == "Success")
                     {
-                        FileCollection.Add(new FileSystemStorageItem(ExportFile, await ExportFile.GetSizeDescriptionAsync(), await ExportFile.GetThumbnailBitmapAsync(), await ExportFile.GetModifiedTimeAsync()));
+                        FileCollection.Add(new FileSystemStorageItem(ExportFile, await ExportFile.GetSizeDescriptionAsync().ConfigureAwait(true), await ExportFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await ExportFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                     }
                 }
             }
@@ -2958,7 +2971,7 @@ namespace FileManager
                         Content = "已存在正在进行中的任务，请等待其完成",
                         CloseButtonText = "确定"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -2968,7 +2981,7 @@ namespace FileManager
                         Content = "There is already an ongoing task, please wait for it to complete",
                         CloseButtonText = "Got it"
                     };
-                    _ = await Dialog.ShowAsync();
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
                 }
                 return;
             }
@@ -2976,13 +2989,13 @@ namespace FileManager
             if (SelectedItem is FileSystemStorageItem Item)
             {
                 VideoMergeDialog Dialog = new VideoMergeDialog(Item.File);
-                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+                if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    StorageFile ExportFile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync($"{Item.DisplayName} - {(Globalization.Language == LanguageEnum.Chinese ? "合并" : "Merged")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
-                    await GeneralTransformer.GenerateMergeVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding);
-                    if (Path.GetDirectoryName(ExportFile.Path) == FileControl.ThisPage.CurrentFolder.Path && ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"] is string Status && Status == "Success")
+                    StorageFile ExportFile = await FileControlInstance.CurrentFolder.CreateFileAsync($"{Item.DisplayName} - {(Globalization.Language == LanguageEnum.Chinese ? "合并" : "Merged")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
+                    await GeneralTransformer.GenerateMergeVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding).ConfigureAwait(true);
+                    if (Path.GetDirectoryName(ExportFile.Path) == FileControlInstance.CurrentFolder.Path && ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"] is string Status && Status == "Success")
                     {
-                        FileCollection.Add(new FileSystemStorageItem(ExportFile, await ExportFile.GetSizeDescriptionAsync(), await ExportFile.GetThumbnailBitmapAsync(), await ExportFile.GetModifiedTimeAsync()));
+                        FileCollection.Add(new FileSystemStorageItem(ExportFile, await ExportFile.GetSizeDescriptionAsync().ConfigureAwait(true), await ExportFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await ExportFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                     }
                 }
             }
@@ -2995,7 +3008,7 @@ namespace FileManager
             if (SelectedItem is FileSystemStorageItem Item)
             {
                 ProgramPickerDialog Dialog = new ProgramPickerDialog(Item.File);
-                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
                     if (Dialog.OpenFailed)
                     {
@@ -3008,7 +3021,7 @@ namespace FileManager
                                 PrimaryButtonText = "默认应用打开",
                                 CloseButtonText = "取消"
                             };
-                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                            if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                             {
                                 if (!await Launcher.LaunchFileAsync(Item.File))
                                 {
@@ -3029,18 +3042,20 @@ namespace FileManager
                                 PrimaryButtonText = "Open with default app",
                                 CloseButtonText = "Cancel"
                             };
-                            if (!await Launcher.LaunchFileAsync(Item.File))
+                            if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
                             {
-                                LauncherOptions options = new LauncherOptions
+                                if (!await Launcher.LaunchFileAsync(Item.File))
                                 {
-                                    DisplayApplicationPicker = true
-                                };
-                                _ = await Launcher.LaunchFileAsync(Item.File, options);
+                                    LauncherOptions options = new LauncherOptions
+                                    {
+                                        DisplayApplicationPicker = true
+                                    };
+                                    _ = await Launcher.LaunchFileAsync(Item.File, options);
+                                }
                             }
                         }
                     }
-
-                    if (Dialog.ContinueUseInnerViewer)
+                    else if (Dialog.ContinueUseInnerViewer)
                     {
                         EnterSelectedItem(Item);
                     }
@@ -3061,19 +3076,19 @@ namespace FileManager
         private async void ListHeaderName_Click(object sender, RoutedEventArgs e)
         {
             SortMap["System.ItemNameDisplay"] = !SortMap["System.ItemNameDisplay"];
-            await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.ItemNameDisplay", SortMap["System.ItemNameDisplay"]) });
+            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.ItemNameDisplay", SortMap["System.ItemNameDisplay"]) }).ConfigureAwait(false);
         }
 
         private async void ListHeaderModifiedTime_Click(object sender, RoutedEventArgs e)
         {
             SortMap["System.DateModified"] = !SortMap["System.DateModified"];
-            await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.DateModified", SortMap["System.DateModified"]) });
+            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.DateModified", SortMap["System.DateModified"]) }).ConfigureAwait(false);
         }
 
         private async void ListHeaderSize_Click(object sender, RoutedEventArgs e)
         {
             SortMap["System.Size"] = !SortMap["System.Size"];
-            await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.Size", SortMap["System.Size"]) });
+            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.Size", SortMap["System.Size"]) }).ConfigureAwait(false);
         }
 
         private void QRTeachTip_Closing(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosingEventArgs args)
@@ -3088,20 +3103,20 @@ namespace FileManager
             Restore();
 
             NewFileDialog Dialog = new NewFileDialog();
-            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
+            if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
                 try
                 {
-                    StorageFile NewFile = await FileControl.ThisPage.CurrentFolder.CreateFileAsync(Dialog.NewFileName, CreationCollisionOption.GenerateUniqueName);
+                    StorageFile NewFile = await FileControlInstance.CurrentFolder.CreateFileAsync(Dialog.NewFileName, CreationCollisionOption.GenerateUniqueName);
 
                     int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.ContentType == ContentType.File));
                     if (Index == -1)
                     {
-                        FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                        FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                     }
                     else
                     {
-                        FileCollection.Insert(Index, new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync(), await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetModifiedTimeAsync()));
+                        FileCollection.Insert(Index, new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                     }
                 }
                 catch (UnauthorizedAccessException)
@@ -3115,9 +3130,9 @@ namespace FileManager
                             PrimaryButtonText = "立刻",
                             CloseButtonText = "稍后"
                         };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                         }
                     }
                     else
@@ -3129,9 +3144,9 @@ namespace FileManager
                             PrimaryButtonText = "Enter",
                             CloseButtonText = "Later"
                         };
-                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
-                            _ = await Launcher.LaunchFolderAsync(FileControl.ThisPage.CurrentFolder);
+                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                         }
                     }
                 }
@@ -3144,7 +3159,7 @@ namespace FileManager
 
             FileSystemStorageItem Item = SelectedItem as FileSystemStorageItem;
 
-            if (!await Item.Folder.CheckExist())
+            if (!await Item.Folder.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -3154,7 +3169,7 @@ namespace FileManager
                         Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog1.ShowAsync();
+                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -3164,29 +3179,29 @@ namespace FileManager
                         Content = "Could not find the corresponding folder, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog1.ShowAsync();
+                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                 }
-                await FileControl.ThisPage.DisplayItemsInFolder(FileControl.ThisPage.CurrentNode, true);
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
                 return;
             }
 
             ZipDialog dialog = new ZipDialog(true, Item.DisplayName);
 
-            if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
+            if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
-                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在压缩" : "Compressing");
+                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在压缩" : "Compressing").ConfigureAwait(true);
 
                 if (dialog.IsCryptionEnable)
                 {
-                    await CreateZipAsync(Item.Folder, dialog.FileName, (int)dialog.Level, true, dialog.Key, dialog.Password);
+                    await CreateZipAsync(Item.Folder, dialog.FileName, (int)dialog.Level, true, dialog.Key, dialog.Password).ConfigureAwait(true);
                 }
                 else
                 {
-                    await CreateZipAsync(Item.Folder, dialog.FileName, (int)dialog.Level);
+                    await CreateZipAsync(Item.Folder, dialog.FileName, (int)dialog.Level).ConfigureAwait(true);
                 }
             }
 
-            await LoadingActivation(false);
+            await LoadingActivation(false).ConfigureAwait(true);
         }
     }
 }

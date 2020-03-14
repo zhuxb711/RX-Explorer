@@ -28,7 +28,7 @@ namespace FileManager
         {
             get
             {
-                return GlobalizationPreferences.Languages.FirstOrDefault();
+                return GlobalizationPreferences.Languages[0];
             }
         }
 
@@ -501,7 +501,7 @@ namespace FileManager
                 TextBlock SecondaryDNSAddressBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = SDNS.Count() == 0 ? "Unknown" : SDNS.FirstOrDefault().ToString()
+                    Text = !SDNS.Any() ? "Unknown" : SDNS.FirstOrDefault().ToString()
                 };
                 SecondaryDNSAddressBlock.SetValue(Grid.RowProperty, i * 8 + 6);
                 SecondaryDNSAddressBlock.SetValue(Grid.ColumnProperty, 1);
