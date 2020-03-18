@@ -139,6 +139,11 @@
                                       x:Name="Location"
                                       Label="打开所在位置"
                                       Click="Location_Click" />
+                        <AppBarButton Icon="Copy"
+                                      x:Name="CopyPath"
+                                      Label="复制完整路径"
+                                      x:Uid="SearchCopyPath"
+                                      Click="CopyPath_Click"/>
                         <AppBarButton Icon="Tag"
                                       x:Uid="SearchProperties"
                                       Label="属性"

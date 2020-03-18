@@ -485,7 +485,7 @@ namespace FileManager
                 SecureCollection.Add(new FileSystemStorageItem(Item, Size, Thumbnail, ModifiedTime));
             }
 
-            await SecureCollection.SetStorageItemQueryAsync(ItemQuery).ConfigureAwait(false);
+            await SecureCollection.SetStorageQueryResultAsync(ItemQuery).ConfigureAwait(false);
         }
 
         private void SecureCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -900,7 +900,7 @@ namespace FileManager
             if (SecureGridView.SelectedItem is FileSystemStorageItem Item)
             {
                 SecureFilePropertyDialog Dialog = new SecureFilePropertyDialog(Item);
-                _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
@@ -921,7 +921,7 @@ namespace FileManager
                                 Content = "文件名不能为空，重命名失败",
                                 CloseButtonText = "确定"
                             };
-                            await content.ShowAsync().ConfigureAwait(false);
+                            await content.ShowAsync().ConfigureAwait(true);
                         }
                         else
                         {
@@ -931,7 +931,7 @@ namespace FileManager
                                 Content = "File name cannot be empty, rename failed",
                                 CloseButtonText = "Confirm"
                             };
-                            await content.ShowAsync().ConfigureAwait(false);
+                            await content.ShowAsync().ConfigureAwait(true);
                         }
 
                         return;

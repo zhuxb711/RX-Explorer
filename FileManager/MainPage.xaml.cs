@@ -43,6 +43,10 @@ namespace FileManager
             ThisPage = this;
             Window.Current.SetTitleBar(TitleBar);
             Loaded += MainPage_Loaded;
+
+#if DEBUG
+            AppName.Text += " (Debug 模式)";
+#endif
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -132,7 +136,7 @@ namespace FileManager
             if (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.IsAppUpdated || Microsoft.Toolkit.Uwp.Helpers.SystemInformation.IsFirstRun)
             {
                 WhatIsNew Dialog = new WhatIsNew();
-                _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
@@ -212,11 +216,11 @@ namespace FileManager
                                     SecondaryButtonText = "稍后提醒",
                                     CloseButtonText = "不再提醒"
                                 };
-                                switch (await Dialog.ShowAsync().ConfigureAwait(false))
+                                switch (await Dialog.ShowAsync().ConfigureAwait(true))
                                 {
                                     case ContentDialogResult.Primary:
                                         {
-                                            _ = await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
+                                            _ = await Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-backgroundapps"));
                                             break;
                                         }
                                     case ContentDialogResult.Secondary:
@@ -240,11 +244,11 @@ namespace FileManager
                                     SecondaryButtonText = "Remind later",
                                     CloseButtonText = "Never remind"
                                 };
-                                switch (await Dialog.ShowAsync().ConfigureAwait(false))
+                                switch (await Dialog.ShowAsync().ConfigureAwait(true))
                                 {
                                     case ContentDialogResult.Primary:
                                         {
-                                            _ = await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
+                                            _ = await Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-backgroundapps"));
                                             break;
                                         }
                                     case ContentDialogResult.Secondary:
@@ -408,7 +412,7 @@ namespace FileManager
                                                                "Ruofan,\r敬上",
                                                     CloseButtonText = "朕知道了"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                                                 break;
                                             }
                                         case StorePurchaseStatus.AlreadyPurchased:
@@ -422,7 +426,7 @@ namespace FileManager
                                                               "Ruofan,\r敬上",
                                                     CloseButtonText = "朕知道了"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                                                 break;
                                             }
                                         case StorePurchaseStatus.NotPurchased:
@@ -435,7 +439,7 @@ namespace FileManager
                                                               "Ruofan,\r敬上",
                                                     CloseButtonText = "朕知道了"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                                                 break;
                                             }
                                         default:
@@ -446,7 +450,7 @@ namespace FileManager
                                                     Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
                                                     CloseButtonText = "朕知道了"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                                                 break;
                                             }
                                     }
@@ -460,7 +464,7 @@ namespace FileManager
                                     Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
                                     CloseButtonText = "朕知道了"
                                 };
-                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
+                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                             }
                         }
                         else
@@ -488,7 +492,7 @@ namespace FileManager
                                                               "Sincerely,\rRuofan",
                                                     CloseButtonText = "Got it"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                                                 break;
                                             }
                                         case StorePurchaseStatus.AlreadyPurchased:
@@ -502,7 +506,7 @@ namespace FileManager
                                                               "Sincerely,\rRuofan",
                                                     CloseButtonText = "Got it"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                                                 break;
                                             }
                                         case StorePurchaseStatus.NotPurchased:
@@ -515,7 +519,7 @@ namespace FileManager
                                                               "Sincerely,\rRuofan",
                                                     CloseButtonText = "Got it"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                                                 break;
                                             }
                                         default:
@@ -526,7 +530,7 @@ namespace FileManager
                                                     Content = "Unable to open support page due to Microsoft Store or network, please try again later",
                                                     CloseButtonText = "Got it"
                                                 };
-                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
+                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                                                 break;
                                             }
                                     }
@@ -540,7 +544,7 @@ namespace FileManager
                                     Content = "Unable to open support page due to Microsoft Store or network, please try again later",
                                     CloseButtonText = "Got it"
                                 };
-                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
+                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                             }
                         }
                     };
@@ -557,7 +561,6 @@ namespace FileManager
                     {
                         DonateTip.Subtitle = "It takes a lot of effort for developers to develop RX file manager\r" +
                                              "🎉You can volunteer to contribute a little pocket money to developers.🎉\r\r" +
-                                             "Please donate 0.99$ 🍪\r\r" +
                                              "If you don't want to, you can click \"Later\" to cancel\r" +
                                              "if you want to donate, you can click \"Donate\" to support developer\r\r" +
                                              "Tips: Donator can unlock the unique file safe feature: \"Security Area\"";

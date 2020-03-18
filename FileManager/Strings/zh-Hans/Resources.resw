@@ -1302,4 +1302,7 @@
   <data name="USBDisplayName" xml:space="preserve">
     <value>打开并查看文件</value>
   </data>
+  <data name="SearchCopyPath" xml:space="preserve">
+    <value>复制完整路径</value>
+  </data>
 </root>

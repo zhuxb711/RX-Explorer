@@ -467,7 +467,7 @@ namespace FileManager
                             Content = "部分文件不存在，无法移动到指定位置",
                             CloseButtonText = "确定"
                         };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                     else
                     {
@@ -477,7 +477,7 @@ namespace FileManager
                             Content = "Some files do not exist and cannot be moved to the specified location",
                             CloseButtonText = "Got it"
                         };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
                 else if (IsUnauthorized)
@@ -491,7 +491,7 @@ namespace FileManager
                             PrimaryButtonText = "立刻",
                             CloseButtonText = "稍后"
                         };
-                        if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
                             _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                         }
@@ -505,7 +505,7 @@ namespace FileManager
                             PrimaryButtonText = "Enter",
                             CloseButtonText = "Later"
                         };
-                        if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
                             _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                         }
@@ -521,7 +521,7 @@ namespace FileManager
                             Content = "因设备剩余空间大小不足，部分文件无法移动",
                             CloseButtonText = "确定"
                         };
-                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
+                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                     }
                     else
                     {
@@ -531,7 +531,7 @@ namespace FileManager
                             Content = "Some files cannot be moved due to insufficient free space on the device",
                             CloseButtonText = "Confirm"
                         };
-                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(false);
+                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
                 else if (IsCaptured)
@@ -557,7 +557,7 @@ namespace FileManager
                         };
                     }
 
-                    _ = await dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
             else if (CopyFiles != null)
@@ -1056,7 +1056,7 @@ namespace FileManager
                         CloseButtonText = "确定"
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -1067,7 +1067,7 @@ namespace FileManager
                         CloseButtonText = "Got it"
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
 
                 return;
@@ -1116,7 +1116,7 @@ namespace FileManager
                                     Content = "文件名不能为空，重命名失败",
                                     CloseButtonText = "确定"
                                 };
-                                await content.ShowAsync().ConfigureAwait(false);
+                                await content.ShowAsync().ConfigureAwait(true);
                                 return;
                             }
 
@@ -1140,7 +1140,7 @@ namespace FileManager
                                     PrimaryButtonText = "立刻",
                                     CloseButtonText = "稍后"
                                 };
-                                if (await Dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                 {
                                     _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                                 }
@@ -1156,7 +1156,7 @@ namespace FileManager
                                     Content = "File name cannot be empty, rename failed",
                                     CloseButtonText = "Confirm"
                                 };
-                                await content.ShowAsync().ConfigureAwait(false);
+                                await content.ShowAsync().ConfigureAwait(true);
                                 return;
                             }
 
@@ -1180,7 +1180,7 @@ namespace FileManager
                                     PrimaryButtonText = "Enter",
                                     CloseButtonText = "Later"
                                 };
-                                if (await Dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                 {
                                     _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                                 }
@@ -1229,7 +1229,7 @@ namespace FileManager
                                     Content = "文件夹名不能为空，重命名失败",
                                     CloseButtonText = "确定"
                                 };
-                                await content.ShowAsync().ConfigureAwait(false);
+                                await content.ShowAsync().ConfigureAwait(true);
                             }
                             else
                             {
@@ -1239,7 +1239,7 @@ namespace FileManager
                                     Content = "Folder name cannot be empty, rename failed",
                                     CloseButtonText = "Confirm"
                                 };
-                                await content.ShowAsync().ConfigureAwait(false);
+                                await content.ShowAsync().ConfigureAwait(true);
                             }
                             return;
                         }
@@ -1307,7 +1307,7 @@ namespace FileManager
                                     PrimaryButtonText = "立刻",
                                     CloseButtonText = "稍后"
                                 };
-                                if (await Dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                 {
                                     _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                                 }
@@ -1321,7 +1321,7 @@ namespace FileManager
                                     PrimaryButtonText = "Enter",
                                     CloseButtonText = "Later"
                                 };
-                                if (await Dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                 {
                                     _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                                 }
@@ -1377,7 +1377,7 @@ namespace FileManager
                         FileName = ShareFile.File.Name,
                         UseStorageFileRatherThanStream = true
                     };
-                    _ = await FileTransfer.ShowAsync().ConfigureAwait(false);
+                    _ = await FileTransfer.ShowAsync().ConfigureAwait(true);
                 }
             }
             else
@@ -1390,7 +1390,7 @@ namespace FileManager
                         Content = "请开启蓝牙开关后再试",
                         CloseButtonText = "确定"
                     };
-                    _ = await dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -1400,7 +1400,7 @@ namespace FileManager
                         Content = "Please turn on Bluetooth and try again.",
                         CloseButtonText = "Confirm"
                     };
-                    _ = await dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
         }
@@ -1534,7 +1534,7 @@ namespace FileManager
             }
 
             AttributeDialog Dialog = new AttributeDialog(Device.File);
-            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+            _ = await Dialog.ShowAsync().ConfigureAwait(true);
         }
 
         private async void Zip_Click(object sender, RoutedEventArgs e)
@@ -1700,7 +1700,7 @@ namespace FileManager
                             PrimaryButtonText = "立刻",
                             CloseButtonText = "稍后"
                         };
-                        if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
                             _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                         }
@@ -1714,7 +1714,7 @@ namespace FileManager
                             PrimaryButtonText = "Enter",
                             CloseButtonText = "Later"
                         };
-                        if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
                             _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                         }
@@ -1730,7 +1730,7 @@ namespace FileManager
                             Content = "解压文件时发生异常\r\r错误信息：\r\r" + e.Message,
                             CloseButtonText = "确定"
                         };
-                        _ = await dialog.ShowAsync().ConfigureAwait(false);
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
                     }
                     else
                     {
@@ -1740,7 +1740,7 @@ namespace FileManager
                             Content = "An exception occurred while extracting the file\r\rError Message：\r\r" + e.Message,
                             CloseButtonText = "Confirm"
                         };
-                        _ = await dialog.ShowAsync().ConfigureAwait(false);
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
             }
@@ -1865,7 +1865,7 @@ namespace FileManager
                         PrimaryButtonText = "立刻",
                         CloseButtonText = "稍后"
                     };
-                    if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
                         _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                     }
@@ -1879,7 +1879,7 @@ namespace FileManager
                         PrimaryButtonText = "Enter",
                         CloseButtonText = "Later"
                     };
-                    if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
                         _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                     }
@@ -2074,7 +2074,7 @@ namespace FileManager
                             Content = "已存在正在进行中的任务，请等待其完成",
                             CloseButtonText = "确定"
                         };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                     else
                     {
@@ -2084,7 +2084,7 @@ namespace FileManager
                             Content = "There is already an ongoing task, please wait for it to complete",
                             CloseButtonText = "Got it"
                         };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                     return;
                 }
@@ -2127,7 +2127,7 @@ namespace FileManager
                                             PrimaryButtonText = "立刻",
                                             CloseButtonText = "稍后"
                                         };
-                                        if (await Dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                                        if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                         {
                                             _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                                         }
@@ -2141,7 +2141,7 @@ namespace FileManager
                                             PrimaryButtonText = "Enter",
                                             CloseButtonText = "Later"
                                         };
-                                        if (await Dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                                        if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                         {
                                             _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                                         }
@@ -2220,7 +2220,7 @@ namespace FileManager
             }
 
             AttributeDialog Dialog = new AttributeDialog(Device.Folder);
-            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+            _ = await Dialog.ShowAsync().ConfigureAwait(true);
         }
 
         private async void WIFIShare_Click(object sender, RoutedEventArgs e)
@@ -2381,7 +2381,7 @@ namespace FileManager
                         Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -2391,7 +2391,7 @@ namespace FileManager
                         Content = "Could not find the corresponding folder, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 return;
             }
@@ -2401,18 +2401,18 @@ namespace FileManager
                 if (TabViewContainer.ThisPage.HardDeviceList.FirstOrDefault((Device) => Device.Name == FileControlInstance.CurrentFolder.DisplayName) is HardDeviceInfo Info)
                 {
                     DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
-                    _ = await dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
                     AttributeDialog Dialog = new AttributeDialog(FileControlInstance.CurrentFolder);
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
             else
             {
                 AttributeDialog Dialog = new AttributeDialog(FileControlInstance.CurrentFolder);
-                _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
@@ -2473,7 +2473,7 @@ namespace FileManager
                         Content = "此文件夹已经添加到主界面了，不能重复添加哦",
                         CloseButtonText = "知道了"
                     };
-                    _ = await dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -2483,7 +2483,7 @@ namespace FileManager
                         Content = "This folder has been added to the home page, can not be added repeatedly",
                         CloseButtonText = "知道了"
                     };
-                    _ = await dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
             else
@@ -2508,7 +2508,7 @@ namespace FileManager
                         Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -2518,7 +2518,7 @@ namespace FileManager
                         Content = "Could not find the corresponding folder, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 return;
             }
@@ -2569,7 +2569,7 @@ namespace FileManager
                     };
                 }
 
-                if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
                     _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                 }
@@ -2643,7 +2643,7 @@ namespace FileManager
                         Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
                         CloseButtonText = "刷新"
                     };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -2653,7 +2653,7 @@ namespace FileManager
                         Content = "Could not find the corresponding folder, it may have been moved or deleted",
                         CloseButtonText = "Refresh"
                     };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 return;
             }
@@ -2815,7 +2815,7 @@ namespace FileManager
                                                         PrimaryButtonText = "默认应用打开",
                                                         CloseButtonText = "取消"
                                                     };
-                                                    if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                                     {
                                                         if (!await Launcher.LaunchFileAsync(TabTarget.File))
                                                         {
@@ -2836,7 +2836,7 @@ namespace FileManager
                                                         PrimaryButtonText = "Open with default app",
                                                         CloseButtonText = "Cancel"
                                                     };
-                                                    if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                                     {
                                                         if (!await Launcher.LaunchFileAsync(TabTarget.File))
                                                         {
@@ -2894,7 +2894,7 @@ namespace FileManager
                             TreeViewNode TargetNode = FileControlInstance.CurrentNode?.Children.Where((Node) => (Node.Content as StorageFolder).Name == TabTarget.Name).FirstOrDefault();
                             if (TargetNode != null)
                             {
-                                await FileControlInstance.FolderTree.SelectNode(TargetNode).ConfigureAwait(true);
+                                FileControlInstance.FolderTree.SelectNode(TargetNode);
                                 await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
                                 break;
                             }
@@ -2927,7 +2927,7 @@ namespace FileManager
                         Content = "已存在正在进行中的任务，请等待其完成",
                         CloseButtonText = "确定"
                     };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -2937,7 +2937,7 @@ namespace FileManager
                         Content = "There is already an ongoing task, please wait for it to complete",
                         CloseButtonText = "Got it"
                     };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 return;
             }
@@ -2971,7 +2971,7 @@ namespace FileManager
                         Content = "已存在正在进行中的任务，请等待其完成",
                         CloseButtonText = "确定"
                     };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -2981,7 +2981,7 @@ namespace FileManager
                         Content = "There is already an ongoing task, please wait for it to complete",
                         CloseButtonText = "Got it"
                     };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 return;
             }
@@ -3021,7 +3021,7 @@ namespace FileManager
                                 PrimaryButtonText = "默认应用打开",
                                 CloseButtonText = "取消"
                             };
-                            if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                             {
                                 if (!await Launcher.LaunchFileAsync(Item.File))
                                 {
@@ -3042,7 +3042,7 @@ namespace FileManager
                                 PrimaryButtonText = "Open with default app",
                                 CloseButtonText = "Cancel"
                             };
-                            if (await dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                             {
                                 if (!await Launcher.LaunchFileAsync(Item.File))
                                 {

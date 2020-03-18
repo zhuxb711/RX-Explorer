@@ -14,7 +14,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
-using BitmapIconSource = Microsoft.UI.Xaml.Controls.BitmapIconSource;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TabView = Microsoft.UI.Xaml.Controls.TabView;
 using TabViewTabCloseRequestedEventArgs = Microsoft.UI.Xaml.Controls.TabViewTabCloseRequestedEventArgs;
@@ -59,9 +58,18 @@ namespace FileManager
 
         private void Current_Resuming(object sender, object e)
         {
-            if (PortalDeviceWatcher != null && PortalDeviceWatcher.Status == DeviceWatcherStatus.Stopped)
+            switch(PortalDeviceWatcher.Status)
             {
-                PortalDeviceWatcher.Start();
+                case DeviceWatcherStatus.Created:
+                case DeviceWatcherStatus.Aborted:
+                case DeviceWatcherStatus.Stopped:
+                    {
+                        if (PortalDeviceWatcher != null)
+                        {
+                            PortalDeviceWatcher.Start();
+                        }
+                        break;
+                    }
             }
         }
 
@@ -86,10 +94,10 @@ namespace FileManager
 
         private async void PortalDeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
         {
-            var CurrentDrives = DriveInfo.GetDrives().TakeWhile((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
-                                                     .GroupBy((Item) => Item.Name)
-                                                     .Select((Group) => Group.FirstOrDefault().Name);
-            var RemovedDriveList = HardDeviceList.SkipWhile((RemoveItem) => CurrentDrives.Any((Item) => Item == RemoveItem.Folder.Path));
+            IEnumerable<string> CurrentDrives = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                                                                     .Select((Info) => Info.Name);
+
+            IEnumerable<HardDeviceInfo> RemovedDriveList = HardDeviceList.Where((RemoveItem) => CurrentDrives.All((Item) => Item != RemoveItem.Folder.Path));
 
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -102,9 +110,9 @@ namespace FileManager
 
         private async void PortalDeviceWatcher_Added(DeviceWatcher sender, DeviceInformation args)
         {
-            var NewDriveAddedList = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
-                                                         .Select((Item) => Item.RootDirectory.FullName)
-                                                         .SkipWhile((NewItem) => HardDeviceList.Any((Item) => Item.Folder.Path == NewItem));
+            IEnumerable<string> NewDriveAddedList = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                                                                         .Select((Item) => Item.RootDirectory.FullName)
+                                                                         .Where((NewItem) => HardDeviceList.All((Item) => Item.Folder.Path != NewItem));
             try
             {
                 foreach (string DriveRootPath in NewDriveAddedList)
@@ -283,7 +291,7 @@ namespace FileManager
                         BitmapImage Thumbnail = await PinFile.GetThumbnailBitmapAsync().ConfigureAwait(true);
                         LibraryFolderList.Add(new LibraryFolder(PinFile, Thumbnail, LibrarySource.UserCustom));
                     }
-                    catch (FileNotFoundException)
+                    catch (Exception)
                     {
                         ErrorList.Enqueue(FolderPath);
                         await SQLite.Current.DeleteFolderLibraryAsync(FolderPath).ConfigureAwait(true);
@@ -294,21 +302,42 @@ namespace FileManager
 
                 foreach (string DriveRootPath in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
                                                                       .Select((Item) => Item.RootDirectory.FullName)
-                                                                      .SkipWhile((NewItem) => HardDeviceList.Any((Item) => Item.Folder.Path == NewItem)))
+                                                                      .Where((NewItem) => HardDeviceList.All((Item) => Item.Folder.Path != NewItem)))
                 {
-                    if (VisibilityMap.ContainsKey(DriveRootPath))
+                    if (!VisibilityMap.ContainsKey(DriveRootPath) || VisibilityMap[DriveRootPath])
                     {
-                        if (!VisibilityMap[DriveRootPath])
+                        try
                         {
-                            continue;
+                            StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
+
+                            BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                            IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+                            HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve));
+                        }
+                        catch (Exception)
+                        {
+                            if (Globalization.Language == LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = "警告",
+                                    Content = "由于缺乏足够的权限，部分驱动器未能显示",
+                                    CloseButtonText = "知道了"
+                                };
+                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            }
+                            else
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = "Warning",
+                                    Content = "Some drives fail to display due to lack of sufficient permissions",
+                                    CloseButtonText = "Got it"
+                                };
+                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            }
                         }
                     }
-
-                    StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
-
-                    BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-                    HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve));
                 }
 
                 foreach (string AdditionalDrivePath in VisibilityMap.Where((Item) => Item.Value && HardDeviceList.All((Device) => Item.Key != Device.Folder.Path)).Select((Result) => Result.Key))
@@ -328,9 +357,15 @@ namespace FileManager
                     }
                 }
 
-                if (PortalDeviceWatcher.Status != DeviceWatcherStatus.Started && PortalDeviceWatcher.Status != DeviceWatcherStatus.EnumerationCompleted)
+                switch (PortalDeviceWatcher.Status)
                 {
-                    PortalDeviceWatcher.Start();
+                    case DeviceWatcherStatus.Created:
+                    case DeviceWatcherStatus.Aborted:
+                    case DeviceWatcherStatus.Stopped:
+                        {
+                            PortalDeviceWatcher.Start();
+                            break;
+                        }
                 }
 
                 if (ErrorList.Count > 0)

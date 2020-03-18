@@ -116,7 +116,7 @@ namespace FileManager
             else
             {
                 QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.Application);
-                _ = await dialog.ShowAsync().ConfigureAwait(false);
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
@@ -129,7 +129,7 @@ namespace FileManager
             else
             {
                 QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.WebSite);
-                _ = await dialog.ShowAsync().ConfigureAwait(false);
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
@@ -147,7 +147,7 @@ namespace FileManager
             if (QuickStartGridView.SelectedItem is QuickStartItem Item)
             {
                 QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.UpdateApp, Item);
-                _ = await dialog.ShowAsync().ConfigureAwait(false);
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
@@ -156,7 +156,7 @@ namespace FileManager
             if (QuickStartGridView.SelectedItem is QuickStartItem Item)
             {
                 QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.UpdateWeb, Item);
-                _ = await dialog.ShowAsync().ConfigureAwait(false);
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
@@ -206,7 +206,7 @@ namespace FileManager
         private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
             DeviceInfoDialog Dialog = new DeviceInfoDialog(DeviceGrid.SelectedItem as HardDeviceInfo);
-            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+            _ = await Dialog.ShowAsync().ConfigureAwait(true);
         }
 
         private void DeviceGrid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
@@ -327,7 +327,7 @@ namespace FileManager
             if (LibraryGrid.SelectedItem is LibraryFolder Library)
             {
                 AttributeDialog Dialog = new AttributeDialog(Library.Folder);
-                _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
@@ -444,7 +444,7 @@ namespace FileManager
                                 Content = "所选择的驱动器已经存在",
                                 CloseButtonText = "知道了"
                             };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
                         else
                         {
@@ -454,7 +454,7 @@ namespace FileManager
                                 Content = "The selected drive already exists",
                                 CloseButtonText = "Got it"
                             };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
                     }
                 }
@@ -468,7 +468,7 @@ namespace FileManager
                             Content = "所选择的内容并非是驱动器",
                             CloseButtonText = "知道了"
                         };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                     else
                     {
@@ -478,7 +478,7 @@ namespace FileManager
                             Content = "The selected content is not a drive",
                             CloseButtonText = "Got it"
                         };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
             }

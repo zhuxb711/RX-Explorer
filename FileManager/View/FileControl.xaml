@@ -11,6 +11,43 @@
       Background="Transparent">
 
     <Page.Resources>
+        <Flyout x:Name="AddressExtentionFlyout"
+                Placement="BottomEdgeAlignedLeft"
+                Closing="AddressExtentionFlyout_Closing">
+            <ListView MaxHeight="300"
+                      MaxWidth="250"
+                      MinWidth="150"
+                      SelectionMode="None"
+                      IsItemClickEnabled="True"
+                      Name="AddressExtensionSubFolderList"
+                      ItemClick="AddressExtensionSubFolderList_ItemClick"
+                      ItemsSource="{x:Bind AddressExtentionList}"
+                      ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      IncrementalLoadingTrigger="Edge"
+                      DataFetchSize="1.5">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Width="18"
+                                     Height="18"
+                                     Margin="0,2,0,0">
+                                <FontIcon Glyph="&#xED41;" />
+                            </Viewbox>
+                            <TextBlock Text="{Binding}"
+                                       Margin="5,0,0,0"
+                                       MaxWidth="200"
+                                       MinWidth="100"
+                                       FontSize="14"
+                                       TextWrapping="NoWrap"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTipService.ToolTip="{Binding}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Flyout>
+
         <local:FolderStateConverter x:Key="StateConverter" />
 
         <CommandBarFlyout Placement="RightEdgeAlignedTop"
@@ -143,16 +180,24 @@
                     <muxc:ItemsRepeater.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="›" 
-                                           VerticalAlignment="Center"
-                                           TextAlignment="Center"
-                                           FontSize="18"
-                                           Margin="0,-2,0,0"/>
                                 <Button Content="{Binding}"
                                         VerticalAlignment="Center"
                                         Name="AddressButton"
+                                        Padding="3,5,3,6"
                                         Click="AddressButton_Click"
                                         Background="{ThemeResource ButtonDisabledBackgroundThemeBrush}" />
+                                <Button Background="{ThemeResource ButtonDisabledBackgroundThemeBrush}"
+                                        VerticalAlignment="Center"
+                                        HorizontalContentAlignment="Center"
+                                        Padding="3,5,3,6"
+                                        Name="AddressExtention"
+                                        Click="AddressExtention_Click">
+                                    <Button.Content>
+                                        <TextBlock Text="›"
+                                                   FontSize="16"
+                                                   TextAlignment="Center"/>
+                                    </Button.Content>
+                                </Button>
                             </StackPanel>
                         </DataTemplate>
                     </muxc:ItemsRepeater.ItemTemplate>

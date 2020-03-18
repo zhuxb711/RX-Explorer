@@ -1726,6 +1726,10 @@
           <source>Open and view files</source>
           <target state="translated">打开并查看文件</target>
         </trans-unit>
+        <trans-unit id="SearchCopyPath" translate="yes" xml:space="preserve">
+          <source>Copy the full path</source>
+          <target state="translated">复制完整路径</target>
+        </trans-unit>
       </group>
     </body>
   </file>

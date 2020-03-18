@@ -1810,7 +1810,7 @@ namespace FileManager
         /// <param name="Node">要选中的Node</param>
         /// <param name="View">Node所属的TreeView控件</param>
         /// <returns></returns>
-        public static async Task SelectNode(this TreeView View, TreeViewNode Node)
+        public static void SelectNode(this TreeView View, TreeViewNode Node)
         {
             if (Node == null)
             {
@@ -1822,18 +1822,12 @@ namespace FileManager
                 throw new ArgumentNullException(nameof(View), "Parameter could not be null");
             }
 
-            while (true)
+            View.UpdateLayout();
+
+            if (View.ContainerFromNode(Node) is TreeViewItem Item)
             {
-                if (View.ContainerFromNode(Node) is TreeViewItem Item)
-                {
-                    Item.IsSelected = true;
-                    Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                    break;
-                }
-                else
-                {
-                    await Task.Delay(200).ConfigureAwait(true);
-                }
+                Item.IsSelected = true;
+                Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
             }
         }
 
@@ -3018,9 +3012,12 @@ namespace FileManager
     /// <typeparam name="T">集合内容的类型</typeparam>
     public sealed class IncrementalLoadingCollection<T> : ObservableCollection<T>, ISupportIncrementalLoading
     {
-        private StorageItemQueryResult Query;
+        public StorageItemQueryResult ItemQuery { get; private set; }
+        public StorageFolderQueryResult FolderQuery { get; private set; }
+
         private uint CurrentIndex = 0;
         private Func<uint, uint, StorageItemQueryResult, Task<IEnumerable<T>>> MoreItemsNeed;
+        private Func<uint, uint, StorageFolderQueryResult, Task<IEnumerable<T>>> MoreFolderNeed;
         private uint MaxNum = 0;
 
         /// <summary>
@@ -3032,20 +3029,44 @@ namespace FileManager
             this.MoreItemsNeed = MoreItemsNeed;
         }
 
-        public async Task SetStorageItemQueryAsync(StorageItemQueryResult InputQuery)
+        public IncrementalLoadingCollection(Func<uint, uint, StorageFolderQueryResult, Task<IEnumerable<T>>> MoreFolderNeed)
+        {
+            this.MoreFolderNeed = MoreFolderNeed;
+        }
+
+        public async Task SetStorageQueryResultAsync(StorageItemQueryResult InputQuery)
         {
             if (InputQuery == null)
             {
                 throw new ArgumentNullException(nameof(InputQuery), "Parameter could not be null");
             }
 
-            Query = InputQuery;
+            ItemQuery = InputQuery;
 
-            MaxNum = await Query.GetItemCountAsync();
+            MaxNum = await ItemQuery.GetItemCountAsync();
 
             CurrentIndex = MaxNum > 100 ? 100 : MaxNum;
 
             if (MaxNum > 100)
+            {
+                HasMoreItems = true;
+            }
+        }
+
+        public async Task SetStorageQueryResultAsync(StorageFolderQueryResult InputQuery)
+        {
+            if (InputQuery == null)
+            {
+                throw new ArgumentNullException(nameof(InputQuery), "Parameter could not be null");
+            }
+
+            FolderQuery = InputQuery;
+
+            MaxNum = await FolderQuery.GetItemCountAsync();
+
+            CurrentIndex = MaxNum > 20 ? 20 : MaxNum;
+
+            if (MaxNum > 20)
             {
                 HasMoreItems = true;
             }
@@ -3065,7 +3086,16 @@ namespace FileManager
                     }
                     else
                     {
-                        IEnumerable<T> Result = await MoreItemsNeed(CurrentIndex, ItemNeedNum, Query).ConfigureAwait(true);
+                        IEnumerable<T> Result;
+
+                        if (MoreItemsNeed == null)
+                        {
+                            Result = await MoreFolderNeed(CurrentIndex, ItemNeedNum, FolderQuery).ConfigureAwait(true);
+                        }
+                        else
+                        {
+                            Result = await MoreItemsNeed(CurrentIndex, ItemNeedNum, ItemQuery).ConfigureAwait(true);
+                        }
 
                         for (int i = 0; i < Result.Count() && HasMoreItems; i++)
                         {
@@ -3079,7 +3109,16 @@ namespace FileManager
                 }
                 else
                 {
-                    IEnumerable<T> Result = await MoreItemsNeed(CurrentIndex, count, Query).ConfigureAwait(true);
+                    IEnumerable<T> Result;
+
+                    if (MoreItemsNeed == null)
+                    {
+                        Result = await MoreFolderNeed(CurrentIndex, count, FolderQuery).ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        Result = await MoreItemsNeed(CurrentIndex, count, ItemQuery).ConfigureAwait(true);
+                    }
 
                     for (int i = 0; i < Result.Count() && HasMoreItems; i++)
                     {
@@ -6000,6 +6039,23 @@ namespace FileManager
             ApplicationData.Current.LocalSettings.Values["ExcuteParameter"] = Parameter;
             ApplicationData.Current.LocalSettings.Values["ExcuteAuthority"] = "Administrator";
             await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+        }
+    }
+    #endregion
+
+    #region 地址栏分块对象
+    public sealed class AddressBlock
+    {
+        public string Name { get; private set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
+
+        public AddressBlock(string Name)
+        {
+            this.Name = Name;
         }
     }
     #endregion

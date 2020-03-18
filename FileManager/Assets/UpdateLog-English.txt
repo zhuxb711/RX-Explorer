@@ -1,4 +1,31 @@
 ﻿*****
+###What's new in Ver.4.2.7.0
+
+>#####Feature Update
+
+>>#####Add support for address bar drop-down menu
+
+>>#####Add "Copy full path" option to right-click menu of search interface
+
+>#####Performance improvement
+
+>>#####Improved the efficiency of listing devices when USB devices are connected
+
+>>#####Other minor performance improvements
+
+>#####Bug fix
+
+>>#####Fixed some issues that caused "Method was called at unexpected time" error
+
+>>#####Fixed the issue that the "RX Explorer" name is not displayed in the initial interface
+
+>>#####Solved the problem that when there are multiple folders with the same name in the address bar, it cannot be distinguished correctly, which will lead to navigation errors or failure to enter specific folders
+
+>>#####Addresses an issue where drives may not be listed properly in special cases
+
+>>#####Resolved an issue that could cause a crash when quickly clicking back or forward
+
+*****
 ###What's new in Ver.4.2.4.0
 
 >#####Feature Update

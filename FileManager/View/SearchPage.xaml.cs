@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.Search;
@@ -121,89 +122,78 @@ namespace FileManager
 
         private async void Location_Click(object sender, RoutedEventArgs e)
         {
-            var RemoveFile = SearchResultList.SelectedItem as FileSystemStorageItem;
-
-            if (RemoveFile.ContentType == ContentType.Folder)
+            if (SearchResultList.SelectedItem is FileSystemStorageItem RemoveFile)
             {
-                var RootNode = FileControlInstance.FolderTree.RootNodes[0];
-                TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(RemoveFile.Folder.Path, (RootNode.Content as StorageFolder).Path)).ConfigureAwait(true);
-                if (TargetNode == null)
+                if (RemoveFile.ContentType == ContentType.Folder)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    var RootNode = FileControlInstance.FolderTree.RootNodes[0];
+                    TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(RemoveFile.Folder.Path, (RootNode.Content as StorageFolder).Path)).ConfigureAwait(true);
+                    if (TargetNode == null)
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
+                        if (Globalization.Language == LanguageEnum.Chinese)
                         {
-                            Title = "错误",
-                            Content = "无法定位文件夹，该文件夹可能已被删除或移动",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(false);
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = "错误",
+                                Content = "无法定位文件夹，该文件夹可能已被删除或移动",
+                                CloseButtonText = "确定"
+                            };
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        }
+                        else
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = "Error",
+                                Content = "Unable to locate folder, which may have been deleted or moved",
+                                CloseButtonText = "Confirm"
+                            };
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        }
                     }
                     else
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "Unable to locate folder, which may have been deleted or moved",
-                            CloseButtonText = "Confirm"
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(false);
+                        FileControlInstance.FolderTree.SelectNode(TargetNode);
+                        await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
                     }
                 }
                 else
                 {
-                    while (true)
+                    try
                     {
-                        if (FileControlInstance.FolderTree.ContainerFromNode(TargetNode) is TreeViewItem Item)
+                        _ = await StorageFile.GetFileFromPathAsync(RemoveFile.Path);
+
+                        var RootNode = FileControlInstance.FolderTree.RootNodes[0];
+                        var CurrentNode = await FindFolderLocationInTree(RootNode, new PathAnalysis((await RemoveFile.File.GetParentAsync()).Path, (RootNode.Content as StorageFolder).Path)).ConfigureAwait(true);
+
+                        var Container = FileControlInstance.FolderTree.ContainerFromNode(CurrentNode) as TreeViewItem;
+                        Container.IsSelected = true;
+                        Container.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
+
+                        await FileControlInstance.DisplayItemsInFolder(CurrentNode).ConfigureAwait(false);
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        if (Globalization.Language == LanguageEnum.Chinese)
                         {
-                            Item.IsSelected = true;
-                            Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-                            await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
-                            break;
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = "错误",
+                                Content = "无法定位文件，该文件可能已被删除或移动",
+                                CloseButtonText = "确定"
+                            };
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
                         }
                         else
                         {
-                            await Task.Delay(300).ConfigureAwait(true);
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = "Error",
+                                Content = "Unable to locate file, which may have been deleted or moved",
+                                CloseButtonText = "Confirm"
+                            };
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
                         }
-                    }
-                }
-            }
-            else
-            {
-                try
-                {
-                    _ = await StorageFile.GetFileFromPathAsync(RemoveFile.Path);
-
-                    var RootNode = FileControlInstance.FolderTree.RootNodes[0];
-                    var CurrentNode = await FindFolderLocationInTree(RootNode, new PathAnalysis((await RemoveFile.File.GetParentAsync()).Path, (RootNode.Content as StorageFolder).Path)).ConfigureAwait(true);
-
-                    var Container = FileControlInstance.FolderTree.ContainerFromNode(CurrentNode) as TreeViewItem;
-                    Container.IsSelected = true;
-                    Container.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-
-                    await FileControlInstance.DisplayItemsInFolder(CurrentNode).ConfigureAwait(false);
-                }
-                catch (FileNotFoundException)
-                {
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "无法定位文件，该文件可能已被删除或移动",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "Unable to locate file, which may have been deleted or moved",
-                            CloseButtonText = "Confirm"
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(false);
                     }
                 }
             }
@@ -215,12 +205,12 @@ namespace FileManager
             if (Device.File != null)
             {
                 AttributeDialog Dialog = new AttributeDialog(Device.File);
-                _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
             else if (Device.Folder != null)
             {
                 AttributeDialog Dialog = new AttributeDialog(Device.Folder);
-                _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
@@ -272,7 +262,7 @@ namespace FileManager
                         }
                         else
                         {
-                            await Task.Delay(500).ConfigureAwait(true);
+                            await Task.Delay(300).ConfigureAwait(true);
                         }
                     }
                 }
@@ -289,6 +279,16 @@ namespace FileManager
         private void SearchResultList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Location.IsEnabled = SearchResultList.SelectedIndex != -1;
+        }
+
+        private void CopyPath_Click(object sender, RoutedEventArgs e)
+        {
+            if (SearchResultList.SelectedItem is FileSystemStorageItem SelectItem)
+            {
+                DataPackage Package = new DataPackage();
+                Package.SetText(SelectItem.Path);
+                Clipboard.SetContent(Package);
+            }
         }
     }
 }

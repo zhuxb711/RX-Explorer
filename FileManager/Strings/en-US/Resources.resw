@@ -780,6 +780,9 @@
   <data name="SearchSize.Text" xml:space="preserve">
     <value>Size</value>
   </data>
+  <data name="SearchCopyPath"  xml:space="preserve">
+    <value>Copy the full path</value>
+  </data>
   <data name="SearchTip.CloseButtonContent" xml:space="preserve">
     <value>Got it</value>
   </data>

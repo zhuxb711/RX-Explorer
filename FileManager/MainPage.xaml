@@ -53,7 +53,8 @@
             <TextBlock x:Uid="AppName"
                        Margin="10,0,0,0"
                        VerticalAlignment="Center"
-                       Text="RX文件管理器" />
+                       Text="RX文件管理器"
+                       Name="AppName"/>
         </Border>
         <NavigationView Grid.Row="1"
                         Name="NavView"

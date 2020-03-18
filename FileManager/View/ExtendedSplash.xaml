@@ -9,7 +9,12 @@
       mc:Ignorable="d">
 
     <Grid>
-        <Canvas>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Canvas Grid.RowSpan="2">
             <Image Name="extendedSplashImage"
                    Source="ms-appx:///Assets/SplashScreen.png" />
             <TextBlock Name="Display"
@@ -36,5 +41,16 @@
                         Click="CloseButton_Click" />
             </StackPanel>
         </Canvas>
+
+        <Border x:Name="TitleBar"
+                Background="Transparent"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch">
+            <TextBlock x:Uid="AppName"
+                       Margin="10,0,0,0"
+                       VerticalAlignment="Center"
+                       Text="RX文件管理器"
+                       Name="AppName" />
+        </Border>
     </Grid>
 </Page>

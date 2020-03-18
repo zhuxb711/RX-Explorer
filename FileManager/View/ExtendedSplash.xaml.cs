@@ -30,6 +30,12 @@ namespace FileManager
         {
             InitializeComponent();
 
+            Window.Current.SetTitleBar(TitleBar);
+
+#if DEBUG
+            AppName.Text += " (Debug 模式)";
+#endif
+
             ReleaseLock = new AutoResetEvent(false);
 
             Window.Current.SizeChanged += Current_SizeChanged;
