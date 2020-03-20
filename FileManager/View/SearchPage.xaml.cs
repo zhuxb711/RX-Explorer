@@ -67,6 +67,8 @@ namespace FileManager
             HasItem.Visibility = Visibility.Collapsed;
 
             LoadingControl.IsLoading = true;
+            MainPage.ThisPage.IsAnyTaskRunning = true;
+
             IReadOnlyList<IStorageItem> SearchItems = null;
 
             try
@@ -77,6 +79,7 @@ namespace FileManager
                     HasItem.Visibility = Visibility.Visible;
                     SearchResultList.Visibility = Visibility.Collapsed;
                     LoadingControl.IsLoading = false;
+                    MainPage.ThisPage.IsAnyTaskRunning = false;
                 });
 
                 IAsyncOperation<IReadOnlyList<IStorageItem>> SearchAsync = ItemQuery.GetItemsAsync(0, 100);
@@ -96,6 +99,7 @@ namespace FileManager
             await Task.Delay(1500).ConfigureAwait(true);
 
             LoadingControl.IsLoading = false;
+            MainPage.ThisPage.IsAnyTaskRunning = false;
 
             if (SearchItems.Count == 0)
             {

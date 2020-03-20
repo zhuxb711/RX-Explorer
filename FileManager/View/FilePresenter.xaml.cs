@@ -1032,10 +1032,13 @@ namespace FileManager
                 }
 
                 ProgressInfo.Text = Info + "...";
+
+                MainPage.ThisPage.IsAnyTaskRunning = true;
             }
             else
             {
                 await Task.Delay(1000).ConfigureAwait(true);
+                MainPage.ThisPage.IsAnyTaskRunning = false;
             }
 
             LoadingControl.IsLoading = IsLoading;

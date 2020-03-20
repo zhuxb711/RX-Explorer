@@ -14,6 +14,8 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.System.Profile;
+using Windows.UI.Core.Preview;
+using Windows.UI.Notifications;
 using Windows.UI.Shell;
 using Windows.UI.StartScreen;
 using Windows.UI.Xaml;
@@ -37,16 +39,69 @@ namespace FileManager
 
         public string LastPageName { get; private set; }
 
+        public bool IsAnyTaskRunning { get; set; }
+
         public MainPage()
         {
             InitializeComponent();
+
             ThisPage = this;
             Window.Current.SetTitleBar(TitleBar);
             Loaded += MainPage_Loaded;
+            SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += MainPage_CloseRequested;
 
+            try
+            {
+                ToastNotificationManager.History.Clear();
+            }
+            catch (Exception)
+            {
+
+            }
 #if DEBUG
             AppName.Text += " (Debug 模式)";
 #endif
+        }
+
+        private async void MainPage_CloseRequested(object sender, SystemNavigationCloseRequestedPreviewEventArgs e)
+        {
+            Deferral Deferral = e.GetDeferral();
+
+            if (IsAnyTaskRunning)
+            {
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "警告",
+                        Content = "RX文件管理器正在运行一些任务，此时关闭可能导致数据不正确\r\r是否继续?",
+                        PrimaryButtonText = "立即关闭",
+                        CloseButtonText = "等待完成"
+                    };
+
+                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) != ContentDialogResult.Primary)
+                    {
+                        e.Handled = true;
+                    }
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "Warning",
+                        Content = "The RX Explorer is running some tasks, closing at this time may cause data errors\r\rDo you want to continue?",
+                        PrimaryButtonText = "Right now",
+                        CloseButtonText = "Later"
+                    };
+
+                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) != ContentDialogResult.Primary)
+                    {
+                        e.Handled = true;
+                    }
+                }
+            }
+
+            Deferral.Complete();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

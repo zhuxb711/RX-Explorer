@@ -58,6 +58,7 @@ namespace FileManager
                 }
 
                 LoadingControl.IsLoading = true;
+                MainPage.ThisPage.IsAnyTaskRunning = true;
 
                 Behavior.Attach(Flip);
 
@@ -98,6 +99,7 @@ namespace FileManager
                 await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmap().ConfigureAwait(true);
 
                 LoadingControl.IsLoading = false;
+                MainPage.ThisPage.IsAnyTaskRunning = false;
                 OpacityAnimation.Begin();
             }
             catch (Exception ex)
@@ -221,12 +223,14 @@ namespace FileManager
             if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
             {
                 TranscodeLoadingControl.IsLoading = true;
+                MainPage.ThisPage.IsAnyTaskRunning = true;
 
                 await GeneralTransformer.TranscodeFromImageAsync(OriginFile, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode).ConfigureAwait(true);
 
                 await Task.Delay(1000).ConfigureAwait(true);
 
                 TranscodeLoadingControl.IsLoading = false;
+                MainPage.ThisPage.IsAnyTaskRunning = false;
             }
         }
 

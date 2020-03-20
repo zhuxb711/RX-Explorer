@@ -289,6 +289,7 @@ namespace FileManager
                 {
                     LoadingText.Text = Globalization.Language == LanguageEnum.Chinese ? "正在导出..." : "Exporting";
                     LoadingControl.IsLoading = true;
+                    MainPage.ThisPage.IsAnyTaskRunning = true;
 
                     StorageFolder SecureFolder = await ApplicationData.Current.LocalCacheFolder.CreateFolderAsync("SecureFolder", CreationCollisionOption.OpenIfExists);
                     string FileEncryptionAesKey = KeyGenerator.GetMD5FromKey(CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword"), 16);
@@ -372,6 +373,7 @@ namespace FileManager
                     await Task.Delay(1000).ConfigureAwait(true);
 
                     LoadingControl.IsLoading = false;
+                    MainPage.ThisPage.IsAnyTaskRunning = false;
 
                     await Task.Delay(1000).ConfigureAwait(true);
 

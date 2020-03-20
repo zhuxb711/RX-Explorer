@@ -29,14 +29,6 @@ namespace FileManager
         public App()
         {
             InitializeComponent();
-            try
-            {
-                ToastNotificationManager.History.Clear();
-            }
-            catch (COMException)
-            {
-
-            }
 
             Suspending += OnSuspending;
             UnhandledException += App_UnhandledException;
@@ -44,7 +36,6 @@ namespace FileManager
             LeavingBackground += App_LeavingBackground;
             MemoryManager.AppMemoryUsageIncreased += MemoryManager_AppMemoryUsageIncreased;
             MemoryManager.AppMemoryUsageLimitChanging += MemoryManager_AppMemoryUsageLimitChanging;
-
             Globalization.SetAppPrimaryLanguageAccordingToSystemLanguage();
         }
 
@@ -130,6 +121,7 @@ namespace FileManager
                 ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
                 Window.Current.Content = extendedSplash;
             }
+
             Window.Current.Activate();
         }
 

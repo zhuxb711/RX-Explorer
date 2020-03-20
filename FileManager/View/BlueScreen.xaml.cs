@@ -24,7 +24,7 @@ namespace FileManager
 
         private async void BlueScreen_Loaded(object sender, RoutedEventArgs e)
         {
-            await Task.Delay(5000).ConfigureAwait(false);
+            await Task.Delay(5000).ConfigureAwait(true);
             await SendEmailAsync(Message.Text).ConfigureAwait(false);
         }
 

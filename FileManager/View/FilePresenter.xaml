@@ -283,14 +283,21 @@
                                Text="{x:Bind DisplayName,Mode=OneWay}"
                                FontSize="16"
                                Width="140"
+                               HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis" />
                     <TextBlock IsHitTestVisible="False"
                                Text="{x:Bind DisplayType}"
-                               FontSize="13" />
+                               FontSize="13"
+                               HorizontalTextAlignment="Left"
+                               TextTrimming="CharacterEllipsis"
+                               Width="140"/>
                     <TextBlock IsHitTestVisible="False"
                                Text="{x:Bind Size,Mode=OneWay}"
                                Visibility="{x:Bind Folder,Converter={StaticResource StateConverter}}"
-                               FontSize="13" />
+                               FontSize="13"
+                               HorizontalTextAlignment="Left"
+                               TextTrimming="CharacterEllipsis"
+                               Width="140"/>
                 </StackPanel>
             </StackPanel>
         </DataTemplate>

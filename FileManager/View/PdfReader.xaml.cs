@@ -50,6 +50,7 @@ namespace FileManager
         private async Task Initialize()
         {
             LoadingControl.IsLoading = true;
+            MainPage.ThisPage.IsAnyTaskRunning = true;
 
             PdfCollection = new ObservableCollection<BitmapImage>();
             LoadQueue = new Queue<int>();
@@ -127,6 +128,7 @@ namespace FileManager
                 }
 
                 LoadingControl.IsLoading = false;
+                MainPage.ThisPage.IsAnyTaskRunning = false;
             }
         }
 

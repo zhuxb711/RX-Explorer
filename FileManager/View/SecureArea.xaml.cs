@@ -212,6 +212,7 @@ namespace FileManager
                             LoadingText.Text = Globalization.Language == LanguageEnum.Chinese ? "正在检查许可证..." : "Checking license...";
                             CancelButton.Visibility = Visibility.Collapsed;
                             LoadingControl.IsLoading = true;
+                            MainPage.ThisPage.IsAnyTaskRunning = true;
 
                             if (await CheckPurchaseStatusAsync().ConfigureAwait(true))
                             {
@@ -327,6 +328,7 @@ namespace FileManager
                         {
                             await Task.Delay(500).ConfigureAwait(true);
                             LoadingControl.IsLoading = false;
+                            MainPage.ThisPage.IsAnyTaskRunning = false;
                         }
                     }
 
@@ -959,6 +961,8 @@ namespace FileManager
                 CancelButton.Visibility = Visibility.Visible;
             }
             LoadingControl.IsLoading = ActivateOrNot;
+            MainPage.ThisPage.IsAnyTaskRunning = ActivateOrNot;
+
         }
 
         private void WindowsHelloQuestion_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)

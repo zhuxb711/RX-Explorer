@@ -1,4 +1,21 @@
 ﻿*****
+###What's new in Ver.4.3.0.0
+
+>#####Feature Update
+
+>>#####Close the prompt again. If you click Close while RX is processing or operating the file, a prompt box will pop up.
+
+>#####Component updates
+
+>>#####Updated compilation components
+
+>#####Bug fixes
+
+>>#####Solved the problem of crashing again on the blue screen interface after RX crashed
+
+>>#####Solved the display problem of some file names, which may cause blanks or the length of the name to exceed the display range
+
+*****
 ###What's new in Ver.4.2.7.0
 
 >#####Feature Update

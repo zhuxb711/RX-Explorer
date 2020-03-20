@@ -224,6 +224,7 @@ namespace FileManager
                 ProgressInfo.Text = Info + "...";
             }
             LoadingControl.IsLoading = IsLoading;
+            MainPage.ThisPage.IsAnyTaskRunning = IsLoading;
         }
 
         private async void Decompression_Click(object sender, RoutedEventArgs e)

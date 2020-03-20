@@ -247,6 +247,8 @@ namespace FileManager
             if (File != null)
             {
                 LoadingControl.IsLoading = true;
+                MainPage.ThisPage.IsAnyTaskRunning = true;
+
 
                 using (var Stream = await File.OpenAsync(FileAccessMode.ReadWrite))
                 {
@@ -276,6 +278,7 @@ namespace FileManager
 
                 await Task.Delay(1000).ConfigureAwait(true);
                 LoadingControl.IsLoading = false;
+                MainPage.ThisPage.IsAnyTaskRunning = false;
                 FileControlNav.GoBack();
             }
         }
@@ -365,6 +368,8 @@ namespace FileManager
         private async void Save_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
             LoadingControl.IsLoading = true;
+            MainPage.ThisPage.IsAnyTaskRunning = true;
+
             using (var Stream = await OriginFile.OpenAsync(FileAccessMode.ReadWrite))
             {
                 Stream.Size = 0;
@@ -396,6 +401,8 @@ namespace FileManager
             await Task.Delay(1000).ConfigureAwait(true);
 
             LoadingControl.IsLoading = false;
+            MainPage.ThisPage.IsAnyTaskRunning = false;
+
             FileControlNav.GoBack();
         }
 

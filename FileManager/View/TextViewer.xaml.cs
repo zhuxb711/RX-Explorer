@@ -23,6 +23,8 @@ namespace FileManager
         private async Task Initialize()
         {
             LoadingControl.IsLoading = true;
+            MainPage.ThisPage.IsAnyTaskRunning = true;
+
             try
             {
                 string FileText = await FileIO.ReadTextAsync(SFile.File);
@@ -30,8 +32,6 @@ namespace FileManager
                 Text.Text = FileText;
 
                 await Task.Delay(500).ConfigureAwait(true);
-
-                LoadingControl.IsLoading = false;
             }
             catch (ArgumentOutOfRangeException)
             {
@@ -47,8 +47,11 @@ namespace FileManager
                 Text.Text = FileText;
 
                 await Task.Delay(500).ConfigureAwait(true);
-
+            }
+            finally
+            {
                 LoadingControl.IsLoading = false;
+                MainPage.ThisPage.IsAnyTaskRunning = false;
             }
         }
 

@@ -309,7 +309,7 @@
                                    HorizontalAlignment="Center"
                                    ResizeBehavior="BasedOnAlignment"
                                    ResizeDirection="Auto"
-                                   Grid.Column="1" />
+                                   Grid.Column="1"/>
         </Grid>
     </Grid>
 </Page>
