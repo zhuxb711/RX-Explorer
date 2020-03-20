@@ -4256,6 +4256,9 @@ namespace FileManager
         }
     }
 
+    /// <summary>
+    /// 网络错误
+    /// </summary>
     public sealed class NetworkException : Exception
     {
         public NetworkException(string ErrorMessage) : base(ErrorMessage)
@@ -4269,23 +4272,6 @@ namespace FileManager
         }
 
         public NetworkException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-    }
-
-    public sealed class NotSignInException : Exception
-    {
-        public NotSignInException(string ErrorMessage) : base(ErrorMessage)
-        {
-
-        }
-
-        public NotSignInException() : base()
-        {
-
-        }
-
-        public NotSignInException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }

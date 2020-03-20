@@ -281,7 +281,7 @@ namespace FileManager
                                 QueueContentDialog ErrorDialog = new QueueContentDialog
                                 {
                                     Title = "错误",
-                                    Content = "当前网络不可用，无法更新许可证",
+                                    Content = "当前网络或用户不可用，因此无法检查许可证状态",
                                     CloseButtonText = "返回"
                                 };
                                 _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
@@ -291,32 +291,7 @@ namespace FileManager
                                 QueueContentDialog ErrorDialog = new QueueContentDialog
                                 {
                                     Title = "Error",
-                                    Content = "The current network is unavailable and the license cannot be updated",
-                                    CloseButtonText = "Back"
-                                };
-                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                            }
-                            GoBack();
-                            return;
-                        }
-                        catch (NotSignInException)
-                        {
-                            if (Globalization.Language == LanguageEnum.Chinese)
-                            {
-                                QueueContentDialog ErrorDialog = new QueueContentDialog
-                                {
-                                    Title = "提示",
-                                    Content = "由于未将当前用户登录至微软商店，因此无法检查许可证状态",
-                                    CloseButtonText = "返回"
-                                };
-                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                QueueContentDialog ErrorDialog = new QueueContentDialog
-                                {
-                                    Title = "Tips",
-                                    Content = "Unable to check license status because current user is not signed in to the Microsoft Store",
+                                    Content = "Cannot check license status because the current network or user is unavailable",
                                     CloseButtonText = "Back"
                                 };
                                 _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
@@ -373,10 +348,6 @@ namespace FileManager
             if (PurchasedProductResult.ExtendedError == null)
             {
                 return PurchasedProductResult.Products.Count > 0;
-            }
-            else if (PurchasedProductResult.ExtendedError.HResult == unchecked((int)0x80070525) || PurchasedProductResult.ExtendedError.Message.Contains("ERROR_NO_SUCH_USER"))
-            {
-                throw new NotSignInException("Not Sign In");
             }
             else
             {

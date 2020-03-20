@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -528,7 +527,7 @@ namespace FileManager
                     CurrentNode = Node;
                     FolderTree.SelectNode(Node);
 
-                    if (Nav.CurrentSourcePageType.Name != "FilePresenter")
+                    while (Nav.CurrentSourcePageType.Name != nameof(FilePresenter))
                     {
                         Nav.GoBack();
                     }

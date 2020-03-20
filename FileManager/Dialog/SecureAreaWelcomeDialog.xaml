@@ -45,7 +45,7 @@
                       x:Uid="SAWelcomeDialogSecureLevel"
                       Margin="0,10,0,0"
                       Name="SecureLevel"
-                      Width="200"/>
+                      Width="220"/>
             <StackPanel Orientation="Horizontal">
                 <CheckBox Content="使用Windows Hello代替密码认证"
                           x:Uid="SAWelcomeDialogUseWH"
