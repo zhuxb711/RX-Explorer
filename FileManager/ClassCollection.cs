@@ -461,46 +461,64 @@ namespace FileManager
         /// 获取所有快速启动项
         /// </summary>
         /// <returns></returns>
-        public async IAsyncEnumerable<KeyValuePair<QuickStartType, QuickStartItem>> GetQuickStartItemAsync()
+        public async Task<List<KeyValuePair<QuickStartType, QuickStartItem>>> GetQuickStartItemAsync()
         {
             using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(true))
             {
                 List<Tuple<string, string, string>> ErrorList = new List<Tuple<string, string, string>>();
+                List<KeyValuePair<QuickStartType, QuickStartItem>> Result = new List<KeyValuePair<QuickStartType, QuickStartItem>>();
 
                 using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From QuickStart"))
-                using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(true))
+                using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(true))
                 {
-                    while (query.Read())
+                    while (Reader.Read())
                     {
-                        StorageFile ImageFile = null;
                         try
                         {
-                            ImageFile = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, query[1].ToString()));
-                        }
-                        catch (Exception)
-                        {
-                            ErrorList.Add(new Tuple<string, string, string>(query[0].ToString(), query[1].ToString(), query[3].ToString()));
-                        }
-
-                        if (ImageFile != null)
-                        {
-                            using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                            if (Reader[1].ToString().StartsWith("ms-appx"))
                             {
-                                BitmapImage Bitmap = new BitmapImage
+                                BitmapImage Bitmap = new BitmapImage(new Uri(Reader[1].ToString()))
                                 {
-                                    DecodePixelHeight = 80,
-                                    DecodePixelWidth = 80
+                                    DecodePixelHeight = 100,
+                                    DecodePixelWidth = 100
                                 };
-                                await Bitmap.SetSourceAsync(Stream);
-                                if ((QuickStartType)Enum.Parse(typeof(QuickStartType), query[3].ToString()) == QuickStartType.Application)
+
+                                if ((QuickStartType)Enum.Parse(typeof(QuickStartType), Reader[3].ToString()) == QuickStartType.Application)
                                 {
-                                    yield return new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.Application, query[1].ToString(), query[0].ToString()));
+                                    Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, new Uri(Reader[2].ToString()), QuickStartType.Application, Reader[1].ToString(), Reader[0].ToString())));
                                 }
                                 else
                                 {
-                                    yield return new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, new Uri(query[2].ToString()), QuickStartType.WebSite, query[1].ToString(), query[0].ToString()));
+                                    Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, new Uri(Reader[2].ToString()), QuickStartType.WebSite, Reader[1].ToString(), Reader[0].ToString())));
                                 }
                             }
+                            else
+                            {
+                                StorageFile ImageFile = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, Reader[1].ToString()));
+
+                                using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                                {
+                                    BitmapImage Bitmap = new BitmapImage
+                                    {
+                                        DecodePixelHeight = 100,
+                                        DecodePixelWidth = 100
+                                    };
+                                    await Bitmap.SetSourceAsync(Stream);
+
+                                    if ((QuickStartType)Enum.Parse(typeof(QuickStartType), Reader[3].ToString()) == QuickStartType.Application)
+                                    {
+                                        Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, new Uri(Reader[2].ToString()), QuickStartType.Application, Reader[1].ToString(), Reader[0].ToString())));
+                                    }
+                                    else
+                                    {
+                                        Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, new Uri(Reader[2].ToString()), QuickStartType.WebSite, Reader[1].ToString(), Reader[0].ToString())));
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            ErrorList.Add(new Tuple<string, string, string>(Reader[0].ToString(), Reader[1].ToString(), Reader[3].ToString()));
                         }
                     }
                 }
@@ -512,9 +530,11 @@ namespace FileManager
                         _ = Command.Parameters.AddWithValue("@Name", ErrorItem.Item1);
                         _ = Command.Parameters.AddWithValue("@FullPath", ErrorItem.Item2);
                         _ = Command.Parameters.AddWithValue("@Type", ErrorItem.Item3);
-                        _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(true);
                     }
                 }
+
+                return Result;
             }
         }
 

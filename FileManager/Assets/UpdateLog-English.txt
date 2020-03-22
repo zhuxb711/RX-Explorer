@@ -1,4 +1,21 @@
 ﻿*****
+###What's new in Ver.4.3.2.0
+
+>#####Performance improvement
+
+>>#####Improved speed on first launch
+
+>>#####Reduces disk space usage
+
+>#####Bug fix
+
+>>#####Solved the problem of unable to edit and delete popular websites and quick launch
+
+>>#####Resolved an issue that could cause crashes when getting feedback content
+
+>>#####Fixed the issue that the drive letter could not be entered and crashed in single-click mode
+
+*****
 ###What's new in Ver.4.3.0.0
 
 >#####Feature Update

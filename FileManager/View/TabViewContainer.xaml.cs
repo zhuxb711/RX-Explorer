@@ -166,7 +166,7 @@ namespace FileManager
 
             try
             {
-                await foreach (var Item in SQLite.Current.GetQuickStartItemAsync())
+                foreach (KeyValuePair<QuickStartType, QuickStartItem> Item in await SQLite.Current.GetQuickStartItemAsync().ConfigureAwait(true))
                 {
                     if (Item.Key == QuickStartType.Application)
                     {

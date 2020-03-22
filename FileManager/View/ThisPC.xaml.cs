@@ -18,6 +18,7 @@ namespace FileManager
     {
         private Frame Nav;
         private TabViewItem TabItem;
+        private QuickStartItem CurrentSelectedItem;
 
         public ThisPC()
         {
@@ -35,7 +36,7 @@ namespace FileManager
             {
                 Nav = Parameters.Item2;
                 TabItem = Parameters.Item1;
-                TabItem.Header = Globalization.Language==LanguageEnum.Chinese?"这台电脑":"ThisPC";
+                TabItem.Header = Globalization.Language == LanguageEnum.Chinese ? "这台电脑" : "ThisPC";
             }
         }
 
@@ -135,37 +136,37 @@ namespace FileManager
 
         private async void AppDelete_Click(object sender, RoutedEventArgs e)
         {
-            if (QuickStartGridView.SelectedItem is QuickStartItem Item)
+            if (CurrentSelectedItem !=null)
             {
-                TabViewContainer.ThisPage.QuickStartList.Remove(Item);
-                await SQLite.Current.DeleteQuickStartItemAsync(Item).ConfigureAwait(false);
+                TabViewContainer.ThisPage.QuickStartList.Remove(CurrentSelectedItem);
+                await SQLite.Current.DeleteQuickStartItemAsync(CurrentSelectedItem).ConfigureAwait(false);
             }
         }
 
         private async void AppEdit_Click(object sender, RoutedEventArgs e)
         {
-            if (QuickStartGridView.SelectedItem is QuickStartItem Item)
+            if (CurrentSelectedItem!=null)
             {
-                QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.UpdateApp, Item);
+                QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.UpdateApp, CurrentSelectedItem);
                 _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
         private async void WebEdit_Click(object sender, RoutedEventArgs e)
         {
-            if (QuickStartGridView.SelectedItem is QuickStartItem Item)
+            if (CurrentSelectedItem != null)
             {
-                QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.UpdateWeb, Item);
+                QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.UpdateWeb, CurrentSelectedItem);
                 _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
         private async void WebDelete_Click(object sender, RoutedEventArgs e)
         {
-            if (QuickStartGridView.SelectedItem is QuickStartItem Item)
+            if (CurrentSelectedItem!=null)
             {
-                TabViewContainer.ThisPage.HotWebList.Remove(Item);
-                await SQLite.Current.DeleteQuickStartItemAsync(Item).ConfigureAwait(false);
+                TabViewContainer.ThisPage.HotWebList.Remove(CurrentSelectedItem);
+                await SQLite.Current.DeleteQuickStartItemAsync(CurrentSelectedItem).ConfigureAwait(false);
             }
         }
 
@@ -173,7 +174,7 @@ namespace FileManager
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
             {
-                QuickStartGridView.SelectedItem = Item;
+                CurrentSelectedItem = Item;
 
                 if (Item == null || Item.ProtocalUri == null)
                 {
@@ -190,7 +191,7 @@ namespace FileManager
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
             {
-                WebGridView.SelectedItem = Item;
+                CurrentSelectedItem = Item;
 
                 if (Item == null || Item.ProtocalUri == null)
                 {
@@ -232,7 +233,7 @@ namespace FileManager
             {
                 if (DeviceGrid.SelectedItem is HardDeviceInfo Device)
                 {
-                    Nav.Navigate(typeof(FileControl), Device.Folder, new DrillInNavigationTransitionInfo());
+                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new DrillInNavigationTransitionInfo());
                 }
             }
             catch (Exception ex)
@@ -384,7 +385,7 @@ namespace FileManager
                 {
                     if (e.ClickedItem is HardDeviceInfo Device)
                     {
-                        Nav.Navigate(typeof(FileControl), Device.Folder, new DrillInNavigationTransitionInfo());
+                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new DrillInNavigationTransitionInfo());
                     }
                 }
             }
@@ -402,7 +403,7 @@ namespace FileManager
                 {
                     if (e.ClickedItem is LibraryFolder Library)
                     {
-                        Nav.Navigate(typeof(FileControl), Library.Folder, new DrillInNavigationTransitionInfo());
+                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new DrillInNavigationTransitionInfo());
                     }
                 }
             }

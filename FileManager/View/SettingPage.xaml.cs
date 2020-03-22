@@ -169,6 +169,7 @@ namespace FileManager
                     FeedBackCollection.Add(FeedBackItem);
                 }
             }
+            catch { }
             finally
             {
                 if (FeedBackCollection.Count == 0)
@@ -177,7 +178,9 @@ namespace FileManager
                 }
                 else
                 {
-                    await Task.Delay(1000).ConfigureAwait(true);
+                    FeedBackList.UpdateLayout();
+
+                    await Task.Delay(500).ConfigureAwait(true);
 
                     FeedBackList.ScrollIntoViewSmoothly(FeedBackCollection.Last());
                 }
