@@ -67,7 +67,7 @@ namespace FileManager
         {
             Deferral Deferral = e.GetDeferral();
 
-            if (IsAnyTaskRunning)
+            if (IsAnyTaskRunning || GeneralTransformer.IsAnyTransformTaskRunning)
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
                 {
@@ -325,14 +325,21 @@ namespace FileManager
 
         private void Nav_Navigated(object sender, NavigationEventArgs e)
         {
-            if (Nav.SourcePageType == typeof(SettingPage))
+            NavView.IsBackEnabled = false;
+
+            if (e.SourcePageType == typeof(SettingPage))
             {
-                NavView.SelectedItem = NavView.SettingsItem as NavigationViewItem;
+                NavView.SelectedItem = NavView.SettingsItem;
             }
             else
             {
-                if (NavView.MenuItems.Select((Item) => Item as NavigationViewItem).FirstOrDefault((Item) => Item.Content.ToString() == PageDictionary[Nav.SourcePageType]) is NavigationViewItem Item)
+                if (NavView.MenuItems.Select((Item) => Item as NavigationViewItem).FirstOrDefault((Item) => Item.Content.ToString() == PageDictionary[e.SourcePageType]) is NavigationViewItem Item)
                 {
+                    if (e.SourcePageType == typeof(TabViewContainer))
+                    {
+                        NavView.IsBackEnabled = (TabViewContainer.CurrentPageNav?.CanGoBack).GetValueOrDefault();
+                    }
+
                     Item.IsSelected = true;
                 }
             }

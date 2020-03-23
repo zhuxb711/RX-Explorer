@@ -269,9 +269,6 @@
     <Compile Include="Dialog\ZipDialog.xaml.cs">
       <DependentUpon>ZipDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\ZipExplorer.xaml.cs">
-      <DependentUpon>ZipExplorer.xaml</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -567,10 +564,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\ZipDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\ZipExplorer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

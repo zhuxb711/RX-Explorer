@@ -1,41 +1,49 @@
-﻿using Windows.UI.Xaml.Controls;
+﻿using System.IO;
+using Windows.UI.Xaml.Controls;
 
 namespace FileManager
 {
     public sealed partial class RenameDialog : QueueContentDialog
     {
-        public RenameDialog(string FileDisplayName, string Type)
-        {
-            InitializeComponent();
-            Text.Text = FileDisplayName;
-            Text.SelectAll();
-            FileName = FileDisplayName + Type;
-            this.Type = Type;
-            Preview.Text = FileName + "\r⋙⋙   ⋙⋙   ⋙⋙\r" + Text.Text + Type;
-        }
+        private readonly string OriginName;
 
-        public RenameDialog(string FolderName)
-        {
-            InitializeComponent();
-            Text.Text = FolderName;
-            FileName = FolderName;
-            Text.SelectAll();
-            Type = "";
-            Preview.Text = FileName + "\r⋙⋙   ⋙⋙   ⋙⋙\r" + Text.Text;
-        }
-
-        string FileName;
-        string Type;
         public string DesireName { get; private set; }
 
-        private void Text_TextChanging(TextBox sender, TextBoxTextChangingEventArgs args)
+        public RenameDialog(string Name)
         {
-            Preview.Text = FileName + "\r⋙⋙   ⋙⋙   ⋙⋙\r" + Text.Text + Type;
+            InitializeComponent();
+            RenameText.Text = Name;
+            OriginName = Name;
+            Preview.Text = $"{OriginName}\r⋙⋙   ⋙⋙   ⋙⋙\r{OriginName}";
+            Loaded += RenameDialog_Loaded;
+        }
+
+        private void RenameDialog_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            RenameText.SelectAll();
         }
 
         private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            DesireName = Text.Text + Type;
+            if (RenameText.Text.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
+            {
+                args.Cancel = true;
+                InvalidCharTip.IsOpen = true;
+            }
+            else if(string.IsNullOrWhiteSpace(RenameText.Text))
+            {
+                args.Cancel = true;
+                InvalidCharTip.IsOpen = true;
+            }
+            else
+            {
+                DesireName = RenameText.Text;
+            }
+        }
+
+        private void RenameText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            Preview.Text = $"{OriginName}\r⋙⋙   ⋙⋙   ⋙⋙\r{RenameText.Text}";
         }
     }
 }

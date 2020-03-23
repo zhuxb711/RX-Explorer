@@ -1114,24 +1114,14 @@ namespace FileManager
         Max = 9,
 
         /// <summary>
-        /// 高于标准
-        /// </summary>
-        AboveStandard = 7,
-
-        /// <summary>
         /// 标准
         /// </summary>
-        Standard = 5,
-
-        /// <summary>
-        /// 低于标准
-        /// </summary>
-        BelowStandard = 3,
+        Standard = 4,
 
         /// <summary>
         /// 仅打包
         /// </summary>
-        PackOnly = 1
+        PackageOnly = 0
     }
     #endregion
 
@@ -1524,29 +1514,28 @@ namespace FileManager
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        /// <summary>
-        /// 更新文件以及文件大小，并通知UI界面
-        /// </summary>
-        /// <param name="File"></param>
-        public async Task UpdateRequested(IStorageItem Item)
+        public async Task RenameAsync(string Name)
         {
-            if (Item is StorageFolder Folder && ContentType == ContentType.Folder)
+            if (ContentType == ContentType.File)
             {
-                this.Folder = Folder;
-            }
-            else if (Item is StorageFile File && ContentType == ContentType.File)
-            {
-                this.File = File;
+                await File.RenameAsync(Name, NameCollisionOption.GenerateUniqueName);
+                File = await StorageFile.GetFileFromPathAsync(File.Path);
+                Thumbnail = await File.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                ModifiedTime = await File.GetModifiedTimeAsync().ConfigureAwait(true);
+                OnPropertyChanged("DisplayName");
+                OnPropertyChanged("Thumbnail");
+                OnPropertyChanged("ModifiedTime");
             }
             else
             {
-                throw new ArgumentException("Unsupport IStorageItem Or IStorageItem does not match the RemovableDeviceFile", nameof(Item));
+                await Folder.RenameAsync(Name, NameCollisionOption.GenerateUniqueName);
+                Folder = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
+                Thumbnail = await Folder.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                ModifiedTime = await Folder.GetModifiedTimeAsync().ConfigureAwait(true);
+                OnPropertyChanged("DisplayName");
+                OnPropertyChanged("Thumbnail");
+                OnPropertyChanged("ModifiedTime");
             }
-
-            Size = await Item.GetSizeDescriptionAsync().ConfigureAwait(true);
-
-            OnPropertyChanged("DisplayName");
-            OnPropertyChanged("Size");
         }
 
         /// <summary>
@@ -2877,7 +2866,7 @@ namespace FileManager
         {
             get
             {
-                if (Percent >= 0.8)
+                if (Percent >= 0.85)
                 {
                     return new SolidColorBrush(Colors.Red);
                 }
@@ -5861,32 +5850,57 @@ namespace FileManager
                 throw new ArgumentNullException(nameof(Ex), "Exception could not be null");
             }
 
-            if (!(Window.Current.Content is Frame rootFrame))
+            if (Window.Current.Content is Frame rootFrame)
             {
-                rootFrame = new Frame();
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    string Message =
+                    "\r\r以下是错误信息：" +
+                    "\r\rException错误类型：" + Ex.GetType().Name +
+                    "\r\rMessage错误消息：" + Ex.Message +
+                    "\r\rSource来源：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
+                    "\r\rStackTrace堆栈追踪：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
 
-                Window.Current.Content = rootFrame;
-            }
+                    rootFrame.Navigate(typeof(BlueScreen), Message);
+                }
+                else
+                {
+                    string Message =
+                    "\r\rThe following is the error message：" +
+                    "\r\rException Code：" + Ex.GetType().Name +
+                    "\r\rMessage：" + Ex.Message +
+                    "\r\rSource：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
+                    "\r\rStackTrace：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
 
-            if (Globalization.Language == LanguageEnum.Chinese)
-            {
-                string Message =
-                "\r\r以下是错误信息：\r\rException Code错误代码：" + Ex.HResult +
-                "\r\rMessage错误消息：" + Ex.Message +
-                "\r\rSource来源：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
-                "\r\rStackTrace堆栈追踪：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
-
-                rootFrame.Navigate(typeof(BlueScreen), Message);
+                    rootFrame.Navigate(typeof(BlueScreen), Message);
+                }
             }
             else
             {
-                string Message =
-                "\r\rThe following is the error message：\r\rException Code：" + Ex.HResult +
-                "\r\rMessage：" + Ex.Message +
-                "\r\rSource：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
-                "\r\rStackTrace：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
+                Frame Frame = new Frame();
 
-                rootFrame.Navigate(typeof(BlueScreen), Message);
+                Window.Current.Content = Frame;
+
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    string Message =
+                    "\r\r以下是错误信息：\r\rException Code错误代码：" + Ex.HResult +
+                    "\r\rMessage错误消息：" + Ex.Message +
+                    "\r\rSource来源：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
+                    "\r\rStackTrace堆栈追踪：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
+
+                    Frame.Navigate(typeof(BlueScreen), Message);
+                }
+                else
+                {
+                    string Message =
+                    "\r\rThe following is the error message：\r\rException Code：" + Ex.HResult +
+                    "\r\rMessage：" + Ex.Message +
+                    "\r\rSource：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
+                    "\r\rStackTrace：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
+
+                    Frame.Navigate(typeof(BlueScreen), Message);
+                }
             }
         }
 

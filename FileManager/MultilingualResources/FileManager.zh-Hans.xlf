@@ -474,18 +474,6 @@
           <source>Choose library folder</source>
           <target state="translated">选择库文件夹</target>
         </trans-unit>
-        <trans-unit id="ZipCRC.Label" translate="yes" xml:space="preserve">
-          <source>CRC integrity check</source>
-          <target state="translated">CRC 完整性校验</target>
-        </trans-unit>
-        <trans-unit id="ZipDecompression.Label" translate="yes" xml:space="preserve">
-          <source>Extract</source>
-          <target state="translated">解压到当前目录</target>
-        </trans-unit>
-        <trans-unit id="ZipDelete.Label" translate="yes" xml:space="preserve">
-          <source>Delete</source>
-          <target state="translated">删除</target>
-        </trans-unit>
         <trans-unit id="ZipDialog.CloseButtonText" translate="yes" xml:space="preserve">
           <source>Cancel</source>
           <target state="translated">取消</target>
@@ -514,10 +502,6 @@
           <source>FileName</source>
           <target state="translated">文件名</target>
         </trans-unit>
-        <trans-unit id="ZipDialogName.Text" translate="yes" xml:space="preserve">
-          <source>New Compression File.zip</source>
-          <target state="translated">新建压缩文件.zip</target>
-        </trans-unit>
         <trans-unit id="ZipDialogPassword.Header" translate="yes" xml:space="preserve">
           <source>Password</source>
           <target state="translated">密码</target>
@@ -525,10 +509,6 @@
         <trans-unit id="ZipDialogPassword.PlaceholderText" translate="yes" xml:space="preserve">
           <source>Enter password</source>
           <target state="translated">输入加密密码</target>
-        </trans-unit>
-        <trans-unit id="ZipHasFile.Text" translate="yes" xml:space="preserve">
-          <source>Empty</source>
-          <target state="translated">无文件</target>
         </trans-unit>
         <trans-unit id="WebAllowDB.Header" translate="yes" xml:space="preserve">
           <source>Allow to use IndexedDB</source>
@@ -1729,6 +1709,16 @@
         <trans-unit id="SearchCopyPath" translate="yes" xml:space="preserve">
           <source>Copy the full path</source>
           <target state="translated">复制完整路径</target>
+        </trans-unit>
+        <trans-unit id="RenameDialogInvalidCharTip.Title" translate="yes" xml:space="preserve">
+          <source>Error</source>
+          <target state="translated">错误</target>
+        </trans-unit>
+        <trans-unit id="RenameDialogInvalidCharTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Name cannot be empty and cannot contain illegal characters 
+Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</source>
+          <target state="translated">名称不能为空且不能包含非法字符
+非法字符包括 \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</target>
         </trans-unit>
       </group>
     </body>

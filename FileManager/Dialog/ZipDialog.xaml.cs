@@ -36,13 +36,29 @@ namespace FileManager
         public ZipDialog(bool IsZip, string FileName = null)
         {
             InitializeComponent();
+
             this.IsZip = IsZip;
+
             if (IsZip)
             {
                 FName.Text = FileName + ".zip";
                 FName.SelectAll();
+
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    ZipMethod.Items.Add("最大");
+                    ZipMethod.Items.Add("标准");
+                    ZipMethod.Items.Add("仅存储");
+                }
+                else
+                {
+                    ZipMethod.Items.Add("Max");
+                    ZipMethod.Items.Add("Standard");
+                    ZipMethod.Items.Add("Package only");
+                }
+
                 ZipCryption.SelectedIndex = 0;
-                ZipMethod.SelectedIndex = 2;
+                ZipMethod.SelectedIndex = 1;
             }
             else
             {
@@ -62,30 +78,15 @@ namespace FileManager
                 EnableCryption.Visibility = Visibility.Collapsed;
             }
 
-            if (Globalization.Language == LanguageEnum.Chinese)
-            {
-                ZipMethod.Items.Add("最大");
-                ZipMethod.Items.Add("较大");
-                ZipMethod.Items.Add("标准");
-                ZipMethod.Items.Add("较小");
-                ZipMethod.Items.Add("最小");
-            }
-            else
-            {
-                ZipMethod.Items.Add("Max");
-                ZipMethod.Items.Add("Higher");
-                ZipMethod.Items.Add("Standard");
-                ZipMethod.Items.Add("Lower");
-                ZipMethod.Items.Add("Min");
-            }
+            Loaded += ZipDialog_Loaded;
+        }
 
-            Loaded += (s, e) =>
+        private void ZipDialog_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (!IsZip)
             {
-                if (!IsZip)
-                {
-                    Pass.Visibility = Visibility.Visible;
-                }
-            };
+                Pass.Visibility = Visibility.Visible;
+            }
         }
 
         private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -112,15 +113,30 @@ namespace FileManager
                     FileName = FName.Text + ".zip";
                 }
 
-                IsCryptionEnable = (bool)EnableCryption.IsChecked;
+                IsCryptionEnable = EnableCryption.IsChecked.GetValueOrDefault();
+
                 Password = Pass.Password;
-                switch (ZipMethod.SelectedItem as string)
+
+                switch (ZipMethod.SelectedItem.ToString())
                 {
-                    case "Max": Level = CompressionLevel.Max; break;
-                    case "Higher": Level = CompressionLevel.AboveStandard; break;
-                    case "Standard": Level = CompressionLevel.Standard; break;
-                    case "Lower": Level = CompressionLevel.BelowStandard; break;
-                    case "Min": Level = CompressionLevel.PackOnly; break;
+                    case "Max":
+                    case "最大":
+                        {
+                            Level = CompressionLevel.Max; 
+                            break;
+                        }
+                    case "Standard":
+                    case "标准":
+                        {
+                            Level = CompressionLevel.Standard; 
+                            break;
+                        }
+                    case "Package only":
+                    case "仅存储":
+                        {
+                            Level = CompressionLevel.PackageOnly; 
+                            break;
+                        }
                 }
 
                 switch (ZipCryption.SelectedItem as string)

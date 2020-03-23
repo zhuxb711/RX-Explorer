@@ -36,6 +36,7 @@
         </muxc:TabView>
         <controls:InAppNotification StackMode="Replace"
                                     Name="Notification"
+                                    MinWidth="300"
                                     x:FieldModifier="public"
                                     ShowDismissButton="False"
                                     HorizontalAlignment="Center" />

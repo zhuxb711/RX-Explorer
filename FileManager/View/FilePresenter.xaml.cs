@@ -451,7 +451,7 @@ namespace FileManager
                     {
                         IsSpaceError = true;
                     }
-                    catch (FileLoadException)
+                    catch (Exception)
                     {
                         IsCaptured = true;
                     }
@@ -799,7 +799,7 @@ namespace FileManager
                         {
                             IsUnauthorized = true;
                         }
-                        catch (FileLoadException)
+                        catch (Exception)
                         {
                             IsCaptured = true;
                         }
@@ -834,7 +834,7 @@ namespace FileManager
                         {
                             IsUnauthorized = true;
                         }
-                        catch (FileLoadException)
+                        catch (Exception)
                         {
                             IsCaptured = true;
                         }
@@ -889,7 +889,7 @@ namespace FileManager
                             {
                                 IsUnauthorized = true;
                             }
-                            catch (FileLoadException)
+                            catch (Exception)
                             {
                                 IsCaptured = true;
                             }
@@ -924,7 +924,7 @@ namespace FileManager
                             {
                                 IsUnauthorized = true;
                             }
-                            catch (FileLoadException)
+                            catch (Exception)
                             {
                                 IsCaptured = true;
                             }
@@ -1106,7 +1106,7 @@ namespace FileManager
                         return;
                     }
 
-                    RenameDialog dialog = new RenameDialog(RenameItem.File.DisplayName, RenameItem.File.FileType);
+                    RenameDialog dialog = new RenameDialog(RenameItem.File.Name);
                     if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         if (Globalization.Language == LanguageEnum.Chinese)
@@ -1125,14 +1125,7 @@ namespace FileManager
 
                             try
                             {
-                                await RenameItem.File.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
-
-                                foreach (var Item in from FileSystemStorageItem Item in FileCollection
-                                                     where Item.Name == dialog.DesireName
-                                                     select Item)
-                                {
-                                    await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(RenameItem.File.Path)).ConfigureAwait(true);
-                                }
+                                await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
                             }
                             catch (UnauthorizedAccessException)
                             {
@@ -1165,14 +1158,7 @@ namespace FileManager
 
                             try
                             {
-                                await RenameItem.File.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
-
-                                foreach (var Item in from FileSystemStorageItem Item in FileCollection
-                                                     where Item.Name == dialog.DesireName
-                                                     select Item)
-                                {
-                                    await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(RenameItem.File.Path)).ConfigureAwait(true);
-                                }
+                                await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
                             }
                             catch (UnauthorizedAccessException)
                             {
@@ -1219,7 +1205,7 @@ namespace FileManager
                         return;
                     }
 
-                    RenameDialog dialog = new RenameDialog(RenameItem.Folder.DisplayName);
+                    RenameDialog dialog = new RenameDialog(RenameItem.Folder.Name);
                     if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         if (string.IsNullOrWhiteSpace(dialog.DesireName))
@@ -1295,9 +1281,7 @@ namespace FileManager
 
                         try
                         {
-                            await RenameItem.Folder.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
-
-                            await (SelectedItem as FileSystemStorageItem).UpdateRequested(RenameItem.Folder).ConfigureAwait(true);
+                            await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
                         }
                         catch (UnauthorizedAccessException)
                         {
@@ -1772,7 +1756,8 @@ namespace FileManager
                 {
                     OutputStream.IsStreamOwner = false;
                     OutputStream.SetLevel(ZipLevel);
-                    OutputStream.UseZip64 = UseZip64.Off;
+                    OutputStream.UseZip64 = UseZip64.Dynamic;
+
                     if (EnableCryption)
                     {
                         OutputStream.Password = Password;
@@ -1784,33 +1769,35 @@ namespace FileManager
                         {
                             if (EnableCryption)
                             {
-                                ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
-                                {
-                                    DateTime = DateTime.Now,
-                                    AESKeySize = (int)Size,
-                                    IsCrypted = true,
-                                    CompressionMethod = CompressionMethod.Deflated
-                                };
-
-                                OutputStream.PutNextEntry(NewEntry);
-
                                 using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
                                 {
+                                    ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
+                                    {
+                                        DateTime = DateTime.Now,
+                                        AESKeySize = (int)Size,
+                                        IsCrypted = true,
+                                        CompressionMethod = CompressionMethod.Deflated,
+                                        Size = FileStream.Length
+                                    };
+
+                                    OutputStream.PutNextEntry(NewEntry);
+
                                     await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
                                 }
                             }
                             else
                             {
-                                ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
-                                {
-                                    DateTime = DateTime.Now,
-                                    CompressionMethod = CompressionMethod.Deflated
-                                };
-
-                                OutputStream.PutNextEntry(NewEntry);
-
                                 using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
                                 {
+                                    ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
+                                    {
+                                        DateTime = DateTime.Now,
+                                        CompressionMethod = CompressionMethod.Deflated,
+                                        Size = FileStream.Length
+                                    };
+
+                                    OutputStream.PutNextEntry(NewEntry);
+
                                     await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
                                 }
                             }
@@ -1892,134 +1879,128 @@ namespace FileManager
 
         private async Task ZipFolderCore(StorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, bool EnableCryption = false, KeySize Size = KeySize.None, string Password = null)
         {
-            foreach (IStorageItem Item in await Folder.GetItemsAsync())
+            IReadOnlyList<IStorageItem> ItemsCollection = await Folder.GetItemsAsync();
+
+            if (ItemsCollection.Count == 0)
             {
-                if (Item is StorageFolder InnerFolder)
+                if (!string.IsNullOrEmpty(BaseFolderName))
                 {
-                    if (string.IsNullOrEmpty(BaseFolderName))
-                    {
-                        if (EnableCryption)
-                        {
-                            ZipEntry NewEntry = new ZipEntry($"{InnerFolder.Name}/")
-                            {
-                                DateTime = DateTime.Now,
-                                AESKeySize = (int)Size,
-                                IsCrypted = true,
-                                CompressionMethod = CompressionMethod.Deflated
-                            };
-
-                            OutputStream.PutNextEntry(NewEntry);
-                            await ZipFolderCore(InnerFolder, OutputStream, NewEntry.Name, true, Size, Password).ConfigureAwait(false);
-                        }
-                        else
-                        {
-                            ZipEntry NewEntry = new ZipEntry($"{InnerFolder.Name}/")
-                            {
-                                DateTime = DateTime.Now,
-                                CompressionMethod = CompressionMethod.Deflated
-                            };
-
-                            OutputStream.PutNextEntry(NewEntry);
-                            await ZipFolderCore(InnerFolder, OutputStream, NewEntry.Name).ConfigureAwait(false);
-                        }
-                    }
-                    else
-                    {
-                        if (EnableCryption)
-                        {
-                            ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}{InnerFolder.Name}/")
-                            {
-                                DateTime = DateTime.Now,
-                                AESKeySize = (int)Size,
-                                IsCrypted = true,
-                                CompressionMethod = CompressionMethod.Deflated
-                            };
-
-                            OutputStream.PutNextEntry(NewEntry);
-                            await ZipFolderCore(InnerFolder, OutputStream, NewEntry.Name, true, Size, Password).ConfigureAwait(false);
-                        }
-                        else
-                        {
-                            ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}{InnerFolder.Name}/")
-                            {
-                                DateTime = DateTime.Now,
-                                CompressionMethod = CompressionMethod.Deflated
-                            };
-
-                            OutputStream.PutNextEntry(NewEntry);
-                            await ZipFolderCore(InnerFolder, OutputStream, NewEntry.Name).ConfigureAwait(false);
-                        }
-                    }
+                    ZipEntry NewEntry = new ZipEntry(BaseFolderName);
+                    OutputStream.PutNextEntry(NewEntry);
+                    OutputStream.CloseEntry();
                 }
-                else if (Item is StorageFile InnerFile)
+            }
+            else
+            {
+                foreach (IStorageItem Item in ItemsCollection)
                 {
-                    if (string.IsNullOrEmpty(BaseFolderName))
+                    if (Item is StorageFolder InnerFolder)
                     {
-                        if (EnableCryption)
+                        if (string.IsNullOrEmpty(BaseFolderName))
                         {
-                            ZipEntry NewEntry = new ZipEntry(InnerFile.Name)
+                            if (EnableCryption)
                             {
-                                DateTime = DateTime.Now,
-                                AESKeySize = (int)Size,
-                                IsCrypted = true,
-                                CompressionMethod = CompressionMethod.Deflated
-                            };
-
-                            OutputStream.PutNextEntry(NewEntry);
-
-                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                                await ZipFolderCore(InnerFolder, OutputStream, $"{InnerFolder.Name}/", true, Size, Password).ConfigureAwait(false);
+                            }
+                            else
                             {
-                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
+                                await ZipFolderCore(InnerFolder, OutputStream, $"{InnerFolder.Name}/").ConfigureAwait(false);
                             }
                         }
                         else
                         {
-                            ZipEntry NewEntry = new ZipEntry(InnerFile.Name)
+                            if (EnableCryption)
                             {
-                                DateTime = DateTime.Now,
-                                CompressionMethod = CompressionMethod.Deflated
-                            };
-
-                            OutputStream.PutNextEntry(NewEntry);
-
-                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                                await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}{InnerFolder.Name}/", true, Size, Password).ConfigureAwait(false);
+                            }
+                            else
                             {
-                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
+                                await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}{InnerFolder.Name}/").ConfigureAwait(false);
                             }
                         }
                     }
-                    else
+                    else if (Item is StorageFile InnerFile)
                     {
-                        if (EnableCryption)
+                        if (string.IsNullOrEmpty(BaseFolderName))
                         {
-                            ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}{InnerFile.Name}")
+                            if (EnableCryption)
                             {
-                                DateTime = DateTime.Now,
-                                AESKeySize = (int)Size,
-                                IsCrypted = true,
-                                CompressionMethod = CompressionMethod.Deflated
-                            };
+                                using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                                {
+                                    ZipEntry NewEntry = new ZipEntry(InnerFile.Name)
+                                    {
+                                        DateTime = DateTime.Now,
+                                        AESKeySize = (int)Size,
+                                        IsCrypted = true,
+                                        CompressionMethod = CompressionMethod.Deflated,
+                                        Size = FileStream.Length
+                                    };
 
-                            OutputStream.PutNextEntry(NewEntry);
+                                    OutputStream.PutNextEntry(NewEntry);
 
-                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
+
+                                    OutputStream.CloseEntry();
+                                }
+                            }
+                            else
                             {
-                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
+                                using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                                {
+                                    ZipEntry NewEntry = new ZipEntry(InnerFile.Name)
+                                    {
+                                        DateTime = DateTime.Now,
+                                        CompressionMethod = CompressionMethod.Deflated,
+                                        Size = FileStream.Length
+                                    };
+
+                                    OutputStream.PutNextEntry(NewEntry);
+
+                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
+
+                                    OutputStream.CloseEntry();
+                                }
                             }
                         }
                         else
                         {
-                            ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}{InnerFile.Name}")
+                            if (EnableCryption)
                             {
-                                DateTime = DateTime.Now,
-                                CompressionMethod = CompressionMethod.Deflated
-                            };
+                                using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                                {
+                                    ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}{InnerFile.Name}")
+                                    {
+                                        DateTime = DateTime.Now,
+                                        AESKeySize = (int)Size,
+                                        IsCrypted = true,
+                                        CompressionMethod = CompressionMethod.Deflated,
+                                        Size = FileStream.Length
+                                    };
 
-                            OutputStream.PutNextEntry(NewEntry);
+                                    OutputStream.PutNextEntry(NewEntry);
 
-                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
+
+                                    OutputStream.CloseEntry();
+                                }
+                            }
+                            else
                             {
-                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
+                                using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                                {
+                                    ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}{InnerFile.Name}")
+                                    {
+                                        DateTime = DateTime.Now,
+                                        CompressionMethod = CompressionMethod.Deflated,
+                                        Size = FileStream.Length
+                                    };
+
+                                    OutputStream.PutNextEntry(NewEntry);
+
+                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
+
+                                    OutputStream.CloseEntry();
+                                }
                             }
                         }
                     }
@@ -2752,11 +2733,6 @@ namespace FileManager
                         {
                             switch (TabTarget.File.FileType)
                             {
-                                case ".zip":
-                                    {
-                                        FileControlInstance.Nav.Navigate(typeof(ZipExplorer), new Tuple<FileControl, FileSystemStorageItem>(FileControlInstance, TabTarget), new DrillInNavigationTransitionInfo());
-                                        break;
-                                    }
                                 case ".jpg":
                                 case ".png":
                                 case ".bmp":

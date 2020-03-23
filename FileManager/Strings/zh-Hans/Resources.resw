@@ -363,15 +363,6 @@
   <data name="UserFolderDialog.Title" xml:space="preserve">
     <value>选择库文件夹</value>
   </data>
-  <data name="ZipCRC.Label" xml:space="preserve">
-    <value>CRC 完整性校验</value>
-  </data>
-  <data name="ZipDecompression.Label" xml:space="preserve">
-    <value>解压到当前目录</value>
-  </data>
-  <data name="ZipDelete.Label" xml:space="preserve">
-    <value>删除</value>
-  </data>
   <data name="ZipDialog.CloseButtonText" xml:space="preserve">
     <value>取消</value>
   </data>
@@ -393,17 +384,11 @@
   <data name="ZipDialogName.Header" xml:space="preserve">
     <value>文件名</value>
   </data>
-  <data name="ZipDialogName.Text" xml:space="preserve">
-    <value>新建压缩文件.zip</value>
-  </data>
   <data name="ZipDialogPassword.Header" xml:space="preserve">
     <value>密码</value>
   </data>
   <data name="ZipDialogPassword.PlaceholderText" xml:space="preserve">
     <value>输入加密密码</value>
-  </data>
-  <data name="ZipHasFile.Text" xml:space="preserve">
-    <value>无文件</value>
   </data>
   <data name="WebAllowDB.Header" xml:space="preserve">
     <value>允许使用IndexedDB</value>
@@ -1304,5 +1289,12 @@
   </data>
   <data name="SearchCopyPath" xml:space="preserve">
     <value>复制完整路径</value>
+  </data>
+  <data name="RenameDialogInvalidCharTip.Title" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="RenameDialogInvalidCharTip.Subtitle" xml:space="preserve">
+    <value>名称不能为空且不能包含非法字符
+非法字符包括 \ / : * ? " &lt; &gt; |</value>
   </data>
 </root>

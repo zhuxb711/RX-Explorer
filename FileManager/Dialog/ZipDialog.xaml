@@ -22,7 +22,6 @@
         </StackPanel.ChildrenTransitions>
         <TextBox Header="文件名"
                  x:Uid="ZipDialogName"
-                 Text="新建压缩文件.zip"
                  Name="FName" />
         <PasswordBox x:Uid="ZipDialogPassword"
                      Name="Pass"

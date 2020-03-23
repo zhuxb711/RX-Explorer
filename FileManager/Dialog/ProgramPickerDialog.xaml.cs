@@ -86,7 +86,7 @@ namespace FileManager
         {
             List<ProgramPickerItem> TempList = new List<ProgramPickerItem>();
 
-            foreach (var Info in await Launcher.FindFileHandlersAsync(OpenFile.FileType))
+            foreach (AppInfo Info in await Launcher.FindFileHandlersAsync(OpenFile.FileType))
             {
                 using (IRandomAccessStreamWithContentType LogoStream = await Info.DisplayInfo.GetLogo(new Windows.Foundation.Size(100, 100)).OpenReadAsync())
                 {

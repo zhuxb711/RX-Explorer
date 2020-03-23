@@ -78,7 +78,7 @@ namespace FileManager
             StorageFolder Folder = await SFile.File.GetParentAsync();
             StorageFile NewFile = await Folder.CreateFileAsync(SFile.Name, CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteTextAsync(NewFile, Text.Text);
-            await SFile.UpdateRequested(NewFile).ConfigureAwait(true);
+            await SFile.SizeUpdateRequested().ConfigureAwait(true);
             FileControlInstance.Nav.GoBack();
         }
 

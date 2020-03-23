@@ -881,7 +881,7 @@ namespace FileManager
         {
             if (SecureGridView.SelectedItem is FileSystemStorageItem RenameItem)
             {
-                RenameDialog dialog = new RenameDialog(RenameItem.File.DisplayName, RenameItem.File.FileType);
+                RenameDialog dialog = new RenameDialog(RenameItem.File.Name);
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
                     if (dialog.DesireName == RenameItem.File.FileType)
@@ -910,13 +910,7 @@ namespace FileManager
                         return;
                     }
 
-                    await RenameItem.File.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
-
-                    var Item = SecureCollection.FirstOrDefault((It) => It.Name == dialog.DesireName);
-                    if (Item != null)
-                    {
-                        await Item.UpdateRequested(await StorageFile.GetFileFromPathAsync(RenameItem.File.Path)).ConfigureAwait(false);
-                    }
+                    await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
                 }
             }
         }

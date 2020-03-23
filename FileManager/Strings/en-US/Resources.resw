@@ -657,6 +657,12 @@
   <data name="RenamePreview.Text" xml:space="preserve">
     <value>Preview</value>
   </data>
+  <data name="RenameDialogInvalidCharTip.Title" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="RenameDialogInvalidCharTip.Subtitle" xml:space="preserve">
+    <value>Name cannot be empty and cannot contain illegal characters &#x000A;Illegal characters include \ / : * ? &quot; &lt; &gt; |</value>
+  </data>  
   <data name="ResetDialog.CloseButtonText" xml:space="preserve">
     <value>Cancel</value>
   </data>
@@ -780,7 +786,7 @@
   <data name="SearchSize.Text" xml:space="preserve">
     <value>Size</value>
   </data>
-  <data name="SearchCopyPath"  xml:space="preserve">
+  <data name="SearchCopyPath" xml:space="preserve">
     <value>Copy the full path</value>
   </data>
   <data name="SearchTip.CloseButtonContent" xml:space="preserve">
@@ -1365,21 +1371,6 @@
   <data name="WIFIShareTip.Title" xml:space="preserve">
     <value>WiFi Share</value>
   </data>
-  <data name="Zip.Label" xml:space="preserve">
-    <value>Compression</value>
-  </data>
-  <data name="ZipCRC.Label" xml:space="preserve">
-    <value>CRC integrity check</value>
-  </data>
-  <data name="ZipDecompression.Label" xml:space="preserve">
-    <value>Extract</value>
-  </data>
-  <data name="ZipDelete.Label" xml:space="preserve">
-    <value>Delete</value>
-  </data>
-  <data name="ZipDialog.CloseButtonText" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
   <data name="ZipDialog.PrimaryButtonText" xml:space="preserve">
     <value>Confirm</value>
   </data>
@@ -1398,16 +1389,16 @@
   <data name="ZipDialogName.Header" xml:space="preserve">
     <value>FileName</value>
   </data>
-  <data name="ZipDialogName.Text" xml:space="preserve">
-    <value>New Compression File.zip</value>
-  </data>
   <data name="ZipDialogPassword.Header" xml:space="preserve">
     <value>Password</value>
   </data>
   <data name="ZipDialogPassword.PlaceholderText" xml:space="preserve">
     <value>Enter password</value>
   </data>
-  <data name="ZipHasFile.Text" xml:space="preserve">
-    <value>Empty</value>
+  <data name="Zip.Label" xml:space="preserve">
+    <value>Compression</value>
+  </data>
+  <data name="ZipDialog.CloseButtonText" xml:space="preserve">
+    <value>Cancel</value>
   </data>
 </root>

@@ -404,7 +404,7 @@
                                      Margin="0,20,0,0"
                                      FontSize="16"
                                      x:Uid="SettingContactDeveloper"
-                                     NavigateUri="mailto:zhuxb711@yeah.net" />
+                                     NavigateUri="mailto:zrfcfgs@outlook.com" />
                 </StackPanel>
                 <StackPanel Grid.Column="2">
                     <StackPanel Orientation="Horizontal">

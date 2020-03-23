@@ -101,7 +101,7 @@ namespace FileManager
                     {
                         Cancellation.Dispose();
                         Cancellation = null;
-                    }).ConfigureAwait(false);
+                    }, TaskScheduler.Current).ConfigureAwait(false);
                 }
             };
         }

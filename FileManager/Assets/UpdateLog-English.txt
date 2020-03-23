@@ -1,5 +1,15 @@
 ﻿*****
-###What's new in Ver.4.3.2.0
+###What's new in Ver.4.3.5.0
+
+>#####Feature Update
+
+>>#####Reduce the number of options for Zip compression level
+
+>>#####Added support for compression and decompression of files larger than 4GB
+
+>>#####Removed the built-in Zip viewer
+
+>>#####Added the ability to change the suffix when renaming, thumbnails will now be regenerated after renaming
 
 >#####Performance improvement
 
@@ -7,7 +17,15 @@
 
 >>#####Reduces disk space usage
 
+>>#####Optimized the algorithm when Zip compressed folders
+
 >#####Bug fix
+
+>>#####Resolved an issue where the back button was not disabled when entering the settings page from another page
+
+>>#####Solve the problem that changing Zip compression level in Chinese environment is invalid
+
+>>#####Fixed a crash when renaming a file or folder due to invalid characters being entered
 
 >>#####Solved the problem of unable to edit and delete popular websites and quick launch
 
