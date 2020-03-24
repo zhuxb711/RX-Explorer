@@ -2649,7 +2649,7 @@ namespace FileManager
         {
             FileControlInstance.IsSearchOrPathBoxFocused = false;
 
-            if (!SettingPage.IsDoubleClickEnable && e.ClickedItem is FileSystemStorageItem ReFile)
+            if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is FileSystemStorageItem ReFile)
             {
                 EnterSelectedItem(ReFile);
             }

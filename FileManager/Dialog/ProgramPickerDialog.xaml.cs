@@ -35,7 +35,6 @@ namespace FileManager
 
             switch (OpenFile.FileType)
             {
-                case ".zip":
                 case ".jpg":
                 case ".png":
                 case ".bmp":

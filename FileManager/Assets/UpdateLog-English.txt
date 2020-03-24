@@ -1,4 +1,17 @@
 ﻿*****
+###What's new in Ver.4.3.7.0
+
+>#####UI Update
+
+>>#####The new settings interface is online, including new transition animations
+
+>#####Bug fix
+
+>>######Resolved an issue that could prevent normal blue screen entry
+
+>>######Fixed the problem that after removing the Zip-Viewer, you still can see the "Use built-in viewer" prompt in "Open with"
+
+*****
 ###What's new in Ver.4.3.5.0
 
 >#####Feature Update

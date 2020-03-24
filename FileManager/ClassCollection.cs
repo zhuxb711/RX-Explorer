@@ -771,7 +771,7 @@ namespace FileManager
                 {
                     using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("GetFeedBackProcedure", CommandType.StoredProcedure))
                     {
-                        _ = Command.Parameters.AddWithValue("Para", SettingPage.ThisPage.UserID);
+                        _ = Command.Parameters.AddWithValue("Para", ApplicationData.Current.LocalSettings.Values["SystemUserID"].ToString());
                         using (DbDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
                         {
                             while (await Reader.ReadAsync().ConfigureAwait(false))
@@ -816,7 +816,7 @@ namespace FileManager
                                 _ = Command.Parameters.AddWithValue("DNum", Item.DislikeNum);
                                 _ = Command.Parameters.AddWithValue("Beh", Item.UserVoteAction);
                                 _ = Command.Parameters.AddWithValue("GID", Item.GUID);
-                                _ = Command.Parameters.AddWithValue("UID", SettingPage.ThisPage.UserID);
+                                _ = Command.Parameters.AddWithValue("UID", ApplicationData.Current.LocalSettings.Values["SystemUserID"].ToString());
                                 _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                             }
                             return true;
@@ -5843,65 +5843,68 @@ namespace FileManager
         /// 请求进入蓝屏状态
         /// </summary>
         /// <param name="Ex">错误内容</param>
-        public static void RequestBlueScreen(Exception Ex)
+        public static async void RequestBlueScreen(Exception Ex)
         {
             if (Ex == null)
             {
                 throw new ArgumentNullException(nameof(Ex), "Exception could not be null");
             }
 
-            if (Window.Current.Content is Frame rootFrame)
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                if (Window.Current.Content is Frame rootFrame)
                 {
-                    string Message =
-                    "\r\r以下是错误信息：" +
-                    "\r\rException错误类型：" + Ex.GetType().Name +
-                    "\r\rMessage错误消息：" + Ex.Message +
-                    "\r\rSource来源：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
-                    "\r\rStackTrace堆栈追踪：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        string Message =
+                        "\r\r以下是错误信息：" +
+                        "\r\rException错误类型：" + Ex.GetType().Name +
+                        "\r\rMessage错误消息：" + Ex.Message +
+                        "\r\rSource来源：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
+                        "\r\rStackTrace堆栈追踪：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
 
-                    rootFrame.Navigate(typeof(BlueScreen), Message);
+                        rootFrame.Navigate(typeof(BlueScreen), Message);
+                    }
+                    else
+                    {
+                        string Message =
+                        "\r\rThe following is the error message：" +
+                        "\r\rException Code：" + Ex.GetType().Name +
+                        "\r\rMessage：" + Ex.Message +
+                        "\r\rSource：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
+                        "\r\rStackTrace：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
+
+                        rootFrame.Navigate(typeof(BlueScreen), Message);
+                    }
                 }
                 else
                 {
-                    string Message =
-                    "\r\rThe following is the error message：" +
-                    "\r\rException Code：" + Ex.GetType().Name +
-                    "\r\rMessage：" + Ex.Message +
-                    "\r\rSource：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
-                    "\r\rStackTrace：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
+                    Frame Frame = new Frame();
 
-                    rootFrame.Navigate(typeof(BlueScreen), Message);
+                    Window.Current.Content = Frame;
+
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        string Message =
+                        "\r\r以下是错误信息：\r\rException Code错误代码：" + Ex.HResult +
+                        "\r\rMessage错误消息：" + Ex.Message +
+                        "\r\rSource来源：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
+                        "\r\rStackTrace堆栈追踪：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
+
+                        Frame.Navigate(typeof(BlueScreen), Message);
+                    }
+                    else
+                    {
+                        string Message =
+                        "\r\rThe following is the error message：\r\rException Code：" + Ex.HResult +
+                        "\r\rMessage：" + Ex.Message +
+                        "\r\rSource：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
+                        "\r\rStackTrace：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
+
+                        Frame.Navigate(typeof(BlueScreen), Message);
+                    }
                 }
-            }
-            else
-            {
-                Frame Frame = new Frame();
-
-                Window.Current.Content = Frame;
-
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    string Message =
-                    "\r\r以下是错误信息：\r\rException Code错误代码：" + Ex.HResult +
-                    "\r\rMessage错误消息：" + Ex.Message +
-                    "\r\rSource来源：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
-                    "\r\rStackTrace堆栈追踪：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
-
-                    Frame.Navigate(typeof(BlueScreen), Message);
-                }
-                else
-                {
-                    string Message =
-                    "\r\rThe following is the error message：\r\rException Code：" + Ex.HResult +
-                    "\r\rMessage：" + Ex.Message +
-                    "\r\rSource：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
-                    "\r\rStackTrace：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
-
-                    Frame.Navigate(typeof(BlueScreen), Message);
-                }
-            }
+            });
         }
 
         /// <summary>

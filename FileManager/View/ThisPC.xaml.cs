@@ -27,7 +27,6 @@ namespace FileManager
             DeviceGrid.ItemsSource = TabViewContainer.ThisPage.HardDeviceList;
             QuickStartGridView.ItemsSource = TabViewContainer.ThisPage.QuickStartList;
             WebGridView.ItemsSource = TabViewContainer.ThisPage.HotWebList;
-            Loaded += ThisPC_Loaded;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -37,25 +36,6 @@ namespace FileManager
                 Nav = Parameters.Item2;
                 TabItem = Parameters.Item1;
                 TabItem.Header = Globalization.Language == LanguageEnum.Chinese ? "这台电脑" : "ThisPC";
-            }
-        }
-
-        private void ThisPC_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
-            {
-                if (Enable)
-                {
-                    Gr.ColumnDefinitions[0].Width = new GridLength(300);
-                }
-                else
-                {
-                    Gr.ColumnDefinitions[0].Width = new GridLength(0);
-                }
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
             }
         }
 
@@ -381,7 +361,7 @@ namespace FileManager
         {
             try
             {
-                if (!SettingPage.IsDoubleClickEnable)
+                if (!SettingControl.IsDoubleClickEnable)
                 {
                     if (e.ClickedItem is HardDeviceInfo Device)
                     {
@@ -399,7 +379,7 @@ namespace FileManager
         {
             try
             {
-                if (!SettingPage.IsDoubleClickEnable)
+                if (!SettingControl.IsDoubleClickEnable)
                 {
                     if (e.ClickedItem is LibraryFolder Library)
                     {

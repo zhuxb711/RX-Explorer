@@ -1,6 +1,8 @@
-﻿using System;
+﻿using AnimationEffectProvider;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using TinyPinyin.Core;
 using Windows.ApplicationModel;
@@ -10,48 +12,47 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI;
+using Windows.UI.Composition;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
+
 namespace FileManager
 {
-    public sealed partial class SettingPage : Page
+    public sealed partial class SettingControl : UserControl
     {
-        private ObservableCollection<FeedBackItem> FeedBackCollection;
-
-        public string UserName { get; set; }
-
-        public string UserID { get; set; }
-
-        public static SettingPage ThisPage { get; private set; }
-
-        public static bool IsDoubleClickEnable { get; set; } = true;
+        private ObservableCollection<FeedBackItem> FeedBackCollection = new ObservableCollection<FeedBackItem>();
 
         private ObservableCollection<BackgroundPicture> PictureList = new ObservableCollection<BackgroundPicture>();
 
-        public SettingPage()
+        private readonly string UserName = ApplicationData.Current.LocalSettings.Values["SystemUserName"].ToString();
+
+        private readonly string UserID = ApplicationData.Current.LocalSettings.Values["SystemUserID"].ToString();
+
+        public static bool IsDoubleClickEnable { get; set; } = true;
+
+        public bool IsOpened { get; private set; } = false;
+
+        public SettingControl()
         {
             InitializeComponent();
-            ThisPage = this;
+
             Version.Text = string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
-            PictureGirdView.ItemsSource = PictureList;
-
-            Loading += SettingPage_Loading;
-            Loading += SettingPage_Loading1;
-            Loaded += SettingPage_Loaded;
-
-            UserName = ApplicationData.Current.LocalSettings.Values["SystemUserName"].ToString();
-            UserID = ApplicationData.Current.LocalSettings.Values["SystemUserID"].ToString();
 
             EmptyFeedBack.Text = Globalization.Language == LanguageEnum.Chinese ? "正在加载..." : "Loading...";
+
+            Loading += SettingPage_Loading;
+            Loaded += SettingPage_Loaded;
         }
 
-        private async void SettingPage_Loading1(FrameworkElement sender, object args)
+        public async Task ExcuteWhenShown()
         {
             AutoBoot.Toggled -= AutoBoot_Toggled;
+
             switch ((await StartupTask.GetAsync("RXExplorer")).State)
             {
                 case StartupTaskState.DisabledByPolicy:
@@ -67,11 +68,10 @@ namespace FileManager
                         break;
                     }
             }
-            AutoBoot.Toggled += AutoBoot_Toggled;
-        }
 
-        private async void SettingPage_Loaded1(object sender, RoutedEventArgs e)
-        {
+            AutoBoot.Toggled += AutoBoot_Toggled;
+
+
             await Task.Delay(1000).ConfigureAwait(true);
 
             if (PictureMode.IsChecked.GetValueOrDefault() && PictureGirdView.SelectedItem != null)
@@ -80,10 +80,81 @@ namespace FileManager
             }
         }
 
+        public async Task Show()
+        {
+            if (!IsOpened)
+            {
+                IsOpened = true;
+
+                Scroll.ChangeView(null, 0, null, true);
+
+                Visibility = Visibility.Visible;
+
+                ActivateAnimation(Gr, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(100), 200, false);
+                ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(700), TimeSpan.FromMilliseconds(200), 150, false);
+                ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(700), TimeSpan.FromMilliseconds(200), 150, false);
+
+                await ExcuteWhenShown().ConfigureAwait(false);
+            }
+        }
+
+        public async Task Hide()
+        {
+            if (IsOpened)
+            {
+                IsOpened = false;
+
+                ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(100), 150, true);
+                ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(100), 150, true);
+                ActivateAnimation(Gr, TimeSpan.FromMilliseconds(700), TimeSpan.FromMilliseconds(200), 200, true);
+
+                await Task.Delay(1000).ConfigureAwait(true);
+
+                Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void ActivateAnimation(UIElement Element, TimeSpan Duration, TimeSpan DelayTime, float VerticalOffset, bool IsReverse)
+        {
+            Visual Visual = ElementCompositionPreview.GetElementVisual(Element);
+
+            Vector3KeyFrameAnimation EntranceAnimation = Visual.Compositor.CreateVector3KeyFrameAnimation();
+            ScalarKeyFrameAnimation FadeAnimation = Visual.Compositor.CreateScalarKeyFrameAnimation();
+
+            EntranceAnimation.Target = nameof(Visual.Offset);
+            EntranceAnimation.InsertKeyFrame(0, new Vector3(Visual.Offset.X, VerticalOffset, Visual.Offset.Z));
+            EntranceAnimation.InsertKeyFrame(1, new Vector3(Visual.Offset.X, 0, Visual.Offset.Z), Visual.Compositor.CreateCubicBezierEasingFunction(new Vector2(.1f, .9f), new Vector2(.2f, 1)));
+            EntranceAnimation.Duration = Duration;
+            EntranceAnimation.DelayTime = DelayTime;
+            EntranceAnimation.DelayBehavior = AnimationDelayBehavior.SetInitialValueBeforeDelay;
+
+            FadeAnimation.Target = nameof(Visual.Opacity);
+            FadeAnimation.InsertKeyFrame(0, 0);
+            FadeAnimation.InsertKeyFrame(1, 1);
+            FadeAnimation.DelayBehavior = AnimationDelayBehavior.SetInitialValueBeforeDelay;
+            FadeAnimation.DelayTime = DelayTime;
+            FadeAnimation.Duration = Duration;
+
+            if (IsReverse)
+            {
+                EntranceAnimation.Direction = AnimationDirection.Reverse;
+                FadeAnimation.Direction = AnimationDirection.Reverse;
+            }
+            else
+            {
+                EntranceAnimation.Direction = AnimationDirection.Normal;
+                FadeAnimation.Direction = AnimationDirection.Normal;
+            }
+
+            CompositionAnimationGroup AnimationGroup = Visual.Compositor.CreateAnimationGroup();
+            AnimationGroup.Add(EntranceAnimation);
+            AnimationGroup.Add(FadeAnimation);
+
+            Visual.StartAnimationGroup(AnimationGroup);
+        }
+
         private void SettingPage_Loading(FrameworkElement sender, object args)
         {
-            Loading -= SettingPage_Loading;
-
             if (Globalization.Language == LanguageEnum.Chinese)
             {
                 UIMode.Items.Add("推荐");
@@ -121,15 +192,10 @@ namespace FileManager
             {
                 CustomFontColor.IsOn = true;
             }
-
-            Loaded += SettingPage_Loaded1;
         }
 
         private async void SettingPage_Loaded(object sender, RoutedEventArgs e)
         {
-            Loaded -= SettingPage_Loaded;
-
-            FeedBackCollection = new ObservableCollection<FeedBackItem>();
             FeedBackCollection.CollectionChanged += (s, t) =>
             {
                 if (FeedBackCollection.Count == 0)
@@ -144,7 +210,6 @@ namespace FileManager
                     FeedBackList.Visibility = Visibility.Visible;
                 }
             };
-            FeedBackList.ItemsSource = FeedBackCollection;
 
             try
             {
@@ -854,7 +919,7 @@ namespace FileManager
             if ((e.OriginalSource as FrameworkElement)?.DataContext is FeedBackItem Item)
             {
                 FeedBackList.SelectedItem = Item;
-                FeedBackList.ContextFlyout = UserID == "zhuxb711@yeah.net" ? FeedBackFlyout : (Item.UserID == UserID ? FeedBackFlyout : null);
+                FeedBackList.ContextFlyout = UserID == "zrfcfgs@outlook.com" ? FeedBackFlyout : (Item.UserID == UserID ? FeedBackFlyout : null);
             }
         }
 
@@ -937,14 +1002,7 @@ namespace FileManager
 
         private void OpenLeftArea_Toggled(object sender, RoutedEventArgs e)
         {
-            if (OpenLeftArea.IsOn)
-            {
-                ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = false;
-            }
+            MainPage.ThisPage.LeftSideLength = OpenLeftArea.IsOn ? new GridLength(300) : new GridLength(0);
         }
 
         private void FolderOpenMethod_Toggled(object sender, RoutedEventArgs e)

@@ -405,19 +405,7 @@ namespace FileManager
         {
             try
             {
-                switch (MainPage.ThisPage.LastPageName)
-                {
-                    case nameof(SettingPage):
-                        {
-                            MainPage.ThisPage.Nav.Navigate(typeof(SettingPage), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
-                            break;
-                        }
-                    default:
-                        {
-                            MainPage.ThisPage.Nav.Navigate(typeof(TabViewContainer), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
-                            break;
-                        }
-                }
+                MainPage.ThisPage.Nav.Navigate(typeof(TabViewContainer), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
             }
             catch (Exception ex)
             {

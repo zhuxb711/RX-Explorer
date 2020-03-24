@@ -1,6 +1,7 @@
 ﻿using AnimationEffectProvider;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -25,7 +26,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace FileManager
 {
-    public sealed partial class MainPage : Page
+    public sealed partial class MainPage : Page, INotifyPropertyChanged
     {
         public static MainPage ThisPage { get; private set; }
 
@@ -37,9 +38,39 @@ namespace FileManager
 
         private EntranceAnimationEffect EntranceEffectProvider;
 
-        public string LastPageName { get; private set; }
-
         public bool IsAnyTaskRunning { get; set; }
+
+        public GridLength LeftSideLength
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
+                {
+                    return Enable ? new GridLength(300) : new GridLength(0);
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
+
+                    return new GridLength(300);
+                }
+            }
+            set
+            {
+                if (value.Value == 0)
+                {
+                    ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = false;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
+                }
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LeftSideLength)));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public MainPage()
         {
@@ -130,7 +161,7 @@ namespace FileManager
             {
                 if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)
                 {
-                    SettingPage.IsDoubleClickEnable = IsDoubleClick;
+                    SettingControl.IsDoubleClickEnable = IsDoubleClick;
                 }
                 else
                 {
@@ -156,9 +187,9 @@ namespace FileManager
                     };
                 }
 
-                Nav.Navigate(typeof(TabViewContainer));
-
                 EntranceEffectProvider.StartEntranceEffect();
+
+                Nav.Navigate(typeof(TabViewContainer));
 
                 var PictureUri = await SQLite.Current.GetBackgroundPictureAsync().ConfigureAwait(true);
                 var FileList = await (await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists)).GetFilesAsync();
@@ -325,23 +356,9 @@ namespace FileManager
 
         private void Nav_Navigated(object sender, NavigationEventArgs e)
         {
-            NavView.IsBackEnabled = false;
-
-            if (e.SourcePageType == typeof(SettingPage))
+            if (NavView.MenuItems.Select((Item) => Item as NavigationViewItem).FirstOrDefault((Item) => Item.Content.ToString() == PageDictionary[e.SourcePageType]) is NavigationViewItem Item)
             {
-                NavView.SelectedItem = NavView.SettingsItem;
-            }
-            else
-            {
-                if (NavView.MenuItems.Select((Item) => Item as NavigationViewItem).FirstOrDefault((Item) => Item.Content.ToString() == PageDictionary[e.SourcePageType]) is NavigationViewItem Item)
-                {
-                    if (e.SourcePageType == typeof(TabViewContainer))
-                    {
-                        NavView.IsBackEnabled = (TabViewContainer.CurrentPageNav?.CanGoBack).GetValueOrDefault();
-                    }
-
-                    Item.IsSelected = true;
-                }
+                Item.IsSelected = true;
             }
         }
 
@@ -638,37 +655,39 @@ namespace FileManager
             }
         }
 
-        private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+        private async void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
             try
             {
-                LastPageName = Nav.CurrentSourcePageType == null ? nameof(TabViewContainer) : Nav.CurrentSourcePageType.Name;
-
                 if (args.IsSettingsInvoked)
                 {
-                    Nav.Navigate(typeof(SettingPage), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+                    NavView.IsBackEnabled = false;
+
+                    _ = FindName(nameof(SettingControl));
+
+                    await SettingControl.Show().ConfigureAwait(true);
                 }
                 else
                 {
+                    if (SettingControl != null)
+                    {
+                        await SettingControl.Hide().ConfigureAwait(true);
+                    }
+
                     switch (args.InvokedItem.ToString())
                     {
                         case "这台电脑":
                         case "ThisPC":
                             {
+                                NavView.IsBackEnabled = (TabViewContainer.CurrentPageNav?.CanGoBack).GetValueOrDefault();
                                 Nav.Navigate(typeof(TabViewContainer), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
                                 break;
                             }
                         case "安全域":
                         case "Security Area":
                             {
-                                if (LastPageName == nameof(SettingPage))
-                                {
-                                    Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
-                                }
-                                else
-                                {
-                                    Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
-                                }
+                                NavView.IsBackEnabled = false;
+                                Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
                                 break;
                             }
                     }
