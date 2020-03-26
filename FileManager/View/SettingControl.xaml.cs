@@ -1,8 +1,8 @@
-﻿using AnimationEffectProvider;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
+using System.Threading;
 using System.Threading.Tasks;
 using TinyPinyin.Core;
 using Windows.ApplicationModel;
@@ -34,6 +34,8 @@ namespace FileManager
         private readonly string UserID = ApplicationData.Current.LocalSettings.Values["SystemUserID"].ToString();
 
         public static bool IsDoubleClickEnable { get; set; } = true;
+
+        private int EnterAndExitLock = 0;
 
         public bool IsOpened { get; private set; } = false;
 
@@ -82,7 +84,7 @@ namespace FileManager
 
         public async Task Show()
         {
-            if (!IsOpened)
+            if (!IsOpened && Interlocked.Exchange(ref EnterAndExitLock, 1) == 0)
             {
                 IsOpened = true;
 
@@ -90,9 +92,9 @@ namespace FileManager
 
                 Visibility = Visibility.Visible;
 
-                ActivateAnimation(Gr, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(100), 200, false);
-                ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(700), TimeSpan.FromMilliseconds(200), 150, false);
-                ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(700), TimeSpan.FromMilliseconds(200), 150, false);
+                ActivateAnimation(Gr, TimeSpan.FromMilliseconds(600), TimeSpan.FromMilliseconds(200), 200, false);
+                ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(300), 150, false);
+                ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(300), 150, false);
 
                 await ExcuteWhenShown().ConfigureAwait(false);
             }
@@ -104,13 +106,15 @@ namespace FileManager
             {
                 IsOpened = false;
 
-                ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(100), 150, true);
-                ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(100), 150, true);
-                ActivateAnimation(Gr, TimeSpan.FromMilliseconds(700), TimeSpan.FromMilliseconds(200), 200, true);
+                ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(600), TimeSpan.FromMilliseconds(200), 150, true);
+                ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(600), TimeSpan.FromMilliseconds(200), 150, true);
+                ActivateAnimation(Gr, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(300), 200, true);
 
-                await Task.Delay(1000).ConfigureAwait(true);
+                await Task.Delay(1400).ConfigureAwait(true);
 
                 Visibility = Visibility.Collapsed;
+
+                _ = Interlocked.Exchange(ref EnterAndExitLock, 0);
             }
         }
 

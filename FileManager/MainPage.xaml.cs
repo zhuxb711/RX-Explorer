@@ -46,13 +46,13 @@ namespace FileManager
             {
                 if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
                 {
-                    return Enable ? new GridLength(300) : new GridLength(0);
+                    return Enable ? new GridLength(2.5, GridUnitType.Star) : new GridLength(0);
                 }
                 else
                 {
                     ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
 
-                    return new GridLength(300);
+                    return new GridLength(2.5, GridUnitType.Star);
                 }
             }
             set

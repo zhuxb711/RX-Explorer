@@ -1,4 +1,17 @@
 ﻿*****
+###What's new in Ver.4.3.9.0
+
+>#####UI improvements
+
+>>#####Fixed the problem that when the main window is zoomed to a smaller state, it cannot scroll to view some content
+
+>>#####The sidebar will now change size as the window shrinks
+
+>#####Bug fix
+
+>>#####Solved the problem that the setting interface will not be displayed again when the setting interface is clicked again when the setting interface is closing
+
+*****
 ###What's new in Ver.4.3.7.0
 
 >#####UI Update
