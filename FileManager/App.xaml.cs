@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI;
-using Windows.UI.Notifications;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -22,6 +20,7 @@ namespace FileManager
     sealed partial class App : Application
     {
         bool IsInBackgroundMode = false;
+
         /// <summary>
         /// 初始化单一实例应用程序对象。这是执行的创作代码的第一行，
         /// 已执行，逻辑上等同于 main() 或 WinMain()。
@@ -36,7 +35,6 @@ namespace FileManager
             LeavingBackground += App_LeavingBackground;
             MemoryManager.AppMemoryUsageIncreased += MemoryManager_AppMemoryUsageIncreased;
             MemoryManager.AppMemoryUsageLimitChanging += MemoryManager_AppMemoryUsageLimitChanging;
-            Globalization.SetAppPrimaryLanguageAccordingToSystemLanguage();
         }
 
         private void MemoryManager_AppMemoryUsageLimitChanging(object sender, AppMemoryUsageLimitChangingEventArgs e)
@@ -101,7 +99,23 @@ namespace FileManager
 
             if (!(Window.Current.Content is Frame))
             {
-                ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen);
+                ExtendedSplash extendedSplash;
+
+                if (e.PrelaunchActivated)
+                {
+                    extendedSplash = new ExtendedSplash(e.SplashScreen, true);
+                }
+                else
+                {
+                    if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("EnablePreLaunch"))
+                    {
+                        CoreApplication.EnablePrelaunch(true);
+                        ApplicationData.Current.LocalSettings.Values["EnablePreLaunch"] = true;
+                    }
+
+                    extendedSplash = new ExtendedSplash(e.SplashScreen);
+                }
+
                 Window.Current.Content = extendedSplash;
             }
 
@@ -151,7 +165,7 @@ namespace FileManager
                     }
                     else
                     {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, $"USBActivate||{args.Files.FirstOrDefault().Path}");
+                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"USBActivate||{args.Files.FirstOrDefault().Path}");
                         Window.Current.Content = extendedSplash;
                     }
 

@@ -26,7 +26,10 @@ namespace UpdateCheckBackgroundTask
             Instance = taskInstance;
             Instance.Canceled += Instance_Canceled;
 
-            await CheckAndInstallUpdate();
+            if(await CheckAndInstallUpdate())
+            {
+                ShowUpdateNotification();
+            }
 
             Deferral.Complete();
         }
@@ -36,27 +39,26 @@ namespace UpdateCheckBackgroundTask
             Cancellation?.Cancel();
         }
 
-        private async Task CheckAndInstallUpdate()
+        private async Task<bool> CheckAndInstallUpdate()
         {
             try
             {
                 Cancellation = new CancellationTokenSource();
 
-                StoreContext Context = StoreContext.GetDefault();
-
-                if (Context != null)
+                if (StoreContext.GetDefault() is StoreContext Context)
                 {
                     IReadOnlyList<StorePackageUpdate> Updates = await Context.GetAppAndOptionalStorePackageUpdatesAsync().AsTask(Cancellation.Token);
 
-                    if (Updates.Count > 0)
-                    {
-                        ShowUpdateNotification();
-                    }
+                    return Updates.Count > 0;
+                }
+                else
+                {
+                    return false;
                 }
             }
             catch
             {
-
+                return false;
             }
             finally
             {

@@ -160,11 +160,18 @@
 
                     <ToggleSwitch Header="随系统自动启动"
                                   OnContent="启用"
-                                  OffContent="关闭"
+                                  OffContent="禁用"
                                   Name="AutoBoot"
                                   x:Uid="AutoBootOnStartup"
                                   Toggled="AutoBoot_Toggled"
                                   Margin="0,20,0,0" />
+
+                    <ToggleSwitch Header="使用预加载技术"
+                                  Margin="0,20,0,0"
+                                  OnContent="启用"
+                                  OffContent="禁用"
+                                  Name="EnablePreLaunch"
+                                  Toggled="EnablePreLaunch_Toggled"/>
 
                     <ComboBox Header="调整UI显示模式"
                               x:Uid="SettingPageUIMode"

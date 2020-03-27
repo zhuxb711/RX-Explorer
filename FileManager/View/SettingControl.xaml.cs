@@ -192,6 +192,11 @@ namespace FileManager
                 FolderOpenMethod.IsOn = IsDoubleClick;
             }
 
+            if(ApplicationData.Current.LocalSettings.Values["EnablePreLaunch"] is bool PreLaunch)
+            {
+                EnablePreLaunch.IsOn = PreLaunch;
+            }    
+
             if (AppThemeController.Current.Theme == ElementTheme.Light)
             {
                 CustomFontColor.IsOn = true;
@@ -1233,6 +1238,13 @@ namespace FileManager
             {
                 BootTask.Disable();
             }
+        }
+
+        private void EnablePreLaunch_Toggled(object sender, RoutedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["EnablePreLaunch"] = EnablePreLaunch.IsOn;
+
+            CoreApplication.EnablePrelaunch(EnablePreLaunch.IsOn);
         }
     }
 }

@@ -4312,14 +4312,10 @@ namespace FileManager
         /// </summary>
         public static LanguageEnum Language { get; private set; }
 
-        public static void SetAppPrimaryLanguageAccordingToSystemLanguage()
-        {
-            ApplicationLanguages.PrimaryLanguageOverride = Language == LanguageEnum.English ? "en-US" : "zh-Hans";
-        }
-
         static Globalization()
         {
             Language = GlobalizationPreferences.Languages[0].StartsWith("zh", StringComparison.OrdinalIgnoreCase) ? LanguageEnum.Chinese : LanguageEnum.English;
+            ApplicationLanguages.PrimaryLanguageOverride = Language == LanguageEnum.English ? "en-US" : "zh-Hans";
         }
     }
     #endregion

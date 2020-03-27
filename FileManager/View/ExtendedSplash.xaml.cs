@@ -21,33 +21,34 @@ namespace FileManager
 
         private readonly SplashScreen Splash;
 
-        private AutoResetEvent ReleaseLock;
+        private AutoResetEvent ReleaseLock = new AutoResetEvent(false);
 
         private string USBActivateParameter = null;
 
-        public ExtendedSplash(SplashScreen Screen, string USBActivateParameter = null)
+        public ExtendedSplash(SplashScreen Screen, bool IsPreLaunch = false, string USBActivateParameter = null)
         {
             InitializeComponent();
-
             Window.Current.SetTitleBar(TitleBar);
 
 #if DEBUG
             AppName.Text += " (Debug 模式)";
 #endif
 
-            ReleaseLock = new AutoResetEvent(false);
+            Splash = Screen ?? throw new ArgumentNullException(nameof(Screen), "Parameter could not be null");
+            SplashImageRect = Screen.ImageLocation;
+
+            SetControlPosition();
+
+            if (IsPreLaunch)
+            {
+                Screen_Dismissed(Splash, null);
+            }
+            else
+            {
+                Splash.Dismissed += Screen_Dismissed;
+            }
 
             Window.Current.SizeChanged += Current_SizeChanged;
-            Splash = Screen;
-
-            if (Screen != null)
-            {
-                Screen.Dismissed += Screen_Dismissed;
-
-                SplashImageRect = Screen.ImageLocation;
-
-                SetControlPosition();
-            }
 
             if (!string.IsNullOrEmpty(USBActivateParameter))
             {
