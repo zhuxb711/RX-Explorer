@@ -1297,4 +1297,19 @@
     <value>名称不能为空且不能包含非法字符
 非法字符包括 \ / : * ? " &lt; &gt; |</value>
   </data>
+  <data name="PreLaunchHeader.Text" xml:space="preserve">
+    <value>使用预加载技术</value>
+  </data>
+  <data name="PreLaunchSwitch.OnContent" xml:space="preserve">
+    <value>启用</value>
+  </data>
+  <data name="PreLaunchSwitch.OffContent" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="PreLaunchTip.Title" xml:space="preserve">
+    <value>预加载技术</value>
+  </data>
+  <data name="PreLaunchTip.Subtitle" xml:space="preserve">
+    <value>启用预加载技术时，Windows将根据您的使用情况自动决定是否在系统资源足够的时候对RX文件管理器进行预加载。若RX文件管理器已提前由Windows加载，则将大幅度提高启动速度</value>
+  </data>
 </root>

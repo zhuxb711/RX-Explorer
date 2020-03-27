@@ -1246,5 +1246,10 @@ namespace FileManager
 
             CoreApplication.EnablePrelaunch(EnablePreLaunch.IsOn);
         }
+
+        private void PreLaunchQuestion_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            PreLaunchTip.IsOpen = true;
+        }
     }
 }

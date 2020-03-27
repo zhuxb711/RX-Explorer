@@ -4619,7 +4619,7 @@ namespace FileManager
         /// <summary>
         /// 指示是否存在正在进行中的任务
         /// </summary>
-        public static bool IsAnyTransformTaskRunning { get; private set; } = false;
+        public static bool IsAnyTransformTaskRunning { get; set; }
 
         /// <summary>
         /// 将指定的视频文件合并并产生新文件
@@ -5023,16 +5023,12 @@ namespace FileManager
                         SendUpdatableToastWithProgressForTranscode(Para.Item1, Para.Item2);
                         Progress<double> TranscodeProgress = new Progress<double>((CurrentValue) =>
                         {
-                            string Tag = "TranscodeNotification";
+                            NotificationData Data = new NotificationData();
+                            Data.SequenceNumber = 0;
+                            Data.Values["ProgressValue"] = (Math.Ceiling(CurrentValue) / 100).ToString();
+                            Data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
 
-                            var data = new NotificationData
-                            {
-                                SequenceNumber = 0
-                            };
-                            data.Values["ProgressValue"] = (Math.Ceiling(CurrentValue) / 100).ToString();
-                            data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
-
-                            ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                            ToastNotificationManager.CreateToastNotifier().Update(Data, "TranscodeNotification");
                         });
 
                         Result.TranscodeAsync().AsTask(AVTranscodeCancellation.Token, TranscodeProgress).Wait();
@@ -5116,7 +5112,7 @@ namespace FileManager
 
         private static void SendUpdatableToastWithProgressForCropVideo(StorageFile SourceFile)
         {
-            var content = new ToastContent()
+            ToastContent content = new ToastContent()
             {
                 Launch = "Transcode",
                 Scenario = ToastScenario.Reminder,
@@ -5145,17 +5141,19 @@ namespace FileManager
                 }
             };
 
-            var Toast = new ToastNotification(content.GetXml())
-            {
-                Tag = "CropVideoNotification",
-                Data = new NotificationData()
-            };
-            Toast.Data.Values["ProgressValue"] = "0";
-            Toast.Data.Values["ProgressValueString"] = "0%";
-            Toast.Data.Values["ProgressStatus"] = Globalization.Language == LanguageEnum.Chinese
+            NotificationData Data = new NotificationData();
+            Data.SequenceNumber = 0;
+            Data.Values["ProgressValue"] = "0";
+            Data.Values["ProgressValueString"] = "0%";
+            Data.Values["ProgressStatus"] = Globalization.Language == LanguageEnum.Chinese
                 ? "点击该提示以取消"
                 : "Click the prompt to cancel";
-            Toast.Data.SequenceNumber = 0;
+
+            ToastNotification Toast = new ToastNotification(content.GetXml())
+            {
+                Tag = "CropVideoNotification",
+                Data = Data
+            };
 
             Toast.Activated += (s, e) =>
             {
@@ -5170,7 +5168,7 @@ namespace FileManager
 
         private static void SendUpdatableToastWithProgressForMergeVideo()
         {
-            var content = new ToastContent()
+            ToastContent content = new ToastContent()
             {
                 Launch = "Transcode",
                 Scenario = ToastScenario.Reminder,
@@ -5199,17 +5197,19 @@ namespace FileManager
                 }
             };
 
-            var Toast = new ToastNotification(content.GetXml())
+            NotificationData Data = new NotificationData();
+            Data.SequenceNumber = 0;
+            Data.Values["ProgressValue"] = "0";
+            Data.Values["ProgressValueString"] = "0%";
+            Data.Values["ProgressStatus"] = Globalization.Language == LanguageEnum.Chinese
+                                            ? "点击该提示以取消"
+                                            : "Click the prompt to cancel";
+
+            ToastNotification Toast = new ToastNotification(content.GetXml())
             {
                 Tag = "MergeVideoNotification",
-                Data = new NotificationData()
+                Data = Data
             };
-            Toast.Data.Values["ProgressValue"] = "0";
-            Toast.Data.Values["ProgressValueString"] = "0%";
-            Toast.Data.Values["ProgressStatus"] = Globalization.Language == LanguageEnum.Chinese
-                ? "点击该提示以取消"
-                : "Click the prompt to cancel";
-            Toast.Data.SequenceNumber = 0;
 
             Toast.Activated += (s, e) =>
             {
@@ -5226,7 +5226,7 @@ namespace FileManager
         {
             string Tag = "TranscodeNotification";
 
-            var content = new ToastContent()
+            ToastContent content = new ToastContent()
             {
                 Launch = "Transcode",
                 Scenario = ToastScenario.Reminder,
@@ -5255,17 +5255,19 @@ namespace FileManager
                 }
             };
 
-            var Toast = new ToastNotification(content.GetXml())
+            NotificationData Data = new NotificationData();
+            Data.SequenceNumber = 0;
+            Data.Values["ProgressValue"] = "0";
+            Data.Values["ProgressValueString"] = "0%";
+            Data.Values["ProgressStatus"] = Globalization.Language == LanguageEnum.Chinese
+                                            ? "点击该提示以取消"
+                                            : "Click the prompt to cancel";
+
+            ToastNotification Toast = new ToastNotification(content.GetXml())
             {
                 Tag = Tag,
-                Data = new NotificationData()
+                Data = Data
             };
-            Toast.Data.Values["ProgressValue"] = "0";
-            Toast.Data.Values["ProgressValueString"] = "0%";
-            Toast.Data.Values["ProgressStatus"] = Globalization.Language == LanguageEnum.Chinese
-                ? "点击该提示以取消"
-                : "Click the prompt to cancel";
-            Toast.Data.SequenceNumber = 0;
 
             Toast.Activated += (s, e) =>
             {

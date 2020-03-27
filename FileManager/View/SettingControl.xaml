@@ -77,6 +77,14 @@
             </StackPanel>
         </controls:TeachingTip>
 
+        <controls:TeachingTip x:Name="PreLaunchTip"
+                              IsLightDismissEnabled="True"
+                              PreferredPlacement="TopRight"
+                              x:Uid="PreLaunchTip"
+                              Target="{x:Bind PreLaunchQuestion}"
+                              Title="预加载技术"
+                              Subtitle="启用预加载技术时，Windows将根据您的使用情况自动决定是否在系统资源足够的时候对RX文件管理器进行预加载。若RX文件管理器已提前由Windows加载，则将大幅度提高启动速度" />
+
         <controls:TeachingTip x:Name="FeedBackTip"
                               IsLightDismissEnabled="True"
                               Title="反馈说明"
@@ -166,13 +174,25 @@
                                   Toggled="AutoBoot_Toggled"
                                   Margin="0,20,0,0" />
 
-                    <ToggleSwitch Header="使用预加载技术"
-                                  Margin="0,20,0,0"
-                                  OnContent="启用"
-                                  OffContent="禁用"
-                                  Name="EnablePreLaunch"
-                                  Toggled="EnablePreLaunch_Toggled"/>
-
+                    <StackPanel Margin="0,20,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="使用预加载技术" 
+                                       x:Uid="PreLaunchHeader"/>
+                            <Viewbox Margin="10,0,0,0"
+                                     Height="15"
+                                     VerticalAlignment="Bottom">
+                                <FontIcon Glyph="&#xE9CE;"
+                                          Name="PreLaunchQuestion"
+                                          Tapped="PreLaunchQuestion_Tapped" />
+                            </Viewbox>
+                        </StackPanel>
+                        <ToggleSwitch OnContent="启用"
+                                      OffContent="禁用"
+                                      x:Uid="PreLaunchSwitch"
+                                      Name="EnablePreLaunch"
+                                      Toggled="EnablePreLaunch_Toggled" />
+                    </StackPanel>
+                    
                     <ComboBox Header="调整UI显示模式"
                               x:Uid="SettingPageUIMode"
                               Margin="0,20,0,0"

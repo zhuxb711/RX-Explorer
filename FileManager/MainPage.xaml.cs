@@ -1,4 +1,5 @@
 ﻿using AnimationEffectProvider;
+using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -79,6 +80,8 @@ namespace FileManager
             ThisPage = this;
             Window.Current.SetTitleBar(TitleBar);
             Loaded += MainPage_Loaded;
+            Application.Current.EnteredBackground += Current_EnteredBackground;
+            Application.Current.LeavingBackground += Current_LeavingBackground;
             SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += MainPage_CloseRequested;
 
             try
@@ -92,6 +95,84 @@ namespace FileManager
 #if DEBUG
             AppName.Text += " (Debug 模式)";
 #endif
+        }
+
+        private void Current_LeavingBackground(object sender, LeavingBackgroundEventArgs e)
+        {
+            ToastNotificationManager.History.Remove("EnterBackgroundTips");
+        }
+
+        private void Current_EnteredBackground(object sender, EnteredBackgroundEventArgs e)
+        {
+            if (IsAnyTaskRunning || GeneralTransformer.IsAnyTransformTaskRunning)
+            {
+                ToastNotificationManager.History.Remove("EnterBackgroundTips");
+
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    var Content = new ToastContent()
+                    {
+                        Scenario = ToastScenario.Alarm,
+                        Launch = "EnterBackgroundTips",
+                        Visual = new ToastVisual()
+                        {
+                            BindingGeneric = new ToastBindingGeneric()
+                            {
+                                Children =
+                                {
+                                    new AdaptiveText()
+                                    {
+                                        Text = "请不要最小化RX文件管理器"
+                                    },
+
+                                    new AdaptiveText()
+                                    {
+                                        Text = "Windows策略可能会终止RX的运行"
+                                    },
+
+                                    new AdaptiveText()
+                                    {
+                                        Text="点击以重新激活"
+                                    }
+                                }
+                            }
+                        },
+                    };
+                    ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()) { Tag = "EnterBackgroundTips",Priority=ToastNotificationPriority.High });
+                }
+                else
+                {
+                    var Content = new ToastContent()
+                    {
+                        Scenario = ToastScenario.Alarm,
+                        Launch = "EnterBackgroundTips",
+                        Visual = new ToastVisual()
+                        {
+                            BindingGeneric = new ToastBindingGeneric()
+                            {
+                                Children =
+                                {
+                                    new AdaptiveText()
+                                    {
+                                        Text = "Please do not minimize RX-Explorer"
+                                    },
+
+                                    new AdaptiveText()
+                                    {
+                                        Text = "Windows policy may terminate RX-Explorer"
+                                    },
+
+                                    new AdaptiveText()
+                                    {
+                                        Text="Click to activate"
+                                    }
+                                }
+                            }
+                        },
+                    };
+                    ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()) { Tag = "EnterBackgroundTips"});
+                }
+            }
         }
 
         private async void MainPage_CloseRequested(object sender, SystemNavigationCloseRequestedPreviewEventArgs e)
@@ -114,6 +195,12 @@ namespace FileManager
                     {
                         e.Handled = true;
                     }
+                    else
+                    {
+                        IsAnyTaskRunning = false;
+                        GeneralTransformer.IsAnyTransformTaskRunning = false;
+                        ToastNotificationManager.History.Clear();
+                    }
                 }
                 else
                 {
@@ -128,6 +215,12 @@ namespace FileManager
                     if ((await Dialog.ShowAsync().ConfigureAwait(true)) != ContentDialogResult.Primary)
                     {
                         e.Handled = true;
+                    }
+                    else
+                    {
+                        IsAnyTaskRunning = false;
+                        GeneralTransformer.IsAnyTransformTaskRunning = false;
+                        ToastNotificationManager.History.Clear();
                     }
                 }
             }
