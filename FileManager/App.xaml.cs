@@ -139,7 +139,7 @@ namespace FileManager
             Window.Current.Activate();
         }
 
-        protected override void OnFileActivated(FileActivatedEventArgs args)
+        protected async override void OnFileActivated(FileActivatedEventArgs args)
         {
             try
             {
@@ -153,19 +153,11 @@ namespace FileManager
 
                     if (Window.Current.Content is Frame)
                     {
-                        if (TabViewContainer.CurrentPageNav.CurrentSourcePageType.Name == nameof(FileControl))
-                        {
-                            TabViewContainer.CurrentPageNav.GoBack();
-                            TabViewContainer.CurrentPageNav.Navigate(typeof(FileControl), new Tuple<Microsoft.UI.Xaml.Controls.TabViewItem, StorageFolder>(null, TabViewContainer.ThisPage.HardDeviceList.Last().Folder), new DrillInNavigationTransitionInfo());
-                        }
-                        else
-                        {
-                            TabViewContainer.CurrentPageNav.Navigate(typeof(FileControl), new Tuple<Microsoft.UI.Xaml.Controls.TabViewItem, StorageFolder>(null, TabViewContainer.ThisPage.HardDeviceList.Last().Folder), new DrillInNavigationTransitionInfo());
-                        }
+                        await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(args.Files[0].Path).ConfigureAwait(true);
                     }
                     else
                     {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"USBActivate||{args.Files.FirstOrDefault().Path}");
+                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"USBActivate||{args.Files[0].Path}");
                         Window.Current.Content = extendedSplash;
                     }
 

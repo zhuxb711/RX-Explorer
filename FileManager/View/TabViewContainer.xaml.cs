@@ -33,7 +33,11 @@ namespace FileManager
 
         private DeviceWatcher PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
 
-        public Dictionary<FileControl, FilePresenter> InstanceContainer { get; private set; } = new Dictionary<FileControl, FilePresenter>();
+        public Dictionary<FileControl, FilePresenter> FFInstanceContainer { get; private set; } = new Dictionary<FileControl, FilePresenter>();
+
+        public Dictionary<FileControl, SearchPage> FSInstanceContainer { get; private set; } = new Dictionary<FileControl, SearchPage>();
+
+        public Dictionary<ThisPC, FileControl> TFInstanceContainer { get; private set; } = new Dictionary<ThisPC, FileControl>();
 
         public static TabViewContainer ThisPage { get; private set; }
 
@@ -48,6 +52,24 @@ namespace FileManager
             Application.Current.Suspending += Current_Suspending;
         }
 
+        public async Task CreateNewTabAndOpenTargetFolder(string Path)
+        {
+            if (CreateNewTab(await StorageFolder.GetFolderFromPathAsync(Path)) is TabViewItem Item)
+            {
+                TabViewControl.TabItems.Add(Item);
+                TabViewControl.UpdateLayout();
+                TabViewControl.SelectedItem = TabViewControl.TabItems.Last();
+
+                if (TabViewControl.TabItems.Count > 1)
+                {
+                    foreach (TabViewItem Tab in TabViewControl.TabItems)
+                    {
+                        Tab.IsClosable = true;
+                    }
+                }
+            }
+        }
+
         private void Current_Suspending(object sender, SuspendingEventArgs e)
         {
             if (PortalDeviceWatcher != null && (PortalDeviceWatcher.Status == DeviceWatcherStatus.Started || PortalDeviceWatcher.Status == DeviceWatcherStatus.EnumerationCompleted))
@@ -58,7 +80,7 @@ namespace FileManager
 
         private void Current_Resuming(object sender, object e)
         {
-            switch(PortalDeviceWatcher.Status)
+            switch (PortalDeviceWatcher.Status)
             {
                 case DeviceWatcherStatus.Created:
                 case DeviceWatcherStatus.Aborted:
@@ -103,6 +125,36 @@ namespace FileManager
             {
                 for (int i = 0; i < RemovedDriveList.Count(); i++)
                 {
+                    for (int j = 0; j < TabViewControl.TabItems.Count; j++)
+                    {
+                        if (((TabViewControl.TabItems[j] as TabViewItem)?.Content as Frame)?.Content is FileControl Control && Path.GetPathRoot(Control.CurrentFolder.Path) == RemovedDriveList.ElementAt(i).Folder.Path)
+                        {
+                            if (TabViewControl.TabItems.Count == 1)
+                            {
+                                while (CurrentPageNav.CanGoBack)
+                                {
+                                    CurrentPageNav.GoBack();
+                                }
+                            }
+                            else
+                            {
+                                if (TFInstanceContainer.ContainsValue(Control))
+                                {
+                                    FFInstanceContainer.Remove(Control);
+                                    FSInstanceContainer.Remove(Control);
+                                    TFInstanceContainer.Remove(TFInstanceContainer.First((Item) => Item.Value == Control).Key);
+                                }
+
+                                TabViewControl.TabItems.RemoveAt(j);
+
+                                if (TabViewControl.TabItems.Count == 1)
+                                {
+                                    (TabViewControl.TabItems.First() as TabViewItem).IsClosable = false;
+                                }
+                            }
+                        }
+                    }
+
                     HardDeviceList.Remove(RemovedDriveList.ElementAt(i));
                 }
             });
@@ -405,7 +457,7 @@ namespace FileManager
                     MainPage.ThisPage.IsUSBActivate = false;
                     var HardDevice = HardDeviceList.Where((Device) => Device.Folder.Path == MainPage.ThisPage.ActivateUSBDevicePath).FirstOrDefault();
                     await Task.Delay(1000).ConfigureAwait(true);
-                    CurrentPageNav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabViewControl.TabItems.FirstOrDefault() as TabViewItem, HardDevice.Folder), new DrillInNavigationTransitionInfo());
+                    CurrentPageNav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabViewControl.TabItems.FirstOrDefault() as TabViewItem, HardDevice.Folder, CurrentPageNav.Content as ThisPC), new DrillInNavigationTransitionInfo());
                 }
             }
             catch (Exception ex)
@@ -416,9 +468,31 @@ namespace FileManager
 
         private void TabViewControl_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
         {
-            if (sender.TabItems.Count > 1)
+            if ((args.Tab.Content as Frame).Content is ThisPC PC && TFInstanceContainer.ContainsKey(PC))
             {
-                sender.TabItems.Remove(args.Tab);
+                FFInstanceContainer.Remove(TFInstanceContainer[PC]);
+                FSInstanceContainer.Remove(TFInstanceContainer[PC]);
+                TFInstanceContainer.Remove(PC);
+            }
+            else if ((args.Tab.Content as Frame).Content is FileControl Control && TFInstanceContainer.ContainsValue(Control))
+            {
+                FFInstanceContainer.Remove(Control);
+                FSInstanceContainer.Remove(Control);
+                TFInstanceContainer.Remove(TFInstanceContainer.First((Item) => Item.Value == Control).Key);
+            }
+
+            sender.TabItems.Remove(args.Tab);
+
+            if (TabViewControl.TabItems.Count > 1)
+            {
+                foreach (TabViewItem Tab in TabViewControl.TabItems)
+                {
+                    Tab.IsClosable = true;
+                }
+            }
+            else
+            {
+                (TabViewControl.TabItems.First() as TabViewItem).IsClosable = false;
             }
         }
 
@@ -427,10 +501,18 @@ namespace FileManager
             if (CreateNewTab() is TabViewItem Item)
             {
                 sender.TabItems.Add(Item);
+                sender.UpdateLayout();
+                if (TabViewControl.TabItems.Count > 1)
+                {
+                    foreach (TabViewItem Tab in TabViewControl.TabItems)
+                    {
+                        Tab.IsClosable = true;
+                    }
+                }
             }
         }
 
-        private TabViewItem CreateNewTab()
+        private TabViewItem CreateNewTab(StorageFolder StorageFolderForNewTab = null)
         {
             if (Interlocked.Exchange(ref LockResource, 1) == 0)
             {
@@ -441,10 +523,11 @@ namespace FileManager
                     TabViewItem Item = new TabViewItem
                     {
                         IconSource = new SymbolIconSource { Symbol = Symbol.Document },
-                        Content = frame
+                        Content = frame,
+                        IsClosable = false
                     };
 
-                    frame.Navigate(typeof(ThisPC), new Tuple<TabViewItem, Frame>(Item, frame));
+                    frame.Navigate(typeof(ThisPC), new Tuple<TabViewItem, Frame, StorageFolder>(Item, frame, StorageFolderForNewTab));
 
                     return Item;
                 }

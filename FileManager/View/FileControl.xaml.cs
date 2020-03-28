@@ -244,9 +244,9 @@ namespace FileManager
 
         private async Task OpenTargetFolder(StorageFolder Folder)
         {
-            TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.Clear();
+            TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Clear();
             FolderTree.RootNodes.Clear();
-            TabViewContainer.ThisPage.InstanceContainer[this].HasFile.Visibility = Visibility.Collapsed;
+            TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = Visibility.Collapsed;
 
             StorageFolder RootFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetPathRoot(Folder.Path));
 
@@ -294,7 +294,7 @@ namespace FileManager
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is Tuple<Microsoft.UI.Xaml.Controls.TabViewItem, StorageFolder> Parameters)
+            if (e.Parameter is Tuple<Microsoft.UI.Xaml.Controls.TabViewItem, StorageFolder, ThisPC> Parameters)
             {
                 string PlaceText = Parameters.Item2.DisplayName.Length > 18 ? Parameters.Item2.DisplayName.Substring(0, 18) + "..." : Parameters.Item2.DisplayName;
 
@@ -303,6 +303,11 @@ namespace FileManager
                 if (Parameters.Item1 != null)
                 {
                     TabItem = Parameters.Item1;
+                }
+
+                if (Parameters.Item3 != null && !TabViewContainer.ThisPage.TFInstanceContainer.ContainsKey(Parameters.Item3))
+                {
+                    TabViewContainer.ThisPage.TFInstanceContainer.Add(Parameters.Item3, this);
                 }
 
                 await Initialize(Parameters.Item2).ConfigureAwait(false);
@@ -333,8 +338,8 @@ namespace FileManager
             CurrentNode = null;
 
             FolderTree.RootNodes.Clear();
-            TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.Clear();
-            TabViewContainer.ThisPage.InstanceContainer[this].HasFile.Visibility = Visibility.Collapsed;
+            TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Clear();
+            TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = Visibility.Collapsed;
 
             RecordIndex = 0;
             GoAndBackRecord.Clear();
@@ -532,7 +537,7 @@ namespace FileManager
                         Nav.GoBack();
                     }
 
-                    TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.Clear();
+                    TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Clear();
 
                     QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
                     {
@@ -552,9 +557,9 @@ namespace FileManager
                     {
                         Options.SortOrder.Clear();
                         Options.SortOrder.Add(new SortEntry { PropertyName = "System.ItemNameDisplay", AscendingOrder = true });
-                        TabViewContainer.ThisPage.InstanceContainer[this].SortMap["System.ItemNameDisplay"] = true;
-                        TabViewContainer.ThisPage.InstanceContainer[this].SortMap["System.Size"] = true;
-                        TabViewContainer.ThisPage.InstanceContainer[this].SortMap["System.DateModified"] = true;
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].SortMap["System.ItemNameDisplay"] = true;
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].SortMap["System.Size"] = true;
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].SortMap["System.DateModified"] = true;
                     }
 
                     Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.ResizeThumbnail);
@@ -565,16 +570,16 @@ namespace FileManager
                     IReadOnlyList<IStorageItem> FileList = null;
                     try
                     {
-                        TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.HasMoreItems = false;
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.HasMoreItems = false;
                         FileList = await ItemQuery.GetItemsAsync(0, 100).AsTask(CancelToken.Token).ConfigureAwait(true);
-                        await TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.SetStorageQueryResultAsync(ItemQuery).ConfigureAwait(true);
+                        await TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.SetStorageQueryResultAsync(ItemQuery).ConfigureAwait(true);
                     }
                     catch (TaskCanceledException)
                     {
                         goto FLAG;
                     }
 
-                    TabViewContainer.ThisPage.InstanceContainer[this].HasFile.Visibility = FileList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                    TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = FileList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
                     for (int i = 0; i < FileList.Count && !CancelToken.IsCancellationRequested; i++)
                     {
@@ -584,7 +589,7 @@ namespace FileManager
                             var Size = await Item.GetSizeDescriptionAsync().ConfigureAwait(true);
                             var Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
                             var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
-                            TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.Add(new FileSystemStorageItem(FileList[i], Size, Thumbnail, ModifiedTime));
+                            TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Add(new FileSystemStorageItem(FileList[i], Size, Thumbnail, ModifiedTime));
                         }
                         else
                         {
@@ -592,7 +597,7 @@ namespace FileManager
                             {
                                 var Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
                                 var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
-                                TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.Add(new FileSystemStorageItem(FileList[i], string.Empty, Thumbnail, ModifiedTime));
+                                TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Add(new FileSystemStorageItem(FileList[i], string.Empty, Thumbnail, ModifiedTime));
                             }
                             else
                             {
@@ -680,7 +685,7 @@ namespace FileManager
                     await CurrentFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
                     await CurrentFolder.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
-                    TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.Where((Item) => Item.RelativeId == CurrentFolder.FolderRelativeId).FirstOrDefault());
+                    TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Where((Item) => Item.RelativeId == CurrentFolder.FolderRelativeId).FirstOrDefault());
 
                     TreeViewNode ParentNode = CurrentNode.Parent;
                     ParentNode.Children.Remove(CurrentNode);
@@ -967,7 +972,7 @@ namespace FileManager
                 var Thumbnail = await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
                 var ModifiedTime = await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true);
 
-                TabViewContainer.ThisPage.InstanceContainer[this].FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
+                TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
 
                 if (CurrentNode.IsExpanded || !CurrentNode.HasChildren)
                 {
@@ -1178,7 +1183,7 @@ namespace FileManager
                 }
                 else
                 {
-                    SearchPage.ThisPage.SetSearchTarget = Options;
+                    TabViewContainer.ThisPage.FSInstanceContainer[this].SetSearchTarget = Options;
                 }
             }
             catch (Exception ex)
@@ -1208,7 +1213,7 @@ namespace FileManager
 
         private async void AddressBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            TabViewContainer.ThisPage.InstanceContainer[this].LoadingControl.Focus(FocusState.Programmatic);
+            TabViewContainer.ThisPage.FFInstanceContainer[this].LoadingControl.Focus(FocusState.Programmatic);
 
             string QueryText = string.Empty;
             if (args.ChosenSuggestion == null)
@@ -1649,66 +1654,66 @@ namespace FileManager
             {
                 case 0:
                     {
-                        TabViewContainer.ThisPage.InstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.InstanceContainer[this].TileDataTemplate;
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].TileDataTemplate;
 
-                        if (!TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList)
+                        if (!TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList)
                         {
-                            TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList = true;
+                            TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList = true;
                         }
                         break;
                     }
                 case 1:
                     {
-                        TabViewContainer.ThisPage.InstanceContainer[this].ListHeader.ContentTemplate = TabViewContainer.ThisPage.InstanceContainer[this].ListHeaderDataTemplate;
-                        TabViewContainer.ThisPage.InstanceContainer[this].ListViewControl.ItemTemplate = TabViewContainer.ThisPage.InstanceContainer[this].ListViewDetailDataTemplate;
-                        TabViewContainer.ThisPage.InstanceContainer[this].ListViewControl.ItemsSource = TabViewContainer.ThisPage.InstanceContainer[this].FileCollection;
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].ListHeader.ContentTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].ListHeaderDataTemplate;
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewDetailDataTemplate;
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl.ItemsSource = TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection;
 
-                        if (TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList)
+                        if (TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList)
                         {
-                            TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList = false;
+                            TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList = false;
                         }
                         break;
                     }
 
                 case 2:
                     {
-                        TabViewContainer.ThisPage.InstanceContainer[this].ListHeader.ContentTemplate = null;
-                        TabViewContainer.ThisPage.InstanceContainer[this].ListViewControl.ItemTemplate = TabViewContainer.ThisPage.InstanceContainer[this].ListViewSimpleDataTemplate;
-                        TabViewContainer.ThisPage.InstanceContainer[this].ListViewControl.ItemsSource = TabViewContainer.ThisPage.InstanceContainer[this].FileCollection;
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].ListHeader.ContentTemplate = null;
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewSimpleDataTemplate;
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl.ItemsSource = TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection;
 
-                        if (TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList)
+                        if (TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList)
                         {
-                            TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList = false;
+                            TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList = false;
                         }
                         break;
                     }
                 case 3:
                     {
-                        TabViewContainer.ThisPage.InstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.InstanceContainer[this].LargeImageDataTemplate;
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].LargeImageDataTemplate;
 
-                        if (!TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList)
+                        if (!TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList)
                         {
-                            TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList = true;
+                            TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList = true;
                         }
                         break;
                     }
                 case 4:
                     {
-                        TabViewContainer.ThisPage.InstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.InstanceContainer[this].MediumImageDataTemplate;
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].MediumImageDataTemplate;
 
-                        if (!TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList)
+                        if (!TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList)
                         {
-                            TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList = true;
+                            TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList = true;
                         }
                         break;
                     }
                 case 5:
                     {
-                        TabViewContainer.ThisPage.InstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.InstanceContainer[this].SmallImageDataTemplate;
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].SmallImageDataTemplate;
 
-                        if (!TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList)
+                        if (!TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList)
                         {
-                            TabViewContainer.ThisPage.InstanceContainer[this].UseGridOrList = true;
+                            TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList = true;
                         }
                         break;
                     }

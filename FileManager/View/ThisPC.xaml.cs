@@ -19,6 +19,7 @@ namespace FileManager
         private Frame Nav;
         private TabViewItem TabItem;
         private QuickStartItem CurrentSelectedItem;
+        private StorageFolder OpenTargetFolder;
 
         public ThisPC()
         {
@@ -27,15 +28,28 @@ namespace FileManager
             DeviceGrid.ItemsSource = TabViewContainer.ThisPage.HardDeviceList;
             QuickStartGridView.ItemsSource = TabViewContainer.ThisPage.QuickStartList;
             WebGridView.ItemsSource = TabViewContainer.ThisPage.HotWebList;
+            Loaded += ThisPC_Loaded;
+        }
+
+        private void ThisPC_Loaded(object sender, RoutedEventArgs e)
+        {
+            Loaded -= ThisPC_Loaded;
+
+            if (OpenTargetFolder != null)
+            {
+                Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, OpenTargetFolder, this), new DrillInNavigationTransitionInfo());
+                OpenTargetFolder = null;
+            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is Tuple<TabViewItem, Frame> Parameters)
+            if (e.Parameter is Tuple<TabViewItem, Frame, StorageFolder> Parameters)
             {
                 Nav = Parameters.Item2;
                 TabItem = Parameters.Item1;
                 TabItem.Header = Globalization.Language == LanguageEnum.Chinese ? "这台电脑" : "ThisPC";
+                OpenTargetFolder = Parameters.Item3;
             }
         }
 
@@ -63,7 +77,7 @@ namespace FileManager
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Device)
                 {
-                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new DrillInNavigationTransitionInfo());
+                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
                 }
             }
             catch (Exception ex)
@@ -78,7 +92,7 @@ namespace FileManager
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Library)
                 {
-                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new DrillInNavigationTransitionInfo());
+                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
                 }
 
             }
@@ -116,7 +130,7 @@ namespace FileManager
 
         private async void AppDelete_Click(object sender, RoutedEventArgs e)
         {
-            if (CurrentSelectedItem !=null)
+            if (CurrentSelectedItem != null)
             {
                 TabViewContainer.ThisPage.QuickStartList.Remove(CurrentSelectedItem);
                 await SQLite.Current.DeleteQuickStartItemAsync(CurrentSelectedItem).ConfigureAwait(false);
@@ -125,7 +139,7 @@ namespace FileManager
 
         private async void AppEdit_Click(object sender, RoutedEventArgs e)
         {
-            if (CurrentSelectedItem!=null)
+            if (CurrentSelectedItem != null)
             {
                 QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.UpdateApp, CurrentSelectedItem);
                 _ = await dialog.ShowAsync().ConfigureAwait(true);
@@ -143,7 +157,7 @@ namespace FileManager
 
         private async void WebDelete_Click(object sender, RoutedEventArgs e)
         {
-            if (CurrentSelectedItem!=null)
+            if (CurrentSelectedItem != null)
             {
                 TabViewContainer.ThisPage.HotWebList.Remove(CurrentSelectedItem);
                 await SQLite.Current.DeleteQuickStartItemAsync(CurrentSelectedItem).ConfigureAwait(false);
@@ -213,7 +227,7 @@ namespace FileManager
             {
                 if (DeviceGrid.SelectedItem is HardDeviceInfo Device)
                 {
-                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new DrillInNavigationTransitionInfo());
+                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
                 }
             }
             catch (Exception ex)
@@ -270,7 +284,7 @@ namespace FileManager
             {
                 if (LibraryGrid.SelectedItem is LibraryFolder Library)
                 {
-                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new DrillInNavigationTransitionInfo());
+                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
                 }
             }
             catch (Exception ex)
@@ -285,7 +299,7 @@ namespace FileManager
             {
                 if (LibraryGrid.SelectedItem is LibraryFolder Library)
                 {
-                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new DrillInNavigationTransitionInfo());
+                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
                 }
             }
             catch (Exception ex)
@@ -365,7 +379,7 @@ namespace FileManager
                 {
                     if (e.ClickedItem is HardDeviceInfo Device)
                     {
-                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new DrillInNavigationTransitionInfo());
+                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
                     }
                 }
             }
@@ -383,7 +397,7 @@ namespace FileManager
                 {
                     if (e.ClickedItem is LibraryFolder Library)
                     {
-                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new DrillInNavigationTransitionInfo());
+                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
                     }
                 }
             }

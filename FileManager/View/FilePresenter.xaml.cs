@@ -200,9 +200,9 @@ namespace FileManager
             {
                 FileControlInstance = Parameters.Item1;
 
-                if (!TabViewContainer.ThisPage.InstanceContainer.ContainsKey(Parameters.Item1))
+                if (!TabViewContainer.ThisPage.FFInstanceContainer.ContainsKey(Parameters.Item1))
                 {
-                    TabViewContainer.ThisPage.InstanceContainer.Add(Parameters.Item1, this);
+                    TabViewContainer.ThisPage.FFInstanceContainer.Add(Parameters.Item1, this);
                 }
             }
         }

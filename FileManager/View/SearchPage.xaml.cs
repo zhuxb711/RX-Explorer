@@ -25,8 +25,6 @@ namespace FileManager
         private CancellationTokenSource Cancellation;
         private FileControl FileControlInstance;
 
-        public static SearchPage ThisPage { get; private set; }
-
         public QueryOptions SetSearchTarget
         {
             get
@@ -46,7 +44,6 @@ namespace FileManager
         public SearchPage()
         {
             InitializeComponent();
-            ThisPage = this;
             SearchResult = new ObservableCollection<FileSystemStorageItem>();
             SearchResultList.ItemsSource = SearchResult;
         }
@@ -58,7 +55,12 @@ namespace FileManager
                 FileControlInstance = Parameters.Item1;
                 ItemQuery = Parameters.Item2;
 
-                await Initialize();
+                if (!TabViewContainer.ThisPage.FSInstanceContainer.ContainsKey(FileControlInstance))
+                {
+                    TabViewContainer.ThisPage.FSInstanceContainer.Add(FileControlInstance, this);
+                }
+
+                await Initialize().ConfigureAwait(false);
             }
         }
 
