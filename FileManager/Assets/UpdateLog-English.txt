@@ -1,4 +1,13 @@
 ﻿*****
+###What's new in Ver.4.4.1.0
+
+>#####Feature Update
+
+>>#####Added support for pre-launching technology, which can maximize application startup speed
+
+>>#####Added a minimization prompt (when in transcoding or other state), if this application is minimized, a prompt will pop up
+
+*****
 ###What's new in Ver.4.3.9.0
 
 >#####UI improvements
