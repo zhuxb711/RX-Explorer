@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
@@ -9,7 +8,6 @@ using Windows.UI;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 
 namespace FileManager
@@ -97,13 +95,11 @@ namespace FileManager
             viewTitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             viewTitleBar.ButtonForegroundColor = (Color)Resources["SystemBaseHighColor"];
 
-            if (!(Window.Current.Content is Frame))
+            if (!(Window.Current.Content is Frame) && !(Window.Current.Content is ExtendedSplash))
             {
-                ExtendedSplash extendedSplash;
-
                 if (e.PrelaunchActivated)
                 {
-                    extendedSplash = new ExtendedSplash(e.SplashScreen, true);
+                    _ = new ExtendedSplash(e.SplashScreen, true);
                 }
                 else
                 {
@@ -113,10 +109,9 @@ namespace FileManager
                         ApplicationData.Current.LocalSettings.Values["EnablePreLaunch"] = true;
                     }
 
-                    extendedSplash = new ExtendedSplash(e.SplashScreen);
+                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen);
+                    Window.Current.Content = extendedSplash;
                 }
-
-                Window.Current.Content = extendedSplash;
             }
 
             Window.Current.Activate();

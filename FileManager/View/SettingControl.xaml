@@ -176,8 +176,8 @@
 
                     <StackPanel Margin="0,20,0,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="使用预加载技术" 
-                                       x:Uid="PreLaunchHeader"/>
+                            <TextBlock Text="使用预加载技术"
+                                       x:Uid="PreLaunchHeader" />
                             <Viewbox Margin="10,0,0,0"
                                      Height="15"
                                      VerticalAlignment="Bottom">
@@ -192,8 +192,8 @@
                                       Name="EnablePreLaunch"
                                       Toggled="EnablePreLaunch_Toggled" />
                     </StackPanel>
-                    
-                    <ComboBox Header="调整UI显示模式"
+
+                    <ComboBox Header="个性化"
                               x:Uid="SettingPageUIMode"
                               Margin="0,20,0,0"
                               SelectionChanged="UIMode_SelectionChanged"
@@ -201,6 +201,16 @@
                               Width="150"
                               Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
 
+                    <StackPanel Margin="0,10,0,0"
+                                Name="SolidColorArea"
+                                Orientation="Horizontal">
+                        <RadioButton Content="白色"
+                                     Name="SolidColor_White"
+                                     Checked="SolidColor_White_Checked" />
+                        <RadioButton Content="黑色"
+                                     Name="SolidColor_Black"
+                                     Checked="SolidColor_Black_Checked" />
+                    </StackPanel>
                     <StackPanel Margin="0,10,0,0"
                                 Name="CustomUIArea">
                         <RadioButton Content="Acrylic背景"
@@ -426,7 +436,7 @@
                                      FontSize="16"
                                      NavigateUri="https://github.com/zhuxb711/FileManager" />
                     <HyperlinkButton Content="联系开发者"
-                                     Margin="0,20,0,0"
+                                     Margin="0,10,0,0"
                                      FontSize="16"
                                      x:Uid="SettingContactDeveloper"
                                      NavigateUri="mailto:zrfcfgs@outlook.com" />

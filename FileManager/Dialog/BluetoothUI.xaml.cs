@@ -70,57 +70,57 @@ namespace FileManager
         {
             var Deferral = args.GetDeferral();
 
-            if (BluetoothControl.SelectedIndex == -1 || !BluetoothDeviceCollection[BluetoothControl.SelectedIndex].DeviceInfo.Pairing.IsPaired)
-            {
-                Tips.Text = Globalization.Language == LanguageEnum.Chinese
-                    ? "请先选择一个已配对的设备"
-                    : "Please select a paired device first";
-                Tips.Visibility = Visibility.Visible;
-                args.Cancel = true;
-                Deferral.Complete();
-                return;
-            }
-
-
             try
             {
-                //首先连接到RFComm服务，获取到设备的规范名称
-                string CanonicalName = await ConnectToRfcommServiceAsync(BluetoothDeviceCollection[BluetoothControl.SelectedIndex]).ConfigureAwait(false);
-
-                BluetoothService BTService = BluetoothService.GetDefault();
-                BTService.SearchForPairedDevicesSucceeded += (s, e) =>
+                if (BluetoothControl.SelectedIndex == -1 || !BluetoothDeviceCollection[BluetoothControl.SelectedIndex].DeviceInfo.Pairing.IsPaired)
                 {
-                    PairedBluetoothDeviceCollection = e.PairedDevices;
-                };
-
-                //能到这里说明该设备已经配对，启动搜索，完成后PairedBluetoothDeviceCollection被填充
-                await BTService.SearchForPairedDevicesAsync().ConfigureAwait(false);
-                foreach (var BTDevice in from BTDevice in PairedBluetoothDeviceCollection
-                                         where BTDevice.DeviceHost.CanonicalName == CanonicalName
-                                         select BTDevice)
-                {
-                    //从该设备的BluetoothDevice对象获取到Obex服务的实例
-                    ObexServiceProvider.SetObexInstance(BTDevice);
-                    break;
+                    Tips.Text = Globalization.Language == LanguageEnum.Chinese
+                                ? "请先选择一个已配对的设备"
+                                : "Please select a paired device first";
+                    Tips.Visibility = Visibility.Visible;
+                    args.Cancel = true;
                 }
-
-                if (ObexServiceProvider.GetObexNewInstance() == null)
+                else
                 {
-                    throw new Exception(Globalization.Language == LanguageEnum.Chinese
-                        ? "未能找到已配对的设备，请打开该设备的蓝牙开关"
-                        : "Failed to find the paired device, please turn on the device's Bluetooth switch");
+                    //首先连接到RFComm服务，获取到设备的规范名称
+                    string CanonicalName = await ConnectToRfcommServiceAsync(BluetoothDeviceCollection[BluetoothControl.SelectedIndex]).ConfigureAwait(true);
+
+                    BluetoothService BTService = BluetoothService.GetDefault();
+                    BTService.SearchForPairedDevicesSucceeded += (s, e) =>
+                    {
+                        PairedBluetoothDeviceCollection = e.PairedDevices;
+                    };
+
+                    //能到这里说明该设备已经配对，启动搜索，完成后PairedBluetoothDeviceCollection被填充
+                    await BTService.SearchForPairedDevicesAsync().ConfigureAwait(true);
+
+                    if (PairedBluetoothDeviceCollection.FirstOrDefault((Device) => Device.DeviceHost.CanonicalName == CanonicalName) is BluetoothDevice BTDevice)
+                    {
+                        ObexServiceProvider.SetObexInstance(BTDevice, BluetoothDeviceCollection[BluetoothControl.SelectedIndex].Name);
+                    }
+
+                    if (ObexServiceProvider.GetObexNewInstance() == null)
+                    {
+                        throw new Exception(Globalization.Language == LanguageEnum.Chinese
+                                            ? "无法连接至此蓝牙设备，请打开此设备的蓝牙开关"
+                                            : "Unable to connect to this Bluetooth device, please turn on the Bluetooth switch of this device");
+                    }
                 }
             }
             catch (Exception e)
             {
+                args.Cancel = true;
+
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
                     Tips.Text = e.Message;
                     Tips.Visibility = Visibility.Visible;
                 });
             }
-
-            Deferral.Complete();
+            finally
+            {
+                Deferral.Complete();
+            }
         }
 
         /// <summary>
@@ -164,52 +164,52 @@ namespace FileManager
             });
         }
 
-        private async void BluetoothWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
+        private void BluetoothWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                lock (SyncRootProvider.SyncRoot)
-                {
-                    try
-                    {
-                        if (BluetoothDeviceCollection != null)
-                        {
-                            for (int i = 0; i < BluetoothDeviceCollection.Count; i++)
-                            {
-                                if (BluetoothDeviceCollection[i].Id == args.Id)
-                                {
-                                    BluetoothDeviceCollection.RemoveAt(i);
-                                    i--;
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception) { }
-                }
-            });
+            _ = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+             {
+                 lock (SyncRootProvider.SyncRoot)
+                 {
+                     try
+                     {
+                         if (BluetoothDeviceCollection != null)
+                         {
+                             for (int i = 0; i < BluetoothDeviceCollection.Count; i++)
+                             {
+                                 if (BluetoothDeviceCollection[i].Id == args.Id)
+                                 {
+                                     BluetoothDeviceCollection.RemoveAt(i);
+                                     i--;
+                                 }
+                             }
+                         }
+                     }
+                     catch (Exception) { }
+                 }
+             });
         }
 
-        private async void BluetoothWatcher_Updated(DeviceWatcher sender, DeviceInformationUpdate args)
+        private void BluetoothWatcher_Updated(DeviceWatcher sender, DeviceInformationUpdate args)
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                lock (SyncRootProvider.SyncRoot)
-                {
-                    try
-                    {
-                        if (BluetoothDeviceCollection != null)
-                        {
-                            foreach (var Bluetooth in from BluetoothList Bluetooth in BluetoothDeviceCollection
-                                                      where Bluetooth.Id == args.Id
-                                                      select Bluetooth)
-                            {
-                                Bluetooth.Update(args);
-                            }
-                        }
-                    }
-                    catch (Exception) { }
-                }
-            });
+            _ = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+             {
+                 lock (SyncRootProvider.SyncRoot)
+                 {
+                     try
+                     {
+                         if (BluetoothDeviceCollection != null)
+                         {
+                             foreach (var Bluetooth in from BluetoothList Bluetooth in BluetoothDeviceCollection
+                                                       where Bluetooth.Id == args.Id
+                                                       select Bluetooth)
+                             {
+                                 Bluetooth.Update(args);
+                             }
+                         }
+                     }
+                     catch (Exception) { }
+                 }
+             });
         }
 
         private async void BluetoothWatcher_Added(DeviceWatcher sender, DeviceInformation args)
@@ -268,18 +268,27 @@ namespace FileManager
                 throw new ArgumentNullException(nameof(BL), "Parameter could not be null");
             }
 
-            var Device = await Windows.Devices.Bluetooth.BluetoothDevice.FromIdAsync(BL.Id);
-            var Services = await Device.GetRfcommServicesForIdAsync(RfcommServiceId.ObexObjectPush);
+            try
+            {
+                var Device = await Windows.Devices.Bluetooth.BluetoothDevice.FromIdAsync(BL.Id);
+                var Services = await Device.GetRfcommServicesForIdAsync(RfcommServiceId.ObexObjectPush);
 
-            if (Services.Services.Count == 0)
+                if (Services.Services.Count == 0)
+                {
+                    throw new Exception(Globalization.Language == LanguageEnum.Chinese
+                                        ? "无法发现蓝牙设备的ObexObjectPush服务，该设备不受支持"
+                                        : "Unable to discover the ObexObjectPush service for Bluetooth devices, which is not supported");
+                }
+
+                RfcommDeviceService RfcService = Services.Services[0];
+                return RfcService.ConnectionHostName.CanonicalName;
+            }
+            catch
             {
                 throw new Exception(Globalization.Language == LanguageEnum.Chinese
-                    ? "无法发现蓝牙设备的ObexObjectPush服务，该设备不受支持"
-                    : "Unable to discover the ObexObjectPush service for Bluetooth devices, which is not supported");
+                                    ? "无法连接至此蓝牙设备，请打开此设备的蓝牙开关"
+                                    : "Unable to connect to this Bluetooth device, please turn on the Bluetooth switch of this device");
             }
-
-            RfcommDeviceService RfcService = Services.Services[0];
-            return RfcService.ConnectionHostName.CanonicalName;
         }
 
         private async void PairOrCancelButton_Click(object sender, RoutedEventArgs e)

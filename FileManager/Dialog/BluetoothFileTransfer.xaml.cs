@@ -1,6 +1,5 @@
 ﻿using Bluetooth.Services.Obex;
 using System;
-using System.IO;
 using Windows.Storage;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -11,28 +10,25 @@ namespace FileManager
 {
     public sealed partial class BluetoothFileTransfer : QueueContentDialog
     {
-        public Stream StreamToSend { get; set; }
-        public StorageFile FileToSend { get; set; }
-        public bool UseStorageFileRatherThanStream { get; set; } = false;
-        public string FileName { get; set; }
-        private StorageFile ToDeleteFile;
-        private ObexService ObexClient = ObexServiceProvider.GetObexNewInstance();
+        public StorageFile FileToSend { get; private set; }
+
+        private ObexService ObexClient;
+
         private bool AbortFromHere = false;
-        public BluetoothFileTransfer()
+
+        public BluetoothFileTransfer(StorageFile FileToSend)
         {
             InitializeComponent();
+            this.FileToSend = FileToSend ?? throw new ArgumentNullException(nameof(FileToSend), "Parameter could not be null");
+            ObexClient = ObexServiceProvider.GetObexNewInstance();
+            TransferName.Text = Globalization.Language == LanguageEnum.Chinese ? $"传输文件名：{FileToSend.Name}" : $"File to transfer：{FileToSend.Name}";
+            TransferDeviceName.Text = Globalization.Language == LanguageEnum.Chinese ? $"目标设备：{ObexServiceProvider.DeviceName}" : $"Target device：{ObexServiceProvider.DeviceName}";
             Loaded += BluetoothFileTransfer_Loaded;
             Closing += BluetoothFileTransfer_Closing;
         }
 
-        private async void BluetoothFileTransfer_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
+        private void BluetoothFileTransfer_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
         {
-            if (!UseStorageFileRatherThanStream)
-            {
-                await ToDeleteFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                ToDeleteFile = null;
-            }
-
             ObexClient.DataTransferFailed -= ObexClient_DataTransferFailed;
             ObexClient.DataTransferProgressed -= ObexClient_DataTransferProgressed;
             ObexClient.DataTransferSucceeded -= ObexClient_DataTransferSucceeded;
@@ -54,26 +50,7 @@ namespace FileManager
 
             await ObexClient.ConnectAsync().ConfigureAwait(false);
 
-            if (UseStorageFileRatherThanStream)
-            {
-                await ObexClient.SendFileAsync(FileToSend).ConfigureAwait(false);
-            }
-            else
-            {
-                StorageFile file = await ApplicationData.Current.TemporaryFolder.CreateFileAsync(FileName, CreationCollisionOption.ReplaceExisting);
-                
-                using (Stream stream = await file.OpenStreamForWriteAsync().ConfigureAwait(false))
-                {
-                    using (StreamToSend)
-                    {
-                        await StreamToSend.CopyToAsync(stream).ConfigureAwait(false);
-                    }
-                }
-
-                ToDeleteFile = file;
-
-                await ObexClient.SendFileAsync(file).ConfigureAwait(false);
-            }
+            await ObexClient.SendFileAsync(FileToSend).ConfigureAwait(false);
         }
 
         private async void ObexClient_DeviceConnected(object sender, EventArgs e)
@@ -93,6 +70,7 @@ namespace FileManager
                 AbortFromHere = false;
                 return;
             }
+
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
@@ -180,6 +158,11 @@ namespace FileManager
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
+                if (ProgressControl.IsIndeterminate)
+                {
+                    ProgressControl.IsIndeterminate = false;
+                }
+
                 ProgressControl.Value = e.TransferInPercentage * 100;
                 ProgressText.Text = ((int)(e.TransferInPercentage * 100)) + "%";
             });
@@ -210,113 +193,120 @@ namespace FileManager
         {
             var Deferral = args.GetDeferral();
 
-            if (Globalization.Language == LanguageEnum.Chinese)
+            try
             {
-                if (SecondaryButtonText == "中止")
+                if (Globalization.Language == LanguageEnum.Chinese)
                 {
-                    args.Cancel = true;
-                    AbortFromHere = true;
-
-                    try
+                    if (SecondaryButtonText == "终止")
                     {
-                        await ObexClient.AbortAsync().ConfigureAwait(false);
+                        args.Cancel = true;
+                        AbortFromHere = true;
+
+                        try
+                        {
+                            await ObexClient.AbortAsync().ConfigureAwait(true);
+                        }
+                        catch (Exception)
+                        {
+
+                        }
                     }
-                    catch (Exception)
+                    else if (SecondaryButtonText == "重试")
                     {
+                        args.Cancel = true;
+                        ProgressControl.IsIndeterminate = true;
+                        ProgressText.Text = "0%";
 
+                        ObexClient.DataTransferFailed -= ObexClient_DataTransferFailed;
+                        ObexClient.DataTransferProgressed -= ObexClient_DataTransferProgressed;
+                        ObexClient.DataTransferSucceeded -= ObexClient_DataTransferSucceeded;
+                        ObexClient.ConnectionFailed -= ObexClient_ConnectionFailed;
+                        ObexClient.Aborted -= ObexClient_Aborted;
+                        ObexClient.Disconnected -= ObexClient_Disconnected;
+                        ObexClient.DeviceConnected -= ObexClient_DeviceConnected;
+
+                        ObexClient = ObexServiceProvider.GetObexNewInstance();
+
+                        ObexClient.DataTransferFailed += ObexClient_DataTransferFailed;
+                        ObexClient.DataTransferProgressed += ObexClient_DataTransferProgressed;
+                        ObexClient.DataTransferSucceeded += ObexClient_DataTransferSucceeded;
+                        ObexClient.ConnectionFailed += ObexClient_ConnectionFailed;
+                        ObexClient.Aborted += ObexClient_Aborted;
+                        ObexClient.Disconnected += ObexClient_Disconnected;
+                        ObexClient.DeviceConnected += ObexClient_DeviceConnected;
+
+                        try
+                        {
+                            ProgressControl.Value = 0;
+                            CloseButtonText = string.Empty;
+                            SecondaryButtonText = "终止";
+                            await ObexClient.ConnectAsync().ConfigureAwait(true);
+                            await ObexClient.SendFileAsync(FileToSend).ConfigureAwait(true);
+                        }
+                        catch (Exception)
+                        {
+                            ProgressText.Text = "无法重新连接目标设备";
+                        }
                     }
                 }
-                else if (SecondaryButtonText == "重试")
+                else
                 {
-                    args.Cancel = true;
-                    ProgressText.Text = "0%";
-
-                    ObexClient.DataTransferFailed -= ObexClient_DataTransferFailed;
-                    ObexClient.DataTransferProgressed -= ObexClient_DataTransferProgressed;
-                    ObexClient.DataTransferSucceeded -= ObexClient_DataTransferSucceeded;
-                    ObexClient.ConnectionFailed -= ObexClient_ConnectionFailed;
-                    ObexClient.Aborted -= ObexClient_Aborted;
-                    ObexClient.Disconnected -= ObexClient_Disconnected;
-                    ObexClient.DeviceConnected -= ObexClient_DeviceConnected;
-
-                    ObexClient = ObexServiceProvider.GetObexNewInstance();
-
-                    ObexClient.DataTransferFailed += ObexClient_DataTransferFailed;
-                    ObexClient.DataTransferProgressed += ObexClient_DataTransferProgressed;
-                    ObexClient.DataTransferSucceeded += ObexClient_DataTransferSucceeded;
-                    ObexClient.ConnectionFailed += ObexClient_ConnectionFailed;
-                    ObexClient.Aborted += ObexClient_Aborted;
-                    ObexClient.Disconnected += ObexClient_Disconnected;
-                    ObexClient.DeviceConnected += ObexClient_DeviceConnected;
-
-                    try
+                    if (SecondaryButtonText == "Abort")
                     {
-                        ProgressControl.Value = 0;
-                        CloseButtonText = "";
-                        SecondaryButtonText = "中止";
-                        await ObexClient.ConnectAsync().ConfigureAwait(true);
-                        await ObexClient.SendFileAsync(ToDeleteFile).ConfigureAwait(true);
+                        args.Cancel = true;
+                        AbortFromHere = true;
+
+                        try
+                        {
+                            await ObexClient.AbortAsync().ConfigureAwait(true);
+                        }
+                        catch (Exception)
+                        {
+
+                        }
                     }
-                    catch (Exception)
+                    else if (SecondaryButtonText == "Retry")
                     {
-                        ProgressText.Text = "尝试重新连接失败";
+                        args.Cancel = true;
+                        ProgressText.Text = "0%";
+
+                        ObexClient.DataTransferFailed -= ObexClient_DataTransferFailed;
+                        ObexClient.DataTransferProgressed -= ObexClient_DataTransferProgressed;
+                        ObexClient.DataTransferSucceeded -= ObexClient_DataTransferSucceeded;
+                        ObexClient.ConnectionFailed -= ObexClient_ConnectionFailed;
+                        ObexClient.Aborted -= ObexClient_Aborted;
+                        ObexClient.Disconnected -= ObexClient_Disconnected;
+                        ObexClient.DeviceConnected -= ObexClient_DeviceConnected;
+
+                        ObexClient = ObexServiceProvider.GetObexNewInstance();
+
+                        ObexClient.DataTransferFailed += ObexClient_DataTransferFailed;
+                        ObexClient.DataTransferProgressed += ObexClient_DataTransferProgressed;
+                        ObexClient.DataTransferSucceeded += ObexClient_DataTransferSucceeded;
+                        ObexClient.ConnectionFailed += ObexClient_ConnectionFailed;
+                        ObexClient.Aborted += ObexClient_Aborted;
+                        ObexClient.Disconnected += ObexClient_Disconnected;
+                        ObexClient.DeviceConnected += ObexClient_DeviceConnected;
+
+                        try
+                        {
+                            ProgressControl.Value = 0;
+                            CloseButtonText = string.Empty;
+                            SecondaryButtonText = "Abort";
+                            await ObexClient.ConnectAsync().ConfigureAwait(true);
+                            await ObexClient.SendFileAsync(FileToSend).ConfigureAwait(true);
+                        }
+                        catch (Exception)
+                        {
+                            ProgressText.Text = "Unable to reconnect the target device";
+                        }
                     }
                 }
             }
-            else
+            finally
             {
-                if (SecondaryButtonText == "Abort")
-                {
-                    args.Cancel = true;
-                    AbortFromHere = true;
-
-                    try
-                    {
-                        await ObexClient.AbortAsync().ConfigureAwait(false);
-                    }
-                    catch (Exception) 
-                    { 
-                    
-                    }
-                }
-                else if (SecondaryButtonText == "Retry")
-                {
-                    args.Cancel = true;
-                    ProgressText.Text = "0%";
-
-                    ObexClient.DataTransferFailed -= ObexClient_DataTransferFailed;
-                    ObexClient.DataTransferProgressed -= ObexClient_DataTransferProgressed;
-                    ObexClient.DataTransferSucceeded -= ObexClient_DataTransferSucceeded;
-                    ObexClient.ConnectionFailed -= ObexClient_ConnectionFailed;
-                    ObexClient.Aborted -= ObexClient_Aborted;
-                    ObexClient.Disconnected -= ObexClient_Disconnected;
-                    ObexClient.DeviceConnected -= ObexClient_DeviceConnected;
-
-                    ObexClient = ObexServiceProvider.GetObexNewInstance();
-
-                    ObexClient.DataTransferFailed += ObexClient_DataTransferFailed;
-                    ObexClient.DataTransferProgressed += ObexClient_DataTransferProgressed;
-                    ObexClient.DataTransferSucceeded += ObexClient_DataTransferSucceeded;
-                    ObexClient.ConnectionFailed += ObexClient_ConnectionFailed;
-                    ObexClient.Aborted += ObexClient_Aborted;
-                    ObexClient.Disconnected += ObexClient_Disconnected;
-                    ObexClient.DeviceConnected += ObexClient_DeviceConnected;
-
-                    try
-                    {
-                        ProgressControl.Value = 0;
-                        CloseButtonText = "";
-                        SecondaryButtonText = "Abort";
-                        await ObexClient.ConnectAsync().ConfigureAwait(true);
-                        await ObexClient.SendFileAsync(ToDeleteFile).ConfigureAwait(true);
-                    }
-                    catch (Exception)
-                    {
-                        ProgressText.Text = "Trying to reconnect failed";
-                    }
-                }
+                Deferral.Complete();
             }
-            Deferral.Complete();
         }
     }
 }

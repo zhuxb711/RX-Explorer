@@ -2573,16 +2573,10 @@ namespace FileManager
     /// </summary>
     public sealed class BluetoothList : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         /// <summary>
-        /// 表示蓝牙设备
+        /// 表示蓝牙设备信息
         /// </summary>
         public DeviceInformation DeviceInfo { get; set; }
-        public void OnPropertyChanged(string name)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
 
         /// <summary>
         /// 获取蓝牙设备名称
@@ -2655,6 +2649,13 @@ namespace FileManager
             OnPropertyChanged("Name");
         }
 
+        public void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         /// <summary>
         /// 创建BluetoothList的实例
         /// </summary>
@@ -2676,30 +2677,26 @@ namespace FileManager
         /// <summary>
         /// 蓝牙设备
         /// </summary>
-        private static BluetoothDevice BTDevice;
+        public static BluetoothDevice BlueToothDevice { get; private set; }
+
+        public static string DeviceName { get; private set; }
 
         /// <summary>
         /// OBEX协议服务
         /// </summary>
         public static ObexService GetObexNewInstance()
         {
-            if (BTDevice != null)
-            {
-                return ObexService.GetDefaultForBluetoothDevice(BTDevice);
-            }
-            else
-            {
-                return null;
-            }
+            return BlueToothDevice != null ? ObexService.GetDefaultForBluetoothDevice(BlueToothDevice) : null;
         }
 
         /// <summary>
         /// 设置Obex对象的实例
         /// </summary>
         /// <param name="obex">OBEX对象</param>
-        public static void SetObexInstance(BluetoothDevice BT)
+        public static void SetObexInstance(BluetoothDevice BT, string DeviceDisplayName)
         {
-            BTDevice = BT;
+            BlueToothDevice = BT;
+            DeviceName = DeviceDisplayName;
         }
     }
     #endregion
@@ -3498,10 +3495,16 @@ namespace FileManager
         /// 使用亚克力背景
         /// </summary>
         Acrylic = 0,
+
         /// <summary>
         /// 使用图片背景
         /// </summary>
-        Picture = 1
+        Picture = 1,
+
+        /// <summary>
+        /// 使用纯色背景
+        /// </summary>
+        SolidColor = 2,
     }
 
     /// <summary>
@@ -3520,6 +3523,11 @@ namespace FileManager
         private readonly ImageBrush PictureBackgroundBrush;
 
         /// <summary>
+        /// 纯色背景刷
+        /// </summary>
+        private readonly SolidColorBrush SolidColorBackgroundBrush;
+
+        /// <summary>
         /// 指示当前的背景类型
         /// </summary>
         private BackgroundBrushType CurrentType;
@@ -3531,7 +3539,21 @@ namespace FileManager
         {
             get
             {
-                return CurrentType == BackgroundBrushType.Picture ? PictureBackgroundBrush : (Brush)AcrylicBackgroundBrush;
+                switch (CurrentType)
+                {
+                    case BackgroundBrushType.Acrylic:
+                        {
+                            return AcrylicBackgroundBrush;
+                        }
+                    case BackgroundBrushType.Picture:
+                        {
+                            return PictureBackgroundBrush;
+                        }
+                    default:
+                        {
+                            return SolidColorBackgroundBrush;
+                        }
+                }
             }
             set
             {
@@ -3562,6 +3584,15 @@ namespace FileManager
         /// </summary>
         private BackgroundController()
         {
+            if (ApplicationData.Current.LocalSettings.Values["SolidColorType"] is string ColorType)
+            {
+                SolidColorBackgroundBrush = new SolidColorBrush(GetColorFromHexString(ColorType));
+            }
+            else
+            {
+                SolidColorBackgroundBrush = new SolidColorBrush(Colors.White);
+            }
+
             if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is string Mode)
             {
                 if (Mode == "推荐" || Mode == "Recommand")
@@ -3576,7 +3607,7 @@ namespace FileManager
 
                     CurrentType = BackgroundBrushType.Acrylic;
                 }
-                else
+                else if (Mode == "自定义" || Mode == "Custom")
                 {
                     AcrylicBackgroundBrush = new AcrylicBrush
                     {
@@ -3590,6 +3621,28 @@ namespace FileManager
                     if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string SubMode)
                     {
                         CurrentType = (BackgroundBrushType)Enum.Parse(typeof(BackgroundBrushType), SubMode);
+                    }
+                }
+                else
+                {
+                    AcrylicBackgroundBrush = new AcrylicBrush
+                    {
+                        BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                        TintColor = Colors.LightSlateGray,
+                        TintOpacity = 0.4,
+                        FallbackColor = Colors.DimGray
+                    };
+
+                    CurrentType = BackgroundBrushType.SolidColor;
+
+
+                    if (SolidColorBackgroundBrush.Color == Colors.White && AppThemeController.Current.Theme == ElementTheme.Dark)
+                    {
+                        AppThemeController.Current.ChangeThemeTo(ElementTheme.Light);
+                    }
+                    else if (SolidColorBackgroundBrush.Color == Colors.Black && AppThemeController.Current.Theme == ElementTheme.Light)
+                    {
+                        AppThemeController.Current.ChangeThemeTo(ElementTheme.Dark);
                     }
                 }
             }
@@ -3682,34 +3735,55 @@ namespace FileManager
         /// </summary>
         /// <param name="Type">背景类型</param>
         /// <param name="uri">图片背景的Uri</param>
-        public void SwitchTo(BackgroundBrushType Type, Uri uri = null)
+        public void SwitchTo(BackgroundBrushType Type, Uri uri = null, Color? Color = null)
         {
             CurrentType = Type;
 
-            if (Type == BackgroundBrushType.Picture)
+            switch (Type)
             {
-                if (uri == null)
-                {
-                    throw new ArgumentNullException(nameof(Type), "if parameter: 'Type' is BackgroundBrushType.Picture, parameter: 'uri' could not be null or empty");
-                }
-
-                if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string Ur)
-                {
-                    if (Ur != uri.ToString())
+                case BackgroundBrushType.Picture:
                     {
-                        BitmapImage Bitmap = new BitmapImage();
-                        PictureBackgroundBrush.ImageSource = Bitmap;
-                        Bitmap.UriSource = uri;
-                        ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = uri.ToString();
+                        if (uri == null)
+                        {
+                            throw new ArgumentNullException(nameof(uri), "if parameter: 'Type' is BackgroundBrushType.Picture, parameter: 'uri' could not be null or empty");
+                        }
+
+                        if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string Ur)
+                        {
+                            if (Ur != uri.ToString())
+                            {
+                                BitmapImage Bitmap = new BitmapImage();
+                                PictureBackgroundBrush.ImageSource = Bitmap;
+                                Bitmap.UriSource = uri;
+                                ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = uri.ToString();
+                            }
+                        }
+                        else
+                        {
+                            BitmapImage Bitmap = new BitmapImage();
+                            PictureBackgroundBrush.ImageSource = Bitmap;
+                            Bitmap.UriSource = uri;
+                            ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = uri.ToString();
+                        }
+
+                        break;
                     }
-                }
-                else
-                {
-                    BitmapImage Bitmap = new BitmapImage();
-                    PictureBackgroundBrush.ImageSource = Bitmap;
-                    Bitmap.UriSource = uri;
-                    ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = uri.ToString();
-                }
+
+                case BackgroundBrushType.SolidColor:
+                    {
+                        if (Color == null)
+                        {
+                            throw new ArgumentNullException(nameof(Color), "if parameter: 'Type' is BackgroundBrushType.SolidColor, parameter: 'Color' could not be null");
+                        }
+
+                        SolidColorBackgroundBrush.Color = Color.GetValueOrDefault();
+                        ApplicationData.Current.LocalSettings.Values["SolidColorType"] = Color.GetValueOrDefault().ToString();
+                        break;
+                    }
+                default:
+                    {
+                        break;
+                    }
             }
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));

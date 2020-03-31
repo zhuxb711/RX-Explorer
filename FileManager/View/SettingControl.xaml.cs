@@ -162,11 +162,13 @@ namespace FileManager
             if (Globalization.Language == LanguageEnum.Chinese)
             {
                 UIMode.Items.Add("推荐");
+                UIMode.Items.Add("纯色");
                 UIMode.Items.Add("自定义");
             }
             else
             {
                 UIMode.Items.Add("Recommand");
+                UIMode.Items.Add("Solid Color");
                 UIMode.Items.Add("Custom");
             }
 
@@ -192,10 +194,10 @@ namespace FileManager
                 FolderOpenMethod.IsOn = IsDoubleClick;
             }
 
-            if(ApplicationData.Current.LocalSettings.Values["EnablePreLaunch"] is bool PreLaunch)
+            if (ApplicationData.Current.LocalSettings.Values["EnablePreLaunch"] is bool PreLaunch)
             {
                 EnablePreLaunch.IsOn = PreLaunch;
-            }    
+            }
 
             if (AppThemeController.Current.Theme == ElementTheme.Light)
             {
@@ -492,66 +494,108 @@ namespace FileManager
         {
             ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = UIMode.SelectedItem.ToString();
 
-            if (UIMode.SelectedIndex == 0)
+            switch (UIMode.SelectedIndex)
             {
-                CustomUIArea.Visibility = Visibility.Collapsed;
+                case 0:
+                    {
+                        CustomUIArea.Visibility = Visibility.Collapsed;
+                        SolidColorArea.Visibility = Visibility.Collapsed;
 
-                AcrylicMode.IsChecked = null;
-                PictureMode.IsChecked = null;
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
-                BackgroundController.Current.TintOpacity = 0.6;
-                BackgroundController.Current.TintLuminosityOpacity = -1;
-                BackgroundController.Current.AcrylicColor = Colors.LightSlateGray;
-            }
-            else
-            {
-                CustomUIArea.Visibility = Visibility.Visible;
+                        AcrylicMode.IsChecked = null;
+                        PictureMode.IsChecked = null;
+                        SolidColor_White.IsChecked = null;
+                        SolidColor_Black.IsChecked = null;
+                        CustomFontColor.IsEnabled = true;
 
-                if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string Mode)
-                {
-                    if ((BackgroundBrushType)Enum.Parse(typeof(BackgroundBrushType), Mode) == BackgroundBrushType.Acrylic)
-                    {
-                        AcrylicMode.IsChecked = true;
-                    }
-                    else
-                    {
-                        PictureMode.IsChecked = true;
-                    }
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Acrylic);
-                    AcrylicMode.IsChecked = true;
-
-                    if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] is string Luminosity)
-                    {
-                        float Value = Convert.ToSingle(Luminosity);
-                        TintLuminositySlider.Value = Value;
-                        BackgroundController.Current.TintLuminosityOpacity = Value;
-                    }
-                    else
-                    {
-                        TintLuminositySlider.Value = 0.8;
-                        BackgroundController.Current.TintLuminosityOpacity = 0.8;
-                    }
-
-                    if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] is string Opacity)
-                    {
-                        float Value = Convert.ToSingle(Opacity);
-                        TintOpacitySlider.Value = Value;
-                        BackgroundController.Current.TintOpacity = Value;
-                    }
-                    else
-                    {
-                        TintOpacitySlider.Value = 0.6;
+                        BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
                         BackgroundController.Current.TintOpacity = 0.6;
+                        BackgroundController.Current.TintLuminosityOpacity = -1;
+                        BackgroundController.Current.AcrylicColor = Colors.LightSlateGray;
+                        break;
                     }
-
-                    if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
+                case 1:
                     {
-                        BackgroundController.Current.AcrylicColor = BackgroundController.GetColorFromHexString(AcrylicColor);
+                        CustomUIArea.Visibility = Visibility.Collapsed;
+                        SolidColorArea.Visibility = Visibility.Visible;
+
+                        AcrylicMode.IsChecked = null;
+                        PictureMode.IsChecked = null;
+                        CustomFontColor.IsEnabled = false;
+
+                        if (ApplicationData.Current.LocalSettings.Values["SolidColorType"] is string ColorType)
+                        {
+                            if (ColorType == Colors.White.ToString())
+                            {
+                                SolidColor_White.IsChecked = true;
+                            }
+                            else
+                            {
+                                SolidColor_Black.IsChecked = true;
+                            }
+                        }
+                        else
+                        {
+                            SolidColor_White.IsChecked = true;
+                        }
+
+                        break;
                     }
-                }
+                default:
+                    {
+                        CustomUIArea.Visibility = Visibility.Visible;
+                        SolidColorArea.Visibility = Visibility.Collapsed;
+                        SolidColor_White.IsChecked = null;
+                        SolidColor_Black.IsChecked = null;
+                        CustomFontColor.IsEnabled = true;
+
+                        if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string Mode)
+                        {
+                            if ((BackgroundBrushType)Enum.Parse(typeof(BackgroundBrushType), Mode) == BackgroundBrushType.Acrylic)
+                            {
+                                AcrylicMode.IsChecked = true;
+                            }
+                            else
+                            {
+                                PictureMode.IsChecked = true;
+                            }
+                        }
+                        else
+                        {
+                            ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Acrylic);
+                            AcrylicMode.IsChecked = true;
+
+                            if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] is string Luminosity)
+                            {
+                                float Value = Convert.ToSingle(Luminosity);
+                                TintLuminositySlider.Value = Value;
+                                BackgroundController.Current.TintLuminosityOpacity = Value;
+                            }
+                            else
+                            {
+                                TintLuminositySlider.Value = 0.8;
+                                BackgroundController.Current.TintLuminosityOpacity = 0.8;
+                            }
+
+                            if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] is string Opacity)
+                            {
+                                float Value = Convert.ToSingle(Opacity);
+                                TintOpacitySlider.Value = Value;
+                                BackgroundController.Current.TintOpacity = Value;
+                            }
+                            else
+                            {
+                                TintOpacitySlider.Value = 0.6;
+                                BackgroundController.Current.TintOpacity = 0.6;
+                            }
+
+                            if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
+                            {
+                                BackgroundController.Current.AcrylicColor = BackgroundController.GetColorFromHexString(AcrylicColor);
+                            }
+                        }
+
+                        break;
+                    }
             }
         }
 
@@ -1250,6 +1294,18 @@ namespace FileManager
         private void PreLaunchQuestion_Tapped(object sender, TappedRoutedEventArgs e)
         {
             PreLaunchTip.IsOpen = true;
+        }
+
+        private void SolidColor_White_Checked(object sender, RoutedEventArgs e)
+        {
+            BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: Colors.White);
+            CustomFontColor.IsOn = true;
+        }
+
+        private void SolidColor_Black_Checked(object sender, RoutedEventArgs e)
+        {
+            BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: Colors.Black);
+            CustomFontColor.IsOn = false;
         }
     }
 }

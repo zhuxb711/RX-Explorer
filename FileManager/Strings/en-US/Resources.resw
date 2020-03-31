@@ -973,7 +973,7 @@
     <value>Acrylic color transparency</value>
   </data>
   <data name="SettingPageUIMode.Header" xml:space="preserve">
-    <value>Adjust UI display mode</value>
+    <value>Personalise</value>
   </data>
   <data name="SettingPrivacyPolicyLink.Content" xml:space="preserve">
     <value>User Privacy Statement</value>

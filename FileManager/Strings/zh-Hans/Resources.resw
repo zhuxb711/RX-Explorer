@@ -598,7 +598,7 @@
     <value>Acrylic颜色透明度</value>
   </data>
   <data name="SettingPageUIMode.Header" xml:space="preserve">
-    <value>调整UI显示模式</value>
+    <value>个性化</value>
   </data>
   <data name="UserFolderText1.Text" xml:space="preserve">
     <value>无法自动确定库文件夹</value>

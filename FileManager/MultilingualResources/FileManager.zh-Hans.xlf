@@ -787,8 +787,8 @@
           <target state="translated">Acrylic颜色透明度</target>
         </trans-unit>
         <trans-unit id="SettingPageUIMode.Header" translate="yes" xml:space="preserve">
-          <source>Adjust UI display mode</source>
-          <target state="translated">调整UI显示模式</target>
+          <source>Personalise</source>
+          <target state="translated">个性化</target>
         </trans-unit>
         <trans-unit id="UserFolderText1.Text" translate="yes" xml:space="preserve">
           <source>Unable to automatically determine library folder</source>

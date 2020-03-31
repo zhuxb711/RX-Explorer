@@ -1358,12 +1358,8 @@ namespace FileManager
                 BluetoothUI Bluetooth = new BluetoothUI();
                 if ((await Bluetooth.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    BluetoothFileTransfer FileTransfer = new BluetoothFileTransfer
-                    {
-                        FileToSend = ShareFile.File,
-                        FileName = ShareFile.File.Name,
-                        UseStorageFileRatherThanStream = true
-                    };
+                    BluetoothFileTransfer FileTransfer = new BluetoothFileTransfer(ShareFile.File);
+
                     _ = await FileTransfer.ShowAsync().ConfigureAwait(true);
                 }
             }

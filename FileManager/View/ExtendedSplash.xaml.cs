@@ -41,7 +41,7 @@ namespace FileManager
 
             if (IsPreLaunch)
             {
-                Screen_Dismissed(Splash, null);
+                PreLaunchInitialize();
             }
             else
             {
@@ -73,7 +73,7 @@ namespace FileManager
             extendedSplashImage.Width = SplashImageRect.Width;
         }
 
-        private async void DismissExtendedSplash()
+        private async Task DismissExtendedSplashAsync()
         {
             try
             {
@@ -98,6 +98,42 @@ namespace FileManager
             catch (Exception ex)
             {
                 ExceptionTracer.RequestBlueScreen(ex);
+            }
+        }
+
+        private void DismissExtendedSplash()
+        {
+            try
+            {
+                ReleaseLock.Dispose();
+                ReleaseLock = null;
+
+                Frame rootFrame = new Frame();
+                Window.Current.Content = rootFrame;
+                rootFrame.Navigate(typeof(MainPage), SplashImageRect);
+            }
+            catch (Exception ex)
+            {
+                ExceptionTracer.RequestBlueScreen(ex);
+            }
+        }
+
+        private void PreLaunchInitialize()
+        {
+            bool IsFileAccessible = CheckFileAccessAuthority().Result;
+
+            if (IsFileAccessible)
+            {
+                DismissExtendedSplash();
+            }
+            else
+            {
+                Window.Current.Content = this;
+
+                Display.Text = Globalization.Language == LanguageEnum.Chinese
+                                ? "请开启此应用的文件系统访问权限以正常工作\r然后重新启动该应用"
+                                : "Please enable file system access for this app to work properly\rThen restart the app";
+                ButtonPane.Visibility = Visibility.Visible;
             }
         }
 
@@ -193,22 +229,23 @@ namespace FileManager
                     ApplicationData.Current.LocalSettings.Values["QuickStartInitialFinished"] = true;
                 }
 
-                bool IsFileAccessible = await CheckFileAccessAuthority().ConfigureAwait(true);
+                bool IsFileAccessible = await CheckFileAccessAuthority().ConfigureAwait(false);
 
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                if (IsFileAccessible)
                 {
-                    if (IsFileAccessible)
+                    await DismissExtendedSplashAsync().ConfigureAwait(false);
+                }
+                else
+                {
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
-                        DismissExtendedSplash();
-                    }
-                    else
-                    {
+
                         Display.Text = Globalization.Language == LanguageEnum.Chinese
                                         ? "请开启此应用的文件系统访问权限以正常工作\r然后重新启动该应用"
                                         : "Please enable file system access for this app to work properly\rThen restart the app";
                         ButtonPane.Visibility = Visibility.Visible;
-                    }
-                });
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -225,21 +262,20 @@ namespace FileManager
             }
         }
 
-        private async Task<bool> CheckFileAccessAuthority()
+        private Task<bool> CheckFileAccessAuthority()
         {
-            try
+            return Task.Run(() =>
             {
-                _ = await StorageFolder.GetFolderFromPathAsync(Environment.GetLogicalDrives().FirstOrDefault());
-                return true;
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return false;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+                try
+                {
+                    _ = StorageFolder.GetFolderFromPathAsync(Environment.GetLogicalDrives().FirstOrDefault()).AsTask().Result;
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            });
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

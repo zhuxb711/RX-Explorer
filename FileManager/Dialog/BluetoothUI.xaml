@@ -10,6 +10,9 @@
                           PrimaryButtonText="确定"
                           CloseButtonText="取消"
                           PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
+    <local:QueueContentDialog.Resources>
+        <x:Double x:Key="ContentDialogMaxWidth">390</x:Double>
+    </local:QueueContentDialog.Resources>
 
     <StackPanel HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch">
@@ -30,13 +33,13 @@
                   IsItemClickEnabled="False"
                   ScrollViewer.VerticalScrollMode="Auto"
                   ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                  Height="250">
+                  MaxHeight="250">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="local:BluetoothList">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="250" />
-                            <ColumnDefinition Width="100" />
+                            <ColumnDefinition Width="220" />
+                            <ColumnDefinition Width="80" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal"
                                     Margin="-10,0,0,0"
@@ -49,12 +52,16 @@
                             </Viewbox>
                             <StackPanel Margin="5,0,0,0"
                                         Orientation="Vertical">
-                                <TextBlock Text="{x:Bind Name,Mode=OneWay}" />
-                                <TextBlock Text="{x:Bind IsPaired,Mode=OneWay}" />
+                                <TextBlock Text="{x:Bind Name,Mode=OneWay}" 
+                                           TextTrimming="CharacterEllipsis"
+                                           ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay}"/>
+                                <TextBlock Text="{x:Bind IsPaired,Mode=OneWay}" 
+                                           FontSize="12"/>
                             </StackPanel>
                         </StackPanel>
                         <Button Grid.Column="1"
                                 Content="{x:Bind CancelOrPairButton,Mode=OneWay}"
+                                FontSize="12"
                                 Name="PairOrCancelButton"
                                 Click="PairOrCancelButton_Click"
                                 HorizontalAlignment="Stretch"
@@ -63,28 +70,39 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <StackPanel Orientation="Horizontal"
-                    Margin="5,10,0,10">
+        <Grid Margin="5,10,5,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="70"/>
+                <ColumnDefinition Width="70" />
+            </Grid.ColumnDefinitions>
             <TextBlock Name="Tips"
-                       HorizontalAlignment="Stretch"
-                       VerticalAlignment="Stretch"
-                       Width="240"
-                       FontSize="14" />
+                       Grid.Column="0"
+                       FontSize="12"
+                       TextWrapping="Wrap"
+                       ToolTipService.ToolTip="{x:Bind Tips.Text,Mode=OneWay}"/>
             <Button Content="是"
+                    Grid.Column="1"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
                     x:Uid="BluetoothUIPinYes"
-                    Width="60"
+                    Margin="0,0,2.5,0"
                     Style="{ThemeResource ButtonRevealStyle}"
+                    FontSize="12"
                     Name="PinConfirm"
                     Visibility="Collapsed"
                     Click="PinConfirm_Click" />
             <Button Content="否"
                     x:Uid="BluetoothUIPinNo"
-                    Margin="5,0,0,0"
-                    Width="60"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Grid.Column="2"
+                    FontSize="12"
+                    Margin="2.5,0,0,0"
                     Style="{ThemeResource ButtonRevealStyle}"
                     Name="PinRefuse"
                     Visibility="Collapsed"
                     Click="PinRefuse_Click" />
-        </StackPanel>
+        </Grid>
     </StackPanel>
 </local:QueueContentDialog>

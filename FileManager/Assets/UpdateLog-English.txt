@@ -1,4 +1,17 @@
 ﻿*****
+###What's new in Ver.4.4.5.0
+
+>#####Feature Update
+
+>>#####New UI mode-solid color
+
+>#####Bug fix
+
+>>#####Solve many problems of Bluetooth module
+
+>>#####Resolved an issue that could cause incorrect loading after enabling preload
+
+*****
 ###What's new in Ver.4.4.3.0
 
 >#####Feature Update
