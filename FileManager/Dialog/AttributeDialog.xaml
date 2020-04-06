@@ -12,69 +12,105 @@
     CloseButtonClick="QueueContentDialog_CloseButtonClick">
 
     <Grid>
-        <StackPanel Orientation="Horizontal">
-            <StackPanel Width="80">
+        <StackPanel Width="350">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
                 <TextBlock Text="文件名"
                            x:Uid="AttributeFileName"
-                           Name="Na"
-                           Height="35"/>
-                <TextBlock Text="类型"
-                           x:Uid="AttributeType"
-                           Height="35"/>
-                <TextBlock Text="位置"
-                           x:Uid="AttributeLocation"
-                           Height="35" />
-                <TextBlock Text="大小"
-                           x:Uid="AttributeSize"
-                           Height="35"/>
-                <TextBlock Text="包括"
-                           x:Uid="AttributeInclude"
-                           Height="35"
-                           Visibility="{x:Bind Inc.Visibility,Mode=OneWay}" />
-                <TextBlock Text="创建时间"
-                           x:Uid="AttributeCreated"
-                           Height="35"/>
-                <TextBlock Text="修改时间"
-                           x:Uid="AttributeModified"
-                           Height="35"/>
-            </StackPanel>
-            <StackPanel Margin="25,0,0,0">
+                           Name="Na" />
                 <TextBlock Text="{x:Bind FileName,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind FileName,Mode=OneWay}"
-                           Height="35"
-                           TextTrimming="CharacterEllipsis"
-                           Width="250" />
+                           Grid.Column="1" 
+                           TextTrimming="CharacterEllipsis"/>
+            </Grid>
+            <Grid Margin="0,15,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="类型"
+                           x:Uid="AttributeType"/>
                 <TextBlock Text="{x:Bind FileType,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind FileType,Mode=OneWay}"
-                           Height="35"
-                           TextTrimming="CharacterEllipsis"
-                           Width="250" />
+                           Grid.Column="1"
+                           TextTrimming="CharacterEllipsis"/>
+            </Grid>
+            <Grid Margin="0,15,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="位置"
+                           x:Uid="AttributeLocation"/>
                 <TextBlock Text="{x:Bind Path,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Path,Mode=OneWay}"
-                           Height="35"
                            TextTrimming="CharacterEllipsis"
-                           Width="250" />
+                           Grid.Column="1"/>
+            </Grid>
+            <Grid Margin="0,15,0,0"
+                  Name="ExtraDataArea">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="相关信息"
+                           x:Uid="AttributeExtraData"/>
+                <TextBlock x:Name="ExtraData"
+                           TextWrapping="Wrap"
+                           Grid.Column="1"/>
+            </Grid>
+            <Grid Margin="0,15,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="大小"
+                           x:Uid="AttributeSize"/>
                 <TextBlock Text="{x:Bind FileSize,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind FileSize,Mode=OneWay}"
-                           Height="35"
                            TextTrimming="CharacterEllipsis"
-                           Width="250" />
+                           Grid.Column="1"/>
+            </Grid>
+            <Grid Margin="0,15,0,0"
+                  Name="IncludeArea">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="包括"
+                           x:Uid="AttributeInclude"/>
                 <TextBlock Text="{x:Bind Include,Mode=OneWay}"
-                           Height="35"
                            TextTrimming="CharacterEllipsis"
-                           Width="250"
-                           Name="Inc" />
+                           Name="Inc" 
+                           Grid.Column="1"/>
+            </Grid>
+            <Grid Margin="0,15,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="创建时间"
+                           x:Uid="AttributeCreated"/>
                 <TextBlock Text="{x:Bind CreateTime,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind CreateTime,Mode=OneWay}"
-                           Height="35"
                            TextTrimming="CharacterEllipsis"
-                           Width="250" />
+                           Grid.Column="1"/>
+            </Grid>
+            <Grid Margin="0,15,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="修改时间"
+                           x:Uid="AttributeModified" />
                 <TextBlock Text="{x:Bind ChangeTime,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind ChangeTime,Mode=OneWay}"
-                           Height="35"
                            TextTrimming="CharacterEllipsis"
-                           Width="250" />
-            </StackPanel>
+                           Grid.Column="1" />
+            </Grid>
         </StackPanel>
     </Grid>
 

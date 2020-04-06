@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using TinyPinyin.Core;
@@ -962,6 +963,8 @@ namespace FileManager
                     else
                     {
                         FeedBackCollection.Add(Item);
+                        await Task.Delay(1000).ConfigureAwait(true);
+                        FeedBackList.ScrollIntoViewSmoothly(FeedBackCollection.Last());
                     }
                 }
             }
@@ -972,7 +975,7 @@ namespace FileManager
             if ((e.OriginalSource as FrameworkElement)?.DataContext is FeedBackItem Item)
             {
                 FeedBackList.SelectedItem = Item;
-                FeedBackList.ContextFlyout = UserID == "zrfcfgs@outlook.com" ? FeedBackFlyout : (Item.UserID == UserID ? FeedBackFlyout : null);
+                FeedBackList.ContextFlyout = UserID == "zrfcfgs@outlook.com" ? FeedBackDevelopFlyout : (Item.UserID == UserID ? FeedBackFlyout : null);
             }
         }
 
@@ -983,7 +986,7 @@ namespace FileManager
                 FeedBackDialog Dialog = new FeedBackDialog(SelectItem.Title, SelectItem.Suggestion);
                 if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    if (!await MySQL.Current.UpdateFeedBackTitleAndSuggestionAsync(Dialog.TitleName, Dialog.FeedBack, SelectItem.GUID).ConfigureAwait(true))
+                    if (!await MySQL.Current.UpdateFeedBackAsync(Dialog.TitleName, Dialog.FeedBack, SelectItem.GUID).ConfigureAwait(true))
                     {
                         if (Globalization.Language == LanguageEnum.Chinese)
                         {
@@ -1306,6 +1309,66 @@ namespace FileManager
         {
             BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: Colors.Black);
             CustomFontColor.IsOn = false;
+        }
+
+        private async void FeedBackNotice_Click(object sender, RoutedEventArgs e)
+        {
+            if (FeedBackList.SelectedItem is FeedBackItem SelectItem)
+            {
+                FeedBackDialog Dialog = new FeedBackDialog($"@{SelectItem.UserName}");
+                if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                {
+                    if (FeedBackCollection.FirstOrDefault((It) => It.UserName == UserName && It.Suggestion == Dialog.FeedBack && It.Title == Dialog.TitleName) == null)
+                    {
+                        FeedBackItem Item = new FeedBackItem(UserName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
+                        if (await MySQL.Current.SetFeedBackAsync(Item).ConfigureAwait(true))
+                        {
+                            FeedBackCollection.Add(Item);
+                            await Task.Delay(1000).ConfigureAwait(true);
+                            FeedBackList.ScrollIntoViewSmoothly(FeedBackCollection.Last());
+
+                            if (Regex.IsMatch(SelectItem.UserID, "^\\s*([A-Za-z0-9_-]+(\\.\\w+)*@(\\w+\\.)+\\w{2,5})\\s*$"))
+                            {
+                                string Message = $"您的反馈原文：\r------------------------------------\r{SelectItem.Title}{Environment.NewLine}{SelectItem.Suggestion}\r------------------------------------\r\r开发者回复内容：\r------------------------------------\r{Item.Title}{Environment.NewLine}{Item.Suggestion}\r------------------------------------{Environment.NewLine}";
+                                _ = await Launcher.LaunchUriAsync(new Uri($"mailto:{SelectItem.UserID}?subject=开发者已回复您的反馈&body={Uri.EscapeDataString(Message)}"), new LauncherOptions { TreatAsUntrusted = false, DisplayApplicationPicker = false });
+                            }
+                        }
+                        else
+                        {
+                            if (Globalization.Language == LanguageEnum.Chinese)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = "错误",
+                                    Content = "因网络原因无法进行此项操作",
+                                    CloseButtonText = "确定"
+                                };
+                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            }
+                            else
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = "Error",
+                                    Content = "This operation cannot be performed due to network reasons",
+                                    CloseButtonText = "Got it"
+                                };
+                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        QueueContentDialog TipsDialog = new QueueContentDialog
+                        {
+                            Title = "Tips",
+                            Content = "The same feedback already exists, please do not submit it repeatedly",
+                            CloseButtonText = "Got it"
+                        };
+                        _ = await TipsDialog.ShowAsync().ConfigureAwait(true);
+                    }
+                }
+            }
         }
     }
 }

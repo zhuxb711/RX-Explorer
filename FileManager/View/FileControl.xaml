@@ -112,6 +112,7 @@
                     ToolTipService.ToolTip="后退"
                     x:Uid="FileControlBackButton"
                     Name="GoBackRecord"
+                    x:FieldModifier="public"
                     Click="GoBackRecord_Click"
                     AllowFocusWhenDisabled="True"
                     IsEnabled="False"

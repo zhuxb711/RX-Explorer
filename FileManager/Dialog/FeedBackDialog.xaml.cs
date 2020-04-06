@@ -11,12 +11,19 @@ namespace FileManager
             InitializeComponent();
         }
 
-        public FeedBackDialog(string Title,string Suggestion)
+        public FeedBackDialog(string Title, string Suggestion)
         {
             InitializeComponent();
 
             TitleName = Title;
             FeedBack = Suggestion;
+        }
+
+        public FeedBackDialog(string Title)
+        {
+            InitializeComponent();
+
+            TitleName = Title;
         }
 
         public string TitleName { get; private set; }

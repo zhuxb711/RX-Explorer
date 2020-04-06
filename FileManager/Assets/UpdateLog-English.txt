@@ -1,4 +1,25 @@
 ﻿*****
+###What's new in Ver.4.4.8.0
+
+>#####Feature update
+
+>>#####Add "Related Information" in the file properties page to provide related information of image, video and audio files
+
+>>#####Re-open the same format transcoding function for MP4 files and WMV files
+
+>#####UI update
+
+>>#####Optimized the format of error messages and email reports
+
+>#####Bug fix
+
+>>#####Resolved an issue that could cause a crash when using the keyboard's Backspace key
+
+>>#####Fixed the problem of the font color not being synchronized on the "File System Access Permission" page
+
+>>#####Solved the problem that if the file thumbnail cannot be obtained, it may cause unresponsiveness
+
+*****
 ###What's new in Ver.4.4.5.0
 
 >#####Feature Update

@@ -6,6 +6,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       NavigationCacheMode="Disabled"
       Background="{ThemeResource SystemAccentColor}"
+      RequestedTheme="{x:Bind local:AppThemeController.Current.Theme,Mode=OneWay}"
       mc:Ignorable="d">
 
     <Grid>

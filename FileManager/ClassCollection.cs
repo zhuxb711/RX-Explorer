@@ -845,7 +845,7 @@ namespace FileManager
         /// <param name="Suggestion">建议</param>
         /// <param name="Guid">唯一标识</param>
         /// <returns></returns>
-        public async Task<bool> UpdateFeedBackTitleAndSuggestionAsync(string Title, string Suggestion, string Guid)
+        public async Task<bool> UpdateFeedBackAsync(string Title, string Suggestion, string Guid)
         {
             using (SQLConnection Connection = await GetConnectionFromPoolAsync().ConfigureAwait(false))
             {
@@ -2491,20 +2491,124 @@ namespace FileManager
                 }
                 else if (Item is StorageFile File)
                 {
-                    using (StorageItemThumbnail Thumbnail = await File.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 100))
+                    using (CancellationTokenSource Cancellation = new CancellationTokenSource(2000))
                     {
-                        if (Thumbnail == null)
+                        Task<StorageItemThumbnail> GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 100).AsTask(Cancellation.Token);
+
+                        bool IsSuccess = await Task.Run(() =>
                         {
+                            SpinWait Spin = new SpinWait();
+
+                            while (!GetThumbnailTask.IsCompleted)
+                            {
+                                Spin.SpinOnce();
+                                if (Cancellation.IsCancellationRequested)
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }).ConfigureAwait(true);
+
+                        if (IsSuccess)
+                        {
+                            using (StorageItemThumbnail Thumbnail = GetThumbnailTask.Result)
+                            {
+                                if (Thumbnail == null)
+                                {
+                                    return null;
+                                }
+
+                                BitmapImage bitmapImage = new BitmapImage
+                                {
+                                    DecodePixelHeight = 100,
+                                    DecodePixelWidth = 100
+                                };
+                                await bitmapImage.SetSourceAsync(Thumbnail);
+                                return bitmapImage;
+                            }
+                        }
+                        else
+                        {
+                            if (!ToastNotificationManager.History.GetHistory().Any((Toast) => Toast.Tag == "DelayLoadNotification"))
+                            {
+                                if (Globalization.Language == LanguageEnum.Chinese)
+                                {
+                                    var Content = new ToastContent()
+                                    {
+                                        Scenario = ToastScenario.Default,
+                                        Launch = "Transcode",
+                                        Visual = new ToastVisual()
+                                        {
+                                            BindingGeneric = new ToastBindingGeneric()
+                                            {
+                                                Children =
+                                                {
+                                                    new AdaptiveText()
+                                                    {
+                                                        Text = "加载可能存在延迟"
+                                                    },
+
+                                                    new AdaptiveText()
+                                                    {
+                                                       Text = "无法获取部分文件的缩略图，因此内容加载可能变慢"
+                                                    },
+
+                                                    new AdaptiveText()
+                                                    {
+                                                        Text = "请耐心等待"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    };
+                                    ToastNotification Notification = new ToastNotification(Content.GetXml())
+                                    {
+                                        Tag = "DelayLoadNotification"
+                                    };
+                                    ToastNotificationManager.CreateToastNotifier().Show(Notification);
+                                }
+                                else
+                                {
+                                    var Content = new ToastContent()
+                                    {
+                                        Scenario = ToastScenario.Default,
+                                        Launch = "Transcode",
+                                        Visual = new ToastVisual()
+                                        {
+                                            BindingGeneric = new ToastBindingGeneric()
+                                            {
+                                                Children =
+                                                {
+                                                    new AdaptiveText()
+                                                    {
+                                                        Text = "There may be a delay in loading"
+                                                    },
+
+                                                    new AdaptiveText()
+                                                    {
+                                                       Text = "Unable to get thumbnails of some files, so content loading may be slow"
+                                                    },
+
+                                                    new AdaptiveText()
+                                                    {
+                                                        Text = "Please wait patiently"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    };
+                                    ToastNotification Notification = new ToastNotification(Content.GetXml())
+                                    {
+                                        Tag = "DelayLoadNotification"
+                                    };
+                                    ToastNotificationManager.CreateToastNotifier().Show(Notification);
+                                }
+                            }
+
                             return null;
                         }
-
-                        BitmapImage bitmapImage = new BitmapImage
-                        {
-                            DecodePixelHeight = 100,
-                            DecodePixelWidth = 100
-                        };
-                        await bitmapImage.SetSourceAsync(Thumbnail);
-                        return bitmapImage;
                     }
                 }
                 else
@@ -2512,7 +2616,7 @@ namespace FileManager
                     return null;
                 }
             }
-            catch (Exception)
+            catch
             {
                 return null;
             }
@@ -3926,7 +4030,7 @@ namespace FileManager
             await Task.Run(() =>
             {
                 Locker.WaitOne();
-            });
+            }).ConfigureAwait(true);
 
             var Result = await base.ShowAsync();
 
@@ -5924,27 +6028,53 @@ namespace FileManager
 
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
+                string[] MessageSplit = Ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i < MessageSplit.Length; i++)
+                {
+                    MessageSplit[i] = "        " + MessageSplit[i];
+                }
+
+                string[] StackTraceSplit;
+                if (string.IsNullOrEmpty(Ex.StackTrace))
+                {
+                    StackTraceSplit = Array.Empty<string>();
+                }
+                else
+                {
+                    StackTraceSplit = Ex.StackTrace.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+                    for (int i = 0; i < StackTraceSplit.Length; i++)
+                    {
+                        StackTraceSplit[i] = "        " + StackTraceSplit[i].TrimStart();
+                    }
+                }
+
                 if (Window.Current.Content is Frame rootFrame)
                 {
                     if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         string Message =
-                        "\r\r以下是错误信息：" +
-                        "\r\rException错误类型：" + Ex.GetType().Name +
-                        "\r\rMessage错误消息：" + Ex.Message +
-                        "\r\rSource来源：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
-                        "\r\rStackTrace堆栈追踪：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
+                        @$"版本：{string.Join('.', Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}
+                        {Environment.NewLine}以下是错误信息：
+                        {Environment.NewLine}------------------------------------
+                        {Environment.NewLine}Exception错误类型：{Ex.GetType().Name}
+                        {Environment.NewLine}Message错误消息：{Environment.NewLine}{string.Join(Environment.NewLine, MessageSplit)}
+                        {Environment.NewLine}Source来源：{(string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source)}
+                        {Environment.NewLine}StackTrace堆栈追踪：{Environment.NewLine}{(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))}
+                        {Environment.NewLine}------------------------------------{Environment.NewLine}";
 
                         rootFrame.Navigate(typeof(BlueScreen), Message);
                     }
                     else
                     {
                         string Message =
-                        "\r\rThe following is the error message：" +
-                        "\r\rException Code：" + Ex.GetType().Name +
-                        "\r\rMessage：" + Ex.Message +
-                        "\r\rSource：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
-                        "\r\rStackTrace：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
+                        @$"Version：{string.Join('.', Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}
+                        {Environment.NewLine}The following is the error message：
+                        {Environment.NewLine}------------------------------------
+                        {Environment.NewLine}Exception Code：{Ex.GetType().Name}
+                        {Environment.NewLine}Message：{Environment.NewLine}{string.Join(Environment.NewLine, MessageSplit)}
+                        {Environment.NewLine}Source：{(string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source)}
+                        {Environment.NewLine}StackTrace：{Environment.NewLine}{(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))}
+                        {Environment.NewLine}------------------------------------{Environment.NewLine}";
 
                         rootFrame.Navigate(typeof(BlueScreen), Message);
                     }
@@ -5958,20 +6088,28 @@ namespace FileManager
                     if (Globalization.Language == LanguageEnum.Chinese)
                     {
                         string Message =
-                        "\r\r以下是错误信息：\r\rException Code错误代码：" + Ex.HResult +
-                        "\r\rMessage错误消息：" + Ex.Message +
-                        "\r\rSource来源：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
-                        "\r\rStackTrace堆栈追踪：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
+                        @$"版本：{string.Join('.', Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}
+                        {Environment.NewLine}以下是错误信息：
+                        {Environment.NewLine}------------------------------------
+                        {Environment.NewLine}Exception错误类型：{Ex.GetType().Name}
+                        {Environment.NewLine}Message错误消息：{Environment.NewLine}{string.Join(Environment.NewLine, MessageSplit)}
+                        {Environment.NewLine}Source来源：{(string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source)}
+                        {Environment.NewLine}StackTrace堆栈追踪：{Environment.NewLine}{(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))}
+                        {Environment.NewLine}------------------------------------{Environment.NewLine}";
 
                         Frame.Navigate(typeof(BlueScreen), Message);
                     }
                     else
                     {
                         string Message =
-                        "\r\rThe following is the error message：\r\rException Code：" + Ex.HResult +
-                        "\r\rMessage：" + Ex.Message +
-                        "\r\rSource：" + (string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source) +
-                        "\r\rStackTrace：\r" + (string.IsNullOrEmpty(Ex.StackTrace) ? "Unknown" : Ex.StackTrace);
+                        @$"Version：{string.Join('.', Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}
+                        {Environment.NewLine}The following is the error message：
+                        {Environment.NewLine}------------------------------------
+                        {Environment.NewLine}Exception Code：{Ex.GetType().Name}
+                        {Environment.NewLine}Message：{Environment.NewLine}{string.Join(Environment.NewLine, MessageSplit)}
+                        {Environment.NewLine}Source：{(string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source)}
+                        {Environment.NewLine}StackTrace：{Environment.NewLine}{(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))}
+                        {Environment.NewLine}------------------------------------{Environment.NewLine}";
 
                         Frame.Navigate(typeof(BlueScreen), Message);
                     }

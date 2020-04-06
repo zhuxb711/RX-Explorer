@@ -1471,8 +1471,7 @@ namespace FileManager
         {
             if (Interlocked.Exchange(ref NavigateLockResource, 1) == 0)
             {
-                RecordIndex--;
-                string Path = GoAndBackRecord[RecordIndex].Path;
+                string Path = GoAndBackRecord[--RecordIndex].Path;
                 try
                 {
                     StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
@@ -1554,8 +1553,7 @@ namespace FileManager
         {
             if (Interlocked.Exchange(ref NavigateLockResource, 1) == 0)
             {
-                RecordIndex++;
-                string Path = GoAndBackRecord[RecordIndex].Path;
+                string Path = GoAndBackRecord[++RecordIndex].Path;
                 try
                 {
                     StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);

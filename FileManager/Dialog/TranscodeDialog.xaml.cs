@@ -92,6 +92,7 @@ namespace FileManager
                 {
                     case ".mp4":
                         {
+                            Format.Items.Add("MP4(.mp4)格式");
                             Format.Items.Add("MKV(.mkv)格式");
                             Format.Items.Add("AVI(.avi)格式");
                             Format.Items.Add("WMV(.wmv)格式");
@@ -131,6 +132,7 @@ namespace FileManager
                         }
                     case ".wmv":
                         {
+                            Format.Items.Add("WMV(.wmv)格式");
                             Format.Items.Add("MKV(.mkv)格式");
                             Format.Items.Add("MP4(.mp4)格式");
                             Format.Items.Add("AVI(.avi)格式");
@@ -215,6 +217,7 @@ namespace FileManager
                 {
                     case ".mp4":
                         {
+                            Format.Items.Add("MP4(.mp4)");
                             Format.Items.Add("MKV(.mkv)");
                             Format.Items.Add("AVI(.avi)");
                             Format.Items.Add("WMV(.wmv)");
@@ -254,6 +257,7 @@ namespace FileManager
                         }
                     case ".wmv":
                         {
+                            Format.Items.Add("WMV(.wmv)");
                             Format.Items.Add("MKV(.mkv)");
                             Format.Items.Add("MP4(.mp4)");
                             Format.Items.Add("AVI(.avi)");

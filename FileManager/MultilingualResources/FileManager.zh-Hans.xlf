@@ -1740,6 +1740,10 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>When preload technology is enabled, Windows will automatically decide whether to preload the RX Explorer when system resources are sufficient based on your usage. If the RX Explorer has been loaded by Windows in advance, it will greatly improve the startup speed</source>
           <target state="translated">启用预加载技术时，Windows将根据您的使用情况自动决定是否在系统资源足够的时候对RX文件管理器进行预加载。若RX文件管理器已提前由Windows加载，则将大幅度提高启动速度</target>
         </trans-unit>
+        <trans-unit id="AttributeExtraData.Text" translate="yes" xml:space="preserve">
+          <source>Related Info</source>
+          <target state="translated">相关信息</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -258,7 +258,7 @@ namespace FileManager
                             EnterSelectedItem(Item);
                             break;
                         }
-                    case VirtualKey.Back when FileControlInstance.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && !QueueContentDialog.IsRunningOrWaiting:
+                    case VirtualKey.Back when FileControlInstance.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && !QueueContentDialog.IsRunningOrWaiting && FileControlInstance.GoBackRecord.IsEnabled:
                         {
                             FileControlInstance.GoBackRecord_Click(null, null);
                             break;

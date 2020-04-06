@@ -38,24 +38,7 @@ namespace FileManager
 
         private async Task SendEmailAsync(string messageBody)
         {
-            if (Globalization.Language == LanguageEnum.Chinese)
-            {
-                messageBody = "版本: "
-                            + string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)
-                            + messageBody
-                            + "\r\r问题复现方法：\r\r1、\r\r2、\r\r3、\r";
-            }
-            else
-            {
-                messageBody = "Version: "
-                            + string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)
-                            + messageBody
-                            + "\r\rProblem recurrence method：\r\r1、\r\r2、\r\r3、\r";
-            }
-
-            messageBody = Uri.EscapeDataString(messageBody);
-            string url = "mailto:zrfcfgs@outlook.com?subject=BugReport&body=" + messageBody;
-            await Launcher.LaunchUriAsync(new Uri(url));
+            _ = await Launcher.LaunchUriAsync(new Uri("mailto:zrfcfgs@outlook.com?subject=BugReport&body=" + Uri.EscapeDataString(messageBody)));
         }
 
         private async void Report_Click(object sender, RoutedEventArgs e)

@@ -76,7 +76,6 @@ namespace FileManager
         public MainPage()
         {
             InitializeComponent();
-
             ThisPage = this;
             Window.Current.SetTitleBar(TitleBar);
             Loaded += MainPage_Loaded;
@@ -138,7 +137,7 @@ namespace FileManager
                             }
                         },
                     };
-                    ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()) { Tag = "EnterBackgroundTips",Priority=ToastNotificationPriority.High });
+                    ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()) { Tag = "EnterBackgroundTips", Priority = ToastNotificationPriority.High });
                 }
                 else
                 {
@@ -170,7 +169,7 @@ namespace FileManager
                             }
                         },
                     };
-                    ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()) { Tag = "EnterBackgroundTips"});
+                    ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()) { Tag = "EnterBackgroundTips" });
                 }
             }
         }

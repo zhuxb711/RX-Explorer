@@ -109,6 +109,26 @@
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
+        <CommandBarFlyout x:Name="FeedBackDevelopFlyout"
+                          Placement="RightEdgeAlignedTop">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Edit"
+                              Label="编辑"
+                              Click="FeedBackEdit_Click" />
+                <AppBarButton Label="提到他"
+                              Name="FeedBackNotice"
+                              Click="FeedBackNotice_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xE168;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Icon="Delete"
+                              Label="删除"
+                              Click="FeedBackDelete_Click" />
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
+
         <CommandBarFlyout Placement="RightEdgeAlignedTop"
                           x:Name="PictureFlyout">
             <CommandBarFlyout.SecondaryCommands>

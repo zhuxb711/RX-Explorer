@@ -168,6 +168,9 @@
   <data name="AttributeInclude.Text" xml:space="preserve">
     <value>Includes</value>
   </data>
+  <data name="AttributeExtraData.Text" xml:space="preserve">
+    <value>Related Info</value>
+  </data>
   <data name="AttributeLocation.Text" xml:space="preserve">
     <value>Location</value>
   </data>
