@@ -502,11 +502,6 @@
     </Page.Resources>
 
     <Grid>
-        <Grid.Transitions>
-            <TransitionCollection>
-                <PaneThemeTransition Edge="Right" />
-            </TransitionCollection>
-        </Grid.Transitions>
         <ListView Background="Transparent"
                   x:Name="ListViewControl"
                   IsSwipeEnabled="True"

@@ -127,6 +127,7 @@
                     VerticalAlignment="Stretch"
                     x:Uid="FileControlForwardButton"
                     Name="GoForwardRecord"
+                    x:FieldModifier="public"
                     Click="GoForwardRecord_Click"
                     IsEnabled="False"
                     ToolTipService.ToolTip="前进"
@@ -281,11 +282,6 @@
                            CanReorderItems="False"
                            CanDragItems="False"
                            RightTapped="FolderTree_RightTapped">
-                <muxc:TreeView.Transitions>
-                    <TransitionCollection>
-                        <PaneThemeTransition Edge="Left" />
-                    </TransitionCollection>
-                </muxc:TreeView.Transitions>
                 <muxc:TreeView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Height="40"

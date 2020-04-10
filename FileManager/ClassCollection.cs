@@ -3471,12 +3471,14 @@ namespace FileManager
         /// </summary>
         public WiFiShareProvider()
         {
+            ConnectionProfile CurrentProfile = NetworkInformation.GetInternetConnectionProfile();
+            HostName CurrentHostName = NetworkInformation.GetHostNames().FirstOrDefault(Host => Host.Type == HostNameType.Ipv4 && Host.IPInformation?.NetworkAdapter != null && Host.IPInformation.NetworkAdapter.NetworkAdapterId == CurrentProfile.NetworkAdapter.NetworkAdapterId);
+
             Listener = new HttpListener();
-            Listener.Prefixes.Add("http://*:8125/");
+            Listener.Prefixes.Add($"http://+:8125/");
             Listener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
 
-            HostName CurrentHostName = NetworkInformation.GetHostNames().Where((IP) => IP.Type == HostNameType.Ipv4).FirstOrDefault();
-            CurrentUri = $"http://{ CurrentHostName }:8125/";
+            CurrentUri = $"http://{CurrentHostName}:8125/";
         }
 
         /// <summary>
@@ -3515,7 +3517,7 @@ namespace FileManager
                                    {
                                        Context.Response.ContentLength64 = FileStream.Length;
                                        Context.Response.ContentType = File.ContentType;
-                                       Context.Response.AddHeader("Content-Disposition", "Attachment;filename=" + Uri.EscapeDataString(File.Name));
+                                       Context.Response.AddHeader("Content-Disposition", $"Attachment;filename={Uri.EscapeDataString(File.Name)}");
 
                                        try
                                        {
@@ -3530,14 +3532,15 @@ namespace FileManager
                                }
                                else
                                {
-                                   string ErrorMessage = "<html><head><title>Error 404 Bad Request</title></head><body><p style=\"font-size:50px\">HTTP ERROR 404</p><p style=\"font-size:40px\">无法找到指定的资源，请检查URL</p></body></html>";
-                                   byte[] SendByte = Encoding.UTF8.GetBytes(ErrorMessage);
-
+                                   string ErrorMessage = $"<html><head><title>Error 404 Bad Request</title></head><body><p style=\"font-size:50px\">HTTP ERROR 404</p><p style=\"font-size:40px\">{(Globalization.Language == LanguageEnum.Chinese ? "无法找到指定的资源，请检查URL" : "Unable to find the specified resource, please check the URL")}</p></body></html>";
                                    Context.Response.StatusCode = 404;
                                    Context.Response.StatusDescription = "Bad Request";
                                    Context.Response.ContentType = "text/html";
-                                   Context.Response.ContentLength64 = SendByte.Length;
-                                   Context.Response.OutputStream.Write(SendByte, 0, SendByte.Length);
+                                   Context.Response.ContentEncoding = Encoding.UTF8;
+                                   using (StreamWriter Writer = new StreamWriter(Context.Response.OutputStream, Encoding.UTF8))
+                                   {
+                                       Writer.Write(ErrorMessage);
+                                   }
                                    Context.Response.Close();
                                }
                            }

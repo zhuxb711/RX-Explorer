@@ -7,9 +7,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -121,7 +124,7 @@ namespace FileManager
 
             IEnumerable<HardDeviceInfo> RemovedDriveList = HardDeviceList.Where((RemoveItem) => CurrentDrives.All((Item) => Item != RemoveItem.Folder.Path));
 
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 for (int i = 0; i < RemovedDriveList.Count(); i++)
                 {
@@ -173,7 +176,7 @@ namespace FileManager
                     BasicProperties Properties = await Device.GetBasicPropertiesAsync();
                     IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
 
-                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
                         HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve));
                     });
@@ -181,7 +184,7 @@ namespace FileManager
             }
             catch (UnauthorizedAccessException)
             {
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
                     if (Globalization.Language == LanguageEnum.Chinese)
                     {
@@ -242,7 +245,7 @@ namespace FileManager
                             StorageFolder DownloadFolder = await StorageFolder.GetFolderFromPathAsync(UserDefinePath);
                             LibraryFolderList.Add(new LibraryFolder(DownloadFolder, await DownloadFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibrarySource.SystemBase));
                         }
-                        catch (FileNotFoundException)
+                        catch
                         {
                             UserFolderDialog Dialog = new UserFolderDialog(Globalization.Language == LanguageEnum.Chinese ? "下载" : "Downloads");
                             if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
@@ -496,7 +499,7 @@ namespace FileManager
             }
         }
 
-        private void TabViewControl_AddTabButtonClick(TabView sender, object args)
+        private async void TabViewControl_AddTabButtonClick(TabView sender, object args)
         {
             if (CreateNewTab() is TabViewItem Item)
             {
@@ -527,7 +530,7 @@ namespace FileManager
                         IsClosable = false
                     };
 
-                    frame.Navigate(typeof(ThisPC), new Tuple<TabViewItem, Frame, StorageFolder>(Item, frame, StorageFolderForNewTab));
+                    frame.Navigate(typeof(ThisPC), new Tuple<TabViewItem, StorageFolder>(Item, StorageFolderForNewTab));
 
                     return Item;
                 }

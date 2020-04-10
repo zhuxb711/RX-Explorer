@@ -195,7 +195,22 @@ namespace FileManager
 
             if ((await Picker.PickSingleFileAsync()) is StorageFile ExtraApp)
             {
-                string ExtraAppName = (await ExtraApp.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"].ToString();
+                string ExtraAppName;
+
+                var PropertiesDictionary = await ExtraApp.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
+                if (PropertiesDictionary.ContainsKey("System.FileDescription"))
+                {
+                    ExtraAppName = Convert.ToString(PropertiesDictionary["System.FileDescription"]);
+                    if (string.IsNullOrWhiteSpace(ExtraAppName))
+                    {
+                        ExtraAppName = ExtraApp.Name;
+                    }
+                }
+                else
+                {
+                    ExtraAppName = ExtraApp.Name;
+                }
+
                 ProgramCollection.Insert(0, new ProgramPickerItem(await ExtraApp.GetThumbnailBitmapAsync().ConfigureAwait(true), ExtraAppName, string.Empty, Path: ExtraApp.Path));
                 OtherProgramList.SelectedIndex = 0;
 

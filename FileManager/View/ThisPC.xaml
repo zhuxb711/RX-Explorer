@@ -159,11 +159,6 @@
                 <RowDefinition Height="50" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Grid.ChildrenTransitions>
-                <TransitionCollection>
-                    <PaneThemeTransition Edge="Right" />
-                </TransitionCollection>
-            </Grid.ChildrenTransitions>
             <StackPanel>
                 <TextBlock Text="快速启动"
                            x:Uid="QuickStartTitle"
@@ -248,11 +243,6 @@
         <ScrollViewer Grid.Column="2"
                       Padding="5">
             <StackPanel IsRightTapEnabled="True">
-                <StackPanel.ChildrenTransitions>
-                    <TransitionCollection>
-                        <PaneThemeTransition Edge="Left" />
-                    </TransitionCollection>
-                </StackPanel.ChildrenTransitions>
                 <controls:Expander x:Name="LibraryExpander"
                                    VerticalAlignment="Stretch"
                                    Background="Transparent"

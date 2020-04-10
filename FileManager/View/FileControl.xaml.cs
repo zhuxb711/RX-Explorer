@@ -1549,7 +1549,7 @@ namespace FileManager
             }
         }
 
-        private async void GoForwardRecord_Click(object sender, RoutedEventArgs e)
+        public async void GoForwardRecord_Click(object sender, RoutedEventArgs e)
         {
             if (Interlocked.Exchange(ref NavigateLockResource, 1) == 0)
             {

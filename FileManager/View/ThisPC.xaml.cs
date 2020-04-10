@@ -44,12 +44,12 @@ namespace FileManager
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is Tuple<TabViewItem, Frame, StorageFolder> Parameters)
+            if (e.Parameter is Tuple<TabViewItem, StorageFolder> Parameters)
             {
-                Nav = Parameters.Item2;
+                Nav = Parameters.Item1.Content as Frame;
                 TabItem = Parameters.Item1;
                 TabItem.Header = Globalization.Language == LanguageEnum.Chinese ? "这台电脑" : "ThisPC";
-                OpenTargetFolder = Parameters.Item3;
+                OpenTargetFolder = Parameters.Item2;
             }
         }
 

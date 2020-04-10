@@ -1,4 +1,27 @@
-﻿*****
+﻿#Pause update announcement
+
+>###Thank you for your continued support, but since I am a 2020 undergraduate graduate, I have recently been busy with issues related to graduation thesis, so the RX file manager will be suspended for a while.
+
+>###The RX Explorer has gone through more than half a year, and it has become more and more perfect, but after all, it can’t match the system explorer.
+
+>###Because this project is only developed and maintained by myself, it is inevitable that there are defects, thank you for your understanding.
+
+*****
+###What's new in Ver.4.5.0.0
+
+>#####Feature update
+
+>>#####Added support for mouse side buttons
+
+>#####UI update
+
+>>#####Simplified some animation effects
+
+>#####Bug fix
+
+>>#####Fixed some problems that may be caused when selecting other applications to open
+
+*****
 ###What's new in Ver.4.4.8.0
 
 >#####Feature update
