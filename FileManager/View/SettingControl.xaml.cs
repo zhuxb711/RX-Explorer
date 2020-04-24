@@ -279,6 +279,7 @@ namespace FileManager
         private async void Like_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             _ = await Launcher.LaunchUriAsync(new Uri("ms-windows-store://review/?productid=9N88QBQKF2RS"));
+            ApplicationData.Current.RoamingSettings.Values["IsRated"] = true;
         }
 
         private async void FlyoutContinue_Click(object sender, RoutedEventArgs e)
@@ -1173,7 +1174,7 @@ namespace FileManager
             {
                 StorageFolder ImageFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("CustomImageFolder");
 
-                StorageFile CopyedFile = await File.CopyAsync(ImageFolder, $"BackgroundPicture_{Guid.NewGuid().ToString("N")}{File.FileType}", NameCollisionOption.GenerateUniqueName);
+                StorageFile CopyedFile = await File.CopyAsync(ImageFolder, $"BackgroundPicture_{Guid.NewGuid():N}{File.FileType}", NameCollisionOption.GenerateUniqueName);
 
                 BitmapImage Bitmap = new BitmapImage
                 {

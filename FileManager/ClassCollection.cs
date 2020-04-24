@@ -28,7 +28,9 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
+using Windows.Foundation.Metadata;
 using Windows.Globalization;
+using Windows.Graphics.Display;
 using Windows.Graphics.Imaging;
 using Windows.Media.Editing;
 using Windows.Media.MediaProperties;
@@ -1434,21 +1436,6 @@ namespace FileManager
 
     #region 文件系统对象
     /// <summary>
-    /// 文件对象内容的枚举
-    /// </summary>
-    public enum ContentType
-    {
-        /// <summary>
-        /// 文件夹
-        /// </summary>
-        Folder = 0,
-        /// <summary>
-        /// 文件
-        /// </summary>
-        File = 1
-    }
-
-    /// <summary>
     /// 提供对设备中的存储对象的描述
     /// </summary>
     public sealed class FileSystemStorageItem : INotifyPropertyChanged
@@ -1460,20 +1447,7 @@ namespace FileManager
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        /// <summary>
-        /// 获取此对象的StorageFile
-        /// </summary>
-        public StorageFile File { get; private set; }
-
-        /// <summary>
-        /// 获取此对的StorageFolder
-        /// </summary>
-        public StorageFolder Folder { get; private set; }
-
-        /// <summary>
-        /// 获取内容类型
-        /// </summary>
-        public ContentType ContentType { get; private set; }
+        public IStorageItem StorageItem { get; private set; }
 
         /// <summary>
         /// 获取此文件的缩略图
@@ -1489,20 +1463,7 @@ namespace FileManager
         /// <param name="ModifiedTime">修改时间</param>
         public FileSystemStorageItem(IStorageItem Item, string Size, BitmapImage Thumbnail, string ModifiedTime)
         {
-            if (Item is StorageFile File)
-            {
-                this.File = File;
-                ContentType = ContentType.File;
-            }
-            else if (Item is StorageFolder Folder)
-            {
-                this.Folder = Folder;
-                ContentType = ContentType.Folder;
-            }
-            else
-            {
-                throw new ArgumentException("Item must be folder or file", nameof(Item));
-            }
+            StorageItem = Item;
 
             this.Size = Size;
             this.Thumbnail = Thumbnail;
@@ -1516,7 +1477,7 @@ namespace FileManager
 
         public async Task RenameAsync(string Name)
         {
-            if (ContentType == ContentType.File)
+            if (StorageItem is StorageFile File)
             {
                 await File.RenameAsync(Name, NameCollisionOption.GenerateUniqueName);
                 File = await StorageFile.GetFileFromPathAsync(File.Path);
@@ -1526,7 +1487,7 @@ namespace FileManager
                 OnPropertyChanged("Thumbnail");
                 OnPropertyChanged("ModifiedTime");
             }
-            else
+            else if (StorageItem is StorageFolder Folder)
             {
                 await Folder.RenameAsync(Name, NameCollisionOption.GenerateUniqueName);
                 Folder = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
@@ -1543,17 +1504,13 @@ namespace FileManager
         /// </summary>
         public async Task SizeUpdateRequested()
         {
-            switch (ContentType)
+            if (StorageItem.IsOfType(StorageItemTypes.File))
             {
-                case ContentType.File:
-                    {
-                        Size = await File.GetSizeDescriptionAsync().ConfigureAwait(true);
-                        break;
-                    }
-                case ContentType.Folder:
-                    {
-                        throw new ArgumentException("Could not update folder size", string.Empty);
-                    }
+                Size = await StorageItem.GetSizeDescriptionAsync().ConfigureAwait(true);
+            }
+            else
+            {
+                throw new ArgumentException("Could not update folder size", string.Empty);
             }
 
             OnPropertyChanged("Size");
@@ -1566,9 +1523,18 @@ namespace FileManager
         {
             get
             {
-                return ContentType == ContentType.Folder ?
-                    (string.IsNullOrEmpty(Folder.DisplayName) ? Folder.Name : Folder.DisplayName) :
-                    (string.IsNullOrEmpty(File.DisplayName) ? File.Name : (File.DisplayName.EndsWith(File.FileType) ? File.DisplayName.Remove(File.DisplayName.LastIndexOf(".")) : File.DisplayName));
+                if (StorageItem is StorageFolder Folder)
+                {
+                    return string.IsNullOrEmpty(Folder.DisplayName) ? Folder.Name : Folder.DisplayName;
+                }
+                else if (StorageItem is StorageFile File)
+                {
+                    return string.IsNullOrEmpty(File.DisplayName) ? File.Name : (File.DisplayName.EndsWith(File.FileType) ? System.IO.Path.GetFileNameWithoutExtension(File.DisplayName) : File.DisplayName);
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 
@@ -1584,7 +1550,7 @@ namespace FileManager
         {
             get
             {
-                return ContentType == ContentType.Folder ? Folder.Path : File.Path;
+                return StorageItem.Path;
             }
         }
 
@@ -1595,7 +1561,7 @@ namespace FileManager
         {
             get
             {
-                return ContentType == ContentType.Folder ? Folder.Name : File.Name;
+                return StorageItem.Name;
             }
         }
 
@@ -1606,7 +1572,18 @@ namespace FileManager
         {
             get
             {
-                return ContentType == ContentType.Folder ? Folder.DisplayType : File.DisplayType;
+                if (StorageItem is StorageFile File)
+                {
+                    return File.DisplayType;
+                }
+                else if (StorageItem is StorageFolder Folder)
+                {
+                    return Folder.DisplayType;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 
@@ -1617,7 +1594,18 @@ namespace FileManager
         {
             get
             {
-                return ContentType == ContentType.Folder ? Folder.DisplayType : File.FileType;
+                if (StorageItem is StorageFile File)
+                {
+                    return File.FileType;
+                }
+                else if (StorageItem is StorageFolder Folder)
+                {
+                    return Folder.DisplayType;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 
@@ -1628,7 +1616,18 @@ namespace FileManager
         {
             get
             {
-                return ContentType == ContentType.Folder ? Folder.FolderRelativeId : File.FolderRelativeId;
+                if (StorageItem is StorageFile File)
+                {
+                    return File.FolderRelativeId;
+                }
+                else if (StorageItem is StorageFolder Folder)
+                {
+                    return Folder.FolderRelativeId;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 
@@ -2666,6 +2665,21 @@ namespace FileManager
             else
             {
                 listViewBase.ScrollIntoView(item, alignment);
+            }
+        }
+
+        public static string ComputeMD5Hash(this string Data)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] hash = md5.ComputeHash(Encoding.UTF8.GetBytes(Data));
+
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < hash.Length; i++)
+                {
+                    _ = builder.Append(hash[i].ToString("x2"));
+                }
+                return builder.ToString();
             }
         }
     }
@@ -4681,25 +4695,16 @@ namespace FileManager
         /// <returns></returns>
         public static string GetMD5FromKey(string OriginKey, int Length = 32)
         {
-            using (MD5 md5 = MD5.Create())
-            {
-                byte[] bytes = Encoding.UTF8.GetBytes(OriginKey);
-                byte[] Md5Buffer = md5.ComputeHash(bytes);
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < Md5Buffer.Length; i++)
-                {
-                    _ = sb.Append(Md5Buffer[i].ToString("x2"));
-                }
+            string MD5Hash = OriginKey.ComputeMD5Hash();
 
-                if (Length <= 32)
-                {
-                    return sb.ToString().Substring((32 - Length) / 2, Length);
-                }
-                else
-                {
-                    string Result = sb.ToString();
-                    return Result + Result.Substring(0, Length - 32);
-                }
+            if (Length <= 32)
+            {
+                return MD5Hash.Substring((32 - Length) / 2, Length);
+            }
+            else
+            {
+                string Result = MD5Hash;
+                return Result + Result.Substring(0, Length - 32);
             }
         }
 
@@ -6029,8 +6034,21 @@ namespace FileManager
                 throw new ArgumentNullException(nameof(Ex), "Exception could not be null");
             }
 
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
+                RenderTargetBitmap RenderBitmap = new RenderTargetBitmap();
+                await RenderBitmap.RenderAsync(Window.Current.Content);
+                IBuffer Buffer = await RenderBitmap.GetPixelsAsync();
+
+                StorageFile CaptureFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("ErrorCaptureFile.png", CreationCollisionOption.ReplaceExisting);
+                using (IRandomAccessStream Stream = await CaptureFile.OpenAsync(FileAccessMode.ReadWrite))
+                {
+                    BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
+                    Encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)RenderBitmap.PixelWidth, (uint)RenderBitmap.PixelHeight, DisplayInformation.GetForCurrentView().LogicalDpi, DisplayInformation.GetForCurrentView().LogicalDpi, Buffer.ToArray());
+                    await Encoder.FlushAsync();
+                }
+
+
                 string[] MessageSplit = Ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
                 for (int i = 0; i < MessageSplit.Length; i++)
                 {
@@ -6293,6 +6311,15 @@ namespace FileManager
         {
             this.Name = Name;
         }
+    }
+    #endregion
+
+    #region Win10版本检查器
+    public static class Win10VersionChecker
+    {
+        public static bool Windows10_1809 => ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 7);
+
+        public static bool Windows10_1903 => ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 8);
     }
     #endregion
 }

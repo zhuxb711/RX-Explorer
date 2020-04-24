@@ -667,7 +667,7 @@ namespace FileManager
                     };
                     if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
-                        await Item.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                        await Item.StorageItem.DeleteAsync(StorageDeleteOption.PermanentDelete);
                         SecureCollection.Remove(Item);
                     }
                 }
@@ -682,7 +682,7 @@ namespace FileManager
                     };
                     if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
-                        await Item.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                        await Item.StorageItem.DeleteAsync(StorageDeleteOption.PermanentDelete);
                         SecureCollection.Remove(Item);
                     }
                 }
@@ -713,9 +713,9 @@ namespace FileManager
                     {
                         ActivateLoading(true, false);
 
-                        if (await Item.File.DecryptAsync(Folder, FileEncryptionAesKey, Cancellation.Token).ConfigureAwait(true) is StorageFile)
+                        if (await ((StorageFile)Item.StorageItem).DecryptAsync(Folder, FileEncryptionAesKey, Cancellation.Token).ConfigureAwait(true) is StorageFile)
                         {
-                            await Item.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                            await Item.StorageItem.DeleteAsync(StorageDeleteOption.PermanentDelete);
                             SecureCollection.Remove(Item);
 
                             _ = await Launcher.LaunchFolderAsync(Folder);
@@ -869,10 +869,10 @@ namespace FileManager
         {
             if (SecureGridView.SelectedItem is FileSystemStorageItem RenameItem)
             {
-                RenameDialog dialog = new RenameDialog(RenameItem.File.Name);
+                RenameDialog dialog = new RenameDialog(RenameItem.Name);
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    if (dialog.DesireName == RenameItem.File.FileType)
+                    if (dialog.DesireName == RenameItem.Type)
                     {
                         if (Globalization.Language == LanguageEnum.Chinese)
                         {

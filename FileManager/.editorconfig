@@ -20,3 +20,6 @@ dotnet_diagnostic.CA1304.severity = none
 
 # CA5351: 不要使用损坏的加密算法
 dotnet_diagnostic.CA5351.severity = none
+
+# CA1707: 标识符不应包含下划线
+dotnet_diagnostic.CA1707.severity = none

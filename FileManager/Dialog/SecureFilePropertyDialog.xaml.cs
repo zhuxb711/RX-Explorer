@@ -33,7 +33,7 @@ namespace FileManager
             FileSize = Item.Size;
             FileName = Item.DisplayName;
             FileType = Item.DisplayType;
-            File = Item.File;
+            File = Item.StorageItem as StorageFile;
 
             Loading += SecureFilePropertyDialog_Loading;
         }

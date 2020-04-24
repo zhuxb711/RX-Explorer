@@ -293,7 +293,7 @@
                                Width="140"/>
                     <TextBlock IsHitTestVisible="False"
                                Text="{x:Bind Size,Mode=OneWay}"
-                               Visibility="{x:Bind Folder,Converter={StaticResource StateConverter}}"
+                               Visibility="{x:Bind StorageItem,Converter={StaticResource StateConverter}}"
                                FontSize="13"
                                HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
@@ -476,7 +476,7 @@
                            Margin="8,0,0,0"
                            Text="{x:Bind Size,Mode=OneWay}"
                            TextTrimming="CharacterEllipsis"
-                           Visibility="{x:Bind Folder,Converter={StaticResource StateConverter}}"
+                           Visibility="{x:Bind StorageItem,Converter={StaticResource StateConverter}}"
                            Grid.Column="3" />
             </Grid>
         </DataTemplate>
@@ -554,8 +554,10 @@
                   ItemClick="GridViewControl_ItemClick"
                   CanDrag="False"
                   CanReorderItems="False"
-                  CanDragItems="False"
+                  CanDragItems="True"
                   AllowDrop="False"
+                  DragItemsStarting="GridViewControl_DragItemsStarting"
+                  DragItemsCompleted="GridViewControl_DragItemsCompleted"
                   IsItemClickEnabled="True"
                   IsDoubleTapEnabled="True"
                   ItemsSource="{x:Bind FileCollection}"

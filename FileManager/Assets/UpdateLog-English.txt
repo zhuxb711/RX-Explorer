@@ -1,10 +1,23 @@
-﻿#Pause update announcement
+﻿*****
+###What's new in Ver.4.5.4.0
 
->###Thank you for your continued support, but since I am a 2020 undergraduate graduate, I have recently been busy with issues related to graduation thesis, so the RX file manager will be suspended for a while.
+>#####Feature update
 
->###The RX Explorer has gone through more than half a year, and it has become more and more perfect, but after all, it can’t match the system explorer.
+>>#####Win10-1809 system compatible support, but some animation effects are missing
 
->###Because this project is only developed and maintained by myself, it is inevitable that there are defects, thank you for your understanding.
+>>#####Support dragging and dropping files / folders, and at the same time can use Ctrl to switch copy / cut operations
+
+>#####Bug fix
+
+>>#####Fixed an issue where entering a folder may cause a freeze in some cases
+
+>>#####Resolved an issue that could cause a crash when returning to the main interface while the image viewer was loading the image cache
+
+>>#####Fixed the problem that the original folder will be deleted accidentally when cutting to the same folder
+
+>>#####Fixed the issue that the expanded option will be displayed at the target location even if the cut or copied content does not include a folder
+
+>>#####Fixed the problem that the evaluation prompt still does not disappear after evaluation through the settings page (if there is this problem, you can click the evaluation button again to solve)
 
 *****
 ###What's new in Ver.4.5.0.0

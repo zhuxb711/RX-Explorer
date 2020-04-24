@@ -130,10 +130,10 @@ namespace FileManager
         {
             if (SearchResultList.SelectedItem is FileSystemStorageItem RemoveFile)
             {
-                if (RemoveFile.ContentType == ContentType.Folder)
+                if (RemoveFile.StorageItem.IsOfType(StorageItemTypes.Folder))
                 {
                     var RootNode = FileControlInstance.FolderTree.RootNodes[0];
-                    TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(RemoveFile.Folder.Path, (RootNode.Content as StorageFolder).Path)).ConfigureAwait(true);
+                    TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(RemoveFile.Path, (RootNode.Content as StorageFolder).Path)).ConfigureAwait(true);
                     if (TargetNode == null)
                     {
                         if (Globalization.Language == LanguageEnum.Chinese)
@@ -170,7 +170,7 @@ namespace FileManager
                         _ = await StorageFile.GetFileFromPathAsync(RemoveFile.Path);
 
                         var RootNode = FileControlInstance.FolderTree.RootNodes[0];
-                        var CurrentNode = await FindFolderLocationInTree(RootNode, new PathAnalysis((await RemoveFile.File.GetParentAsync()).Path, (RootNode.Content as StorageFolder).Path)).ConfigureAwait(true);
+                        var CurrentNode = await FindFolderLocationInTree(RootNode, new PathAnalysis((await ((StorageFile)RemoveFile.StorageItem).GetParentAsync()).Path, (RootNode.Content as StorageFolder).Path)).ConfigureAwait(true);
 
                         var Container = FileControlInstance.FolderTree.ContainerFromNode(CurrentNode) as TreeViewItem;
                         Container.IsSelected = true;
@@ -208,16 +208,8 @@ namespace FileManager
         private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
             FileSystemStorageItem Device = SearchResultList.SelectedItems.FirstOrDefault() as FileSystemStorageItem;
-            if (Device.File != null)
-            {
-                AttributeDialog Dialog = new AttributeDialog(Device.File);
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-            }
-            else if (Device.Folder != null)
-            {
-                AttributeDialog Dialog = new AttributeDialog(Device.Folder);
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-            }
+            AttributeDialog Dialog = new AttributeDialog(Device.StorageItem);
+            _ = await Dialog.ShowAsync().ConfigureAwait(true);
         }
 
         private async Task<TreeViewNode> FindFolderLocationInTree(TreeViewNode Node, PathAnalysis Analysis)

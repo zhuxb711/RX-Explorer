@@ -1,6 +1,7 @@
 ﻿using AnimationEffectProvider;
 using Microsoft.Toolkit.Uwp.UI.Animations;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ namespace FileManager
         Point OriginMousePosition;
         bool IsNavigateToCropperPage = false;
         FileControl FileControlInstance;
+        CancellationTokenSource Cancellation;
 
         public PhotoViewer()
         {
@@ -48,14 +50,16 @@ namespace FileManager
 
         private async Task Initialize()
         {
+            if (IsNavigateToCropperPage)
+            {
+                IsNavigateToCropperPage = false;
+                await PhotoCollection[Flip.SelectedIndex].UpdateImage().ConfigureAwait(true);
+                return;
+            }
+
             try
             {
-                if (IsNavigateToCropperPage)
-                {
-                    IsNavigateToCropperPage = false;
-                    await PhotoCollection[Flip.SelectedIndex].UpdateImage().ConfigureAwait(true);
-                    return;
-                }
+                Cancellation = new CancellationTokenSource();
 
                 LoadingControl.IsLoading = true;
                 MainPage.ThisPage.IsAnyTaskRunning = true;
@@ -71,12 +75,18 @@ namespace FileManager
                 Options.SetThumbnailPrefetch(ThumbnailMode.SingleItem, 200, ThumbnailOptions.UseCurrentScale);
                 QueryResult = FileControlInstance.CurrentFolder.CreateFileQueryWithOptions(Options);
 
-                ProBar.Maximum = await QueryResult.GetItemCountAsync();
+                ProBar.Maximum = await QueryResult.GetItemCountAsync().AsTask(Cancellation.Token).ConfigureAwait(true);
                 ProBar.Value = 0;
 
-                var FileCollection = await QueryResult.GetFilesAsync();
-                foreach (var File in FileCollection)
+                IReadOnlyList<StorageFile> FileCollection = await QueryResult.GetFilesAsync().AsTask(Cancellation.Token).ConfigureAwait(true);
+                
+                foreach (StorageFile File in FileCollection)
                 {
+                    if(Cancellation.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
                     using (StorageItemThumbnail ThumbnailStream = await File.GetThumbnailAsync(ThumbnailMode.SingleItem))
                     {
                         BitmapImage ImageSource = new BitmapImage();
@@ -93,18 +103,30 @@ namespace FileManager
                     }
                 }
 
-                Flip.SelectionChanged += Flip_SelectionChanged;
+                if (!Cancellation.IsCancellationRequested)
+                {
+                    Flip.SelectionChanged += Flip_SelectionChanged;
 
-                await Task.Delay(500).ConfigureAwait(true);
-                await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmap().ConfigureAwait(true);
+                    await Task.Delay(500).ConfigureAwait(true);
+                    await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmap().ConfigureAwait(true);
 
-                LoadingControl.IsLoading = false;
-                MainPage.ThisPage.IsAnyTaskRunning = false;
-                OpacityAnimation.Begin();
+                    OpacityAnimation.Begin();
+                }
+            }
+            catch(TaskCanceledException)
+            {
+
             }
             catch (Exception ex)
             {
                 ExceptionTracer.RequestBlueScreen(ex);
+            }
+            finally
+            {
+                LoadingControl.IsLoading = false;
+                MainPage.ThisPage.IsAnyTaskRunning = false;
+                Cancellation.Dispose();
+                Cancellation = null;
             }
         }
 
@@ -115,12 +137,12 @@ namespace FileManager
                 return;
             }
 
+            Cancellation?.Cancel();
             Flip.Opacity = 0;
             Behavior.Detach();
             PhotoCollection.Clear();
             SelectedPhotoID = string.Empty;
             Flip.SelectionChanged -= Flip_SelectionChanged;
-            QueryResult = null;
         }
 
         private async void Flip_SelectionChanged(object sender, SelectionChangedEventArgs e)

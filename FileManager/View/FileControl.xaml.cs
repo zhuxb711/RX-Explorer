@@ -686,15 +686,11 @@ namespace FileManager
                     await CurrentFolder.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
                     TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Where((Item) => Item.RelativeId == CurrentFolder.FolderRelativeId).FirstOrDefault());
+                    ToDeleteFolderName = CurrentFolder.Name;
 
                     TreeViewNode ParentNode = CurrentNode.Parent;
                     ParentNode.Children.Remove(CurrentNode);
-
-                    ToDeleteFolderName = CurrentFolder.Name;
-
                     await DisplayItemsInFolder(ParentNode).ConfigureAwait(true);
-
-                    CurrentNode = ParentNode;
                 }
                 catch (UnauthorizedAccessException)
                 {
@@ -827,8 +823,7 @@ namespace FileManager
                 return;
             }
 
-            var Folder = CurrentFolder;
-            RenameDialog renameDialog = new RenameDialog(Folder.Name);
+            RenameDialog renameDialog = new RenameDialog(CurrentFolder.Name);
             if (await renameDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
             {
                 if (string.IsNullOrEmpty(renameDialog.DesireName))
@@ -858,8 +853,8 @@ namespace FileManager
 
                 try
                 {
-                    await Folder.RenameAsync(renameDialog.DesireName, NameCollisionOption.GenerateUniqueName);
-                    StorageFolder ReCreateFolder = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
+                    await CurrentFolder.RenameAsync(renameDialog.DesireName, NameCollisionOption.GenerateUniqueName);
+                    StorageFolder ReCreateFolder = await StorageFolder.GetFolderFromPathAsync(CurrentFolder.Path);
 
                     var ChildCollection = CurrentNode.Parent.Children;
                     int index = CurrentNode.Parent.Children.IndexOf(CurrentNode);
@@ -902,6 +897,8 @@ namespace FileManager
                         });
                         ChildCollection.Remove(CurrentNode);
                     }
+
+                    UpdateAddressButton(CurrentFolder);
                 }
                 catch (UnauthorizedAccessException)
                 {

@@ -237,13 +237,20 @@ namespace FileManager
                     IsUSBActivate = true;
                     ActivateUSBDevicePath = Paras[1];
                 }
-                EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, Parameter.Item2);
-                EntranceEffectProvider.PrepareEntranceEffect();
+
+                if (Win10VersionChecker.Windows10_1903)
+                {
+                    EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, Parameter.Item2);
+                    EntranceEffectProvider.PrepareEntranceEffect();
+                }
             }
             else if (e.Parameter is Rect SplashRect)
             {
-                EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, SplashRect);
-                EntranceEffectProvider.PrepareEntranceEffect();
+                if (Win10VersionChecker.Windows10_1903)
+                {
+                    EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, SplashRect);
+                    EntranceEffectProvider.PrepareEntranceEffect();
+                }
             }
         }
 
@@ -279,7 +286,10 @@ namespace FileManager
                     };
                 }
 
-                EntranceEffectProvider.StartEntranceEffect();
+                if (Win10VersionChecker.Windows10_1903)
+                {
+                    EntranceEffectProvider.StartEntranceEffect();
+                }
 
                 Nav.Navigate(typeof(TabViewContainer));
 
@@ -294,7 +304,9 @@ namespace FileManager
 
                 await ShowReleaseLogDialogAsync().ConfigureAwait(true);
 
+#if !DEBUG
                 await RegisterBackgroundTaskAsync().ConfigureAwait(true);
+#endif
 
                 await DonateDeveloperAsync().ConfigureAwait(true);
 
@@ -458,7 +470,7 @@ namespace FileManager
         {
             if (ApplicationData.Current.LocalSettings.Values.ContainsKey("IsPinToTaskBar"))
             {
-                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("IsRated"))
+                if (!ApplicationData.Current.RoamingSettings.Values.ContainsKey("IsRated"))
                 {
                     await RequestRateApplication().ConfigureAwait(false);
                 }
@@ -536,7 +548,7 @@ namespace FileManager
             {
                 s.IsOpen = false;
                 await Launcher.LaunchUriAsync(new Uri("ms-windows-store://review/?productid=9N88QBQKF2RS"));
-                ApplicationData.Current.LocalSettings.Values["IsRated"] = true;
+                ApplicationData.Current.RoamingSettings.Values["IsRated"] = true;
             };
             RateTip.IsOpen = true;
         }
