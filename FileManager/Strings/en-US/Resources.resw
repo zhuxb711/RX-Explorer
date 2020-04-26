@@ -426,7 +426,7 @@
   <data name="FilePaste.Label" xml:space="preserve">
     <value>Paste</value>
   </data>
-  <data name="FileRename.Label" xml:space="preserve">
+  <data name="FileRename.ToolTipService.ToolTip" xml:space="preserve">
     <value>Rename</value>
   </data>
   <data name="FileShare.Label" xml:space="preserve">
@@ -438,7 +438,7 @@
   <data name="FolderOpen.Label" xml:space="preserve">
     <value>Open</value>
   </data>
-  <data name="FolderRename.Label" xml:space="preserve">
+  <data name="FolderRename.ToolTipService.ToolTip" xml:space="preserve">
     <value>Rename</value>
   </data>
   <data name="HasFile.Text" xml:space="preserve">
@@ -679,8 +679,9 @@
     <value>Error</value>
   </data>
   <data name="RenameDialogInvalidCharTip.Subtitle" xml:space="preserve">
-    <value>Name cannot be empty and cannot contain illegal characters &#x000A;Illegal characters include \ / : * ? &quot; &lt; &gt; |</value>
-  </data>  
+    <value>Name cannot be empty and cannot contain illegal characters 
+Illegal characters include \ / : * ? " &lt; &gt; |</value>
+  </data>
   <data name="ResetDialog.CloseButtonText" xml:space="preserve">
     <value>Cancel</value>
   </data>

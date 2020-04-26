@@ -108,7 +108,7 @@
   <data name="FileDelete.ToolTipService.ToolTip" xml:space="preserve">
     <value>删除</value>
   </data>
-  <data name="FileRename.Label" xml:space="preserve">
+  <data name="FileRename.ToolTipService.ToolTip" xml:space="preserve">
     <value>重命名</value>
   </data>
   <data name="FileShare.Label" xml:space="preserve">
@@ -120,7 +120,7 @@
   <data name="FolderOpen.Label" xml:space="preserve">
     <value>打开</value>
   </data>
-  <data name="FolderRename.Label" xml:space="preserve">
+  <data name="FolderRename.ToolTipService.ToolTip" xml:space="preserve">
     <value>重命名</value>
   </data>
   <data name="HasFile.Text" xml:space="preserve">

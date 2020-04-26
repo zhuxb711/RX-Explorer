@@ -187,6 +187,9 @@
                                         Name="AddressButton"
                                         Padding="3,5,3,6"
                                         Click="AddressButton_Click"
+                                        AllowDrop="True"
+                                        Drop="AddressButton_Drop"
+                                        DragEnter="AddressButton_DragEnter"
                                         Background="{ThemeResource ButtonDisabledBackgroundThemeBrush}" />
                                 <Button Background="{ThemeResource ButtonDisabledBackgroundThemeBrush}"
                                         VerticalAlignment="Center"
@@ -293,7 +296,7 @@
                                           Margin="0,5,5,0"
                                           Name="Icon" />
                             </Viewbox>
-                            <TextBlock Text="{Binding Content.DisplayName,Mode=OneWay}"
+                            <TextBlock Text="{Binding Content.DisplayName}"
                                        HorizontalAlignment="Left"
                                        VerticalAlignment="Center"
                                        Style="{ThemeResource BodyTextBlockStyle}"

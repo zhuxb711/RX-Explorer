@@ -30,6 +30,10 @@
                           x:Uid="FileDelete"
                           x:Name="DeleteButton"
                           Click="Delete_Click" />
+            <AppBarButton Icon="Rename"
+                          ToolTipService.ToolTip="重命名"
+                          x:Uid="FileRename"
+                          Click="Rename_Click" />
             <CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
                               Label="打开"
@@ -46,19 +50,15 @@
                                             Icon="Admin"
                                             x:Uid="RunWithSystemAuthority"
                                             Name="RunWithSystemAuthority"
-                                            Click="RunWithSystemAuthority_Click"/>
+                                            Click="RunWithSystemAuthority_Click" />
                             <MenuFlyoutItem Text="选择其他应用"
                                             Icon="SwitchApps"
                                             x:Uid="ChooseOtherApp"
                                             Name="ChooseOtherApp"
-                                            Click="ChooseOtherApp_Click"/>
+                                            Click="ChooseOtherApp_Click" />
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
-                <AppBarButton Icon="Rename"
-                              Label="重命名"
-                              x:Uid="FileRename"
-                              Click="Rename_Click" />
                 <AppBarButton Icon="Edit"
                               Label="编辑"
                               x:Uid="FileEdit">
@@ -150,17 +150,17 @@
                           ToolTipService.ToolTip="删除"
                           x:Uid="FileDelete"
                           Click="Delete_Click" />
+            <AppBarButton Icon="Rename"
+                          ToolTipService.ToolTip="重命名"
+                          x:Uid="FolderRename"
+                          x:Name="FolderRename"
+                          Click="Rename_Click" />
             <CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
                               x:Uid="FolderOpen"
                               x:Name="FolderOpen"
                               Click="FolderOpen_Click" />
-                <AppBarButton Icon="Rename"
-                              Label="重命名"
-                              x:Uid="FolderRename"
-                              x:Name="FolderRename"
-                              Click="Rename_Click" />
                 <AppBarButton Label="压缩"
                               Icon="Bookmarks"
                               x:Uid="Zip"
@@ -509,13 +509,15 @@
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
                   PointerPressed="GridViewControl_PointerPressed"
-                  RightTapped="GridViewControl_RightTapped"
+                  RightTapped="ListViewControl_RightTapped"
                   SelectionChanged="GridViewControl_SelectionChanged"
                   SelectionMode="Extended"
                   ItemClick="GridViewControl_ItemClick"
                   CanDrag="False"
                   CanReorderItems="False"
-                  CanDragItems="False"
+                  CanDragItems="True"
+                  DragItemsStarting="ListViewControl_DragItemsStarting"
+                  DragItemsCompleted="ListViewControl_DragItemsCompleted"
                   AllowDrop="False"
                   IsItemClickEnabled="True"
                   IsDoubleTapEnabled="True"

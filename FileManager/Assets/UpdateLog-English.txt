@@ -1,4 +1,23 @@
 ﻿*****
+###What's new in Ver.4.5.7.0
+
+>#####Feature update
+
+>>#####Add the function of dragging files / folders to the upper address navigation bar
+
+>>#####When dragging a folder / file to the top of the target folder, the corresponding folder name will be displayed
+
+>#####Bug fix
+
+>>#####Fixed the problem that when the folder is renamed, the left directory will not be updated synchronously
+
+>>#####Fixed the problem that in the "Details" view, if there are too many files, the blank area cannot be right-clicked. Now the blank part of each line of the right-click will be equivalent to the right-click blank area
+
+>>#####Fixed some PC crash issues when using RX's built-in image viewer
+
+>>#####Removed some factors that may cause performance to decrease when resizing the window
+
+*****
 ###What's new in Ver.4.5.4.0
 
 >#####Feature update

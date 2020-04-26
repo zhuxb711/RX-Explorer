@@ -17,7 +17,7 @@ namespace FileManager
 {
     public sealed partial class ExtendedSplash : Page
     {
-        internal Rect SplashImageRect;
+        private Rect SplashImageRect;
 
         private readonly SplashScreen Splash;
 
@@ -48,12 +48,23 @@ namespace FileManager
                 Splash.Dismissed += Screen_Dismissed;
             }
 
-            Window.Current.SizeChanged += Current_SizeChanged;
+            Loaded += ExtendedSplash_Loaded;
+            Unloaded += ExtendedSplash_Unloaded;
 
             if (!string.IsNullOrEmpty(USBActivateParameter))
             {
                 this.USBActivateParameter = USBActivateParameter;
             }
+        }
+
+        private void ExtendedSplash_Unloaded(object sender, RoutedEventArgs e)
+        {
+            Window.Current.SizeChanged -= Current_SizeChanged;
+        }
+
+        private void ExtendedSplash_Loaded(object sender, RoutedEventArgs e)
+        {
+            Window.Current.SizeChanged += Current_SizeChanged;
         }
 
         private void SetControlPosition()
@@ -82,7 +93,7 @@ namespace FileManager
 
                 await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    var rootFrame = new Frame();
+                    Frame rootFrame = new Frame();
                     Window.Current.Content = rootFrame;
 
                     if (string.IsNullOrEmpty(USBActivateParameter))

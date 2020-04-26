@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,11 +43,9 @@ namespace FileManager
             {"System.DateModified",true }
         };
 
-        private List<FileSystemStorageItem> DragItemList;
-
         private FileControl FileControlInstance;
 
-        private int LockResource = 0;
+        private int DropLockResource = 0;
 
         private bool useGridorList = true;
 
@@ -1062,7 +1059,7 @@ namespace FileManager
         /// <param name="IsLoading">激活或关闭</param>
         /// <param name="Info">提示内容</param>
         /// <param name="DisableProbarIndeterminate">是否使用条状进度条替代圆形进度条</param>
-        private async Task LoadingActivation(bool IsLoading, string Info = null)
+        public async Task LoadingActivation(bool IsLoading, string Info = null)
         {
             if (IsLoading)
             {
@@ -1273,55 +1270,59 @@ namespace FileManager
                             return;
                         }
 
-                        if (FileControlInstance.CurrentNode.Children.Count != 0)
+                        try
                         {
-                            IList<TreeViewNode> ChildCollection = FileControlInstance.CurrentNode.Children;
-                            TreeViewNode TargetNode = FileControlInstance.CurrentNode.Children.Where((Fold) => (Fold.Content as StorageFolder).Name == RenameItem.Name).FirstOrDefault();
-                            int index = FileControlInstance.CurrentNode.Children.IndexOf(TargetNode);
-
-                            if (TargetNode.HasUnrealizedChildren)
+                            if (FileControlInstance.CurrentNode.IsExpanded)
                             {
-                                ChildCollection.Insert(index, new TreeViewNode()
-                                {
-                                    Content = Folder,
-                                    HasUnrealizedChildren = true,
-                                    IsExpanded = false
-                                });
-                                ChildCollection.Remove(TargetNode);
-                            }
-                            else if (TargetNode.HasChildren)
-                            {
-                                var NewNode = new TreeViewNode()
-                                {
-                                    Content = Folder,
-                                    HasUnrealizedChildren = false,
-                                    IsExpanded = true
-                                };
+                                IList<TreeViewNode> ChildCollection = FileControlInstance.CurrentNode.Children;
+                                TreeViewNode TargetNode = FileControlInstance.CurrentNode.Children.Where((Fold) => (Fold.Content as StorageFolder).Name == RenameItem.Name).FirstOrDefault();
+                                int index = FileControlInstance.CurrentNode.Children.IndexOf(TargetNode);
 
-                                foreach (var SubNode in TargetNode.Children)
+                                await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
+
+                                if (TargetNode.HasUnrealizedChildren)
                                 {
-                                    NewNode.Children.Add(SubNode);
+                                    ChildCollection.Insert(index, new TreeViewNode()
+                                    {
+                                        Content = (StorageFolder)RenameItem.StorageItem,
+                                        HasUnrealizedChildren = true,
+                                        IsExpanded = false
+                                    });
+                                    ChildCollection.Remove(TargetNode);
                                 }
+                                else if (TargetNode.HasChildren)
+                                {
+                                    TreeViewNode NewNode = new TreeViewNode()
+                                    {
+                                        Content = (StorageFolder)RenameItem.StorageItem,
+                                        HasUnrealizedChildren = false,
+                                        IsExpanded = true
+                                    };
 
-                                ChildCollection.Insert(index, NewNode);
-                                ChildCollection.Remove(TargetNode);
-                                await NewNode.UpdateAllSubNodeFolder().ConfigureAwait(true);
+                                    foreach (var SubNode in TargetNode.Children)
+                                    {
+                                        NewNode.Children.Add(SubNode);
+                                    }
+
+                                    ChildCollection.Insert(index, NewNode);
+                                    ChildCollection.Remove(TargetNode);
+                                    await NewNode.UpdateAllSubNodeFolder().ConfigureAwait(true);
+                                }
+                                else
+                                {
+                                    ChildCollection.Insert(index, new TreeViewNode()
+                                    {
+                                        Content = (StorageFolder)RenameItem.StorageItem,
+                                        HasUnrealizedChildren = false,
+                                        IsExpanded = false
+                                    });
+                                    ChildCollection.Remove(TargetNode);
+                                }
                             }
                             else
                             {
-                                ChildCollection.Insert(index, new TreeViewNode()
-                                {
-                                    Content = Folder,
-                                    HasUnrealizedChildren = false,
-                                    IsExpanded = false
-                                });
-                                ChildCollection.Remove(TargetNode);
+                                await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
                             }
-                        }
-
-                        try
-                        {
-                            await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
                         }
                         catch (UnauthorizedAccessException)
                         {
@@ -1524,6 +1525,29 @@ namespace FileManager
             e.Handled = true;
         }
 
+        private void ListViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+            if (e.OriginalSource is ContentPresenter || e.OriginalSource is Grid)
+            {
+                ControlContextFlyout = EmptyFlyout;
+            }
+            else if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
+            {
+                SelectedIndex = FileCollection.IndexOf(Context);
+
+                if (Context.StorageItem.IsOfType(StorageItemTypes.Folder))
+                {
+                    ControlContextFlyout = FolderFlyout;
+                }
+                else
+                {
+                    ControlContextFlyout = FileFlyout;
+                }
+            }
+
+            e.Handled = true;
+        }
+
         private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
             Restore();
@@ -1609,7 +1633,6 @@ namespace FileManager
                             };
                             FileControlInstance.CurrentNode.Children.Add(CurrentNode);
                         }
-                        FileControlInstance.CurrentNode.IsExpanded = true;
                     }
                 }
             }
@@ -2548,7 +2571,6 @@ namespace FileManager
                         HasUnrealizedChildren = false
                     });
                 }
-                FileControlInstance.CurrentNode.IsExpanded = true;
             }
             catch (UnauthorizedAccessException)
             {
@@ -2761,7 +2783,7 @@ namespace FileManager
                                 case ".gif":
                                 case ".tiff":
                                     {
-                                        FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.FolderRelativeId), new DrillInNavigationTransitionInfo());
+                                        FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new DrillInNavigationTransitionInfo());
                                         break;
                                     }
                                 case ".mkv":
@@ -2855,7 +2877,7 @@ namespace FileManager
                             }
                         }
                     }
-                    else if(TabTarget.StorageItem is StorageFolder Folder)
+                    else if (TabTarget.StorageItem is StorageFolder Folder)
                     {
                         if (!await Folder.CheckExist().ConfigureAwait(true))
                         {
@@ -3206,7 +3228,12 @@ namespace FileManager
 
         private void GridViewControl_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
         {
-            DragItemList = e.Items.Select((obj) => obj as FileSystemStorageItem).ToList();
+            if (e.Items.Count == 0)
+            {
+                return;
+            }
+
+            e.Data.SetStorageItems(e.Items.Select((obj) => (obj as FileSystemStorageItem).StorageItem), false);
 
             FileCollection.ToList().ForEach((Item) =>
             {
@@ -3214,28 +3241,39 @@ namespace FileManager
                 {
                     GridViewItem GridItem = GridViewControl.ContainerFromItem(Item) as GridViewItem;
                     GridItem.AllowDrop = true;
-                    GridItem.DragEnter += GridItem_DragEnter;
-                    GridItem.Drop += GridItem_Drop;
+                    GridItem.DragEnter += Item_DragEnter;
+                    GridItem.Drop += Item_Drop;
                 }
             });
         }
 
-        private void GridItem_DragEnter(object sender, DragEventArgs e)
+        private void Item_DragEnter(object sender, DragEventArgs e)
         {
-            e.AcceptedOperation = e.Modifiers.HasFlag(DragDropModifiers.Control) ? DataPackageOperation.Copy : DataPackageOperation.Move;
+            if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+            {
+                e.AcceptedOperation = DataPackageOperation.Copy;
+                e.DragUIOverride.Caption = $"复制到 {((sender as SelectorItem).Content as FileSystemStorageItem).DisplayName}";
+            }
+            else
+            {
+                e.AcceptedOperation = DataPackageOperation.Move;
+                e.DragUIOverride.Caption = $"移动到 {((sender as SelectorItem).Content as FileSystemStorageItem).DisplayName}";
+            }
             e.DragUIOverride.IsContentVisible = true;
             e.DragUIOverride.IsCaptionVisible = true;
         }
 
-        private async void GridItem_Drop(object sender, DragEventArgs e)
+        private async void Item_Drop(object sender, DragEventArgs e)
         {
-            if (Interlocked.Exchange(ref LockResource, 1) == 0)
+            if (Interlocked.Exchange(ref DropLockResource, 1) == 0)
             {
+                List<IStorageItem> DragItemList = (await e.DataView.GetStorageItemsAsync()).ToList();
+
                 try
                 {
-                    if ((e.OriginalSource as GridViewItem).Content is FileSystemStorageItem Target)
+                    if ((sender as SelectorItem).Content is FileSystemStorageItem Target)
                     {
-                        if (DragItemList.Contains(Target))
+                        if (DragItemList.Contains(Target.StorageItem))
                         {
                             if (Globalization.Language == LanguageEnum.Chinese)
                             {
@@ -3271,11 +3309,11 @@ namespace FileManager
 
                                     await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在复制" : "Copying").ConfigureAwait(true);
 
-                                    foreach (FileSystemStorageItem Item in DragItemList)
+                                    foreach (IStorageItem Item in DragItemList)
                                     {
                                         try
                                         {
-                                            if (Item.StorageItem is StorageFile File)
+                                            if (Item is StorageFile File)
                                             {
                                                 if (!await File.CheckExist().ConfigureAwait(true))
                                                 {
@@ -3285,7 +3323,7 @@ namespace FileManager
 
                                                 _ = await File.CopyAsync(Target.StorageItem as StorageFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
                                             }
-                                            else if(Item.StorageItem is StorageFolder Folder)
+                                            else if (Item is StorageFolder Folder)
                                             {
                                                 if (!await Folder.CheckExist().ConfigureAwait(true))
                                                 {
@@ -3416,11 +3454,11 @@ namespace FileManager
                                     bool IsSpaceError = false;
                                     bool IsCaptured = false;
 
-                                    foreach (FileSystemStorageItem Item in DragItemList)
+                                    foreach (IStorageItem Item in DragItemList)
                                     {
                                         try
                                         {
-                                            if (Item.StorageItem is StorageFile File)
+                                            if (Item is StorageFile File)
                                             {
                                                 if (!await File.CheckExist().ConfigureAwait(true))
                                                 {
@@ -3429,9 +3467,9 @@ namespace FileManager
                                                 }
 
                                                 await File.MoveAsync(Target.StorageItem as StorageFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
-                                                FileCollection.Remove(Item);
+                                                FileCollection.Remove(FileCollection.FirstOrDefault((It) => It.StorageItem == Item));
                                             }
-                                            else if(Item.StorageItem is StorageFolder Folder)
+                                            else if (Item is StorageFolder Folder)
                                             {
                                                 if (!await Folder.CheckExist().ConfigureAwait(true))
                                                 {
@@ -3442,7 +3480,7 @@ namespace FileManager
                                                 StorageFolder NewFolder = await ((StorageFolder)Target.StorageItem).CreateFolderAsync(Item.Name, CreationCollisionOption.OpenIfExists);
                                                 await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
                                                 await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                                                FileCollection.Remove(Item);
+                                                FileCollection.Remove(FileCollection.FirstOrDefault((It) => It.StorageItem == Item));
 
                                                 if (FileControlInstance.CurrentNode.IsExpanded)
                                                 {
@@ -3463,13 +3501,6 @@ namespace FileManager
                                                                 HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
                                                             });
                                                         }
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    if ((await (FileControlInstance.CurrentNode.Content as StorageFolder).GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count == 0)
-                                                    {
-                                                        FileControlInstance.CurrentNode.HasUnrealizedChildren = false;
                                                     }
                                                 }
                                             }
@@ -3601,7 +3632,7 @@ namespace FileManager
                     DragItemList.Clear();
                     await LoadingActivation(false).ConfigureAwait(true);
                     e.Handled = true;
-                    _ = Interlocked.Exchange(ref LockResource, 0);
+                    _ = Interlocked.Exchange(ref DropLockResource, 0);
                 }
             }
         }
@@ -3614,8 +3645,43 @@ namespace FileManager
                 {
                     GridViewItem GridItem = GridViewControl.ContainerFromItem(Item) as GridViewItem;
                     GridItem.AllowDrop = false;
-                    GridItem.Drop -= GridItem_Drop;
-                    GridItem.DragEnter -= GridItem_DragEnter;
+                    GridItem.Drop -= Item_Drop;
+                    GridItem.DragEnter -= Item_DragEnter;
+                }
+            });
+        }
+
+        private void ListViewControl_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
+        {
+            if (e.Items.Count == 0)
+            {
+                return;
+            }
+
+            e.Data.SetStorageItems(e.Items.Select((obj) => (obj as FileSystemStorageItem).StorageItem), false);
+
+            FileCollection.ToList().ForEach((Item) =>
+            {
+                if (Item.StorageItem.IsOfType(StorageItemTypes.Folder))
+                {
+                    ListViewItem ListItem = ListViewControl.ContainerFromItem(Item) as ListViewItem;
+                    ListItem.AllowDrop = true;
+                    ListItem.DragEnter += Item_DragEnter;
+                    ListItem.Drop += Item_Drop;
+                }
+            });
+        }
+
+        private void ListViewControl_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+        {
+            FileCollection.ToList().ForEach((Item) =>
+            {
+                if (Item.StorageItem.IsOfType(StorageItemTypes.Folder))
+                {
+                    ListViewItem ListItem = ListViewControl.ContainerFromItem(Item) as ListViewItem;
+                    ListItem.AllowDrop = false;
+                    ListItem.Drop -= Item_Drop;
+                    ListItem.DragEnter -= Item_DragEnter;
                 }
             });
         }

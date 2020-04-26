@@ -1483,9 +1483,9 @@ namespace FileManager
                 File = await StorageFile.GetFileFromPathAsync(File.Path);
                 Thumbnail = await File.GetThumbnailBitmapAsync().ConfigureAwait(true);
                 ModifiedTime = await File.GetModifiedTimeAsync().ConfigureAwait(true);
-                OnPropertyChanged("DisplayName");
-                OnPropertyChanged("Thumbnail");
-                OnPropertyChanged("ModifiedTime");
+                OnPropertyChanged(nameof(DisplayName));
+                OnPropertyChanged(nameof(Thumbnail));
+                OnPropertyChanged(nameof(ModifiedTime));
             }
             else if (StorageItem is StorageFolder Folder)
             {
@@ -1493,9 +1493,9 @@ namespace FileManager
                 Folder = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
                 Thumbnail = await Folder.GetThumbnailBitmapAsync().ConfigureAwait(true);
                 ModifiedTime = await Folder.GetModifiedTimeAsync().ConfigureAwait(true);
-                OnPropertyChanged("DisplayName");
-                OnPropertyChanged("Thumbnail");
-                OnPropertyChanged("ModifiedTime");
+                OnPropertyChanged(nameof(DisplayName));
+                OnPropertyChanged(nameof(Thumbnail));
+                OnPropertyChanged(nameof(ModifiedTime));
             }
         }
 
@@ -1513,7 +1513,7 @@ namespace FileManager
                 throw new ArgumentException("Could not update folder size", string.Empty);
             }
 
-            OnPropertyChanged("Size");
+            OnPropertyChanged(nameof(Size));
         }
 
         /// <summary>

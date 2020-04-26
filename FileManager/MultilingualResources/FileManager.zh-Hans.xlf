@@ -134,7 +134,7 @@
           <source>Delete</source>
           <target state="translated">删除</target>
         </trans-unit>
-        <trans-unit id="FileRename.Label" translate="yes" xml:space="preserve">
+        <trans-unit id="FileRename.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Rename</source>
           <target state="translated">重命名</target>
         </trans-unit>
@@ -150,7 +150,7 @@
           <source>Open</source>
           <target state="translated">打开</target>
         </trans-unit>
-        <trans-unit id="FolderRename.Label" translate="yes" xml:space="preserve">
+        <trans-unit id="FolderRename.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Rename</source>
           <target state="translated">重命名</target>
         </trans-unit>

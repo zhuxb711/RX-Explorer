@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Uwp.UI.Animations;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -23,7 +24,7 @@ namespace FileManager
         ObservableCollection<PhotoDisplaySupport> PhotoCollection = new ObservableCollection<PhotoDisplaySupport>();
         StorageFileQueryResult QueryResult;
         AnimationFlipViewBehavior Behavior = new AnimationFlipViewBehavior();
-        string SelectedPhotoID;
+        string SelectedPhotoName;
         int LastSelectIndex;
         double OriginHorizonOffset;
         double OriginVerticalOffset;
@@ -42,7 +43,7 @@ namespace FileManager
             if (e.Parameter is Tuple<FileControl, string> Parameters)
             {
                 FileControlInstance = Parameters.Item1;
-                SelectedPhotoID = Parameters.Item2;
+                SelectedPhotoName = Parameters.Item2;
 
                 await Initialize().ConfigureAwait(false);
             }
@@ -79,27 +80,41 @@ namespace FileManager
                 ProBar.Value = 0;
 
                 IReadOnlyList<StorageFile> FileCollection = await QueryResult.GetFilesAsync().AsTask(Cancellation.Token).ConfigureAwait(true);
-                
-                foreach (StorageFile File in FileCollection)
+
+                if (FileCollection.Count == 0)
                 {
-                    if(Cancellation.IsCancellationRequested)
+                    if (Globalization.Language == LanguageEnum.Chinese)
                     {
-                        break;
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "错误",
+                            Content = "由于读取图片文件夹出现异常，图片查看器未能读取到任何图片文件。请重试。",
+                            CloseButtonText = "返回"
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = "Error",
+                            Content = "The image viewer failed to read any image file due to an abnormality in reading the image folder. Please try again.",
+                            CloseButtonText = "Go back"
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
 
-                    using (StorageItemThumbnail ThumbnailStream = await File.GetThumbnailAsync(ThumbnailMode.SingleItem))
+                    FileControlInstance.Nav.GoBack();
+                    return;
+                }
+
+                for (int i = 0; i < FileCollection.Count && !Cancellation.IsCancellationRequested; i++, ProBar.Value++)
+                {
+                    using (StorageItemThumbnail ThumbnailStream = await FileCollection[i].GetThumbnailAsync(ThumbnailMode.SingleItem))
                     {
                         BitmapImage ImageSource = new BitmapImage();
                         await ImageSource.SetSourceAsync(ThumbnailStream);
-                        PhotoCollection.Add(new PhotoDisplaySupport(ImageSource, File));
-
-                        ProBar.Value++;
-
-                        if (File.FolderRelativeId == SelectedPhotoID)
-                        {
-                            Flip.SelectedIndex = PhotoCollection.Count - 1;
-                            LastSelectIndex = Flip.SelectedIndex;
-                        }
+                        PhotoCollection.Add(new PhotoDisplaySupport(ImageSource, FileCollection[i]));
                     }
                 }
 
@@ -107,13 +122,22 @@ namespace FileManager
                 {
                     Flip.SelectionChanged += Flip_SelectionChanged;
 
+                    int Index = PhotoCollection.ToList().FindIndex((Photo) => Photo.FileName == SelectedPhotoName);
+                    if (Index < 0 || Index >= PhotoCollection.Count)
+                    {
+                        Index = 0;
+                    }
+                    Flip.SelectedIndex = Index;
+                    LastSelectIndex = Index;
+
                     await Task.Delay(500).ConfigureAwait(true);
+
                     await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmap().ConfigureAwait(true);
 
                     OpacityAnimation.Begin();
                 }
             }
-            catch(TaskCanceledException)
+            catch (TaskCanceledException)
             {
 
             }
@@ -141,7 +165,7 @@ namespace FileManager
             Flip.Opacity = 0;
             Behavior.Detach();
             PhotoCollection.Clear();
-            SelectedPhotoID = string.Empty;
+            SelectedPhotoName = string.Empty;
             Flip.SelectionChanged -= Flip_SelectionChanged;
         }
 

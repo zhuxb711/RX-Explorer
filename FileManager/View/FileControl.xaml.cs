@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -74,6 +76,8 @@ namespace FileManager
         private int AddressButtonLockResource = 0;
 
         private int NavigateLockResource = 0;
+
+        private int DropLockResource = 0;
 
         private string AddressBoxTextBackup;
 
@@ -335,8 +339,6 @@ namespace FileManager
             FolderExpandCancel.Dispose();
             FolderExpandCancel = null;
 
-            CurrentNode = null;
-
             FolderTree.RootNodes.Clear();
             TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Clear();
             TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = Visibility.Collapsed;
@@ -380,10 +382,10 @@ namespace FileManager
                 #endregion
 
                 #region TreeView展开时选中子节点的BUG修复后启用
-                //Task DisplayLeftTask = FillTreeNode(RootNode).ConfigureAwait(true);
-                //Task DisplayRightTask = DisplayItemsInFolder(RootNode).ConfigureAwait(true);
+                //Task DisplayLeftTask = FillTreeNode(RootNode);
+                //Task DisplayRightTask = DisplayItemsInFolder(RootNode);
 
-                //await Task.WhenAll(DisplayLeftTask, DisplayRightTask);
+                //await Task.WhenAll(DisplayLeftTask, DisplayRightTask).ConfigureAwait(true);
                 #endregion
             }
         }
@@ -1748,8 +1750,7 @@ namespace FileManager
 
             if (ActualString.StartsWith((RootNode.Content as StorageFolder).Path))
             {
-                TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(ActualString, (RootNode.Content as StorageFolder).Path)).ConfigureAwait(true);
-                if (TargetNode != null)
+                if ((await FindFolderLocationInTree(RootNode, new PathAnalysis(ActualString, (RootNode.Content as StorageFolder).Path)).ConfigureAwait(true)) is TreeViewNode TargetNode)
                 {
                     await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
 
@@ -1846,6 +1847,408 @@ namespace FileManager
                     await OpenTargetFolder(Folder).ConfigureAwait(false);
                 }
             }
+        }
+
+        private async void AddressButton_Drop(object sender, DragEventArgs e)
+        {
+            string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(((Button)sender).DataContext as AddressBlock) + 1).Skip(1));
+            string ActualPath = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
+
+            if (Interlocked.Exchange(ref DropLockResource, 1) == 0)
+            {
+                try
+                {
+                    if (ActualPath == CurrentFolder.Path)
+                    {
+                        if (Globalization.Language == LanguageEnum.Chinese)
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = "错误",
+                                Content = "目标文件夹和源文件夹相同",
+                                CloseButtonText = "确定"
+                            };
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        }
+                        else
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = "Error",
+                                Content = "The target folder is the same as the source folder",
+                                CloseButtonText = "Got it"
+                            };
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        }
+
+                        return;
+                    }
+
+                    List<IStorageItem> DragItemList = (await e.DataView.GetStorageItemsAsync()).ToList();
+
+                    StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(ActualPath);
+
+                    switch (e.AcceptedOperation)
+                    {
+                        case DataPackageOperation.Copy:
+                            {
+                                await TabViewContainer.ThisPage.FFInstanceContainer[this].LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在复制" : "Copying").ConfigureAwait(true);
+
+                                bool IsItemNotFound = false;
+                                bool IsUnauthorized = false;
+                                bool IsSpaceError = false;
+
+                                foreach (IStorageItem Item in DragItemList)
+                                {
+                                    try
+                                    {
+                                        if (Item is StorageFile File)
+                                        {
+                                            if (!await File.CheckExist().ConfigureAwait(true))
+                                            {
+                                                IsItemNotFound = true;
+                                                continue;
+                                            }
+
+                                            _ = await File.CopyAsync(TargetFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
+                                        }
+                                        else if (Item is StorageFolder Folder)
+                                        {
+                                            if (!await Folder.CheckExist().ConfigureAwait(true))
+                                            {
+                                                IsItemNotFound = true;
+                                                continue;
+                                            }
+
+                                            StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Item.Name, CreationCollisionOption.OpenIfExists);
+                                            await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
+
+                                            if (ActualPath.StartsWith((FolderTree.RootNodes[0].Content as StorageFolder).Path))
+                                            {
+                                                TreeViewNode TargetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(ActualPath, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
+                                                if (TargetNode != null && (TargetNode.IsExpanded || !TargetNode.HasChildren))
+                                                {
+                                                    if (TargetNode.Children.FirstOrDefault((Node) => (Node.Content as StorageFolder).Name == NewFolder.Name) is TreeViewNode ExistNode)
+                                                    {
+                                                        ExistNode.HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
+                                                    }
+                                                    else
+                                                    {
+                                                        TargetNode.Children.Add(new TreeViewNode
+                                                        {
+                                                            Content = NewFolder,
+                                                            HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    catch (UnauthorizedAccessException)
+                                    {
+                                        IsUnauthorized = true;
+                                    }
+                                    catch (System.Runtime.InteropServices.COMException)
+                                    {
+                                        IsSpaceError = true;
+                                    }
+                                }
+
+                                if (IsItemNotFound)
+                                {
+                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    {
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = "错误",
+                                            Content = "部分文件不存在，无法复制到指定位置",
+                                            CloseButtonText = "确定"
+                                        };
+                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                    }
+                                    else
+                                    {
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = "Error",
+                                            Content = "Some files do not exist and cannot be copyed to the specified location",
+                                            CloseButtonText = "Got it"
+                                        };
+                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                    }
+                                }
+                                else if (IsUnauthorized)
+                                {
+                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    {
+                                        QueueContentDialog dialog = new QueueContentDialog
+                                        {
+                                            Title = "错误",
+                                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                                            PrimaryButtonText = "立刻",
+                                            CloseButtonText = "稍后"
+                                        };
+                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                        {
+                                            _ = await Launcher.LaunchFolderAsync(CurrentFolder);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        QueueContentDialog dialog = new QueueContentDialog
+                                        {
+                                            Title = "Error",
+                                            Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                                            PrimaryButtonText = "Enter",
+                                            CloseButtonText = "Later"
+                                        };
+                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                        {
+                                            _ = await Launcher.LaunchFolderAsync(CurrentFolder);
+                                        }
+                                    }
+                                }
+                                else if (IsSpaceError)
+                                {
+                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    {
+                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                        {
+                                            Title = "错误",
+                                            Content = "因设备剩余空间大小不足，部分文件无法复制",
+                                            CloseButtonText = "确定"
+                                        };
+                                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                    }
+                                    else
+                                    {
+                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                        {
+                                            Title = "Error",
+                                            Content = "Some files cannot be copyed due to insufficient free space on the device",
+                                            CloseButtonText = "Confirm"
+                                        };
+                                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                    }
+                                }
+
+                                break;
+                            }
+                        case DataPackageOperation.Move:
+                            {
+                                await TabViewContainer.ThisPage.FFInstanceContainer[this].LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在剪切" : "Cutting").ConfigureAwait(true);
+
+                                bool IsItemNotFound = false;
+                                bool IsUnauthorized = false;
+                                bool IsSpaceError = false;
+                                bool IsCaptured = false;
+
+                                foreach (IStorageItem Item in DragItemList)
+                                {
+                                    try
+                                    {
+                                        if (Item is StorageFile File)
+                                        {
+                                            if (!await File.CheckExist().ConfigureAwait(true))
+                                            {
+                                                IsItemNotFound = true;
+                                                continue;
+                                            }
+
+                                            await File.MoveAsync(TargetFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
+                                            TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.FirstOrDefault((It) => It.StorageItem == Item));
+                                        }
+                                        else if (Item is StorageFolder Folder)
+                                        {
+                                            if (!await Folder.CheckExist().ConfigureAwait(true))
+                                            {
+                                                IsItemNotFound = true;
+                                                continue;
+                                            }
+
+                                            StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Item.Name, CreationCollisionOption.OpenIfExists);
+                                            await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
+                                            await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                                            TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.FirstOrDefault((It) => It.StorageItem == Item));
+
+                                            if (ActualPath.StartsWith((FolderTree.RootNodes[0].Content as StorageFolder).Path))
+                                            {
+                                                if (CurrentNode.IsExpanded)
+                                                {
+                                                    CurrentNode.Children.Remove(CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == Item.Name).FirstOrDefault());
+                                                }
+                                                else
+                                                {
+                                                    if ((await (CurrentNode.Content as StorageFolder).GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count == 0)
+                                                    {
+                                                        CurrentNode.HasUnrealizedChildren = false;
+                                                    }
+                                                }
+
+                                                TreeViewNode TargetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(ActualPath, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
+                                                if (TargetNode != null && (TargetNode.IsExpanded || !TargetNode.HasChildren))
+                                                {
+                                                    if (TargetNode.Children.FirstOrDefault((Node) => (Node.Content as StorageFolder).Name == NewFolder.Name) is TreeViewNode ExistNode)
+                                                    {
+                                                        ExistNode.HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
+                                                    }
+                                                    else
+                                                    {
+                                                        TargetNode.Children.Add(new TreeViewNode
+                                                        {
+                                                            Content = NewFolder,
+                                                            HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    catch (UnauthorizedAccessException)
+                                    {
+                                        IsUnauthorized = true;
+                                    }
+                                    catch (System.Runtime.InteropServices.COMException)
+                                    {
+                                        IsSpaceError = true;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        IsCaptured = true;
+                                    }
+                                }
+
+                                if (IsItemNotFound)
+                                {
+                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    {
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = "错误",
+                                            Content = "部分文件不存在，无法移动到指定位置",
+                                            CloseButtonText = "确定"
+                                        };
+                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                    }
+                                    else
+                                    {
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = "Error",
+                                            Content = "Some files do not exist and cannot be moved to the specified location",
+                                            CloseButtonText = "Got it"
+                                        };
+                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                    }
+                                }
+                                else if (IsUnauthorized)
+                                {
+                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    {
+                                        QueueContentDialog dialog = new QueueContentDialog
+                                        {
+                                            Title = "错误",
+                                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
+                                            PrimaryButtonText = "立刻",
+                                            CloseButtonText = "稍后"
+                                        };
+                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                        {
+                                            _ = await Launcher.LaunchFolderAsync(CurrentFolder);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        QueueContentDialog dialog = new QueueContentDialog
+                                        {
+                                            Title = "Error",
+                                            Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
+                                            PrimaryButtonText = "Enter",
+                                            CloseButtonText = "Later"
+                                        };
+                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                        {
+                                            _ = await Launcher.LaunchFolderAsync(CurrentFolder);
+                                        }
+                                    }
+                                }
+                                else if (IsSpaceError)
+                                {
+                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    {
+                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                        {
+                                            Title = "错误",
+                                            Content = "因设备剩余空间大小不足，部分文件无法移动",
+                                            CloseButtonText = "确定"
+                                        };
+                                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                    }
+                                    else
+                                    {
+                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                        {
+                                            Title = "Error",
+                                            Content = "Some files cannot be moved due to insufficient free space on the device",
+                                            CloseButtonText = "Confirm"
+                                        };
+                                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                    }
+                                }
+                                else if (IsCaptured)
+                                {
+                                    QueueContentDialog dialog;
+
+                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    {
+                                        dialog = new QueueContentDialog
+                                        {
+                                            Title = "错误",
+                                            Content = "部分文件正在被其他应用程序使用，因此无法移动",
+                                            CloseButtonText = "确定"
+                                        };
+                                    }
+                                    else
+                                    {
+                                        dialog = new QueueContentDialog
+                                        {
+                                            Title = "Error",
+                                            Content = "Some files are in use by other applications and cannot be moved",
+                                            CloseButtonText = "Got it"
+                                        };
+                                    }
+
+                                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                }
+
+                                break;
+                            }
+                    }
+                }
+                finally
+                {
+                    await TabViewContainer.ThisPage.FFInstanceContainer[this].LoadingActivation(false).ConfigureAwait(true);
+                    e.Handled = true;
+                    _ = Interlocked.Exchange(ref DropLockResource, 0);
+                }
+            }
+        }
+
+        private void AddressButton_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+            {
+                e.AcceptedOperation = DataPackageOperation.Copy;
+                e.DragUIOverride.Caption = $"复制到 {(e.OriginalSource as Button).Content}";
+            }
+            else
+            {
+                e.AcceptedOperation = DataPackageOperation.Move;
+                e.DragUIOverride.Caption = $"移动到 {(e.OriginalSource as Button).Content}";
+            }
+
+            e.DragUIOverride.IsContentVisible = true;
+            e.DragUIOverride.IsCaptionVisible = true;
         }
     }
 

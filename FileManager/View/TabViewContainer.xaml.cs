@@ -499,7 +499,7 @@ namespace FileManager
             }
         }
 
-        private async void TabViewControl_AddTabButtonClick(TabView sender, object args)
+        private void TabViewControl_AddTabButtonClick(TabView sender, object args)
         {
             if (CreateNewTab() is TabViewItem Item)
             {
