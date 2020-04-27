@@ -11,6 +11,8 @@
       Background="Transparent">
 
     <Page.Resources>
+        <local:SpliterConverter x:Key="Converter"/>
+
         <Flyout x:Name="AddressExtentionFlyout"
                 Placement="BottomEdgeAlignedLeft"
                 Closing="AddressExtentionFlyout_Closing">
@@ -267,8 +269,9 @@
         <Grid Grid.Row="1"
               Margin="0,5,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*" />
-                <ColumnDefinition Width="10" />
+                <ColumnDefinition x:Name="TreeViewGridCol"
+                                  Width="{x:Bind local:TabViewContainer.ThisPage.TreeViewLength,Mode=OneWay}" />
+                <ColumnDefinition Width="{x:Bind TreeViewGridCol.Width,Mode=OneWay,Converter={StaticResource Converter}}" />
                 <ColumnDefinition Width="5*" />
             </Grid.ColumnDefinitions>
             <Frame Grid.Column="2"

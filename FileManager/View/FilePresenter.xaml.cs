@@ -395,7 +395,7 @@ namespace FileManager
             {
                 await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在剪切" : "Cutting").ConfigureAwait(true);
 
-                if (LastNode == FileControlInstance.CurrentNode)
+                if (Path.GetDirectoryName(CutFiles.FirstOrDefault().Path) == FileControlInstance.CurrentFolder.Path)
                 {
                     goto FLAG;
                 }
@@ -452,31 +452,34 @@ namespace FileManager
                                 FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
                             }
 
-                            if (LastNode.IsExpanded)
+                            if (!SettingControl.IsDetachTreeViewAndPresenter)
                             {
-                                LastNode.Children.Remove(LastNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == Folder.Name).FirstOrDefault());
-                            }
-                            else
-                            {
-                                if ((await (LastNode.Content as StorageFolder).GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count == 0)
+                                if (LastNode.IsExpanded)
                                 {
-                                    LastNode.HasUnrealizedChildren = false;
-                                }
-                            }
-
-                            if (FileControlInstance.CurrentNode.IsExpanded || !FileControlInstance.CurrentNode.HasChildren)
-                            {
-                                if (FileControlInstance.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as StorageFolder).Name == NewFolder.Name) is TreeViewNode ExistNode)
-                                {
-                                    ExistNode.HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
+                                    LastNode.Children.Remove(LastNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == Folder.Name).FirstOrDefault());
                                 }
                                 else
                                 {
-                                    FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                    if ((await (LastNode.Content as StorageFolder).GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count == 0)
                                     {
-                                        Content = NewFolder,
-                                        HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                                    });
+                                        LastNode.HasUnrealizedChildren = false;
+                                    }
+                                }
+
+                                if (FileControlInstance.CurrentNode.IsExpanded || !FileControlInstance.CurrentNode.HasChildren)
+                                {
+                                    if (FileControlInstance.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as StorageFolder).Name == NewFolder.Name) is TreeViewNode ExistNode)
+                                    {
+                                        ExistNode.HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
+                                    }
+                                    else
+                                    {
+                                        FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                        {
+                                            Content = NewFolder,
+                                            HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                        });
+                                    }
                                 }
                             }
                         }
@@ -652,19 +655,22 @@ namespace FileManager
                                 FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
                             }
 
-                            if (FileControlInstance.CurrentNode.IsExpanded || !FileControlInstance.CurrentNode.HasChildren)
+                            if (!SettingControl.IsDetachTreeViewAndPresenter)
                             {
-                                if (FileControlInstance.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as StorageFolder).Name == NewFolder.Name) is TreeViewNode ExistNode)
+                                if (FileControlInstance.CurrentNode.IsExpanded || !FileControlInstance.CurrentNode.HasChildren)
                                 {
-                                    ExistNode.HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
-                                }
-                                else
-                                {
-                                    FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                    if (FileControlInstance.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as StorageFolder).Name == NewFolder.Name) is TreeViewNode ExistNode)
                                     {
-                                        Content = NewFolder,
-                                        HasUnrealizedChildren = (await NewFolder.GetItemsAsync(0, 1)).Count > 0
-                                    });
+                                        ExistNode.HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
+                                    }
+                                    else
+                                    {
+                                        FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                        {
+                                            Content = NewFolder,
+                                            HasUnrealizedChildren = (await NewFolder.GetItemsAsync(0, 1)).Count > 0
+                                        });
+                                    }
                                 }
                             }
                         }
@@ -855,15 +861,18 @@ namespace FileManager
 
                             FileCollection.Remove(ItemToDelete);
 
-                            if (FileControlInstance.CurrentNode.IsExpanded)
+                            if (!SettingControl.IsDetachTreeViewAndPresenter)
                             {
-                                FileControlInstance.CurrentNode.Children.Remove(FileControlInstance.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == ItemToDelete.Name).FirstOrDefault());
-                            }
-                            else
-                            {
-                                if ((await FileControlInstance.CurrentFolder.CreateFolderQuery(CommonFolderQuery.DefaultQuery).GetItemCountAsync()) == 0)
+                                if (FileControlInstance.CurrentNode.IsExpanded)
                                 {
-                                    FileControlInstance.CurrentNode.HasUnrealizedChildren = false;
+                                    FileControlInstance.CurrentNode.Children.Remove(FileControlInstance.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == ItemToDelete.Name).FirstOrDefault());
+                                }
+                                else
+                                {
+                                    if ((await FileControlInstance.CurrentFolder.CreateFolderQuery(CommonFolderQuery.DefaultQuery).GetItemCountAsync()) == 0)
+                                    {
+                                        FileControlInstance.CurrentNode.HasUnrealizedChildren = false;
+                                    }
                                 }
                             }
                         }
@@ -945,15 +954,18 @@ namespace FileManager
 
                                 FileCollection.Remove(ItemToDelete);
 
-                                if (FileControlInstance.CurrentNode.IsExpanded)
+                                if (!SettingControl.IsDetachTreeViewAndPresenter)
                                 {
-                                    FileControlInstance.CurrentNode.Children.Remove(FileControlInstance.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == ItemToDelete.Name).FirstOrDefault());
-                                }
-                                else
-                                {
-                                    if ((await FileControlInstance.CurrentFolder.CreateFolderQuery(CommonFolderQuery.DefaultQuery).GetItemCountAsync()) == 0)
+                                    if (FileControlInstance.CurrentNode.IsExpanded)
                                     {
-                                        FileControlInstance.CurrentNode.HasUnrealizedChildren = false;
+                                        FileControlInstance.CurrentNode.Children.Remove(FileControlInstance.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == ItemToDelete.Name).FirstOrDefault());
+                                    }
+                                    else
+                                    {
+                                        if ((await FileControlInstance.CurrentFolder.CreateFolderQuery(CommonFolderQuery.DefaultQuery).GetItemCountAsync()) == 0)
+                                        {
+                                            FileControlInstance.CurrentNode.HasUnrealizedChildren = false;
+                                        }
                                     }
                                 }
                             }
@@ -1139,7 +1151,15 @@ namespace FileManager
                             };
                             _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
-                        await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+
+                        if (SettingControl.IsDetachTreeViewAndPresenter)
+                        {
+                            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+                        }
                         return;
                     }
 
@@ -1238,7 +1258,15 @@ namespace FileManager
                             };
                             _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
-                        await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+
+                        if (SettingControl.IsDetachTreeViewAndPresenter)
+                        {
+                            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+                        }
                         return;
                     }
 
@@ -1272,56 +1300,63 @@ namespace FileManager
 
                         try
                         {
-                            if (FileControlInstance.CurrentNode.IsExpanded)
+                            if (SettingControl.IsDetachTreeViewAndPresenter)
                             {
-                                IList<TreeViewNode> ChildCollection = FileControlInstance.CurrentNode.Children;
-                                TreeViewNode TargetNode = FileControlInstance.CurrentNode.Children.Where((Fold) => (Fold.Content as StorageFolder).Name == RenameItem.Name).FirstOrDefault();
-                                int index = FileControlInstance.CurrentNode.Children.IndexOf(TargetNode);
-
                                 await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
-
-                                if (TargetNode.HasUnrealizedChildren)
-                                {
-                                    ChildCollection.Insert(index, new TreeViewNode()
-                                    {
-                                        Content = (StorageFolder)RenameItem.StorageItem,
-                                        HasUnrealizedChildren = true,
-                                        IsExpanded = false
-                                    });
-                                    ChildCollection.Remove(TargetNode);
-                                }
-                                else if (TargetNode.HasChildren)
-                                {
-                                    TreeViewNode NewNode = new TreeViewNode()
-                                    {
-                                        Content = (StorageFolder)RenameItem.StorageItem,
-                                        HasUnrealizedChildren = false,
-                                        IsExpanded = true
-                                    };
-
-                                    foreach (var SubNode in TargetNode.Children)
-                                    {
-                                        NewNode.Children.Add(SubNode);
-                                    }
-
-                                    ChildCollection.Insert(index, NewNode);
-                                    ChildCollection.Remove(TargetNode);
-                                    await NewNode.UpdateAllSubNodeFolder().ConfigureAwait(true);
-                                }
-                                else
-                                {
-                                    ChildCollection.Insert(index, new TreeViewNode()
-                                    {
-                                        Content = (StorageFolder)RenameItem.StorageItem,
-                                        HasUnrealizedChildren = false,
-                                        IsExpanded = false
-                                    });
-                                    ChildCollection.Remove(TargetNode);
-                                }
                             }
                             else
                             {
-                                await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
+                                if (FileControlInstance.CurrentNode.IsExpanded)
+                                {
+                                    IList<TreeViewNode> ChildCollection = FileControlInstance.CurrentNode.Children;
+                                    TreeViewNode TargetNode = FileControlInstance.CurrentNode.Children.Where((Fold) => (Fold.Content as StorageFolder).Name == RenameItem.Name).FirstOrDefault();
+                                    int index = FileControlInstance.CurrentNode.Children.IndexOf(TargetNode);
+
+                                    await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
+
+                                    if (TargetNode.HasUnrealizedChildren)
+                                    {
+                                        ChildCollection.Insert(index, new TreeViewNode()
+                                        {
+                                            Content = (StorageFolder)RenameItem.StorageItem,
+                                            HasUnrealizedChildren = true,
+                                            IsExpanded = false
+                                        });
+                                        ChildCollection.Remove(TargetNode);
+                                    }
+                                    else if (TargetNode.HasChildren)
+                                    {
+                                        TreeViewNode NewNode = new TreeViewNode()
+                                        {
+                                            Content = (StorageFolder)RenameItem.StorageItem,
+                                            HasUnrealizedChildren = false,
+                                            IsExpanded = true
+                                        };
+
+                                        foreach (var SubNode in TargetNode.Children)
+                                        {
+                                            NewNode.Children.Add(SubNode);
+                                        }
+
+                                        ChildCollection.Insert(index, NewNode);
+                                        ChildCollection.Remove(TargetNode);
+                                        await NewNode.UpdateAllSubNodeFolder().ConfigureAwait(true);
+                                    }
+                                    else
+                                    {
+                                        ChildCollection.Insert(index, new TreeViewNode()
+                                        {
+                                            Content = (StorageFolder)RenameItem.StorageItem,
+                                            HasUnrealizedChildren = false,
+                                            IsExpanded = false
+                                        });
+                                        ChildCollection.Remove(TargetNode);
+                                    }
+                                }
+                                else
+                                {
+                                    await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
+                                }
                             }
                         }
                         catch (UnauthorizedAccessException)
@@ -1388,7 +1423,15 @@ namespace FileManager
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
-                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+
+                if (SettingControl.IsDetachTreeViewAndPresenter)
+                {
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                }
+                else
+                {
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+                }
                 return;
             }
 
@@ -1431,66 +1474,63 @@ namespace FileManager
 
         private void GridViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            lock (SyncRootProvider.SyncRoot)
+            if (SelectedItem is FileSystemStorageItem Item)
             {
-                if (SelectedItem is FileSystemStorageItem Item)
+                if (Item.StorageItem.IsOfType(StorageItemTypes.File))
                 {
-                    if (Item.StorageItem.IsOfType(StorageItemTypes.File))
-                    {
-                        Transcode.IsEnabled = false;
-                        VideoEdit.IsEnabled = false;
-                        VideoMerge.IsEnabled = false;
-                        ChooseOtherApp.IsEnabled = true;
-                        RunWithSystemAuthority.IsEnabled = false;
+                    Transcode.IsEnabled = false;
+                    VideoEdit.IsEnabled = false;
+                    VideoMerge.IsEnabled = false;
+                    ChooseOtherApp.IsEnabled = true;
+                    RunWithSystemAuthority.IsEnabled = false;
 
-                        Zip.Label = Globalization.Language == LanguageEnum.Chinese
-                                    ? "Zip压缩"
-                                    : "Zip Compression";
-                        switch (Item.Type)
-                        {
-                            case ".zip":
-                                {
-                                    Zip.Label = Globalization.Language == LanguageEnum.Chinese
-                                                ? "Zip解压"
-                                                : "Zip Decompression";
-                                    break;
-                                }
-                            case ".mp4":
-                            case ".wmv":
-                                {
-                                    VideoEdit.IsEnabled = true;
-                                    Transcode.IsEnabled = true;
-                                    VideoMerge.IsEnabled = true;
-                                    break;
-                                }
-                            case ".mkv":
-                            case ".m4a":
-                            case ".mov":
-                                {
-                                    Transcode.IsEnabled = true;
-                                    break;
-                                }
-                            case ".mp3":
-                            case ".flac":
-                            case ".wma":
-                            case ".alac":
-                            case ".png":
-                            case ".bmp":
-                            case ".jpg":
-                            case ".heic":
-                            case ".gif":
-                            case ".tiff":
-                                {
-                                    Transcode.IsEnabled = true;
-                                    break;
-                                }
-                            case ".exe":
-                                {
-                                    ChooseOtherApp.IsEnabled = false;
-                                    RunWithSystemAuthority.IsEnabled = true;
-                                    break;
-                                }
-                        }
+                    Zip.Label = Globalization.Language == LanguageEnum.Chinese
+                                ? "Zip压缩"
+                                : "Zip Compression";
+                    switch (Item.Type)
+                    {
+                        case ".zip":
+                            {
+                                Zip.Label = Globalization.Language == LanguageEnum.Chinese
+                                            ? "Zip解压"
+                                            : "Zip Decompression";
+                                break;
+                            }
+                        case ".mp4":
+                        case ".wmv":
+                            {
+                                VideoEdit.IsEnabled = true;
+                                Transcode.IsEnabled = true;
+                                VideoMerge.IsEnabled = true;
+                                break;
+                            }
+                        case ".mkv":
+                        case ".m4a":
+                        case ".mov":
+                            {
+                                Transcode.IsEnabled = true;
+                                break;
+                            }
+                        case ".mp3":
+                        case ".flac":
+                        case ".wma":
+                        case ".alac":
+                        case ".png":
+                        case ".bmp":
+                        case ".jpg":
+                        case ".heic":
+                        case ".gif":
+                        case ".tiff":
+                            {
+                                Transcode.IsEnabled = true;
+                                break;
+                            }
+                        case ".exe":
+                            {
+                                ChooseOtherApp.IsEnabled = false;
+                                RunWithSystemAuthority.IsEnabled = true;
+                                break;
+                            }
                     }
                 }
             }
@@ -1576,7 +1616,15 @@ namespace FileManager
                     };
                     _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                 }
-                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+
+                if (SettingControl.IsDetachTreeViewAndPresenter)
+                {
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                }
+                else
+                {
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+                }
                 return;
             }
 
@@ -1612,7 +1660,15 @@ namespace FileManager
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
-                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+
+                if (SettingControl.IsDetachTreeViewAndPresenter)
+                {
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                }
+                else
+                {
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+                }
                 return;
             }
 
@@ -1620,18 +1676,21 @@ namespace FileManager
             {
                 if ((await UnZipAsync(Item).ConfigureAwait(true)) is StorageFolder NewFolder)
                 {
-                    TreeViewNode CurrentNode = null;
-                    if (FileControlInstance.CurrentNode.Children.All((Node) => (Node.Content as StorageFolder).Name != NewFolder.Name))
+                    if (FileCollection.Where((Item) => Item.StorageItem.IsOfType(StorageItemTypes.Folder)).All((Folder) => Folder.Name != NewFolder.Name))
                     {
                         FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
-                        if (FileControlInstance.CurrentNode.IsExpanded || !FileControlInstance.CurrentNode.HasChildren)
+
+                        if (!SettingControl.IsDetachTreeViewAndPresenter)
                         {
-                            CurrentNode = new TreeViewNode
+                            if (FileControlInstance.CurrentNode.IsExpanded || !FileControlInstance.CurrentNode.HasChildren)
                             {
-                                Content = NewFolder,
-                                HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                            };
-                            FileControlInstance.CurrentNode.Children.Add(CurrentNode);
+                                TreeViewNode CurrentNode = new TreeViewNode
+                                {
+                                    Content = NewFolder,
+                                    HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                };
+                                FileControlInstance.CurrentNode.Children.Add(CurrentNode);
+                            }
                         }
                     }
                 }
@@ -2258,7 +2317,15 @@ namespace FileManager
                     };
                     _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                 }
-                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+
+                if (SettingControl.IsDetachTreeViewAndPresenter)
+                {
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                }
+                else
+                {
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+                }
                 return;
             }
 
@@ -2294,7 +2361,15 @@ namespace FileManager
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
-                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+
+                if (SettingControl.IsDetachTreeViewAndPresenter)
+                {
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                }
+                else
+                {
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+                }
                 return;
             }
 
@@ -2342,11 +2417,11 @@ namespace FileManager
 
             if (UseGridOrList)
             {
-                QRTeachTip.Target = GridViewControl.ContainerFromItem(Item) as GridViewItem;
+                QRTeachTip.Target = GridViewControl.ContainerFromItem(SelectedItem) as GridViewItem;
             }
             else
             {
-                QRTeachTip.Target = ListViewControl.ContainerFromItem(Item) as ListViewItem;
+                QRTeachTip.Target = ListViewControl.ContainerFromItem(SelectedItem) as ListViewItem;
             }
 
             QRTeachTip.IsOpen = true;
@@ -2424,7 +2499,7 @@ namespace FileManager
                 return;
             }
 
-            if (FileControlInstance.CurrentNode == FileControlInstance.FolderTree.RootNodes.FirstOrDefault())
+            if (FileControlInstance.CurrentFolder.Path == Path.GetPathRoot(FileControlInstance.CurrentFolder.Path))
             {
                 if (TabViewContainer.ThisPage.HardDeviceList.FirstOrDefault((Device) => Device.Name == FileControlInstance.CurrentFolder.DisplayName) is HardDeviceInfo Info)
                 {
@@ -2487,7 +2562,15 @@ namespace FileManager
                     };
                     _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                 }
-                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+
+                if (SettingControl.IsDetachTreeViewAndPresenter)
+                {
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                }
+                else
+                {
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+                }
                 return;
             }
 
@@ -2553,7 +2636,7 @@ namespace FileManager
 
             try
             {
-                var NewFolder = Globalization.Language == LanguageEnum.Chinese
+                StorageFolder NewFolder = Globalization.Language == LanguageEnum.Chinese
                     ? await FileControlInstance.CurrentFolder.CreateFolderAsync("新建文件夹", CreationCollisionOption.GenerateUniqueName)
                     : await FileControlInstance.CurrentFolder.CreateFolderAsync("New folder", CreationCollisionOption.GenerateUniqueName);
 
@@ -2563,13 +2646,16 @@ namespace FileManager
 
                 FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
 
-                if (FileControlInstance.CurrentNode.IsExpanded || !FileControlInstance.CurrentNode.HasChildren)
+                if (!SettingControl.IsDetachTreeViewAndPresenter)
                 {
-                    FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                    if (FileControlInstance.CurrentNode.IsExpanded || !FileControlInstance.CurrentNode.HasChildren)
                     {
-                        Content = NewFolder,
-                        HasUnrealizedChildren = false
-                    });
+                        FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                        {
+                            Content = NewFolder,
+                            HasUnrealizedChildren = false
+                        });
+                    }
                 }
             }
             catch (UnauthorizedAccessException)
@@ -2639,7 +2725,15 @@ namespace FileManager
                         };
                         _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
-                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+
+                    if (SettingControl.IsDetachTreeViewAndPresenter)
+                    {
+                        await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+                    }
                     return;
                 }
 
@@ -2685,7 +2779,14 @@ namespace FileManager
                 return;
             }
 
-            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+            if (SettingControl.IsDetachTreeViewAndPresenter)
+            {
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+            }
+            else
+            {
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+            }
         }
 
         private void GridViewControl_ItemClick(object sender, ItemClickEventArgs e)
@@ -2834,7 +2935,7 @@ namespace FileManager
                                                     {
                                                         Title = "提示",
                                                         Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
-                                                        PrimaryButtonText = "默认应用打开",
+                                                        PrimaryButtonText = "默认应用",
                                                         CloseButtonText = "取消"
                                                     };
                                                     if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
@@ -2855,7 +2956,7 @@ namespace FileManager
                                                     {
                                                         Title = "Tips",
                                                         Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
-                                                        PrimaryButtonText = "Open with default app",
+                                                        PrimaryButtonText = "Default app",
                                                         CloseButtonText = "Cancel"
                                                     };
                                                     if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
@@ -2901,28 +3002,44 @@ namespace FileManager
                                 };
                                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
                             }
-                            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+
+                            if (SettingControl.IsDetachTreeViewAndPresenter)
+                            {
+                                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+                            }
+
                             Interlocked.Exchange(ref TabTarget, null);
                             return;
                         }
 
-                        if (!FileControlInstance.CurrentNode.IsExpanded)
+                        if(SettingControl.IsDetachTreeViewAndPresenter)
                         {
-                            FileControlInstance.CurrentNode.IsExpanded = true;
+                            await FileControlInstance.DisplayItemsInFolder(Folder).ConfigureAwait(true);
                         }
-
-                        while (true)
+                        else
                         {
-                            TreeViewNode TargetNode = FileControlInstance.CurrentNode?.Children.Where((Node) => (Node.Content as StorageFolder).Name == TabTarget.Name).FirstOrDefault();
-                            if (TargetNode != null)
+                            if (!FileControlInstance.CurrentNode.IsExpanded)
                             {
-                                FileControlInstance.FolderTree.SelectNode(TargetNode);
-                                await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
-                                break;
+                                FileControlInstance.CurrentNode.IsExpanded = true;
                             }
-                            else
+
+                            while (true)
                             {
-                                await Task.Delay(200).ConfigureAwait(true);
+                                TreeViewNode TargetNode = FileControlInstance.CurrentNode?.Children.Where((Node) => (Node.Content as StorageFolder).Name == TabTarget.Name).FirstOrDefault();
+                                if (TargetNode != null)
+                                {
+                                    FileControlInstance.FolderTree.SelectNode(TargetNode);
+                                    await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
+                                    break;
+                                }
+                                else
+                                {
+                                    await Task.Delay(200).ConfigureAwait(true);
+                                }
                             }
                         }
                     }
@@ -3040,7 +3157,7 @@ namespace FileManager
                             {
                                 Title = "提示",
                                 Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
-                                PrimaryButtonText = "默认应用打开",
+                                PrimaryButtonText = "默认应用",
                                 CloseButtonText = "取消"
                             };
                             if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
@@ -3061,7 +3178,7 @@ namespace FileManager
                             {
                                 Title = "Tips",
                                 Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
-                                PrimaryButtonText = "Open with default app",
+                                PrimaryButtonText = "Default app",
                                 CloseButtonText = "Cancel"
                             };
                             if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
@@ -3098,19 +3215,19 @@ namespace FileManager
         private async void ListHeaderName_Click(object sender, RoutedEventArgs e)
         {
             SortMap["System.ItemNameDisplay"] = !SortMap["System.ItemNameDisplay"];
-            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.ItemNameDisplay", SortMap["System.ItemNameDisplay"]) }).ConfigureAwait(false);
+            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.ItemNameDisplay", SortMap["System.ItemNameDisplay"]) }).ConfigureAwait(false);
         }
 
         private async void ListHeaderModifiedTime_Click(object sender, RoutedEventArgs e)
         {
             SortMap["System.DateModified"] = !SortMap["System.DateModified"];
-            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.DateModified", SortMap["System.DateModified"]) }).ConfigureAwait(false);
+            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.DateModified", SortMap["System.DateModified"]) }).ConfigureAwait(false);
         }
 
         private async void ListHeaderSize_Click(object sender, RoutedEventArgs e)
         {
             SortMap["System.Size"] = !SortMap["System.Size"];
-            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.Size", SortMap["System.Size"]) }).ConfigureAwait(false);
+            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.Size", SortMap["System.Size"]) }).ConfigureAwait(false);
         }
 
         private void QRTeachTip_Closing(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosingEventArgs args)
@@ -3203,7 +3320,15 @@ namespace FileManager
                     };
                     _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                 }
-                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+
+                if (SettingControl.IsDetachTreeViewAndPresenter)
+                {
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                }
+                else
+                {
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+                }
                 return;
             }
 
@@ -3259,6 +3384,7 @@ namespace FileManager
                 e.AcceptedOperation = DataPackageOperation.Move;
                 e.DragUIOverride.Caption = $"移动到 {((sender as SelectorItem).Content as FileSystemStorageItem).DisplayName}";
             }
+
             e.DragUIOverride.IsContentVisible = true;
             e.DragUIOverride.IsCaptionVisible = true;
         }
@@ -3334,7 +3460,7 @@ namespace FileManager
                                                 StorageFolder NewFolder = await ((StorageFolder)Target.StorageItem).CreateFolderAsync(Item.Name, CreationCollisionOption.OpenIfExists);
                                                 await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
 
-                                                if (FileControlInstance.CurrentNode.IsExpanded)
+                                                if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
                                                 {
                                                     TreeViewNode TargetNode = FileControlInstance.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as StorageFolder).Name == Target.Name);
                                                     if (TargetNode.IsExpanded || !TargetNode.HasChildren)
@@ -3482,7 +3608,7 @@ namespace FileManager
                                                 await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
                                                 FileCollection.Remove(FileCollection.FirstOrDefault((It) => It.StorageItem == Item));
 
-                                                if (FileControlInstance.CurrentNode.IsExpanded)
+                                                if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
                                                 {
                                                     FileControlInstance.CurrentNode.Children.Remove(FileControlInstance.CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == Item.Name).FirstOrDefault());
 

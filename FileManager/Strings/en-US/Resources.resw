@@ -935,13 +935,13 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Like the app</value>
   </data>
   <data name="SettingOpenLeftArea.Header" xml:space="preserve">
-    <value>Sidebar switch</value>
+    <value>Sidebar</value>
   </data>
   <data name="SettingOpenLeftArea.OffContent" xml:space="preserve">
-    <value>Off</value>
+    <value>Hide</value>
   </data>
   <data name="SettingOpenLeftArea.OnContent" xml:space="preserve">
-    <value>On</value>
+    <value>Show</value>
   </data>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>Other</value>
@@ -1419,5 +1419,14 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="ZipDialog.CloseButtonText" xml:space="preserve">
     <value>Cancel</value>
+  </data>
+  <data name="SettingTreeViewDetach.Header" xml:space="preserve">
+    <value>Folder directory</value>
+  </data>
+  <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
+    <value>Hide</value>
+  </data>
+  <data name="SettingTreeViewDetach.OnContent" xml:space="preserve">
+    <value>Show</value>
   </data>
 </root>

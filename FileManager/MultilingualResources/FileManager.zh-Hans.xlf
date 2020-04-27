@@ -1199,16 +1199,16 @@
           <target state="translated">双击</target>
         </trans-unit>
         <trans-unit id="SettingOpenLeftArea.Header" translate="yes" xml:space="preserve">
-          <source>Sidebar switch</source>
-          <target state="translated">侧边栏开关</target>
+          <source>Sidebar</source>
+          <target state="translated">侧边栏</target>
         </trans-unit>
         <trans-unit id="SettingOpenLeftArea.OffContent" translate="yes" xml:space="preserve">
-          <source>Off</source>
-          <target state="translated">关闭</target>
+          <source>Hide</source>
+          <target state="translated">隐藏</target>
         </trans-unit>
         <trans-unit id="SettingOpenLeftArea.OnContent" translate="yes" xml:space="preserve">
-          <source>On</source>
-          <target state="translated">开启</target>
+          <source>Show</source>
+          <target state="translated">启用</target>
         </trans-unit>
         <trans-unit id="FeedBackAgainstText.Text" translate="yes" xml:space="preserve">
           <source>Against</source>
@@ -1743,6 +1743,18 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="AttributeExtraData.Text" translate="yes" xml:space="preserve">
           <source>Related Info</source>
           <target state="translated">相关信息</target>
+        </trans-unit>
+        <trans-unit id="SettingTreeViewDetach.Header" translate="yes" xml:space="preserve">
+          <source>Folder directory</source>
+          <target state="translated">文件夹目录</target>
+        </trans-unit>
+        <trans-unit id="SettingTreeViewDetach.OffContent" translate="yes" xml:space="preserve">
+          <source>Hide</source>
+          <target state="translated">隐藏</target>
+        </trans-unit>
+        <trans-unit id="SettingTreeViewDetach.OnContent" translate="yes" xml:space="preserve">
+          <source>Show</source>
+          <target state="translated">启用</target>
         </trans-unit>
       </group>
     </body>

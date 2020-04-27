@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -23,7 +24,7 @@ using TabViewTabCloseRequestedEventArgs = Microsoft.UI.Xaml.Controls.TabViewTabC
 
 namespace FileManager
 {
-    public sealed partial class TabViewContainer : Page
+    public sealed partial class TabViewContainer : Page, INotifyPropertyChanged
     {
         private int LockResource = 0;
 
@@ -43,6 +44,69 @@ namespace FileManager
         public Dictionary<ThisPC, FileControl> TFInstanceContainer { get; private set; } = new Dictionary<ThisPC, FileControl>();
 
         public static TabViewContainer ThisPage { get; private set; }
+
+        public GridLength LeftSideLength
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
+                {
+                    return Enable ? new GridLength(2.5, GridUnitType.Star) : new GridLength(0);
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
+
+                    return new GridLength(2.5, GridUnitType.Star);
+                }
+            }
+            set
+            {
+                if (value.Value == 0)
+                {
+                    ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = false;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
+                }
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LeftSideLength)));
+            }
+        }
+
+        public GridLength TreeViewLength
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] is bool Enable)
+                {
+                    return Enable ? new GridLength(0) : new GridLength(2, GridUnitType.Star);
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = false;
+                    return new GridLength(2, GridUnitType.Star);
+                }
+            }
+            set
+            {
+                if (value.Value == 0)
+                {
+                    ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = true;
+                    SettingControl.IsDetachTreeViewAndPresenter = true;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = false;
+                    SettingControl.IsDetachTreeViewAndPresenter = false;
+                }
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TreeViewLength)));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public TabViewContainer()
         {

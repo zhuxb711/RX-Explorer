@@ -907,13 +907,13 @@
     <value>双击</value>
   </data>
   <data name="SettingOpenLeftArea.Header" xml:space="preserve">
-    <value>侧边栏开关</value>
+    <value>侧边栏</value>
   </data>
   <data name="SettingOpenLeftArea.OffContent" xml:space="preserve">
-    <value>关闭</value>
+    <value>隐藏</value>
   </data>
   <data name="SettingOpenLeftArea.OnContent" xml:space="preserve">
-    <value>开启</value>
+    <value>启用</value>
   </data>
   <data name="FeedBackAgainstText.Text" xml:space="preserve">
     <value>反对</value>
@@ -1314,5 +1314,14 @@
   </data>
   <data name="AttributeExtraData.Text" xml:space="preserve">
     <value>相关信息</value>
+  </data>
+  <data name="SettingTreeViewDetach.Header" xml:space="preserve">
+    <value>文件夹目录</value>
+  </data>
+  <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
+    <value>隐藏</value>
+  </data>
+  <data name="SettingTreeViewDetach.OnContent" xml:space="preserve">
+    <value>启用</value>
   </data>
 </root>

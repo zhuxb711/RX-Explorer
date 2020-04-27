@@ -2,7 +2,6 @@
 using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -16,6 +15,7 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.System.Profile;
+using Windows.UI.Core;
 using Windows.UI.Core.Preview;
 using Windows.UI.Notifications;
 using Windows.UI.Shell;
@@ -27,7 +27,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace FileManager
 {
-    public sealed partial class MainPage : Page, INotifyPropertyChanged
+    public sealed partial class MainPage : Page
     {
         public static MainPage ThisPage { get; private set; }
 
@@ -41,38 +41,6 @@ namespace FileManager
 
         public bool IsAnyTaskRunning { get; set; }
 
-        public GridLength LeftSideLength
-        {
-            get
-            {
-                if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
-                {
-                    return Enable ? new GridLength(2.5, GridUnitType.Star) : new GridLength(0);
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
-
-                    return new GridLength(2.5, GridUnitType.Star);
-                }
-            }
-            set
-            {
-                if (value.Value == 0)
-                {
-                    ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = false;
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
-                }
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LeftSideLength)));
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public MainPage()
         {
             InitializeComponent();
@@ -82,7 +50,7 @@ namespace FileManager
             Application.Current.EnteredBackground += Current_EnteredBackground;
             Application.Current.LeavingBackground += Current_LeavingBackground;
             SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += MainPage_CloseRequested;
-
+            SystemNavigationManager.GetForCurrentView().BackRequested += MainPage_BackRequested;
             try
             {
                 ToastNotificationManager.History.Clear();
@@ -94,6 +62,12 @@ namespace FileManager
 #if DEBUG
             AppName.Text += " (Debug 模式)";
 #endif
+        }
+
+        private void MainPage_BackRequested(object sender, BackRequestedEventArgs e)
+        {
+            TabViewContainer.GoBack();
+            e.Handled = true;
         }
 
         private void Current_LeavingBackground(object sender, LeavingBackgroundEventArgs e)
@@ -265,6 +239,11 @@ namespace FileManager
                 else
                 {
                     ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = true;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] is bool IsDetach)
+                {
+                    SettingControl.IsDetachTreeViewAndPresenter = IsDetach;
                 }
 
                 if (Globalization.Language == LanguageEnum.Chinese)

@@ -7,7 +7,7 @@
       xmlns:controls="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d"
       RequestedTheme="{x:Bind local:AppThemeController.Current.Theme,Mode=OneWay}"
-      Background="{x:Bind local:BackgroundController.Current.BackgroundBrush,Mode=TwoWay}">
+      Background="{x:Bind local:BackgroundController.Current.BackgroundBrush,Mode=OneWay}">
 
     <Page.Resources>
         <controls:TeachingTip x:Name="PinTip"

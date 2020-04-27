@@ -36,6 +36,8 @@ namespace FileManager
 
         public static bool IsDoubleClickEnable { get; set; } = true;
 
+        public static bool IsDetachTreeViewAndPresenter { get; set; }
+
         private int EnterAndExitLock = 0;
 
         public bool IsOpened { get; private set; } = false;
@@ -188,6 +190,11 @@ namespace FileManager
             if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
             {
                 OpenLeftArea.IsOn = Enable;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] is bool IsDetach)
+            {
+                TreeViewDetach.IsOn = IsDetach;
             }
 
             if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)
@@ -1059,7 +1066,7 @@ namespace FileManager
 
         private void OpenLeftArea_Toggled(object sender, RoutedEventArgs e)
         {
-            MainPage.ThisPage.LeftSideLength = OpenLeftArea.IsOn ? new GridLength(300) : new GridLength(0);
+            TabViewContainer.ThisPage.LeftSideLength = OpenLeftArea.IsOn ? new GridLength(300) : new GridLength(0);
         }
 
         private void FolderOpenMethod_Toggled(object sender, RoutedEventArgs e)
@@ -1303,13 +1310,27 @@ namespace FileManager
         private void SolidColor_White_Checked(object sender, RoutedEventArgs e)
         {
             BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: Colors.White);
-            CustomFontColor.IsOn = true;
+            if(CustomFontColor.IsOn)
+            {
+                AppThemeController.Current.ChangeThemeTo(ElementTheme.Light);
+            }
+            else
+            {
+                CustomFontColor.IsOn = true;
+            }
         }
 
         private void SolidColor_Black_Checked(object sender, RoutedEventArgs e)
         {
             BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: Colors.Black);
-            CustomFontColor.IsOn = false;
+            if (CustomFontColor.IsOn)
+            {
+                CustomFontColor.IsOn = false;
+            }
+            else
+            {
+                AppThemeController.Current.ChangeThemeTo(ElementTheme.Dark);
+            }
         }
 
         private async void FeedBackNotice_Click(object sender, RoutedEventArgs e)
@@ -1370,6 +1391,11 @@ namespace FileManager
                     }
                 }
             }
+        }
+
+        private void TreeViewDetach_Toggled(object sender, RoutedEventArgs e)
+        {
+            TabViewContainer.ThisPage.TreeViewLength = TreeViewDetach.IsOn ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
         }
     }
 }

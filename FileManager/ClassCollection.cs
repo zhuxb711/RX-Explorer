@@ -1842,22 +1842,37 @@ namespace FileManager
         /// <summary>
         /// 检查文件是否存在于物理驱动器上
         /// </summary>
-        /// <param name="File"></param>
+        /// <param name="Item">存储对象</param>
         /// <returns></returns>
-        public static async Task<bool> CheckExist(this StorageFile File)
+        public static async Task<bool> CheckExist(this IStorageItem Item)
         {
-            if (File == null)
+            if (Item == null)
             {
-                throw new ArgumentNullException(nameof(File), "Parameter could not be null");
+                throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
             }
 
-            try
+            if (Item is StorageFile File)
             {
-                if ((await File.GetParentAsync()) is StorageFolder ParentFolder)
+                try
                 {
-                    return (await ParentFolder.TryGetItemAsync(File.Name)) != null;
+                    if ((await File.GetParentAsync()) is StorageFolder ParentFolder)
+                    {
+                        return (await ParentFolder.TryGetItemAsync(File.Name)) != null;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            _ = await StorageFile.GetFileFromPathAsync(File.Path);
+                            return true;
+                        }
+                        catch (Exception)
+                        {
+                            return false;
+                        }
+                    }
                 }
-                else
+                catch (Exception)
                 {
                     try
                     {
@@ -1870,39 +1885,28 @@ namespace FileManager
                     }
                 }
             }
-            catch (Exception)
+            else if(Item is StorageFolder Folder)
             {
                 try
                 {
-                    _ = await StorageFile.GetFileFromPathAsync(File.Path);
-                    return true;
+                    if ((await Folder.GetParentAsync()) is StorageFolder ParenetFolder)
+                    {
+                        return (await ParenetFolder.TryGetItemAsync(Folder.Name)) != null;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            _ = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
+                            return true;
+                        }
+                        catch (Exception)
+                        {
+                            return false;
+                        }
+                    }
                 }
                 catch (Exception)
-                {
-                    return false;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 检查文件夹是否存在于物理驱动器上
-        /// </summary>
-        /// <param name="Folder"></param>
-        /// <returns></returns>
-        public static async Task<bool> CheckExist(this StorageFolder Folder)
-        {
-            if (Folder == null)
-            {
-                throw new ArgumentNullException(nameof(Folder), "Parameter could not be null");
-            }
-
-            try
-            {
-                if ((await Folder.GetParentAsync()) is StorageFolder ParenetFolder)
-                {
-                    return (await ParenetFolder.TryGetItemAsync(Folder.Name)) != null;
-                }
-                else
                 {
                     try
                     {
@@ -1915,17 +1919,95 @@ namespace FileManager
                     }
                 }
             }
-            catch (Exception)
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 检查TreeViewNode中包含的存储对象是否存在于物理驱动器上
+        /// </summary>
+        /// <param name="Node">TreeViewNode</param>
+        /// <returns></returns>
+        public static async Task<bool> CheckExist(this TreeViewNode Node)
+        {
+            if (Node == null)
+            {
+                throw new ArgumentNullException(nameof(Node), "Parameter could not be null");
+            }
+
+            if (Node.Content is StorageFile File)
             {
                 try
                 {
-                    _ = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
-                    return true;
+                    if ((await File.GetParentAsync()) is StorageFolder ParentFolder)
+                    {
+                        return (await ParentFolder.TryGetItemAsync(File.Name)) != null;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            _ = await StorageFile.GetFileFromPathAsync(File.Path);
+                            return true;
+                        }
+                        catch (Exception)
+                        {
+                            return false;
+                        }
+                    }
                 }
                 catch (Exception)
                 {
-                    return false;
+                    try
+                    {
+                        _ = await StorageFile.GetFileFromPathAsync(File.Path);
+                        return true;
+                    }
+                    catch (Exception)
+                    {
+                        return false;
+                    }
                 }
+            }
+            else if (Node.Content is StorageFolder Folder)
+            {
+                try
+                {
+                    if ((await Folder.GetParentAsync()) is StorageFolder ParenetFolder)
+                    {
+                        return (await ParenetFolder.TryGetItemAsync(Folder.Name)) != null;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            _ = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
+                            return true;
+                        }
+                        catch (Exception)
+                        {
+                            return false;
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    try
+                    {
+                        _ = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
+                        return true;
+                    }
+                    catch (Exception)
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -3676,10 +3758,6 @@ namespace FileManager
                         }
                 }
             }
-            set
-            {
-
-            }
         }
 
         private static BackgroundController Instance;
@@ -3804,7 +3882,7 @@ namespace FileManager
         {
             get
             {
-                return 1 - (double)AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintOpacityProperty);
+                return 1 - Convert.ToDouble(AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintOpacityProperty));
             }
             set
             {
@@ -3820,7 +3898,7 @@ namespace FileManager
         {
             get
             {
-                return 1 - ((double?)AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty)).GetValueOrDefault();
+                return 1 - Convert.ToDouble(AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty));
             }
             set
             {
@@ -3903,6 +3981,7 @@ namespace FileManager
                     }
                 default:
                     {
+                        AppThemeController.Current.ChangeThemeTo(ElementTheme.Dark);
                         break;
                     }
             }
@@ -6322,4 +6401,31 @@ namespace FileManager
         public static bool Windows10_1903 => ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 8);
     }
     #endregion
+
+    public sealed class SpliterConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is GridLength Length)
+            {
+                if(Length.Value==0)
+                {
+                    return new GridLength(0);
+                }
+                else
+                {
+                    return new GridLength(10, GridUnitType.Pixel);
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

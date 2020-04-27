@@ -149,7 +149,7 @@
           PointerPressed="Grid_PointerPressed">
         <Grid.ColumnDefinitions>
             <ColumnDefinition MaxWidth="300"
-                              Width="{x:Bind local:MainPage.ThisPage.LeftSideLength,Mode=OneWay}" />
+                              Width="{x:Bind local:TabViewContainer.ThisPage.LeftSideLength,Mode=OneWay}" />
             <ColumnDefinition Width="5*" />
         </Grid.ColumnDefinitions>
         <Grid Margin="10,4,10,10">
