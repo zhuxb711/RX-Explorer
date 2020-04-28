@@ -2,6 +2,7 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:local="using:FileManager"
+      xmlns:Cls="using:FileManager.Class"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
@@ -11,7 +12,7 @@
 
     <Page.Resources>
         <DataTemplate x:Name="AddDataTemplate"
-                      x:DataType="local:QuickStartItem">
+                      x:DataType="Cls:QuickStartItem">
             <Image VerticalAlignment="Center"
                    IsHitTestVisible="False"
                    Margin="5"
@@ -22,7 +23,7 @@
                    Stretch="Uniform" />
         </DataTemplate>
         <DataTemplate x:Name="NormalDataTemplate"
-                      x:DataType="local:QuickStartItem">
+                      x:DataType="Cls:QuickStartItem">
             <StackPanel Orientation="Vertical">
                 <Image IsHitTestVisible="False"
                        Margin="20,10,20,5"
@@ -163,7 +164,7 @@
                 <TextBlock Text="快速启动"
                            x:Uid="QuickStartTitle"
                            Margin="5"
-                           FontSize="18"/>
+                           FontSize="18" />
                 <Line X1="5"
                       Y1="0"
                       X2="260"
@@ -182,7 +183,7 @@
                       Padding="5"
                       ContextFlyout="{StaticResource AppFlyout}">
                 <GridView.ItemTemplateSelector>
-                    <local:QuickStartSelector NormalDataTemplate="{StaticResource NormalDataTemplate}"
+                    <Cls:QuickStartSelector NormalDataTemplate="{StaticResource NormalDataTemplate}"
                                               AddDataTemplate="{StaticResource AddDataTemplate}" />
                 </GridView.ItemTemplateSelector>
                 <GridView.ItemsPanel>
@@ -222,7 +223,7 @@
                       Padding="5"
                       ContextFlyout="{StaticResource WebFlyout}">
                 <GridView.ItemTemplateSelector>
-                    <local:QuickStartSelector NormalDataTemplate="{StaticResource NormalDataTemplate}"
+                    <Cls:QuickStartSelector NormalDataTemplate="{StaticResource NormalDataTemplate}"
                                               AddDataTemplate="{StaticResource AddDataTemplate}" />
                 </GridView.ItemTemplateSelector>
                 <GridView.ItemsPanel>
@@ -280,7 +281,7 @@
                               DoubleTapped="LibraryGrid_DoubleTapped">
 
                         <GridView.ItemTemplate>
-                            <DataTemplate x:DataType="local:LibraryFolder">
+                            <DataTemplate x:DataType="Cls:LibraryFolder">
                                 <StackPanel Orientation="Horizontal"
                                             Width="200"
                                             Padding="5">
@@ -362,7 +363,7 @@
                                   SelectionChanged="DeviceGrid_SelectionChanged"
                                   DoubleTapped="DeviceGrid_DoubleTapped">
                             <GridView.ItemTemplate>
-                                <DataTemplate x:DataType="local:HardDeviceInfo">
+                                <DataTemplate x:DataType="Cls:HardDeviceInfo">
                                     <StackPanel Orientation="Horizontal"
                                                 HorizontalAlignment="Center"
                                                 Padding="5">

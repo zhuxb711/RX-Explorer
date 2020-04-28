@@ -5,13 +5,14 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:local="using:FileManager"
+      xmlns:Cls="using:FileManager.Class"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       NavigationCacheMode="Required"
       mc:Ignorable="d"
       Background="Transparent">
 
     <Page.Resources>
-        <local:SpliterConverter x:Key="Converter"/>
+        <Cls:SpliterConverter x:Key="Converter"/>
 
         <Flyout x:Name="AddressExtentionFlyout"
                 Placement="BottomEdgeAlignedLeft"
@@ -50,7 +51,7 @@
             </ListView>
         </Flyout>
 
-        <local:FolderStateConverter x:Key="StateConverter" />
+        <Cls:FolderStateConverter x:Key="StateConverter" />
 
         <CommandBarFlyout Placement="RightEdgeAlignedTop"
                           x:Name="RightTabFlyout">

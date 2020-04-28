@@ -1,7 +1,8 @@
-﻿using System.IO;
+﻿using FileManager.Class;
+using System.IO;
 using Windows.UI.Xaml.Controls;
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class RenameDialog : QueueContentDialog
     {

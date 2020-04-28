@@ -1,8 +1,9 @@
-﻿using Windows.UI;
+﻿using FileManager.Class;
+using Windows.UI;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class FeedBackDialog : QueueContentDialog
     {

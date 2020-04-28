@@ -1,8 +1,9 @@
-﻿using System.Linq;
+﻿using FileManager.Class;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Windows.UI.Xaml.Controls;
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class NewFileDialog : QueueContentDialog
     {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileManager.Class;
+using System;
 using Windows.Media.Editing;
 using Windows.Media.MediaProperties;
 using Windows.Storage;
@@ -6,7 +7,7 @@ using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class VideoMergeDialog : QueueContentDialog
     {

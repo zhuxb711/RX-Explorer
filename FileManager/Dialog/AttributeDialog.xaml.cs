@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileManager.Class;
+using System;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
 using Windows.UI.Xaml;
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class AttributeDialog : QueueContentDialog, INotifyPropertyChanged
     {

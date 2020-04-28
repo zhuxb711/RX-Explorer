@@ -1,5 +1,4 @@
 ﻿using System;
-using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
 using Windows.ApplicationModel.Background;
 using Windows.Foundation.Collections;
@@ -30,11 +29,34 @@ namespace CommunicateService
 
             try
             {
-                if (args.Request.Message.ContainsKey("RX_GetExcuteInfo"))
+                if (args.Request.Message.ContainsKey("ExcuteType"))
                 {
-                    Value.Add("RX_ExcutePath", ApplicationData.Current.LocalSettings.Values["ExcutePath"]);
-                    Value.Add("RX_ExcuteParameter", ApplicationData.Current.LocalSettings.Values["ExcuteParameter"]);
-                    Value.Add("RX_ExcuteAuthority", ApplicationData.Current.LocalSettings.Values["ExcuteAuthority"]);
+                    switch (Convert.ToString(ApplicationData.Current.LocalSettings.Values["ExcuteType"]))
+                    {
+                        case "Excute_Quicklook":
+                            {
+                                Value.Add("ExcuteType", "Excute_Quicklook");
+                                Value.Add("RX_ExcutePath", ApplicationData.Current.LocalSettings.Values["ExcutePath"]);
+                                break;
+                            }
+                        case "Excute_RunExe":
+                            {
+                                Value.Add("ExcuteType", "Excute_RunExe");
+                                Value.Add("RX_ExcutePath", ApplicationData.Current.LocalSettings.Values["ExcutePath"]);
+                                Value.Add("RX_ExcuteParameter", ApplicationData.Current.LocalSettings.Values["ExcuteParameter"]);
+                                Value.Add("RX_ExcuteAuthority", ApplicationData.Current.LocalSettings.Values["ExcuteAuthority"]);
+                                break;
+                            }
+                        case "Excute_Check_QuicklookIsAvaliable":
+                            {
+                                Value.Add("ExcuteType", "Excute_Check_QuicklookIsAvaliable");
+                                break;
+                            }
+                    }
+                }
+                else if (args.Request.Message.ContainsKey("Check_QuicklookIsAvaliable_Result"))
+                {
+                    ApplicationData.Current.LocalSettings.Values["Check_QuicklookIsAvaliable_Result"] = Convert.ToString(args.Request.Message["Check_QuicklookIsAvaliable_Result"]);
                 }
                 else
                 {

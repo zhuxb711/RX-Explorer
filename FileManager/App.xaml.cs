@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileManager.Class;
+using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;

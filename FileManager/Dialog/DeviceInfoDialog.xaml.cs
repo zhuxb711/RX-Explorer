@@ -1,9 +1,10 @@
-﻿using System;
+﻿using FileManager.Class;
+using System;
 using System.IO;
 using System.Linq;
 using Windows.UI.Xaml;
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class DeviceInfoDialog : QueueContentDialog
     {

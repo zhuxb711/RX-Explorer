@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileManager.Class;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -8,7 +9,7 @@ using Windows.Storage.Streams;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class QuickStartModifiedDialog : QueueContentDialog
     {

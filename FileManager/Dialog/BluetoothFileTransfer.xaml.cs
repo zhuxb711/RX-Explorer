@@ -1,4 +1,5 @@
 ﻿using Bluetooth.Services.Obex;
+using FileManager.Class;
 using System;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -6,7 +7,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class BluetoothFileTransfer : QueueContentDialog
     {

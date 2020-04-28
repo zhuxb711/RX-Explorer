@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
+﻿using FileManager.Class;
+using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Linq;
 using System.Threading;

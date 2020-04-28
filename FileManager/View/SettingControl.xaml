@@ -1,7 +1,7 @@
 ﻿<UserControl x:Class="FileManager.SettingControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="using:FileManager"
+             xmlns:local="using:FileManager.Class"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="using:Microsoft.UI.Xaml.Controls"
@@ -84,6 +84,14 @@
                               Target="{x:Bind PreLaunchQuestion}"
                               Title="预加载技术"
                               Subtitle="启用预加载技术时，Windows将根据您的使用情况自动决定是否在系统资源足够的时候对RX文件管理器进行预加载。若RX文件管理器已提前由Windows加载，则将大幅度提高启动速度" />
+
+        <controls:TeachingTip x:Name="QuicklookTip"
+                              IsLightDismissEnabled="True"
+                              PreferredPlacement="TopRight"
+                              x:Uid="QuicklookTip"
+                              Target="{x:Bind QuicklookQuestion}"
+                              Title="QuickLook"
+                              Subtitle="QuickLook是一种方便快捷查看文件内容的辅助软件。若要启用此功能，则您必须提前安装QuickLook并确保QuickLook正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活QuickLook" />
 
         <controls:TeachingTip x:Name="FeedBackTip"
                               IsLightDismissEnabled="True"
@@ -219,6 +227,25 @@
                                       x:Uid="PreLaunchSwitch"
                                       Name="EnablePreLaunch"
                                       Toggled="EnablePreLaunch_Toggled" />
+                    </StackPanel>
+
+                    <StackPanel Margin="0,20,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="QuickLook预览"
+                                       x:Uid="QuicklookHeader" />
+                            <Viewbox Margin="10,0,0,0"
+                                     Height="15"
+                                     VerticalAlignment="Bottom">
+                                <FontIcon Glyph="&#xE9CE;"
+                                          Name="QuicklookQuestion"
+                                          Tapped="QuicklookQuestion_Tapped" />
+                            </Viewbox>
+                        </StackPanel>
+                        <ToggleSwitch OnContent="启用"
+                                      OffContent="禁用"
+                                      x:Uid="EnableQuicklook"
+                                      Name="EnableQuicklook"
+                                      Toggled="EnableQuicklook_Toggled" />
                     </StackPanel>
 
                     <ComboBox Header="个性化"

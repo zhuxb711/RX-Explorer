@@ -1,8 +1,9 @@
-﻿using Windows.UI.Xaml;
+﻿using FileManager.Class;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class ZipDialog : QueueContentDialog
     {

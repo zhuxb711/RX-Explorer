@@ -1,4 +1,5 @@
 ﻿using Bluetooth.Core.Services;
+using FileManager.Class;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,7 +14,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class BluetoothUI : QueueContentDialog
     {

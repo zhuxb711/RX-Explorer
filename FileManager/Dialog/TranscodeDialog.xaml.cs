@@ -1,9 +1,10 @@
-﻿using System.IO;
+﻿using FileManager.Class;
+using System.IO;
 using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class TranscodeDialog : QueueContentDialog
     {

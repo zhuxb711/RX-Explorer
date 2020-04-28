@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FileManager.Class;
+using FileManager.Dialog;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
@@ -36,7 +38,11 @@ namespace FileManager
 
         public static bool IsDoubleClickEnable { get; set; } = true;
 
-        public static bool IsDetachTreeViewAndPresenter { get; set; }
+        public static bool IsDetachTreeViewAndPresenter { get; set; } = false;
+
+        public static bool IsQuicklookAvailable { get; set; }
+
+        public static bool IsQuicklookEnable { get; set; }
 
         private int EnterAndExitLock = 0;
 
@@ -192,11 +198,6 @@ namespace FileManager
                 OpenLeftArea.IsOn = Enable;
             }
 
-            if (ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] is bool IsDetach)
-            {
-                TreeViewDetach.IsOn = IsDetach;
-            }
-
             if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)
             {
                 FolderOpenMethod.IsOn = IsDoubleClick;
@@ -210,6 +211,15 @@ namespace FileManager
             if (AppThemeController.Current.Theme == ElementTheme.Light)
             {
                 CustomFontColor.IsOn = true;
+            }
+
+            TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
+            this.EnableQuicklook.IsEnabled = IsQuicklookAvailable;
+
+            if (ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] is bool EnableQuicklook)
+            {
+                this.EnableQuicklook.IsOn = EnableQuicklook;
+                IsQuicklookEnable = EnableQuicklook;
             }
         }
 
@@ -1396,6 +1406,25 @@ namespace FileManager
         private void TreeViewDetach_Toggled(object sender, RoutedEventArgs e)
         {
             TabViewContainer.ThisPage.TreeViewLength = TreeViewDetach.IsOn ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
+        }
+
+        private void QuicklookQuestion_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            QuicklookTip.IsOpen = true;
+        }
+
+        private void EnableQuicklook_Toggled(object sender, RoutedEventArgs e)
+        {
+            if(EnableQuicklook.IsOn)
+            {
+                IsQuicklookEnable = true;
+                ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] = true;
+            }
+            else
+            {
+                IsQuicklookEnable = false;
+                ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] = false;
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileManager.Class;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using TagLib;

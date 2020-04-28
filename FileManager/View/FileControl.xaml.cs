@@ -1,4 +1,6 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Animations;
+﻿using FileManager.Class;
+using FileManager.Dialog;
+using Microsoft.Toolkit.Uwp.UI.Animations;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -142,11 +144,9 @@ namespace FileManager
         private ManualResetEvent ExitLocker;
         private List<StorageFolder> GoAndBackRecord = new List<StorageFolder>();
         private ObservableCollection<AddressBlock> AddressButtonList = new ObservableCollection<AddressBlock>();
-        private IncrementalLoadingCollection<string> AddressExtentionList = new IncrementalLoadingCollection<string>(GetMoreFolderFunction);
+        private ObservableCollection<string> AddressExtentionList = new ObservableCollection<string>();
         private int RecordIndex = 0;
         private bool IsBackOrForwardAction = false;
-
-        private string ToDeleteFolderName;
 
         private Microsoft.UI.Xaml.Controls.TabViewItem TabItem;
 
@@ -516,13 +516,6 @@ namespace FileManager
 
         public async Task DisplayItemsInFolder(TreeViewNode Node, bool ForceRefresh = false)
         {
-            /*
-             * 同一文件夹内可能存在大量文件
-             * 因此切换不同文件夹时极有可能遍历文件夹仍未完成
-             * 此处激活取消指令，等待当前遍历结束，再开始下一次文件遍历
-             * 确保不会出现异常
-             */
-
             if (Node == null)
             {
                 throw new ArgumentNullException(nameof(Node), "Parameter could not be null");
@@ -530,11 +523,11 @@ namespace FileManager
 
             try
             {
-                if (Node.Content is StorageFolder folder)
+                if (Node.Content is StorageFolder Folder)
                 {
                     if (!ForceRefresh)
                     {
-                        if (folder.FolderRelativeId == CurrentFolder?.FolderRelativeId && Nav.CurrentSourcePageType == typeof(FilePresenter))
+                        if (Folder.FolderRelativeId == CurrentFolder?.FolderRelativeId && Nav.CurrentSourcePageType == typeof(FilePresenter))
                         {
                             IsAdding = false;
                             return;
@@ -566,7 +559,7 @@ namespace FileManager
                         {
                             GoAndBackRecord.RemoveRange(RecordIndex + 1, GoAndBackRecord.Count - RecordIndex - 1);
                         }
-                        GoAndBackRecord.Add(folder);
+                        GoAndBackRecord.Add(Folder);
                         RecordIndex = GoAndBackRecord.Count - 1;
                     }
 
@@ -580,64 +573,16 @@ namespace FileManager
 
                     TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Clear();
 
-                    QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
-                    {
-                        FolderDepth = FolderDepth.Shallow,
-                        IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-                    };
-
-                    Options.SortOrder.Clear();
-                    Options.SortOrder.Add(new SortEntry { PropertyName = "System.ItemNameDisplay", AscendingOrder = true });
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].SortMap["System.ItemNameDisplay"] = true;
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].SortMap["System.Size"] = true;
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].SortMap["System.DateModified"] = true;
-
-                    Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.ResizeThumbnail);
-                    Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.ItemNameDisplay", "System.Size", "System.DateModified" });
-
-                    StorageItemQueryResult ItemQuery = folder.CreateItemQueryWithOptions(Options);
-
-                    IReadOnlyList<IStorageItem> FileList = null;
-                    try
-                    {
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.HasMoreItems = false;
-                        FileList = await ItemQuery.GetItemsAsync(0, 100).AsTask(CancelToken.Token).ConfigureAwait(true);
-                        await TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.SetStorageQueryResultAsync(ItemQuery).ConfigureAwait(true);
-                    }
-                    catch (TaskCanceledException)
-                    {
-                        goto FLAG;
-                    }
+                    List<FileSystemStorageItem> FileList = TabViewContainer.ThisPage.FFInstanceContainer[this].SortList(WIN_API_GETFILE.GetItemFromPath(Folder.Path), SortTarget.Name, SortDirection.Ascending);
 
                     TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = FileList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
                     for (int i = 0; i < FileList.Count && !CancelToken.IsCancellationRequested; i++)
                     {
-                        var Item = FileList[i];
-                        if (Item is StorageFile)
-                        {
-                            var Size = await Item.GetSizeDescriptionAsync().ConfigureAwait(true);
-                            var Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                            var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
-                            TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Add(new FileSystemStorageItem(FileList[i], Size, Thumbnail, ModifiedTime));
-                        }
-                        else
-                        {
-                            if (ToDeleteFolderName != Item.Name)
-                            {
-                                var Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                                var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
-                                TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Add(new FileSystemStorageItem(FileList[i], string.Empty, Thumbnail, ModifiedTime));
-                            }
-                            else
-                            {
-                                ToDeleteFolderName = null;
-                            }
-                        }
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Add(FileList[i]);
                     }
                 }
 
-            FLAG:
                 if (CancelToken.IsCancellationRequested)
                 {
                     Locker.Set();
@@ -653,7 +598,7 @@ namespace FileManager
             }
         }
 
-        public async Task DisplayItemsInFolder(StorageFolder Folder, bool ForceRefresh = false, KeyValuePair<string, bool>[] OrderByProperty = null)
+        public async Task DisplayItemsInFolder(StorageFolder Folder, bool ForceRefresh = false)
         {
 
             if (Folder == null)
@@ -710,74 +655,15 @@ namespace FileManager
 
                 TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Clear();
 
-                QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
-                {
-                    FolderDepth = FolderDepth.Shallow,
-                    IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-                };
-
-                if (OrderByProperty != null)
-                {
-                    Options.SortOrder.Clear();
-                    foreach (var Pair in OrderByProperty)
-                    {
-                        Options.SortOrder.Add(new SortEntry { PropertyName = Pair.Key, AscendingOrder = Pair.Value });
-                    }
-                }
-                else
-                {
-                    Options.SortOrder.Clear();
-                    Options.SortOrder.Add(new SortEntry { PropertyName = "System.ItemNameDisplay", AscendingOrder = true });
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].SortMap["System.ItemNameDisplay"] = true;
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].SortMap["System.Size"] = true;
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].SortMap["System.DateModified"] = true;
-                }
-
-                Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.ResizeThumbnail);
-                Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.ItemNameDisplay", "System.Size", "System.DateModified" });
-
-                StorageItemQueryResult ItemQuery = Folder.CreateItemQueryWithOptions(Options);
-
-                IReadOnlyList<IStorageItem> FileList = null;
-                try
-                {
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.HasMoreItems = false;
-                    FileList = await ItemQuery.GetItemsAsync(0, 100).AsTask(CancelToken.Token).ConfigureAwait(true);
-                    await TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.SetStorageQueryResultAsync(ItemQuery).ConfigureAwait(true);
-                }
-                catch (TaskCanceledException)
-                {
-                    goto FLAG;
-                }
+                List<FileSystemStorageItem> FileList = TabViewContainer.ThisPage.FFInstanceContainer[this].SortList(WIN_API_GETFILE.GetItemFromPath(Folder.Path), SortTarget.Name, SortDirection.Ascending);
 
                 TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = FileList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
                 for (int i = 0; i < FileList.Count && !CancelToken.IsCancellationRequested; i++)
                 {
-                    var Item = FileList[i];
-                    if (Item is StorageFile)
-                    {
-                        var Size = await Item.GetSizeDescriptionAsync().ConfigureAwait(true);
-                        var Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                        var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Add(new FileSystemStorageItem(FileList[i], Size, Thumbnail, ModifiedTime));
-                    }
-                    else
-                    {
-                        if (ToDeleteFolderName != Item.Name)
-                        {
-                            var Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                            var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
-                            TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Add(new FileSystemStorageItem(FileList[i], string.Empty, Thumbnail, ModifiedTime));
-                        }
-                        else
-                        {
-                            ToDeleteFolderName = null;
-                        }
-                    }
+                    TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Add(FileList[i]);
                 }
 
-            FLAG:
                 if (CancelToken.IsCancellationRequested)
                 {
                     Locker.Set();
@@ -857,8 +743,7 @@ namespace FileManager
                     await CurrentFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
                     await CurrentFolder.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Where((Item) => Item.RelativeId == CurrentFolder.FolderRelativeId).FirstOrDefault());
-                    ToDeleteFolderName = CurrentFolder.Name;
+                    TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Where((Item) => Item.Path == CurrentFolder.Path).FirstOrDefault());
 
                     TreeViewNode ParentNode = CurrentNode.Parent;
                     ParentNode.Children.Remove(CurrentNode);
@@ -1140,11 +1025,7 @@ namespace FileManager
                     ? await CurrentFolder.CreateFolderAsync("新建文件夹", CreationCollisionOption.GenerateUniqueName)
                     : await CurrentFolder.CreateFolderAsync("New folder", CreationCollisionOption.GenerateUniqueName);
 
-                var Size = await NewFolder.GetSizeDescriptionAsync().ConfigureAwait(true);
-                var Thumbnail = await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                var ModifiedTime = await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true);
-
-                TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
+                TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
 
                 if (CurrentNode.IsExpanded || !CurrentNode.HasChildren)
                 {
@@ -2068,18 +1949,10 @@ namespace FileManager
 
             string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(Btn.DataContext as AddressBlock) + 1).Skip(1));
             string ActualString = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
-            StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(ActualString);
 
-            QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
-            {
-                FolderDepth = FolderDepth.Shallow,
-                IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-            };
-            StorageFolderQueryResult Query = Folder.CreateFolderQueryWithOptions(Options);
+            List<FileSystemStorageItem> ItemList = WIN_API_GETFILE.GetItemFromPath(ActualString);
 
-            await AddressExtentionList.SetStorageQueryResultAsync(Query).ConfigureAwait(true);
-
-            foreach (string SubFolderName in (await Query.GetFoldersAsync(0, 20)).Select((SubFolder) => SubFolder.Name))
+            foreach (string SubFolderName in ItemList.Where((It) => It.StorageType == StorageItemTypes.Folder).Select((Item) => Item.Name))
             {
                 AddressExtentionList.Add(SubFolderName);
             }
@@ -2094,19 +1967,8 @@ namespace FileManager
             }
         }
 
-        private async static Task<IEnumerable<string>> GetMoreFolderFunction(uint Index, uint Num, StorageFolderQueryResult Query)
-        {
-            List<string> ItemList = new List<string>();
-            foreach (var Item in await Query.GetFoldersAsync(Index, Num))
-            {
-                ItemList.Add(Item.Name);
-            }
-            return ItemList;
-        }
-
         private async void AddressExtentionFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
         {
-            AddressExtentionList.HasMoreItems = false;
             AddressExtentionList.Clear();
 
             await ((sender.Target as Button).Content as FrameworkElement).Rotate(0, duration: 150).StartAsync().ConfigureAwait(false);
@@ -2121,7 +1983,10 @@ namespace FileManager
 
             if (!string.IsNullOrEmpty(e.ClickedItem.ToString()))
             {
-                string TargetPath = Path.Combine(AddressExtentionList.FolderQuery.Folder.Path, e.ClickedItem.ToString());
+                string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(AddressExtentionFlyout.Target.DataContext as AddressBlock) + 1).Skip(1));
+                string ActualString = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
+
+                string TargetPath = Path.Combine(ActualString, e.ClickedItem.ToString());
 
                 if (SettingControl.IsDetachTreeViewAndPresenter)
                 {
@@ -2431,7 +2296,7 @@ namespace FileManager
                                             }
 
                                             await File.MoveAsync(TargetFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
-                                            TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.FirstOrDefault((It) => It.StorageItem == Item));
+                                            TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.FirstOrDefault((It) => It.Path == Item.Path));
                                         }
                                         else if (Item is StorageFolder Folder)
                                         {
@@ -2444,7 +2309,7 @@ namespace FileManager
                                             StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Item.Name, CreationCollisionOption.OpenIfExists);
                                             await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
                                             await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                                            TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.FirstOrDefault((It) => It.StorageItem == Item));
+                                            TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.FirstOrDefault((It) => It.Path == Item.Path));
 
                                             if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as StorageFolder).Path))
                                             {

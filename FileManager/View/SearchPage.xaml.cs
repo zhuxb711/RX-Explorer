@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FileManager.Class;
+using FileManager.Dialog;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -13,7 +15,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
-using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace FileManager
@@ -111,11 +112,14 @@ namespace FileManager
             {
                 foreach (var Item in SearchItems)
                 {
-                    var Size = await Item.GetSizeDescriptionAsync().ConfigureAwait(true);
-                    var Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                    var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
-
-                    SearchResult.Add(new FileSystemStorageItem(Item, Size, Thumbnail, ModifiedTime));
+                    if (Item is StorageFile File)
+                    {
+                        SearchResult.Add(new FileSystemStorageItem(File, await Item.GetSizeRawDataAsync().ConfigureAwait(true), await Item.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png")), await Item.GetModifiedTimeAsync().ConfigureAwait(true)));
+                    }
+                    else if (Item is StorageFolder Folder)
+                    {
+                        SearchResult.Add(new FileSystemStorageItem(Folder, await Item.GetModifiedTimeAsync().ConfigureAwait(true)));
+                    }
                 }
             }
         }
@@ -130,11 +134,31 @@ namespace FileManager
         {
             if (SearchResultList.SelectedItem is FileSystemStorageItem RemoveFile)
             {
-                if (RemoveFile.StorageItem.IsOfType(StorageItemTypes.Folder))
+                if (RemoveFile.StorageType == StorageItemTypes.Folder)
                 {
-                    var RootNode = FileControlInstance.FolderTree.RootNodes[0];
-                    TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(RemoveFile.Path, (RootNode.Content as StorageFolder).Path)).ConfigureAwait(true);
-                    if (TargetNode == null)
+                    try
+                    {
+                        if (SettingControl.IsDetachTreeViewAndPresenter)
+                        {
+                            StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(RemoveFile.Path);
+
+                            await FileControlInstance.DisplayItemsInFolder(Folder).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            TreeViewNode TargetNode = await FindFolderLocationInTree(FileControlInstance.FolderTree.RootNodes[0], new PathAnalysis(RemoveFile.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
+                            if (TargetNode != null)
+                            {
+                                FileControlInstance.FolderTree.SelectNode(TargetNode);
+                                await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                throw new Exception();
+                            }
+                        }
+                    }
+                    catch
                     {
                         if (Globalization.Language == LanguageEnum.Chinese)
                         {
@@ -157,26 +181,25 @@ namespace FileManager
                             _ = await dialog.ShowAsync().ConfigureAwait(true);
                         }
                     }
-                    else
-                    {
-                        FileControlInstance.FolderTree.SelectNode(TargetNode);
-                        await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
-                    }
                 }
                 else
                 {
                     try
                     {
-                        _ = await StorageFile.GetFileFromPathAsync(RemoveFile.Path);
+                        StorageFile File = await StorageFile.GetFileFromPathAsync(RemoveFile.Path);
 
-                        var RootNode = FileControlInstance.FolderTree.RootNodes[0];
-                        var CurrentNode = await FindFolderLocationInTree(RootNode, new PathAnalysis((await ((StorageFile)RemoveFile.StorageItem).GetParentAsync()).Path, (RootNode.Content as StorageFolder).Path)).ConfigureAwait(true);
+                        if (SettingControl.IsDetachTreeViewAndPresenter)
+                        {
+                            await FileControlInstance.DisplayItemsInFolder(await File.GetParentAsync()).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            TreeViewNode CurrentNode = await FindFolderLocationInTree(FileControlInstance.FolderTree.RootNodes[0], new PathAnalysis((await ((StorageFile)await RemoveFile.GetStorageItem()).GetParentAsync()).Path, (FileControlInstance.FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
 
-                        var Container = FileControlInstance.FolderTree.ContainerFromNode(CurrentNode) as TreeViewItem;
-                        Container.IsSelected = true;
-                        Container.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
+                            FileControlInstance.FolderTree.SelectNode(CurrentNode);
 
-                        await FileControlInstance.DisplayItemsInFolder(CurrentNode).ConfigureAwait(false);
+                            await FileControlInstance.DisplayItemsInFolder(CurrentNode).ConfigureAwait(false);
+                        }
                     }
                     catch (FileNotFoundException)
                     {
@@ -208,7 +231,7 @@ namespace FileManager
         private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
             FileSystemStorageItem Device = SearchResultList.SelectedItems.FirstOrDefault() as FileSystemStorageItem;
-            AttributeDialog Dialog = new AttributeDialog(Device.StorageItem);
+            AttributeDialog Dialog = new AttributeDialog(await Device.GetStorageItem());
             _ = await Dialog.ShowAsync().ConfigureAwait(true);
         }
 

@@ -1,11 +1,25 @@
 ﻿*****
-###What's new in Ver.4.5.7.0
+###What's new in Ver.4.6.0.0
 
 >#####Feature update
+
+>>#####Added QuickLook preview support
+
+>>#####Added support for the back button in the lower left corner in tablet mode
+
+>>#####Add the function to hide the left file directory
 
 >>#####Add the function of dragging files / folders to the upper address navigation bar
 
 >>#####When dragging a folder / file to the top of the target folder, the corresponding folder name will be displayed
+
+>>#####Improved sorting function in "Detailed List" view
+
+>#####Performance improvement
+
+>>#####Greatly speed up the display of folder content
+
+>>#####Reduce some unnecessary file read and write operations
 
 >#####Bug fix
 
@@ -16,6 +30,12 @@
 >>#####Fixed some PC crash issues when using RX's built-in image viewer
 
 >>#####Removed some factors that may cause performance to decrease when resizing the window
+
+>>#####Resolved an issue where dragging in a folder with a large number of files may cause an exception
+
+>>#####Fixed an issue that may cause RX to crash when non-U disk devices such as mobile phones are inserted into the PC
+
+>>#####Fixed the issue that the theme will not match when switching back to other modes after switching to "pure white" mode
 
 *****
 ###What's new in Ver.4.5.4.0

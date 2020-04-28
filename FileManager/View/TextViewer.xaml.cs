@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileManager.Class;
+using System;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -25,9 +26,11 @@ namespace FileManager
             LoadingControl.IsLoading = true;
             MainPage.ThisPage.IsAnyTaskRunning = true;
 
+            IStorageItem Item = await SFile.GetStorageItem();
+
             try
             {
-                string FileText = await FileIO.ReadTextAsync(SFile.StorageItem as StorageFile);
+                string FileText = await FileIO.ReadTextAsync(Item as StorageFile);
 
                 Text.Text = FileText;
 
@@ -35,7 +38,7 @@ namespace FileManager
             }
             catch (ArgumentOutOfRangeException)
             {
-                IBuffer buffer = await FileIO.ReadBufferAsync(SFile.StorageItem as StorageFile);
+                IBuffer buffer = await FileIO.ReadBufferAsync(Item as StorageFile);
                 DataReader reader = DataReader.FromBuffer(buffer);
                 byte[] fileContent = new byte[reader.UnconsumedBufferLength];
                 reader.ReadBytes(fileContent);
@@ -75,7 +78,7 @@ namespace FileManager
 
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
-            StorageFolder Folder = await ((StorageFile)SFile.StorageItem).GetParentAsync();
+            StorageFolder Folder = await ((StorageFile)await SFile.GetStorageItem()).GetParentAsync();
             StorageFile NewFile = await Folder.CreateFileAsync(SFile.Name, CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteTextAsync(NewFile, Text.Text);
             await SFile.SizeUpdateRequested().ConfigureAwait(true);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileManager.Class;
+using System;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
@@ -12,7 +13,7 @@ using Windows.System.UserProfile;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class SystemInfoDialog : QueueContentDialog
     {

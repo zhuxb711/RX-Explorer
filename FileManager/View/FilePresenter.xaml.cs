@@ -1,7 +1,10 @@
-﻿using ICSharpCode.SharpZipLib.Zip;
+﻿using FileManager.Class;
+using FileManager.Dialog;
+using ICSharpCode.SharpZipLib.Zip;
 using OpenCV;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -32,15 +35,17 @@ namespace FileManager
 {
     public sealed partial class FilePresenter : Page
     {
-        public IncrementalLoadingCollection<FileSystemStorageItem> FileCollection { get; private set; }
-        private static IStorageItem[] CopyFiles;
-        private static IStorageItem[] CutFiles;
+        public ObservableCollection<FileSystemStorageItem> FileCollection { get; private set; }
+        private static FileSystemStorageItem[] CopyFiles;
+        private static FileSystemStorageItem[] CutFiles;
         private TreeViewNode LastNode;
-        public Dictionary<string, bool> SortMap { get; private set; } = new Dictionary<string, bool>
+
+        private Dictionary<SortTarget, SortDirection> SortMap = new Dictionary<SortTarget, SortDirection>
         {
-            {"System.ItemNameDisplay",true },
-            {"System.Size",true },
-            {"System.DateModified",true }
+            {SortTarget.Name,SortDirection.Ascending },
+            {SortTarget.Type,SortDirection.Ascending },
+            {SortTarget.ModifiedTime,SortDirection.Ascending },
+            {SortTarget.Size,SortDirection.Ascending }
         };
 
         private FileControl FileControlInstance;
@@ -177,7 +182,7 @@ namespace FileManager
         {
             InitializeComponent();
 
-            FileCollection = new IncrementalLoadingCollection<FileSystemStorageItem>(GetMoreItemsFunction);
+            FileCollection = new ObservableCollection<FileSystemStorageItem>();
             FileCollection.CollectionChanged += FileCollection_CollectionChanged;
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -244,7 +249,7 @@ namespace FileManager
             }
         }
 
-        private void Window_KeyDown(CoreWindow sender, KeyEventArgs args)
+        private async void Window_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
             var WindowInstance = CoreWindow.GetForCurrentThread();
             var CtrlState = WindowInstance.GetKeyState(VirtualKey.Control);
@@ -254,6 +259,11 @@ namespace FileManager
             {
                 switch (args.VirtualKey)
                 {
+                    case VirtualKey.Space when SelectedIndex != -1 && SettingControl.IsQuicklookAvailable && SettingControl.IsQuicklookEnable:
+                        {
+                            await FullTrustExcutorController.ViewWithQuicklook((SelectedItem as FileSystemStorageItem).Path);
+                            break;
+                        }
                     case VirtualKey.Delete:
                         {
                             Delete_Click(null, null);
@@ -344,19 +354,6 @@ namespace FileManager
             WiFiProvider?.Dispose();
         }
 
-        private async Task<IEnumerable<FileSystemStorageItem>> GetMoreItemsFunction(uint Index, uint Num, StorageItemQueryResult Query)
-        {
-            List<FileSystemStorageItem> ItemList = new List<FileSystemStorageItem>();
-            foreach (var Item in await Query.GetItemsAsync(Index, Num))
-            {
-                var Size = await Item.GetSizeDescriptionAsync().ConfigureAwait(true);
-                var Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
-                ItemList.Add(new FileSystemStorageItem(Item, Size, Thumbnail, ModifiedTime));
-            }
-            return ItemList;
-        }
-
         private void FileCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
@@ -384,7 +381,7 @@ namespace FileManager
                 CutFiles = null;
             }
 
-            CopyFiles = SelectedItems.Select((Item) => Item.StorageItem).ToArray();
+            CopyFiles = SelectedItems.ToArray();
         }
 
         private async void Paste_Click(object sender, RoutedEventArgs e)
@@ -405,10 +402,11 @@ namespace FileManager
                 bool IsSpaceError = false;
                 bool IsCaptured = false;
 
-                foreach (IStorageItem Item in CutFiles)
+                foreach (FileSystemStorageItem StorageItem in CutFiles)
                 {
                     try
                     {
+                        IStorageItem Item = await StorageItem.GetStorageItem();
                         if (Item is StorageFile File)
                         {
                             if (!await File.CheckExist().ConfigureAwait(true))
@@ -420,19 +418,19 @@ namespace FileManager
                             await File.MoveAsync(FileControlInstance.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
                             if (FileCollection.Count > 0)
                             {
-                                int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.StorageItem.IsOfType(StorageItemTypes.File)));
+                                int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.File));
                                 if (Index == -1)
                                 {
-                                    FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeDescriptionAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                    FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
                                 }
                                 else
                                 {
-                                    FileCollection.Insert(Index, new FileSystemStorageItem(File, await File.GetSizeDescriptionAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                    FileCollection.Insert(Index, new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
                                 }
                             }
                             else
                             {
-                                FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeDescriptionAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
                             }
                         }
                         else if (Item is StorageFolder Folder)
@@ -447,9 +445,9 @@ namespace FileManager
                             await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
                             await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
 
-                            if (FileCollection.Where((It) => It.StorageItem.IsOfType(StorageItemTypes.Folder)).All((Item) => Item.Name != NewFolder.Name))
+                            if (FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).All((Item) => Item.Name != NewFolder.Name))
                             {
-                                FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
                             }
 
                             if (!SettingControl.IsDetachTreeViewAndPresenter)
@@ -609,10 +607,11 @@ namespace FileManager
                 bool IsUnauthorized = false;
                 bool IsSpaceError = false;
 
-                foreach (IStorageItem Item in CopyFiles)
+                foreach (FileSystemStorageItem StorageItem in CopyFiles)
                 {
                     try
                     {
+                        IStorageItem Item = await StorageItem.GetStorageItem();
                         if (Item is StorageFile File)
                         {
                             if (!await File.CheckExist().ConfigureAwait(true))
@@ -624,19 +623,19 @@ namespace FileManager
                             StorageFile NewFile = await File.CopyAsync(FileControlInstance.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
                             if (FileCollection.Count > 0)
                             {
-                                int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.StorageItem.IsOfType(StorageItemTypes.File)));
+                                int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.File));
                                 if (Index == -1)
                                 {
-                                    FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                    FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                                 }
                                 else
                                 {
-                                    FileCollection.Insert(Index, new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                    FileCollection.Insert(Index, new FileSystemStorageItem(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                                 }
                             }
                             else
                             {
-                                FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                             }
                         }
                         else if (Item is StorageFolder Folder)
@@ -650,9 +649,9 @@ namespace FileManager
                             StorageFolder NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.OpenIfExists);
                             await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
 
-                            if (FileCollection.Where((It) => It.StorageItem.IsOfType(StorageItemTypes.Folder)).All((Item) => Item.Name != NewFolder.Name))
+                            if (FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).All((Item) => Item.Name != NewFolder.Name))
                             {
-                                FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
                             }
 
                             if (!SettingControl.IsDetachTreeViewAndPresenter)
@@ -783,7 +782,7 @@ namespace FileManager
 
             LastNode = FileControlInstance.CurrentNode;
 
-            CutFiles = SelectedItems.Select((Item) => Item.StorageItem).ToArray();
+            CutFiles = SelectedItems.ToArray();
         }
 
         private async void Delete_Click(object sender, RoutedEventArgs e)
@@ -825,7 +824,7 @@ namespace FileManager
                 {
                     await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在删除" : "Deleting").ConfigureAwait(true);
 
-                    if (ItemToDelete.StorageItem is StorageFile File)
+                    if (await ItemToDelete.GetStorageItem() is StorageFile File)
                     {
                         if (!await File.CheckExist().ConfigureAwait(true))
                         {
@@ -847,7 +846,7 @@ namespace FileManager
                             IsCaptured = true;
                         }
                     }
-                    else if (ItemToDelete.StorageItem is StorageFolder Folder)
+                    else if (await ItemToDelete.GetStorageItem() is StorageFolder Folder)
                     {
                         if (!await Folder.CheckExist().ConfigureAwait(true))
                         {
@@ -918,7 +917,7 @@ namespace FileManager
 
                     foreach (FileSystemStorageItem ItemToDelete in SelectedItems)
                     {
-                        if (ItemToDelete.StorageItem is StorageFile File)
+                        if (await ItemToDelete.GetStorageItem() is StorageFile File)
                         {
                             if (!await File.CheckExist().ConfigureAwait(true))
                             {
@@ -940,7 +939,7 @@ namespace FileManager
                                 IsCaptured = true;
                             }
                         }
-                        else if (ItemToDelete.StorageItem is StorageFolder Folder)
+                        else if (await ItemToDelete.GetStorageItem() is StorageFolder Folder)
                         {
                             if (!await Folder.CheckExist().ConfigureAwait(true))
                             {
@@ -1127,7 +1126,7 @@ namespace FileManager
 
             if (SelectedItem is FileSystemStorageItem RenameItem)
             {
-                if (RenameItem.StorageItem is StorageFile File)
+                if (await RenameItem.GetStorageItem() is StorageFile File)
                 {
                     if (!await File.CheckExist().ConfigureAwait(true))
                     {
@@ -1234,7 +1233,7 @@ namespace FileManager
                         }
                     }
                 }
-                else if (RenameItem.StorageItem is StorageFolder Folder)
+                else if (await RenameItem.GetStorageItem() is StorageFolder Folder)
                 {
                     if (!await Folder.CheckExist().ConfigureAwait(true))
                     {
@@ -1318,7 +1317,7 @@ namespace FileManager
                                     {
                                         ChildCollection.Insert(index, new TreeViewNode()
                                         {
-                                            Content = (StorageFolder)RenameItem.StorageItem,
+                                            Content = (StorageFolder)await RenameItem.GetStorageItem(),
                                             HasUnrealizedChildren = true,
                                             IsExpanded = false
                                         });
@@ -1328,7 +1327,7 @@ namespace FileManager
                                     {
                                         TreeViewNode NewNode = new TreeViewNode()
                                         {
-                                            Content = (StorageFolder)RenameItem.StorageItem,
+                                            Content = (StorageFolder)await RenameItem.GetStorageItem(),
                                             HasUnrealizedChildren = false,
                                             IsExpanded = true
                                         };
@@ -1346,7 +1345,7 @@ namespace FileManager
                                     {
                                         ChildCollection.Insert(index, new TreeViewNode()
                                         {
-                                            Content = (StorageFolder)RenameItem.StorageItem,
+                                            Content = (StorageFolder)await RenameItem.GetStorageItem(),
                                             HasUnrealizedChildren = false,
                                             IsExpanded = false
                                         });
@@ -1399,7 +1398,7 @@ namespace FileManager
         {
             Restore();
 
-            StorageFile ShareFile = (SelectedItem as FileSystemStorageItem).StorageItem as StorageFile;
+            StorageFile ShareFile = (await (SelectedItem as FileSystemStorageItem).GetStorageItem()) as StorageFile;
 
             if (!await ShareFile.CheckExist().ConfigureAwait(true))
             {
@@ -1476,7 +1475,7 @@ namespace FileManager
         {
             if (SelectedItem is FileSystemStorageItem Item)
             {
-                if (Item.StorageItem.IsOfType(StorageItemTypes.File))
+                if (Item.StorageType == StorageItemTypes.File)
                 {
                     Transcode.IsEnabled = false;
                     VideoEdit.IsEnabled = false;
@@ -1548,7 +1547,7 @@ namespace FileManager
             {
                 SelectedIndex = FileCollection.IndexOf(Context);
 
-                if (Context.StorageItem.IsOfType(StorageItemTypes.Folder))
+                if (Context.StorageType == StorageItemTypes.Folder)
                 {
                     ControlContextFlyout = FolderFlyout;
                 }
@@ -1575,7 +1574,7 @@ namespace FileManager
             {
                 SelectedIndex = FileCollection.IndexOf(Context);
 
-                if (Context.StorageItem.IsOfType(StorageItemTypes.Folder))
+                if (Context.StorageType == StorageItemTypes.Folder)
                 {
                     ControlContextFlyout = FolderFlyout;
                 }
@@ -1592,7 +1591,7 @@ namespace FileManager
         {
             Restore();
 
-            StorageFile Device = (SelectedItem as FileSystemStorageItem).StorageItem as StorageFile;
+            StorageFile Device = (await (SelectedItem as FileSystemStorageItem).GetStorageItem()) as StorageFile;
 
             if (!await Device.CheckExist().ConfigureAwait(true))
             {
@@ -1636,7 +1635,7 @@ namespace FileManager
         {
             Restore();
 
-            StorageFile Item = (SelectedItem as FileSystemStorageItem).StorageItem as StorageFile;
+            StorageFile Item = (await (SelectedItem as FileSystemStorageItem).GetStorageItem()) as StorageFile;
 
             if (!await Item.CheckExist().ConfigureAwait(true))
             {
@@ -1676,9 +1675,9 @@ namespace FileManager
             {
                 if ((await UnZipAsync(Item).ConfigureAwait(true)) is StorageFolder NewFolder)
                 {
-                    if (FileCollection.Where((Item) => Item.StorageItem.IsOfType(StorageItemTypes.Folder)).All((Folder) => Folder.Name != NewFolder.Name))
+                    if (FileCollection.Where((Item) => Item.StorageType == StorageItemTypes.Folder).All((Folder) => Folder.Name != NewFolder.Name))
                     {
-                        FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                        FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
 
                         if (!SettingControl.IsDetachTreeViewAndPresenter)
                         {
@@ -1953,13 +1952,13 @@ namespace FileManager
                     }
                 }
 
-                if (FileCollection.FirstOrDefault((Item) => Item.StorageItem.IsOfType(StorageItemTypes.File)) is FileSystemStorageItem Item)
+                if (FileCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.File) is FileSystemStorageItem Item)
                 {
-                    FileCollection.Insert(FileCollection.IndexOf(Item), new FileSystemStorageItem(Newfile, await Newfile.GetSizeDescriptionAsync().ConfigureAwait(true), await Newfile.GetThumbnailBitmapAsync().ConfigureAwait(true), await Newfile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                    FileCollection.Insert(FileCollection.IndexOf(Item), new FileSystemStorageItem(Newfile, await Newfile.GetSizeRawDataAsync().ConfigureAwait(true), await Newfile.GetThumbnailBitmapAsync().ConfigureAwait(true), await Newfile.GetModifiedTimeAsync().ConfigureAwait(true)));
                 }
                 else
                 {
-                    FileCollection.Add(new FileSystemStorageItem(Newfile, await Newfile.GetSizeDescriptionAsync().ConfigureAwait(true), await Newfile.GetThumbnailBitmapAsync().ConfigureAwait(true), await Newfile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                    FileCollection.Add(new FileSystemStorageItem(Newfile, await Newfile.GetSizeRawDataAsync().ConfigureAwait(true), await Newfile.GetThumbnailBitmapAsync().ConfigureAwait(true), await Newfile.GetModifiedTimeAsync().ConfigureAwait(true)));
                 }
             }
             catch (UnauthorizedAccessException)
@@ -2138,7 +2137,7 @@ namespace FileManager
         {
             Restore();
 
-            if ((SelectedItem as FileSystemStorageItem)?.StorageItem is StorageFile Source)
+            if ((await (SelectedItem as FileSystemStorageItem)?.GetStorageItem()) is StorageFile Source)
             {
                 if (!await Source.CheckExist().ConfigureAwait(true))
                 {
@@ -2215,7 +2214,7 @@ namespace FileManager
 
                                     if (Path.GetDirectoryName(DestinationFile.Path) == FileControlInstance.CurrentFolder.Path && ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] is string Status && Status == "Success")
                                     {
-                                        FileCollection.Add(new FileSystemStorageItem(DestinationFile, await DestinationFile.GetSizeDescriptionAsync().ConfigureAwait(true), await DestinationFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await DestinationFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                        FileCollection.Add(new FileSystemStorageItem(DestinationFile, await DestinationFile.GetSizeRawDataAsync().ConfigureAwait(true), await DestinationFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await DestinationFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                                     }
                                 }
                                 catch (UnauthorizedAccessException)
@@ -2294,7 +2293,7 @@ namespace FileManager
         {
             Restore();
 
-            StorageFolder Device = (SelectedItem as FileSystemStorageItem).StorageItem as StorageFolder;
+            StorageFolder Device = (await (SelectedItem as FileSystemStorageItem).GetStorageItem()) as StorageFolder;
             if (!await Device.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
@@ -2337,7 +2336,7 @@ namespace FileManager
         {
             Restore();
 
-            StorageFile Item = (SelectedItem as FileSystemStorageItem).StorageItem as StorageFile;
+            StorageFile Item = (await (SelectedItem as FileSystemStorageItem).GetStorageItem()) as StorageFile;
 
             if (!await Item.CheckExist().ConfigureAwait(true))
             {
@@ -2538,7 +2537,7 @@ namespace FileManager
         {
             Restore();
 
-            StorageFolder folder = (SelectedItem as FileSystemStorageItem).StorageItem as StorageFolder;
+            StorageFolder folder = (await (SelectedItem as FileSystemStorageItem).GetStorageItem()) as StorageFolder;
 
             if (!await folder.CheckExist().ConfigureAwait(true))
             {
@@ -2640,11 +2639,7 @@ namespace FileManager
                     ? await FileControlInstance.CurrentFolder.CreateFolderAsync("新建文件夹", CreationCollisionOption.GenerateUniqueName)
                     : await FileControlInstance.CurrentFolder.CreateFolderAsync("New folder", CreationCollisionOption.GenerateUniqueName);
 
-                var Size = await NewFolder.GetSizeDescriptionAsync().ConfigureAwait(true);
-                var Thumbnail = await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                var ModifiedTime = await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true);
-
-                FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, Size, Thumbnail, ModifiedTime));
+                FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
 
                 if (!SettingControl.IsDetachTreeViewAndPresenter)
                 {
@@ -2701,7 +2696,7 @@ namespace FileManager
         {
             Restore();
 
-            if ((SelectedItem as FileSystemStorageItem)?.StorageItem is StorageFile ShareItem)
+            if ((await (SelectedItem as FileSystemStorageItem)?.GetStorageItem()) is StorageFile ShareItem)
             {
                 if (!await ShareItem.CheckExist().ConfigureAwait(true))
                 {
@@ -2805,7 +2800,7 @@ namespace FileManager
             {
                 if (Interlocked.Exchange(ref TabTarget, ReFile) == null)
                 {
-                    if (TabTarget.StorageItem is StorageFile File)
+                    if (await TabTarget.GetStorageItem() is StorageFile File)
                     {
                         if (!await File.CheckExist().ConfigureAwait(true))
                         {
@@ -2978,7 +2973,7 @@ namespace FileManager
                             }
                         }
                     }
-                    else if (TabTarget.StorageItem is StorageFolder Folder)
+                    else if (await TabTarget.GetStorageItem() is StorageFolder Folder)
                     {
                         if (!await Folder.CheckExist().ConfigureAwait(true))
                         {
@@ -3016,7 +3011,7 @@ namespace FileManager
                             return;
                         }
 
-                        if(SettingControl.IsDetachTreeViewAndPresenter)
+                        if (SettingControl.IsDetachTreeViewAndPresenter)
                         {
                             await FileControlInstance.DisplayItemsInFolder(Folder).ConfigureAwait(true);
                         }
@@ -3081,7 +3076,7 @@ namespace FileManager
                 return;
             }
 
-            if ((SelectedItem as FileSystemStorageItem)?.StorageItem is StorageFile File)
+            if ((await (SelectedItem as FileSystemStorageItem)?.GetStorageItem()) is StorageFile File)
             {
                 VideoEditDialog Dialog = new VideoEditDialog(File);
                 if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
@@ -3090,7 +3085,7 @@ namespace FileManager
                     await GeneralTransformer.GenerateCroppedVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding, Dialog.TrimmingPreference).ConfigureAwait(true);
                     if (Path.GetDirectoryName(ExportFile.Path) == FileControlInstance.CurrentFolder.Path && ApplicationData.Current.LocalSettings.Values["MediaCropStatus"] is string Status && Status == "Success")
                     {
-                        FileCollection.Add(new FileSystemStorageItem(ExportFile, await ExportFile.GetSizeDescriptionAsync().ConfigureAwait(true), await ExportFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await ExportFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                        FileCollection.Add(new FileSystemStorageItem(ExportFile, await ExportFile.GetSizeRawDataAsync().ConfigureAwait(true), await ExportFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await ExportFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                     }
                 }
             }
@@ -3125,7 +3120,7 @@ namespace FileManager
                 return;
             }
 
-            if ((SelectedItem as FileSystemStorageItem)?.StorageItem is StorageFile Item)
+            if ((await (SelectedItem as FileSystemStorageItem)?.GetStorageItem()) is StorageFile Item)
             {
                 VideoMergeDialog Dialog = new VideoMergeDialog(Item);
                 if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
@@ -3134,7 +3129,7 @@ namespace FileManager
                     await GeneralTransformer.GenerateMergeVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding).ConfigureAwait(true);
                     if (Path.GetDirectoryName(ExportFile.Path) == FileControlInstance.CurrentFolder.Path && ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"] is string Status && Status == "Success")
                     {
-                        FileCollection.Add(new FileSystemStorageItem(ExportFile, await ExportFile.GetSizeDescriptionAsync().ConfigureAwait(true), await ExportFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await ExportFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                        FileCollection.Add(new FileSystemStorageItem(ExportFile, await ExportFile.GetSizeRawDataAsync().ConfigureAwait(true), await ExportFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await ExportFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                     }
                 }
             }
@@ -3144,7 +3139,7 @@ namespace FileManager
         {
             Restore();
 
-            if ((SelectedItem as FileSystemStorageItem)?.StorageItem is StorageFile Item)
+            if ((await (SelectedItem as FileSystemStorageItem)?.GetStorageItem()) is StorageFile Item)
             {
                 ProgramPickerDialog Dialog = new ProgramPickerDialog(Item);
                 if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
@@ -3212,22 +3207,222 @@ namespace FileManager
             }
         }
 
-        private async void ListHeaderName_Click(object sender, RoutedEventArgs e)
+        private void ListHeaderName_Click(object sender, RoutedEventArgs e)
         {
-            SortMap["System.ItemNameDisplay"] = !SortMap["System.ItemNameDisplay"];
-            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.ItemNameDisplay", SortMap["System.ItemNameDisplay"]) }).ConfigureAwait(false);
+            if (SortMap[SortTarget.Name] == SortDirection.Ascending)
+            {
+                SortMap[SortTarget.Name] = SortDirection.Descending;
+                SortMap[SortTarget.Type] = SortDirection.Ascending;
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
+                SortMap[SortTarget.Size] = SortDirection.Ascending;
+
+                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.Name, SortDirection.Descending);
+                FileCollection.Clear();
+
+                foreach (FileSystemStorageItem Item in SortResult)
+                {
+                    FileCollection.Add(Item);
+                }
+            }
+            else
+            {
+                SortMap[SortTarget.Name] = SortDirection.Ascending;
+                SortMap[SortTarget.Type] = SortDirection.Ascending;
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
+                SortMap[SortTarget.Size] = SortDirection.Ascending;
+
+                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.Name, SortDirection.Ascending);
+                FileCollection.Clear();
+
+                foreach (FileSystemStorageItem Item in SortResult)
+                {
+                    FileCollection.Add(Item);
+                }
+            }
         }
 
-        private async void ListHeaderModifiedTime_Click(object sender, RoutedEventArgs e)
+        private void ListHeaderModifiedTime_Click(object sender, RoutedEventArgs e)
         {
-            SortMap["System.DateModified"] = !SortMap["System.DateModified"];
-            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.DateModified", SortMap["System.DateModified"]) }).ConfigureAwait(false);
+            if (SortMap[SortTarget.ModifiedTime] == SortDirection.Ascending)
+            {
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Descending;
+                SortMap[SortTarget.Type] = SortDirection.Ascending;
+                SortMap[SortTarget.Name] = SortDirection.Ascending;
+                SortMap[SortTarget.Size] = SortDirection.Ascending;
+
+                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.ModifiedTime, SortDirection.Descending);
+                FileCollection.Clear();
+
+                foreach (FileSystemStorageItem Item in SortResult)
+                {
+                    FileCollection.Add(Item);
+                }
+            }
+            else
+            {
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
+                SortMap[SortTarget.Type] = SortDirection.Ascending;
+                SortMap[SortTarget.Name] = SortDirection.Ascending;
+                SortMap[SortTarget.Size] = SortDirection.Ascending;
+
+                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.ModifiedTime, SortDirection.Ascending);
+                FileCollection.Clear();
+
+                foreach (FileSystemStorageItem Item in SortResult)
+                {
+                    FileCollection.Add(Item);
+                }
+            }
         }
 
-        private async void ListHeaderSize_Click(object sender, RoutedEventArgs e)
+        private void ListHeaderType_Click(object sender, RoutedEventArgs e)
         {
-            SortMap["System.Size"] = !SortMap["System.Size"];
-            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true, new KeyValuePair<string, bool>[] { new KeyValuePair<string, bool>("System.Size", SortMap["System.Size"]) }).ConfigureAwait(false);
+            if (SortMap[SortTarget.Type] == SortDirection.Ascending)
+            {
+                SortMap[SortTarget.Type] = SortDirection.Descending;
+                SortMap[SortTarget.Name] = SortDirection.Ascending;
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
+                SortMap[SortTarget.Size] = SortDirection.Ascending;
+
+                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.Type, SortDirection.Descending);
+                FileCollection.Clear();
+
+                foreach (FileSystemStorageItem Item in SortResult)
+                {
+                    FileCollection.Add(Item);
+                }
+            }
+            else
+            {
+                SortMap[SortTarget.Type] = SortDirection.Ascending;
+                SortMap[SortTarget.Name] = SortDirection.Ascending;
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
+                SortMap[SortTarget.Size] = SortDirection.Ascending;
+
+                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.Type, SortDirection.Ascending);
+                FileCollection.Clear();
+
+                foreach (FileSystemStorageItem Item in SortResult)
+                {
+                    FileCollection.Add(Item);
+                }
+            }
+        }
+
+        private void ListHeaderSize_Click(object sender, RoutedEventArgs e)
+        {
+            if (SortMap[SortTarget.Size] == SortDirection.Ascending)
+            {
+                SortMap[SortTarget.Size] = SortDirection.Descending;
+                SortMap[SortTarget.Type] = SortDirection.Ascending;
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
+                SortMap[SortTarget.Name] = SortDirection.Ascending;
+
+                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.Size, SortDirection.Descending);
+                FileCollection.Clear();
+
+                foreach (FileSystemStorageItem Item in SortResult)
+                {
+                    FileCollection.Add(Item);
+                }
+
+            }
+            else
+            {
+                SortMap[SortTarget.Size] = SortDirection.Ascending;
+                SortMap[SortTarget.Type] = SortDirection.Ascending;
+                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
+                SortMap[SortTarget.Name] = SortDirection.Ascending;
+
+                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.Size, SortDirection.Ascending);
+                FileCollection.Clear();
+
+                foreach (FileSystemStorageItem Item in SortResult)
+                {
+                    FileCollection.Add(Item);
+                }
+            }
+        }
+
+
+        public List<FileSystemStorageItem> SortList(IEnumerable<FileSystemStorageItem> FileCollection, SortTarget Target, SortDirection Direction)
+        {
+            switch (Target)
+            {
+                case SortTarget.Name:
+                    {
+                        if (Direction == SortDirection.Ascending)
+                        {
+                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.Name).ToList();
+                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.Name).ToList();
+
+                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
+                        }
+                        else
+                        {
+                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.Name).ToList();
+                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.Name).ToList();
+
+                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
+                        }
+                    }
+
+                case SortTarget.Type:
+                    {
+                        if (Direction == SortDirection.Ascending)
+                        {
+                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.Type).ToList();
+                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.Type).ToList();
+
+                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
+                        }
+                        else
+                        {
+                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.Type).ToList();
+                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.Type).ToList();
+
+                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
+                        }
+                    }
+                case SortTarget.ModifiedTime:
+                    {
+                        if (Direction == SortDirection.Ascending)
+                        {
+                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.ModifiedTimeRaw).ToList();
+                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.ModifiedTimeRaw).ToList();
+
+                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
+                        }
+                        else
+                        {
+                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.ModifiedTimeRaw).ToList();
+                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.ModifiedTimeRaw).ToList();
+
+                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
+                        }
+                    }
+                case SortTarget.Size:
+                    {
+                        if (Direction == SortDirection.Ascending)
+                        {
+                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.SizeRaw).ToList();
+                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.SizeRaw).ToList();
+
+                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
+                        }
+                        else
+                        {
+                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.SizeRaw).ToList();
+                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.SizeRaw).ToList();
+
+                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
+                        }
+                    }
+                default:
+                    {
+                        return null;
+                    }
+            }
         }
 
         private void QRTeachTip_Closing(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosingEventArgs args)
@@ -3248,14 +3443,14 @@ namespace FileManager
                 {
                     StorageFile NewFile = await FileControlInstance.CurrentFolder.CreateFileAsync(Dialog.NewFileName, CreationCollisionOption.GenerateUniqueName);
 
-                    int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.StorageItem.IsOfType(StorageItemTypes.File)));
+                    int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.File));
                     if (Index == -1)
                     {
-                        FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                        FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                     }
                     else
                     {
-                        FileCollection.Insert(Index, new FileSystemStorageItem(NewFile, await NewFile.GetSizeDescriptionAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                        FileCollection.Insert(Index, new FileSystemStorageItem(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                     }
                 }
                 catch (UnauthorizedAccessException)
@@ -3296,7 +3491,7 @@ namespace FileManager
         {
             Restore();
 
-            StorageFolder Item = (SelectedItem as FileSystemStorageItem)?.StorageItem as StorageFolder;
+            StorageFolder Item = (await (SelectedItem as FileSystemStorageItem)?.GetStorageItem()) as StorageFolder;
 
             if (!await Item.CheckExist().ConfigureAwait(true))
             {
@@ -3351,25 +3546,19 @@ namespace FileManager
             await LoadingActivation(false).ConfigureAwait(true);
         }
 
-        private void GridViewControl_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
+        private async void GridViewControl_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
         {
             if (e.Items.Count == 0)
             {
                 return;
             }
 
-            e.Data.SetStorageItems(e.Items.Select((obj) => (obj as FileSystemStorageItem).StorageItem), false);
-
-            FileCollection.ToList().ForEach((Item) =>
+            List<IStorageItem> TempList = new List<IStorageItem>(e.Items.Count);
+            foreach (object obj in e.Items)
             {
-                if (Item.StorageItem.IsOfType(StorageItemTypes.Folder))
-                {
-                    GridViewItem GridItem = GridViewControl.ContainerFromItem(Item) as GridViewItem;
-                    GridItem.AllowDrop = true;
-                    GridItem.DragEnter += Item_DragEnter;
-                    GridItem.Drop += Item_Drop;
-                }
-            });
+                TempList.Add(await (obj as FileSystemStorageItem).GetStorageItem().ConfigureAwait(false));
+            }
+            e.Data.SetStorageItems(TempList, false);
         }
 
         private void Item_DragEnter(object sender, DragEventArgs e)
@@ -3399,7 +3588,7 @@ namespace FileManager
                 {
                     if ((sender as SelectorItem).Content is FileSystemStorageItem Target)
                     {
-                        if (DragItemList.Contains(Target.StorageItem))
+                        if (DragItemList.Contains(await Target.GetStorageItem()))
                         {
                             if (Globalization.Language == LanguageEnum.Chinese)
                             {
@@ -3447,7 +3636,7 @@ namespace FileManager
                                                     continue;
                                                 }
 
-                                                _ = await File.CopyAsync(Target.StorageItem as StorageFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
+                                                _ = await File.CopyAsync((await Target.GetStorageItem()) as StorageFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
                                             }
                                             else if (Item is StorageFolder Folder)
                                             {
@@ -3457,7 +3646,7 @@ namespace FileManager
                                                     continue;
                                                 }
 
-                                                StorageFolder NewFolder = await ((StorageFolder)Target.StorageItem).CreateFolderAsync(Item.Name, CreationCollisionOption.OpenIfExists);
+                                                StorageFolder NewFolder = await ((StorageFolder)await Target.GetStorageItem()).CreateFolderAsync(Item.Name, CreationCollisionOption.OpenIfExists);
                                                 await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
 
                                                 if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
@@ -3592,8 +3781,8 @@ namespace FileManager
                                                     continue;
                                                 }
 
-                                                await File.MoveAsync(Target.StorageItem as StorageFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
-                                                FileCollection.Remove(FileCollection.FirstOrDefault((It) => It.StorageItem == Item));
+                                                await File.MoveAsync((await Target.GetStorageItem()) as StorageFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
+                                                FileCollection.Remove(FileCollection.FirstOrDefault((It) => It.Path == Item.Path));
                                             }
                                             else if (Item is StorageFolder Folder)
                                             {
@@ -3603,10 +3792,10 @@ namespace FileManager
                                                     continue;
                                                 }
 
-                                                StorageFolder NewFolder = await ((StorageFolder)Target.StorageItem).CreateFolderAsync(Item.Name, CreationCollisionOption.OpenIfExists);
+                                                StorageFolder NewFolder = await ((StorageFolder)await Target.GetStorageItem()).CreateFolderAsync(Item.Name, CreationCollisionOption.OpenIfExists);
                                                 await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
                                                 await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                                                FileCollection.Remove(FileCollection.FirstOrDefault((It) => It.StorageItem == Item));
+                                                FileCollection.Remove(FileCollection.FirstOrDefault((It) => It.Path == Item.Path));
 
                                                 if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
                                                 {
@@ -3763,53 +3952,47 @@ namespace FileManager
             }
         }
 
-        private void GridViewControl_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
-        {
-            FileCollection.ToList().ForEach((Item) =>
-            {
-                if (Item.StorageItem.IsOfType(StorageItemTypes.Folder))
-                {
-                    GridViewItem GridItem = GridViewControl.ContainerFromItem(Item) as GridViewItem;
-                    GridItem.AllowDrop = false;
-                    GridItem.Drop -= Item_Drop;
-                    GridItem.DragEnter -= Item_DragEnter;
-                }
-            });
-        }
 
-        private void ListViewControl_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
+        private async void ListViewControl_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
         {
             if (e.Items.Count == 0)
             {
                 return;
             }
 
-            e.Data.SetStorageItems(e.Items.Select((obj) => (obj as FileSystemStorageItem).StorageItem), false);
-
-            FileCollection.ToList().ForEach((Item) =>
+            List<IStorageItem> TempList = new List<IStorageItem>(e.Items.Count);
+            foreach (object obj in e.Items)
             {
-                if (Item.StorageItem.IsOfType(StorageItemTypes.Folder))
-                {
-                    ListViewItem ListItem = ListViewControl.ContainerFromItem(Item) as ListViewItem;
-                    ListItem.AllowDrop = true;
-                    ListItem.DragEnter += Item_DragEnter;
-                    ListItem.Drop += Item_Drop;
-                }
-            });
+                TempList.Add(await (obj as FileSystemStorageItem).GetStorageItem().ConfigureAwait(false));
+            }
+            e.Data.SetStorageItems(TempList, false);
         }
 
-        private void ListViewControl_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+        private void ViewControl_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
         {
-            FileCollection.ToList().ForEach((Item) =>
+            if (args.InRecycleQueue)
             {
-                if (Item.StorageItem.IsOfType(StorageItemTypes.Folder))
+                args.ItemContainer.AllowDrop = false;
+                args.ItemContainer.Drop -= Item_Drop;
+                args.ItemContainer.DragEnter -= Item_DragEnter;
+            }
+            else
+            {
+                if (args.Item is FileSystemStorageItem Item)
                 {
-                    ListViewItem ListItem = ListViewControl.ContainerFromItem(Item) as ListViewItem;
-                    ListItem.AllowDrop = false;
-                    ListItem.Drop -= Item_Drop;
-                    ListItem.DragEnter -= Item_DragEnter;
+                    if (Item.StorageType == StorageItemTypes.File && Item.Thumbnail == null)
+                    {
+                        _ = Item.LoadMoreProperty();
+                    }
+
+                    if (Item.StorageType == StorageItemTypes.Folder)
+                    {
+                        args.ItemContainer.AllowDrop = true;
+                        args.ItemContainer.Drop += Item_Drop;
+                        args.ItemContainer.DragEnter += Item_DragEnter;
+                    }
                 }
-            });
+            }
         }
     }
 }

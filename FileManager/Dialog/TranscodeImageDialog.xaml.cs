@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using FileManager.Class;
+using System;
 using System.Linq;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
@@ -8,7 +8,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class TranscodeImageDialog : QueueContentDialog
     {

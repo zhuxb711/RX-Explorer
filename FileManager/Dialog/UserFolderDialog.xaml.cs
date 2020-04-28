@@ -1,9 +1,10 @@
-﻿using System;
+﻿using FileManager.Class;
+using System;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml.Controls;
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class UserFolderDialog : QueueContentDialog
     {

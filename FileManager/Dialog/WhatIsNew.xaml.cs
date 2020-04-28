@@ -1,7 +1,8 @@
-﻿using System;
+﻿using FileManager.Class;
+using System;
 using Windows.Storage;
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class WhatIsNew : QueueContentDialog
     {

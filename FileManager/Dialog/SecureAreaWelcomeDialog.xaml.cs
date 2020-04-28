@@ -1,9 +1,10 @@
-﻿using System;
+﻿using FileManager.Class;
+using System;
 using Windows.Security.Credentials;
 using Windows.UI.Xaml.Controls;
 
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class SecureAreaWelcomeDialog : QueueContentDialog
     {

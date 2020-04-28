@@ -1429,4 +1429,16 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SettingTreeViewDetach.OnContent" xml:space="preserve">
     <value>Show</value>
   </data>
+  <data name="EnableQuicklook.OffContent" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="EnableQuicklook.OnContent" xml:space="preserve">
+    <value>Enable</value>
+  </data>
+  <data name="QuicklookHeader.Text" xml:space="preserve">
+    <value>Quicklook</value>
+  </data>
+  <data name="QuicklookTip.Subtitle" xml:space="preserve">
+    <value>QuickLook is an auxiliary software for convenient and quick viewing of file contents. To enable this feature, you must install QuickLook in advance and ensure that QuickLook works properly. You can click on any file in the RX Explorer and press the space bar to activate QuickLook</value>
+  </data>
 </root>

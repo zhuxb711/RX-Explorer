@@ -1,4 +1,6 @@
 ﻿using AnimationEffectProvider;
+using FileManager.Class;
+using FileManager.Dialog;
 using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Collections.Generic;
@@ -46,11 +48,13 @@ namespace FileManager
             InitializeComponent();
             ThisPage = this;
             Window.Current.SetTitleBar(TitleBar);
+            Loading += MainPage_Loading;
             Loaded += MainPage_Loaded;
             Application.Current.EnteredBackground += Current_EnteredBackground;
             Application.Current.LeavingBackground += Current_LeavingBackground;
             SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += MainPage_CloseRequested;
             SystemNavigationManager.GetForCurrentView().BackRequested += MainPage_BackRequested;
+
             try
             {
                 ToastNotificationManager.History.Clear();
@@ -62,6 +66,28 @@ namespace FileManager
 #if DEBUG
             AppName.Text += " (Debug 模式)";
 #endif
+        }
+
+        private async void MainPage_Loading(FrameworkElement sender, object args)
+        {
+            if(await FullTrustExcutorController.CheckQuicklookIsAvaliable())
+            {
+                SettingControl.IsQuicklookAvailable = true;
+            }
+            else
+            {
+                SettingControl.IsQuicklookAvailable = false;
+            }
+
+            if(ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] is bool Enable)
+            {
+                SettingControl.IsQuicklookEnable = Enable;
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] = true;
+                SettingControl.IsQuicklookEnable = true;
+            }
         }
 
         private void MainPage_BackRequested(object sender, BackRequestedEventArgs e)
@@ -244,6 +270,10 @@ namespace FileManager
                 if (ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] is bool IsDetach)
                 {
                     SettingControl.IsDetachTreeViewAndPresenter = IsDetach;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = false;
                 }
 
                 if (Globalization.Language == LanguageEnum.Chinese)

@@ -1,7 +1,7 @@
 ﻿<Page x:Class="FileManager.FilePresenter"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:local="using:FileManager"
+      xmlns:local="using:FileManager.Class"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
@@ -286,14 +286,14 @@
                                HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis" />
                     <TextBlock IsHitTestVisible="False"
-                               Text="{x:Bind DisplayType}"
+                               Text="{x:Bind DisplayType,Mode=OneWay}"
                                FontSize="13"
                                HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
                                Width="140"/>
                     <TextBlock IsHitTestVisible="False"
                                Text="{x:Bind Size,Mode=OneWay}"
-                               Visibility="{x:Bind StorageItem,Converter={StaticResource StateConverter}}"
+                               Visibility="{x:Bind StorageType,Converter={StaticResource StateConverter}}"
                                FontSize="13"
                                HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
@@ -356,7 +356,7 @@
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Height="40"
-                       Width="60" />
+                       Width="60"/>
                 <TextBlock IsHitTestVisible="False"
                            Text="{x:Bind DisplayName,Mode=OneWay}"
                            FontSize="11"
@@ -410,6 +410,7 @@
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         Name="ListHeaderType"
+                        Click="ListHeaderType_Click"
                         Margin="-9,0,9,0"
                         Style="{ThemeResource ButtonRevealStyle}">
                     <TextBlock Text="类型"
@@ -467,7 +468,7 @@
                 <TextBlock VerticalAlignment="Center"
                            FontSize="15"
                            Margin="5,0,0,0"
-                           Text="{x:Bind DisplayType}"
+                           Text="{x:Bind DisplayType,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind DisplayType}"
                            Grid.Column="2"
                            TextTrimming="CharacterEllipsis" />
@@ -476,7 +477,7 @@
                            Margin="8,0,0,0"
                            Text="{x:Bind Size,Mode=OneWay}"
                            TextTrimming="CharacterEllipsis"
-                           Visibility="{x:Bind StorageItem,Converter={StaticResource StateConverter}}"
+                           Visibility="{x:Bind StorageType,Converter={StaticResource StateConverter}}"
                            Grid.Column="3" />
             </Grid>
         </DataTemplate>
@@ -490,7 +491,7 @@
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Margin="0,0,5,0"
                        Height="30"
-                       Width="30" />
+                       Width="30"/>
                 <TextBlock Margin="5,0,0,0"
                            VerticalAlignment="Center"
                            FontSize="14"
@@ -513,19 +514,17 @@
                   SelectionChanged="GridViewControl_SelectionChanged"
                   SelectionMode="Extended"
                   ItemClick="GridViewControl_ItemClick"
+                  ContainerContentChanging="ViewControl_ContainerContentChanging"
                   CanDrag="False"
                   CanReorderItems="False"
                   CanDragItems="True"
                   DragItemsStarting="ListViewControl_DragItemsStarting"
-                  DragItemsCompleted="ListViewControl_DragItemsCompleted"
                   AllowDrop="False"
                   IsItemClickEnabled="True"
                   IsDoubleTapEnabled="True"
                   DoubleTapped="GridViewControl_DoubleTapped"
                   x:FieldModifier="Public"
-                  IncrementalLoadingTrigger="Edge"
-                  Visibility="Collapsed"
-                  DataFetchSize="2">
+                  Visibility="Collapsed">
             <ListView.Header>
                 <controls:ScrollHeader Mode="Sticky"
                                        Name="ListHeader"
@@ -546,6 +545,7 @@
         </ListView>
         <GridView Name="GridViewControl"
                   Background="Transparent"
+                  ContainerContentChanging="ViewControl_ContainerContentChanging"
                   Margin="5,0,0,0"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
@@ -558,15 +558,12 @@
                   CanReorderItems="False"
                   CanDragItems="True"
                   AllowDrop="False"
+                  ItemsSource="{x:Bind FileCollection}"
                   DragItemsStarting="GridViewControl_DragItemsStarting"
-                  DragItemsCompleted="GridViewControl_DragItemsCompleted"
                   IsItemClickEnabled="True"
                   IsDoubleTapEnabled="True"
-                  ItemsSource="{x:Bind FileCollection}"
                   DoubleTapped="GridViewControl_DoubleTapped"
-                  x:FieldModifier="Public"
-                  IncrementalLoadingTrigger="Edge"
-                  DataFetchSize="2">
+                  x:FieldModifier="Public">
             <GridView.ItemsPanel>
                 <ItemsPanelTemplate>
                     <ItemsWrapGrid Orientation="Horizontal"

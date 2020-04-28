@@ -1756,6 +1756,22 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Show</source>
           <target state="translated">启用</target>
         </trans-unit>
+        <trans-unit id="EnableQuicklook.OffContent" translate="yes" xml:space="preserve">
+          <source>Disable</source>
+          <target state="translated">禁用</target>
+        </trans-unit>
+        <trans-unit id="EnableQuicklook.OnContent" translate="yes" xml:space="preserve">
+          <source>Enable</source>
+          <target state="translated">启用</target>
+        </trans-unit>
+        <trans-unit id="QuicklookHeader.Text" translate="yes" xml:space="preserve">
+          <source>Quicklook</source>
+          <target state="translated">Quicklook预览</target>
+        </trans-unit>
+        <trans-unit id="QuicklookTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>QuickLook is an auxiliary software for convenient and quick viewing of file contents. To enable this feature, you must install QuickLook in advance and ensure that QuickLook works properly. You can click on any file in the RX Explorer and press the space bar to activate QuickLook</source>
+          <target state="translated">QuickLook是一种方便快捷查看文件内容的辅助软件。若要启用此功能，则您必须提前安装QuickLook并确保QuickLook正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活QuickLook</target>
+        </trans-unit>
       </group>
     </body>
   </file>

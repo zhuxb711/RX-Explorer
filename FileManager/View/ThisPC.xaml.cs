@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FileManager.Class;
+using FileManager.Dialog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

@@ -1,6 +1,7 @@
-﻿using Windows.UI.Xaml.Controls;
+﻿using FileManager.Class;
+using Windows.UI.Xaml.Controls;
 
-namespace FileManager
+namespace FileManager.Dialog
 {
 
     public sealed partial class PdfPasswordDialog : QueueContentDialog

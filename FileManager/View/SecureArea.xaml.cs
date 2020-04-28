@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FileManager.Class;
+using FileManager.Dialog;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -440,10 +442,10 @@ namespace FileManager
 
             foreach (var Item in EncryptedFileList)
             {
-                var Size = await Item.GetSizeDescriptionAsync().ConfigureAwait(true);
+                var Size = await Item.GetSizeRawDataAsync().ConfigureAwait(true);
                 var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
                 var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
-                SecureCollection.Add(new FileSystemStorageItem(Item, Size, Thumbnail, ModifiedTime));
+                SecureCollection.Add(new FileSystemStorageItem(Item as StorageFile, Size, Thumbnail, ModifiedTime));
             }
 
             await SecureCollection.SetStorageQueryResultAsync(ItemQuery).ConfigureAwait(false);
@@ -469,10 +471,10 @@ namespace FileManager
             List<FileSystemStorageItem> ItemList = new List<FileSystemStorageItem>();
             foreach (var Item in await Query.GetItemsAsync(Index, Num))
             {
-                var Size = await Item.GetSizeDescriptionAsync().ConfigureAwait(true);
+                var Size = await Item.GetSizeRawDataAsync().ConfigureAwait(true);
                 var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
                 var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
-                ItemList.Add(new FileSystemStorageItem(Item, Size, Thumbnail, ModifiedTime));
+                ItemList.Add(new FileSystemStorageItem(Item as StorageFile, Size, Thumbnail, ModifiedTime));
             }
             return ItemList;
         }
@@ -498,7 +500,7 @@ namespace FileManager
                 {
                     if ((await File.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true)) is StorageFile EncryptedFile)
                     {
-                        var Size = await EncryptedFile.GetSizeDescriptionAsync().ConfigureAwait(true);
+                        var Size = await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true);
                         var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
                         var ModifiedTime = await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true);
                         SecureCollection.Add(new FileSystemStorageItem(EncryptedFile, Size, Thumbnail, ModifiedTime));
@@ -582,7 +584,7 @@ namespace FileManager
                     {
                         if ((await Item.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true)) is StorageFile EncryptedFile)
                         {
-                            var Size = await EncryptedFile.GetSizeDescriptionAsync().ConfigureAwait(true);
+                            var Size = await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true);
                             var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
                             var ModifiedTime = await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true);
                             SecureCollection.Add(new FileSystemStorageItem(EncryptedFile, Size, Thumbnail, ModifiedTime));
@@ -667,7 +669,7 @@ namespace FileManager
                     };
                     if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
-                        await Item.StorageItem.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                        await (await Item.GetStorageItem()).DeleteAsync(StorageDeleteOption.PermanentDelete);
                         SecureCollection.Remove(Item);
                     }
                 }
@@ -682,7 +684,7 @@ namespace FileManager
                     };
                     if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
-                        await Item.StorageItem.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                        await (await Item.GetStorageItem()).DeleteAsync(StorageDeleteOption.PermanentDelete);
                         SecureCollection.Remove(Item);
                     }
                 }
@@ -713,9 +715,9 @@ namespace FileManager
                     {
                         ActivateLoading(true, false);
 
-                        if (await ((StorageFile)Item.StorageItem).DecryptAsync(Folder, FileEncryptionAesKey, Cancellation.Token).ConfigureAwait(true) is StorageFile)
+                        if (await ((StorageFile)await Item.GetStorageItem()).DecryptAsync(Folder, FileEncryptionAesKey, Cancellation.Token).ConfigureAwait(true) is StorageFile)
                         {
-                            await Item.StorageItem.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                            await (await Item.GetStorageItem()).DeleteAsync(StorageDeleteOption.PermanentDelete);
                             SecureCollection.Remove(Item);
 
                             _ = await Launcher.LaunchFolderAsync(Folder);

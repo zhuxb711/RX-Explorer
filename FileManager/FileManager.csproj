@@ -150,6 +150,17 @@
     <SuppressPseudoWarning Condition="'$(Configuration)' == 'Debug'">true</SuppressPseudoWarning>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Class\BackgroundController.cs" />
+    <Compile Include="Class\BackgroundPicture.cs" />
+    <Compile Include="Class\BluetoothList.cs" />
+    <Compile Include="Class\AppThemeController.cs" />
+    <Compile Include="Class\AddressBlock.cs" />
+    <Compile Include="Class\DataTemplateSelector.cs" />
+    <Compile Include="Class\Enum.cs" />
+    <Compile Include="Class\Exception.cs" />
+    <Compile Include="Class\ValueConverter.cs" />
+    <Compile Include="Class\WIN_API.cs" />
+    <Compile Include="Class\CredentialProtector.cs" />
     <Compile Include="Dialog\FeedBackDialog.xaml.cs">
       <DependentUpon>FeedBackDialog.xaml</DependentUpon>
     </Compile>
@@ -192,6 +203,27 @@
     <Compile Include="Dialog\WhatIsNew.xaml.cs">
       <DependentUpon>WhatIsNew.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Class\FullTrustExcutorController.cs" />
+    <Compile Include="Class\ExceptionTracer.cs" />
+    <Compile Include="Class\ProgramPickerItem.cs" />
+    <Compile Include="Class\Extention.cs" />
+    <Compile Include="Class\FeedBackItem.cs" />
+    <Compile Include="Class\FileSystemStorageItem.cs" />
+    <Compile Include="Class\FilterItem.cs" />
+    <Compile Include="Class\GeneralTransformer.cs" />
+    <Compile Include="Class\Globalization.cs" />
+    <Compile Include="Class\HardDeviceInfo.cs" />
+    <Compile Include="Class\IncrementalLoadingCollection.cs" />
+    <Compile Include="Class\KeyGenerator.cs" />
+    <Compile Include="Class\LibraryFolder.cs" />
+    <Compile Include="Class\MySQL.cs" />
+    <Compile Include="Class\ObexServiceProvider.cs" />
+    <Compile Include="Class\PathAnalysis.cs" />
+    <Compile Include="Class\PhotoDisplaySupport.cs" />
+    <Compile Include="Class\QueueContentDialog.cs" />
+    <Compile Include="Class\QuickStartItem.cs" />
+    <Compile Include="Class\SQLite.cs" />
+    <Compile Include="Class\SyncRootProvider.cs" />
     <Compile Include="View\BlueScreen.xaml.cs">
       <DependentUpon>BlueScreen.xaml</DependentUpon>
     </Compile>
@@ -210,7 +242,6 @@
     <Compile Include="Dialog\BluetoothUI.xaml.cs">
       <DependentUpon>BluetoothUI.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ClassCollection.cs" />
     <Compile Include="View\CropperPage.xaml.cs">
       <DependentUpon>CropperPage.xaml</DependentUpon>
     </Compile>
@@ -269,6 +300,9 @@
     <Compile Include="Dialog\ZipDialog.xaml.cs">
       <DependentUpon>ZipDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Class\Win10VersionChecker.cs" />
+    <Compile Include="Class\WiFiShareProvider.cs" />
+    <Compile Include="Class\WindowsHelloAuthenticator.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -279,6 +313,8 @@
     <Content Include="Assets\Add.png" />
     <Content Include="Assets\AddImage.png" />
     <Content Include="Assets\ColorPickerHero.png" />
+    <Content Include="Assets\DocIcon.png" />
+    <Content Include="Assets\FolderIcon.png" />
     <Content Include="Assets\IntroFile-Chinese.txt" />
     <Content Include="Assets\IntroFile-English.txt" />
     <Content Include="Assets\Lock.png" />
@@ -322,7 +358,6 @@
     <Content Include="QuickStartImage\Calendar.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\DocIcon.png" />
     <Content Include="QuickStartImage\Email.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -576,7 +611,7 @@
       <Version>2.0.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers">
-      <Version>2.9.8</Version>
+      <Version>3.0.0</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -607,7 +642,7 @@
       <Version>2.3.200213001</Version>
     </PackageReference>
     <PackageReference Include="MySqlConnector">
-      <Version>0.64.0</Version>
+      <Version>0.64.1</Version>
     </PackageReference>
     <PackageReference Include="OpenCV.UWP.native.imgproc">
       <Version>0.0.2-alpha</Version>

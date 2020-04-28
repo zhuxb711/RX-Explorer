@@ -1324,4 +1324,16 @@
   <data name="SettingTreeViewDetach.OnContent" xml:space="preserve">
     <value>启用</value>
   </data>
+  <data name="EnableQuicklook.OffContent" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="EnableQuicklook.OnContent" xml:space="preserve">
+    <value>启用</value>
+  </data>
+  <data name="QuicklookHeader.Text" xml:space="preserve">
+    <value>Quicklook预览</value>
+  </data>
+  <data name="QuicklookTip.Subtitle" xml:space="preserve">
+    <value>QuickLook是一种方便快捷查看文件内容的辅助软件。若要启用此功能，则您必须提前安装QuickLook并确保QuickLook正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活QuickLook</value>
+  </data>
 </root>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileManager.Class;
+using System;
 using System.Text.RegularExpressions;
 using Windows.Media.Core;
 using Windows.Media.Editing;
@@ -7,7 +8,7 @@ using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class VideoEditDialog : QueueContentDialog
     {

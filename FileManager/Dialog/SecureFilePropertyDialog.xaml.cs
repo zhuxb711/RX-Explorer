@@ -1,11 +1,12 @@
-﻿using System;
+﻿using FileManager.Class;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using Windows.Storage;
 
-namespace FileManager
+namespace FileManager.Dialog
 {
     public sealed partial class SecureFilePropertyDialog : QueueContentDialog, INotifyPropertyChanged
     {
@@ -17,7 +18,7 @@ namespace FileManager
 
         public string Level { get; private set; }
 
-        private StorageFile File;
+        private FileSystemStorageItem StorageItem;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -30,17 +31,19 @@ namespace FileManager
 
             InitializeComponent();
 
-            FileSize = Item.Size;
-            FileName = Item.DisplayName;
-            FileType = Item.DisplayType;
-            File = Item.StorageItem as StorageFile;
+            StorageItem = Item;
 
             Loading += SecureFilePropertyDialog_Loading;
         }
 
         private async void SecureFilePropertyDialog_Loading(Windows.UI.Xaml.FrameworkElement sender, object args)
         {
-            using (Stream EncryptFileStream = await File.OpenStreamForReadAsync().ConfigureAwait(true))
+            StorageFile Item = (await StorageItem.GetStorageItem()) as StorageFile;
+            FileSize = StorageItem.Size;
+            FileName = StorageItem.DisplayName;
+            FileType = StorageItem.DisplayType;
+
+            using (Stream EncryptFileStream = await Item.OpenStreamForReadAsync().ConfigureAwait(true))
             {
                 byte[] DecryptByteBuffer = new byte[20];
 
@@ -64,6 +67,9 @@ namespace FileManager
                 }
             }
 
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileSize)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileName)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileType)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Level)));
         }
     }
