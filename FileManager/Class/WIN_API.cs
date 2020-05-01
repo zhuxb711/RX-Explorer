@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using Windows.Storage;
@@ -27,7 +26,7 @@ namespace FileManager.Class
         public string cAlternateFileName;
     }
 
-    public sealed class WIN_API_GETFILE
+    public sealed class WIN_Native_API
     {
         public enum FINDEX_INFO_LEVELS
         {
@@ -89,7 +88,7 @@ namespace FileManager.Class
         private static extern bool FileTimeToSystemTime(ref FILETIME lpFileTime, out SYSTEMTIME lpSystemTime);
 
 
-        public static List<FileSystemStorageItem> GetItemFromPath(string Path)
+        public static List<FileSystemStorageItem> GetItemFromPath(string Path, ItemFilter Filter)
         {
             List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>();
 
@@ -100,7 +99,7 @@ namespace FileManager.Class
                 {
                     if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
                     {
-                        if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
+                        if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilter.Folder))
                         {
                             if (Data.cFileName != "." && Data.cFileName != "..")
                             {
@@ -109,7 +108,7 @@ namespace FileManager.Class
                                 Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
                             }
                         }
-                        else
+                        else if (Filter.HasFlag(ItemFilter.File))
                         {
                             if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
                             {

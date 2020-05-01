@@ -546,9 +546,6 @@
   <data name="PhotoViewerDeleteButton.Label" xml:space="preserve">
     <value>Delete</value>
   </data>
-  <data name="PhotoViewerLoadingCache.Text" xml:space="preserve">
-    <value>Loading image cache...</value>
-  </data>
   <data name="PhotoViewerRotateButton.Label" xml:space="preserve">
     <value>Rotation</value>
   </data>

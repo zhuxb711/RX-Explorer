@@ -37,7 +37,8 @@ namespace FileManager
     {
         public ObservableCollection<FileSystemStorageItem> FileCollection { get; private set; }
         private static FileSystemStorageItem[] CopyFiles;
-        private static FileSystemStorageItem[] CutFiles;
+        private static FileSystemStorageItem[] MoveFiles;
+        public static List<string> CopyAndMoveRecord = new List<string>();
         private TreeViewNode LastNode;
 
         private Dictionary<SortTarget, SortDirection> SortMap = new Dictionary<SortTarget, SortDirection>
@@ -55,6 +56,10 @@ namespace FileManager
         private bool useGridorList = true;
 
         private bool IsInputFromPrimaryButton = true;
+
+        private volatile FileSystemStorageItem StayInItem;
+
+        private DispatcherTimer PointerHoverTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
 
         public bool UseGridOrList
         {
@@ -191,6 +196,8 @@ namespace FileManager
             Application.Current.Suspending += Current_Suspending;
             Loaded += FilePresenter_Loaded;
             Unloaded += FilePresenter_Unloaded;
+
+            PointerHoverTimer.Tick += Timer_Tick;
         }
 
         private void FilePresenter_Unloaded(object sender, RoutedEventArgs e)
@@ -261,7 +268,7 @@ namespace FileManager
                 {
                     case VirtualKey.Space when SelectedIndex != -1 && SettingControl.IsQuicklookAvailable && SettingControl.IsQuicklookEnable:
                         {
-                            await FullTrustExcutorController.ViewWithQuicklook((SelectedItem as FileSystemStorageItem).Path);
+                            await FullTrustExcutorController.ViewWithQuicklook((SelectedItem as FileSystemStorageItem).Path).ConfigureAwait(false);
                             break;
                         }
                     case VirtualKey.Delete:
@@ -345,6 +352,11 @@ namespace FileManager
                             NewFolder_Click(null, null);
                             break;
                         }
+                    case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && CopyAndMoveRecord.Count > 0:
+                        {
+                            await Ctrl_Z_Click().ConfigureAwait(false);
+                            break;
+                        }
                 }
             }
         }
@@ -372,13 +384,217 @@ namespace FileManager
             EmptyFlyout.Hide();
         }
 
+        private async Task Ctrl_Z_Click()
+        {
+            await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在撤销" : "Undoing").ConfigureAwait(true);
+
+            bool IsItemNotFound = false;
+
+            foreach (string Record in CopyAndMoveRecord)
+            {
+                string[] SplitGroup = Record.Split("||", StringSplitOptions.RemoveEmptyEntries);
+
+                try
+                {
+                    switch (SplitGroup[1])
+                    {
+                        case "Move":
+                            {
+                                if (FileControlInstance.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[3]))
+                                {
+                                    StorageFolder OriginFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(SplitGroup[0]));
+
+                                    switch (SplitGroup[2])
+                                    {
+                                        case "File":
+                                            {
+                                                if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
+                                                {
+                                                    await File.MoveAsync(OriginFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+                                                }
+                                                else
+                                                {
+                                                    IsItemNotFound = true;
+                                                }
+                                                break;
+                                            }
+                                        case "Folder":
+                                            {
+                                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
+
+                                                StorageFolder NewFolder = await OriginFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.OpenIfExists);
+                                                await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder);
+                                                await Folder.DeleteAllSubFilesAndFolders();
+                                                await Folder.DeleteAsync();
+
+                                                if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                {
+                                                    FileControlInstance.FolderTree.RootNodes[0].IsExpanded = false;
+                                                }
+                                                break;
+                                            }
+                                    }
+
+                                    if (FileCollection.FirstOrDefault((Item) => Item.Path == SplitGroup[3]) is FileSystemStorageItem Item)
+                                    {
+                                        FileCollection.Remove(Item);
+                                    }
+                                }
+                                else if (FileControlInstance.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[0]))
+                                {
+                                    switch (SplitGroup[2])
+                                    {
+                                        case "File":
+                                            {
+                                                StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(SplitGroup[3]));
+                                                if ((await TargetFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
+                                                {
+                                                    await File.MoveAsync(FileControlInstance.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+                                                    FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                                }
+                                                else
+                                                {
+                                                    IsItemNotFound = true;
+                                                }
+
+                                                break;
+                                            }
+                                        case "Folder":
+                                            {
+                                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
+                                                StorageFolder NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.OpenIfExists);
+                                                await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder);
+                                                await Folder.DeleteAllSubFilesAndFolders();
+                                                await Folder.DeleteAsync();
+
+                                                if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                {
+                                                    FileControlInstance.FolderTree.RootNodes[0].IsExpanded = false;
+                                                }
+
+                                                if (FileCollection.All((Item) => Item.Path != NewFolder.Path))
+                                                {
+                                                    FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                                }
+                                                break;
+                                            }
+                                    }
+                                }
+                                else
+                                {
+                                    StorageFolder OriginFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(SplitGroup[0]));
+
+                                    switch (SplitGroup[2])
+                                    {
+                                        case "File":
+                                            {
+                                                StorageFile File = await StorageFile.GetFileFromPathAsync(SplitGroup[3]);
+                                                await File.MoveAsync(OriginFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+
+                                                break;
+                                            }
+                                        case "Folder":
+                                            {
+                                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
+                                                StorageFolder NewFolder = await OriginFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.OpenIfExists);
+                                                await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder);
+                                                await Folder.DeleteAllSubFilesAndFolders();
+                                                await Folder.DeleteAsync();
+
+                                                if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                {
+                                                    FileControlInstance.FolderTree.RootNodes[0].IsExpanded = false;
+                                                }
+                                                break;
+                                            }
+                                    }
+                                }
+
+                                break;
+                            }
+                        case "Copy":
+                            {
+                                if (FileControlInstance.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[3]))
+                                {
+                                    switch (SplitGroup[2])
+                                    {
+                                        case "File":
+                                            {
+                                                if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
+                                                {
+                                                    await File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                                                }
+
+                                                break;
+                                            }
+                                        case "Folder":
+                                            {
+                                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
+                                                await Folder.DeleteAllSubFilesAndFolders();
+                                                await Folder.DeleteAsync();
+
+                                                if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                {
+                                                    FileControlInstance.FolderTree.RootNodes[0].IsExpanded = false;
+                                                }
+                                                break;
+                                            }
+                                    }
+
+                                    if (FileCollection.FirstOrDefault((Item) => Item.Path == SplitGroup[3]) is FileSystemStorageItem Item)
+                                    {
+                                        FileCollection.Remove(Item);
+                                    }
+                                }
+                                else
+                                {
+                                    StorageFile File = await StorageFile.GetFileFromPathAsync(SplitGroup[3]);
+                                    await File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                                }
+                                break;
+                            }
+                    }
+                }
+                catch
+                {
+                    IsItemNotFound = true;
+                }
+            }
+
+            if (IsItemNotFound)
+            {
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "警告",
+                        Content = "由于部分文件/文件夹已不存在，因此撤销操作未能完全完成",
+                        CloseButtonText = "确定"
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = "Warning",
+                        Content = "Since some files/folders no longer exist, the undo operation could not be completed completely",
+                        CloseButtonText = "Got it"
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                }
+            }
+
+            await LoadingActivation(false).ConfigureAwait(true);
+        }
+
         private void Copy_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            if (CutFiles != null)
+            if (MoveFiles != null)
             {
-                CutFiles = null;
+                MoveFiles = null;
             }
 
             CopyFiles = SelectedItems.ToArray();
@@ -388,11 +604,11 @@ namespace FileManager
         {
             Restore();
 
-            if (CutFiles != null)
+            if (MoveFiles != null)
             {
                 await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在剪切" : "Cutting").ConfigureAwait(true);
 
-                if (Path.GetDirectoryName(CutFiles.FirstOrDefault().Path) == FileControlInstance.CurrentFolder.Path)
+                if (Path.GetDirectoryName(MoveFiles.FirstOrDefault().Path) == FileControlInstance.CurrentFolder.Path)
                 {
                     goto FLAG;
                 }
@@ -401,12 +617,14 @@ namespace FileManager
                 bool IsUnauthorized = false;
                 bool IsSpaceError = false;
                 bool IsCaptured = false;
+                CopyAndMoveRecord.Clear();
 
-                foreach (FileSystemStorageItem StorageItem in CutFiles)
+                foreach (FileSystemStorageItem StorageItem in MoveFiles)
                 {
                     try
                     {
-                        IStorageItem Item = await StorageItem.GetStorageItem();
+                        IStorageItem Item = await StorageItem.GetStorageItem().ConfigureAwait(true);
+
                         if (Item is StorageFile File)
                         {
                             if (!await File.CheckExist().ConfigureAwait(true))
@@ -414,6 +632,8 @@ namespace FileManager
                                 IsItemNotFound = true;
                                 continue;
                             }
+
+                            CopyAndMoveRecord.Add($"{StorageItem.Path}||Move||File||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
 
                             await File.MoveAsync(FileControlInstance.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
                             if (FileCollection.Count > 0)
@@ -440,6 +660,8 @@ namespace FileManager
                                 IsItemNotFound = true;
                                 continue;
                             }
+
+                            CopyAndMoveRecord.Add($"{StorageItem.Path}||Move||Folder||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
 
                             StorageFolder NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.OpenIfExists);
                             await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
@@ -606,12 +828,14 @@ namespace FileManager
                 bool IsItemNotFound = false;
                 bool IsUnauthorized = false;
                 bool IsSpaceError = false;
+                CopyAndMoveRecord.Clear();
 
                 foreach (FileSystemStorageItem StorageItem in CopyFiles)
                 {
                     try
                     {
-                        IStorageItem Item = await StorageItem.GetStorageItem();
+                        IStorageItem Item = await StorageItem.GetStorageItem().ConfigureAwait(true);
+
                         if (Item is StorageFile File)
                         {
                             if (!await File.CheckExist().ConfigureAwait(true))
@@ -619,6 +843,8 @@ namespace FileManager
                                 IsItemNotFound = true;
                                 continue;
                             }
+
+                            CopyAndMoveRecord.Add($"{StorageItem.Path}||Copy||File||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
 
                             StorageFile NewFile = await File.CopyAsync(FileControlInstance.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
                             if (FileCollection.Count > 0)
@@ -645,6 +871,8 @@ namespace FileManager
                                 IsItemNotFound = true;
                                 continue;
                             }
+
+                            CopyAndMoveRecord.Add($"{StorageItem.Path}||Copy||Folder||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
 
                             StorageFolder NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.OpenIfExists);
                             await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
@@ -764,7 +992,7 @@ namespace FileManager
             }
 
         FLAG:
-            CutFiles = null;
+            MoveFiles = null;
             CopyFiles = null;
             Paste.IsEnabled = false;
 
@@ -782,7 +1010,7 @@ namespace FileManager
 
             LastNode = FileControlInstance.CurrentNode;
 
-            CutFiles = SelectedItems.ToArray();
+            MoveFiles = SelectedItems.ToArray();
         }
 
         private async void Delete_Click(object sender, RoutedEventArgs e)
@@ -2686,7 +2914,7 @@ namespace FileManager
 
         private void EmptyFlyout_Opening(object sender, object e)
         {
-            if (CutFiles != null || CopyFiles != null)
+            if (MoveFiles != null || CopyFiles != null)
             {
                 Paste.IsEnabled = true;
             }
@@ -2875,9 +3103,6 @@ namespace FileManager
                                 case ".jpg":
                                 case ".png":
                                 case ".bmp":
-                                case ".heic":
-                                case ".gif":
-                                case ".tiff":
                                     {
                                         FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new DrillInNavigationTransitionInfo());
                                         break;
@@ -3022,22 +3247,16 @@ namespace FileManager
                                 FileControlInstance.CurrentNode.IsExpanded = true;
                             }
 
-                            while (true)
+                            TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(TabTarget.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as StorageFolder).Path));
+
+                            if(TargetNode!=null)
                             {
-                                TreeViewNode TargetNode = FileControlInstance.CurrentNode?.Children.Where((Node) => (Node.Content as StorageFolder).Name == TabTarget.Name).FirstOrDefault();
-                                if (TargetNode != null)
-                                {
-                                    FileControlInstance.FolderTree.SelectNode(TargetNode);
-                                    await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
-                                    break;
-                                }
-                                else
-                                {
-                                    await Task.Delay(200).ConfigureAwait(true);
-                                }
+                                FileControlInstance.FolderTree.SelectNode(TargetNode);
+                                await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
                             }
                         }
                     }
+
                     Interlocked.Exchange(ref TabTarget, null);
                 }
             }
@@ -3556,7 +3775,7 @@ namespace FileManager
             List<IStorageItem> TempList = new List<IStorageItem>(e.Items.Count);
             foreach (object obj in e.Items)
             {
-                TempList.Add(await (obj as FileSystemStorageItem).GetStorageItem().ConfigureAwait(false));
+                TempList.Add(await (obj as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true));
             }
             e.Data.SetStorageItems(TempList, false);
         }
@@ -3614,6 +3833,8 @@ namespace FileManager
                             return;
                         }
 
+                        CopyAndMoveRecord.Clear();
+
                         switch (e.AcceptedOperation)
                         {
                             case DataPackageOperation.Copy:
@@ -3636,6 +3857,8 @@ namespace FileManager
                                                     continue;
                                                 }
 
+                                                CopyAndMoveRecord.Add($"{File.Path}||Copy||File||{Path.Combine(Target.Path, File.Name)}");
+
                                                 _ = await File.CopyAsync((await Target.GetStorageItem()) as StorageFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
                                             }
                                             else if (Item is StorageFolder Folder)
@@ -3645,6 +3868,8 @@ namespace FileManager
                                                     IsItemNotFound = true;
                                                     continue;
                                                 }
+
+                                                CopyAndMoveRecord.Add($"{Folder.Path}||Copy||Folder||{Path.Combine(Target.Path, Folder.Name)}");
 
                                                 StorageFolder NewFolder = await ((StorageFolder)await Target.GetStorageItem()).CreateFolderAsync(Item.Name, CreationCollisionOption.OpenIfExists);
                                                 await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
@@ -3781,6 +4006,8 @@ namespace FileManager
                                                     continue;
                                                 }
 
+                                                CopyAndMoveRecord.Add($"{File.Path}||Move||File||{Path.Combine(Target.Path, File.Name)}");
+
                                                 await File.MoveAsync((await Target.GetStorageItem()) as StorageFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
                                                 FileCollection.Remove(FileCollection.FirstOrDefault((It) => It.Path == Item.Path));
                                             }
@@ -3791,6 +4018,8 @@ namespace FileManager
                                                     IsItemNotFound = true;
                                                     continue;
                                                 }
+
+                                                CopyAndMoveRecord.Add($"{Folder.Path}||Move||Folder||{Path.Combine(Target.Path, Folder.Name)}");
 
                                                 StorageFolder NewFolder = await ((StorageFolder)await Target.GetStorageItem()).CreateFolderAsync(Item.Name, CreationCollisionOption.OpenIfExists);
                                                 await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
@@ -3963,7 +4192,7 @@ namespace FileManager
             List<IStorageItem> TempList = new List<IStorageItem>(e.Items.Count);
             foreach (object obj in e.Items)
             {
-                TempList.Add(await (obj as FileSystemStorageItem).GetStorageItem().ConfigureAwait(false));
+                TempList.Add(await (obj as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true));
             }
             e.Data.SetStorageItems(TempList, false);
         }
@@ -3975,6 +4204,8 @@ namespace FileManager
                 args.ItemContainer.AllowDrop = false;
                 args.ItemContainer.Drop -= Item_Drop;
                 args.ItemContainer.DragEnter -= Item_DragEnter;
+                args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
+                args.ItemContainer.PointerExited -= ItemContainer_PointerExited;
             }
             else
             {
@@ -3991,8 +4222,38 @@ namespace FileManager
                         args.ItemContainer.Drop += Item_Drop;
                         args.ItemContainer.DragEnter += Item_DragEnter;
                     }
+
+                    args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
+                    args.ItemContainer.PointerExited += ItemContainer_PointerExited;
                 }
             }
+        }
+
+        private void ItemContainer_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (SettingControl.IsQuicklookAvailable && SettingControl.IsQuicklookEnable && !SettingControl.IsDoubleClickEnable)
+            {
+                PointerHoverTimer.Stop();
+            }
+        }
+
+        private void ItemContainer_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (SettingControl.IsQuicklookAvailable && SettingControl.IsQuicklookEnable && !SettingControl.IsDoubleClickEnable)
+            {
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
+                {
+                    StayInItem = Item;
+
+                    PointerHoverTimer.Start();
+                }
+            }
+        }
+
+        private void Timer_Tick(object sender, object e)
+        {
+            PointerHoverTimer.Stop();
+            SelectedItem = StayInItem;
         }
     }
 }

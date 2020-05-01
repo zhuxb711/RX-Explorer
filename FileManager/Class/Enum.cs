@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FileManager.Class
 {
@@ -239,5 +235,12 @@ namespace FileManager.Class
         /// 用户自定义库
         /// </summary>
         UserCustom = 1
+    }
+
+    [Flags]
+    public enum ItemFilter
+    {
+        File = 1,
+        Folder = 2
     }
 }

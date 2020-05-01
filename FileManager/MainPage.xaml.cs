@@ -70,6 +70,7 @@ namespace FileManager
 
         private async void MainPage_Loading(FrameworkElement sender, object args)
         {
+#if !DEBUG
             if(await FullTrustExcutorController.CheckQuicklookIsAvaliable())
             {
                 SettingControl.IsQuicklookAvailable = true;
@@ -78,6 +79,7 @@ namespace FileManager
             {
                 SettingControl.IsQuicklookAvailable = false;
             }
+#endif
 
             if(ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] is bool Enable)
             {

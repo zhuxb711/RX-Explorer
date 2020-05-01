@@ -886,10 +886,6 @@
           <source>Delete</source>
           <target state="translated">删除</target>
         </trans-unit>
-        <trans-unit id="PhotoViewerLoadingCache.Text" translate="yes" xml:space="preserve">
-          <source>Loading image cache...</source>
-          <target state="translated">正在加载图像缓存...</target>
-        </trans-unit>
         <trans-unit id="PhotoViewerRotateButton.Label" translate="yes" xml:space="preserve">
           <source>Rotation</source>
           <target state="translated">旋转</target>

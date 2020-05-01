@@ -11,8 +11,6 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
-using Windows.Storage.Search;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -23,8 +21,7 @@ namespace FileManager
 {
     public sealed partial class PhotoViewer : Page
     {
-        ObservableCollection<PhotoDisplaySupport> PhotoCollection = new ObservableCollection<PhotoDisplaySupport>();
-        StorageFileQueryResult QueryResult;
+        ObservableCollection<PhotoDisplaySupport> PhotoCollection;
         AnimationFlipViewBehavior Behavior = new AnimationFlipViewBehavior();
         string SelectedPhotoName;
         int LastSelectIndex;
@@ -34,6 +31,9 @@ namespace FileManager
         bool IsNavigateToCropperPage = false;
         FileControl FileControlInstance;
         CancellationTokenSource Cancellation;
+        Queue<int> LoadQueue;
+        private int LockResource = 0;
+        ManualResetEvent ExitLocker;
 
         public PhotoViewer()
         {
@@ -62,28 +62,23 @@ namespace FileManager
 
             try
             {
+                ExitLocker = new ManualResetEvent(false);
                 Cancellation = new CancellationTokenSource();
+                LoadQueue = new Queue<int>();
 
-                LoadingControl.IsLoading = true;
                 MainPage.ThisPage.IsAnyTaskRunning = true;
 
                 Behavior.Attach(Flip);
 
-                QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
+                List<FileSystemStorageItem> FileList = WIN_Native_API.GetItemFromPath(FileControlInstance.CurrentFolder.Path, ItemFilter.File).Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToList();
+
+                int LastSelectIndex = FileList.FindIndex((Photo) => Photo.Name == SelectedPhotoName);
+                if (LastSelectIndex < 0 || LastSelectIndex >= FileList.Count)
                 {
-                    FolderDepth = FolderDepth.Shallow,
-                    IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-                    ApplicationSearchFilter = "System.Kind:=System.Kind#Picture"
-                };
-                Options.SetThumbnailPrefetch(ThumbnailMode.SingleItem, 200, ThumbnailOptions.UseCurrentScale);
-                QueryResult = FileControlInstance.CurrentFolder.CreateFileQueryWithOptions(Options);
+                    LastSelectIndex = 0;
+                }
 
-                ProBar.Maximum = await QueryResult.GetItemCountAsync().AsTask(Cancellation.Token).ConfigureAwait(true);
-                ProBar.Value = 0;
-
-                IReadOnlyList<StorageFile> FileCollection = await QueryResult.GetFilesAsync().AsTask(Cancellation.Token).ConfigureAwait(true);
-
-                if (FileCollection.Count == 0)
+                if (FileList.Count == 0)
                 {
                     if (Globalization.Language == LanguageEnum.Chinese)
                     {
@@ -110,38 +105,24 @@ namespace FileManager
                     return;
                 }
 
-                for (int i = 0; i < FileCollection.Count && !Cancellation.IsCancellationRequested; i++, ProBar.Value++)
+                PhotoCollection = new ObservableCollection<PhotoDisplaySupport>(FileList.Select((Item) => new PhotoDisplaySupport(Item)));
+                Flip.ItemsSource = PhotoCollection;
+
+                await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmapAsync().ConfigureAwait(true);
+
+                for (int i = LastSelectIndex - 5 > 0 ? LastSelectIndex - 5 : 0; i <= (LastSelectIndex + 5 < PhotoCollection.Count - 1 ? LastSelectIndex + 5 : PhotoCollection.Count - 1) && !Cancellation.IsCancellationRequested; i++)
                 {
-                    using (StorageItemThumbnail ThumbnailStream = await FileCollection[i].GetThumbnailAsync(ThumbnailMode.SingleItem))
-                    {
-                        BitmapImage ImageSource = new BitmapImage();
-                        await ImageSource.SetSourceAsync(ThumbnailStream);
-                        PhotoCollection.Add(new PhotoDisplaySupport(ImageSource, FileCollection[i]));
-                    }
+                    await PhotoCollection[i].GenerateThumbnailAsync();
                 }
 
                 if (!Cancellation.IsCancellationRequested)
                 {
+                    Flip.SelectedIndex = LastSelectIndex;
                     Flip.SelectionChanged += Flip_SelectionChanged;
+                    Flip.SelectionChanged += Flip_SelectionChanged1;
 
-                    int Index = PhotoCollection.ToList().FindIndex((Photo) => Photo.FileName == SelectedPhotoName);
-                    if (Index < 0 || Index >= PhotoCollection.Count)
-                    {
-                        Index = 0;
-                    }
-                    Flip.SelectedIndex = Index;
-                    LastSelectIndex = Index;
-
-                    await Task.Delay(500).ConfigureAwait(true);
-
-                    await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmap().ConfigureAwait(true);
-
-                    OpacityAnimation.Begin();
+                    await Task.Delay(1000);
                 }
-            }
-            catch (TaskCanceledException)
-            {
-
             }
             catch (Exception ex)
             {
@@ -149,14 +130,36 @@ namespace FileManager
             }
             finally
             {
-                LoadingControl.IsLoading = false;
                 MainPage.ThisPage.IsAnyTaskRunning = false;
-                Cancellation.Dispose();
-                Cancellation = null;
+                ExitLocker.Set();
             }
         }
 
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        private void Flip_SelectionChanged1(object sender, SelectionChangedEventArgs e)
+        {
+            if (Flip.SelectedIndex == -1)
+            {
+                return;
+            }
+
+            if (LastSelectIndex > Flip.SelectedIndex)
+            {
+                _ = Flip.ContainerFromItem(Flip.SelectedIndex + 1).FindChildOfType<ScrollViewer>()?.ChangeView(null, null, 1);
+            }
+            else
+            {
+                if (Flip.SelectedIndex > 0)
+                {
+                    _ = Flip.ContainerFromIndex(Flip.SelectedIndex - 1).FindChildOfType<ScrollViewer>()?.ChangeView(null, null, 1);
+                }
+            }
+
+            Behavior.InitAnimation(InitOption.AroundImage);
+
+            LastSelectIndex = Flip.SelectedIndex;
+        }
+
+        protected async override void OnNavigatedFrom(NavigationEventArgs e)
         {
             if (IsNavigateToCropperPage)
             {
@@ -164,32 +167,56 @@ namespace FileManager
             }
 
             Cancellation?.Cancel();
-            Flip.Opacity = 0;
+
+            await Task.Run(() =>
+            {
+                ExitLocker.WaitOne();
+            });
+
+            ExitLocker.Dispose();
+            ExitLocker = null;
+            Cancellation.Dispose();
+            Cancellation = null;
             Behavior.Detach();
             PhotoCollection.Clear();
+            PhotoCollection = null;
             SelectedPhotoName = string.Empty;
             Flip.SelectionChanged -= Flip_SelectionChanged;
+            Flip.SelectionChanged -= Flip_SelectionChanged1;
         }
 
         private async void Flip_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            PhotoDisplaySupport Photo = null;
-            if (Interlocked.Exchange(ref Photo, Flip.SelectedItem as PhotoDisplaySupport) == null && Photo != null)
+            if (Flip.SelectedIndex == -1)
             {
-                if (LastSelectIndex > Flip.SelectedIndex)
+                return;
+            }
+
+            LoadQueue.Enqueue(Flip.SelectedIndex);
+
+            if (Interlocked.Exchange(ref LockResource, 1) == 0)
+            {
+                try
                 {
-                    _ = Flip.ContainerFromIndex(Flip.SelectedIndex + 1).FindChildOfType<ScrollViewer>()?.ChangeView(null, null, 1);
-                }
-                else
-                {
-                    if (Flip.SelectedIndex > 0)
+                    ExitLocker.Reset();
+
+                    while (LoadQueue.Count != 0)
                     {
-                        _ = Flip.ContainerFromIndex(Flip.SelectedIndex - 1).FindChildOfType<ScrollViewer>()?.ChangeView(null, null, 1);
+                        int CurrentIndex = LoadQueue.Dequeue();
+
+                        await PhotoCollection[CurrentIndex].ReplaceThumbnailBitmapAsync().ConfigureAwait(true);
+
+                        for (int i = CurrentIndex - 5 > 0 ? CurrentIndex - 5 : 0; i <= (CurrentIndex + 5 < PhotoCollection.Count - 1 ? CurrentIndex + 5 : PhotoCollection.Count - 1) && !Cancellation.IsCancellationRequested; i++)
+                        {
+                            await PhotoCollection[i].GenerateThumbnailAsync();
+                        }
                     }
                 }
-                await Photo.ReplaceThumbnailBitmap().ConfigureAwait(true);
-                Behavior.InitAnimation(InitOption.AroundImage);
-                LastSelectIndex = Flip.SelectedIndex;
+                finally
+                {
+                    _ = Interlocked.Exchange(ref LockResource, 0);
+                    ExitLocker.Set();
+                }
             }
         }
 
@@ -260,25 +287,27 @@ namespace FileManager
 
         private async void TranscodeImage_Click(object sender, RoutedEventArgs e)
         {
-            StorageFile OriginFile = PhotoCollection[Flip.SelectedIndex].PhotoFile;
-            TranscodeImageDialog Dialog = null;
-            using (var OriginStream = await OriginFile.OpenAsync(FileAccessMode.Read))
+            if ((await PhotoCollection[Flip.SelectedIndex].PhotoFile.GetStorageItem()) is StorageFile OriginFile)
             {
-                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
-                Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
-            }
+                TranscodeImageDialog Dialog = null;
+                using (var OriginStream = await OriginFile.OpenAsync(FileAccessMode.Read))
+                {
+                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
+                    Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
+                }
 
-            if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-            {
-                TranscodeLoadingControl.IsLoading = true;
-                MainPage.ThisPage.IsAnyTaskRunning = true;
+                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                {
+                    TranscodeLoadingControl.IsLoading = true;
+                    MainPage.ThisPage.IsAnyTaskRunning = true;
 
-                await GeneralTransformer.TranscodeFromImageAsync(OriginFile, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode).ConfigureAwait(true);
+                    await GeneralTransformer.TranscodeFromImageAsync(OriginFile, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode).ConfigureAwait(true);
 
-                await Task.Delay(1000).ConfigureAwait(true);
+                    await Task.Delay(1000).ConfigureAwait(true);
 
-                TranscodeLoadingControl.IsLoading = false;
-                MainPage.ThisPage.IsAnyTaskRunning = false;
+                    TranscodeLoadingControl.IsLoading = false;
+                    MainPage.ThisPage.IsAnyTaskRunning = false;
+                }
             }
         }
 
@@ -309,7 +338,7 @@ namespace FileManager
             if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
                 PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
-                await Item.PhotoFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                await (await Item.PhotoFile.GetStorageItem()).DeleteAsync(StorageDeleteOption.PermanentDelete);
                 PhotoCollection.Remove(Item);
                 Behavior.InitAnimation(InitOption.Full);
             }

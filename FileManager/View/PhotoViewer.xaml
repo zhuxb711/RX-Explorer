@@ -17,18 +17,6 @@
             <RowDefinition Height="40" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid.Resources>
-            <Storyboard x:Name="OpacityAnimation">
-                <DoubleAnimation Duration="0:0:0.7"
-                                 EnableDependentAnimation="True"
-                                 From="0"
-                                 To="1"
-                                 Storyboard.TargetName="Flip"
-                                 Storyboard.TargetProperty="Opacity">
-
-                </DoubleAnimation>
-            </Storyboard>
-        </Grid.Resources>
         <CommandBar Background="Transparent"
                     HorizontalAlignment="Center"
                     IsOpen="False"
@@ -55,8 +43,6 @@
                           Click="TranscodeImage_Click" />
         </CommandBar>
         <FlipView x:Name="Flip"
-                  ItemsSource="{x:Bind PhotoCollection}"
-                  Opacity="0"
                   Grid.Row="1"
                   Background="Transparent">
             <FlipView.ItemTemplate>
@@ -83,27 +69,6 @@
             </FlipView.ItemTemplate>
         </FlipView>
 
-        <controls:Loading x:Name="LoadingControl"
-                          IsLoading="False"
-                          Grid.RowSpan="2">
-            <controls:Loading.Background>
-                <SolidColorBrush Color="Black"
-                                 Opacity="0.65" />
-            </controls:Loading.Background>
-            <StackPanel Orientation="Horizontal"
-                        Padding="12">
-                <StackPanel>
-                    <TextBlock Text="正在加载图片缓存..."
-                               x:Uid="PhotoViewerLoadingCache"
-                               FontSize="22"
-                               VerticalAlignment="Center"
-                               TextAlignment="Center" />
-                    <ProgressBar Name="ProBar"
-                                 Margin="0,10,0,0" />
-                </StackPanel>
-            </StackPanel>
-        </controls:Loading>
-
         <controls:Loading x:Name="TranscodeLoadingControl"
                           IsLoading="False"
                           Grid.RowSpan="2">
@@ -115,7 +80,7 @@
                 <TextBlock Text="正在保存..."
                            x:Uid="PhotoViewerSaveTips"
                            Margin="10,0,0,0"
-                           FontSize="22"
+                           FontSize="18"
                            VerticalAlignment="Center"
                            TextAlignment="Center" />
                 <muxc:ProgressBar Width="150"

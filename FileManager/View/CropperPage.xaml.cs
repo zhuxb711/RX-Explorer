@@ -54,7 +54,7 @@ namespace FileManager
                     FileControlNav = Parameters.Item1;
 
                     PhotoDisplaySupport Item = Parameters.Item2 as PhotoDisplaySupport;
-                    OriginFile = Item.PhotoFile;
+                    OriginFile = (await Item.PhotoFile.GetStorageItem()) as StorageFile;
                     OriginImage = await Item.GenerateImageWithRotation().ConfigureAwait(true);
                     OriginBackupImage = SoftwareBitmap.Copy(OriginImage);
 

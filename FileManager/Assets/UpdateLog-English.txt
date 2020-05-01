@@ -1,4 +1,23 @@
 ﻿*****
+###What's new in Ver.4.6.3.0
+
+>#####Feature update
+
+>>#####Add the function of automatically selecting by mouse hovering in "click to open folder" mode
+
+>>#####Add Ctrl + Z undo function (only copy, cut)
+
+>#####Performance improvement
+
+>>#####Significantly speed up the loading speed of the image viewer, now no need to wait for the image cache to load
+
+>#####Bug fix
+
+>>#####Solved the problem that if the directory on the left is collapsed in use, it may cause the folder cannot be entered
+
+>>#####Fixed an issue where the image viewer incorrectly loaded an unreadable image type
+
+*****
 ###What's new in Ver.4.6.0.0
 
 >#####Feature update

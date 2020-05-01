@@ -31,6 +31,61 @@ namespace FileManager.Class
     /// </summary>
     public static class Extention
     {
+        public static async Task<TreeViewNode> FindFolderLocationInTree(this TreeViewNode Node, PathAnalysis Analysis)
+        {
+            if (Node.HasUnrealizedChildren && !Node.IsExpanded)
+            {
+                Node.IsExpanded = true;
+            }
+
+            string NextPathLevel = Analysis.NextFullPath();
+
+            if (NextPathLevel == Analysis.FullPath)
+            {
+                if ((Node.Content as StorageFolder).Path == NextPathLevel)
+                {
+                    return Node;
+                }
+                else
+                {
+                    while (true)
+                    {
+                        var TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
+                        if (TargetNode != null)
+                        {
+                            return TargetNode;
+                        }
+                        else
+                        {
+                            await Task.Delay(200).ConfigureAwait(true);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if ((Node.Content as StorageFolder).Path == NextPathLevel)
+                {
+                    return await FindFolderLocationInTree(Node, Analysis).ConfigureAwait(true);
+                }
+                else
+                {
+                    while (true)
+                    {
+                        var TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
+                        if (TargetNode != null)
+                        {
+                            return await FindFolderLocationInTree(TargetNode, Analysis).ConfigureAwait(true);
+                        }
+                        else
+                        {
+                            await Task.Delay(200).ConfigureAwait(true);
+                        }
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// 使用GoogleAPI自动检测语言并将文字翻译为对应语言
         /// </summary>

@@ -308,7 +308,7 @@ namespace FileManager
 
             await FillTreeNode(RootNode).ConfigureAwait(true);
 
-            TreeViewNode TargetNode = await FindFolderLocationInTree(RootNode, new PathAnalysis(Folder.Path, string.Empty)).ConfigureAwait(true);
+            TreeViewNode TargetNode = await RootNode.FindFolderLocationInTree(new PathAnalysis(Folder.Path, string.Empty)).ConfigureAwait(true);
             if (TargetNode == null)
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
@@ -573,13 +573,13 @@ namespace FileManager
 
                     TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Clear();
 
-                    List<FileSystemStorageItem> FileList = TabViewContainer.ThisPage.FFInstanceContainer[this].SortList(WIN_API_GETFILE.GetItemFromPath(Folder.Path), SortTarget.Name, SortDirection.Ascending);
+                    List<FileSystemStorageItem> ItemList = TabViewContainer.ThisPage.FFInstanceContainer[this].SortList(WIN_Native_API.GetItemFromPath(Folder.Path, ItemFilter.File | ItemFilter.Folder), SortTarget.Name, SortDirection.Ascending);
 
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = FileList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                    TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
-                    for (int i = 0; i < FileList.Count && !CancelToken.IsCancellationRequested; i++)
+                    for (int i = 0; i < ItemList.Count && !CancelToken.IsCancellationRequested; i++)
                     {
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Add(FileList[i]);
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Add(ItemList[i]);
                     }
                 }
 
@@ -655,13 +655,13 @@ namespace FileManager
 
                 TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Clear();
 
-                List<FileSystemStorageItem> FileList = TabViewContainer.ThisPage.FFInstanceContainer[this].SortList(WIN_API_GETFILE.GetItemFromPath(Folder.Path), SortTarget.Name, SortDirection.Ascending);
+                List<FileSystemStorageItem> ItemList = TabViewContainer.ThisPage.FFInstanceContainer[this].SortList(WIN_Native_API.GetItemFromPath(Folder.Path, ItemFilter.File | ItemFilter.Folder), SortTarget.Name, SortDirection.Ascending);
 
-                TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = FileList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
-                for (int i = 0; i < FileList.Count && !CancelToken.IsCancellationRequested; i++)
+                for (int i = 0; i < ItemList.Count && !CancelToken.IsCancellationRequested; i++)
                 {
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Add(FileList[i]);
+                    TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Add(ItemList[i]);
                 }
 
                 if (CancelToken.IsCancellationRequested)
@@ -1359,7 +1359,7 @@ namespace FileManager
                     {
                         if (QueryText.StartsWith((FolderTree.RootNodes[0].Content as StorageFolder).Path))
                         {
-                            TreeViewNode TargetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
+                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
                             if (TargetNode != null)
                             {
                                 await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
@@ -1396,63 +1396,6 @@ namespace FileManager
                             CloseButtonText = "Confirm",
                         };
                         _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                }
-            }
-        }
-
-        private async Task<TreeViewNode> FindFolderLocationInTree(TreeViewNode Node, PathAnalysis Analysis)
-        {
-            if (Node.HasUnrealizedChildren && !Node.IsExpanded)
-            {
-                Node.IsExpanded = true;
-            }
-
-            FolderTree.SelectNode(Node);
-
-            string NextPathLevel = Analysis.NextFullPath();
-
-            if (NextPathLevel == Analysis.FullPath)
-            {
-                if ((Node.Content as StorageFolder).Path == NextPathLevel)
-                {
-                    return Node;
-                }
-                else
-                {
-                    while (true)
-                    {
-                        var TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
-                        if (TargetNode != null)
-                        {
-                            return TargetNode;
-                        }
-                        else
-                        {
-                            await Task.Delay(200).ConfigureAwait(true);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if ((Node.Content as StorageFolder).Path == NextPathLevel)
-                {
-                    return await FindFolderLocationInTree(Node, Analysis).ConfigureAwait(true);
-                }
-                else
-                {
-                    while (true)
-                    {
-                        var TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
-                        if (TargetNode != null)
-                        {
-                            return await FindFolderLocationInTree(TargetNode, Analysis).ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            await Task.Delay(200).ConfigureAwait(true);
-                        }
                     }
                 }
             }
@@ -1527,7 +1470,7 @@ namespace FileManager
                     {
                         if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
                         {
-                            TreeViewNode ParenetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
+                            TreeViewNode ParenetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
                             await DisplayItemsInFolder(ParenetNode).ConfigureAwait(false);
                         }
                     }
@@ -1560,7 +1503,7 @@ namespace FileManager
                         if (Path.StartsWith((FolderTree.RootNodes.First().Content as StorageFolder).Path))
                         {
 
-                            TreeViewNode TargetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
+                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
                             if (TargetNode == null)
                             {
                                 if (Globalization.Language == LanguageEnum.Chinese)
@@ -1651,7 +1594,7 @@ namespace FileManager
                         if (Path.StartsWith((FolderTree.RootNodes.First().Content as StorageFolder).Path))
                         {
 
-                            TreeViewNode TargetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
+                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
                             if (TargetNode == null)
                             {
                                 if (Globalization.Language == LanguageEnum.Chinese)
@@ -1873,7 +1816,7 @@ namespace FileManager
             {
                 if (ActualString.StartsWith((FolderTree.RootNodes[0].Content as StorageFolder).Path))
                 {
-                    if ((await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(ActualString, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true)) is TreeViewNode TargetNode)
+                    if ((await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(ActualString, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true)) is TreeViewNode TargetNode)
                     {
                         await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
 
@@ -1950,7 +1893,7 @@ namespace FileManager
             string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(Btn.DataContext as AddressBlock) + 1).Skip(1));
             string ActualString = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
 
-            List<FileSystemStorageItem> ItemList = WIN_API_GETFILE.GetItemFromPath(ActualString);
+            List<FileSystemStorageItem> ItemList = WIN_Native_API.GetItemFromPath(ActualString, ItemFilter.Folder);
 
             foreach (string SubFolderName in ItemList.Where((It) => It.StorageType == StorageItemTypes.Folder).Select((Item) => Item.Name))
             {
@@ -2024,7 +1967,7 @@ namespace FileManager
                 {
                     if (TargetPath.StartsWith((FolderTree.RootNodes[0].Content as StorageFolder).Path))
                     {
-                        TreeViewNode TargetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(TargetPath, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
+                        TreeViewNode TargetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(TargetPath, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
                         if (TargetNode != null)
                         {
                             await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
@@ -2124,6 +2067,8 @@ namespace FileManager
                         return;
                     }
 
+                    FilePresenter.CopyAndMoveRecord.Clear();
+
                     List<IStorageItem> DragItemList = (await e.DataView.GetStorageItemsAsync()).ToList();
 
                     StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(ActualPath);
@@ -2150,6 +2095,8 @@ namespace FileManager
                                                 continue;
                                             }
 
+                                            FilePresenter.CopyAndMoveRecord.Add($"{File.Path}||Copy||File||{Path.Combine(TargetFolder.Path, File.Name)}");
+
                                             _ = await File.CopyAsync(TargetFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
                                         }
                                         else if (Item is StorageFolder Folder)
@@ -2160,12 +2107,14 @@ namespace FileManager
                                                 continue;
                                             }
 
+                                            FilePresenter.CopyAndMoveRecord.Add($"{Folder.Path}||Copy||Folder||{Path.Combine(TargetFolder.Path, Folder.Name)}");
+
                                             StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Item.Name, CreationCollisionOption.OpenIfExists);
                                             await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
 
                                             if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as StorageFolder).Path))
                                             {
-                                                TreeViewNode TargetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(ActualPath, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
+                                                TreeViewNode TargetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(ActualPath, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
                                                 if (TargetNode != null && (TargetNode.IsExpanded || !TargetNode.HasChildren))
                                                 {
                                                     if (TargetNode.Children.FirstOrDefault((Node) => (Node.Content as StorageFolder).Name == NewFolder.Name) is TreeViewNode ExistNode)
@@ -2295,6 +2244,8 @@ namespace FileManager
                                                 continue;
                                             }
 
+                                            FilePresenter.CopyAndMoveRecord.Add($"{File.Path}||Move||File||{Path.Combine(TargetFolder.Path, File.Name)}");
+
                                             await File.MoveAsync(TargetFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
                                             TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.FirstOrDefault((It) => It.Path == Item.Path));
                                         }
@@ -2305,6 +2256,8 @@ namespace FileManager
                                                 IsItemNotFound = true;
                                                 continue;
                                             }
+
+                                            FilePresenter.CopyAndMoveRecord.Add($"{Folder.Path}||Move||Folder||{Path.Combine(TargetFolder.Path, Folder.Name)}");
 
                                             StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Item.Name, CreationCollisionOption.OpenIfExists);
                                             await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
@@ -2325,7 +2278,7 @@ namespace FileManager
                                                     }
                                                 }
 
-                                                TreeViewNode TargetNode = await FindFolderLocationInTree(FolderTree.RootNodes[0], new PathAnalysis(ActualPath, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
+                                                TreeViewNode TargetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(ActualPath, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
                                                 if (TargetNode != null && (TargetNode.IsExpanded || !TargetNode.HasChildren))
                                                 {
                                                     if (TargetNode.Children.FirstOrDefault((Node) => (Node.Content as StorageFolder).Name == NewFolder.Name) is TreeViewNode ExistNode)

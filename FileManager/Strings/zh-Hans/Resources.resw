@@ -672,9 +672,6 @@
   <data name="PhotoViewerDeleteButton.Label" xml:space="preserve">
     <value>删除</value>
   </data>
-  <data name="PhotoViewerLoadingCache.Text" xml:space="preserve">
-    <value>正在加载图像缓存...</value>
-  </data>
   <data name="PhotoViewerRotateButton.Label" xml:space="preserve">
     <value>旋转</value>
   </data>
