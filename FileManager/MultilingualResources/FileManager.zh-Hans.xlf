@@ -14,10 +14,6 @@
           <source>Edit</source>
           <target state="translated">编辑</target>
         </trans-unit>
-        <trans-unit id="AppName.Text" translate="yes" xml:space="preserve">
-          <source>RX FileManager</source>
-          <target state="translated">RX 文件管理器</target>
-        </trans-unit>
         <trans-unit id="Browser.Content" translate="yes" xml:space="preserve">
           <source>Browser</source>
           <target state="translated">浏览器</target>
@@ -787,8 +783,8 @@
           <target state="translated">Acrylic颜色透明度</target>
         </trans-unit>
         <trans-unit id="SettingPageUIMode.Header" translate="yes" xml:space="preserve">
-          <source>Personalise</source>
-          <target state="translated">个性化</target>
+          <source>Mode</source>
+          <target state="translated">模式</target>
         </trans-unit>
         <trans-unit id="UserFolderText1.Text" translate="yes" xml:space="preserve">
           <source>Unable to automatically determine library folder</source>
@@ -1767,6 +1763,14 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="QuicklookTip.Subtitle" translate="yes" xml:space="preserve">
           <source>QuickLook is an auxiliary software for convenient and quick viewing of file contents. To enable this feature, you must install QuickLook in advance and ensure that QuickLook works properly. You can click on any file in the RX Explorer and press the space bar to activate QuickLook</source>
           <target state="translated">QuickLook是一种方便快捷查看文件内容的辅助软件。若要启用此功能，则您必须提前安装QuickLook并确保QuickLook正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活QuickLook</target>
+        </trans-unit>
+        <trans-unit id="AppName.Text" translate="yes" xml:space="preserve">
+          <source>RX Explorer</source>
+          <target state="translated">RX文件管理器</target>
+        </trans-unit>
+        <trans-unit id="SettingPersonalize.Text" translate="yes" xml:space="preserve">
+          <source>Personalize</source>
+          <target state="translated">个性化</target>
         </trans-unit>
       </group>
     </body>

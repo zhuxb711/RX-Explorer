@@ -248,7 +248,12 @@
                                       Toggled="EnableQuicklook_Toggled" />
                     </StackPanel>
 
-                    <ComboBox Header="个性化"
+                    <TextBlock Text="个性化"
+                               x:Uid="SettingPersonalize"
+                               FontSize="22"
+                               Margin="0,30,0,0" />
+                    
+                    <ComboBox Header="模式"
                               x:Uid="SettingPageUIMode"
                               Margin="0,20,0,0"
                               SelectionChanged="UIMode_SelectionChanged"

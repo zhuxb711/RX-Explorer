@@ -140,8 +140,8 @@ namespace FileManager
         private bool IsAdding = false;
         private CancellationTokenSource CancelToken;
         private CancellationTokenSource FolderExpandCancel;
-        private AutoResetEvent Locker;
         private ManualResetEvent ExitLocker;
+        private AutoResetEvent Locker;
         private List<StorageFolder> GoAndBackRecord = new List<StorageFolder>();
         private ObservableCollection<AddressBlock> AddressButtonList = new ObservableCollection<AddressBlock>();
         private ObservableCollection<string> AddressExtentionList = new ObservableCollection<string>();
@@ -360,7 +360,7 @@ namespace FileManager
             }
         }
 
-        protected override async void OnNavigatedFrom(NavigationEventArgs e)
+        protected async override void OnNavigatedFrom(NavigationEventArgs e)
         {
             while (Nav.CanGoBack)
             {
@@ -378,6 +378,7 @@ namespace FileManager
 
             ExitLocker.Dispose();
             ExitLocker = null;
+
             FolderExpandCancel.Dispose();
             FolderExpandCancel = null;
 
@@ -448,6 +449,7 @@ namespace FileManager
                 try
                 {
                     ExitLocker.Reset();
+
                     QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
                     {
                         FolderDepth = FolderDepth.Shallow,
@@ -457,27 +459,23 @@ namespace FileManager
 
                     StorageFolderQueryResult FolderQuery = folder.CreateFolderQueryWithOptions(Options);
 
-                    uint FolderCount = await FolderQuery.GetItemCountAsync();
-
-                    if (FolderCount == 0)
+                    if (WIN_Native_API.CheckContainsAnyItem(folder.Path, ItemFilter.Folder))
                     {
-                        return;
-                    }
-                    else
-                    {
-                        for (uint i = 0; i < FolderCount && !FolderExpandCancel.IsCancellationRequested; i += 50)
+                        for (uint i = 0; !FolderExpandCancel.IsCancellationRequested; i += 50)
                         {
                             IReadOnlyList<StorageFolder> StorageFolderList = await FolderQuery.GetFoldersAsync(i, 50).AsTask(FolderExpandCancel.Token).ConfigureAwait(true);
 
+                            if (StorageFolderList.Count == 0)
+                            {
+                                break;
+                            }
+
                             foreach (var SubFolder in StorageFolderList)
                             {
-                                StorageFolderQueryResult SubFolderQuery = SubFolder.CreateFolderQueryWithOptions(Options);
-                                uint Count = await SubFolderQuery.GetItemCountAsync().AsTask(FolderExpandCancel.Token).ConfigureAwait(true);
-
                                 TreeViewNode NewNode = new TreeViewNode
                                 {
                                     Content = SubFolder,
-                                    HasUnrealizedChildren = Count != 0
+                                    HasUnrealizedChildren = WIN_Native_API.CheckContainsAnyItem(SubFolder.Path, ItemFilter.Folder)
                                 };
 
                                 Node.Children.Add(NewNode);
@@ -521,13 +519,15 @@ namespace FileManager
                 throw new ArgumentNullException(nameof(Node), "Parameter could not be null");
             }
 
+            FolderTree.SelectNode(Node);
+
             try
             {
                 if (Node.Content is StorageFolder Folder)
                 {
                     if (!ForceRefresh)
                     {
-                        if (Folder.FolderRelativeId == CurrentFolder?.FolderRelativeId && Nav.CurrentSourcePageType == typeof(FilePresenter))
+                        if (Folder.Path == CurrentFolder?.Path && Nav.CurrentSourcePageType == typeof(FilePresenter))
                         {
                             IsAdding = false;
                             return;
@@ -564,7 +564,6 @@ namespace FileManager
                     }
 
                     CurrentNode = Node;
-                    FolderTree.SelectNode(Node);
 
                     while (Nav.CurrentSourcePageType.Name != nameof(FilePresenter))
                     {
@@ -573,7 +572,7 @@ namespace FileManager
 
                     TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Clear();
 
-                    List<FileSystemStorageItem> ItemList = TabViewContainer.ThisPage.FFInstanceContainer[this].SortList(WIN_Native_API.GetItemFromPath(Folder.Path, ItemFilter.File | ItemFilter.Folder), SortTarget.Name, SortDirection.Ascending);
+                    List<FileSystemStorageItem> ItemList = TabViewContainer.ThisPage.FFInstanceContainer[this].SortList(WIN_Native_API.GetStorageItems(Folder, ItemFilter.File | ItemFilter.Folder), SortTarget.Name, SortDirection.Ascending);
 
                     TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
@@ -600,7 +599,6 @@ namespace FileManager
 
         public async Task DisplayItemsInFolder(StorageFolder Folder, bool ForceRefresh = false)
         {
-
             if (Folder == null)
             {
                 throw new ArgumentNullException(nameof(Folder), "Parameter could not be null");
@@ -610,7 +608,7 @@ namespace FileManager
             {
                 if (!ForceRefresh)
                 {
-                    if (Folder.FolderRelativeId == CurrentFolder?.FolderRelativeId && Nav.CurrentSourcePageType == typeof(FilePresenter))
+                    if (Folder.Path == CurrentFolder?.Path && Nav.CurrentSourcePageType == typeof(FilePresenter))
                     {
                         IsAdding = false;
                         return;
@@ -655,7 +653,7 @@ namespace FileManager
 
                 TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Clear();
 
-                List<FileSystemStorageItem> ItemList = TabViewContainer.ThisPage.FFInstanceContainer[this].SortList(WIN_Native_API.GetItemFromPath(Folder.Path, ItemFilter.File | ItemFilter.Folder), SortTarget.Name, SortDirection.Ascending);
+                List<FileSystemStorageItem> ItemList = TabViewContainer.ThisPage.FFInstanceContainer[this].SortList(WIN_Native_API.GetStorageItems(Folder, ItemFilter.File | ItemFilter.Folder), SortTarget.Name, SortDirection.Ascending);
 
                 TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
@@ -745,10 +743,9 @@ namespace FileManager
 
                     TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Where((Item) => Item.Path == CurrentFolder.Path).FirstOrDefault());
 
-                    TreeViewNode ParentNode = CurrentNode.Parent;
-                    ParentNode.Children.Remove(CurrentNode);
+                    await DisplayItemsInFolder(CurrentNode.Parent).ConfigureAwait(true);
 
-                    await DisplayItemsInFolder(ParentNode).ConfigureAwait(true);
+                    await FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
                 }
                 catch (UnauthorizedAccessException)
                 {
@@ -945,7 +942,7 @@ namespace FileManager
 
                         ChildCollection.Insert(index, NewNode);
                         ChildCollection.Remove(CurrentNode);
-                        await NewNode.UpdateAllSubNodeFolder().ConfigureAwait(false);
+                        await NewNode.UpdateAllSubNodeFolder().ConfigureAwait(true);
                     }
                     else
                     {
@@ -1027,14 +1024,7 @@ namespace FileManager
 
                 TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
 
-                if (CurrentNode.IsExpanded || !CurrentNode.HasChildren)
-                {
-                    CurrentNode.Children.Add(new TreeViewNode
-                    {
-                        Content = NewFolder,
-                        HasUnrealizedChildren = false
-                    });
-                }
+                await FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
             }
             catch (UnauthorizedAccessException)
             {
@@ -1893,7 +1883,7 @@ namespace FileManager
             string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(Btn.DataContext as AddressBlock) + 1).Skip(1));
             string ActualString = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
 
-            List<FileSystemStorageItem> ItemList = WIN_Native_API.GetItemFromPath(ActualString, ItemFilter.Folder);
+            List<FileSystemStorageItem> ItemList = WIN_Native_API.GetStorageItems(ActualString, ItemFilter.Folder);
 
             foreach (string SubFolderName in ItemList.Where((It) => It.StorageType == StorageItemTypes.Folder).Select((Item) => Item.Name))
             {
@@ -2109,27 +2099,12 @@ namespace FileManager
 
                                             FilePresenter.CopyAndMoveRecord.Add($"{Folder.Path}||Copy||Folder||{Path.Combine(TargetFolder.Path, Folder.Name)}");
 
-                                            StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Item.Name, CreationCollisionOption.OpenIfExists);
+                                            StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Item.Name, CreationCollisionOption.GenerateUniqueName);
                                             await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
 
                                             if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as StorageFolder).Path))
                                             {
-                                                TreeViewNode TargetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(ActualPath, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
-                                                if (TargetNode != null && (TargetNode.IsExpanded || !TargetNode.HasChildren))
-                                                {
-                                                    if (TargetNode.Children.FirstOrDefault((Node) => (Node.Content as StorageFolder).Name == NewFolder.Name) is TreeViewNode ExistNode)
-                                                    {
-                                                        ExistNode.HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
-                                                    }
-                                                    else
-                                                    {
-                                                        TargetNode.Children.Add(new TreeViewNode
-                                                        {
-                                                            Content = NewFolder,
-                                                            HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                                                        });
-                                                    }
-                                                }
+                                                await FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
                                             }
                                         }
                                     }
@@ -2266,34 +2241,7 @@ namespace FileManager
 
                                             if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as StorageFolder).Path))
                                             {
-                                                if (CurrentNode.IsExpanded)
-                                                {
-                                                    CurrentNode.Children.Remove(CurrentNode.Children.Where((Node) => (Node.Content as StorageFolder).Name == Item.Name).FirstOrDefault());
-                                                }
-                                                else
-                                                {
-                                                    if ((await (CurrentNode.Content as StorageFolder).GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count == 0)
-                                                    {
-                                                        CurrentNode.HasUnrealizedChildren = false;
-                                                    }
-                                                }
-
-                                                TreeViewNode TargetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(ActualPath, (FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
-                                                if (TargetNode != null && (TargetNode.IsExpanded || !TargetNode.HasChildren))
-                                                {
-                                                    if (TargetNode.Children.FirstOrDefault((Node) => (Node.Content as StorageFolder).Name == NewFolder.Name) is TreeViewNode ExistNode)
-                                                    {
-                                                        ExistNode.HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
-                                                    }
-                                                    else
-                                                    {
-                                                        TargetNode.Children.Add(new TreeViewNode
-                                                        {
-                                                            Content = NewFolder,
-                                                            HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                                                        });
-                                                    }
-                                                }
+                                                await FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
                                             }
                                         }
                                     }

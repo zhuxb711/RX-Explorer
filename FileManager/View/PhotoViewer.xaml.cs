@@ -70,7 +70,7 @@ namespace FileManager
 
                 Behavior.Attach(Flip);
 
-                List<FileSystemStorageItem> FileList = WIN_Native_API.GetItemFromPath(FileControlInstance.CurrentFolder.Path, ItemFilter.File).Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToList();
+                List<FileSystemStorageItem> FileList = WIN_Native_API.GetStorageItems(FileControlInstance.CurrentFolder, ItemFilter.File).Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToList();
 
                 int LastSelectIndex = FileList.FindIndex((Photo) => Photo.Name == SelectedPhotoName);
                 if (LastSelectIndex < 0 || LastSelectIndex >= FileList.Count)

@@ -189,42 +189,42 @@ namespace FileManager
             IEnumerable<HardDeviceInfo> RemovedDriveList = HardDeviceList.Where((RemoveItem) => CurrentDrives.All((Item) => Item != RemoveItem.Folder.Path));
 
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                for (int i = 0; i < RemovedDriveList.Count(); i++)
-                {
-                    for (int j = 0; j < TabViewControl.TabItems.Count; j++)
-                    {
-                        if (((TabViewControl.TabItems[j] as TabViewItem)?.Content as Frame)?.Content is FileControl Control && Path.GetPathRoot(Control.CurrentFolder.Path) == RemovedDriveList.ElementAt(i).Folder.Path)
-                        {
-                            if (TabViewControl.TabItems.Count == 1)
-                            {
-                                while (CurrentPageNav.CanGoBack)
-                                {
-                                    CurrentPageNav.GoBack();
-                                }
-                            }
-                            else
-                            {
-                                if (TFInstanceContainer.ContainsValue(Control))
-                                {
-                                    FFInstanceContainer.Remove(Control);
-                                    FSInstanceContainer.Remove(Control);
-                                    TFInstanceContainer.Remove(TFInstanceContainer.First((Item) => Item.Value == Control).Key);
-                                }
+             {
+                 for (int i = 0; i < RemovedDriveList.Count(); i++)
+                 {
+                     for (int j = 0; j < TabViewControl.TabItems.Count; j++)
+                     {
+                         if (((TabViewControl.TabItems[j] as TabViewItem)?.Content as Frame)?.Content is FileControl Control && Path.GetPathRoot(Control.CurrentFolder.Path) == RemovedDriveList.ElementAt(i).Folder.Path)
+                         {
+                             if (TabViewControl.TabItems.Count == 1)
+                             {
+                                 while (CurrentPageNav.CanGoBack)
+                                 {
+                                     CurrentPageNav.GoBack();
+                                 }
+                             }
+                             else
+                             {
+                                 if (TFInstanceContainer.ContainsValue(Control))
+                                 {
+                                     FFInstanceContainer.Remove(Control);
+                                     FSInstanceContainer.Remove(Control);
+                                     TFInstanceContainer.Remove(TFInstanceContainer.First((Item) => Item.Value == Control).Key);
+                                 }
 
-                                TabViewControl.TabItems.RemoveAt(j);
+                                 TabViewControl.TabItems.RemoveAt(j);
 
-                                if (TabViewControl.TabItems.Count == 1)
-                                {
-                                    (TabViewControl.TabItems.First() as TabViewItem).IsClosable = false;
-                                }
-                            }
-                        }
-                    }
+                                 if (TabViewControl.TabItems.Count == 1)
+                                 {
+                                     (TabViewControl.TabItems.First() as TabViewItem).IsClosable = false;
+                                 }
+                             }
+                         }
+                     }
 
-                    HardDeviceList.Remove(RemovedDriveList.ElementAt(i));
-                }
-            });
+                     HardDeviceList.Remove(RemovedDriveList.ElementAt(i));
+                 }
+             });
         }
 
         private async void PortalDeviceWatcher_Added(DeviceWatcher sender, DeviceInformation args)
@@ -550,6 +550,7 @@ namespace FileManager
                 TFInstanceContainer.Remove(TFInstanceContainer.First((Item) => Item.Value == Control).Key);
             }
 
+            args.Tab.DragEnter -= Item_DragEnter;
             sender.TabItems.Remove(args.Tab);
 
             if (TabViewControl.TabItems.Count > 1)
@@ -593,8 +594,10 @@ namespace FileManager
                     {
                         IconSource = new SymbolIconSource { Symbol = Symbol.Document },
                         Content = frame,
+                        AllowDrop = true,
                         IsClosable = false
                     };
+                    Item.DragEnter += Item_DragEnter;
 
                     frame.Navigate(typeof(ThisPC), new Tuple<TabViewItem, StorageFolder>(Item, StorageFolderForNewTab));
 
@@ -608,6 +611,14 @@ namespace FileManager
             else
             {
                 return null;
+            }
+        }
+
+        private void Item_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.OriginalSource is TabViewItem Item)
+            {
+                TabViewControl.SelectedItem = Item;
             }
         }
 

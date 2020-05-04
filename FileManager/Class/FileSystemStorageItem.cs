@@ -56,8 +56,8 @@ namespace FileManager.Class
             StorageItem = Item;
             StorageType = StorageItemTypes.Folder;
 
-            this.ModifiedTime = ModifiedTime.ToString("F");
             Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
+            this.ModifiedTime = ModifiedTime.ToString("F");
         }
 
         public FileSystemStorageItem(WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset ModifiedTime)
@@ -74,7 +74,6 @@ namespace FileManager.Class
             ModifiedTimeRaw = ModifiedTime;
             this.StorageType = StorageType;
             this.ModifiedTime = ModifiedTime.ToString("F");
-
             if (StorageType == StorageItemTypes.Folder)
             {
                 Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));

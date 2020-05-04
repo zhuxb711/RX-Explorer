@@ -31,6 +31,44 @@ namespace FileManager.Class
     /// </summary>
     public static class Extention
     {
+        public static async Task UpdateAllSubNode(this TreeViewNode Node)
+        {
+            if (Node.Children.Count > 0)
+            {
+                List<string> FolderList = WIN_Native_API.GetStorageItems(Node.Content as StorageFolder, ItemFilter.Folder).Select((Item) => Item.Path).ToList();
+                List<string> PathList = Node.Children.Select((Item) => (Item.Content as StorageFolder).Path).ToList();
+                List<string> AddList = FolderList.Except(PathList).ToList();
+                List<string> RemoveList = PathList.Except(FolderList).ToList();
+
+                foreach (string AddPath in AddList)
+                {
+                    Node.Children.Add(new TreeViewNode
+                    {
+                        Content = await StorageFolder.GetFolderFromPathAsync(AddPath),
+                        HasUnrealizedChildren = WIN_Native_API.CheckContainsAnyItem(AddPath, ItemFilter.Folder),
+                        IsExpanded = false
+                    });
+                }
+
+                foreach (string RemovePath in RemoveList)
+                {
+                    if (Node.Children.FirstOrDefault((Item) => (Item.Content as StorageFolder).Path == RemovePath) is TreeViewNode RemoveNode)
+                    {
+                        Node.Children.Remove(RemoveNode);
+                    }
+                }
+
+                foreach (TreeViewNode SubNode in Node.Children)
+                {
+                    await SubNode.UpdateAllSubNode().ConfigureAwait(true);
+                }
+            }
+            else
+            {
+                Node.HasUnrealizedChildren = WIN_Native_API.CheckContainsAnyItem((Node.Content as StorageFolder).Path, ItemFilter.Folder);
+            }
+        }
+
         public static async Task<TreeViewNode> FindFolderLocationInTree(this TreeViewNode Node, PathAnalysis Analysis)
         {
             if (Node.HasUnrealizedChildren && !Node.IsExpanded)
