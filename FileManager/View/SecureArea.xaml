@@ -96,6 +96,8 @@
                   AllowDrop="True"
                   Visibility="Collapsed"
                   Drop="Grid_Drop"
+                  IsHoldingEnabled="True"
+                  Holding="SecureGridView_Holding"
                   RightTapped="SecureGridView_RightTapped"
                   Name="SecureGridView"
                   PointerPressed="SecureGridView_PointerPressed"

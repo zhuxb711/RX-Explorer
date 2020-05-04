@@ -525,9 +525,14 @@ namespace FileManager
             {
                 if (Node.Content is StorageFolder Folder)
                 {
+                    while (Nav.CurrentSourcePageType != typeof(FilePresenter))
+                    {
+                        Nav.GoBack();
+                    }
+
                     if (!ForceRefresh)
                     {
-                        if (Folder.Path == CurrentFolder?.Path && Nav.CurrentSourcePageType == typeof(FilePresenter))
+                        if (Folder.Path == CurrentFolder?.Path)
                         {
                             IsAdding = false;
                             return;
@@ -565,11 +570,6 @@ namespace FileManager
 
                     CurrentNode = Node;
 
-                    while (Nav.CurrentSourcePageType.Name != nameof(FilePresenter))
-                    {
-                        Nav.GoBack();
-                    }
-
                     TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Clear();
 
                     List<FileSystemStorageItem> ItemList = TabViewContainer.ThisPage.FFInstanceContainer[this].SortList(WIN_Native_API.GetStorageItems(Folder, ItemFilter.File | ItemFilter.Folder), SortTarget.Name, SortDirection.Ascending);
@@ -606,9 +606,14 @@ namespace FileManager
 
             try
             {
+                while (Nav.CurrentSourcePageType != typeof(FilePresenter))
+                {
+                    Nav.GoBack();
+                }
+
                 if (!ForceRefresh)
                 {
-                    if (Folder.Path == CurrentFolder?.Path && Nav.CurrentSourcePageType == typeof(FilePresenter))
+                    if (Folder.Path == CurrentFolder?.Path)
                     {
                         IsAdding = false;
                         return;
@@ -645,11 +650,6 @@ namespace FileManager
                 }
 
                 CurrentFolder = Folder;
-
-                while (Nav.CurrentSourcePageType.Name != nameof(FilePresenter))
-                {
-                    Nav.GoBack();
-                }
 
                 TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Clear();
 
@@ -820,28 +820,31 @@ namespace FileManager
 
         private async void FolderTree_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
+            if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                FolderTree.ContextFlyout = RightTabFlyout;
-
-                await DisplayItemsInFolder(Node).ConfigureAwait(true);
-
-                if (FolderTree.RootNodes.Contains(CurrentNode))
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
                 {
-                    FolderDelete.IsEnabled = false;
-                    FolderRename.IsEnabled = false;
-                    FolderAdd.IsEnabled = false;
+                    FolderTree.ContextFlyout = RightTabFlyout;
+
+                    await DisplayItemsInFolder(Node).ConfigureAwait(true);
+
+                    if (FolderTree.RootNodes.Contains(CurrentNode))
+                    {
+                        FolderDelete.IsEnabled = false;
+                        FolderRename.IsEnabled = false;
+                        FolderAdd.IsEnabled = false;
+                    }
+                    else
+                    {
+                        FolderDelete.IsEnabled = true;
+                        FolderRename.IsEnabled = true;
+                        FolderAdd.IsEnabled = true;
+                    }
                 }
                 else
                 {
-                    FolderDelete.IsEnabled = true;
-                    FolderRename.IsEnabled = true;
-                    FolderAdd.IsEnabled = true;
+                    FolderTree.ContextFlyout = null;
                 }
-            }
-            else
-            {
-                FolderTree.ContextFlyout = null;
             }
         }
 
@@ -2390,6 +2393,36 @@ namespace FileManager
 
             e.DragUIOverride.IsContentVisible = true;
             e.DragUIOverride.IsCaptionVisible = true;
+        }
+
+        private async void FolderTree_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        {
+            if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
+            {
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
+                {
+                    FolderTree.ContextFlyout = RightTabFlyout;
+
+                    await DisplayItemsInFolder(Node).ConfigureAwait(true);
+
+                    if (FolderTree.RootNodes.Contains(CurrentNode))
+                    {
+                        FolderDelete.IsEnabled = false;
+                        FolderRename.IsEnabled = false;
+                        FolderAdd.IsEnabled = false;
+                    }
+                    else
+                    {
+                        FolderDelete.IsEnabled = true;
+                        FolderRename.IsEnabled = true;
+                        FolderAdd.IsEnabled = true;
+                    }
+                }
+                else
+                {
+                    FolderTree.ContextFlyout = null;
+                }
+            }
         }
     }
 

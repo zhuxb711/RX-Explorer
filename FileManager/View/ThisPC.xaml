@@ -181,6 +181,8 @@
                       RightTapped="QuickStartGridView_RightTapped"
                       Grid.Row="1"
                       Padding="5"
+                      IsHoldingEnabled="True"
+                      Holding="QuickStartGridView_Holding"
                       ContextFlyout="{StaticResource AppFlyout}">
                 <GridView.ItemTemplateSelector>
                     <Cls:QuickStartSelector NormalDataTemplate="{StaticResource NormalDataTemplate}"
@@ -217,6 +219,8 @@
                       IsItemClickEnabled="True"
                       IsDoubleTapEnabled="False"
                       IsRightTapEnabled="True"
+                      IsHoldingEnabled="True"
+                      Holding="WebGridView_Holding"
                       ItemClick="WebGridView_ItemClick"
                       RightTapped="WebGridView_RightTapped"
                       Grid.Row="3"
@@ -275,8 +279,10 @@
                               IsItemClickEnabled="True"
                               IsDoubleTapEnabled="True"
                               IsRightTapEnabled="True"
+                              IsHoldingEnabled="True"
                               ItemClick="LibraryGrid_ItemClick"
                               RightTapped="LibraryGrid_RightTapped"
+                              Holding="LibraryGrid_Holding"
                               PointerPressed="LibraryGrid_PointerPressed"
                               DoubleTapped="LibraryGrid_DoubleTapped">
 
@@ -355,6 +361,8 @@
                                   IsItemClickEnabled="True"
                                   IsDoubleTapEnabled="True"
                                   IsRightTapEnabled="True"
+                                  IsHoldingEnabled="True"
+                                  Holding="DeviceGrid_Holding"
                                   MinHeight="250"
                                   ItemClick="DeviceGrid_ItemClick"
                                   ContainerContentChanging="DeviceGrid_ContainerContentChanging"

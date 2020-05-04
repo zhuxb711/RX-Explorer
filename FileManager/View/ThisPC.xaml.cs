@@ -8,6 +8,7 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
 using Windows.System;
+using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -168,34 +169,40 @@ namespace FileManager
 
         private void QuickStartGridView_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
+            if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                CurrentSelectedItem = Item;
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
+                {
+                    CurrentSelectedItem = Item;
 
-                if (Item == null || Item.ProtocalUri == null)
-                {
-                    QuickStartGridView.ContextFlyout = null;
-                }
-                else
-                {
-                    QuickStartGridView.ContextFlyout = AppFlyout;
+                    if (Item == null || Item.ProtocalUri == null)
+                    {
+                        QuickStartGridView.ContextFlyout = null;
+                    }
+                    else
+                    {
+                        QuickStartGridView.ContextFlyout = AppFlyout;
+                    }
                 }
             }
         }
 
         private void WebGridView_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
+            if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                CurrentSelectedItem = Item;
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
+                {
+                    CurrentSelectedItem = Item;
 
-                if (Item == null || Item.ProtocalUri == null)
-                {
-                    WebGridView.ContextFlyout = null;
-                }
-                else
-                {
-                    WebGridView.ContextFlyout = WebFlyout;
+                    if (Item == null || Item.ProtocalUri == null)
+                    {
+                        WebGridView.ContextFlyout = null;
+                    }
+                    else
+                    {
+                        WebGridView.ContextFlyout = WebFlyout;
+                    }
                 }
             }
         }
@@ -208,13 +215,16 @@ namespace FileManager
 
         private void DeviceGrid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Context)
+            if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                DeviceGrid.SelectedIndex = TabViewContainer.ThisPage.HardDeviceList.IndexOf(Context);
-            }
-            else
-            {
-                DeviceGrid.SelectedIndex = -1;
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Context)
+                {
+                    DeviceGrid.SelectedIndex = TabViewContainer.ThisPage.HardDeviceList.IndexOf(Context);
+                }
+                else
+                {
+                    DeviceGrid.SelectedIndex = -1;
+                }
             }
         }
 
@@ -262,21 +272,24 @@ namespace FileManager
 
         private void LibraryGrid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Context)
+            if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                LibraryGrid.SelectedItem = Context;
-                if (Context.Source == LibrarySource.UserCustom)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Context)
                 {
-                    LibraryGrid.ContextFlyout = UserLibraryFlyout;
+                    LibraryGrid.SelectedItem = Context;
+                    if (Context.Source == LibrarySource.UserCustom)
+                    {
+                        LibraryGrid.ContextFlyout = UserLibraryFlyout;
+                    }
+                    else
+                    {
+                        LibraryGrid.ContextFlyout = SystemLibraryFlyout;
+                    }
                 }
                 else
                 {
-                    LibraryGrid.ContextFlyout = SystemLibraryFlyout;
+                    LibraryGrid.ContextFlyout = null;
                 }
-            }
-            else
-            {
-                LibraryGrid.ContextFlyout = null;
             }
         }
 
@@ -487,6 +500,84 @@ namespace FileManager
             {
                 TabViewContainer.ThisPage.HardDeviceList.Remove(Device);
                 await SQLite.Current.SetDeviceVisibilityAsync(Device.Folder.Path, false).ConfigureAwait(false);
+            }
+        }
+
+        private void QuickStartGridView_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        {
+            if (e.HoldingState == HoldingState.Started)
+            {
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
+                {
+                    CurrentSelectedItem = Item;
+
+                    if (Item == null || Item.ProtocalUri == null)
+                    {
+                        QuickStartGridView.ContextFlyout = null;
+                    }
+                    else
+                    {
+                        QuickStartGridView.ContextFlyout = AppFlyout;
+                    }
+                }
+            }
+        }
+
+        private void WebGridView_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        {
+            if (e.HoldingState == HoldingState.Started)
+            {
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
+                {
+                    CurrentSelectedItem = Item;
+
+                    if (Item == null || Item.ProtocalUri == null)
+                    {
+                        WebGridView.ContextFlyout = null;
+                    }
+                    else
+                    {
+                        WebGridView.ContextFlyout = WebFlyout;
+                    }
+                }
+            }
+        }
+
+        private void LibraryGrid_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        {
+            if (e.HoldingState == HoldingState.Started)
+            {
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Context)
+                {
+                    LibraryGrid.SelectedItem = Context;
+                    if (Context.Source == LibrarySource.UserCustom)
+                    {
+                        LibraryGrid.ContextFlyout = UserLibraryFlyout;
+                    }
+                    else
+                    {
+                        LibraryGrid.ContextFlyout = SystemLibraryFlyout;
+                    }
+                }
+                else
+                {
+                    LibraryGrid.ContextFlyout = null;
+                }
+            }
+        }
+
+        private void DeviceGrid_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        {
+            if (e.HoldingState == HoldingState.Started)
+            {
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Context)
+                {
+                    DeviceGrid.SelectedIndex = TabViewContainer.ThisPage.HardDeviceList.IndexOf(Context);
+                }
+                else
+                {
+                    DeviceGrid.SelectedIndex = -1;
+                }
             }
         }
     }

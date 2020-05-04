@@ -28,6 +28,8 @@
                   Name="SearchResultList"
                   x:FieldModifier="public"
                   Grid.RowSpan="2"
+                  IsHoldingEnabled="True"
+                  Holding="SearchResultList_Holding"
                   RightTapped="SearchResultList_RightTapped"
                   SelectionChanged="SearchResultList_SelectionChanged">
             <ListView.HeaderTemplate>
@@ -142,6 +144,7 @@
                         <AppBarButton Icon="Copy"
                                       x:Name="CopyPath"
                                       Label="复制完整路径"
+                                      IsEnabled="{x:Bind Location.IsEnabled,Mode=OneWay}"
                                       x:Uid="SearchCopyPath"
                                       Click="CopyPath_Click"/>
                         <AppBarButton Icon="Tag"

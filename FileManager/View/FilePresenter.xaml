@@ -267,9 +267,9 @@
         <DataTemplate x:Name="TileDataTemplate"
                       x:FieldModifier="public"
                       x:DataType="local:FileSystemStorageItem">
-            <StackPanel Width="215"
-                        Padding="5"
-                        Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal"
+                        Width="215"
+                        Padding="5">
                 <Image IsHitTestVisible="False"
                        VerticalAlignment="Center"
                        Stretch="Uniform"
@@ -290,14 +290,14 @@
                                FontSize="13"
                                HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
-                               Width="140"/>
+                               Width="140" />
                     <TextBlock IsHitTestVisible="False"
                                Text="{x:Bind Size,Mode=OneWay}"
                                Visibility="{x:Bind StorageType,Converter={StaticResource StateConverter}}"
                                FontSize="13"
                                HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
-                               Width="140"/>
+                               Width="140" />
                 </StackPanel>
             </StackPanel>
         </DataTemplate>
@@ -553,6 +553,7 @@
                   VerticalAlignment="Stretch"
                   PointerPressed="GridViewControl_PointerPressed"
                   RightTapped="GridViewControl_RightTapped"
+                  Holding="GridViewControl_Holding"
                   SelectionChanged="GridViewControl_SelectionChanged"
                   SelectionMode="Extended"
                   ItemClick="GridViewControl_ItemClick"
@@ -560,6 +561,7 @@
                   CanReorderItems="False"
                   CanDragItems="True"
                   AllowDrop="True"
+                  IsHoldingEnabled="True"
                   DragOver="ViewControl_DragOver"
                   Drop="ViewControl_Drop"
                   ItemsSource="{x:Bind FileCollection}"

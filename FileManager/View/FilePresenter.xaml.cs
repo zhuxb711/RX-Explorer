@@ -16,7 +16,6 @@ using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Devices.Radios;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
-using Windows.Storage.Search;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
@@ -29,6 +28,8 @@ using Windows.UI.Xaml.Navigation;
 using ZXing;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
+using SwipeItem = Microsoft.UI.Xaml.Controls.SwipeItem;
+using SwipeItemInvokedEventArgs = Microsoft.UI.Xaml.Controls.SwipeItemInvokedEventArgs;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace FileManager
@@ -1497,7 +1498,7 @@ namespace FileManager
                                     {
                                         TreeViewNode NewNode = new TreeViewNode()
                                         {
-                                            Content = (await RenameItem.GetStorageItem().ConfigureAwait(true)) as StorageFolder ,
+                                            Content = (await RenameItem.GetStorageItem().ConfigureAwait(true)) as StorageFolder,
                                             HasUnrealizedChildren = false,
                                             IsExpanded = true
                                         };
@@ -1713,22 +1714,25 @@ namespace FileManager
 
         private void GridViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
+            if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                SelectedIndex = FileCollection.IndexOf(Context);
-
-                if (Context.StorageType == StorageItemTypes.Folder)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
                 {
-                    ControlContextFlyout = FolderFlyout;
+                    SelectedIndex = FileCollection.IndexOf(Context);
+
+                    if (Context.StorageType == StorageItemTypes.Folder)
+                    {
+                        ControlContextFlyout = FolderFlyout;
+                    }
+                    else
+                    {
+                        ControlContextFlyout = FileFlyout;
+                    }
                 }
                 else
                 {
-                    ControlContextFlyout = FileFlyout;
+                    ControlContextFlyout = EmptyFlyout;
                 }
-            }
-            else
-            {
-                ControlContextFlyout = EmptyFlyout;
             }
 
             e.Handled = true;
@@ -4542,6 +4546,30 @@ namespace FileManager
                 }
             }
 
+        }
+
+        private void GridViewControl_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        {
+            if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
+            {
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
+                {
+                    SelectedIndex = FileCollection.IndexOf(Context);
+
+                    if (Context.StorageType == StorageItemTypes.Folder)
+                    {
+                        ControlContextFlyout = FolderFlyout;
+                    }
+                    else
+                    {
+                        ControlContextFlyout = FileFlyout;
+                    }
+                }
+                else
+                {
+                    ControlContextFlyout = EmptyFlyout;
+                }
+            }
         }
     }
 }

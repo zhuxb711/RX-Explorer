@@ -288,6 +288,8 @@
                            VerticalAlignment="Stretch"
                            CanReorderItems="False"
                            CanDragItems="False"
+                           IsHoldingEnabled="True"
+                           Holding="FolderTree_Holding"
                            RightTapped="FolderTree_RightTapped">
                 <muxc:TreeView.ItemTemplate>
                     <DataTemplate>

@@ -846,15 +846,18 @@ namespace FileManager
 
         private void SecureGridView_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
+            if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                SecureGridView.SelectedItem = Item;
-                SecureGridView.ContextFlyout = FileFlyout;
-            }
-            else
-            {
-                SecureGridView.SelectedItem = null;
-                SecureGridView.ContextFlyout = EmptyFlyout;
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
+                {
+                    SecureGridView.SelectedItem = Item;
+                    SecureGridView.ContextFlyout = FileFlyout;
+                }
+                else
+                {
+                    SecureGridView.SelectedItem = null;
+                    SecureGridView.ContextFlyout = EmptyFlyout;
+                }
             }
         }
 
@@ -1058,6 +1061,23 @@ namespace FileManager
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             Cancellation?.Cancel();
+        }
+
+        private void SecureGridView_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        {
+            if(e.HoldingState==Windows.UI.Input.HoldingState.Started)
+            {
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
+                {
+                    SecureGridView.SelectedItem = Item;
+                    SecureGridView.ContextFlyout = FileFlyout;
+                }
+                else
+                {
+                    SecureGridView.SelectedItem = null;
+                    SecureGridView.ContextFlyout = EmptyFlyout;
+                }
+            }
         }
     }
 }

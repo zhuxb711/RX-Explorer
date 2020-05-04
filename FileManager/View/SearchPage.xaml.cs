@@ -132,21 +132,21 @@ namespace FileManager
 
         private async void Location_Click(object sender, RoutedEventArgs e)
         {
-            if (SearchResultList.SelectedItem is FileSystemStorageItem RemoveFile)
+            if (SearchResultList.SelectedItem is FileSystemStorageItem Item)
             {
-                if (RemoveFile.StorageType == StorageItemTypes.Folder)
+                if (Item.StorageType == StorageItemTypes.Folder)
                 {
                     try
                     {
                         if (SettingControl.IsDetachTreeViewAndPresenter)
                         {
-                            StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(RemoveFile.Path);
+                            StorageFolder Folder = (await Item.GetStorageItem().ConfigureAwait(true)) as StorageFolder;
 
                             await FileControlInstance.DisplayItemsInFolder(Folder).ConfigureAwait(false);
                         }
                         else
                         {
-                            TreeViewNode TargetNode = await FindFolderLocationInTree(FileControlInstance.FolderTree.RootNodes[0], new PathAnalysis(RemoveFile.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
+                            TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Item.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
                             if (TargetNode != null)
                             {
                                 FileControlInstance.FolderTree.SelectNode(TargetNode);
@@ -186,7 +186,7 @@ namespace FileManager
                 {
                     try
                     {
-                        StorageFile File = await StorageFile.GetFileFromPathAsync(RemoveFile.Path);
+                        StorageFile File = (await Item.GetStorageItem().ConfigureAwait(true)) as StorageFile;
 
                         if (SettingControl.IsDetachTreeViewAndPresenter)
                         {
@@ -194,7 +194,7 @@ namespace FileManager
                         }
                         else
                         {
-                            TreeViewNode CurrentNode = await FindFolderLocationInTree(FileControlInstance.FolderTree.RootNodes[0], new PathAnalysis((await ((StorageFile)await RemoveFile.GetStorageItem()).GetParentAsync()).Path, (FileControlInstance.FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
+                            TreeViewNode CurrentNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Path.GetDirectoryName(Item.Path), (FileControlInstance.FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
 
                             FileControlInstance.FolderTree.SelectNode(CurrentNode);
 
@@ -235,66 +235,14 @@ namespace FileManager
             _ = await Dialog.ShowAsync().ConfigureAwait(true);
         }
 
-        private async Task<TreeViewNode> FindFolderLocationInTree(TreeViewNode Node, PathAnalysis Analysis)
-        {
-            if (Node.HasUnrealizedChildren && !Node.IsExpanded)
-            {
-                Node.IsExpanded = true;
-            }
-
-            string NextPathLevel = Analysis.NextFullPath();
-
-            if (NextPathLevel == Analysis.FullPath)
-            {
-                if ((Node.Content as StorageFolder).Path == NextPathLevel)
-                {
-                    return Node;
-                }
-                else
-                {
-                    while (true)
-                    {
-                        var TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
-                        if (TargetNode != null)
-                        {
-                            return TargetNode;
-                        }
-                        else
-                        {
-                            await Task.Delay(300).ConfigureAwait(true);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if ((Node.Content as StorageFolder).Path == NextPathLevel)
-                {
-                    return await FindFolderLocationInTree(Node, Analysis).ConfigureAwait(true);
-                }
-                else
-                {
-                    while (true)
-                    {
-                        var TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
-                        if (TargetNode != null)
-                        {
-                            return await FindFolderLocationInTree(TargetNode, Analysis).ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            await Task.Delay(300).ConfigureAwait(true);
-                        }
-                    }
-                }
-            }
-        }
-
         private void SearchResultList_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
-            FileSystemStorageItem Context = (e.OriginalSource as FrameworkElement)?.DataContext as FileSystemStorageItem;
-            SearchResultList.SelectedIndex = SearchResult.IndexOf(Context);
-            e.Handled = true;
+            if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
+            {
+                FileSystemStorageItem Context = (e.OriginalSource as FrameworkElement)?.DataContext as FileSystemStorageItem;
+                SearchResultList.SelectedIndex = SearchResult.IndexOf(Context);
+                e.Handled = true;
+            }
         }
 
         private void SearchResultList_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -309,6 +257,15 @@ namespace FileManager
                 DataPackage Package = new DataPackage();
                 Package.SetText(SelectItem.Path);
                 Clipboard.SetContent(Package);
+            }
+        }
+
+        private void SearchResultList_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        {
+            if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
+            {
+                FileSystemStorageItem Context = (e.OriginalSource as FrameworkElement)?.DataContext as FileSystemStorageItem;
+                SearchResultList.SelectedIndex = SearchResult.IndexOf(Context);
             }
         }
     }
