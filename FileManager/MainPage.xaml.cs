@@ -72,7 +72,7 @@ namespace FileManager
         private async void MainPage_Loaded1(object sender, RoutedEventArgs e)
         {
 #if !DEBUG
-            if(await FullTrustExcutorController.CheckQuicklookIsAvaliable().ConfigureAwait(true))
+            if(await FullTrustExcutorController.CheckQuicklookIsAvaliable().ConfigureAwait(false))
             {
                 SettingControl.IsQuicklookAvailable = true;
             }

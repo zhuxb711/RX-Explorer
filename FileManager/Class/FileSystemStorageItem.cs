@@ -12,7 +12,7 @@ namespace FileManager.Class
     /// <summary>
     /// 提供对设备中的存储对象的描述
     /// </summary>
-    public sealed class FileSystemStorageItem : INotifyPropertyChanged
+    public sealed class FileSystemStorageItem : INotifyPropertyChanged, IComparable
     {
         public StorageItemTypes StorageType { get; private set; }
 
@@ -83,6 +83,18 @@ namespace FileManager.Class
         private void OnPropertyChanged(string name)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj is FileSystemStorageItem Item)
+            {
+                return Item.Path.CompareTo(Path);
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(obj), "obj could not be null");
+            }
         }
 
         public async Task<IStorageItem> GetStorageItem()

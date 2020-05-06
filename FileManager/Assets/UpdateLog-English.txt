@@ -1,5 +1,5 @@
 ﻿*****
-###What's new in Ver.4.6.3.0
+###What's new in Ver.4.6.8.0
 
 >#####Feature update
 
@@ -7,15 +7,31 @@
 
 >>#####Add Ctrl + Z undo function (only copy, cut)
 
+>>#####Added cross-tab drag and drop support
+
+>>#####New language setting options, and now you no longer need to reset all settings to switch languages
+
+>>#####Add auxiliary bottom bar to optimize touch screen experience
+
 >#####Performance improvement
 
 >>#####Significantly speed up the loading speed of the image viewer, now no need to wait for the image cache to load
+
+>>#####Improved the expansion speed of the folder directory on the left
 
 >#####Bug fix
 
 >>#####Solved the problem that if the directory on the left is collapsed in use, it may cause the folder cannot be entered
 
 >>#####Fixed an issue where the image viewer incorrectly loaded an unreadable image type
+
+>>#####Fixed the problem that files being accessed by RX can be moved/deleted due to lack of shared file lock
+
+>>#####Fixed the issue that the search page cannot be navigated to the file page in some cases
+
+>>#####Solved the problem that the right-click menu cannot be expanded correctly when using the touch screen
+
+>>#####Fixed the problem that the tips in the settings page is blocked
 
 *****
 ###What's new in Ver.4.6.0.0

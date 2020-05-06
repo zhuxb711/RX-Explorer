@@ -570,11 +570,14 @@ namespace FileManager
 
                     CurrentNode = Node;
 
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Clear();
+                    FilePresenter Presenter = TabViewContainer.ThisPage.FFInstanceContainer[this];
 
-                    List<FileSystemStorageItem> ItemList = TabViewContainer.ThisPage.FFInstanceContainer[this].SortList(WIN_Native_API.GetStorageItems(Folder, ItemFilter.File | ItemFilter.Folder), SortTarget.Name, SortDirection.Ascending);
+                    Presenter.FileCollection.Clear();
 
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                    List<FileSystemStorageItem> ItemList = Presenter.SortList(WIN_Native_API.GetStorageItems(Folder, ItemFilter.File | ItemFilter.Folder), SortTarget.Name, SortDirection.Ascending);
+
+                    Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
 
                     for (int i = 0; i < ItemList.Count && !CancelToken.IsCancellationRequested; i++)
                     {
@@ -651,15 +654,17 @@ namespace FileManager
 
                 CurrentFolder = Folder;
 
-                TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Clear();
+                FilePresenter Presenter = TabViewContainer.ThisPage.FFInstanceContainer[this];
 
-                List<FileSystemStorageItem> ItemList = TabViewContainer.ThisPage.FFInstanceContainer[this].SortList(WIN_Native_API.GetStorageItems(Folder, ItemFilter.File | ItemFilter.Folder), SortTarget.Name, SortDirection.Ascending);
+                Presenter.FileCollection.Clear();
 
-                TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                List<FileSystemStorageItem> ItemList = Presenter.SortList(WIN_Native_API.GetStorageItems(Folder, ItemFilter.File | ItemFilter.Folder), SortTarget.Name, SortDirection.Ascending);
+
+                Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
                 for (int i = 0; i < ItemList.Count && !CancelToken.IsCancellationRequested; i++)
                 {
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Add(ItemList[i]);
+                    Presenter.FileCollection.Add(ItemList[i]);
                 }
 
                 if (CancelToken.IsCancellationRequested)

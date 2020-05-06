@@ -40,6 +40,11 @@ namespace FileManager.Class
 
         public static async Task UpdateAllSubNode(this TreeViewNode Node)
         {
+            if (Node == null)
+            {
+                throw new ArgumentNullException(nameof(Node), "Node could not be null");
+            }
+
             if (Node.Children.Count > 0)
             {
                 List<string> FolderList = WIN_Native_API.GetStorageItems(Node.Content as StorageFolder, ItemFilter.Folder).Select((Item) => Item.Path).ToList();
@@ -270,9 +275,10 @@ namespace FileManager.Class
 
             View.UpdateLayout();
 
+            View.SelectedNode = Node;
+
             if (View.ContainerFromNode(Node) is TreeViewItem Item)
             {
-                Item.IsSelected = true;
                 Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
             }
         }

@@ -84,17 +84,24 @@ namespace FileManager.Class
 
         public static async Task<bool> CheckQuicklookIsAvaliable()
         {
-            ApplicationData.Current.LocalSettings.Values["ExcuteType"] = ExcuteType_Check_Quicklook;
-            ApplicationData.Current.LocalSettings.Values.Remove("Check_QuicklookIsAvaliable_Result");
-
-            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
-
-            await Task.Run(() =>
+            try
             {
-                SpinWait.SpinUntil(() => ApplicationData.Current.LocalSettings.Values.ContainsKey("Check_QuicklookIsAvaliable_Result"));
-            });
+                ApplicationData.Current.LocalSettings.Values["ExcuteType"] = ExcuteType_Check_Quicklook;
+                ApplicationData.Current.LocalSettings.Values.Remove("Check_QuicklookIsAvaliable_Result");
 
-            return Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["Check_QuicklookIsAvaliable_Result"]);
+                await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+
+                await Task.Run(() =>
+                {
+                    SpinWait.SpinUntil(() => ApplicationData.Current.LocalSettings.Values.ContainsKey("Check_QuicklookIsAvaliable_Result"));
+                }).ConfigureAwait(false);
+
+                return Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["Check_QuicklookIsAvaliable_Result"]);
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

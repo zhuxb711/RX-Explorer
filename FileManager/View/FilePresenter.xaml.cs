@@ -3349,7 +3349,7 @@ namespace FileManager
         {
             Restore();
 
-            if (SelectedItem!=null)
+            if (SelectedItem != null)
             {
                 EnterSelectedItem(SelectedItem, true);
             }
@@ -4424,6 +4424,16 @@ namespace FileManager
                                     catch (Exception)
                                     {
                                         IsCaptured = true;
+                                    }
+                                }
+
+                                if (!SettingControl.IsDetachTreeViewAndPresenter && DragItemList.Any((Item) => Item.IsOfType(StorageItemTypes.Folder)))
+                                {
+                                    FileControl Control = TabViewContainer.ThisPage.TabViewControl.TabItems.Select((Tab) => ((Tab as Microsoft.UI.Xaml.Controls.TabViewItem)?.Content as Frame)?.Content as FileControl).Where((Control) => Control != null).FirstOrDefault((Control) => Control.CurrentFolder.Path == Path.GetDirectoryName(DragItemList[0].Path));
+                                    if (Control != null)
+                                    {
+                                        await Control.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
+                                        TabViewContainer.ThisPage.FFInstanceContainer[Control].Refresh_Click(null, null);
                                     }
                                 }
 

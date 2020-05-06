@@ -376,6 +376,13 @@ namespace FileManager
                         StorageFolder MusicFolder = await StorageFolder.GetFolderFromPathAsync(MusicPath);
                         LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibrarySource.SystemBase));
                     }
+
+                    string UserProfilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                    if (!string.IsNullOrEmpty(UserProfilePath))
+                    {
+                        StorageFolder OneDriveFolder = await StorageFolder.GetFolderFromPathAsync(Path.Combine(UserProfilePath, "OneDrive"));
+                        LibraryFolderList.Add(new LibraryFolder(OneDriveFolder, await OneDriveFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibrarySource.SystemBase));
+                    }
                 }
                 catch (Exception)
                 {
