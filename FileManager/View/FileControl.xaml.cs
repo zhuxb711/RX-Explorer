@@ -931,11 +931,11 @@ namespace FileManager
                     }
                     else if (CurrentNode.HasChildren)
                     {
-                        var NewNode = new TreeViewNode()
+                        TreeViewNode NewNode = new TreeViewNode()
                         {
                             Content = ReCreateFolder,
                             HasUnrealizedChildren = false,
-                            IsExpanded = true
+                            IsExpanded = false
                         };
 
                         foreach (var SubNode in CurrentNode.Children)
@@ -945,7 +945,6 @@ namespace FileManager
 
                         ChildCollection.Insert(index, NewNode);
                         ChildCollection.Remove(CurrentNode);
-                        await NewNode.UpdateAllSubNodeFolder().ConfigureAwait(true);
                     }
                     else
                     {
@@ -1098,13 +1097,13 @@ namespace FileManager
                 }
                 else
                 {
-                    AttributeDialog Dialog = new AttributeDialog(CurrentFolder);
+                    PropertyDialog Dialog = new PropertyDialog(CurrentFolder);
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
             else
             {
-                AttributeDialog Dialog = new AttributeDialog(CurrentFolder);
+                PropertyDialog Dialog = new PropertyDialog(CurrentFolder);
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }
@@ -2422,6 +2421,269 @@ namespace FileManager
                 {
                     FolderTree.ContextFlyout = null;
                 }
+            }
+        }
+
+        private void BottomCommandBar_Opening(object sender, object e)
+        {
+            BottomCommandBar.PrimaryCommands.Clear();
+            BottomCommandBar.SecondaryCommands.Clear();
+
+            FilePresenter Instance = TabViewContainer.ThisPage.FFInstanceContainer[this];
+
+            if (Instance.SelectedItem is FileSystemStorageItem Item)
+            {
+                AppBarButton CopyButton = new AppBarButton
+                {
+                    Icon = new SymbolIcon(Symbol.Copy),
+                    Label = Globalization.Language == LanguageEnum.Chinese ? "复制" : "Copy"
+                };
+                CopyButton.Click += Instance.Copy_Click;
+                BottomCommandBar.PrimaryCommands.Add(CopyButton);
+
+                AppBarButton CutButton = new AppBarButton
+                {
+                    Icon = new SymbolIcon(Symbol.Cut),
+                    Label = Globalization.Language == LanguageEnum.Chinese ? "剪切" : "Cut"
+                };
+                CutButton.Click += Instance.Cut_Click;
+                BottomCommandBar.PrimaryCommands.Add(CutButton);
+
+                AppBarButton DeleteButton = new AppBarButton
+                {
+                    Icon = new SymbolIcon(Symbol.Delete),
+                    Label = Globalization.Language == LanguageEnum.Chinese ? "删除" : "Delete"
+                };
+                DeleteButton.Click += Instance.Delete_Click;
+                BottomCommandBar.PrimaryCommands.Add(DeleteButton);
+
+                AppBarButton RenameButton = new AppBarButton
+                {
+                    Icon = new SymbolIcon(Symbol.Rename),
+                    Label = Globalization.Language == LanguageEnum.Chinese ? "重命名" : "Rename"
+                };
+                RenameButton.Click += Instance.Rename_Click;
+                BottomCommandBar.PrimaryCommands.Add(RenameButton);
+
+                if (Item.StorageType == StorageItemTypes.File)
+                {
+                    AppBarButton OpenButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.OpenFile),
+                        Label = Globalization.Language == LanguageEnum.Chinese ? "打开" : "Open"
+                    };
+                    OpenButton.Click += Instance.FileOpen_Click;
+                    BottomCommandBar.SecondaryCommands.Add(OpenButton);
+
+                    MenuFlyout OpenFlyout = new MenuFlyout();
+                    MenuFlyoutItem AdminItem = new MenuFlyoutItem
+                    {
+                        Icon = new SymbolIcon(Symbol.Admin),
+                        Text = Globalization.Language == LanguageEnum.Chinese ? "以管理员权限打开" : "Open as administrator",
+                        IsEnabled = Instance.RunWithSystemAuthority.IsEnabled
+                    };
+                    AdminItem.Click += Instance.RunWithSystemAuthority_Click;
+                    OpenFlyout.Items.Add(AdminItem);
+
+                    MenuFlyoutItem OtherItem = new MenuFlyoutItem
+                    {
+                        Icon = new SymbolIcon(Symbol.SwitchApps),
+                        Text = Globalization.Language == LanguageEnum.Chinese ? "选择其他应用" : "Choose another app",
+                        IsEnabled = Instance.ChooseOtherApp.IsEnabled
+                    };
+                    OtherItem.Click += Instance.ChooseOtherApp_Click;
+                    OpenFlyout.Items.Add(OtherItem);
+
+                    BottomCommandBar.SecondaryCommands.Add(new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.AllApps),
+                        Label = Globalization.Language == LanguageEnum.Chinese ? "打开方式..." : "Open with...",
+                        Flyout = OpenFlyout
+                    });
+
+                    BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
+
+                    MenuFlyout EditFlyout = new MenuFlyout();
+                    MenuFlyoutItem MontageItem = new MenuFlyoutItem
+                    {
+                        Icon = new FontIcon { Glyph = "\uE177" },
+                        Text = Globalization.Language == LanguageEnum.Chinese ? "剪辑" : "Montage",
+                        IsEnabled = Instance.VideoEdit.IsEnabled
+                    };
+                    MontageItem.Click += Instance.VideoEdit_Click;
+                    EditFlyout.Items.Add(MontageItem);
+
+                    MenuFlyoutItem MergeItem = new MenuFlyoutItem
+                    {
+                        Icon = new FontIcon { Glyph = "\uE11E" },
+                        Text = Globalization.Language == LanguageEnum.Chinese ? "合并" : "Merge",
+                        IsEnabled = Instance.VideoMerge.IsEnabled
+                    };
+                    MergeItem.Click += Instance.VideoMerge_Click;
+                    EditFlyout.Items.Add(MergeItem);
+
+                    MenuFlyoutItem TranscodeItem = new MenuFlyoutItem
+                    {
+                        Icon = new FontIcon { Glyph = "\uE1CA" },
+                        Text = Globalization.Language == LanguageEnum.Chinese ? "转码" : "Transcode",
+                        IsEnabled = Instance.Transcode.IsEnabled
+                    };
+                    TranscodeItem.Click += Instance.Transcode_Click;
+                    EditFlyout.Items.Add(TranscodeItem);
+
+                    BottomCommandBar.SecondaryCommands.Add(new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Edit),
+                        Label = Globalization.Language == LanguageEnum.Chinese ? "编辑" : "Edit",
+                        Flyout = EditFlyout
+                    });
+
+                    MenuFlyout ShareFlyout = new MenuFlyout();
+                    MenuFlyoutItem SystemShareItem = new MenuFlyoutItem
+                    {
+                        Icon = new SymbolIcon(Symbol.Share),
+                        Text = Globalization.Language == LanguageEnum.Chinese ? "系统共享" : "System share"
+                    };
+                    SystemShareItem.Click += Instance.SystemShare_Click;
+                    ShareFlyout.Items.Add(SystemShareItem);
+
+                    MenuFlyoutItem WIFIShareItem = new MenuFlyoutItem
+                    {
+                        Icon = new FontIcon { Glyph = "\uE701" },
+                        Text = Globalization.Language == LanguageEnum.Chinese ? "WIFI共享" : "WIFI"
+                    };
+                    WIFIShareItem.Click += Instance.WIFIShare_Click;
+                    ShareFlyout.Items.Add(WIFIShareItem);
+
+                    MenuFlyoutItem BluetoothShare = new MenuFlyoutItem
+                    {
+                        Icon = new FontIcon { Glyph = "\uE702" },
+                        Text = Globalization.Language == LanguageEnum.Chinese ? "蓝牙共享" : "Bluetooth"
+                    };
+                    BluetoothShare.Click += Instance.BluetoothShare_Click;
+                    ShareFlyout.Items.Add(BluetoothShare);
+
+                    BottomCommandBar.SecondaryCommands.Add(new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Share),
+                        Label = Globalization.Language == LanguageEnum.Chinese ? "共享" : "Share",
+                        Flyout = ShareFlyout
+                    });
+
+                    AppBarButton CompressionButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Bookmarks),
+                        Label = Instance.Zip.Label,
+                    };
+                    CompressionButton.Click += Instance.Zip_Click;
+                    BottomCommandBar.SecondaryCommands.Add(CompressionButton);
+
+                    BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
+
+                    AppBarButton PropertyButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Tag),
+                        Label = Globalization.Language == LanguageEnum.Chinese ? "属性" : "Property",
+                    };
+                    PropertyButton.Click += Instance.Attribute_Click;
+                    BottomCommandBar.SecondaryCommands.Add(PropertyButton);
+                }
+                else
+                {
+                    AppBarButton OpenButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.BackToWindow),
+                        Label = Globalization.Language == LanguageEnum.Chinese ? "打开" : "Open",
+                    };
+                    OpenButton.Click += Instance.FolderOpen_Click;
+                    BottomCommandBar.SecondaryCommands.Add(OpenButton);
+
+                    AppBarButton CompressionButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Bookmarks),
+                        Label = Globalization.Language == LanguageEnum.Chinese ? "压缩" : "Compression",
+                    };
+                    CompressionButton.Click += Instance.CompressFolder_Click;
+                    BottomCommandBar.SecondaryCommands.Add(CompressionButton);
+
+                    AppBarButton PinButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Add),
+                        Label = Globalization.Language == LanguageEnum.Chinese ? "固定至主界面" : "Pin to homepage"
+                    };
+                    PinButton.Click += Instance.AddToLibray_Click;
+                    BottomCommandBar.SecondaryCommands.Add(PinButton);
+
+                    AppBarButton PropertyButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Tag),
+                        Label = Globalization.Language == LanguageEnum.Chinese ? "属性" : "Property",
+                    };
+                    PropertyButton.Click += Instance.FolderProperty_Click;
+                    BottomCommandBar.SecondaryCommands.Add(PropertyButton);
+                }
+            }
+            else
+            {
+                AppBarButton PasteButton = new AppBarButton
+                {
+                    Icon = new SymbolIcon(Symbol.Paste),
+                    Label = Globalization.Language == LanguageEnum.Chinese ? "粘贴" : "Paste"
+                };
+                PasteButton.Click += Instance.Paste_Click;
+                BottomCommandBar.PrimaryCommands.Add(PasteButton);
+
+                AppBarButton RefreshButton = new AppBarButton
+                {
+                    Icon = new SymbolIcon(Symbol.Refresh),
+                    Label = Globalization.Language == LanguageEnum.Chinese ? "刷新" : "Refresh"
+                };
+                RefreshButton.Click += Instance.Refresh_Click;
+                BottomCommandBar.PrimaryCommands.Add(RefreshButton);
+
+                AppBarButton WinExButton = new AppBarButton
+                {
+                    Icon = new SymbolIcon(Symbol.BackToWindow),
+                    Label = Globalization.Language == LanguageEnum.Chinese ? "使用系统管理器打开" : "Open in Windows Explorer"
+                };
+                WinExButton.Click += Instance.UseSystemFileMananger_Click;
+                BottomCommandBar.PrimaryCommands.Add(WinExButton);
+
+                MenuFlyout NewFlyout = new MenuFlyout();
+                MenuFlyoutItem CreateFileItem = new MenuFlyoutItem
+                {
+                    Icon = new SymbolIcon(Symbol.Page2),
+                    Text = Globalization.Language == LanguageEnum.Chinese ? "新建文件" : "Create file",
+                    MinWidth = 150
+                };
+                CreateFileItem.Click += Instance.CreateFile_Click;
+                NewFlyout.Items.Add(CreateFileItem);
+
+                MenuFlyoutItem CreateFolder = new MenuFlyoutItem
+                {
+                    Icon = new SymbolIcon(Symbol.NewFolder),
+                    Text = Globalization.Language == LanguageEnum.Chinese ? "新建文件夹" : "Create folder",
+                    MinWidth = 150
+                };
+                CreateFolder.Click += Instance.CreateFolder_Click;
+                NewFlyout.Items.Add(CreateFolder);
+
+                BottomCommandBar.SecondaryCommands.Add(new AppBarButton
+                {
+                    Icon = new SymbolIcon(Symbol.Add),
+                    Label = Globalization.Language == LanguageEnum.Chinese ? "新建" : "Create",
+                    Flyout = NewFlyout
+                });
+
+                BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
+
+                AppBarButton PropertyButton = new AppBarButton
+                {
+                    Icon = new SymbolIcon(Symbol.Tag),
+                    Label = Globalization.Language == LanguageEnum.Chinese ? "属性" : "Property",
+                };
+                PropertyButton.Click += Instance.ParentProperty_Click;
+                BottomCommandBar.SecondaryCommands.Add(PropertyButton);
             }
         }
     }

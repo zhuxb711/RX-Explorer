@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -8,6 +9,7 @@ using Windows.Media.Editing;
 using Windows.Media.MediaProperties;
 using Windows.Media.Transcoding;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Notifications;
 
@@ -252,11 +254,11 @@ namespace FileManager.Class
             {
                 IsAnyTransformTaskRunning = true;
 
-                using (var OriginStream = SourceFile.OpenAsync(FileAccessMode.Read).AsTask().Result)
+                using (IRandomAccessStream OriginStream = SourceFile.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
                 {
                     BitmapDecoder Decoder = BitmapDecoder.CreateAsync(OriginStream).AsTask().Result;
-                    using (var TargetStream = DestinationFile.OpenAsync(FileAccessMode.ReadWrite).AsTask().Result)
-                    using (var TranscodeImage = Decoder.GetSoftwareBitmapAsync().AsTask().Result)
+                    using (IRandomAccessStream TargetStream = DestinationFile.LockAndGetStream(FileAccess.ReadWrite).AsRandomAccessStream())
+                    using (SoftwareBitmap TranscodeImage = Decoder.GetSoftwareBitmapAsync().AsTask().Result)
                     {
                         BitmapEncoder Encoder = DestinationFile.FileType switch
                         {

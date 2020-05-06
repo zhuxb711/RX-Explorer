@@ -336,7 +336,7 @@ namespace FileManager
         {
             if (LibraryGrid.SelectedItem is LibraryFolder Library)
             {
-                AttributeDialog Dialog = new AttributeDialog(Library.Folder);
+                PropertyDialog Dialog = new PropertyDialog(Library.Folder);
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }

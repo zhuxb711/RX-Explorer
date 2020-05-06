@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
@@ -69,7 +70,7 @@ namespace FileManager.Class
 
                 if ((await PhotoFile.GetStorageItem()) is StorageFile File)
                 {
-                    using (var Stream = await File.OpenAsync(FileAccessMode.Read))
+                    using (IRandomAccessStream Stream = File.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
                     {
                         if (BitmapSource == null)
                         {
@@ -115,7 +116,7 @@ namespace FileManager.Class
         {
             if ((await PhotoFile.GetStorageItem()) is StorageFile File)
             {
-                using (IRandomAccessStream Stream = await File.OpenAsync(FileAccessMode.Read))
+                using (IRandomAccessStream Stream = File.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
                 {
                     await BitmapSource.SetSourceAsync(Stream);
                 }
@@ -132,7 +133,7 @@ namespace FileManager.Class
         {
             if ((await PhotoFile.GetStorageItem()) is StorageFile File)
             {
-                using (var stream = await File.OpenAsync(FileAccessMode.Read))
+                using (IRandomAccessStream stream = File.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
                 {
                     BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
 

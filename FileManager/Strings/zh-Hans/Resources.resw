@@ -123,9 +123,6 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>无内容</value>
   </data>
-  <data name="ParentAttribute.Label" xml:space="preserve">
-    <value>属性</value>
-  </data>
   <data name="QRText.Header" xml:space="preserve">
     <value>复制此链接至浏览器即可下载</value>
   </data>
@@ -1281,7 +1278,7 @@
   <data name="USBDisplayName" xml:space="preserve">
     <value>打开并查看文件</value>
   </data>
-  <data name="SearchCopyPath" xml:space="preserve">
+  <data name="SearchCopyPath.Label" xml:space="preserve">
     <value>复制完整路径</value>
   </data>
   <data name="RenameDialogInvalidCharTip.Title" xml:space="preserve">
@@ -1335,5 +1332,11 @@
   </data>
   <data name="SettingPersonalize.Text" xml:space="preserve">
     <value>个性化</value>
+  </data>
+  <data name="LanguageComboBox.Header" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="LanguageRestartButton.Content" xml:space="preserve">
+    <value>立即重启</value>
   </data>
 </root>

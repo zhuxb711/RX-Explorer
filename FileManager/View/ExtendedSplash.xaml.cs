@@ -2,7 +2,6 @@
 using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
@@ -21,8 +20,6 @@ namespace FileManager
         private Rect SplashImageRect;
 
         private readonly SplashScreen Splash;
-
-        private AutoResetEvent ReleaseLock = new AutoResetEvent(false);
 
         private string USBActivateParameter = null;
 
@@ -89,9 +86,6 @@ namespace FileManager
         {
             try
             {
-                ReleaseLock.Dispose();
-                ReleaseLock = null;
-
                 await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
                     Frame rootFrame = new Frame();
@@ -117,9 +111,6 @@ namespace FileManager
         {
             try
             {
-                ReleaseLock.Dispose();
-                ReleaseLock = null;
-
                 Frame rootFrame = new Frame();
                 Window.Current.Content = rootFrame;
                 rootFrame.Navigate(typeof(MainPage), SplashImageRect);
@@ -153,57 +144,6 @@ namespace FileManager
         {
             try
             {
-                string CurrentLanguageString = Windows.System.UserProfile.GlobalizationPreferences.Languages[0];
-
-                if (ApplicationData.Current.LocalSettings.Values["LastStartupLanguage"] is string LastLanguageString)
-                {
-                    if (CurrentLanguageString != LastLanguageString)
-                    {
-                        ApplicationData.Current.LocalSettings.Values.Clear();
-                        ApplicationData.Current.LocalSettings.Values["LastStartupLanguage"] = CurrentLanguageString;
-
-                        if (CurrentLanguageString.StartsWith("zh"))
-                        {
-                            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = "提示",
-                                    Content = "    自上次启动以来，系统语言设置发生了更改\r\r    语言更改:  " + LastLanguageString + " ⋙⋙⋙⋙ " + CurrentLanguageString + "\r\r    为了保证程序正常运行，RX已将所有已保存设置还原为默认值",
-                                    CloseButtonText = "确定"
-                                };
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                ReleaseLock.Set();
-                            });
-                        }
-                        else
-                        {
-                            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = "Tips",
-                                    Content = "    The system language setting has changed since the last boot\r\r    Language changes:  " + LastLanguageString + " ⋙⋙⋙⋙ " + CurrentLanguageString + "\r\r    To ensure the program is running properly\r    RX has restored all saved settings to their default values",
-                                    CloseButtonText = "Got it"
-                                };
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                ReleaseLock.Set();
-                            });
-                        }
-                    }
-                    else
-                    {
-                        ReleaseLock.Set();
-                    }
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["LastStartupLanguage"] = CurrentLanguageString;
-                    ReleaseLock.Set();
-                }
-
-                ReleaseLock.WaitOne();
-
                 if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("QuickStartInitialFinished"))
                 {
                     await SQLite.Current.ClearTableAsync("QuickStart").ConfigureAwait(false);
@@ -239,6 +179,35 @@ namespace FileManager
                     }
 
                     ApplicationData.Current.LocalSettings.Values["QuickStartInitialFinished"] = true;
+                }
+
+                if (Globalization.Language == LanguageEnum.Chinese)
+                {
+                    await SQLite.Current.UpdateQuickStartItemAsync("Microsoft Store", "应用商店", "ms-appx:///QuickStartImage/MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("Calculator", "计算器", "ms-appx:///QuickStartImage/Calculator.png", "calculator:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("Setting", "系统设置", "ms-appx:///QuickStartImage/Setting.png", "ms-settings:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("Email", "邮件", "ms-appx:///QuickStartImage/Email.png", "mailto:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("Calendar", "日历", "ms-appx:///QuickStartImage/Calendar.png", "outlookcal:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("Bing Map", "必应地图", "ms-appx:///QuickStartImage/Map.png", "bingmaps:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("Weather", "天气", "ms-appx:///QuickStartImage/Weather.png", "bingweather:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("Bing", "必应", "ms-appx:///HotWebImage/Bing.png", "https://www.bing.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("Facebook", "百度", "ms-appx:///HotWebImage/Baidu.png", "https://www.baidu.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("Instagram", "微信", "ms-appx:///HotWebImage/Wechat.png", "https://wx.qq.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("Twitter", "微博", "ms-appx:///HotWebImage/Weibo.png", "https://www.weibo.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                }
+                else
+                {
+                    await SQLite.Current.UpdateQuickStartItemAsync("应用商店", "Microsoft Store", "ms-appx:///QuickStartImage/MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("计算器", "Calculator", "ms-appx:///QuickStartImage/Calculator.png", "calculator:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("系统设置", "Setting", "ms-appx:///QuickStartImage/Setting.png", "ms-settings:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("邮件", "Email", "ms-appx:///QuickStartImage/Email.png", "mailto:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("日历", "Calendar", "ms-appx:///QuickStartImage/Calendar.png", "outlookcal:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("必应地图", "Bing Map", "ms-appx:///QuickStartImage/Map.png", "bingmaps:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("天气", "Weather", "ms-appx:///QuickStartImage/Weather.png", "bingweather:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("必应", "Bing", "ms-appx:///HotWebImage/Bing.png", "https://www.bing.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("百度", "Facebook", "ms-appx:///HotWebImage/Facebook.png", "https://www.facebook.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("微信", "Instagram", "ms-appx:///HotWebImage/Instagram.png", "https://www.instagram.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("微博", "Twitter", "ms-appx:///HotWebImage/Twitter.png", "https://twitter.com", QuickStartType.WebSite).ConfigureAwait(false);
                 }
 
                 bool IsFileAccessible = await CheckFileAccessAuthority().ConfigureAwait(false);

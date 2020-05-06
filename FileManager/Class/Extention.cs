@@ -1,5 +1,6 @@
 ﻿using Google.Cloud.Translation.V2;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Microsoft.Win32.SafeHandles;
 using NetworkAccess;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,12 @@ namespace FileManager.Class
     /// </summary>
     public static class Extention
     {
+        public static Stream LockAndGetStream(this StorageFile File, FileAccess Access)
+        {
+            SafeFileHandle Handle = File.CreateSafeFileHandle(Access, FileShare.None, FileOptions.Asynchronous);
+            return new FileStream(Handle, Access, 4096, true);
+        }
+
         public static async Task UpdateAllSubNode(this TreeViewNode Node)
         {
             if (Node.Children.Count > 0)
@@ -644,8 +651,8 @@ namespace FileManager.Class
                             IV = Encoding.UTF8.GetBytes(IV)
                         })
                         {
-                            using (Stream OriginFileStream = await OriginFile.OpenStreamForReadAsync().ConfigureAwait(false))
-                            using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForWriteAsync().ConfigureAwait(false))
+                            using (Stream OriginFileStream = OriginFile.LockAndGetStream(FileAccess.Read))
+                            using (Stream EncryptFileStream = EncryptedFile.LockAndGetStream(FileAccess.Write))
                             using (ICryptoTransform Encryptor = AES.CreateEncryptor())
                             {
                                 byte[] Detail = Encoding.UTF8.GetBytes("$" + KeySize + "|" + OriginFile.FileType + "$");
@@ -740,7 +747,7 @@ namespace FileManager.Class
                             IV = Encoding.UTF8.GetBytes(IV)
                         })
                         {
-                            using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                            using (Stream EncryptFileStream = EncryptedFile.LockAndGetStream(FileAccess.Read))
                             {
                                 byte[] DecryptByteBuffer = new byte[20];
 
@@ -772,7 +779,7 @@ namespace FileManager.Class
 
                                 DecryptedFile = await ExportFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(EncryptedFile.Name)}{FileType}", CreationCollisionOption.GenerateUniqueName);
 
-                                using (Stream DecryptFileStream = await DecryptedFile.OpenStreamForWriteAsync().ConfigureAwait(false))
+                                using (Stream DecryptFileStream = DecryptedFile.LockAndGetStream(FileAccess.Write))
                                 using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
                                 {
                                     byte[] PasswordConfirm = new byte[16];
@@ -903,30 +910,6 @@ namespace FileManager.Class
                 CurrentParent = VisualTreeHelper.GetParent(CurrentParent);
             }
             return Parent;
-        }
-
-        /// <summary>
-        /// 更新TreeViewNode所有子节点所包含的文件夹对象
-        /// </summary>
-        /// <param name="ParentNode"></param>
-        /// <returns></returns>
-        public static async Task UpdateAllSubNodeFolder(this TreeViewNode ParentNode)
-        {
-            if (ParentNode == null)
-            {
-                throw new ArgumentNullException(nameof(ParentNode), "Node could not be null");
-            }
-
-            StorageFolder ParentFolder = ParentNode.Content as StorageFolder;
-            foreach (var Package in ParentNode.Children.Select((SubNode) => new { (SubNode.Content as StorageFolder).Name, SubNode }))
-            {
-                Package.SubNode.Content = await ParentFolder.GetFolderAsync(Package.Name);
-
-                if (Package.SubNode.HasChildren)
-                {
-                    await UpdateAllSubNodeFolder(Package.SubNode).ConfigureAwait(false);
-                }
-            }
         }
 
         /// <summary>

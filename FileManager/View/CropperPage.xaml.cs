@@ -9,6 +9,7 @@ using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
@@ -251,7 +252,7 @@ namespace FileManager
                 MainPage.ThisPage.IsAnyTaskRunning = true;
 
 
-                using (var Stream = await File.OpenAsync(FileAccessMode.ReadWrite))
+                using (IRandomAccessStream Stream = File.LockAndGetStream(FileAccess.ReadWrite).AsRandomAccessStream())
                 {
                     Stream.Size = 0;
                     switch (File.FileType)
@@ -371,7 +372,7 @@ namespace FileManager
             LoadingControl.IsLoading = true;
             MainPage.ThisPage.IsAnyTaskRunning = true;
 
-            using (var Stream = await OriginFile.OpenAsync(FileAccessMode.ReadWrite))
+            using (IRandomAccessStream Stream = OriginFile.LockAndGetStream(FileAccess.ReadWrite).AsRandomAccessStream())
             {
                 Stream.Size = 0;
                 switch (OriginFile.FileType)

@@ -234,16 +234,14 @@
                     <Flyout Placement="BottomEdgeAlignedLeft"
                             x:Name="SearchFlyout"
                             Opened="SearchFlyout_Opened">
-                        <StackPanel>
+                        <StackPanel MinWidth="220">
                             <RadioButton Name="ShallowRadio"
-                                         Width="200"
                                          x:Uid="SearchFlyoutShallowRadio"
                                          Content="仅搜索当前目录(较快)"
                                          Tag="Shallow"
                                          IsChecked="True"
                                          GroupName="Search" />
                             <RadioButton Name="DeepRadio"
-                                         Width="200"
                                          Margin="0,5,0,0"
                                          x:Uid="SearchFlyoutDeepRadio"
                                          Content="深度搜索全部目录(较慢)"
@@ -275,9 +273,24 @@
                 <ColumnDefinition Width="{x:Bind TreeViewGridCol.Width,Mode=OneWay,Converter={StaticResource Converter}}" />
                 <ColumnDefinition Width="5*" />
             </Grid.ColumnDefinitions>
-            <Frame Grid.Column="2"
-                   Name="Nav"
-                   x:FieldModifier="Public"/>
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="40" />
+                </Grid.RowDefinitions>
+                <Frame Name="Nav"
+                       Margin="0,0,0,-20"
+                       x:FieldModifier="Public" />
+                <CommandBar IsOpen="False"
+                            Grid.Row="1"
+                            VerticalAlignment="Bottom"
+                            ClosedDisplayMode="Minimal"
+                            DefaultLabelPosition="Right"
+                            Name="BottomCommandBar"
+                            Opening="BottomCommandBar_Opening"
+                            Background="{StaticResource ElementAcrylicBrush}">
+                </CommandBar>
+            </Grid>
             <muxc:TreeView Name="FolderTree"
                            x:FieldModifier="public"
                            Expanding="FolderTree_Expanding"
@@ -290,6 +303,7 @@
                            CanDragItems="False"
                            IsHoldingEnabled="True"
                            Holding="FolderTree_Holding"
+                           Padding="0,0,5,0"
                            RightTapped="FolderTree_RightTapped">
                 <muxc:TreeView.ItemTemplate>
                     <DataTemplate>

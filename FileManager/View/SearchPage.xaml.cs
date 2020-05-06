@@ -231,7 +231,7 @@ namespace FileManager
         private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
             FileSystemStorageItem Device = SearchResultList.SelectedItems.FirstOrDefault() as FileSystemStorageItem;
-            AttributeDialog Dialog = new AttributeDialog(await Device.GetStorageItem());
+            PropertyDialog Dialog = new PropertyDialog(await Device.GetStorageItem());
             _ = await Dialog.ShowAsync().ConfigureAwait(true);
         }
 

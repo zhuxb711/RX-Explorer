@@ -173,23 +173,29 @@ namespace FileManager
                 UIMode.Items.Add("推荐");
                 UIMode.Items.Add("纯色");
                 UIMode.Items.Add("自定义");
+                LanguageComboBox.Items.Add("简体中文");
+                LanguageComboBox.Items.Add("英语");
+                LanguageComboBox.SelectedIndex = 0;
             }
             else
             {
                 UIMode.Items.Add("Recommand");
                 UIMode.Items.Add("Solid Color");
                 UIMode.Items.Add("Custom");
+                LanguageComboBox.Items.Add("Chinese Simplified");
+                LanguageComboBox.Items.Add("English");
+                LanguageComboBox.SelectedIndex = 1;
             }
 
-            if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is string Mode)
+            LanguageComboBox.SelectionChanged += LanguageComboBox_SelectionChanged;
+
+            if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is int ModeIndex)
             {
-                UIMode.SelectedItem = UIMode.Items.Where((Item) => Item.ToString() == Mode).FirstOrDefault();
+                UIMode.SelectedIndex = ModeIndex;
             }
             else
             {
-                ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = Globalization.Language == LanguageEnum.Chinese
-                                                                                ? "推荐"
-                                                                                : "Recommand";
+                ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = 0;
                 UIMode.SelectedIndex = 0;
             }
 
@@ -511,7 +517,7 @@ namespace FileManager
 
         private void UIMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = UIMode.SelectedItem.ToString();
+            ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = UIMode.SelectedIndex;
 
             switch (UIMode.SelectedIndex)
             {
@@ -1320,7 +1326,7 @@ namespace FileManager
         private void SolidColor_White_Checked(object sender, RoutedEventArgs e)
         {
             BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: Colors.White);
-            if(CustomFontColor.IsOn)
+            if (CustomFontColor.IsOn)
             {
                 AppThemeController.Current.ChangeThemeTo(ElementTheme.Light);
             }
@@ -1415,7 +1421,7 @@ namespace FileManager
 
         private void EnableQuicklook_Toggled(object sender, RoutedEventArgs e)
         {
-            if(EnableQuicklook.IsOn)
+            if (EnableQuicklook.IsOn)
             {
                 IsQuicklookEnable = true;
                 ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] = true;
@@ -1424,6 +1430,63 @@ namespace FileManager
             {
                 IsQuicklookEnable = false;
                 ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] = false;
+            }
+        }
+
+        private void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            LanguageRestartButton.Visibility = Visibility.Visible;
+
+            switch (LanguageComboBox.SelectedIndex)
+            {
+                case 0:
+                    {
+                        Globalization.SwitchTo(LanguageEnum.Chinese);
+                        break;
+                    }
+                case 1:
+                    {
+                        Globalization.SwitchTo(LanguageEnum.English);
+                        break;
+                    }
+            }
+        }
+
+        private async void LanguageRestartButton_Click(object sender, RoutedEventArgs e)
+        {
+            SQLite.Current.Dispose();
+            MySQL.Current.Dispose();
+
+            Window.Current.Activate();
+
+            switch (await CoreApplication.RequestRestartAsync(string.Empty))
+            {
+                case AppRestartFailureReason.InvalidUser:
+                case AppRestartFailureReason.NotInForeground:
+                case AppRestartFailureReason.Other:
+                    {
+                        if (Globalization.Language == LanguageEnum.Chinese)
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = "错误",
+                                Content = "自动重新启动过程中出现问题，请手动重启RX文件管理器",
+                                CloseButtonText = "确定"
+                            };
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        }
+                        else
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = "Error",
+                                Content = "There was a problem during the automatic restart, please restart the RX Explorer manually",
+                                CloseButtonText = "Got it"
+                            };
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        }
+                        break;
+                    }
             }
         }
     }

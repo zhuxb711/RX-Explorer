@@ -4,6 +4,7 @@ using FileManager.Dialog;
 using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -48,8 +49,8 @@ namespace FileManager
             InitializeComponent();
             ThisPage = this;
             Window.Current.SetTitleBar(TitleBar);
-            Loading += MainPage_Loading;
             Loaded += MainPage_Loaded;
+            Loaded += MainPage_Loaded1;
             Application.Current.EnteredBackground += Current_EnteredBackground;
             Application.Current.LeavingBackground += Current_LeavingBackground;
             SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += MainPage_CloseRequested;
@@ -68,10 +69,10 @@ namespace FileManager
 #endif
         }
 
-        private async void MainPage_Loading(FrameworkElement sender, object args)
+        private async void MainPage_Loaded1(object sender, RoutedEventArgs e)
         {
 #if !DEBUG
-            if(await FullTrustExcutorController.CheckQuicklookIsAvaliable())
+            if(await FullTrustExcutorController.CheckQuicklookIsAvaliable().ConfigureAwait(true))
             {
                 SettingControl.IsQuicklookAvailable = true;
             }
@@ -81,7 +82,7 @@ namespace FileManager
             }
 #endif
 
-            if(ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] is bool Enable)
+            if (ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] is bool Enable)
             {
                 SettingControl.IsQuicklookEnable = Enable;
             }
@@ -776,11 +777,11 @@ namespace FileManager
             {
                 if (args.IsSettingsInvoked)
                 {
-                    NavView.IsBackEnabled = false;
-
                     _ = FindName(nameof(SettingControl));
 
                     await SettingControl.Show().ConfigureAwait(true);
+
+                    NavView.IsBackEnabled = true;
                 }
                 else
                 {
@@ -822,9 +823,25 @@ namespace FileManager
             }
         }
 
-        private void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+        private async void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
-            TabViewContainer.GoBack();
+            if ((SettingControl?.IsOpened).GetValueOrDefault())
+            {
+                if (Nav.CurrentSourcePageType == typeof(TabViewContainer))
+                {
+                    NavView.IsBackEnabled = (TabViewContainer.CurrentPageNav?.CanGoBack).GetValueOrDefault();
+                }
+                else
+                {
+                    NavView.IsBackEnabled = false;
+                }
+
+                await SettingControl.Hide().ConfigureAwait(false);
+            }
+            else
+            {
+                TabViewContainer.GoBack();
+            }
         }
     }
 }

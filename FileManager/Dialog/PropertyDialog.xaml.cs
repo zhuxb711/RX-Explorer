@@ -10,7 +10,7 @@ using Windows.UI.Xaml;
 
 namespace FileManager.Dialog
 {
-    public sealed partial class AttributeDialog : QueueContentDialog, INotifyPropertyChanged
+    public sealed partial class PropertyDialog : QueueContentDialog, INotifyPropertyChanged
     {
         public string FileName { get; private set; }
 
@@ -34,7 +34,7 @@ namespace FileManager.Dialog
 
         private ulong Length = 0;
 
-        public AttributeDialog(IStorageItem Item)
+        public PropertyDialog(IStorageItem Item)
         {
             InitializeComponent();
             Loading += async (s, e) =>

@@ -90,57 +90,65 @@ namespace FileManager.Class
                 SolidColorBackgroundBrush = new SolidColorBrush(Colors.White);
             }
 
-            if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is string Mode)
+            if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is int ModeIndex)
             {
-                if (Mode == "推荐" || Mode == "Recommand")
+                switch (ModeIndex)
                 {
-                    AcrylicBackgroundBrush = new AcrylicBrush
-                    {
-                        BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                        TintColor = Colors.LightSlateGray,
-                        TintOpacity = 0.4,
-                        FallbackColor = Colors.DimGray
-                    };
+                    case 0:
+                        {
+                            AcrylicBackgroundBrush = new AcrylicBrush
+                            {
+                                BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                                TintColor = Colors.LightSlateGray,
+                                TintOpacity = 0.4,
+                                FallbackColor = Colors.DimGray
+                            };
 
-                    CurrentType = BackgroundBrushType.Acrylic;
-                }
-                else if (Mode == "自定义" || Mode == "Custom")
-                {
-                    AcrylicBackgroundBrush = new AcrylicBrush
-                    {
-                        BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? GetColorFromHexString(Color) : Colors.LightSlateGray,
-                        TintOpacity = 1 - Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]),
-                        TintLuminosityOpacity = 1 - Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]),
-                        FallbackColor = Colors.DimGray
-                    };
+                            CurrentType = BackgroundBrushType.Acrylic;
+                            break;
+                        }
+                    case 1:
+                        {
+                            AcrylicBackgroundBrush = new AcrylicBrush
+                            {
+                                BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                                TintColor = Colors.LightSlateGray,
+                                TintOpacity = 0.4,
+                                FallbackColor = Colors.DimGray
+                            };
 
-                    if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string SubMode)
-                    {
-                        CurrentType = (BackgroundBrushType)Enum.Parse(typeof(BackgroundBrushType), SubMode);
-                    }
-                }
-                else
-                {
-                    AcrylicBackgroundBrush = new AcrylicBrush
-                    {
-                        BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                        TintColor = Colors.LightSlateGray,
-                        TintOpacity = 0.4,
-                        FallbackColor = Colors.DimGray
-                    };
-
-                    CurrentType = BackgroundBrushType.SolidColor;
+                            CurrentType = BackgroundBrushType.SolidColor;
 
 
-                    if (SolidColorBackgroundBrush.Color == Colors.White && AppThemeController.Current.Theme == ElementTheme.Dark)
-                    {
-                        AppThemeController.Current.ChangeThemeTo(ElementTheme.Light);
-                    }
-                    else if (SolidColorBackgroundBrush.Color == Colors.Black && AppThemeController.Current.Theme == ElementTheme.Light)
-                    {
-                        AppThemeController.Current.ChangeThemeTo(ElementTheme.Dark);
-                    }
+                            if (SolidColorBackgroundBrush.Color == Colors.White && AppThemeController.Current.Theme == ElementTheme.Dark)
+                            {
+                                AppThemeController.Current.ChangeThemeTo(ElementTheme.Light);
+                            }
+                            else if (SolidColorBackgroundBrush.Color == Colors.Black && AppThemeController.Current.Theme == ElementTheme.Light)
+                            {
+                                AppThemeController.Current.ChangeThemeTo(ElementTheme.Dark);
+                            }
+
+                            break;
+                        }
+                    default:
+                        {
+                            AcrylicBackgroundBrush = new AcrylicBrush
+                            {
+                                BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                                TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? GetColorFromHexString(Color) : Colors.LightSlateGray,
+                                TintOpacity = 1 - Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]),
+                                TintLuminosityOpacity = 1 - Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]),
+                                FallbackColor = Colors.DimGray
+                            };
+
+                            if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string SubMode)
+                            {
+                                CurrentType = (BackgroundBrushType)Enum.Parse(typeof(BackgroundBrushType), SubMode);
+                            }
+
+                            break;
+                        }
                 }
             }
             else

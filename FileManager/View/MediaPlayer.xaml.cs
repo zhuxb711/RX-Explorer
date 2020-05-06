@@ -69,9 +69,9 @@ namespace FileManager
         /// <returns>艺术家名称</returns>
         private async Task<string> GetMusicCoverAsync()
         {
-            using (var fileStream = await MediaFile.OpenStreamForReadAsync().ConfigureAwait(true))
+            using (Stream FileStream = MediaFile.LockAndGetStream(FileAccess.Read))
             {
-                using (var TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, fileStream, fileStream)))
+                using (var TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, FileStream, FileStream)))
                 {
                     if (TagFile.Tag.Pictures != null && TagFile.Tag.Pictures.Length != 0)
                     {

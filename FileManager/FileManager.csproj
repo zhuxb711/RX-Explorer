@@ -266,8 +266,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialog\AttributeDialog.xaml.cs">
-      <DependentUpon>AttributeDialog.xaml</DependentUpon>
+    <Compile Include="Dialog\PropertyDialog.xaml.cs">
+      <DependentUpon>PropertyDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -359,9 +359,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="QuickStartImage\Email.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="HotWebImage\iThome.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\LargeTile.scale-100.png" />
@@ -558,7 +555,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Dialog\AttributeDialog.xaml">
+    <Page Include="Dialog\PropertyDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -331,10 +331,10 @@
     <value>Create</value>
   </data>
   <data name="EmptyFlyoutNewFile.Text" xml:space="preserve">
-    <value>New file</value>
+    <value>Create file</value>
   </data>
   <data name="EmptyFlyoutNewFolder.Text" xml:space="preserve">
-    <value>New folder</value>
+    <value>Create folder</value>
   </data>
   <data name="FeedBackAddButton.Text" xml:space="preserve">
     <value>Add my feedback</value>
@@ -515,9 +515,6 @@
   </data>
   <data name="OtherOpenMethod.Label" xml:space="preserve">
     <value>Open with...</value>
-  </data>
-  <data name="ParentAttribute.Label" xml:space="preserve">
-    <value>FolderProperties</value>
   </data>
   <data name="PdfPasswordDialog.CloseButtonText" xml:space="preserve">
     <value>Cancel</value>
@@ -799,7 +796,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SearchSize.Text" xml:space="preserve">
     <value>Size</value>
   </data>
-  <data name="SearchCopyPath" xml:space="preserve">
+  <data name="SearchCopyPath.Label" xml:space="preserve">
     <value>Copy the full path</value>
   </data>
   <data name="SearchTip.CloseButtonContent" xml:space="preserve">
@@ -1064,7 +1061,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Windows version</value>
   </data>
   <data name="SystemManagerOpen.Label" xml:space="preserve">
-    <value>Use System File Explorer Open</value>
+    <value>Open in Windows Explorer</value>
   </data>
   <data name="SystemShare.Text" xml:space="preserve">
     <value>System share</value>
@@ -1440,5 +1437,11 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="SettingPersonalize.Text" xml:space="preserve">
     <value>Personalize</value>
+  </data>
+  <data name="LanguageComboBox.Header" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="LanguageRestartButton.Content" xml:space="preserve">
+    <value>Restart now</value>
   </data>
 </root>

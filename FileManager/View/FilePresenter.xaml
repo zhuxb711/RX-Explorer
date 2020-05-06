@@ -48,17 +48,20 @@
                         <MenuFlyout x:Name="FileOpenMethodFlyout">
                             <MenuFlyoutItem Text="以管理员权限打开"
                                             Icon="Admin"
+                                            x:FieldModifier="public"
                                             x:Uid="RunWithSystemAuthority"
                                             Name="RunWithSystemAuthority"
                                             Click="RunWithSystemAuthority_Click" />
                             <MenuFlyoutItem Text="选择其他应用"
                                             Icon="SwitchApps"
+                                            x:FieldModifier="public"
                                             x:Uid="ChooseOtherApp"
                                             Name="ChooseOtherApp"
                                             Click="ChooseOtherApp_Click" />
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
+                <AppBarSeparator />
                 <AppBarButton Icon="Edit"
                               Label="编辑"
                               x:Uid="FileEdit">
@@ -67,26 +70,29 @@
                             <MenuFlyoutItem Text="剪辑"
                                             x:Uid="VideoMontage"
                                             x:Name="VideoEdit"
+                                            x:FieldModifier="public"
                                             Click="VideoEdit_Click">
                                 <MenuFlyoutItem.Icon>
-                                    <SymbolIcon Symbol="Cut"/>
+                                    <FontIcon Glyph="&#xE177;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
                             <MenuFlyoutItem Text="合并"
                                             Name="VideoMerge"
                                             Click="VideoMerge_Click"
+                                            x:FieldModifier="public"
                                             x:Uid="VideoMerge">
                                 <MenuFlyoutItem.Icon>
-                                    <FontIcon Glyph="&#xE71B;"/>
+                                    <FontIcon Glyph="&#xE11E;"/>
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
                             <MenuFlyoutItem Text="转码"
                                             Name="Transcode"
                                             x:Uid="Transcode"
+                                            x:FieldModifier="public"
                                             IsEnabled="False"
                                             Click="Transcode_Click">
                                 <MenuFlyoutItem.Icon>
-                                    <SymbolIcon Symbol="Switch"/>
+                                    <FontIcon Glyph="&#xE1CA;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
                         </MenuFlyout>
@@ -125,9 +131,11 @@
                 </AppBarButton>
                 <AppBarButton Icon="Bookmarks"
                               x:Name="Zip"
+                              x:FieldModifier="public"
                               x:Uid="Zip"
                               Label="压缩"
                               Click="Zip_Click" />
+                <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Name="Attribute"
                               x:Uid="FileAttribute"
@@ -161,6 +169,7 @@
                               x:Uid="FolderOpen"
                               x:Name="FolderOpen"
                               Click="FolderOpen_Click" />
+                <AppBarSeparator />
                 <AppBarButton Label="压缩"
                               Icon="Bookmarks"
                               x:Uid="Zip"
@@ -171,11 +180,12 @@
                               x:Uid="PinToLibrary"
                               x:Name="AddToLibray"
                               Click="AddToLibray_Click"/>
+                <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="属性"
                               x:Uid="FolderAttribute"
-                              x:Name="FolderAttribute"
-                              Click="FolderAttribute_Click" />
+                              x:Name="FolderProperty"
+                              Click="FolderProperty_Click" />
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
@@ -199,13 +209,13 @@
                                             MinWidth="150"
                                             Text="新建文件"
                                             x:Uid="EmptyFlyoutNewFile"
-                                            Name="NewFile"
-                                            Click="NewFile_Click"/>
+                                            Name="CreateFile"
+                                            Click="CreateFile_Click"/>
                             <MenuFlyoutItem Icon="NewFolder"
                                             Text="新建文件夹"
                                             MinWidth="150"
                                             x:Uid="EmptyFlyoutNewFolder"
-                                            Click="NewFolder_Click" />
+                                            Click="CreateFolder_Click" />
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
@@ -219,11 +229,12 @@
                               x:Uid="SystemManagerOpen"
                               x:Name="UseSystemFileMananger"
                               Click="UseSystemFileMananger_Click" />
+                <AppBarSeparator />
                 <AppBarButton Icon="Tag"
-                              Label="文件夹属性"
-                              x:Uid="ParentAttribute"
-                              x:Name="ParentAttribute"
-                              Click="ParentAttribute_Click" />
+                              Label="属性"
+                              x:Uid="FolderAttribute"
+                              x:Name="ParentProperty"
+                              Click="ParentProperty_Click" />
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
@@ -384,7 +395,8 @@
                         x:Name="ListHeaderName"
                         Click="ListHeaderName_Click"
                         Margin="0,0,9,0"
-                        Style="{ThemeResource ButtonRevealStyle}">
+                        Background="{StaticResource ElementAcrylicBrush}"
+                        Style="{StaticResource ListHeaderButtonStyle}">
                     <TextBlock Text="名称"
                                FontSize="14"
                                x:Uid="SearchName"
@@ -398,7 +410,8 @@
                         Name="ListHeaderModifiedTime"
                         Click="ListHeaderModifiedTime_Click"
                         Margin="-9,0,9,0"
-                        Style="{ThemeResource ButtonRevealStyle}">
+                        Background="{StaticResource ElementAcrylicBrush}"
+                        Style="{StaticResource ListHeaderButtonStyle}">
                     <TextBlock Text="修改日期"
                                FontSize="14"
                                x:Uid="SearchModified"
@@ -412,7 +425,8 @@
                         Name="ListHeaderType"
                         Click="ListHeaderType_Click"
                         Margin="-9,0,9,0"
-                        Style="{ThemeResource ButtonRevealStyle}">
+                        Background="{StaticResource ElementAcrylicBrush}"
+                        Style="{StaticResource ListHeaderButtonStyle}">
                     <TextBlock Text="类型"
                                FontSize="14"
                                x:Uid="SearchType"
@@ -426,7 +440,8 @@
                         Grid.Column="3"
                         Click="ListHeaderSize_Click"
                         Margin="-9,0,0,0"
-                        Style="{ThemeResource ButtonRevealStyle}">
+                        Background="{StaticResource ElementAcrylicBrush}"
+                        Style="{StaticResource ListHeaderButtonStyle}">
                     <TextBlock Text="大小"
                                FontSize="14"
                                x:Uid="SearchSize"
@@ -506,14 +521,13 @@
         <ListView Background="Transparent"
                   x:Name="ListViewControl"
                   IsSwipeEnabled="True"
-                  Margin="5,0,0,0"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
-                  PointerPressed="GridViewControl_PointerPressed"
+                  PointerPressed="ViewControl_PointerPressed"
                   RightTapped="ListViewControl_RightTapped"
-                  SelectionChanged="GridViewControl_SelectionChanged"
+                  SelectionChanged="ViewControl_SelectionChanged"
                   SelectionMode="Extended"
-                  ItemClick="GridViewControl_ItemClick"
+                  ItemClick="ViewControl_ItemClick"
                   ContainerContentChanging="ViewControl_ContainerContentChanging"
                   CanDrag="False"
                   CanReorderItems="False"
@@ -548,15 +562,14 @@
         <GridView Name="GridViewControl"
                   Background="Transparent"
                   ContainerContentChanging="ViewControl_ContainerContentChanging"
-                  Margin="5,0,0,0"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
-                  PointerPressed="GridViewControl_PointerPressed"
+                  PointerPressed="ViewControl_PointerPressed"
                   RightTapped="GridViewControl_RightTapped"
                   Holding="GridViewControl_Holding"
-                  SelectionChanged="GridViewControl_SelectionChanged"
+                  SelectionChanged="ViewControl_SelectionChanged"
                   SelectionMode="Extended"
-                  ItemClick="GridViewControl_ItemClick"
+                  ItemClick="ViewControl_ItemClick"
                   CanDrag="False"
                   CanReorderItems="False"
                   CanDragItems="True"

@@ -5,12 +5,14 @@ using Microsoft.Toolkit.Uwp.UI.Animations;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -290,7 +292,7 @@ namespace FileManager
             if ((await PhotoCollection[Flip.SelectedIndex].PhotoFile.GetStorageItem()) is StorageFile OriginFile)
             {
                 TranscodeImageDialog Dialog = null;
-                using (var OriginStream = await OriginFile.OpenAsync(FileAccessMode.Read))
+                using (IRandomAccessStream OriginStream = OriginFile.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
                 {
                     BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
                     Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);

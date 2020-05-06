@@ -359,6 +359,16 @@ namespace FileManager.Class
         {
             using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             {
+                using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select Count(*) From QuickStart Where Name=@OldName"))
+                {
+                    _ = Command.Parameters.AddWithValue("@OldName", OldName);
+
+                    if (Convert.ToInt32(await Command.ExecuteScalarAsync().ConfigureAwait(false)) == 0)
+                    {
+                        return;
+                    }
+                }
+
                 if (FullPath != null)
                 {
                     using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Update QuickStart Set Name=@NewName, FullPath=@Path, Protocal=@Protocal Where Name=@OldName And Type=@Type"))
@@ -429,11 +439,18 @@ namespace FileManager.Class
                         {
                             if (Reader[1].ToString().StartsWith("ms-appx"))
                             {
-                                BitmapImage Bitmap = new BitmapImage(new Uri(Reader[1].ToString()))
+                                StorageFile BitmapFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(Reader[1].ToString()));
+
+                                BitmapImage Bitmap = new BitmapImage()
                                 {
                                     DecodePixelHeight = 100,
                                     DecodePixelWidth = 100
                                 };
+
+                                using (IRandomAccessStream Stream = BitmapFile.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
+                                {
+                                    await Bitmap.SetSourceAsync(Stream);
+                                }
 
                                 if ((QuickStartType)Enum.Parse(typeof(QuickStartType), Reader[3].ToString()) == QuickStartType.Application)
                                 {
@@ -448,7 +465,7 @@ namespace FileManager.Class
                             {
                                 StorageFile ImageFile = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, Reader[1].ToString()));
 
-                                using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                                using (IRandomAccessStream Stream = ImageFile.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
                                 {
                                     BitmapImage Bitmap = new BitmapImage
                                     {

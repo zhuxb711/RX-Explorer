@@ -242,7 +242,7 @@ namespace FileManager.Dialog
             StorageFile ImageFile = await Picker.PickSingleFileAsync();
             if (ImageFile != null)
             {
-                using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                using (IRandomAccessStream Stream = ImageFile.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
                 {
                     BitmapImage Bitmap = new BitmapImage
                     {
@@ -280,7 +280,7 @@ namespace FileManager.Dialog
                 using (Stream ImageStream = Response.GetResponseStream())
                 {
                     StorageFile DownloadImage = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("DownloadFile.ico", CreationCollisionOption.ReplaceExisting);
-                    using (Stream FileStream = await DownloadImage.OpenStreamForWriteAsync().ConfigureAwait(true))
+                    using (Stream FileStream = DownloadImage.LockAndGetStream(FileAccess.Write))
                     {
                         await ImageStream.CopyToAsync(FileStream).ConfigureAwait(true);
                     }
@@ -307,7 +307,7 @@ namespace FileManager.Dialog
                     using (Stream ImageStream = Response.GetResponseStream())
                     {
                         StorageFile DownloadImage = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("DownloadFile.ico", CreationCollisionOption.ReplaceExisting);
-                        using (Stream FileStream = await DownloadImage.OpenStreamForWriteAsync().ConfigureAwait(true))
+                        using (Stream FileStream = DownloadImage.LockAndGetStream(FileAccess.Write))
                         {
                             await ImageStream.CopyToAsync(FileStream).ConfigureAwait(true);
                         }

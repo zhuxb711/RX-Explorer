@@ -189,6 +189,22 @@
                                   Name="FolderOpenMethod"
                                   Toggled="FolderOpenMethod_Toggled" />
 
+                    <StackPanel Orientation="Horizontal">
+                        <ComboBox Margin="0,20,0,0"
+                                  Header="语言"
+                                  Width="160"
+                                  Name="LanguageComboBox"
+                                  x:Uid="LanguageComboBox"
+                                  Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
+                        <Button VerticalAlignment="Bottom"
+                                Margin="10,0,0,0"
+                                Content="立即重启"
+                                Name="LanguageRestartButton"
+                                Visibility="Collapsed"
+                                x:Uid="LanguageRestartButton"
+                                Click="LanguageRestartButton_Click"/>
+                    </StackPanel>
+
                     <TextBlock Text="高级"
                                x:Uid="SettingAdvance"
                                FontSize="22"

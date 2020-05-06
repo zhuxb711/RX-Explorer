@@ -154,10 +154,6 @@
           <source>Empty</source>
           <target state="translated">无内容</target>
         </trans-unit>
-        <trans-unit id="ParentAttribute.Label" translate="yes" xml:space="preserve">
-          <source>FolderProperties</source>
-          <target state="translated">属性</target>
-        </trans-unit>
         <trans-unit id="QRText.Header" translate="yes" xml:space="preserve">
           <source>Copy this link to your browser to download</source>
           <target state="translated">复制此链接至浏览器即可下载</target>
@@ -199,7 +195,7 @@
           <target state="translated">类型</target>
         </trans-unit>
         <trans-unit id="SystemManagerOpen.Label" translate="yes" xml:space="preserve">
-          <source>Use System File Explorer Open</source>
+          <source>Open in Windows Explorer</source>
           <target state="translated">使用系统管理器打开</target>
         </trans-unit>
         <trans-unit id="Transcode.Text" translate="yes" xml:space="preserve">
@@ -1607,11 +1603,11 @@
           <target state="translated">新建</target>
         </trans-unit>
         <trans-unit id="EmptyFlyoutNewFile.Text" translate="yes" xml:space="preserve">
-          <source>New file</source>
+          <source>Create file</source>
           <target state="translated">新建文件</target>
         </trans-unit>
         <trans-unit id="EmptyFlyoutNewFolder.Text" translate="yes" xml:space="preserve">
-          <source>New folder</source>
+          <source>Create folder</source>
           <target state="translated">新建文件夹</target>
         </trans-unit>
         <trans-unit id="NewFileDialog.CloseButtonText" translate="yes" xml:space="preserve">
@@ -1698,7 +1694,7 @@
           <source>Open and view files</source>
           <target state="translated">打开并查看文件</target>
         </trans-unit>
-        <trans-unit id="SearchCopyPath" translate="yes" xml:space="preserve">
+        <trans-unit id="SearchCopyPath.Label" translate="yes" xml:space="preserve">
           <source>Copy the full path</source>
           <target state="translated">复制完整路径</target>
         </trans-unit>
@@ -1771,6 +1767,14 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="SettingPersonalize.Text" translate="yes" xml:space="preserve">
           <source>Personalize</source>
           <target state="translated">个性化</target>
+        </trans-unit>
+        <trans-unit id="LanguageComboBox.Header" translate="yes" xml:space="preserve">
+          <source>Language</source>
+          <target state="translated">语言</target>
+        </trans-unit>
+        <trans-unit id="LanguageRestartButton.Content" translate="yes" xml:space="preserve">
+          <source>Restart now</source>
+          <target state="translated">立即重启</target>
         </trans-unit>
       </group>
     </body>

@@ -16,6 +16,7 @@ using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Devices.Radios;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
@@ -28,8 +29,6 @@ using Windows.UI.Xaml.Navigation;
 using ZXing;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
-using SwipeItem = Microsoft.UI.Xaml.Controls.SwipeItem;
-using SwipeItemInvokedEventArgs = Microsoft.UI.Xaml.Controls.SwipeItemInvokedEventArgs;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace FileManager
@@ -145,17 +144,17 @@ namespace FileManager
             }
         }
 
-        private object SelectedItem
+        public FileSystemStorageItem SelectedItem
         {
             get
             {
                 if (UseGridOrList)
                 {
-                    return GridViewControl.SelectedItem;
+                    return GridViewControl.SelectedItem as FileSystemStorageItem;
                 }
                 else
                 {
-                    return ListViewControl.SelectedItem;
+                    return ListViewControl.SelectedItem as FileSystemStorageItem;
                 }
             }
             set
@@ -271,7 +270,7 @@ namespace FileManager
                 {
                     case VirtualKey.Space when SelectedIndex != -1 && SettingControl.IsQuicklookAvailable && SettingControl.IsQuicklookEnable:
                         {
-                            await FullTrustExcutorController.ViewWithQuicklook((SelectedItem as FileSystemStorageItem).Path).ConfigureAwait(false);
+                            await FullTrustExcutorController.ViewWithQuicklook(SelectedItem.Path).ConfigureAwait(false);
                             break;
                         }
                     case VirtualKey.Delete:
@@ -352,7 +351,7 @@ namespace FileManager
                         }
                     case VirtualKey.N when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                         {
-                            NewFolder_Click(null, null);
+                            CreateFolder_Click(null, null);
                             break;
                         }
                     case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && CopyAndMoveRecord.Count > 0:
@@ -591,7 +590,7 @@ namespace FileManager
             await LoadingActivation(false).ConfigureAwait(true);
         }
 
-        private void Copy_Click(object sender, RoutedEventArgs e)
+        public void Copy_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -603,7 +602,7 @@ namespace FileManager
             CopyFiles = SelectedItems.ToArray();
         }
 
-        private async void Paste_Click(object sender, RoutedEventArgs e)
+        public async void Paste_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -962,7 +961,7 @@ namespace FileManager
             await LoadingActivation(false).ConfigureAwait(false);
         }
 
-        private void Cut_Click(object sender, RoutedEventArgs e)
+        public void Cut_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -976,7 +975,7 @@ namespace FileManager
             MoveFiles = SelectedItems.ToArray();
         }
 
-        private async void Delete_Click(object sender, RoutedEventArgs e)
+        public async void Delete_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -1263,7 +1262,7 @@ namespace FileManager
             LoadingControl.IsLoading = IsLoading;
         }
 
-        private async void Rename_Click(object sender, RoutedEventArgs e)
+        public async void Rename_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -1500,7 +1499,7 @@ namespace FileManager
                                         {
                                             Content = (await RenameItem.GetStorageItem().ConfigureAwait(true)) as StorageFolder,
                                             HasUnrealizedChildren = false,
-                                            IsExpanded = true
+                                            IsExpanded = false
                                         };
 
                                         foreach (var SubNode in TargetNode.Children)
@@ -1510,7 +1509,6 @@ namespace FileManager
 
                                         ChildCollection.Insert(index, NewNode);
                                         ChildCollection.Remove(TargetNode);
-                                        await NewNode.UpdateAllSubNodeFolder().ConfigureAwait(true);
                                     }
                                     else
                                     {
@@ -1565,11 +1563,11 @@ namespace FileManager
             }
         }
 
-        private async void BluetoothShare_Click(object sender, RoutedEventArgs e)
+        public async void BluetoothShare_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            StorageFile ShareFile = (await (SelectedItem as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true)) as StorageFile;
+            StorageFile ShareFile = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFile;
 
             if (!await ShareFile.CheckExist().ConfigureAwait(true))
             {
@@ -1642,7 +1640,7 @@ namespace FileManager
             }
         }
 
-        private void GridViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (SelectedItem is FileSystemStorageItem Item)
             {
@@ -1655,15 +1653,15 @@ namespace FileManager
                     RunWithSystemAuthority.IsEnabled = false;
 
                     Zip.Label = Globalization.Language == LanguageEnum.Chinese
-                                ? "Zip压缩"
-                                : "Zip Compression";
+                                ? "压缩"
+                                : "Compression";
                     switch (Item.Type)
                     {
                         case ".zip":
                             {
                                 Zip.Label = Globalization.Language == LanguageEnum.Chinese
-                                            ? "Zip解压"
-                                            : "Zip Decompression";
+                                            ? "解压"
+                                            : "Decompression";
                                 break;
                             }
                         case ".mp4":
@@ -1706,7 +1704,7 @@ namespace FileManager
             }
         }
 
-        private void GridViewControl_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void ViewControl_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             SelectedIndex = -1;
             FileControlInstance.IsSearchOrPathBoxFocused = false;
@@ -1761,11 +1759,11 @@ namespace FileManager
             e.Handled = true;
         }
 
-        private async void Attribute_Click(object sender, RoutedEventArgs e)
+        public async void Attribute_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            StorageFile Device = (await (SelectedItem as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true)) as StorageFile;
+            StorageFile Device = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFile;
 
             if (!await Device.CheckExist().ConfigureAwait(true))
             {
@@ -1801,15 +1799,15 @@ namespace FileManager
                 return;
             }
 
-            AttributeDialog Dialog = new AttributeDialog(Device);
+            PropertyDialog Dialog = new PropertyDialog(Device);
             _ = await Dialog.ShowAsync().ConfigureAwait(true);
         }
 
-        private async void Zip_Click(object sender, RoutedEventArgs e)
+        public async void Zip_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            StorageFile Item = (await (SelectedItem as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true)) as StorageFile;
+            StorageFile Item = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFile;
 
             if (!await Item.CheckExist().ConfigureAwait(true))
             {
@@ -1890,7 +1888,7 @@ namespace FileManager
         private async Task<StorageFolder> UnZipAsync(StorageFile ZFile)
         {
             StorageFolder NewFolder = null;
-            using (Stream ZipFileStream = await ZFile.OpenStreamForReadAsync().ConfigureAwait(true))
+            using (Stream ZipFileStream = ZFile.LockAndGetStream(FileAccess.Read))
             using (ZipFile ZipEntries = new ZipFile(ZipFileStream))
             {
                 ZipEntries.IsStreamOwner = false;
@@ -1952,7 +1950,7 @@ namespace FileManager
                                 NewFile = await NewFolder.CreateFileAsync(Entry.Name, CreationCollisionOption.ReplaceExisting);
                             }
 
-                            using (Stream NewFileStream = await NewFile.OpenStreamForWriteAsync().ConfigureAwait(true))
+                            using (Stream NewFileStream = NewFile.LockAndGetStream(FileAccess.Write))
                             {
                                 await ZipEntryStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
                             }
@@ -2034,7 +2032,7 @@ namespace FileManager
             {
                 StorageFile Newfile = await FileControlInstance.CurrentFolder.CreateFileAsync(NewZipName, CreationCollisionOption.GenerateUniqueName);
 
-                using (Stream NewFileStream = await Newfile.OpenStreamForWriteAsync().ConfigureAwait(true))
+                using (Stream NewFileStream = Newfile.LockAndGetStream(FileAccess.Write))
                 using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                 {
                     OutputStream.IsStreamOwner = false;
@@ -2052,7 +2050,7 @@ namespace FileManager
                         {
                             if (EnableCryption)
                             {
-                                using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                                using (Stream FileStream = ZipFile.LockAndGetStream(FileAccess.Read))
                                 {
                                     ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
                                     {
@@ -2070,7 +2068,7 @@ namespace FileManager
                             }
                             else
                             {
-                                using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                                using (Stream FileStream = ZipFile.LockAndGetStream(FileAccess.Read))
                                 {
                                     ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
                                     {
@@ -2208,7 +2206,7 @@ namespace FileManager
                         {
                             if (EnableCryption)
                             {
-                                using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                                using (Stream FileStream = InnerFile.LockAndGetStream(FileAccess.Read))
                                 {
                                     ZipEntry NewEntry = new ZipEntry(InnerFile.Name)
                                     {
@@ -2228,7 +2226,7 @@ namespace FileManager
                             }
                             else
                             {
-                                using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                                using (Stream FileStream = InnerFile.LockAndGetStream(FileAccess.Read))
                                 {
                                     ZipEntry NewEntry = new ZipEntry(InnerFile.Name)
                                     {
@@ -2249,7 +2247,7 @@ namespace FileManager
                         {
                             if (EnableCryption)
                             {
-                                using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                                using (Stream FileStream = InnerFile.LockAndGetStream(FileAccess.Read))
                                 {
                                     ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}{InnerFile.Name}")
                                     {
@@ -2269,7 +2267,7 @@ namespace FileManager
                             }
                             else
                             {
-                                using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                                using (Stream FileStream = InnerFile.LockAndGetStream(FileAccess.Read))
                                 {
                                     ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}{InnerFile.Name}")
                                     {
@@ -2299,11 +2297,11 @@ namespace FileManager
             }
         }
 
-        private async void Transcode_Click(object sender, RoutedEventArgs e)
+        public async void Transcode_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            if ((await (SelectedItem as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true)) is StorageFile Source)
+            if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile Source)
             {
                 if (!await Source.CheckExist().ConfigureAwait(true))
                 {
@@ -2425,7 +2423,7 @@ namespace FileManager
                     case ".tiff":
                         {
                             TranscodeImageDialog Dialog = null;
-                            using (var OriginStream = await Source.OpenAsync(FileAccessMode.Read))
+                            using (IRandomAccessStream OriginStream = Source.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
                             {
                                 BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
                                 Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
@@ -2445,7 +2443,7 @@ namespace FileManager
             }
         }
 
-        private void FolderOpen_Click(object sender, RoutedEventArgs e)
+        public void FolderOpen_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2455,11 +2453,11 @@ namespace FileManager
             }
         }
 
-        private async void FolderAttribute_Click(object sender, RoutedEventArgs e)
+        public async void FolderProperty_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            StorageFolder Device = (await (SelectedItem as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true)) as StorageFolder;
+            StorageFolder Device = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFolder;
             if (!await Device.CheckExist().ConfigureAwait(true))
             {
                 if (Globalization.Language == LanguageEnum.Chinese)
@@ -2494,15 +2492,15 @@ namespace FileManager
                 return;
             }
 
-            AttributeDialog Dialog = new AttributeDialog(Device);
+            PropertyDialog Dialog = new PropertyDialog(Device);
             _ = await Dialog.ShowAsync().ConfigureAwait(true);
         }
 
-        private async void WIFIShare_Click(object sender, RoutedEventArgs e)
+        public async void WIFIShare_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            StorageFile Item = (await (SelectedItem as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true)) as StorageFile;
+            StorageFile Item = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFile;
 
             if (!await Item.CheckExist().ConfigureAwait(true))
             {
@@ -2630,14 +2628,14 @@ namespace FileManager
             Clipboard.SetContent(Package);
         }
 
-        private async void UseSystemFileMananger_Click(object sender, RoutedEventArgs e)
+        public async void UseSystemFileMananger_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
             _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
         }
 
-        private async void ParentAttribute_Click(object sender, RoutedEventArgs e)
+        public async void ParentProperty_Click(object sender, RoutedEventArgs e)
         {
             if (!await FileControlInstance.CurrentFolder.CheckExist().ConfigureAwait(true))
             {
@@ -2673,18 +2671,18 @@ namespace FileManager
                 }
                 else
                 {
-                    AttributeDialog Dialog = new AttributeDialog(FileControlInstance.CurrentFolder);
+                    PropertyDialog Dialog = new PropertyDialog(FileControlInstance.CurrentFolder);
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
             else
             {
-                AttributeDialog Dialog = new AttributeDialog(FileControlInstance.CurrentFolder);
+                PropertyDialog Dialog = new PropertyDialog(FileControlInstance.CurrentFolder);
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
-        private void FileOpen_Click(object sender, RoutedEventArgs e)
+        public void FileOpen_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2699,11 +2697,11 @@ namespace FileManager
             ((TextBox)sender).SelectAll();
         }
 
-        private async void AddToLibray_Click(object sender, RoutedEventArgs e)
+        public async void AddToLibray_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            StorageFolder folder = (await (SelectedItem as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true)) as StorageFolder;
+            StorageFolder folder = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFolder;
 
             if (!await folder.CheckExist().ConfigureAwait(true))
             {
@@ -2770,7 +2768,7 @@ namespace FileManager
             }
         }
 
-        private async void NewFolder_Click(object sender, RoutedEventArgs e)
+        public async void CreateFolder_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2851,11 +2849,11 @@ namespace FileManager
             }
         }
 
-        private async void SystemShare_Click(object sender, RoutedEventArgs e)
+        public async void SystemShare_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            if ((await (SelectedItem as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true)) is StorageFile ShareItem)
+            if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile ShareItem)
             {
                 if (!await ShareItem.CheckExist().ConfigureAwait(true))
                 {
@@ -2904,7 +2902,7 @@ namespace FileManager
             }
         }
 
-        private async void Refresh_Click(object sender, RoutedEventArgs e)
+        public async void Refresh_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2943,7 +2941,7 @@ namespace FileManager
             }
         }
 
-        private void GridViewControl_ItemClick(object sender, ItemClickEventArgs e)
+        private void ViewControl_ItemClick(object sender, ItemClickEventArgs e)
         {
             FileControlInstance.IsSearchOrPathBoxFocused = false;
 
@@ -3197,7 +3195,7 @@ namespace FileManager
             }
         }
 
-        private async void VideoEdit_Click(object sender, RoutedEventArgs e)
+        public async void VideoEdit_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -3226,7 +3224,7 @@ namespace FileManager
                 return;
             }
 
-            if ((await (SelectedItem as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true)) is StorageFile File)
+            if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
             {
                 VideoEditDialog Dialog = new VideoEditDialog(File);
                 if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
@@ -3241,7 +3239,7 @@ namespace FileManager
             }
         }
 
-        private async void VideoMerge_Click(object sender, RoutedEventArgs e)
+        public async void VideoMerge_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -3270,7 +3268,7 @@ namespace FileManager
                 return;
             }
 
-            if ((await (SelectedItem as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true)) is StorageFile Item)
+            if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile Item)
             {
                 VideoMergeDialog Dialog = new VideoMergeDialog(Item);
                 if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
@@ -3285,11 +3283,11 @@ namespace FileManager
             }
         }
 
-        private async void ChooseOtherApp_Click(object sender, RoutedEventArgs e)
+        public async void ChooseOtherApp_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            if ((await (SelectedItem as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true)) is StorageFile Item)
+            if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile Item)
             {
                 ProgramPickerDialog Dialog = new ProgramPickerDialog(Item);
                 if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
@@ -3341,19 +3339,19 @@ namespace FileManager
                     }
                     else if (Dialog.ContinueUseInnerViewer)
                     {
-                        EnterSelectedItem(SelectedItem as FileSystemStorageItem);
+                        EnterSelectedItem(SelectedItem);
                     }
                 }
             }
         }
 
-        private void RunWithSystemAuthority_Click(object sender, RoutedEventArgs e)
+        public void RunWithSystemAuthority_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            if (SelectedItem is FileSystemStorageItem ReFile)
+            if (SelectedItem!=null)
             {
-                EnterSelectedItem(ReFile, true);
+                EnterSelectedItem(SelectedItem, true);
             }
         }
 
@@ -3582,7 +3580,7 @@ namespace FileManager
             WiFiProvider = null;
         }
 
-        private async void NewFile_Click(object sender, RoutedEventArgs e)
+        public async void CreateFile_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -3637,11 +3635,11 @@ namespace FileManager
             }
         }
 
-        private async void CompressFolder_Click(object sender, RoutedEventArgs e)
+        public async void CompressFolder_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            StorageFolder Item = (await (SelectedItem as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true)) as StorageFolder;
+            StorageFolder Item = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFolder;
 
             if (!await Item.CheckExist().ConfigureAwait(true))
             {

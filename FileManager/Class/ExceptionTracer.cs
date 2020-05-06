@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
@@ -41,7 +42,7 @@ namespace FileManager.Class
                 IBuffer Buffer = await RenderBitmap.GetPixelsAsync();
 
                 StorageFile CaptureFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("ErrorCaptureFile.png", CreationCollisionOption.ReplaceExisting);
-                using (IRandomAccessStream Stream = await CaptureFile.OpenAsync(FileAccessMode.ReadWrite))
+                using (IRandomAccessStream Stream = CaptureFile.LockAndGetStream(FileAccess.ReadWrite).AsRandomAccessStream())
                 {
                     BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
                     Encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)RenderBitmap.PixelWidth, (uint)RenderBitmap.PixelHeight, DisplayInformation.GetForCurrentView().LogicalDpi, DisplayInformation.GetForCurrentView().LogicalDpi, Buffer.ToArray());
