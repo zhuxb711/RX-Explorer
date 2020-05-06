@@ -25,8 +25,6 @@
 
 >>#####Fixed an issue where the image viewer incorrectly loaded an unreadable image type
 
->>#####Fixed the problem that files being accessed by RX can be moved/deleted due to lack of shared file lock
-
 >>#####Fixed the issue that the search page cannot be navigated to the file page in some cases
 
 >>#####Solved the problem that the right-click menu cannot be expanded correctly when using the touch screen

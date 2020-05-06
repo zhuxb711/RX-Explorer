@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
@@ -42,7 +41,7 @@ namespace FileManager.Class
                 IBuffer Buffer = await RenderBitmap.GetPixelsAsync();
 
                 StorageFile CaptureFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("ErrorCaptureFile.png", CreationCollisionOption.ReplaceExisting);
-                using (IRandomAccessStream Stream = CaptureFile.LockAndGetStream(FileAccess.ReadWrite).AsRandomAccessStream())
+                using (IRandomAccessStream Stream = await CaptureFile.OpenAsync(FileAccessMode.ReadWrite))
                 {
                     BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
                     Encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)RenderBitmap.PixelWidth, (uint)RenderBitmap.PixelHeight, DisplayInformation.GetForCurrentView().LogicalDpi, DisplayInformation.GetForCurrentView().LogicalDpi, Buffer.ToArray());
@@ -166,7 +165,7 @@ namespace FileManager.Class
                 Locker.WaitOne();
             }).ConfigureAwait(false);
 
-            StorageFile TempFile = await ApplicationData.Current.LocalCacheFolder.CreateFileAsync("RX_Error_Message.txt", CreationCollisionOption.OpenIfExists);
+            StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("RX_Error_Message.txt", CreationCollisionOption.OpenIfExists);
             await FileIO.AppendTextAsync(TempFile, Message + Environment.NewLine);
 
             Locker.Set();

@@ -43,7 +43,7 @@ namespace FileManager.Dialog
             FileName = StorageItem.DisplayName;
             FileType = StorageItem.DisplayType;
 
-            using (Stream EncryptFileStream = Item.LockAndGetStream(FileAccess.Read))
+            using (Stream EncryptFileStream = await Item.OpenStreamForReadAsync().ConfigureAwait(true))
             {
                 byte[] DecryptByteBuffer = new byte[20];
 

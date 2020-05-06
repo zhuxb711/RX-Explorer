@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.IO;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
@@ -68,9 +67,9 @@ namespace FileManager.Class
             {
                 IsThumbnailPicture = false;
 
-                if ((await PhotoFile.GetStorageItem()) is StorageFile File)
+                if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
                 {
-                    using (IRandomAccessStream Stream = File.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
+                    using (IRandomAccessStream Stream = await File.OpenAsync(FileAccessMode.Read))
                     {
                         if (BitmapSource == null)
                         {
@@ -92,7 +91,7 @@ namespace FileManager.Class
                 return;
             }
 
-            if ((await PhotoFile.GetStorageItem()) is StorageFile File)
+            if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
             {
                 using (StorageItemThumbnail ThumbnailStream = await File.GetThumbnailAsync(ThumbnailMode.PicturesView))
                 {
@@ -114,9 +113,9 @@ namespace FileManager.Class
         /// <returns></returns>
         public async Task UpdateImage()
         {
-            if ((await PhotoFile.GetStorageItem()) is StorageFile File)
+            if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
             {
-                using (IRandomAccessStream Stream = File.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
+                using (IRandomAccessStream Stream = await File.OpenAsync(FileAccessMode.Read))
                 {
                     await BitmapSource.SetSourceAsync(Stream);
                 }
@@ -131,9 +130,9 @@ namespace FileManager.Class
         /// <returns></returns>
         public async Task<SoftwareBitmap> GenerateImageWithRotation()
         {
-            if ((await PhotoFile.GetStorageItem()) is StorageFile File)
+            if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
             {
-                using (IRandomAccessStream stream = File.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
+                using (IRandomAccessStream stream = await File.OpenAsync(FileAccessMode.Read))
                 {
                     BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
 

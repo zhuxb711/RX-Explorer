@@ -78,7 +78,7 @@ namespace FileManager.Class
                                if (HttpContext.Request.Url.LocalPath.Substring(1) == FilePathMap.Key)
                                {
                                    StorageFile File = StorageFile.GetFileFromPathAsync(FilePathMap.Value).AsTask().Result;
-                                   using (Stream FileStream = File.LockAndGetStream(FileAccess.Read))
+                                   using (Stream FileStream = File.OpenStreamForReadAsync().Result)
                                    {
                                        Context.Response.ContentLength64 = FileStream.Length;
                                        Context.Response.ContentType = File.ContentType;

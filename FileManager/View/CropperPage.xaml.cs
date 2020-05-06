@@ -252,7 +252,7 @@ namespace FileManager
                 MainPage.ThisPage.IsAnyTaskRunning = true;
 
 
-                using (IRandomAccessStream Stream = File.LockAndGetStream(FileAccess.ReadWrite).AsRandomAccessStream())
+                using (IRandomAccessStream Stream = await File.OpenAsync(FileAccessMode.ReadWrite))
                 {
                     Stream.Size = 0;
                     switch (File.FileType)
@@ -372,7 +372,7 @@ namespace FileManager
             LoadingControl.IsLoading = true;
             MainPage.ThisPage.IsAnyTaskRunning = true;
 
-            using (IRandomAccessStream Stream = OriginFile.LockAndGetStream(FileAccess.ReadWrite).AsRandomAccessStream())
+            using (IRandomAccessStream Stream = await OriginFile.OpenAsync(FileAccessMode.ReadWrite))
             {
                 Stream.Size = 0;
                 switch (OriginFile.FileType)

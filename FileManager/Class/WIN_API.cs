@@ -78,10 +78,10 @@ namespace FileManager.Class
         private const int FIND_FIRST_EX_CASE_SENSITIVE = 1;
         private const int FIND_FIRST_EX_LARGE_FETCH = 2;
 
-        [DllImport("api-ms-win-core-file-l1-1-1.dll", CharSet = CharSet.Unicode)]
+        [DllImport("api-ms-win-core-file-l1-1-0.dll", CharSet = CharSet.Unicode)]
         private static extern bool FindNextFile(IntPtr hFindFile, out WIN32_FIND_DATA lpFindFileData);
 
-        [DllImport("api-ms-win-core-file-l1-1-1.dll")]
+        [DllImport("api-ms-win-core-file-l1-1-0.dll")]
         private static extern bool FindClose(IntPtr hFindFile);
 
         [DllImport("api-ms-win-core-timezone-l1-1-0.dll", SetLastError = true)]

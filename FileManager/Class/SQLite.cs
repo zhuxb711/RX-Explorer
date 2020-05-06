@@ -419,6 +419,21 @@ namespace FileManager.Class
             }
         }
 
+        public async Task<List<string>> GetQuickStartAsync()
+        {
+            List<string> result = new List<string>();
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From QuickStart"))
+            using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(true))
+            {
+                while (Reader.Read())
+                {
+                    result.Add(Reader[0].ToString());
+                }
+            }
+            return result;
+        }
+
         /// <summary>
         /// 获取所有快速启动项
         /// </summary>
@@ -447,7 +462,7 @@ namespace FileManager.Class
                                     DecodePixelWidth = 100
                                 };
 
-                                using (IRandomAccessStream Stream = BitmapFile.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
+                                using (IRandomAccessStream Stream = await BitmapFile.OpenAsync(FileAccessMode.Read))
                                 {
                                     await Bitmap.SetSourceAsync(Stream);
                                 }
@@ -465,7 +480,7 @@ namespace FileManager.Class
                             {
                                 StorageFile ImageFile = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, Reader[1].ToString()));
 
-                                using (IRandomAccessStream Stream = ImageFile.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
+                                using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
                                 {
                                     BitmapImage Bitmap = new BitmapImage
                                     {

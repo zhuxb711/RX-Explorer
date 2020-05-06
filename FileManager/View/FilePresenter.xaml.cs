@@ -1888,7 +1888,7 @@ namespace FileManager
         private async Task<StorageFolder> UnZipAsync(StorageFile ZFile)
         {
             StorageFolder NewFolder = null;
-            using (Stream ZipFileStream = ZFile.LockAndGetStream(FileAccess.Read))
+            using (Stream ZipFileStream = await ZFile.OpenStreamForReadAsync().ConfigureAwait(true))
             using (ZipFile ZipEntries = new ZipFile(ZipFileStream))
             {
                 ZipEntries.IsStreamOwner = false;
@@ -1950,7 +1950,7 @@ namespace FileManager
                                 NewFile = await NewFolder.CreateFileAsync(Entry.Name, CreationCollisionOption.ReplaceExisting);
                             }
 
-                            using (Stream NewFileStream = NewFile.LockAndGetStream(FileAccess.Write))
+                            using (Stream NewFileStream = await NewFile.OpenStreamForWriteAsync().ConfigureAwait(true))
                             {
                                 await ZipEntryStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
                             }
@@ -2032,7 +2032,7 @@ namespace FileManager
             {
                 StorageFile Newfile = await FileControlInstance.CurrentFolder.CreateFileAsync(NewZipName, CreationCollisionOption.GenerateUniqueName);
 
-                using (Stream NewFileStream = Newfile.LockAndGetStream(FileAccess.Write))
+                using (Stream NewFileStream = await Newfile.OpenStreamForWriteAsync().ConfigureAwait(true))
                 using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                 {
                     OutputStream.IsStreamOwner = false;
@@ -2050,7 +2050,7 @@ namespace FileManager
                         {
                             if (EnableCryption)
                             {
-                                using (Stream FileStream = ZipFile.LockAndGetStream(FileAccess.Read))
+                                using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
                                 {
                                     ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
                                     {
@@ -2068,7 +2068,7 @@ namespace FileManager
                             }
                             else
                             {
-                                using (Stream FileStream = ZipFile.LockAndGetStream(FileAccess.Read))
+                                using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
                                 {
                                     ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
                                     {
@@ -2206,7 +2206,7 @@ namespace FileManager
                         {
                             if (EnableCryption)
                             {
-                                using (Stream FileStream = InnerFile.LockAndGetStream(FileAccess.Read))
+                                using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(true))
                                 {
                                     ZipEntry NewEntry = new ZipEntry(InnerFile.Name)
                                     {
@@ -2226,7 +2226,7 @@ namespace FileManager
                             }
                             else
                             {
-                                using (Stream FileStream = InnerFile.LockAndGetStream(FileAccess.Read))
+                                using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(true))
                                 {
                                     ZipEntry NewEntry = new ZipEntry(InnerFile.Name)
                                     {
@@ -2247,7 +2247,7 @@ namespace FileManager
                         {
                             if (EnableCryption)
                             {
-                                using (Stream FileStream = InnerFile.LockAndGetStream(FileAccess.Read))
+                                using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(true))
                                 {
                                     ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}{InnerFile.Name}")
                                     {
@@ -2267,7 +2267,7 @@ namespace FileManager
                             }
                             else
                             {
-                                using (Stream FileStream = InnerFile.LockAndGetStream(FileAccess.Read))
+                                using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(true))
                                 {
                                     ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}{InnerFile.Name}")
                                     {
@@ -2423,7 +2423,7 @@ namespace FileManager
                     case ".tiff":
                         {
                             TranscodeImageDialog Dialog = null;
-                            using (IRandomAccessStream OriginStream = Source.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
+                            using (IRandomAccessStream OriginStream = await Source.OpenAsync(FileAccessMode.Read))
                             {
                                 BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
                                 Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);

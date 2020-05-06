@@ -254,10 +254,10 @@ namespace FileManager.Class
             {
                 IsAnyTransformTaskRunning = true;
 
-                using (IRandomAccessStream OriginStream = SourceFile.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
+                using (IRandomAccessStream OriginStream = SourceFile.OpenAsync(FileAccessMode.Read).AsTask().Result)
                 {
                     BitmapDecoder Decoder = BitmapDecoder.CreateAsync(OriginStream).AsTask().Result;
-                    using (IRandomAccessStream TargetStream = DestinationFile.LockAndGetStream(FileAccess.ReadWrite).AsRandomAccessStream())
+                    using (IRandomAccessStream TargetStream = DestinationFile.OpenAsync(FileAccessMode.ReadWrite).AsTask().Result)
                     using (SoftwareBitmap TranscodeImage = Decoder.GetSoftwareBitmapAsync().AsTask().Result)
                     {
                         BitmapEncoder Encoder = DestinationFile.FileType switch

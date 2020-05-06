@@ -289,10 +289,10 @@ namespace FileManager
 
         private async void TranscodeImage_Click(object sender, RoutedEventArgs e)
         {
-            if ((await PhotoCollection[Flip.SelectedIndex].PhotoFile.GetStorageItem()) is StorageFile OriginFile)
+            if ((await PhotoCollection[Flip.SelectedIndex].PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile OriginFile)
             {
                 TranscodeImageDialog Dialog = null;
-                using (IRandomAccessStream OriginStream = OriginFile.LockAndGetStream(FileAccess.Read).AsRandomAccessStream())
+                using (IRandomAccessStream OriginStream = await OriginFile.OpenAsync(FileAccessMode.Read))
                 {
                     BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
                     Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);

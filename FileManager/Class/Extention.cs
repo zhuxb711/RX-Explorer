@@ -1,6 +1,5 @@
 ﻿using Google.Cloud.Translation.V2;
 using Microsoft.Toolkit.Uwp.Notifications;
-using Microsoft.Win32.SafeHandles;
 using NetworkAccess;
 using System;
 using System.Collections.Generic;
@@ -32,12 +31,6 @@ namespace FileManager.Class
     /// </summary>
     public static class Extention
     {
-        public static Stream LockAndGetStream(this StorageFile File, FileAccess Access)
-        {
-            SafeFileHandle Handle = File.CreateSafeFileHandle(Access, FileShare.None, FileOptions.Asynchronous);
-            return new FileStream(Handle, Access, 4096, true);
-        }
-
         public static async Task UpdateAllSubNode(this TreeViewNode Node)
         {
             if (Node == null)
@@ -657,8 +650,8 @@ namespace FileManager.Class
                             IV = Encoding.UTF8.GetBytes(IV)
                         })
                         {
-                            using (Stream OriginFileStream = OriginFile.LockAndGetStream(FileAccess.Read))
-                            using (Stream EncryptFileStream = EncryptedFile.LockAndGetStream(FileAccess.Write))
+                            using (Stream OriginFileStream = await OriginFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                            using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForWriteAsync().ConfigureAwait(false))
                             using (ICryptoTransform Encryptor = AES.CreateEncryptor())
                             {
                                 byte[] Detail = Encoding.UTF8.GetBytes("$" + KeySize + "|" + OriginFile.FileType + "$");
@@ -753,7 +746,7 @@ namespace FileManager.Class
                             IV = Encoding.UTF8.GetBytes(IV)
                         })
                         {
-                            using (Stream EncryptFileStream = EncryptedFile.LockAndGetStream(FileAccess.Read))
+                            using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForReadAsync().ConfigureAwait(false))
                             {
                                 byte[] DecryptByteBuffer = new byte[20];
 
@@ -785,7 +778,7 @@ namespace FileManager.Class
 
                                 DecryptedFile = await ExportFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(EncryptedFile.Name)}{FileType}", CreationCollisionOption.GenerateUniqueName);
 
-                                using (Stream DecryptFileStream = DecryptedFile.LockAndGetStream(FileAccess.Write))
+                                using (Stream DecryptFileStream = await DecryptedFile.OpenStreamForWriteAsync().ConfigureAwait(false))
                                 using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
                                 {
                                     byte[] PasswordConfirm = new byte[16];
