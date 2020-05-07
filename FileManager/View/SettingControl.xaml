@@ -62,7 +62,7 @@
                         HorizontalAlignment="Left">
                 <TextBlock x:Uid="SettingPageLuminosityTipText1"
                            HorizontalAlignment="Center"
-                           Text="背景透光度决定了允许多少来自背景的光通过App的亚克力材质，此值越小表示Acrylic主题色占比越高，越大表示来自背景的光线占比越高"
+                           Text="背景透光度决定了允许多少来自背景的光通过App的亚克力材质，此值越小表示Acrylic主题色占比越高，越大表示来自背景的光线占比越高。此功能在Win10-1903以下版本中不可用。"
                            TextWrapping="WrapWholeWords" />
                 <Viewbox Height="28"
                          Margin="0,15,0,0">
@@ -395,6 +395,7 @@
                                             Maximum="1"
                                             Minimum="0"
                                             Width="220"
+                                            IsEnabled="{x:Bind local:Win10VersionChecker.Windows10_1903}"
                                             HorizontalAlignment="Left" />
                                 </StackPanel>
                                 <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"

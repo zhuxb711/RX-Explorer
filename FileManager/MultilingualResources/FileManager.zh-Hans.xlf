@@ -747,8 +747,8 @@
           <target state="translated">背景透光度</target>
         </trans-unit>
         <trans-unit id="SettingPageLuminosityTipText1.Text" translate="yes" xml:space="preserve">
-          <source>The background transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.</source>
-          <target state="translated">背景透光度决定了允许多少来自背景的光通过App的亚克力材质，此值越小表示Acrylic主题色占比越高，越大表示来自背景的光线占比越高</target>
+          <source>The background transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.This feature is not available in versions below Win10-1903.</source>
+          <target state="translated">背景透光度决定了允许多少来自背景的光通过App的亚克力材质，此值越小表示Acrylic主题色占比越高，越大表示来自背景的光线占比越高。此功能在Win10-1903以下版本中不可用。</target>
         </trans-unit>
         <trans-unit id="SettingPageLuminosityTipText2.Text" translate="yes" xml:space="preserve">
           <source>Adjusting this value may result in unclear or unrecognized content</source>
@@ -1658,10 +1658,6 @@
           <source>Malformed</source>
           <target state="translated">格式不正确</target>
         </trans-unit>
-        <trans-unit id="NewFileDialogType.Header" translate="yes" xml:space="preserve">
-          <source>File type</source>
-          <target state="translated">文件类型</target>
-        </trans-unit>
         <trans-unit id="NewFileDialogType.PlaceholderText" translate="yes" xml:space="preserve">
           <source>Enter or select a type</source>
           <target state="translated">输入或选择一种类型</target>
@@ -1775,6 +1771,18 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="LanguageRestartButton.Content" translate="yes" xml:space="preserve">
           <source>Restart now</source>
           <target state="translated">立即重启</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogTypeTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>You can manually enter the file type you need to create, or you can select the type predefined by the RX Explorer. However, the RX Explorer can only guarantee the correct creation of pre-defined types. It cannot guarantee that the types you enter manually can be created correctly.</source>
+          <target state="translated">您可以手动输入您需要创建的文件类型，亦可以选择由RX文件管理器预定义的类型。但RX文件管理器仅能够保证预定义类型的正确创建，不能保证您手动输入的类型能够正确创建。</target>
+        </trans-unit>
+        <trans-unit id="NewFileDIalogTypeTip.Title" translate="yes" xml:space="preserve">
+          <source>Explanation</source>
+          <target state="translated">说明</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogFileTypeTitle.Text" translate="yes" xml:space="preserve">
+          <source>File type</source>
+          <target state="translated">文件类型</target>
         </trans-unit>
       </group>
     </body>

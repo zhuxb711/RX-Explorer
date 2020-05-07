@@ -3589,7 +3589,36 @@ namespace FileManager
             {
                 try
                 {
-                    StorageFile NewFile = await FileControlInstance.CurrentFolder.CreateFileAsync(Dialog.NewFileName, CreationCollisionOption.GenerateUniqueName);
+                    StorageFile NewFile = null;
+
+                    switch (Path.GetExtension(Dialog.NewFileName))
+                    {
+                        case ".zip":
+                            {
+                                NewFile = await SpecialTypeGenerator.Current.CreateZipAsync(FileControlInstance.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true);
+                                break;
+                            }
+                        case ".rtf":
+                            {
+                                NewFile = await SpecialTypeGenerator.Current.CreateRtfAsync(FileControlInstance.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true);
+                                break;
+                            }
+                        case ".xlsx":
+                            {
+                                NewFile = await SpecialTypeGenerator.Current.CreateExcelAsync(FileControlInstance.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true);
+                                break;
+                            }
+                        default:
+                            {
+                                NewFile = await FileControlInstance.CurrentFolder.CreateFileAsync(Dialog.NewFileName, CreationCollisionOption.GenerateUniqueName);
+                                break;
+                            }
+                    }
+
+                    if (NewFile == null)
+                    {
+                        throw new UnauthorizedAccessException();
+                    }
 
                     int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.File));
                     if (Index == -1)

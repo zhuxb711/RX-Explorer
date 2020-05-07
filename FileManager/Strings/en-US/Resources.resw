@@ -504,9 +504,6 @@
   <data name="NewFileDialogInvalidInputTip.Title" xml:space="preserve">
     <value>Malformed</value>
   </data>
-  <data name="NewFileDialogType.Header" xml:space="preserve">
-    <value>File type</value>
-  </data>
   <data name="NewFileDialogType.PlaceholderText" xml:space="preserve">
     <value>Enter or select a type</value>
   </data>
@@ -944,7 +941,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Background transmittance</value>
   </data>
   <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
-    <value>The background transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.</value>
+    <value>The background transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.This feature is not available in versions below Win10-1903.</value>
   </data>
   <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
     <value>Adjusting this value may result in unclear or unrecognized content</value>
@@ -1443,5 +1440,14 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="LanguageRestartButton.Content" xml:space="preserve">
     <value>Restart now</value>
+  </data>
+  <data name="NewFileDialogTypeTip.Subtitle" xml:space="preserve">
+    <value>You can manually enter the file type you need to create, or you can select the type predefined by the RX Explorer. However, the RX Explorer can only guarantee the correct creation of pre-defined types. It cannot guarantee that the types you enter manually can be created correctly.</value>
+  </data>
+  <data name="NewFileDIalogTypeTip.Title" xml:space="preserve">
+    <value>Explanation</value>
+  </data>
+  <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
+    <value>File type</value>
   </data>
 </root>

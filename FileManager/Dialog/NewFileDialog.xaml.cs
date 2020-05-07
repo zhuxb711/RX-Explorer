@@ -63,5 +63,10 @@ namespace FileManager.Dialog
                 }
             }
         }
+
+        private void TypeQuestion_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            TypeTip.IsOpen = true;
+        }
     }
 }

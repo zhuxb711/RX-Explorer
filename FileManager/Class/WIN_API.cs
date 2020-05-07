@@ -26,7 +26,7 @@ namespace FileManager.Class
         public string cAlternateFileName;
     }
 
-    public sealed class WIN_Native_API
+    public static class WIN_Native_API
     {
         private enum FINDEX_INFO_LEVELS
         {

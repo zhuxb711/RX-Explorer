@@ -133,14 +133,27 @@ namespace FileManager.Class
                         }
                     default:
                         {
-                            AcrylicBackgroundBrush = new AcrylicBrush
+                            if (Win10VersionChecker.Windows10_1903)
                             {
-                                BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? GetColorFromHexString(Color) : Colors.LightSlateGray,
-                                TintOpacity = 1 - Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]),
-                                TintLuminosityOpacity = 1 - Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]),
-                                FallbackColor = Colors.DimGray
-                            };
+                                AcrylicBackgroundBrush = new AcrylicBrush
+                                {
+                                    BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                                    TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? GetColorFromHexString(Color) : Colors.LightSlateGray,
+                                    TintOpacity = 1 - Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]),
+                                    TintLuminosityOpacity = 1 - Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]),
+                                    FallbackColor = Colors.DimGray
+                                };
+                            }
+                            else
+                            {
+                                AcrylicBackgroundBrush = new AcrylicBrush
+                                {
+                                    BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                                    TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? GetColorFromHexString(Color) : Colors.LightSlateGray,
+                                    TintOpacity = 1 - Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]),
+                                    FallbackColor = Colors.DimGray
+                                };
+                            }
 
                             if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string SubMode)
                             {
@@ -204,18 +217,28 @@ namespace FileManager.Class
         {
             get
             {
-                return 1 - Convert.ToDouble(AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty));
-            }
-            set
-            {
-                if (value == -1)
+                if (Win10VersionChecker.Windows10_1903)
                 {
-                    AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, null);
+                    return 1 - Convert.ToDouble(AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty));
                 }
                 else
                 {
-                    AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, 1 - value);
-                    ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] = value.ToString("0.0");
+                    return 0;
+                }
+            }
+            set
+            {
+                if (Win10VersionChecker.Windows10_1903)
+                {
+                    if (value == -1)
+                    {
+                        AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, null);
+                    }
+                    else
+                    {
+                        AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, 1 - value);
+                        ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] = value.ToString("0.0");
+                    }
                 }
             }
         }
