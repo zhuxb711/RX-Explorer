@@ -1345,4 +1345,7 @@
   <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
     <value>文件类型</value>
   </data>
+  <data name="SubmitIssueOnGithub.Content" xml:space="preserve">
+    <value>在Github提交issue</value>
+  </data>
 </root>

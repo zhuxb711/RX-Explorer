@@ -78,7 +78,7 @@ namespace FileManager
         {
             try
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Device)
+                if (SettingControl.IsInputFromPrimaryButton && (e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Device)
                 {
                     Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
                 }
@@ -93,7 +93,7 @@ namespace FileManager
         {
             try
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Library)
+                if (SettingControl.IsInputFromPrimaryButton && (e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Library)
                 {
                     Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
                 }

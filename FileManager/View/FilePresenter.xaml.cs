@@ -57,8 +57,6 @@ namespace FileManager
 
         private bool useGridorList = true;
 
-        private bool IsInputFromPrimaryButton = true;
-
         private volatile FileSystemStorageItem StayInItem;
 
         private DispatcherTimer PointerHoverTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
@@ -205,44 +203,11 @@ namespace FileManager
         private void FilePresenter_Unloaded(object sender, RoutedEventArgs e)
         {
             CoreWindow.GetForCurrentThread().KeyDown -= Window_KeyDown;
-            CoreWindow.GetForCurrentThread().PointerPressed -= FilePresenter_PointerPressed;
         }
 
         private void FilePresenter_Loaded(object sender, RoutedEventArgs e)
         {
             CoreWindow.GetForCurrentThread().KeyDown += Window_KeyDown;
-            CoreWindow.GetForCurrentThread().PointerPressed += FilePresenter_PointerPressed;
-        }
-
-        private void FilePresenter_PointerPressed(CoreWindow sender, PointerEventArgs args)
-        {
-            bool BackButtonPressed = args.CurrentPoint.Properties.IsXButton1Pressed;
-            bool ForwardButtonPressed = args.CurrentPoint.Properties.IsXButton2Pressed;
-
-            if (BackButtonPressed)
-            {
-                args.Handled = true;
-                IsInputFromPrimaryButton = false;
-
-                if (FileControlInstance.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && !QueueContentDialog.IsRunningOrWaiting && FileControlInstance.GoBackRecord.IsEnabled)
-                {
-                    FileControlInstance.GoBackRecord_Click(null, null);
-                }
-            }
-            else if (ForwardButtonPressed)
-            {
-                args.Handled = true;
-                IsInputFromPrimaryButton = false;
-
-                if (FileControlInstance.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && !QueueContentDialog.IsRunningOrWaiting && FileControlInstance.GoForwardRecord.IsEnabled)
-                {
-                    FileControlInstance.GoForwardRecord_Click(null, null);
-                }
-            }
-            else
-            {
-                IsInputFromPrimaryButton = true;
-            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -2291,7 +2256,7 @@ namespace FileManager
 
         private void GridViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
-            if (IsInputFromPrimaryButton && (e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem ReFile)
+            if (SettingControl.IsInputFromPrimaryButton && (e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem ReFile)
             {
                 EnterSelectedItem(ReFile);
             }

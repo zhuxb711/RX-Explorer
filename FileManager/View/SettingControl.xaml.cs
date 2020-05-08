@@ -44,6 +44,8 @@ namespace FileManager
 
         public static bool IsQuicklookEnable { get; set; }
 
+        public static bool IsInputFromPrimaryButton { get; set; } = true;
+
         private int EnterAndExitLock = 0;
 
         public bool IsOpened { get; private set; } = false;
@@ -236,12 +238,14 @@ namespace FileManager
                 if (FeedBackCollection.Count == 0)
                 {
                     EmptyFeedBack.Text = Globalization.Language == LanguageEnum.Chinese ? "无任何反馈或建议" : "No feedback or suggestions";
-                    EmptyFeedBack.Visibility = Visibility.Visible;
+                    SubmitIssueOnGithub.Visibility = Visibility.Visible;
+                    EmptyFeedBackArea.Visibility = Visibility.Visible;
                     FeedBackList.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
-                    EmptyFeedBack.Visibility = Visibility.Collapsed;
+                    EmptyFeedBackArea.Visibility = Visibility.Collapsed;
+                    SubmitIssueOnGithub.Visibility = Visibility.Collapsed;
                     FeedBackList.Visibility = Visibility.Visible;
                 }
             };
@@ -275,6 +279,7 @@ namespace FileManager
                 if (FeedBackCollection.Count == 0)
                 {
                     EmptyFeedBack.Text = Globalization.Language == LanguageEnum.Chinese ? "无任何反馈或建议" : "No feedback or suggestions";
+                    SubmitIssueOnGithub.Visibility = Visibility.Visible;
                 }
                 else
                 {

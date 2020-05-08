@@ -1450,4 +1450,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
     <value>File type</value>
   </data>
+  <data name="SubmitIssueOnGithub.Content" xml:space="preserve">
+    <value>Submit an issue on Github</value>
+  </data>
 </root>

@@ -117,6 +117,67 @@ namespace FileManager
             PortalDeviceWatcher.Removed += PortalDeviceWatcher_Removed;
             Application.Current.Resuming += Current_Resuming;
             Application.Current.Suspending += Current_Suspending;
+            CoreWindow.GetForCurrentThread().PointerPressed += TabViewContainer_PointerPressed;
+        }
+
+        private void TabViewContainer_PointerPressed(CoreWindow sender, PointerEventArgs args)
+        {
+            bool BackButtonPressed = args.CurrentPoint.Properties.IsXButton1Pressed;
+            bool ForwardButtonPressed = args.CurrentPoint.Properties.IsXButton2Pressed;
+
+            if (CurrentPageNav.Content is FileControl Control)
+            {
+                if (BackButtonPressed)
+                {
+                    args.Handled = true;
+                    SettingControl.IsInputFromPrimaryButton = false;
+
+                    if (!QueueContentDialog.IsRunningOrWaiting && Control.Nav.CurrentSourcePageType.Name == nameof(FilePresenter))
+                    {
+                        if (Control.GoBackRecord.IsEnabled)
+                        {
+                            Control.GoBackRecord_Click(null, null);
+                        }
+                        else
+                        {
+                            MainPage.ThisPage.NavView_BackRequested(null, null);
+                        }
+                    }
+                }
+                else if (ForwardButtonPressed)
+                {
+                    args.Handled = true;
+                    SettingControl.IsInputFromPrimaryButton = false;
+
+                    if (Control.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && !QueueContentDialog.IsRunningOrWaiting && Control.GoForwardRecord.IsEnabled)
+                    {
+                        Control.GoForwardRecord_Click(null, null);
+                    }
+                }
+                else
+                {
+                    SettingControl.IsInputFromPrimaryButton = true;
+                }
+            }
+            else if (CurrentPageNav.Content is ThisPC PC)
+            {
+                if (BackButtonPressed)
+                {
+                    args.Handled = true;
+                    SettingControl.IsInputFromPrimaryButton = false;
+
+                    MainPage.ThisPage.NavView_BackRequested(null, null);
+                }
+                else if(ForwardButtonPressed)
+                {
+                    args.Handled = true;
+                    SettingControl.IsInputFromPrimaryButton = false;
+                }
+                else
+                {
+                    SettingControl.IsInputFromPrimaryButton = true;
+                }
+            }
         }
 
         public async Task CreateNewTabAndOpenTargetFolder(string Path)

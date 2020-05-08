@@ -785,7 +785,7 @@ namespace FileManager
                 }
                 else
                 {
-                    if (SettingControl != null)
+                    if ((SettingControl?.IsOpened).GetValueOrDefault())
                     {
                         await SettingControl.Hide().ConfigureAwait(true);
                     }
@@ -823,7 +823,7 @@ namespace FileManager
             }
         }
 
-        private async void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+        public async void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
             if ((SettingControl?.IsOpened).GetValueOrDefault())
             {

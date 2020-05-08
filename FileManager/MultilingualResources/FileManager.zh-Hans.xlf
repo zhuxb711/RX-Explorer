@@ -1784,6 +1784,10 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>File type</source>
           <target state="translated">文件类型</target>
         </trans-unit>
+        <trans-unit id="SubmitIssueOnGithub.Content" translate="yes" xml:space="preserve">
+          <source>Submit an issue on Github</source>
+          <target state="translated">在Github提交issue</target>
+        </trans-unit>
       </group>
     </body>
   </file>

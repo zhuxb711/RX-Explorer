@@ -89,6 +89,7 @@
                            Grid.Row="1" />
                     <local:SettingControl x:Name="SettingControl"
                                           Visibility="Collapsed"
+                                          x:FieldModifier="public"
                                           x:DeferLoadStrategy="Lazy" />
                 </Grid>
             </NavigationView.Content>

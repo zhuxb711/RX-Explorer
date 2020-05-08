@@ -1,4 +1,17 @@
 ﻿*****
+###What's new in Ver.4.7.0.0
+
+>#####Feature update
+
+>>#####Expand the application range of the mouse side keys
+
+>#####Bug fix
+
+>>#####Resolved the incompatibility problem of the setup page on Win10-1809 version, this problem will cause RX to crash
+
+>>#####Fixed the problem of file structure damage when creating new xlsx, rtf, zip files
+
+*****
 ###What's new in Ver.4.6.8.0
 
 >#####Feature update

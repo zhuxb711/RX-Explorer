@@ -521,7 +521,7 @@
                 <StackPanel Grid.Column="2"
                             Name="RightPanel">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock FontSize="22"
+                        <TextBlock FontSize="20"
                                    Text="反馈建议清单"
                                    x:Uid="FeedBackListHeader" />
                         <Viewbox Margin="10,4,0,0"
@@ -532,12 +532,20 @@
                                       PointerPressed="FeedBackQuestion_PointerPressed" />
                         </Viewbox>
                     </StackPanel>
-                    <TextBlock Text="无任何反馈或建议"
-                               x:Uid="FeedBackListEmptyTips"
-                               Name="EmptyFeedBack"
-                               HorizontalAlignment="Center"
-                               FontSize="18"
-                               Margin="0,50,0,50" />
+                    <StackPanel Margin="0,50,0,50"
+                                Name="EmptyFeedBackArea">
+                        <TextBlock Text="无任何反馈或建议"
+                                   x:Uid="FeedBackListEmptyTips"
+                                   Name="EmptyFeedBack"
+                                   HorizontalAlignment="Center"
+                                   FontSize="18"/>
+                        <HyperlinkButton NavigateUri="https://github.com/zhuxb711/FileManager/issues"
+                                         Content="在Github提交issue"
+                                         x:Uid="SubmitIssueOnGithub"
+                                         Name="SubmitIssueOnGithub"
+                                         Visibility="Collapsed"
+                                         HorizontalAlignment="Center"/>
+                    </StackPanel>
                     <ListView Margin="0,10,0,0"
                               Name="FeedBackList"
                               ItemsSource="{x:Bind FeedBackCollection}"
