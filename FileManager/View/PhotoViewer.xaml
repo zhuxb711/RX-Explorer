@@ -88,5 +88,13 @@
                                   IsIndeterminate="True"/>
             </StackPanel>
         </controls:Loading>
+
+        <TextBlock Grid.Row="1"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"
+                   Text="无法加载此图片"
+                   FontSize="18"
+                   Name="CouldnotLoadTip"
+                   Visibility="Collapsed"/>
     </Grid>
 </Page>

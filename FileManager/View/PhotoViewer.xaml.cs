@@ -5,7 +5,6 @@ using Microsoft.Toolkit.Uwp.UI.Animations;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -110,11 +109,14 @@ namespace FileManager
                 PhotoCollection = new ObservableCollection<PhotoDisplaySupport>(FileList.Select((Item) => new PhotoDisplaySupport(Item)));
                 Flip.ItemsSource = PhotoCollection;
 
-                await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmapAsync().ConfigureAwait(true);
+                if(!await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmapAsync().ConfigureAwait(true))
+                {
+                    CouldnotLoadTip.Visibility = Visibility.Visible;
+                }
 
                 for (int i = LastSelectIndex - 5 > 0 ? LastSelectIndex - 5 : 0; i <= (LastSelectIndex + 5 < PhotoCollection.Count - 1 ? LastSelectIndex + 5 : PhotoCollection.Count - 1) && !Cancellation.IsCancellationRequested; i++)
                 {
-                    await PhotoCollection[i].GenerateThumbnailAsync();
+                    await PhotoCollection[i].GenerateThumbnailAsync().ConfigureAwait(true);
                 }
 
                 if (!Cancellation.IsCancellationRequested)
@@ -123,7 +125,7 @@ namespace FileManager
                     Flip.SelectionChanged += Flip_SelectionChanged;
                     Flip.SelectionChanged += Flip_SelectionChanged1;
 
-                    await Task.Delay(1000);
+                    await Task.Delay(1000).ConfigureAwait(true);
                 }
             }
             catch (Exception ex)
@@ -173,7 +175,7 @@ namespace FileManager
             await Task.Run(() =>
             {
                 ExitLocker.WaitOne();
-            });
+            }).ConfigureAwait(true);
 
             ExitLocker.Dispose();
             ExitLocker = null;
@@ -194,6 +196,8 @@ namespace FileManager
                 return;
             }
 
+            CouldnotLoadTip.Visibility = Visibility.Collapsed;
+
             LoadQueue.Enqueue(Flip.SelectedIndex);
 
             if (Interlocked.Exchange(ref LockResource, 1) == 0)
@@ -206,11 +210,14 @@ namespace FileManager
                     {
                         int CurrentIndex = LoadQueue.Dequeue();
 
-                        await PhotoCollection[CurrentIndex].ReplaceThumbnailBitmapAsync().ConfigureAwait(true);
+                        if (!await PhotoCollection[CurrentIndex].ReplaceThumbnailBitmapAsync().ConfigureAwait(true) && CurrentIndex == Flip.SelectedIndex)
+                        {
+                            CouldnotLoadTip.Visibility = Visibility.Visible;
+                        }
 
                         for (int i = CurrentIndex - 5 > 0 ? CurrentIndex - 5 : 0; i <= (CurrentIndex + 5 < PhotoCollection.Count - 1 ? CurrentIndex + 5 : PhotoCollection.Count - 1) && !Cancellation.IsCancellationRequested; i++)
                         {
-                            await PhotoCollection[i].GenerateThumbnailAsync();
+                            await PhotoCollection[i].GenerateThumbnailAsync().ConfigureAwait(true);
                         }
                     }
                 }

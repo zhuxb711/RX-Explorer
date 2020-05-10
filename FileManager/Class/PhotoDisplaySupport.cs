@@ -35,6 +35,8 @@ namespace FileManager.Class
         /// </summary>
         private bool IsThumbnailPicture = true;
 
+        private bool IsErrorWhenGenerateBitmap = false;
+
         /// <summary>
         /// 旋转角度
         /// </summary>
@@ -61,27 +63,37 @@ namespace FileManager.Class
         /// 使用原图替换缩略图
         /// </summary>
         /// <returns></returns>
-        public async Task ReplaceThumbnailBitmapAsync()
+        public async Task<bool> ReplaceThumbnailBitmapAsync()
         {
-            if (IsThumbnailPicture)
+            if (IsThumbnailPicture || IsErrorWhenGenerateBitmap)
             {
                 IsThumbnailPicture = false;
 
-                if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
+                try
                 {
-                    using (IRandomAccessStream Stream = await File.OpenAsync(FileAccessMode.Read))
+                    if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
                     {
-                        if (BitmapSource == null)
+                        using (IRandomAccessStream Stream = await File.OpenAsync(FileAccessMode.Read))
                         {
-                            BitmapSource = new BitmapImage();
+                            if (BitmapSource == null)
+                            {
+                                BitmapSource = new BitmapImage();
+                            }
+
+                            await BitmapSource.SetSourceAsync(Stream);
                         }
 
-                        await BitmapSource.SetSourceAsync(Stream);
+                        OnPropertyChanged(nameof(BitmapSource));
                     }
-
-                    OnPropertyChanged(nameof(BitmapSource));
+                }
+                catch
+                {
+                    IsErrorWhenGenerateBitmap = true;
+                    return false;
                 }
             }
+
+            return true;
         }
 
         public async Task GenerateThumbnailAsync()
@@ -91,19 +103,23 @@ namespace FileManager.Class
                 return;
             }
 
-            if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
+            try
             {
-                using (StorageItemThumbnail ThumbnailStream = await File.GetThumbnailAsync(ThumbnailMode.PicturesView))
+                if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
                 {
-                    if (BitmapSource == null)
+                    BitmapSource = new BitmapImage();
+
+                    using (StorageItemThumbnail ThumbnailStream = await File.GetThumbnailAsync(ThumbnailMode.PicturesView))
                     {
-                        BitmapSource = new BitmapImage();
+                        await BitmapSource.SetSourceAsync(ThumbnailStream);
                     }
 
-                    await BitmapSource.SetSourceAsync(ThumbnailStream);
+                    OnPropertyChanged(nameof(BitmapSource));
                 }
-
-                OnPropertyChanged(nameof(BitmapSource));
+            }
+            catch
+            {
+                BitmapSource = new BitmapImage(new Uri("ms-appx:///Assets/AlphaPNG.png"));
             }
         }
 
