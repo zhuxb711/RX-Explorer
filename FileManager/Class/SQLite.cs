@@ -62,7 +62,7 @@ namespace FileManager.Class
                                 Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
                                 Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));
                                 Create Table If Not Exists DeviceVisibility (Path Text Not Null, IsVisible Text Not Null, Primary Key(Path));
-                                Create Table If Not Exists ProgramPickerRecord (Path Text Not Null);
+                                Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null, Primary Key(FileType,Path));
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture3.jpg');
@@ -77,8 +77,7 @@ namespace FileManager.Class
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture12.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture13.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');
-                                Delete From ProgramPickerRecord Where Path = '{NodePadPath}';
-                                Insert Into ProgramPickerRecord Values ('{NodePadPath}');";
+                                Insert Or Ignore Into ProgramPicker Values ('.*','{NodePadPath}');";
             using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBasePoolAsync().Result)
             using (SqliteCommand CreateTable = Connection.CreateDbCommandFromConnection<SqliteCommand>(Command))
             {
@@ -86,36 +85,40 @@ namespace FileManager.Class
             }
         }
 
-        public async Task SetProgramPickerRecordAsync(string Path)
+        public async Task SetProgramPickerRecordAsync(string FileType, string Path)
         {
             using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into ProgramPickerRecord Values (@Path)"))
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Or Ignore Into ProgramPicker Values (@FileType,@Path)"))
             {
+                _ = Command.Parameters.AddWithValue("@FileType", FileType);
                 _ = Command.Parameters.AddWithValue("@Path", Path);
                 _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
-        public async Task<List<string>> GetProgramPickerRecordAsync()
+        public async IAsyncEnumerable<string> GetProgramPickerRecordAsync(string FileType)
         {
             using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From ProgramPickerRecord"))
-            using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From ProgramPicker Where FileType = @FileType Or FileType = '.*'"))
             {
-                List<string> list = new List<string>();
-                while (query.Read())
+                _ = Command.Parameters.AddWithValue("@FileType", FileType);
+
+                using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
                 {
-                    list.Add(query[0].ToString());
+                    while (Reader.Read())
+                    {
+                        yield return Reader[1].ToString();
+                    }
                 }
-                return list;
             }
         }
 
-        public async Task DeleteProgramPickerRecordAsync(string Path)
+        public async Task DeleteProgramPickerRecordAsync(string FileType, string Path)
         {
             using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From ProgramPickerRecord Where Path=@Path"))
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From ProgramPickerRecord Where FileType = @FileType And Path = @Path"))
             {
+                _ = Command.Parameters.AddWithValue("@FileType", FileType);
                 _ = Command.Parameters.AddWithValue("@Path", Path);
                 _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }

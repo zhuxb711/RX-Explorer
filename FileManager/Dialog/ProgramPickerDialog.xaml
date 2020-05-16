@@ -4,7 +4,6 @@
                           xmlns:local="using:FileManager.Class"
                           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                          xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
                           mc:Ignorable="d"
                           x:Uid="ProgramPickerDialog"
                           Title="选择打开方式"
@@ -13,7 +12,7 @@
                           PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
     <Grid>
-        <StackPanel>
+        <StackPanel Name="WholeArea">
             <StackPanel x:Name="Area1">
                 <TextBlock FontSize="18"
                            Name="Title1" />
@@ -95,12 +94,12 @@
                                 <TextBlock Text="{x:Bind Name}"
                                            FontSize="16"
                                            Width="350"
-                                           TextTrimming="CharacterEllipsis"/>
+                                           TextTrimming="CharacterEllipsis" />
                                 <TextBlock Text="{x:Bind Description}"
                                            Margin="0,5,0,0"
                                            FontSize="13"
                                            Width="350"
-                                           TextTrimming="CharacterEllipsis"/>
+                                           TextTrimming="CharacterEllipsis" />
                             </StackPanel>
                         </StackPanel>
                     </DataTemplate>
@@ -111,13 +110,17 @@
                              Name="BowserApp"
                              FontSize="15"
                              Margin="0,10,0,0"
-                             Click="BowserApp_Click"/>
+                             Click="BowserApp_Click" />
             <CheckBox Content="默认使用此应用打开该类型文件"
                       x:Uid="ProgramPickerDialogUseAsAdmin"
                       Margin="0,10,0,0"
                       Name="UseAsAdmin"
                       FontSize="15"
-                      IsChecked="True"/>
+                      IsChecked="True" />
         </StackPanel>
+        <TextBlock Name="LoadingText"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"
+                   FontSize="18"/>
     </Grid>
 </local:QueueContentDialog>

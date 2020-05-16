@@ -1372,8 +1372,16 @@ namespace FileManager
 
                             if (Regex.IsMatch(SelectItem.UserID, "^\\s*([A-Za-z0-9_-]+(\\.\\w+)*@(\\w+\\.)+\\w{2,5})\\s*$"))
                             {
-                                string Message = $"您的反馈原文：\r------------------------------------\r{SelectItem.Title}{Environment.NewLine}{SelectItem.Suggestion}\r------------------------------------\r\r开发者回复内容：\r------------------------------------\r{Item.Title}{Environment.NewLine}{Item.Suggestion}\r------------------------------------{Environment.NewLine}";
-                                _ = await Launcher.LaunchUriAsync(new Uri($"mailto:{SelectItem.UserID}?subject=开发者已回复您的反馈&body={Uri.EscapeDataString(Message)}"), new LauncherOptions { TreatAsUntrusted = false, DisplayApplicationPicker = false });
+                                if (Globalization.Language == LanguageEnum.Chinese)
+                                {
+                                    string Message = $"您的反馈原文：\r------------------------------------\r{SelectItem.Title}{Environment.NewLine}{SelectItem.Suggestion}\r------------------------------------\r\r开发者回复内容：\r------------------------------------\r{Item.Title}{Environment.NewLine}{Item.Suggestion}\r------------------------------------{Environment.NewLine}";
+                                    _ = await Launcher.LaunchUriAsync(new Uri($"mailto:{SelectItem.UserID}?subject=开发者已回复您的反馈&body={Uri.EscapeDataString(Message)}"), new LauncherOptions { TreatAsUntrusted = false, DisplayApplicationPicker = false });
+                                }
+                                else
+                                {
+                                    string Message = $"Your original feedback：\r------------------------------------\r{SelectItem.Title}{Environment.NewLine}{SelectItem.Suggestion}\r------------------------------------\r\rDeveloper reply：\r------------------------------------\r{Item.Title}{Environment.NewLine}{Item.Suggestion}\r------------------------------------{Environment.NewLine}";
+                                    _ = await Launcher.LaunchUriAsync(new Uri($"mailto:{SelectItem.UserID}?subject=The developer has responded to your feedback in RX Explorer&body={Uri.EscapeDataString(Message)}"), new LauncherOptions { TreatAsUntrusted = false, DisplayApplicationPicker = false });
+                                }
                             }
                         }
                         else

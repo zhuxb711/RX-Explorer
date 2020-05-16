@@ -487,6 +487,7 @@ namespace FileManager
 
                 Dictionary<string, bool> VisibilityMap = await SQLite.Current.GetDeviceVisibilityMapAsync().ConfigureAwait(true);
 
+                bool AccessError = false;
                 foreach (string DriveRootPath in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
                                                                       .Select((Item) => Item.RootDirectory.FullName)
                                                                       .Where((NewItem) => HardDeviceList.All((Item) => Item.Folder.Path != NewItem)))
@@ -503,27 +504,32 @@ namespace FileManager
                         }
                         catch (Exception)
                         {
-                            if (Globalization.Language == LanguageEnum.Chinese)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = "警告",
-                                    Content = "由于缺乏足够的权限，部分驱动器未能显示",
-                                    CloseButtonText = "知道了"
-                                };
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = "Warning",
-                                    Content = "Some drives fail to display due to lack of sufficient permissions",
-                                    CloseButtonText = "Got it"
-                                };
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }
+                            AccessError = true;
                         }
+                    }
+                }
+
+                if(AccessError)
+                {
+                    if (Globalization.Language == LanguageEnum.Chinese)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "警告",
+                            Content = "由于缺乏足够的权限，部分驱动器未能显示",
+                            CloseButtonText = "知道了"
+                        };
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = "Warning",
+                            Content = "Some drives fail to display due to lack of sufficient permissions",
+                            CloseButtonText = "Got it"
+                        };
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
 

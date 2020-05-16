@@ -1453,4 +1453,19 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SubmitIssueOnGithub.Content" xml:space="preserve">
     <value>Submit an issue on Github</value>
   </data>
+  <data name="PairedText" xml:space="preserve">
+    <value>Paired</value>
+  </data>
+  <data name="PairText" xml:space="preserve">
+    <value>Pair</value>
+  </data>
+  <data name="ReadyToPairText" xml:space="preserve">
+    <value>Ready to pair</value>
+  </data>
+  <data name="UnknownText" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="UnpairText" xml:space="preserve">
+    <value>Unpair</value>
+  </data>
 </root>

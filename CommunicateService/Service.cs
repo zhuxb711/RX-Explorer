@@ -36,15 +36,21 @@ namespace CommunicateService
                         case "Excute_Quicklook":
                             {
                                 Value.Add("ExcuteType", "Excute_Quicklook");
-                                Value.Add("RX_ExcutePath", ApplicationData.Current.LocalSettings.Values["ExcutePath"]);
+                                Value.Add("ExcutePath", ApplicationData.Current.LocalSettings.Values["ExcutePath"]);
                                 break;
                             }
                         case "Excute_RunExe":
                             {
                                 Value.Add("ExcuteType", "Excute_RunExe");
-                                Value.Add("RX_ExcutePath", ApplicationData.Current.LocalSettings.Values["ExcutePath"]);
-                                Value.Add("RX_ExcuteParameter", ApplicationData.Current.LocalSettings.Values["ExcuteParameter"]);
-                                Value.Add("RX_ExcuteAuthority", ApplicationData.Current.LocalSettings.Values["ExcuteAuthority"]);
+                                Value.Add("ExcutePath", ApplicationData.Current.LocalSettings.Values["ExcutePath"]);
+                                Value.Add("ExcuteParameter", ApplicationData.Current.LocalSettings.Values["ExcuteParameter"]);
+                                Value.Add("ExcuteAuthority", ApplicationData.Current.LocalSettings.Values["ExcuteAuthority"]);
+                                break;
+                            }
+                        case "Excute_Get_Associate":
+                            {
+                                Value.Add("ExcuteType", "Excute_Get_Associate");
+                                Value.Add("AssociatePath", ApplicationData.Current.LocalSettings.Values["ExcutePath"]);
                                 break;
                             }
                         case "Excute_Check_QuicklookIsAvaliable":
@@ -57,6 +63,10 @@ namespace CommunicateService
                 else if (args.Request.Message.ContainsKey("Check_QuicklookIsAvaliable_Result"))
                 {
                     ApplicationData.Current.LocalSettings.Values["Check_QuicklookIsAvaliable_Result"] = Convert.ToString(args.Request.Message["Check_QuicklookIsAvaliable_Result"]);
+                }
+                else if(args.Request.Message.ContainsKey("Get_Associate_Result"))
+                {
+                    ApplicationData.Current.LocalSettings.Values["Get_Associate_Result"] = Convert.ToString(args.Request.Message["Get_Associate_Result"]);
                 }
                 else
                 {

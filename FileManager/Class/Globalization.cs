@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Windows.ApplicationModel.Resources;
 using Windows.Globalization;
 using Windows.Storage;
 using Windows.System.UserProfile;
@@ -15,6 +17,9 @@ namespace FileManager.Class
         /// </summary>
         public static LanguageEnum Language { get; private set; }
 
+        private static readonly ResourceLoader Loader = ResourceLoader.GetForCurrentView();
+        private static readonly Dictionary<string, string> ResourceCache = new Dictionary<string, string>();
+
         public static void SwitchTo(LanguageEnum Language)
         {
             if (Language == LanguageEnum.Chinese)
@@ -26,6 +31,20 @@ namespace FileManager.Class
             {
                 ApplicationLanguages.PrimaryLanguageOverride = "en-US";
                 ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 1;
+            }
+        }
+
+        public static string GetString(string Key)
+        {
+            if (ResourceCache.TryGetValue(Key, out string Value))
+            {
+                return Value;
+            }
+            else
+            {
+                Value = Loader.GetString(Key);
+                ResourceCache.Add(Key, Value);
+                return Value;
             }
         }
 

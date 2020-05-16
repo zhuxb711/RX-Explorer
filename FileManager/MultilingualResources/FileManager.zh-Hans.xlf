@@ -1788,6 +1788,26 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Submit an issue on Github</source>
           <target state="translated">在Github提交issue</target>
         </trans-unit>
+        <trans-unit id="PairedText" translate="yes" xml:space="preserve">
+          <source>Paired</source>
+          <target state="translated">已配对</target>
+        </trans-unit>
+        <trans-unit id="PairText" translate="yes" xml:space="preserve">
+          <source>Pair</source>
+          <target state="translated">配对</target>
+        </trans-unit>
+        <trans-unit id="ReadyToPairText" translate="yes" xml:space="preserve">
+          <source>Ready to pair</source>
+          <target state="translated">准备配对</target>
+        </trans-unit>
+        <trans-unit id="UnknownText" translate="yes" xml:space="preserve">
+          <source>Unknown</source>
+          <target state="translated">未知设备</target>
+        </trans-unit>
+        <trans-unit id="UnpairText" translate="yes" xml:space="preserve">
+          <source>Unpair</source>
+          <target state="new">Unpair</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -129,6 +129,7 @@ namespace FileManager
                     Flip.SelectionChanged += Flip_SelectionChanged1;
                 }
 
+                await Task.Delay(1000).ConfigureAwait(true);
                 LoadingControl.IsLoading = false;
                 MainPage.ThisPage.IsAnyTaskRunning = false;
             }

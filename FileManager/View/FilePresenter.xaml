@@ -601,7 +601,7 @@
                    VerticalAlignment="Center"
                    x:Uid="HasFile"
                    Text="无文件"
-                   FontSize="22"
+                   FontSize="20"
                    Visibility="Collapsed" />
         <controls:Loading x:Name="LoadingControl"
                           IsLoading="False"
@@ -612,7 +612,7 @@
             </controls:Loading.Background>
                 <StackPanel>
                     <TextBlock Name="ProgressInfo"
-                               FontSize="22"
+                               FontSize="20"
                                VerticalAlignment="Center"
                                TextAlignment="Center" />
                 <controls1:ProgressBar IsIndeterminate="True"

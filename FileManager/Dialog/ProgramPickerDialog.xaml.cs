@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -84,7 +85,30 @@ namespace FileManager.Dialog
 
         private async void ProgramPickerDialog_Loading(FrameworkElement sender, object args)
         {
+            LoadingText.Text = Globalization.Language == LanguageEnum.Chinese ? "正在加载..." : "Loading...";
+            LoadingText.Visibility = Visibility.Visible;
+            WholeArea.Visibility = Visibility.Collapsed;
+
             List<ProgramPickerItem> TempList = new List<ProgramPickerItem>();
+
+            string SystemAssociate = await FullTrustExcutorController.GetAssociateFromPath(OpenFile.Path).ConfigureAwait(true);
+            if (!string.IsNullOrEmpty(SystemAssociate))
+            {
+                try
+                {
+                    StorageFile ExcuteFile = await StorageFile.GetFileFromPathAsync(SystemAssociate);
+
+                    string Description = Convert.ToString((await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"]);
+
+                    TempList.Add(new ProgramPickerItem(await ExcuteFile.GetThumbnailBitmapAsync().ConfigureAwait(true), string.IsNullOrEmpty(Description) ? ExcuteFile.DisplayName : Description, ExcuteFile.DisplayType, Path: SystemAssociate));
+
+                    await SQLite.Current.SetProgramPickerRecordAsync(OpenFile.FileType, SystemAssociate).ConfigureAwait(true);
+                }
+                catch
+                {
+
+                }
+            }
 
             foreach (AppInfo Info in await Launcher.FindFileHandlersAsync(OpenFile.FileType))
             {
@@ -96,18 +120,22 @@ namespace FileManager.Dialog
                 }
             }
 
-            List<string> PickerRecord = await SQLite.Current.GetProgramPickerRecordAsync().ConfigureAwait(true);
-            foreach (var Path in PickerRecord)
+            await foreach (string Path in SQLite.Current.GetProgramPickerRecordAsync(OpenFile.FileType))
             {
+                if (Path == SystemAssociate)
+                {
+                    continue;
+                }
+
                 try
                 {
                     StorageFile ExcuteFile = await StorageFile.GetFileFromPathAsync(Path);
                     string ExtraAppName = (await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"].ToString();
-                    TempList.Add(new ProgramPickerItem(await ExcuteFile.GetThumbnailBitmapAsync().ConfigureAwait(true), ExtraAppName, string.Empty, Path: ExcuteFile.Path));
+                    TempList.Add(new ProgramPickerItem(await ExcuteFile.GetThumbnailBitmapAsync().ConfigureAwait(true), ExtraAppName, ExcuteFile.DisplayType, Path: ExcuteFile.Path));
                 }
                 catch (Exception)
                 {
-                    await SQLite.Current.DeleteProgramPickerRecordAsync(Path).ConfigureAwait(true);
+                    await SQLite.Current.DeleteProgramPickerRecordAsync(OpenFile.FileType, Path).ConfigureAwait(true);
                 }
             }
 
@@ -168,6 +196,10 @@ namespace FileManager.Dialog
             {
                 OtherProgramList.SelectedIndex = 0;
             }
+
+            await Task.Delay(500).ConfigureAwait(true);
+            LoadingText.Visibility = Visibility.Collapsed;
+            WholeArea.Visibility = Visibility.Visible;
         }
 
         private void CurrentUseProgramList_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -215,7 +247,7 @@ namespace FileManager.Dialog
                 ProgramCollection.Insert(0, new ProgramPickerItem(await ExtraApp.GetThumbnailBitmapAsync().ConfigureAwait(true), ExtraAppName, string.Empty, Path: ExtraApp.Path));
                 OtherProgramList.SelectedIndex = 0;
 
-                await SQLite.Current.SetProgramPickerRecordAsync(ExtraApp.Path).ConfigureAwait(false);
+                await SQLite.Current.SetProgramPickerRecordAsync(OpenFile.FileType, ExtraApp.Path).ConfigureAwait(false);
             }
         }
 
@@ -302,7 +334,7 @@ namespace FileManager.Dialog
                     }
                     else
                     {
-                        if (!await Launcher.LaunchFileAsync(OpenFile, new LauncherOptions { TargetApplicationPackageFamilyName = OtherItem.PackageName, DisplayApplicationPicker = false}))
+                        if (!await Launcher.LaunchFileAsync(OpenFile, new LauncherOptions { TargetApplicationPackageFamilyName = OtherItem.PackageName, DisplayApplicationPicker = false }))
                         {
                             OpenFailed = true;
                             if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute)

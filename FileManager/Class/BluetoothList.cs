@@ -21,7 +21,7 @@ namespace FileManager.Class
         {
             get
             {
-                return string.IsNullOrWhiteSpace(DeviceInfo.Name) ? (Globalization.Language == LanguageEnum.Chinese ? "未知设备" : "Unknown") : DeviceInfo.Name;
+                return string.IsNullOrWhiteSpace(DeviceInfo.Name) ? Globalization.GetString("UnknownText") : DeviceInfo.Name;
             }
         }
 
@@ -47,11 +47,11 @@ namespace FileManager.Class
             {
                 if (DeviceInfo.Pairing.IsPaired)
                 {
-                    return Globalization.Language == LanguageEnum.Chinese ? "已配对" : "Paired";
+                    return Globalization.GetString("PairedText");
                 }
                 else
                 {
-                    return Globalization.Language == LanguageEnum.Chinese ? "准备配对" : "ReadyToPair";
+                    return Globalization.GetString("ReadyToPairText");
                 }
             }
         }
@@ -65,11 +65,11 @@ namespace FileManager.Class
             {
                 if (DeviceInfo.Pairing.IsPaired)
                 {
-                    return Globalization.Language == LanguageEnum.Chinese ? "取消配对" : "Unpair";
+                    return Globalization.GetString("UnpairText");
                 }
                 else
                 {
-                    return Globalization.Language == LanguageEnum.Chinese ? "配对" : "Pair";
+                    return Globalization.GetString("PairText");
                 }
             }
         }

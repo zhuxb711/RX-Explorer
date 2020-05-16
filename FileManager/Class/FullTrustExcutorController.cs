@@ -17,6 +17,8 @@ namespace FileManager.Class
 
         private const string ExcuteType_Check_Quicklook = "Excute_Check_QuicklookIsAvaliable";
 
+        private const string ExcuteType_Get_Associate = "Excute_Get_Associate";
+
         /// <summary>
         /// 启动指定路径的程序
         /// </summary>
@@ -102,6 +104,24 @@ namespace FileManager.Class
             {
                 return false;
             }
+        }
+
+        public static async Task<string> GetAssociateFromPath(string Path)
+        {
+            ApplicationData.Current.LocalSettings.Values["ExcuteType"] = ExcuteType_Get_Associate;
+            ApplicationData.Current.LocalSettings.Values["ExcutePath"] = Path;
+            ApplicationData.Current.LocalSettings.Values.Remove("Get_Associate_Result");
+
+            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+
+            await Task.Run(() =>
+            {
+                SpinWait.SpinUntil(() => ApplicationData.Current.LocalSettings.Values.ContainsKey("Get_Associate_Result"));
+            }).ConfigureAwait(false);
+
+            string Result = Convert.ToString(ApplicationData.Current.LocalSettings.Values["Get_Associate_Result"]);
+
+            return Result == "<Empty>" ? string.Empty : Result;
         }
     }
 }

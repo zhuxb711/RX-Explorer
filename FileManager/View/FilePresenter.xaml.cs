@@ -276,7 +276,7 @@ namespace FileManager
                             {
                                 ListViewControl.Focus(FocusState.Programmatic);
                             }
-                            EnterSelectedItem(Item);
+                            await EnterSelectedItem(Item).ConfigureAwait(false);
                             break;
                         }
                     case VirtualKey.Back when FileControlInstance.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && !QueueContentDialog.IsRunningOrWaiting && FileControlInstance.GoBackRecord.IsEnabled:
@@ -2254,11 +2254,11 @@ namespace FileManager
             }
         }
 
-        private void GridViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private async void GridViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
             if (SettingControl.IsInputFromPrimaryButton && (e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem ReFile)
             {
-                EnterSelectedItem(ReFile);
+                await EnterSelectedItem(ReFile).ConfigureAwait(false);
             }
         }
 
@@ -2408,13 +2408,13 @@ namespace FileManager
             }
         }
 
-        public void FolderOpen_Click(object sender, RoutedEventArgs e)
+        public async void FolderOpen_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
             if (SelectedItem is FileSystemStorageItem Item)
             {
-                EnterSelectedItem(Item);
+                await EnterSelectedItem(Item).ConfigureAwait(false);
             }
         }
 
@@ -2647,13 +2647,13 @@ namespace FileManager
             }
         }
 
-        public void FileOpen_Click(object sender, RoutedEventArgs e)
+        public async void FileOpen_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
             if (SelectedItem is FileSystemStorageItem ReFile)
             {
-                EnterSelectedItem(ReFile);
+                await EnterSelectedItem(ReFile).ConfigureAwait(false);
             }
         }
 
@@ -2906,17 +2906,17 @@ namespace FileManager
             }
         }
 
-        private void ViewControl_ItemClick(object sender, ItemClickEventArgs e)
+        private async void ViewControl_ItemClick(object sender, ItemClickEventArgs e)
         {
             FileControlInstance.IsSearchOrPathBoxFocused = false;
 
             if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is FileSystemStorageItem ReFile)
             {
-                EnterSelectedItem(ReFile);
+                await EnterSelectedItem(ReFile).ConfigureAwait(false);
             }
         }
 
-        private async void EnterSelectedItem(FileSystemStorageItem ReFile, bool RunAsAdministrator = false)
+        private async Task EnterSelectedItem(FileSystemStorageItem ReFile, bool RunAsAdministrator = false)
         {
             try
             {
@@ -2963,31 +2963,137 @@ namespace FileManager
 
                         if (!string.IsNullOrEmpty(AdminExcuteProgram) && AdminExcuteProgram != "RX内置查看器" && AdminExcuteProgram != "RX built-in viewer")
                         {
-                            if ((await Launcher.FindFileHandlersAsync(TabTarget.Type)).FirstOrDefault((Item) => Item.DisplayInfo.DisplayName == AdminExcuteProgram) is AppInfo Info)
+                            bool IsExcuted = false;
+                            await foreach (string Path in SQLite.Current.GetProgramPickerRecordAsync(TabTarget.Type))
                             {
-                                await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false });
-                            }
-                            else
-                            {
-                                List<string> PickerRecord = await SQLite.Current.GetProgramPickerRecordAsync().ConfigureAwait(false);
-                                foreach (var Path in PickerRecord)
+                                try
                                 {
-                                    try
+                                    StorageFile ExcuteFile = await StorageFile.GetFileFromPathAsync(Path);
+
+                                    string AppName = Convert.ToString((await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"]);
+
+                                    if (AppName == AdminExcuteProgram || ExcuteFile.DisplayName == AdminExcuteProgram)
                                     {
-                                        StorageFile ExcuteFile = await StorageFile.GetFileFromPathAsync(Path);
-                                        string AppName = (await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"].ToString();
-                                        if (AppName == AdminExcuteProgram)
-                                        {
-                                            await FullTrustExcutorController.Run(Path, TabTarget.Path).ConfigureAwait(false);
-                                            break;
-                                        }
-                                    }
-                                    catch (Exception)
-                                    {
-                                        await SQLite.Current.DeleteProgramPickerRecordAsync(Path).ConfigureAwait(false);
+                                        await FullTrustExcutorController.Run(Path, TabTarget.Path).ConfigureAwait(false);
+                                        IsExcuted = true;
+                                        break;
                                     }
                                 }
+                                catch (Exception)
+                                {
+                                    await SQLite.Current.DeleteProgramPickerRecordAsync(TabTarget.Type, Path).ConfigureAwait(false);
+                                }
+                            }
 
+                            if(!IsExcuted)
+                            {
+                                if ((await Launcher.FindFileHandlersAsync(TabTarget.Type)).FirstOrDefault((Item) => Item.DisplayInfo.DisplayName == AdminExcuteProgram) is AppInfo Info)
+                                {
+                                    if(!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
+                                    {
+                                        ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
+                                        if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                        {
+                                            if (Dialog.OpenFailed)
+                                            {
+                                                if (Globalization.Language == LanguageEnum.Chinese)
+                                                {
+                                                    QueueContentDialog dialog = new QueueContentDialog
+                                                    {
+                                                        Title = "提示",
+                                                        Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
+                                                        PrimaryButtonText = "默认应用",
+                                                        CloseButtonText = "取消"
+                                                    };
+                                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                    {
+                                                        if (!await Launcher.LaunchFileAsync(File))
+                                                        {
+                                                            LauncherOptions options = new LauncherOptions
+                                                            {
+                                                                DisplayApplicationPicker = true
+                                                            };
+                                                            _ = await Launcher.LaunchFileAsync(File, options);
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    QueueContentDialog dialog = new QueueContentDialog
+                                                    {
+                                                        Title = "Tips",
+                                                        Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
+                                                        PrimaryButtonText = "Default app",
+                                                        CloseButtonText = "Cancel"
+                                                    };
+                                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                    {
+                                                        if (!await Launcher.LaunchFileAsync(File))
+                                                        {
+                                                            LauncherOptions options = new LauncherOptions
+                                                            {
+                                                                DisplayApplicationPicker = true
+                                                            };
+                                                            _ = await Launcher.LaunchFileAsync(File, options);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
+                                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                    {
+                                        if (Dialog.OpenFailed)
+                                        {
+                                            if (Globalization.Language == LanguageEnum.Chinese)
+                                            {
+                                                QueueContentDialog dialog = new QueueContentDialog
+                                                {
+                                                    Title = "提示",
+                                                    Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
+                                                    PrimaryButtonText = "默认应用",
+                                                    CloseButtonText = "取消"
+                                                };
+                                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                {
+                                                    if (!await Launcher.LaunchFileAsync(File))
+                                                    {
+                                                        LauncherOptions options = new LauncherOptions
+                                                        {
+                                                            DisplayApplicationPicker = true
+                                                        };
+                                                        _ = await Launcher.LaunchFileAsync(File, options);
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                QueueContentDialog dialog = new QueueContentDialog
+                                                {
+                                                    Title = "Tips",
+                                                    Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
+                                                    PrimaryButtonText = "Default app",
+                                                    CloseButtonText = "Cancel"
+                                                };
+                                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                {
+                                                    if (!await Launcher.LaunchFileAsync(File))
+                                                    {
+                                                        LauncherOptions options = new LauncherOptions
+                                                        {
+                                                            DisplayApplicationPicker = true
+                                                        };
+                                                        _ = await Launcher.LaunchFileAsync(File, options);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                         else
@@ -3304,19 +3410,19 @@ namespace FileManager
                     }
                     else if (Dialog.ContinueUseInnerViewer)
                     {
-                        EnterSelectedItem(SelectedItem);
+                        await EnterSelectedItem(SelectedItem).ConfigureAwait(false);
                     }
                 }
             }
         }
 
-        public void RunWithSystemAuthority_Click(object sender, RoutedEventArgs e)
+        public async void RunWithSystemAuthority_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
             if (SelectedItem != null)
             {
-                EnterSelectedItem(SelectedItem, true);
+                await EnterSelectedItem(SelectedItem, true).ConfigureAwait(false);
             }
         }
 

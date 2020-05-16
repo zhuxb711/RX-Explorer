@@ -41,7 +41,7 @@ namespace FullTrustProcess
                             {
                                 case "Excute_Quicklook":
                                     {
-                                        string ExcutePath = Convert.ToString(Response.Message["RX_ExcutePath"]);
+                                        string ExcutePath = Convert.ToString(Response.Message["ExcutePath"]);
                                         if (!string.IsNullOrEmpty(ExcutePath))
                                         {
                                             await QuicklookConnector.SendMessageToQuicklook(ExcutePath);
@@ -58,11 +58,23 @@ namespace FullTrustProcess
                                         await Connection.SendMessageAsync(Result);
                                         break;
                                     }
+                                case "Excute_Get_Associate":
+                                    {
+                                        string Path = Convert.ToString(Response.Message["AssociatePath"]);
+                                        string Associate = ExtensionAssociate.GetAssociate(Path);
+                                       
+                                        ValueSet Result = new ValueSet
+                                        {
+                                            {"Get_Associate_Result",string.IsNullOrEmpty(Associate)?"<Empty>":Associate }
+                                        };
+                                        await Connection.SendMessageAsync(Result);
+                                        break;
+                                    }
                                 case "Excute_RunExe":
                                     {
-                                        string ExcutePath = Convert.ToString(Response.Message["RX_ExcutePath"]);
-                                        string ExcuteParameter = Convert.ToString(Response.Message["RX_ExcuteParameter"]);
-                                        string ExcuteAuthority = Convert.ToString(Response.Message["RX_ExcuteAuthority"]);
+                                        string ExcutePath = Convert.ToString(Response.Message["ExcutePath"]);
+                                        string ExcuteParameter = Convert.ToString(Response.Message["ExcuteParameter"]);
+                                        string ExcuteAuthority = Convert.ToString(Response.Message["ExcuteAuthority"]);
 
                                         if (!string.IsNullOrEmpty(ExcutePath))
                                         {

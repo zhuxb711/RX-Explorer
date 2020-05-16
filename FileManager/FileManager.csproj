@@ -435,6 +435,7 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <None Include="SecureAccess\NetworkAccess.pri" />
+    <PRIResource Include="Strings\fr\Resources.resw" />
     <PRIResource Include="Strings\zh-Hans\Resources.resw" />
     <PRIResource Include="Strings\en-US\Resources.resw">
       <SubType>Designer</SubType>
@@ -698,6 +699,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <XliffResource Include="MultilingualResources\FileManager.fr.xlf" />
     <XliffResource Include="MultilingualResources\FileManager.zh-Hans.xlf" />
   </ItemGroup>
   <ItemGroup>

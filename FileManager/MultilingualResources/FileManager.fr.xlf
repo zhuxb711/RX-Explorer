@@ -1,0 +1,1814 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="fr" original="FILEMANAGER/STRINGS/EN-US/RESOURCES.RESW" tool-id="MultilingualAppToolkit" product-name="n/a" product-version="n/a" build-num="n/a">
+    <header>
+      <tool tool-id="MultilingualAppToolkit" tool-name="Multilingual App Toolkit" tool-version="4.0.6916.0" tool-company="Microsoft" />
+    </header>
+    <body>
+      <group id="FILEMANAGER/STRINGS/EN-US/RESOURCES.RESW" datatype="resx">
+        <trans-unit id="AddDevice.Label" translate="yes" xml:space="preserve">
+          <source>Add drive</source>
+          <target state="new">Add drive</target>
+        </trans-unit>
+        <trans-unit id="AESCheckBox.Content" translate="yes" xml:space="preserve">
+          <source>Delete source file after encryption is complete</source>
+          <target state="new">Delete source file after encryption is complete</target>
+        </trans-unit>
+        <trans-unit id="AESDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="AESDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="AESDialog.Title" translate="yes" xml:space="preserve">
+          <source>AES Encryption</source>
+          <target state="new">AES Encryption</target>
+        </trans-unit>
+        <trans-unit id="AESMethod.Header" translate="yes" xml:space="preserve">
+          <source>Encryption Method</source>
+          <target state="new">Encryption Method</target>
+        </trans-unit>
+        <trans-unit id="AESPassword.Header" translate="yes" xml:space="preserve">
+          <source>Encryption password</source>
+          <target state="new">Encryption password</target>
+        </trans-unit>
+        <trans-unit id="AESPassword.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Password</source>
+          <target state="new">Password</target>
+        </trans-unit>
+        <trans-unit id="AppDelete.Label" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="new">Delete</target>
+        </trans-unit>
+        <trans-unit id="AppDisplayName" translate="yes" xml:space="preserve">
+          <source>RX Explorer</source>
+          <target state="new">RX Explorer</target>
+        </trans-unit>
+        <trans-unit id="AppEdit.Label" translate="yes" xml:space="preserve">
+          <source>Edit</source>
+          <target state="new">Edit</target>
+        </trans-unit>
+        <trans-unit id="AttributeCreated.Text" translate="yes" xml:space="preserve">
+          <source>Created</source>
+          <target state="new">Created</target>
+        </trans-unit>
+        <trans-unit id="AttributeDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>OK</source>
+          <target state="new">OK</target>
+        </trans-unit>
+        <trans-unit id="AttributeDialog.Title" translate="yes" xml:space="preserve">
+          <source>Properties</source>
+          <target state="new">Properties</target>
+        </trans-unit>
+        <trans-unit id="AttributeFileName.Text" translate="yes" xml:space="preserve">
+          <source>FileName</source>
+          <target state="new">FileName</target>
+        </trans-unit>
+        <trans-unit id="AttributeInclude.Text" translate="yes" xml:space="preserve">
+          <source>Includes</source>
+          <target state="new">Includes</target>
+        </trans-unit>
+        <trans-unit id="AttributeExtraData.Text" translate="yes" xml:space="preserve">
+          <source>Related Info</source>
+          <target state="new">Related Info</target>
+        </trans-unit>
+        <trans-unit id="AttributeLocation.Text" translate="yes" xml:space="preserve">
+          <source>Location</source>
+          <target state="new">Location</target>
+        </trans-unit>
+        <trans-unit id="AttributeModified.Text" translate="yes" xml:space="preserve">
+          <source>Modified</source>
+          <target state="new">Modified</target>
+        </trans-unit>
+        <trans-unit id="AttributeSecureLevel.Text" translate="yes" xml:space="preserve">
+          <source>Security Level</source>
+          <target state="new">Security Level</target>
+        </trans-unit>
+        <trans-unit id="AttributeSize.Text" translate="yes" xml:space="preserve">
+          <source>Size</source>
+          <target state="new">Size</target>
+        </trans-unit>
+        <trans-unit id="AttributeType.Text" translate="yes" xml:space="preserve">
+          <source>Type</source>
+          <target state="new">Type</target>
+        </trans-unit>
+        <trans-unit id="AutoBootOnStartup.Header" translate="yes" xml:space="preserve">
+          <source>Auto start at boot</source>
+          <target state="new">Auto start at boot</target>
+        </trans-unit>
+        <trans-unit id="AutoBootOnStartup.OffContent" translate="yes" xml:space="preserve">
+          <source>Disable</source>
+          <target state="new">Disable</target>
+        </trans-unit>
+        <trans-unit id="AutoBootOnStartup.OnContent" translate="yes" xml:space="preserve">
+          <source>Enable</source>
+          <target state="new">Enable</target>
+        </trans-unit>
+        <trans-unit id="BlueScreenReport.Content" translate="yes" xml:space="preserve">
+          <source>Report to Developer</source>
+          <target state="new">Report to Developer</target>
+        </trans-unit>
+        <trans-unit id="BlueScreenReset.Content" translate="yes" xml:space="preserve">
+          <source>Reset</source>
+          <target state="new">Reset</target>
+        </trans-unit>
+        <trans-unit id="BluetoothShare.Text" translate="yes" xml:space="preserve">
+          <source>Bluetooth</source>
+          <target state="new">Bluetooth</target>
+        </trans-unit>
+        <trans-unit id="BluetoothTranfer.SecondaryButtonText" translate="yes" xml:space="preserve">
+          <source>Abort</source>
+          <target state="new">Abort</target>
+        </trans-unit>
+        <trans-unit id="BluetoothTranfer.Title" translate="yes" xml:space="preserve">
+          <source>Initializing</source>
+          <target state="new">Initializing</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI.Title" translate="yes" xml:space="preserve">
+          <source>Select target device</source>
+          <target state="new">Select target device</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUIPinNo.Content" translate="yes" xml:space="preserve">
+          <source>No</source>
+          <target state="new">No</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUIPinYes.Content" translate="yes" xml:space="preserve">
+          <source>Yes</source>
+          <target state="new">Yes</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUISearching.Text" translate="yes" xml:space="preserve">
+          <source>Searching</source>
+          <target state="new">Searching</target>
+        </trans-unit>
+        <trans-unit id="Browser.Content" translate="yes" xml:space="preserve">
+          <source>Browser</source>
+          <target state="new">Browser</target>
+        </trans-unit>
+        <trans-unit id="ChooseOtherApp.Text" translate="yes" xml:space="preserve">
+          <source>Choose another app</source>
+          <target state="new">Choose another app</target>
+        </trans-unit>
+        <trans-unit id="CloseButton.Content" translate="yes" xml:space="preserve">
+          <source>Exit</source>
+          <target state="new">Exit</target>
+        </trans-unit>
+        <trans-unit id="CrashText.Text" translate="yes" xml:space="preserve">
+          <source>RX Crashed Accidentally...(￣▽￣)/</source>
+          <target state="new">RX Crashed Accidentally...(￣▽￣)/</target>
+        </trans-unit>
+        <trans-unit id="CropperPageAlphaSlider.Header" translate="yes" xml:space="preserve">
+          <source>Contrast</source>
+          <target state="new">Contrast</target>
+        </trans-unit>
+        <trans-unit id="CropperPageAspButton.Text" translate="yes" xml:space="preserve">
+          <source>Aspect ratio</source>
+          <target state="new">Aspect ratio</target>
+        </trans-unit>
+        <trans-unit id="CropperPageAutoOptimizeButton.Text" translate="yes" xml:space="preserve">
+          <source>Auto Optimize</source>
+          <target state="new">Auto Optimize</target>
+        </trans-unit>
+        <trans-unit id="CropperPageBackButton.Content" translate="yes" xml:space="preserve">
+          <source>Back</source>
+          <target state="new">Back</target>
+        </trans-unit>
+        <trans-unit id="CropperPageBetaSlider.Header" translate="yes" xml:space="preserve">
+          <source>Brightness</source>
+          <target state="new">Brightness</target>
+        </trans-unit>
+        <trans-unit id="CropperPageCropperOptionTitle.Text" translate="yes" xml:space="preserve">
+          <source>Cropping options</source>
+          <target state="new">Cropping options</target>
+        </trans-unit>
+        <trans-unit id="CropperPageFilterTitle.Text" translate="yes" xml:space="preserve">
+          <source>Image Filter</source>
+          <target state="new">Image Filter</target>
+        </trans-unit>
+        <trans-unit id="CropperPageFlipButton.Text" translate="yes" xml:space="preserve">
+          <source>Flip</source>
+          <target state="new">Flip</target>
+        </trans-unit>
+        <trans-unit id="CropperPageHistogram.Text" translate="yes" xml:space="preserve">
+          <source>Color distribution</source>
+          <target state="new">Color distribution</target>
+        </trans-unit>
+        <trans-unit id="CropperPageImageAdjustTitle.Text" translate="yes" xml:space="preserve">
+          <source>Adjust image</source>
+          <target state="new">Adjust image</target>
+        </trans-unit>
+        <trans-unit id="CropperPageResetButton.Text" translate="yes" xml:space="preserve">
+          <source>Reset</source>
+          <target state="new">Reset</target>
+        </trans-unit>
+        <trans-unit id="CropperPageRotateButton.Text" translate="yes" xml:space="preserve">
+          <source>Rotate</source>
+          <target state="new">Rotate</target>
+        </trans-unit>
+        <trans-unit id="CropperPageSaveAsButton.Text" translate="yes" xml:space="preserve">
+          <source>Save as</source>
+          <target state="new">Save as</target>
+        </trans-unit>
+        <trans-unit id="CropperPageSaveButton.Text" translate="yes" xml:space="preserve">
+          <source>Overwrite and save</source>
+          <target state="new">Overwrite and save</target>
+        </trans-unit>
+        <trans-unit id="CropperPageSavingTips.Text" translate="yes" xml:space="preserve">
+          <source>Saving</source>
+          <target state="new">Saving</target>
+        </trans-unit>
+        <trans-unit id="CustionFontColor.Header" translate="yes" xml:space="preserve">
+          <source>Custom font color</source>
+          <target state="new">Custom font color</target>
+        </trans-unit>
+        <trans-unit id="CustionFontColor.OffContent" translate="yes" xml:space="preserve">
+          <source>White</source>
+          <target state="new">White</target>
+        </trans-unit>
+        <trans-unit id="CustionFontColor.OnContent" translate="yes" xml:space="preserve">
+          <source>Black</source>
+          <target state="new">Black</target>
+        </trans-unit>
+        <trans-unit id="CustomUISubtype1.Content" translate="yes" xml:space="preserve">
+          <source>Acrylic background</source>
+          <target state="new">Acrylic background</target>
+        </trans-unit>
+        <trans-unit id="CustomUISubtype2.Content" translate="yes" xml:space="preserve">
+          <source>Custom image background</source>
+          <target state="new">Custom image background</target>
+        </trans-unit>
+        <trans-unit id="DeviceAttribute.Label" translate="yes" xml:space="preserve">
+          <source>Properties</source>
+          <target state="new">Properties</target>
+        </trans-unit>
+        <trans-unit id="DeviceCapacity.Text" translate="yes" xml:space="preserve">
+          <source>Capacity</source>
+          <target state="new">Capacity</target>
+        </trans-unit>
+        <trans-unit id="DeviceDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="DeviceExpander.Text" translate="yes" xml:space="preserve">
+          <source>Devices</source>
+          <target state="new">Devices</target>
+        </trans-unit>
+        <trans-unit id="DeviceFreeSpace.Text" translate="yes" xml:space="preserve">
+          <source>Free space</source>
+          <target state="new">Free space</target>
+        </trans-unit>
+        <trans-unit id="DeviceType.Text" translate="yes" xml:space="preserve">
+          <source>Disk Type：</source>
+          <target state="new">Disk Type：</target>
+        </trans-unit>
+        <trans-unit id="DeviceUsedSpace.Text" translate="yes" xml:space="preserve">
+          <source>Used space</source>
+          <target state="new">Used space</target>
+        </trans-unit>
+        <trans-unit id="DonateTip.ActionButtonContent" translate="yes" xml:space="preserve">
+          <source>Donate</source>
+          <target state="new">Donate</target>
+        </trans-unit>
+        <trans-unit id="DonateTip.CloseButtonContent" translate="yes" xml:space="preserve">
+          <source>Later</source>
+          <target state="new">Later</target>
+        </trans-unit>
+        <trans-unit id="DonateTip.Title" translate="yes" xml:space="preserve">
+          <source>Donate developer</source>
+          <target state="new">Donate developer</target>
+        </trans-unit>
+        <trans-unit id="EmptyFlyoutNew.Label" translate="yes" xml:space="preserve">
+          <source>Create</source>
+          <target state="new">Create</target>
+        </trans-unit>
+        <trans-unit id="EmptyFlyoutNewFile.Text" translate="yes" xml:space="preserve">
+          <source>Create file</source>
+          <target state="new">Create file</target>
+        </trans-unit>
+        <trans-unit id="EmptyFlyoutNewFolder.Text" translate="yes" xml:space="preserve">
+          <source>Create folder</source>
+          <target state="new">Create folder</target>
+        </trans-unit>
+        <trans-unit id="FeedBackAddButton.Text" translate="yes" xml:space="preserve">
+          <source>Add my feedback</source>
+          <target state="new">Add my feedback</target>
+        </trans-unit>
+        <trans-unit id="FeedBackAgainstText.Text" translate="yes" xml:space="preserve">
+          <source>Against</source>
+          <target state="new">Against</target>
+        </trans-unit>
+        <trans-unit id="FeedBackAgreeText.Text" translate="yes" xml:space="preserve">
+          <source>Agree</source>
+          <target state="new">Agree</target>
+        </trans-unit>
+        <trans-unit id="FeedBackDeleteButton.Label" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="new">Delete</target>
+        </trans-unit>
+        <trans-unit id="FeedBackDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="FeedBackDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Submit</source>
+          <target state="new">Submit</target>
+        </trans-unit>
+        <trans-unit id="FeedBackDialog.Title" translate="yes" xml:space="preserve">
+          <source>Vote</source>
+          <target state="new">Vote</target>
+        </trans-unit>
+        <trans-unit id="FeedBackDialogContent.Header" translate="yes" xml:space="preserve">
+          <source>Feedback and suggestion</source>
+          <target state="new">Feedback and suggestion</target>
+        </trans-unit>
+        <trans-unit id="FeedBackDialogContent.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please enter the text</source>
+          <target state="new">Please enter the text</target>
+        </trans-unit>
+        <trans-unit id="FeedBackDialogTitle.Header" translate="yes" xml:space="preserve">
+          <source>Title</source>
+          <target state="new">Title</target>
+        </trans-unit>
+        <trans-unit id="FeedBackDialogTitle.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please enter a title</source>
+          <target state="new">Please enter a title</target>
+        </trans-unit>
+        <trans-unit id="FeedBackEditButton.Label" translate="yes" xml:space="preserve">
+          <source>Edit</source>
+          <target state="new">Edit</target>
+        </trans-unit>
+        <trans-unit id="FeedBackListHeader.Text" translate="yes" xml:space="preserve">
+          <source>Feedback list</source>
+          <target state="new">Feedback list</target>
+        </trans-unit>
+        <trans-unit id="FeedBackTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>This feedback list will show your suggestions or feedback to all users. You can also review the suggestions made by others and give you support for the suggestions that are of interest. The more support and the less objection, the higher the priority, The developer will listen to your suggestions. You can only modify or delete the suggestions you submit.</source>
+          <target state="new">This feedback list will show your suggestions or feedback to all users. You can also review the suggestions made by others and give you support for the suggestions that are of interest. The more support and the less objection, the higher the priority, The developer will listen to your suggestions. You can only modify or delete the suggestions you submit.</target>
+        </trans-unit>
+        <trans-unit id="FeedBackTip.Title" translate="yes" xml:space="preserve">
+          <source>Feedback description</source>
+          <target state="new">Feedback description</target>
+        </trans-unit>
+        <trans-unit id="FileAttribute.Label" translate="yes" xml:space="preserve">
+          <source>Properties</source>
+          <target state="new">Properties</target>
+        </trans-unit>
+        <trans-unit id="FileControlAttribute.Label" translate="yes" xml:space="preserve">
+          <source>Properties</source>
+          <target state="new">Properties</target>
+        </trans-unit>
+        <trans-unit id="FileControlBackButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Back</source>
+          <target state="new">Back</target>
+        </trans-unit>
+        <trans-unit id="FileControlCreateFolder.Label" translate="yes" xml:space="preserve">
+          <source>New folder</source>
+          <target state="new">New folder</target>
+        </trans-unit>
+        <trans-unit id="FileControlDeleteFolder.Label" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="new">Delete</target>
+        </trans-unit>
+        <trans-unit id="FileControlForwardButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Forward</source>
+          <target state="new">Forward</target>
+        </trans-unit>
+        <trans-unit id="FileControlParentButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Upper</source>
+          <target state="new">Upper</target>
+        </trans-unit>
+        <trans-unit id="FileControlRenameFolder.Label" translate="yes" xml:space="preserve">
+          <source>Rename</source>
+          <target state="new">Rename</target>
+        </trans-unit>
+        <trans-unit id="FileCopy.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Copy</source>
+          <target state="new">Copy</target>
+        </trans-unit>
+        <trans-unit id="FileCut.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Move</source>
+          <target state="new">Move</target>
+        </trans-unit>
+        <trans-unit id="FileDelete.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="new">Delete</target>
+        </trans-unit>
+        <trans-unit id="FileEdit.Label" translate="yes" xml:space="preserve">
+          <source>Edit</source>
+          <target state="new">Edit</target>
+        </trans-unit>
+        <trans-unit id="FileOpen.Label" translate="yes" xml:space="preserve">
+          <source>Open</source>
+          <target state="new">Open</target>
+        </trans-unit>
+        <trans-unit id="FilePaste.Label" translate="yes" xml:space="preserve">
+          <source>Paste</source>
+          <target state="new">Paste</target>
+        </trans-unit>
+        <trans-unit id="FileRename.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Rename</source>
+          <target state="new">Rename</target>
+        </trans-unit>
+        <trans-unit id="FileShare.Label" translate="yes" xml:space="preserve">
+          <source>Share</source>
+          <target state="new">Share</target>
+        </trans-unit>
+        <trans-unit id="FolderAttribute.Label" translate="yes" xml:space="preserve">
+          <source>Properties</source>
+          <target state="new">Properties</target>
+        </trans-unit>
+        <trans-unit id="FolderOpen.Label" translate="yes" xml:space="preserve">
+          <source>Open</source>
+          <target state="new">Open</target>
+        </trans-unit>
+        <trans-unit id="FolderRename.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Rename</source>
+          <target state="new">Rename</target>
+        </trans-unit>
+        <trans-unit id="HasFile.Text" translate="yes" xml:space="preserve">
+          <source>Empty</source>
+          <target state="new">Empty</target>
+        </trans-unit>
+        <trans-unit id="HideDevice.Label" translate="yes" xml:space="preserve">
+          <source>Hide drive</source>
+          <target state="new">Hide drive</target>
+        </trans-unit>
+        <trans-unit id="HotWebTitle.Text" translate="yes" xml:space="preserve">
+          <source>Popular Website</source>
+          <target state="new">Popular Website</target>
+        </trans-unit>
+        <trans-unit id="LibraryCancelButton.Label" translate="yes" xml:space="preserve">
+          <source>Unpin</source>
+          <target state="new">Unpin</target>
+        </trans-unit>
+        <trans-unit id="LibraryExpander.Text" translate="yes" xml:space="preserve">
+          <source>Library</source>
+          <target state="new">Library</target>
+        </trans-unit>
+        <trans-unit id="LibraryOpenButton.Label" translate="yes" xml:space="preserve">
+          <source>Open</source>
+          <target state="new">Open</target>
+        </trans-unit>
+        <trans-unit id="MergeDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="MergeDialog.SecondaryButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="MergeDialog.Title" translate="yes" xml:space="preserve">
+          <source>Merge</source>
+          <target state="new">Merge</target>
+        </trans-unit>
+        <trans-unit id="MergeDialogEmptyTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Video must be added to continue</source>
+          <target state="new">Video must be added to continue</target>
+        </trans-unit>
+        <trans-unit id="MergeDialogEmptyTip.Title" translate="yes" xml:space="preserve">
+          <source>Tips</source>
+          <target state="new">Tips</target>
+        </trans-unit>
+        <trans-unit id="MergeDialogEncodingProfile.Text" translate="yes" xml:space="preserve">
+          <source>Encoding config</source>
+          <target state="new">Encoding config</target>
+        </trans-unit>
+        <trans-unit id="MergeDialogEncodingQuality.Text" translate="yes" xml:space="preserve">
+          <source>Quality</source>
+          <target state="new">Quality</target>
+        </trans-unit>
+        <trans-unit id="MergeDialogPickClip.Content" translate="yes" xml:space="preserve">
+          <source>Select a clip</source>
+          <target state="new">Select a clip</target>
+        </trans-unit>
+        <trans-unit id="MergeDialogText.Text" translate="yes" xml:space="preserve">
+          <source>Merge</source>
+          <target state="new">Merge</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialog.Title" translate="yes" xml:space="preserve">
+          <source>Create new file</source>
+          <target state="new">Create new file</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogFileName.Header" translate="yes" xml:space="preserve">
+          <source>File name</source>
+          <target state="new">File name</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogFileName.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter file name</source>
+          <target state="new">Enter file name</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogInvalidInputTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>The file type you specified does not meet the specifications. Please re-enter</source>
+          <target state="new">The file type you specified does not meet the specifications. Please re-enter</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogInvalidInputTip.Title" translate="yes" xml:space="preserve">
+          <source>Malformed</source>
+          <target state="new">Malformed</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogType.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter or select a type</source>
+          <target state="new">Enter or select a type</target>
+        </trans-unit>
+        <trans-unit id="OpenDevice.Label" translate="yes" xml:space="preserve">
+          <source>Open</source>
+          <target state="new">Open</target>
+        </trans-unit>
+        <trans-unit id="OtherOpenMethod.Label" translate="yes" xml:space="preserve">
+          <source>Open with...</source>
+          <target state="new">Open with...</target>
+        </trans-unit>
+        <trans-unit id="PdfPasswordDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="PdfPasswordDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="PdfPasswordDialog.Title" translate="yes" xml:space="preserve">
+          <source>Need password</source>
+          <target state="new">Need password</target>
+        </trans-unit>
+        <trans-unit id="PdfPasswordDialogPasswordBox.Header" translate="yes" xml:space="preserve">
+          <source>PDF password</source>
+          <target state="new">PDF password</target>
+        </trans-unit>
+        <trans-unit id="PdfPasswordDialogPasswordBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please enter the password to unlock this PDF</source>
+          <target state="new">Please enter the password to unlock this PDF</target>
+        </trans-unit>
+        <trans-unit id="PermissionButton.Content" translate="yes" xml:space="preserve">
+          <source>Permission</source>
+          <target state="new">Permission</target>
+        </trans-unit>
+        <trans-unit id="PhotoViewerAdjustButton.Label" translate="yes" xml:space="preserve">
+          <source>Edit</source>
+          <target state="new">Edit</target>
+        </trans-unit>
+        <trans-unit id="PhotoViewerDeleteButton.Label" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="new">Delete</target>
+        </trans-unit>
+        <trans-unit id="PhotoViewerRotateButton.Label" translate="yes" xml:space="preserve">
+          <source>Rotation</source>
+          <target state="new">Rotation</target>
+        </trans-unit>
+        <trans-unit id="PhotoViewerSaveTips.Text" translate="yes" xml:space="preserve">
+          <source>Saving...</source>
+          <target state="new">Saving...</target>
+        </trans-unit>
+        <trans-unit id="PhotoViewerTranscodeButton.Label" translate="yes" xml:space="preserve">
+          <source>Transcode</source>
+          <target state="new">Transcode</target>
+        </trans-unit>
+        <trans-unit id="PinTip.ActionButtonContent" translate="yes" xml:space="preserve">
+          <source>Now</source>
+          <target state="new">Now</target>
+        </trans-unit>
+        <trans-unit id="PinTip.CloseButtonContent" translate="yes" xml:space="preserve">
+          <source>Close</source>
+          <target state="new">Close</target>
+        </trans-unit>
+        <trans-unit id="PinTip.Title" translate="yes" xml:space="preserve">
+          <source>Launch Faster</source>
+          <target state="new">Launch Faster</target>
+        </trans-unit>
+        <trans-unit id="PinToLibrary.Label" translate="yes" xml:space="preserve">
+          <source>Pin to homepage</source>
+          <target state="new">Pin to homepage</target>
+        </trans-unit>
+        <trans-unit id="ProgramPickerDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="ProgramPickerDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="ProgramPickerDialog.Title" translate="yes" xml:space="preserve">
+          <source>Open with</source>
+          <target state="new">Open with</target>
+        </trans-unit>
+        <trans-unit id="ProgramPickerDialogPickOther.Content" translate="yes" xml:space="preserve">
+          <source>Choose another app on this computer</source>
+          <target state="new">Choose another app on this computer</target>
+        </trans-unit>
+        <trans-unit id="ProgramPickerDialogUseAsAdmin.Content" translate="yes" xml:space="preserve">
+          <source>Use this app to open this type of file by default</source>
+          <target state="new">Use this app to open this type of file by default</target>
+        </trans-unit>
+        <trans-unit id="PreLaunchHeader.Text" translate="yes" xml:space="preserve">
+          <source>Enable prelaunch technology</source>
+          <target state="new">Enable prelaunch technology</target>
+        </trans-unit>
+        <trans-unit id="PreLaunchSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enable</source>
+          <target state="new">Enable</target>
+        </trans-unit>
+        <trans-unit id="PreLaunchSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disable</source>
+          <target state="new">Disable</target>
+        </trans-unit>
+        <trans-unit id="PreLaunchTip.Title" translate="yes" xml:space="preserve">
+          <source>Pre-launching technology</source>
+          <target state="new">Pre-launching technology</target>
+        </trans-unit>
+        <trans-unit id="PreLaunchTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>When preload technology is enabled, Windows will automatically decide whether to preload the RX Explorer when system resources are sufficient based on your usage. If the RX Explorer has been loaded by Windows in advance, it will greatly improve the startup speed</source>
+          <target state="new">When preload technology is enabled, Windows will automatically decide whether to preload the RX Explorer when system resources are sufficient based on your usage. If the RX Explorer has been loaded by Windows in advance, it will greatly improve the startup speed</target>
+        </trans-unit>
+        <trans-unit id="QRText.Header" translate="yes" xml:space="preserve">
+          <source>Copy this link to your browser to download</source>
+          <target state="new">Copy this link to your browser to download</target>
+        </trans-unit>
+        <trans-unit id="QuickStartChooseIcon.Content" translate="yes" xml:space="preserve">
+          <source>Select Image</source>
+          <target state="new">Select Image</target>
+        </trans-unit>
+        <trans-unit id="QuickStartDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="QuickStartDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="QuickStartDialog.Title" translate="yes" xml:space="preserve">
+          <source>Custom</source>
+          <target state="new">Custom</target>
+        </trans-unit>
+        <trans-unit id="QuickStartDisplayName.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>DisplayName</source>
+          <target state="new">DisplayName</target>
+        </trans-unit>
+        <trans-unit id="QuickStartEmptyTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Can't be empty here</source>
+          <target state="new">Can't be empty here</target>
+        </trans-unit>
+        <trans-unit id="QuickStartExistTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>The name already exists and cannot be added repeatedly</source>
+          <target state="new">The name already exists and cannot be added repeatedly</target>
+        </trans-unit>
+        <trans-unit id="QuickStartFailureTips.Subtitle" translate="yes" xml:space="preserve">
+          <source>Unable to get webpage icon automatically, please select icon manually</source>
+          <target state="new">Unable to get webpage icon automatically, please select icon manually</target>
+        </trans-unit>
+        <trans-unit id="QuickStartFormatErrorTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Protocol or address format error</source>
+          <target state="new">Protocol or address format error</target>
+        </trans-unit>
+        <trans-unit id="QuickStartGetWebImage.Content" translate="yes" xml:space="preserve">
+          <source>Auto-acquisition</source>
+          <target state="new">Auto-acquisition</target>
+        </trans-unit>
+        <trans-unit id="QuickStartLink.Content" translate="yes" xml:space="preserve">
+          <source>Launch an app with a URI</source>
+          <target state="new">Launch an app with a URI</target>
+        </trans-unit>
+        <trans-unit id="QuickStartLink.NavigateUri" translate="yes" xml:space="preserve">
+          <source>https://docs.microsoft.com/en-us/windows/uwp/launch-resume/launch-app-with-uri</source>
+          <target state="new">https://docs.microsoft.com/en-us/windows/uwp/launch-resume/launch-app-with-uri</target>
+        </trans-unit>
+        <trans-unit id="QuickStartProtocal.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Protocal</source>
+          <target state="new">Protocal</target>
+        </trans-unit>
+        <trans-unit id="QuickStartProtocalTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Protocal Reference</source>
+          <target state="new">Protocal Reference</target>
+        </trans-unit>
+        <trans-unit id="QuickStartTitle.Text" translate="yes" xml:space="preserve">
+          <source>Quick Start</source>
+          <target state="new">Quick Start</target>
+        </trans-unit>
+        <trans-unit id="RateTip.ActionButtonContent" translate="yes" xml:space="preserve">
+          <source>Rate</source>
+          <target state="new">Rate</target>
+        </trans-unit>
+        <trans-unit id="RateTip.CloseButtonContent" translate="yes" xml:space="preserve">
+          <source>Later</source>
+          <target state="new">Later</target>
+        </trans-unit>
+        <trans-unit id="RateTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Your rating is very important, please take a minute or two to rate the app.</source>
+          <target state="new">Your rating is very important, please take a minute or two to rate the app.</target>
+        </trans-unit>
+        <trans-unit id="RateTip.Title" translate="yes" xml:space="preserve">
+          <source>Please rate us</source>
+          <target state="new">Please rate us</target>
+        </trans-unit>
+        <trans-unit id="RefreshView.Label" translate="yes" xml:space="preserve">
+          <source>Refresh</source>
+          <target state="new">Refresh</target>
+        </trans-unit>
+        <trans-unit id="RenameDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="RenameDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="RenameDialog.Title" translate="yes" xml:space="preserve">
+          <source>Rename</source>
+          <target state="new">Rename</target>
+        </trans-unit>
+        <trans-unit id="RenamePreview.Text" translate="yes" xml:space="preserve">
+          <source>Preview</source>
+          <target state="new">Preview</target>
+        </trans-unit>
+        <trans-unit id="RenameDialogInvalidCharTip.Title" translate="yes" xml:space="preserve">
+          <source>Error</source>
+          <target state="new">Error</target>
+        </trans-unit>
+        <trans-unit id="RenameDialogInvalidCharTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Name cannot be empty and cannot contain illegal characters 
+Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</source>
+          <target state="new">Name cannot be empty and cannot contain illegal characters 
+Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</target>
+        </trans-unit>
+        <trans-unit id="ResetDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="ResetDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Continue</source>
+          <target state="new">Continue</target>
+        </trans-unit>
+        <trans-unit id="ResetDialog.Title" translate="yes" xml:space="preserve">
+          <source>Warning</source>
+          <target state="new">Warning</target>
+        </trans-unit>
+        <trans-unit id="ResetDialogButton.Content" translate="yes" xml:space="preserve">
+          <source>Select export location</source>
+          <target state="new">Select export location</target>
+        </trans-unit>
+        <trans-unit id="ResetDialogCheckBox1.Content" translate="yes" xml:space="preserve">
+          <source>Application saved settings, database storage</source>
+          <target state="new">Application saved settings, database storage</target>
+        </trans-unit>
+        <trans-unit id="ResetDialogCheckBox2.Content" translate="yes" xml:space="preserve">
+          <source>Files stored in Security Area</source>
+          <target state="new">Files stored in Security Area</target>
+        </trans-unit>
+        <trans-unit id="ResetDialogText1.Text" translate="yes" xml:space="preserve">
+          <source>This will initialize the RX Explorer</source>
+          <target state="new">This will initialize the RX Explorer</target>
+        </trans-unit>
+        <trans-unit id="ResetDialogText2.Text" translate="yes" xml:space="preserve">
+          <source>Including:</source>
+          <target state="new">Including:</target>
+        </trans-unit>
+        <trans-unit id="ResetDialogTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Please select an export folder</source>
+          <target state="new">Please select an export folder</target>
+        </trans-unit>
+        <trans-unit id="RunWithSystemAuthority.Text" translate="yes" xml:space="preserve">
+          <source>Open as administrator</source>
+          <target state="new">Open as administrator</target>
+        </trans-unit>
+        <trans-unit id="SAVerifyDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="SAVerifyDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="SAVerifyDialog.Title" translate="yes" xml:space="preserve">
+          <source>Enter credentials</source>
+          <target state="new">Enter credentials</target>
+        </trans-unit>
+        <trans-unit id="SAVerifyDialogErrorTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Wrong password, please re-enter</source>
+          <target state="new">Wrong password, please re-enter</target>
+        </trans-unit>
+        <trans-unit id="SAVerifyDialogErrorTip.Title" translate="yes" xml:space="preserve">
+          <source>Error</source>
+          <target state="new">Error</target>
+        </trans-unit>
+        <trans-unit id="SAVerifyDialogPasswordBox.Header" translate="yes" xml:space="preserve">
+          <source>Password</source>
+          <target state="new">Password</target>
+        </trans-unit>
+        <trans-unit id="SAVerifyDialogPasswordBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter unlock password</source>
+          <target state="new">Enter unlock password</target>
+        </trans-unit>
+        <trans-unit id="SAWelcomeDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Go back</source>
+          <target state="new">Go back</target>
+        </trans-unit>
+        <trans-unit id="SAWelcomeDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Continue</source>
+          <target state="new">Continue</target>
+        </trans-unit>
+        <trans-unit id="SAWelcomeDialog.Title" translate="yes" xml:space="preserve">
+          <source>First time setup</source>
+          <target state="new">First time setup</target>
+        </trans-unit>
+        <trans-unit id="SAWelcomeDialogConfrimPassword.Header" translate="yes" xml:space="preserve">
+          <source>Enter the password again</source>
+          <target state="new">Enter the password again</target>
+        </trans-unit>
+        <trans-unit id="SAWelcomeDialogConfrimPassword.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter master password</source>
+          <target state="new">Enter master password</target>
+        </trans-unit>
+        <trans-unit id="SAWelcomeDialogEmptyTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>This field is required and cannot be left blank</source>
+          <target state="new">This field is required and cannot be left blank</target>
+        </trans-unit>
+        <trans-unit id="SAWelcomeDialogErrorTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>The passwords entered are inconsistent, please check the passwords</source>
+          <target state="new">The passwords entered are inconsistent, please check the passwords</target>
+        </trans-unit>
+        <trans-unit id="SAWelcomeDialogPrimaryPassword.Header" translate="yes" xml:space="preserve">
+          <source>Master password</source>
+          <target state="new">Master password</target>
+        </trans-unit>
+        <trans-unit id="SAWelcomeDialogPrimaryPassword.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Set unlock password</source>
+          <target state="new">Set unlock password</target>
+        </trans-unit>
+        <trans-unit id="SAWelcomeDialogSecureLevel.Header" translate="yes" xml:space="preserve">
+          <source>Security Level</source>
+          <target state="new">Security Level</target>
+        </trans-unit>
+        <trans-unit id="SAWelcomeDialogUseWH.Content" translate="yes" xml:space="preserve">
+          <source>Use Windows Hello instead of password authentication</source>
+          <target state="new">Use Windows Hello instead of password authentication</target>
+        </trans-unit>
+        <trans-unit id="SearchFlyoutCancel.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="SearchFlyoutConfirm.Content" translate="yes" xml:space="preserve">
+          <source>Search</source>
+          <target state="new">Search</target>
+        </trans-unit>
+        <trans-unit id="SearchFlyoutDeepRadio.Content" translate="yes" xml:space="preserve">
+          <source>Deep search for all directories (slower)</source>
+          <target state="new">Deep search for all directories (slower)</target>
+        </trans-unit>
+        <trans-unit id="SearchFlyoutShallowRadio.Content" translate="yes" xml:space="preserve">
+          <source>Only search the current directory (faster)</source>
+          <target state="new">Only search the current directory (faster)</target>
+        </trans-unit>
+        <trans-unit id="SearchHasItem.Text" translate="yes" xml:space="preserve">
+          <source>No Result</source>
+          <target state="new">No Result</target>
+        </trans-unit>
+        <trans-unit id="SearchingText.Text" translate="yes" xml:space="preserve">
+          <source>Searching</source>
+          <target state="new">Searching</target>
+        </trans-unit>
+        <trans-unit id="SearchLocation.Label" translate="yes" xml:space="preserve">
+          <source>Open Location</source>
+          <target state="new">Open Location</target>
+        </trans-unit>
+        <trans-unit id="SearchModified.Text" translate="yes" xml:space="preserve">
+          <source>Date modified</source>
+          <target state="new">Date modified</target>
+        </trans-unit>
+        <trans-unit id="SearchName.Text" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="new">Name</target>
+        </trans-unit>
+        <trans-unit id="SearchPath.Text" translate="yes" xml:space="preserve">
+          <source>Path</source>
+          <target state="new">Path</target>
+        </trans-unit>
+        <trans-unit id="SearchProperties.Label" translate="yes" xml:space="preserve">
+          <source>Properties</source>
+          <target state="new">Properties</target>
+        </trans-unit>
+        <trans-unit id="SearchResult.Text" translate="yes" xml:space="preserve">
+          <source>Search Result</source>
+          <target state="new">Search Result</target>
+        </trans-unit>
+        <trans-unit id="SearchSize.Text" translate="yes" xml:space="preserve">
+          <source>Size</source>
+          <target state="new">Size</target>
+        </trans-unit>
+        <trans-unit id="SearchCopyPath.Label" translate="yes" xml:space="preserve">
+          <source>Copy the full path</source>
+          <target state="new">Copy the full path</target>
+        </trans-unit>
+        <trans-unit id="SearchTip.CloseButtonContent" translate="yes" xml:space="preserve">
+          <source>Got it</source>
+          <target state="new">Got it</target>
+        </trans-unit>
+        <trans-unit id="SearchTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Clear this search box or click on any folder to exit the search status</source>
+          <target state="new">Clear this search box or click on any folder to exit the search status</target>
+        </trans-unit>
+        <trans-unit id="SearchType.Text" translate="yes" xml:space="preserve">
+          <source>Type</source>
+          <target state="new">Type</target>
+        </trans-unit>
+        <trans-unit id="SecureArea.Content" translate="yes" xml:space="preserve">
+          <source>Security Area</source>
+          <target state="new">Security Area</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaAddFileButton.Label" translate="yes" xml:space="preserve">
+          <source>Add file</source>
+          <target state="new">Add file</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaDeleteButton.Label" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="new">Delete</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaDropText.Text" translate="yes" xml:space="preserve">
+          <source>Click the button or drag the file here</source>
+          <target state="new">Click the button or drag the file here</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaEncryptTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>The AES-128-CBC mode already provides sufficient security by default, but you can also choose the AES-256-CBC mode for better security protection. Processors of the second generation Core processors and above support two modes of hardware acceleration, so there is no need to worry about performance issues</source>
+          <target state="new">The AES-128-CBC mode already provides sufficient security by default, but you can also choose the AES-256-CBC mode for better security protection. Processors of the second generation Core processors and above support two modes of hardware acceleration, so there is no need to worry about performance issues</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaEncryptTip.Title" translate="yes" xml:space="preserve">
+          <source>AES mode</source>
+          <target state="new">AES mode</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaExportButton.Label" translate="yes" xml:space="preserve">
+          <source>Export</source>
+          <target state="new">Export</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaIntroDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Back</source>
+          <target state="new">Back</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaIntroDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Unlock</source>
+          <target state="new">Unlock</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaIntroDialog.Title" translate="yes" xml:space="preserve">
+          <source>Introduction to Secure Area</source>
+          <target state="new">Introduction to Secure Area</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaProperty.Label" translate="yes" xml:space="preserve">
+          <source>Property</source>
+          <target state="new">Property</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaRenameButton.Label" translate="yes" xml:space="preserve">
+          <source>Rename</source>
+          <target state="new">Rename</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaSettingAboutHeader.Text" translate="yes" xml:space="preserve">
+          <source>About</source>
+          <target state="new">About</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaSettingAboutText1.Text" translate="yes" xml:space="preserve">
+          <source>RX built-in file vault</source>
+          <target state="new">RX built-in file vault</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaSettingAboutText2.Text" translate="yes" xml:space="preserve">
+          <source>Based on AES-CBC algorithm, combined with multiple system-level security authentication measures to ensure the secure storage of files</source>
+          <target state="new">Based on AES-CBC algorithm, combined with multiple system-level security authentication measures to ensure the secure storage of files</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaSettingAESMode1.Content" translate="yes" xml:space="preserve">
+          <source>AES-128bit CBC mode</source>
+          <target state="new">AES-128bit CBC mode</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaSettingAESMode2.Content" translate="yes" xml:space="preserve">
+          <source>AES-256bit CBC mode</source>
+          <target state="new">AES-256bit CBC mode</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaSettingButton.Label" translate="yes" xml:space="preserve">
+          <source>Setting</source>
+          <target state="new">Setting</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaSettingEncryptionHeader.Text" translate="yes" xml:space="preserve">
+          <source>Encryption mode</source>
+          <target state="new">Encryption mode</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaSettingHeader.Text" translate="yes" xml:space="preserve">
+          <source>Setting</source>
+          <target state="new">Setting</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaSettingLockMode1.Content" translate="yes" xml:space="preserve">
+          <source>Lock immediately when leaving this page</source>
+          <target state="new">Lock immediately when leaving this page</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaSettingLockMode2.Content" translate="yes" xml:space="preserve">
+          <source>Lock when this app is closing</source>
+          <target state="new">Lock when this app is closing</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaSettingLockModeHeader.Text" translate="yes" xml:space="preserve">
+          <source>Security Area lock mode</source>
+          <target state="new">Security Area lock mode</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaSettingUseWH.Header" translate="yes" xml:space="preserve">
+          <source>Simplify authentication with Windows Hello</source>
+          <target state="new">Simplify authentication with Windows Hello</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaWHTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Utilizing Windows Hello to strengthen the security of the security domain, Windows Hello saves the necessary credentials to the TPM security chip. The TPM chip is not affected by any software and hardware vulnerabilities, so these credentials will not be disclosed in any unauthorized state. RX utilizes this feature, combined with AES encryption, to provide unparalleled security protection</source>
+          <target state="new">Utilizing Windows Hello to strengthen the security of the security domain, Windows Hello saves the necessary credentials to the TPM security chip. The TPM chip is not affected by any software and hardware vulnerabilities, so these credentials will not be disclosed in any unauthorized state. RX utilizes this feature, combined with AES encryption, to provide unparalleled security protection</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaWHTip.Title" translate="yes" xml:space="preserve">
+          <source>Combine with Windows Hello</source>
+          <target state="new">Combine with Windows Hello</target>
+        </trans-unit>
+        <trans-unit id="SettingAbout.Text" translate="yes" xml:space="preserve">
+          <source>About</source>
+          <target state="new">About</target>
+        </trans-unit>
+        <trans-unit id="SettingAdvance.Text" translate="yes" xml:space="preserve">
+          <source>Advance</source>
+          <target state="new">Advance</target>
+        </trans-unit>
+        <trans-unit id="SettingBasicText.Text" translate="yes" xml:space="preserve">
+          <source>Basic</source>
+          <target state="new">Basic</target>
+        </trans-unit>
+        <trans-unit id="SettingCleanup.Content" translate="yes" xml:space="preserve">
+          <source>Restore and initialize</source>
+          <target state="new">Restore and initialize</target>
+        </trans-unit>
+        <trans-unit id="SettingClearHistory.Content" translate="yes" xml:space="preserve">
+          <source>Clear search history</source>
+          <target state="new">Clear search history</target>
+        </trans-unit>
+        <trans-unit id="SettingClearHistoryFlyoutCancelButton.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="SettingClearHistoryFlyoutContent.Text" translate="yes" xml:space="preserve">
+          <source>Search history will be cleared, continue or not?</source>
+          <target state="new">Search history will be cleared, continue or not?</target>
+        </trans-unit>
+        <trans-unit id="SettingClearHistoryFlyoutContinueButton.Content" translate="yes" xml:space="preserve">
+          <source>Continue</source>
+          <target state="new">Continue</target>
+        </trans-unit>
+        <trans-unit id="SettingContactDeveloper.Content" translate="yes" xml:space="preserve">
+          <source>Contact the developer</source>
+          <target state="new">Contact the developer</target>
+        </trans-unit>
+        <trans-unit id="SettingFolderOpenMethod.Header" translate="yes" xml:space="preserve">
+          <source>Folder open method</source>
+          <target state="new">Folder open method</target>
+        </trans-unit>
+        <trans-unit id="SettingFolderOpenMethod.OffContent" translate="yes" xml:space="preserve">
+          <source>Click</source>
+          <target state="new">Click</target>
+        </trans-unit>
+        <trans-unit id="SettingFolderOpenMethod.OnContent" translate="yes" xml:space="preserve">
+          <source>Double click</source>
+          <target state="new">Double click</target>
+        </trans-unit>
+        <trans-unit id="SettingLike.Text" translate="yes" xml:space="preserve">
+          <source>Like the app</source>
+          <target state="new">Like the app</target>
+        </trans-unit>
+        <trans-unit id="SettingOpenLeftArea.Header" translate="yes" xml:space="preserve">
+          <source>Sidebar</source>
+          <target state="new">Sidebar</target>
+        </trans-unit>
+        <trans-unit id="SettingOpenLeftArea.OffContent" translate="yes" xml:space="preserve">
+          <source>Hide</source>
+          <target state="new">Hide</target>
+        </trans-unit>
+        <trans-unit id="SettingOpenLeftArea.OnContent" translate="yes" xml:space="preserve">
+          <source>Show</source>
+          <target state="new">Show</target>
+        </trans-unit>
+        <trans-unit id="SettingOther.Text" translate="yes" xml:space="preserve">
+          <source>Other</source>
+          <target state="new">Other</target>
+        </trans-unit>
+        <trans-unit id="SettingPageColorPickerTip.Title" translate="yes" xml:space="preserve">
+          <source>Acrylic theme color</source>
+          <target state="new">Acrylic theme color</target>
+        </trans-unit>
+        <trans-unit id="SettingPageLuminosityTip.Title" translate="yes" xml:space="preserve">
+          <source>Background transmittance</source>
+          <target state="new">Background transmittance</target>
+        </trans-unit>
+        <trans-unit id="SettingPageLuminosityTipText1.Text" translate="yes" xml:space="preserve">
+          <source>The background transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.This feature is not available in versions below Win10-1903.</source>
+          <target state="new">The background transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.This feature is not available in versions below Win10-1903.</target>
+        </trans-unit>
+        <trans-unit id="SettingPageLuminosityTipText2.Text" translate="yes" xml:space="preserve">
+          <source>Adjusting this value may result in unclear or unrecognized content</source>
+          <target state="new">Adjusting this value may result in unclear or unrecognized content</target>
+        </trans-unit>
+        <trans-unit id="SettingPageOpacityTip.Title" translate="yes" xml:space="preserve">
+          <source>Color transparency</source>
+          <target state="new">Color transparency</target>
+        </trans-unit>
+        <trans-unit id="SettingPageOpacityTipText1.Text" translate="yes" xml:space="preserve">
+          <source>Acrylic theme color layer transparency, the larger the value, the lighter the Acrylic color, the smaller the color indicates the darker the color</source>
+          <target state="new">Acrylic theme color layer transparency, the larger the value, the lighter the Acrylic color, the smaller the color indicates the darker the color</target>
+        </trans-unit>
+        <trans-unit id="SettingPageOpacityTipText2.Text" translate="yes" xml:space="preserve">
+          <source>This value defaults to 60% in 'Recommend' mode</source>
+          <target state="new">This value defaults to 60% in 'Recommend' mode</target>
+        </trans-unit>
+        <trans-unit id="SettingPageThemeColorButton.Content" translate="yes" xml:space="preserve">
+          <source>Acrylic theme color</source>
+          <target state="new">Acrylic theme color</target>
+        </trans-unit>
+        <trans-unit id="SettingPageTintLuminositySliderHeader.Text" translate="yes" xml:space="preserve">
+          <source>Acrylic background transmittance</source>
+          <target state="new">Acrylic background transmittance</target>
+        </trans-unit>
+        <trans-unit id="SettingPageTintOpacitySliderHeader.Text" translate="yes" xml:space="preserve">
+          <source>Acrylic color transparency</source>
+          <target state="new">Acrylic color transparency</target>
+        </trans-unit>
+        <trans-unit id="SettingPageUIMode.Header" translate="yes" xml:space="preserve">
+          <source>Mode</source>
+          <target state="new">Mode</target>
+        </trans-unit>
+        <trans-unit id="SettingPrivacyPolicyLink.Content" translate="yes" xml:space="preserve">
+          <source>User Privacy Statement</source>
+          <target state="new">User Privacy Statement</target>
+        </trans-unit>
+        <trans-unit id="SettingRecovery.Text" translate="yes" xml:space="preserve">
+          <source>Recovery</source>
+          <target state="new">Recovery</target>
+        </trans-unit>
+        <trans-unit id="SettingSettingPrivacyPolicyTitle.Text" translate="yes" xml:space="preserve">
+          <source>Privacy</source>
+          <target state="new">Privacy</target>
+        </trans-unit>
+        <trans-unit id="SettingSupportDeveloper.Content" translate="yes" xml:space="preserve">
+          <source>Donate</source>
+          <target state="new">Donate</target>
+        </trans-unit>
+        <trans-unit id="SettingSystemInfo.Content" translate="yes" xml:space="preserve">
+          <source>System Information</source>
+          <target state="new">System Information</target>
+        </trans-unit>
+        <trans-unit id="SettingUpdateLogButton.Content" translate="yes" xml:space="preserve">
+          <source>View update log</source>
+          <target state="new">View update log</target>
+        </trans-unit>
+        <trans-unit id="SettingVersion.Text" translate="yes" xml:space="preserve">
+          <source>Version</source>
+          <target state="new">Version</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Close</source>
+          <target state="new">Close</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialog.Title" translate="yes" xml:space="preserve">
+          <source>System Information</source>
+          <target state="new">System Information</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogBasicInfo.Text" translate="yes" xml:space="preserve">
+          <source>Basic information</source>
+          <target state="new">Basic information</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogCPUArchitecture.Text" translate="yes" xml:space="preserve">
+          <source>CPU architecture</source>
+          <target state="new">CPU architecture</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogCPUCache.Text" translate="yes" xml:space="preserve">
+          <source>CPU Cache</source>
+          <target state="new">CPU Cache</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogCPUCore.Text" translate="yes" xml:space="preserve">
+          <source>CPU Core</source>
+          <target state="new">CPU Core</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogCPUFeature.Text" translate="yes" xml:space="preserve">
+          <source>CPU feature</source>
+          <target state="new">CPU feature</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogCPUInfo.Text" translate="yes" xml:space="preserve">
+          <source>CPU information</source>
+          <target state="new">CPU information</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogCPUModel.Text" translate="yes" xml:space="preserve">
+          <source>CPU model</source>
+          <target state="new">CPU model</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogCurrentColorMode.Text" translate="yes" xml:space="preserve">
+          <source>Current color mode</source>
+          <target state="new">Current color mode</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogDeivceModel.Text" translate="yes" xml:space="preserve">
+          <source>Device model</source>
+          <target state="new">Device model</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogDeviceName.Text" translate="yes" xml:space="preserve">
+          <source>Device name</source>
+          <target state="new">Device name</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogDisplayTitle.Text" translate="yes" xml:space="preserve">
+          <source>Screen information</source>
+          <target state="new">Screen information</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogGPUInfo.Text" translate="yes" xml:space="preserve">
+          <source>GPU information</source>
+          <target state="new">GPU information</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogManufacturer.Text" translate="yes" xml:space="preserve">
+          <source>Manufacturer</source>
+          <target state="new">Manufacturer</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogMemoryInfo.Text" translate="yes" xml:space="preserve">
+          <source>Memory information</source>
+          <target state="new">Memory information</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogNetwork.Text" translate="yes" xml:space="preserve">
+          <source>Network Information</source>
+          <target state="new">Network Information</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogPixeldensity.Text" translate="yes" xml:space="preserve">
+          <source>Pixel density</source>
+          <target state="new">Pixel density</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogResolution.Text" translate="yes" xml:space="preserve">
+          <source>Resolution</source>
+          <target state="new">Resolution</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogResolutionScale.Text" translate="yes" xml:space="preserve">
+          <source>Windows scale</source>
+          <target state="new">Windows scale</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogScreenSize.Text" translate="yes" xml:space="preserve">
+          <source>Screen size</source>
+          <target state="new">Screen size</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogWindowsLanguage.Text" translate="yes" xml:space="preserve">
+          <source>Windows language</source>
+          <target state="new">Windows language</target>
+        </trans-unit>
+        <trans-unit id="SystemInfoDialogWindowsVersion.Text" translate="yes" xml:space="preserve">
+          <source>Windows version</source>
+          <target state="new">Windows version</target>
+        </trans-unit>
+        <trans-unit id="SystemManagerOpen.Label" translate="yes" xml:space="preserve">
+          <source>Open in Windows Explorer</source>
+          <target state="new">Open in Windows Explorer</target>
+        </trans-unit>
+        <trans-unit id="SystemShare.Text" translate="yes" xml:space="preserve">
+          <source>System share</source>
+          <target state="new">System share</target>
+        </trans-unit>
+        <trans-unit id="TextViewerCancel.Label" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="TextViewerLoading.Text" translate="yes" xml:space="preserve">
+          <source>Loading...</source>
+          <target state="new">Loading...</target>
+        </trans-unit>
+        <trans-unit id="TextViewerSave.Label" translate="yes" xml:space="preserve">
+          <source>Save</source>
+          <target state="new">Save</target>
+        </trans-unit>
+        <trans-unit id="ThisPC.Content" translate="yes" xml:space="preserve">
+          <source>ThisPC</source>
+          <target state="new">ThisPC</target>
+        </trans-unit>
+        <trans-unit id="Transcode.Text" translate="yes" xml:space="preserve">
+          <source>Transcode</source>
+          <target state="new">Transcode</target>
+        </trans-unit>
+        <trans-unit id="TranscodeBoost.Content" translate="yes" xml:space="preserve">
+          <source>Use hardware acceleration (Recommand)</source>
+          <target state="new">Use hardware acceleration (Recommand)</target>
+        </trans-unit>
+        <trans-unit id="TranscodeDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="TranscodeDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="TranscodeDialog.Title" translate="yes" xml:space="preserve">
+          <source>Transcode</source>
+          <target state="new">Transcode</target>
+        </trans-unit>
+        <trans-unit id="TranscodeFormat.Header" translate="yes" xml:space="preserve">
+          <source>Conversion format</source>
+          <target state="new">Conversion format</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialog.Title" translate="yes" xml:space="preserve">
+          <source>Transcode</source>
+          <target state="new">Transcode</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialogEnableScale.Content" translate="yes" xml:space="preserve">
+          <source>Enable zoom</source>
+          <target state="new">Enable zoom</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialogFormat.Header" translate="yes" xml:space="preserve">
+          <source>Target format</source>
+          <target state="new">Target format</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialogPickLocationButton.Content" translate="yes" xml:space="preserve">
+          <source>Save location</source>
+          <target state="new">Save location</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialogScale.Header" translate="yes" xml:space="preserve">
+          <source>Proportion</source>
+          <target state="new">Proportion</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialogTips.Subtitle" translate="yes" xml:space="preserve">
+          <source>Please specify a save location</source>
+          <target state="new">Please specify a save location</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialogTips.Title" translate="yes" xml:space="preserve">
+          <source>Tips</source>
+          <target state="new">Tips</target>
+        </trans-unit>
+        <trans-unit id="TranscodeImageDialogZoomMode.Header" translate="yes" xml:space="preserve">
+          <source>Zoom Mode</source>
+          <target state="new">Zoom Mode</target>
+        </trans-unit>
+        <trans-unit id="TranscodeQuality.Header" translate="yes" xml:space="preserve">
+          <source>Quality</source>
+          <target state="new">Quality</target>
+        </trans-unit>
+        <trans-unit id="UpdateLogDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Got it</source>
+          <target state="new">Got it</target>
+        </trans-unit>
+        <trans-unit id="UpdateLogDialog.Title" translate="yes" xml:space="preserve">
+          <source>Recently updated</source>
+          <target state="new">Recently updated</target>
+        </trans-unit>
+        <trans-unit id="USBDisplayName" translate="yes" xml:space="preserve">
+          <source>Open and view files</source>
+          <target state="new">Open and view files</target>
+        </trans-unit>
+        <trans-unit id="UserFolderDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Ignore for now</source>
+          <target state="new">Ignore for now</target>
+        </trans-unit>
+        <trans-unit id="UserFolderDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="UserFolderDialog.Title" translate="yes" xml:space="preserve">
+          <source>Choose library folder</source>
+          <target state="new">Choose library folder</target>
+        </trans-unit>
+        <trans-unit id="UserFolderNotReferTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Please specify the folder and click confirm</source>
+          <target state="new">Please specify the folder and click confirm</target>
+        </trans-unit>
+        <trans-unit id="UserFolderReferButton.Content" translate="yes" xml:space="preserve">
+          <source>Specify</source>
+          <target state="new">Specify</target>
+        </trans-unit>
+        <trans-unit id="UserFolderText1.Text" translate="yes" xml:space="preserve">
+          <source>Unable to automatically determine library folder</source>
+          <target state="new">Unable to automatically determine library folder</target>
+        </trans-unit>
+        <trans-unit id="UserFolderText2.Text" translate="yes" xml:space="preserve">
+          <source>Please specify the library folder manually</source>
+          <target state="new">Please specify the library folder manually</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialog.Title" translate="yes" xml:space="preserve">
+          <source>Montage</source>
+          <target state="new">Montage</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogErrorTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>This time format is incorrect, please re-enter</source>
+          <target state="new">This time format is incorrect, please re-enter</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogErrorTip.Title" translate="yes" xml:space="preserve">
+          <source>Tips</source>
+          <target state="new">Tips</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogText1.Text" translate="yes" xml:space="preserve">
+          <source>Crop</source>
+          <target state="new">Crop</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogText2.Text" translate="yes" xml:space="preserve">
+          <source>Output encoding config</source>
+          <target state="new">Output encoding config</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogText3.Text" translate="yes" xml:space="preserve">
+          <source>Output quality</source>
+          <target state="new">Output quality</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogText4.Text" translate="yes" xml:space="preserve">
+          <source>Crop accuracy</source>
+          <target state="new">Crop accuracy</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogUseSameProfile.Text" translate="yes" xml:space="preserve">
+          <source>Use the same encoding configuration as the source video</source>
+          <target state="new">Use the same encoding configuration as the source video</target>
+        </trans-unit>
+        <trans-unit id="VideoMerge.Text" translate="yes" xml:space="preserve">
+          <source>Merge</source>
+          <target state="new">Merge</target>
+        </trans-unit>
+        <trans-unit id="VideoMontage.Text" translate="yes" xml:space="preserve">
+          <source>Montage</source>
+          <target state="new">Montage</target>
+        </trans-unit>
+        <trans-unit id="WebAllowDB.Header" translate="yes" xml:space="preserve">
+          <source>Allow to use IndexedDB</source>
+          <target state="new">Allow to use IndexedDB</target>
+        </trans-unit>
+        <trans-unit id="WebAllowJS.Header" translate="yes" xml:space="preserve">
+          <source>Allow JavaScript to run</source>
+          <target state="new">Allow JavaScript to run</target>
+        </trans-unit>
+        <trans-unit id="WebClearCache.Content" translate="yes" xml:space="preserve">
+          <source>Clear cache and history</source>
+          <target state="new">Clear cache and history</target>
+        </trans-unit>
+        <trans-unit id="WebDefaultSearchEngine.Header" translate="yes" xml:space="preserve">
+          <source>Default search engine</source>
+          <target state="new">Default search engine</target>
+        </trans-unit>
+        <trans-unit id="WebDelete.Label" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="new">Delete</target>
+        </trans-unit>
+        <trans-unit id="WebDonwloadLoaction.Text" translate="yes" xml:space="preserve">
+          <source>Default download location</source>
+          <target state="new">Default download location</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>DownloadList</source>
+          <target state="new">DownloadList</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadCancel.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadCancelText.Text" translate="yes" xml:space="preserve">
+          <source>Cancelled</source>
+          <target state="new">Cancelled</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadCompleteText.Text" translate="yes" xml:space="preserve">
+          <source>Complete</source>
+          <target state="new">Complete</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadErrorText.Text" translate="yes" xml:space="preserve">
+          <source>Error</source>
+          <target state="new">Error</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadList.Text" translate="yes" xml:space="preserve">
+          <source>Download List</source>
+          <target state="new">Download List</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadListCopyLink.Label" translate="yes" xml:space="preserve">
+          <source>Copy link</source>
+          <target state="new">Copy link</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadListEmpty.Text" translate="yes" xml:space="preserve">
+          <source>Empty</source>
+          <target state="new">Empty</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadListOpenLocation.Label" translate="yes" xml:space="preserve">
+          <source>Open file location</source>
+          <target state="new">Open file location</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadPause.Content" translate="yes" xml:space="preserve">
+          <source>Pause</source>
+          <target state="new">Pause</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadPauseCancel.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadPauseContinue.Content" translate="yes" xml:space="preserve">
+          <source>Continue</source>
+          <target state="new">Continue</target>
+        </trans-unit>
+        <trans-unit id="WebDownloadPauseText.Text" translate="yes" xml:space="preserve">
+          <source>Paused</source>
+          <target state="new">Paused</target>
+        </trans-unit>
+        <trans-unit id="WebEdit.Label" translate="yes" xml:space="preserve">
+          <source>Edit</source>
+          <target state="new">Edit</target>
+        </trans-unit>
+        <trans-unit id="WebExplorerButton.Content" translate="yes" xml:space="preserve">
+          <source>Browse</source>
+          <target state="new">Browse</target>
+        </trans-unit>
+        <trans-unit id="WebFavButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Favorites</source>
+          <target state="new">Favorites</target>
+        </trans-unit>
+        <trans-unit id="WebFavFlyoutCancel.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="WebFavFlyoutConfirm.Content" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="WebFavName.Header" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="new">Name</target>
+        </trans-unit>
+        <trans-unit id="WebFavouriteClear.Text" translate="yes" xml:space="preserve">
+          <source>Clear all</source>
+          <target state="new">Clear all</target>
+        </trans-unit>
+        <trans-unit id="WebFavouriteClearCancel.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="WebFavouriteClearConfirm.Content" translate="yes" xml:space="preserve">
+          <source>Continue</source>
+          <target state="new">Continue</target>
+        </trans-unit>
+        <trans-unit id="WebFavouriteClearText.Text" translate="yes" xml:space="preserve">
+          <source>Clear all tags?</source>
+          <target state="new">Clear all tags?</target>
+        </trans-unit>
+        <trans-unit id="WebFavouriteFlyoutDelete.Label" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="new">Delete</target>
+        </trans-unit>
+        <trans-unit id="WebFavouriteListTitle.Header" translate="yes" xml:space="preserve">
+          <source>Favourite</source>
+          <target state="new">Favourite</target>
+        </trans-unit>
+        <trans-unit id="WebFavouriteText.Text" translate="yes" xml:space="preserve">
+          <source>Favorites</source>
+          <target state="new">Favorites</target>
+        </trans-unit>
+        <trans-unit id="WebHistoryClear.Text" translate="yes" xml:space="preserve">
+          <source>Clear all</source>
+          <target state="new">Clear all</target>
+        </trans-unit>
+        <trans-unit id="WebHistoryClearCancel.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="WebHistoryClearConfirm.Content" translate="yes" xml:space="preserve">
+          <source>Continue</source>
+          <target state="new">Continue</target>
+        </trans-unit>
+        <trans-unit id="WebHistoryClearText.Text" translate="yes" xml:space="preserve">
+          <source>Clear all history?</source>
+          <target state="new">Clear all history?</target>
+        </trans-unit>
+        <trans-unit id="WebHistoryEmptyTip.Text" translate="yes" xml:space="preserve">
+          <source>Empty</source>
+          <target state="new">Empty</target>
+        </trans-unit>
+        <trans-unit id="WebHistoryTitle.Header" translate="yes" xml:space="preserve">
+          <source>History</source>
+          <target state="new">History</target>
+        </trans-unit>
+        <trans-unit id="WebInPrivate.Header" translate="yes" xml:space="preserve">
+          <source>InPrivate Mode</source>
+          <target state="new">InPrivate Mode</target>
+        </trans-unit>
+        <trans-unit id="WebInPrivateConfirm.Content" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="WebInPrivateExit.Content" translate="yes" xml:space="preserve">
+          <source>Exit InPrivate</source>
+          <target state="new">Exit InPrivate</target>
+        </trans-unit>
+        <trans-unit id="WebInPrivateText.Text" translate="yes" xml:space="preserve">
+          <source>The browser has entered InPrivate privacy mode and will not record any information.</source>
+          <target state="new">The browser has entered InPrivate privacy mode and will not record any information.</target>
+        </trans-unit>
+        <trans-unit id="WebScreenShot.Content" translate="yes" xml:space="preserve">
+          <source>Screenshot and send by Bluetooth</source>
+          <target state="new">Screenshot and send by Bluetooth</target>
+        </trans-unit>
+        <trans-unit id="WebSettingAbout.Content" translate="yes" xml:space="preserve">
+          <source>About</source>
+          <target state="new">About</target>
+        </trans-unit>
+        <trans-unit id="WebSettingAdvanceTile.Text" translate="yes" xml:space="preserve">
+          <source>Advance</source>
+          <target state="new">Advance</target>
+        </trans-unit>
+        <trans-unit id="WebSettingButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Setting</source>
+          <target state="new">Setting</target>
+        </trans-unit>
+        <trans-unit id="WebSettingClearFlyCancel.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="WebSettingClearFlyConfirm.Content" translate="yes" xml:space="preserve">
+          <source>Continue</source>
+          <target state="new">Continue</target>
+        </trans-unit>
+        <trans-unit id="WebSettingClearFlyText.Text" translate="yes" xml:space="preserve">
+          <source>All caches including browsing history will be cleared</source>
+          <target state="new">All caches including browsing history will be cleared</target>
+        </trans-unit>
+        <trans-unit id="WebSettingOtherTitle.Text" translate="yes" xml:space="preserve">
+          <source>Other</source>
+          <target state="new">Other</target>
+        </trans-unit>
+        <trans-unit id="WebSettingShowMainPage.Header" translate="yes" xml:space="preserve">
+          <source>Show home button</source>
+          <target state="new">Show home button</target>
+        </trans-unit>
+        <trans-unit id="WebSettingTitle.Text" translate="yes" xml:space="preserve">
+          <source>Custom</source>
+          <target state="new">Custom</target>
+        </trans-unit>
+        <trans-unit id="WebSettingUrl.Header" translate="yes" xml:space="preserve">
+          <source>Home page URL</source>
+          <target state="new">Home page URL</target>
+        </trans-unit>
+        <trans-unit id="WebSettingUrl.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter URL</source>
+          <target state="new">Enter URL</target>
+        </trans-unit>
+        <trans-unit id="WebSpecificUrl.Header" translate="yes" xml:space="preserve">
+          <source>Page Url</source>
+          <target state="new">Page Url</target>
+        </trans-unit>
+        <trans-unit id="WebSpecificUrl.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter Url</source>
+          <target state="new">Enter Url</target>
+        </trans-unit>
+        <trans-unit id="WebSuggestBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Search or enter url</source>
+          <target state="new">Search or enter url</target>
+        </trans-unit>
+        <trans-unit id="WebTabOpenMethod.Header" translate="yes" xml:space="preserve">
+          <source>Open with</source>
+          <target state="new">Open with</target>
+        </trans-unit>
+        <trans-unit id="WevFavEmptyTip.Text" translate="yes" xml:space="preserve">
+          <source>Empty</source>
+          <target state="new">Empty</target>
+        </trans-unit>
+        <trans-unit id="WIFIShare.Text" translate="yes" xml:space="preserve">
+          <source>WIFI</source>
+          <target state="new">WIFI</target>
+        </trans-unit>
+        <trans-unit id="WIFIShareText.Text" translate="yes" xml:space="preserve">
+          <source>Do not close this window during transmission</source>
+          <target state="new">Do not close this window during transmission</target>
+        </trans-unit>
+        <trans-unit id="WIFIShareTip.Title" translate="yes" xml:space="preserve">
+          <source>WiFi Share</source>
+          <target state="new">WiFi Share</target>
+        </trans-unit>
+        <trans-unit id="ZipDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="new">Confirm</target>
+        </trans-unit>
+        <trans-unit id="ZipDialog.Title" translate="yes" xml:space="preserve">
+          <source>Zip Compression Option</source>
+          <target state="new">Zip Compression Option</target>
+        </trans-unit>
+        <trans-unit id="ZipDialogCheckBox.Content" translate="yes" xml:space="preserve">
+          <source>Enable Zip encryption</source>
+          <target state="new">Enable Zip encryption</target>
+        </trans-unit>
+        <trans-unit id="ZipDialogEncryption.Header" translate="yes" xml:space="preserve">
+          <source>Encryption Method</source>
+          <target state="new">Encryption Method</target>
+        </trans-unit>
+        <trans-unit id="ZipDialogLevel.Header" translate="yes" xml:space="preserve">
+          <source>Compression Level</source>
+          <target state="new">Compression Level</target>
+        </trans-unit>
+        <trans-unit id="ZipDialogName.Header" translate="yes" xml:space="preserve">
+          <source>FileName</source>
+          <target state="new">FileName</target>
+        </trans-unit>
+        <trans-unit id="ZipDialogPassword.Header" translate="yes" xml:space="preserve">
+          <source>Password</source>
+          <target state="new">Password</target>
+        </trans-unit>
+        <trans-unit id="ZipDialogPassword.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter password</source>
+          <target state="new">Enter password</target>
+        </trans-unit>
+        <trans-unit id="Zip.Label" translate="yes" xml:space="preserve">
+          <source>Compression</source>
+          <target state="new">Compression</target>
+        </trans-unit>
+        <trans-unit id="ZipDialog.CloseButtonText" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="SettingTreeViewDetach.Header" translate="yes" xml:space="preserve">
+          <source>Folder directory</source>
+          <target state="new">Folder directory</target>
+        </trans-unit>
+        <trans-unit id="SettingTreeViewDetach.OffContent" translate="yes" xml:space="preserve">
+          <source>Hide</source>
+          <target state="new">Hide</target>
+        </trans-unit>
+        <trans-unit id="SettingTreeViewDetach.OnContent" translate="yes" xml:space="preserve">
+          <source>Show</source>
+          <target state="new">Show</target>
+        </trans-unit>
+        <trans-unit id="EnableQuicklook.OffContent" translate="yes" xml:space="preserve">
+          <source>Disable</source>
+          <target state="new">Disable</target>
+        </trans-unit>
+        <trans-unit id="EnableQuicklook.OnContent" translate="yes" xml:space="preserve">
+          <source>Enable</source>
+          <target state="new">Enable</target>
+        </trans-unit>
+        <trans-unit id="QuicklookHeader.Text" translate="yes" xml:space="preserve">
+          <source>Quicklook</source>
+          <target state="new">Quicklook</target>
+        </trans-unit>
+        <trans-unit id="QuicklookTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>QuickLook is an auxiliary software for convenient and quick viewing of file contents. To enable this feature, you must install QuickLook in advance and ensure that QuickLook works properly. You can click on any file in the RX Explorer and press the space bar to activate QuickLook</source>
+          <target state="new">QuickLook is an auxiliary software for convenient and quick viewing of file contents. To enable this feature, you must install QuickLook in advance and ensure that QuickLook works properly. You can click on any file in the RX Explorer and press the space bar to activate QuickLook</target>
+        </trans-unit>
+        <trans-unit id="AppName.Text" translate="yes" xml:space="preserve">
+          <source>RX Explorer</source>
+          <target state="new">RX Explorer</target>
+        </trans-unit>
+        <trans-unit id="SettingPersonalize.Text" translate="yes" xml:space="preserve">
+          <source>Personalize</source>
+          <target state="new">Personalize</target>
+        </trans-unit>
+        <trans-unit id="LanguageComboBox.Header" translate="yes" xml:space="preserve">
+          <source>Language</source>
+          <target state="new">Language</target>
+        </trans-unit>
+        <trans-unit id="LanguageRestartButton.Content" translate="yes" xml:space="preserve">
+          <source>Restart now</source>
+          <target state="new">Restart now</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogTypeTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>You can manually enter the file type you need to create, or you can select the type predefined by the RX Explorer. However, the RX Explorer can only guarantee the correct creation of pre-defined types. It cannot guarantee that the types you enter manually can be created correctly.</source>
+          <target state="new">You can manually enter the file type you need to create, or you can select the type predefined by the RX Explorer. However, the RX Explorer can only guarantee the correct creation of pre-defined types. It cannot guarantee that the types you enter manually can be created correctly.</target>
+        </trans-unit>
+        <trans-unit id="NewFileDIalogTypeTip.Title" translate="yes" xml:space="preserve">
+          <source>Explanation</source>
+          <target state="new">Explanation</target>
+        </trans-unit>
+        <trans-unit id="NewFileDialogFileTypeTitle.Text" translate="yes" xml:space="preserve">
+          <source>File type</source>
+          <target state="new">File type</target>
+        </trans-unit>
+        <trans-unit id="SubmitIssueOnGithub.Content" translate="yes" xml:space="preserve">
+          <source>Submit an issue on Github</source>
+          <target state="new">Submit an issue on Github</target>
+        </trans-unit>
+        <trans-unit id="PairedText" translate="yes" xml:space="preserve">
+          <source>Paired</source>
+          <target state="new">Paired</target>
+        </trans-unit>
+        <trans-unit id="PairText" translate="yes" xml:space="preserve">
+          <source>Pair</source>
+          <target state="new">Pair</target>
+        </trans-unit>
+        <trans-unit id="ReadyToPairText" translate="yes" xml:space="preserve">
+          <source>Ready to pair</source>
+          <target state="new">Ready to pair</target>
+        </trans-unit>
+        <trans-unit id="UnknownText" translate="yes" xml:space="preserve">
+          <source>Unknown</source>
+          <target state="new">Unknown</target>
+        </trans-unit>
+        <trans-unit id="UnpairText" translate="yes" xml:space="preserve">
+          <source>Unpair</source>
+          <target state="new">Unpair</target>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>
