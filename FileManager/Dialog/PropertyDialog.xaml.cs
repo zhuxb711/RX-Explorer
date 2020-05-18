@@ -51,23 +51,17 @@ namespace FileManager.Dialog
                     if (file.ContentType.StartsWith("video"))
                     {
                         VideoProperties Video = await file.Properties.GetVideoPropertiesAsync();
-                        ExtraData.Text = Globalization.Language == LanguageEnum.Chinese
-                                                                   ? $"清晰度: {((Video.Width == 0 && Video.Height == 0) ? "Unknown" : $"{Video.Width}×{Video.Height}")}\r比特率: {(Video.Bitrate == 0 ? "Unknown" : (Video.Bitrate / 1024f < 1024 ? Math.Round(Video.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Video.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}\r持续时间: {ConvertTimsSpanToString(Video.Duration)}"
-                                                                   : $"Resolution: {((Video.Width == 0 && Video.Height == 0) ? "Unknown" : $"{Video.Width}×{Video.Height}")}\rBitrate: {(Video.Bitrate == 0 ? "Unknown" : (Video.Bitrate / 1024f < 1024 ? Math.Round(Video.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Video.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}\rDuration: {ConvertTimsSpanToString(Video.Duration)}";
+                        ExtraData.Text = $"{Globalization.GetString("FileProperty_Resolution")}: {((Video.Width == 0 && Video.Height == 0) ? "Unknown" : $"{Video.Width}×{Video.Height}")}{Environment.NewLine}{Globalization.GetString("FileProperty_Bitrate")}: {(Video.Bitrate == 0 ? "Unknown" : (Video.Bitrate / 1024f < 1024 ? Math.Round(Video.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Video.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Duration")}: {ConvertTimsSpanToString(Video.Duration)}";
                     }
                     else if (file.ContentType.StartsWith("audio"))
                     {
                         MusicProperties Music = await file.Properties.GetMusicPropertiesAsync();
-                        ExtraData.Text = Globalization.Language == LanguageEnum.Chinese
-                                                                   ? $"比特率: {(Music.Bitrate == 0 ? "Unknown" : (Music.Bitrate / 1024f < 1024 ? Math.Round(Music.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Music.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}\r持续时间: {ConvertTimsSpanToString(Music.Duration)}"
-                                                                   : $"Bitrate: {(Music.Bitrate == 0 ? "Unknown" : (Music.Bitrate / 1024f < 1024 ? Math.Round(Music.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Music.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}\rDuration: {ConvertTimsSpanToString(Music.Duration)}";
+                        ExtraData.Text = $"{Globalization.GetString("FileProperty_Bitrate")}: {(Music.Bitrate == 0 ? "Unknown" : (Music.Bitrate / 1024f < 1024 ? Math.Round(Music.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Music.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Duration")}: {ConvertTimsSpanToString(Music.Duration)}";
                     }
                     else if (file.ContentType.StartsWith("image"))
                     {
                         ImageProperties Image = await file.Properties.GetImagePropertiesAsync();
-                        ExtraData.Text = Globalization.Language == LanguageEnum.Chinese
-                                                                   ? $"清晰度: {((Image.Width == 0 && Image.Height == 0) ? "Unknown" : $"{Image.Width}×{Image.Height}")}\r拍摄日期: {Image.DateTaken.ToLocalTime():F}\r经度: {(Image.Longitude.HasValue ? Image.Longitude.Value.ToString() : "Unknown")}\r纬度: {(Image.Latitude.HasValue ? Image.Latitude.Value.ToString() : "Unknown")}"
-                                                                   : $"Resolution: {((Image.Width == 0 && Image.Height == 0) ? "Unknown" : $"{Image.Width}×{Image.Height}")}\rShooting date: {Image.DateTaken.ToLocalTime():F}\rLongitude: {(Image.Longitude.HasValue ? Image.Longitude.Value.ToString() : "Unknown")}\rLatitude: {(Image.Latitude.HasValue ? Image.Latitude.Value.ToString() : "Unknown")}";
+                        ExtraData.Text = $"{Globalization.GetString("FileProperty_Resolution")}: {((Image.Width == 0 && Image.Height == 0) ? "Unknown" : $"{Image.Width}×{Image.Height}")}{Environment.NewLine}{Globalization.GetString("FileProperty_ShootingDate")}: {Image.DateTaken.ToLocalTime():F}{Environment.NewLine}{Globalization.GetString("FileProperty_Longitude")}: {(Image.Longitude.HasValue ? Image.Longitude.Value.ToString() : "Unknown")}{Environment.NewLine}{Globalization.GetString("FileProperty_Latitude")}: {(Image.Latitude.HasValue ? Image.Latitude.Value.ToString() : "Unknown")}";
                     }
                     else
                     {
@@ -87,9 +81,7 @@ namespace FileManager.Dialog
                             case ".swf":
                                 {
                                     VideoProperties Video = await file.Properties.GetVideoPropertiesAsync();
-                                    ExtraData.Text = Globalization.Language == LanguageEnum.Chinese
-                                                                               ? $"清晰度: {((Video.Width == 0 && Video.Height == 0) ? "Unknown" : $"{Video.Width}×{Video.Height}")}\r比特率: {(Video.Bitrate == 0 ? "Unknown" : (Video.Bitrate / 1024f < 1024 ? Math.Round(Video.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Video.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}\r持续时间: {ConvertTimsSpanToString(Video.Duration)}"
-                                                                               : $"Resolution: {((Video.Width == 0 && Video.Height == 0) ? "Unknown" : $"{Video.Width}×{Video.Height}")}\rBitrate: {(Video.Bitrate == 0 ? "Unknown" : (Video.Bitrate / 1024f < 1024 ? Math.Round(Video.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Video.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}\rDuration: {ConvertTimsSpanToString(Video.Duration)}";
+                                    ExtraData.Text = $"{Globalization.GetString("FileProperty_Resolution")}: {((Video.Width == 0 && Video.Height == 0) ? "Unknown" : $"{Video.Width}×{Video.Height}")}{Environment.NewLine}{Globalization.GetString("FileProperty_Bitrate")}: {(Video.Bitrate == 0 ? "Unknown" : (Video.Bitrate / 1024f < 1024 ? Math.Round(Video.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Video.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Duration")}: {ConvertTimsSpanToString(Video.Duration)}";
                                     break;
                                 }
                             case ".mpe":
@@ -100,9 +92,7 @@ namespace FileManager.Dialog
                             case ".ogg":
                                 {
                                     MusicProperties Music = await file.Properties.GetMusicPropertiesAsync();
-                                    ExtraData.Text = Globalization.Language == LanguageEnum.Chinese
-                                                                               ? $"比特率: {(Music.Bitrate == 0 ? "Unknown" : (Music.Bitrate / 1024f < 1024 ? Math.Round(Music.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Music.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}\r持续时间: {ConvertTimsSpanToString(Music.Duration)}"
-                                                                               : $"Bitrate: {(Music.Bitrate == 0 ? "Unknown" : (Music.Bitrate / 1024f < 1024 ? Math.Round(Music.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Music.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}\rDuration: {ConvertTimsSpanToString(Music.Duration)}";
+                                    ExtraData.Text = $"{Globalization.GetString("FileProperty_Bitrate")}: {(Music.Bitrate == 0 ? "Unknown" : (Music.Bitrate / 1024f < 1024 ? Math.Round(Music.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Music.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Duration")}: {ConvertTimsSpanToString(Music.Duration)}";
                                     break;
                                 }
                             case ".raw":
@@ -115,9 +105,7 @@ namespace FileManager.Dialog
                             case ".png":
                                 {
                                     ImageProperties Image = await file.Properties.GetImagePropertiesAsync();
-                                    ExtraData.Text = Globalization.Language == LanguageEnum.Chinese
-                                                                               ? $"清晰度: {((Image.Width == 0 && Image.Height == 0) ? "Unknown" : $"{Image.Width}×{Image.Height}")}\r拍摄日期: {Image.DateTaken.ToLocalTime():F}\r经度: {(Image.Longitude.HasValue ? Image.Longitude.Value.ToString() : "Unknown")}\r纬度: {(Image.Latitude.HasValue ? Image.Latitude.Value.ToString() : "Unknown")}"
-                                                                               : $"Resolution: {((Image.Width == 0 && Image.Height == 0) ? "Unknown" : $"{Image.Width}×{Image.Height}")}\rShooting date: {Image.DateTaken.ToLocalTime():F}\rLongitude: {(Image.Longitude.HasValue ? Image.Longitude.Value.ToString() : "Unknown")}\rLatitude: {(Image.Latitude.HasValue ? Image.Latitude.Value.ToString() : "Unknown")}";
+                                    ExtraData.Text = $"{Globalization.GetString("FileProperty_Resolution")}: {((Image.Width == 0 && Image.Height == 0) ? "Unknown" : $"{Image.Width}×{Image.Height}")}{Environment.NewLine}{Globalization.GetString("FileProperty_ShootingDate")}: {Image.DateTaken.ToLocalTime():F}{Environment.NewLine}{Globalization.GetString("FileProperty_Longitude")}: {(Image.Longitude.HasValue ? Image.Longitude.Value.ToString() : "Unknown")}{Environment.NewLine}{Globalization.GetString("FileProperty_Latitude")}: {(Image.Latitude.HasValue ? Image.Latitude.Value.ToString() : "Unknown")}";
                                     break;
                                 }
                             default:
@@ -130,20 +118,10 @@ namespace FileManager.Dialog
 
                     BasicProperties Properties = await file.GetBasicPropertiesAsync();
 
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        FileSize = (Properties.Size / 1024f < 1024 ? Math.Round(Properties.Size / 1024f, 2).ToString("0.00") + " KB" :
-                                    (Properties.Size / 1048576f < 1024 ? Math.Round(Properties.Size / 1048576f, 2).ToString("0.00") + " MB" :
-                                    (Properties.Size / 1073741824f < 1024 ? Math.Round(Properties.Size / 1073741824f, 2).ToString("0.00") + " GB" :
-                                    Math.Round(Properties.Size / Convert.ToDouble(1099511627776), 2).ToString() + " TB"))) + " (" + Properties.Size.ToString("N0") + " 字节)";
-                    }
-                    else
-                    {
-                        FileSize = (Properties.Size / 1024f < 1024 ? Math.Round(Properties.Size / 1024f, 2).ToString("0.00") + " KB" :
-                                    (Properties.Size / 1048576f < 1024 ? Math.Round(Properties.Size / 1048576f, 2).ToString("0.00") + " MB" :
-                                    (Properties.Size / 1073741824f < 1024 ? Math.Round(Properties.Size / 1073741824f, 2).ToString("0.00") + " GB" :
-                                    Math.Round(Properties.Size / Convert.ToDouble(1099511627776), 2).ToString() + " TB"))) + " (" + Properties.Size.ToString("N0") + " bytes)";
-                    }
+                    FileSize = (Properties.Size / 1024f < 1024 ? Math.Round(Properties.Size / 1024f, 2).ToString("0.00") + " KB" :
+                                (Properties.Size / 1048576f < 1024 ? Math.Round(Properties.Size / 1048576f, 2).ToString("0.00") + " MB" :
+                                (Properties.Size / 1073741824f < 1024 ? Math.Round(Properties.Size / 1073741824f, 2).ToString("0.00") + " GB" :
+                                Math.Round(Properties.Size / Convert.ToDouble(1099511627776), 2).ToString() + " TB"))) + " (" + Properties.Size.ToString("N0") + $" {Globalization.GetString("Device_Capacity_Unit")})";
 
                     ChangeTime = Properties.DateModified.ToString("F");
 
@@ -155,18 +133,8 @@ namespace FileManager.Dialog
 
                     Cancellation = new CancellationTokenSource();
 
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        Na.Text = "文件夹名";
-                        Include = "计算中...";
-                        FileSize = "准备中...";
-                    }
-                    else
-                    {
-                        Na.Text = "FolderName";
-                        Include = "Calculating...";
-                        FileSize = "Preparing...";
-                    }
+                    Include = Globalization.GetString("SizeProperty_Calculating_Text");
+                    FileSize = Globalization.GetString("SizeProperty_Calculating_Text");
 
                     FileType = folder.DisplayType;
                     FileName = folder.DisplayName;
@@ -267,11 +235,11 @@ namespace FileManager.Dialog
 
             try
             {
-                var FolderCount = await FolderQuery.GetItemCountAsync().AsTask(Cancellation.Token).ConfigureAwait(true);
-                var FileCount = await FileQuery.GetItemCountAsync().AsTask(Cancellation.Token).ConfigureAwait(true);
-                Include = Globalization.Language == LanguageEnum.Chinese
-                            ? $"{FileCount} 个文件 , {FolderCount} 个文件夹"
-                            : $"{FileCount} files , {FolderCount} folders";
+                uint FolderCount = await FolderQuery.GetItemCountAsync().AsTask(Cancellation.Token).ConfigureAwait(true);
+                uint FileCount = await FileQuery.GetItemCountAsync().AsTask(Cancellation.Token).ConfigureAwait(true);
+
+                Include = $"{FileCount} {Globalization.GetString("FolderInfo_File_Count")} , {FolderCount} {Globalization.GetString("FolderInfo_Folder_Count")}";
+
                 OnPropertyChanged();
             }
             catch (TaskCanceledException)
@@ -282,20 +250,10 @@ namespace FileManager.Dialog
 
         private void Timer_Tick(object sender, object e)
         {
-            if (Globalization.Language == LanguageEnum.Chinese)
-            {
-                FileSize = Length / 1024f < 1024 ? Math.Round(Length / 1024f, 2).ToString("0.00") + " KB" :
-                           (Length / 1048576f < 1024 ? Math.Round(Length / 1048576f, 2).ToString("0.00") + " MB" :
-                           (Length / 1073741824f < 1024 ? Math.Round(Length / 1073741824f, 2).ToString("0.00") + " GB" :
-                           Math.Round(Length / Convert.ToDouble(1099511627776), 2).ToString() + " TB")) + " (" + Length.ToString("N0") + " 字节)";
-            }
-            else
-            {
-                FileSize = Length / 1024f < 1024 ? Math.Round(Length / 1024f, 2).ToString("0.00") + " KB" :
-                           (Length / 1048576f < 1024 ? Math.Round(Length / 1048576f, 2).ToString("0.00") + " MB" :
-                           (Length / 1073741824f < 1024 ? Math.Round(Length / 1073741824f, 2).ToString("0.00") + " GB" :
-                           Math.Round(Length / Convert.ToDouble(1099511627776), 2).ToString() + " TB")) + " (" + Length.ToString("N0") + " bytes)";
-            }
+            FileSize = Length / 1024f < 1024 ? Math.Round(Length / 1024f, 2).ToString("0.00") + " KB" :
+                       (Length / 1048576f < 1024 ? Math.Round(Length / 1048576f, 2).ToString("0.00") + " MB" :
+                       (Length / 1073741824f < 1024 ? Math.Round(Length / 1073741824f, 2).ToString("0.00") + " GB" :
+                       Math.Round(Length / Convert.ToDouble(1099511627776), 2).ToString() + " TB")) + " (" + Length.ToString("N0") + $" {Globalization.GetString("Device_Capacity_Unit")})";
 
             PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(FileSize)));
         }

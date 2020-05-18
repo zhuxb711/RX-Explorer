@@ -353,7 +353,7 @@ namespace FileManager
 
         private async Task Ctrl_Z_Click()
         {
-            await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在撤销" : "Undoing").ConfigureAwait(true);
+            await LoadingActivation(true, Globalization.GetString("Progress_Tip_Undoing")).ConfigureAwait(true);
 
             bool IsItemNotFound = false;
 
@@ -530,26 +530,13 @@ namespace FileManager
 
             if (IsItemNotFound)
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "警告",
-                        Content = "由于部分文件/文件夹已不存在，因此撤销操作未能完全完成",
-                        CloseButtonText = "确定"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "Warning",
-                        Content = "Since some files/folders no longer exist, the undo operation could not be completed completely",
-                        CloseButtonText = "Got it"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
-                }
+                    Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                    Content = Globalization.GetString("QueueDialog_UndoFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+                _ = await Dialog.ShowAsync().ConfigureAwait(false);
             }
 
             await LoadingActivation(false).ConfigureAwait(true);
@@ -573,7 +560,7 @@ namespace FileManager
 
             if (MoveFiles != null)
             {
-                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在剪切" : "Cutting").ConfigureAwait(true);
+                await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
                 if (Path.GetDirectoryName(MoveFiles.FirstOrDefault().Path) == FileControlInstance.CurrentFolder.Path)
                 {
@@ -661,110 +648,55 @@ namespace FileManager
 
                 if (IsItemNotFound)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "部分文件不存在，无法移动到指定位置",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "Some files do not exist and cannot be moved to the specified location",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else if (IsUnauthorized)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                            PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后"
-                        };
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                        }
-                    }
-                    else
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                    };
+
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                            PrimaryButtonText = "Enter",
-                            CloseButtonText = "Later"
-                        };
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                        }
+                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                     }
                 }
                 else if (IsSpaceError)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog QueueContenDialog = new QueueContentDialog
                     {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "因设备剩余空间大小不足，部分文件无法移动",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "Some files cannot be moved due to insufficient free space on the device",
-                            CloseButtonText = "Confirm"
-                        };
-                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_MoveFail_FreeSpaceCritical_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                 }
                 else if (IsCaptured)
                 {
-                    QueueContentDialog dialog;
-
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
-                        dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "部分文件正在被其他应用程序使用，因此无法移动",
-                            CloseButtonText = "确定"
-                        };
-                    }
-                    else
-                    {
-                        dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "Some files are in use by other applications and cannot be moved",
-                            CloseButtonText = "Got it"
-                        };
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_MoveFail_Captured_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
 
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
             else if (CopyFiles != null)
             {
-                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在复制" : "Copying").ConfigureAwait(true);
+                await LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
                 bool IsItemNotFound = false;
                 bool IsUnauthorized = false;
@@ -841,80 +773,40 @@ namespace FileManager
 
                 if (IsItemNotFound)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "部分文件不存在，无法复制到指定位置",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "Some files do not exist and cannot be copyed to the specified location",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else if (IsUnauthorized)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                            PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后"
-                        };
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                        }
-                    }
-                    else
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                    };
+
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                            PrimaryButtonText = "Enter",
-                            CloseButtonText = "Later"
-                        };
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                        }
+                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                     }
                 }
                 else if (IsSpaceError)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog QueueContenDialog = new QueueContentDialog
                     {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "因设备剩余空间大小不足，部分文件无法复制",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "Some files cannot be copyed due to insufficient free space on the device",
-                            CloseButtonText = "Confirm"
-                        };
-                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_CopyFail_FreeSpaceCritical_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                 }
             }
 
@@ -952,32 +844,17 @@ namespace FileManager
             {
                 FileSystemStorageItem ItemToDelete = SelectedItems.FirstOrDefault();
 
-                QueueContentDialog QueueContenDialog;
-
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog QueueContenDialog = new QueueContentDialog
                 {
-                    QueueContenDialog = new QueueContentDialog
-                    {
-                        Title = "警告",
-                        PrimaryButtonText = "是",
-                        Content = "此操作将永久删除 \" " + ItemToDelete.Name + " \"\r\r是否继续?",
-                        CloseButtonText = "否"
-                    };
-                }
-                else
-                {
-                    QueueContenDialog = new QueueContentDialog
-                    {
-                        Title = "Warning",
-                        PrimaryButtonText = "Continue",
-                        Content = "This action will permanently delete \" " + ItemToDelete.Name + " \"\r\rWhether to continue?",
-                        CloseButtonText = "Cancel"
-                    };
-                }
+                    Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                    Content = Globalization.GetString("QueueDialog_DeleteFile_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                };
 
                 if ((await QueueContenDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在删除" : "Deleting").ConfigureAwait(true);
+                    await LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
 
                     if ((await ItemToDelete.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
                     {
@@ -1033,32 +910,17 @@ namespace FileManager
             }
             else
             {
-                QueueContentDialog QueueContenDialog;
-
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog QueueContenDialog = new QueueContentDialog
                 {
-                    QueueContenDialog = new QueueContentDialog
-                    {
-                        Title = "警告",
-                        PrimaryButtonText = "是",
-                        Content = "此操作将永久删除这 " + SelectedItems.Length + " 项\r\r是否继续?",
-                        CloseButtonText = "否"
-                    };
-                }
-                else
-                {
-                    QueueContenDialog = new QueueContentDialog
-                    {
-                        Title = "Warning",
-                        PrimaryButtonText = "Continue",
-                        Content = "This action will permanently delete these " + SelectedItems.Length + " items\r\rWhether to continue?",
-                        CloseButtonText = "Cancel"
-                    };
-                }
+                    Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                    Content = Globalization.GetString("QueueDialog_DeleteFiles_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                };
 
                 if ((await QueueContenDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在删除" : "Deleting").ConfigureAwait(true);
+                    await LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
 
                     foreach (FileSystemStorageItem ItemToDelete in SelectedItems)
                     {
@@ -1118,52 +980,25 @@ namespace FileManager
 
             if (IsItemNotFound)
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "无法删除部分文件/文件夹，该文件/文件夹可能已被移动或删除",
-                        CloseButtonText = "刷新"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Unable to delete some files/folders, the file/folders may have been moved or deleted",
-                        CloseButtonText = "Refresh"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                };
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
                 await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(true);
             }
             else if (IsUnauthorized)
             {
-                QueueContentDialog dialog;
-
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog dialog = new QueueContentDialog
                 {
-                    dialog = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "RX无权删除此处的文件/文件夹，可能是您无权访问此文件/文件夹\r\r是否立即进入系统文件管理器进行相应操作?",
-                        PrimaryButtonText = "立刻",
-                        CloseButtonText = "稍后"
-                    };
-                }
-                else
-                {
-                    dialog = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "RX does not have permission to delete, it may be that you do not have access to this files/folders\r\rEnter the system file manager immediately ?",
-                        PrimaryButtonText = "Enter",
-                        CloseButtonText = "Later"
-                    };
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                };
 
                 if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
@@ -1172,26 +1007,12 @@ namespace FileManager
             }
             else if (IsCaptured)
             {
-                QueueContentDialog dialog;
-
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog dialog = new QueueContentDialog
                 {
-                    dialog = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "部分文件/文件夹正在被其他应用程序使用，因此无法删除",
-                        CloseButtonText = "确定"
-                    };
-                }
-                else
-                {
-                    dialog = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Some files/folders are in use by other applications and cannot be deleted",
-                        CloseButtonText = "Got it"
-                    };
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_MoveFail_Captured_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
 
                 _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
@@ -1233,29 +1054,14 @@ namespace FileManager
 
             if (SelectedItems.Length > 1)
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "此操作一次仅允许重命名一个对象",
-                        CloseButtonText = "确定"
-                    };
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_RenameNumError_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "This operation allows only one object to be renamed at a time",
-                        CloseButtonText = "Got it"
-                    };
-
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 return;
             }
 
@@ -1265,26 +1071,13 @@ namespace FileManager
                 {
                     if (!await File.CheckExist().ConfigureAwait(true))
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "无法找到对应的文件，该文件可能已被移动或删除",
-                                CloseButtonText = "刷新"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "Could not find the corresponding file, it may have been moved or deleted",
-                                CloseButtonText = "Refresh"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                         if (SettingControl.IsDetachTreeViewAndPresenter)
                         {
@@ -1300,70 +1093,35 @@ namespace FileManager
                     RenameDialog dialog = new RenameDialog(RenameItem.Name);
                     if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        if (dialog.DesireName == RenameItem.Type)
                         {
-                            if (dialog.DesireName == RenameItem.Type)
+                            QueueContentDialog content = new QueueContentDialog
                             {
-                                QueueContentDialog content = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "文件名不能为空，重命名失败",
-                                    CloseButtonText = "确定"
-                                };
-                                await content.ShowAsync().ConfigureAwait(true);
-                                return;
-                            }
-
-                            try
-                            {
-                                await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
-                            }
-                            catch (UnauthorizedAccessException)
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "RX无权重命名此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                                    PrimaryButtonText = "立刻",
-                                    CloseButtonText = "稍后"
-                                };
-                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                {
-                                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                                }
-                            }
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_EmptyFileName_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+                            await content.ShowAsync().ConfigureAwait(true);
+                            return;
                         }
-                        else
-                        {
-                            if (dialog.DesireName == RenameItem.Type)
-                            {
-                                QueueContentDialog content = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "File name cannot be empty, rename failed",
-                                    CloseButtonText = "Confirm"
-                                };
-                                await content.ShowAsync().ConfigureAwait(true);
-                                return;
-                            }
 
-                            try
+                        try
+                        {
+                            await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
-                                await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
-                            }
-                            catch (UnauthorizedAccessException)
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                            };
+
+                            if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "RX does not have permission to rename, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                                    PrimaryButtonText = "Enter",
-                                    CloseButtonText = "Later"
-                                };
-                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                {
-                                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                                }
+                                _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                             }
                         }
                     }
@@ -1372,26 +1130,13 @@ namespace FileManager
                 {
                     if (!await Folder.CheckExist().ConfigureAwait(true))
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
-                                CloseButtonText = "刷新"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "Could not find the corresponding folder, it may have been moved or deleted",
-                                CloseButtonText = "Refresh"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                         if (SettingControl.IsDetachTreeViewAndPresenter)
                         {
@@ -1409,26 +1154,14 @@ namespace FileManager
                     {
                         if (string.IsNullOrWhiteSpace(dialog.DesireName))
                         {
-                            if (Globalization.Language == LanguageEnum.Chinese)
+                            QueueContentDialog content = new QueueContentDialog
                             {
-                                QueueContentDialog content = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "文件夹名不能为空，重命名失败",
-                                    CloseButtonText = "确定"
-                                };
-                                await content.ShowAsync().ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                QueueContentDialog content = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "Folder name cannot be empty, rename failed",
-                                    CloseButtonText = "Confirm"
-                                };
-                                await content.ShowAsync().ConfigureAwait(true);
-                            }
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_EmptyFolderName_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+                            await content.ShowAsync().ConfigureAwait(true);
+
                             return;
                         }
 
@@ -1494,33 +1227,17 @@ namespace FileManager
                         }
                         catch (UnauthorizedAccessException)
                         {
-                            if (Globalization.Language == LanguageEnum.Chinese)
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "RX无权重命名此文件夹，可能是您无权访问此文件夹\r是否立即进入系统文件管理器进行相应操作？",
-                                    PrimaryButtonText = "立刻",
-                                    CloseButtonText = "稍后"
-                                };
-                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                {
-                                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                                }
-                            }
-                            else
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFolder_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                            };
+
+                            if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "RX does not have permission to rename the folder, it may be that you do not have access to this file.\r\rEnter the system file manager immediately ？",
-                                    PrimaryButtonText = "Enter",
-                                    CloseButtonText = "Later"
-                                };
-                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                {
-                                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                                }
+                                _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                             }
                         }
                     }
@@ -1536,26 +1253,13 @@ namespace FileManager
 
             if (!await ShareFile.CheckExist().ConfigureAwait(true))
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "无法找到对应的文件，该文件可能已被移动或删除",
-                        CloseButtonText = "刷新"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Could not find the corresponding file, it may have been moved or deleted",
-                        CloseButtonText = "Refresh"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                };
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                 if (SettingControl.IsDetachTreeViewAndPresenter)
                 {
@@ -1582,26 +1286,13 @@ namespace FileManager
             }
             else
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog dialog = new QueueContentDialog
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = "提示",
-                        Content = "请开启蓝牙开关后再试",
-                        CloseButtonText = "确定"
-                    };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = "Tips",
-                        Content = "Please turn on Bluetooth and try again.",
-                        CloseButtonText = "Confirm"
-                    };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                    Content = Globalization.GetString("QueueDialog_OpenBluetooth_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
@@ -1617,16 +1308,13 @@ namespace FileManager
                     ChooseOtherApp.IsEnabled = true;
                     RunWithSystemAuthority.IsEnabled = false;
 
-                    Zip.Label = Globalization.Language == LanguageEnum.Chinese
-                                ? "压缩"
-                                : "Compression";
+                    Zip.Label = Globalization.GetString("Operate_Text_Compression");
+
                     switch (Item.Type)
                     {
                         case ".zip":
                             {
-                                Zip.Label = Globalization.Language == LanguageEnum.Chinese
-                                            ? "解压"
-                                            : "Decompression";
+                                Zip.Label = Globalization.GetString("Operate_Text_Decompression");
                                 break;
                             }
                         case ".mp4":
@@ -1732,26 +1420,13 @@ namespace FileManager
 
             if (!await Device.CheckExist().ConfigureAwait(true))
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog1 = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "无法找到对应的文件，该文件可能已被移动或删除",
-                        CloseButtonText = "刷新"
-                    };
-                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog Dialog1 = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Could not find the corresponding file, it may have been moved or deleted",
-                        CloseButtonText = "Refresh"
-                    };
-                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                };
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
 
                 if (SettingControl.IsDetachTreeViewAndPresenter)
                 {
@@ -1776,26 +1451,13 @@ namespace FileManager
 
             if (!await Item.CheckExist().ConfigureAwait(true))
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "无法找到对应的文件，该文件可能已被移动或删除",
-                        CloseButtonText = "刷新"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Could not find the corresponding file, it may have been moved or deleted",
-                        CloseButtonText = "Refresh"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                };
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                 if (SettingControl.IsDetachTreeViewAndPresenter)
                 {
@@ -1829,7 +1491,7 @@ namespace FileManager
 
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在压缩" : "Compressing").ConfigureAwait(true);
+                    await LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
 
                     if (dialog.IsCryptionEnable)
                     {
@@ -1870,7 +1532,7 @@ namespace FileManager
                         ZipDialog Dialog = new ZipDialog(false);
                         if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                         {
-                            await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在解压" : "Extracting").ConfigureAwait(true);
+                            await LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
                             ZipEntries.Password = Dialog.Password;
                         }
                         else
@@ -1880,7 +1542,7 @@ namespace FileManager
                     }
                     else
                     {
-                        await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在解压" : "Extracting").ConfigureAwait(true);
+                        await LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
                     }
 
                     NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(Path.GetFileNameWithoutExtension(ZFile.Name), CreationCollisionOption.OpenIfExists);
@@ -1924,57 +1586,28 @@ namespace FileManager
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "RX无权在此处解压Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                            PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后"
-                        };
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                        }
-                    }
-                    else
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                    };
+
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "RX does not have permission to extract the Zip file here, it may be that you do not have access to this file.\r\rEnter the system file manager immediately ？",
-                            PrimaryButtonText = "Enter",
-                            CloseButtonText = "Later"
-                        };
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                        }
+                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                     }
                 }
                 catch (Exception e)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "解压文件时发生异常\r\r错误信息：\r\r" + e.Message,
-                            CloseButtonText = "确定"
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "An exception occurred while extracting the file\r\rError Message：\r\r" + e.Message,
-                            CloseButtonText = "Confirm"
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_DecompressionError_Content") + e.Message,
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
 
@@ -2058,26 +1691,13 @@ namespace FileManager
                     }
                     catch (Exception e)
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "压缩文件时发生异常\r\r错误信息：\r\r" + e.Message,
-                                CloseButtonText = "确定"
-                            };
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "An exception occurred while compressing the file\r\rError Message：\r\r" + e.Message,
-                                CloseButtonText = "Confirm"
-                            };
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_CompressionError_Content") + e.Message,
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
 
@@ -2092,33 +1712,17 @@ namespace FileManager
             }
             catch (UnauthorizedAccessException)
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog dialog = new QueueContentDialog
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "RX无权在此处创建Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                        PrimaryButtonText = "立刻",
-                        CloseButtonText = "稍后"
-                    };
-                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                    {
-                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                    }
-                }
-                else
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_UnauthorizedCompression_Content"),
+                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                };
+
+                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rEnter the system file manager immediately ？",
-                        PrimaryButtonText = "Enter",
-                        CloseButtonText = "Later"
-                    };
-                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                    {
-                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                    }
+                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                 }
             }
         }
@@ -2270,52 +1874,28 @@ namespace FileManager
             {
                 if (!await Source.CheckExist().ConfigureAwait(true))
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "无法找到对应的文件，该文件可能已被移动或删除",
-                            CloseButtonText = "刷新"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "Could not find the corresponding file, it may have been moved or deleted",
-                            CloseButtonText = "Refresh"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
                     await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
                     return;
                 }
 
                 if (GeneralTransformer.IsAnyTransformTaskRunning)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "提示",
-                            Content = "已存在正在进行中的任务，请等待其完成",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Tips",
-                            Content = "There is already an ongoing task, please wait for it to complete",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_TaskWorking_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
                     return;
                 }
 
@@ -2348,33 +1928,17 @@ namespace FileManager
                                 }
                                 catch (UnauthorizedAccessException)
                                 {
-                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    QueueContentDialog Dialog = new QueueContentDialog
                                     {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "RX无权在此处创建转码文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                                            PrimaryButtonText = "立刻",
-                                            CloseButtonText = "稍后"
-                                        };
-                                        if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                                        }
-                                    }
-                                    else
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                                    };
+
+                                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                     {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "RX does not have permission to create transcode file, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                                            PrimaryButtonText = "Enter",
-                                            CloseButtonText = "Later"
-                                        };
-                                        if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                                        }
+                                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                                     }
                                 }
                             }
@@ -2396,7 +1960,7 @@ namespace FileManager
 
                             if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                             {
-                                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在转码" : "Transcoding").ConfigureAwait(true);
+                                await LoadingActivation(true, Globalization.GetString("Progress_Tip_Transcoding")).ConfigureAwait(true);
 
                                 await GeneralTransformer.TranscodeFromImageAsync(Source, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode).ConfigureAwait(true);
 
@@ -2425,26 +1989,13 @@ namespace FileManager
             StorageFolder Device = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFolder;
             if (!await Device.CheckExist().ConfigureAwait(true))
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog1 = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
-                        CloseButtonText = "刷新"
-                    };
-                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog Dialog1 = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Could not find the corresponding folder, it may have been moved or deleted",
-                        CloseButtonText = "Refresh"
-                    };
-                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                };
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
 
                 if (SettingControl.IsDetachTreeViewAndPresenter)
                 {
@@ -2469,26 +2020,13 @@ namespace FileManager
 
             if (!await Item.CheckExist().ConfigureAwait(true))
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "无法找到对应的文件，该文件可能已被移动或删除",
-                        CloseButtonText = "刷新"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Could not find the corresponding file, it may have been moved or deleted",
-                        CloseButtonText = "Refresh"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                };
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                 if (SettingControl.IsDetachTreeViewAndPresenter)
                 {
@@ -2563,26 +2101,13 @@ namespace FileManager
             {
                 QRTeachTip.IsOpen = false;
 
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog dialog = new QueueContentDialog
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "WIFI传输出现意外错误：\r" + e.Message,
-                        CloseButtonText = "确定"
-                    };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "WIFI transmission has an unexpected error：\r" + e.Message,
-                        CloseButtonText = "Confirm"
-                    };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_WiFiError_Content") + e.Message,
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
             });
         }
 
@@ -2604,26 +2129,13 @@ namespace FileManager
         {
             if (!await FileControlInstance.CurrentFolder.CheckExist().ConfigureAwait(true))
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
-                        CloseButtonText = "刷新"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Could not find the corresponding folder, it may have been moved or deleted",
-                        CloseButtonText = "Refresh"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                };
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 return;
             }
 
@@ -2670,26 +2182,13 @@ namespace FileManager
 
             if (!await folder.CheckExist().ConfigureAwait(true))
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog1 = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
-                        CloseButtonText = "刷新"
-                    };
-                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog Dialog1 = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Could not find the corresponding folder, it may have been moved or deleted",
-                        CloseButtonText = "Refresh"
-                    };
-                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                };
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                 if (SettingControl.IsDetachTreeViewAndPresenter)
                 {
@@ -2704,26 +2203,13 @@ namespace FileManager
 
             if (TabViewContainer.ThisPage.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog dialog = new QueueContentDialog
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = "提示",
-                        Content = "此文件夹已经添加到主界面了，不能重复添加哦",
-                        CloseButtonText = "知道了"
-                    };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = "Tips",
-                        Content = "This folder has been added to the home page, can not be added repeatedly",
-                        CloseButtonText = "知道了"
-                    };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                    Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
             else
             {
@@ -2739,34 +2225,20 @@ namespace FileManager
 
             if (!await FileControlInstance.CurrentFolder.CheckExist().ConfigureAwait(true))
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
-                        CloseButtonText = "刷新"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Could not find the corresponding folder, it may have been moved or deleted",
-                        CloseButtonText = "Refresh"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                };
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
                 return;
             }
 
             try
             {
-                StorageFolder NewFolder = Globalization.Language == LanguageEnum.Chinese
-                    ? await FileControlInstance.CurrentFolder.CreateFolderAsync("新建文件夹", CreationCollisionOption.GenerateUniqueName)
-                    : await FileControlInstance.CurrentFolder.CreateFolderAsync("New folder", CreationCollisionOption.GenerateUniqueName);
+                StorageFolder NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), CreationCollisionOption.GenerateUniqueName);
 
                 FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
 
@@ -2777,27 +2249,13 @@ namespace FileManager
             }
             catch (UnauthorizedAccessException)
             {
-                QueueContentDialog dialog;
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog dialog = new QueueContentDialog
                 {
-                    dialog = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "RX无权在此创建文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？",
-                        PrimaryButtonText = "立刻",
-                        CloseButtonText = "稍后"
-                    };
-                }
-                else
-                {
-                    dialog = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                        PrimaryButtonText = "Enter",
-                        CloseButtonText = "Later"
-                    };
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_UnauthorizedCreateFolder_Content"),
+                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                };
 
                 if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
@@ -2822,26 +2280,13 @@ namespace FileManager
             {
                 if (!await ShareItem.CheckExist().ConfigureAwait(true))
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "无法找到对应的文件，该文件可能已被移动或删除",
-                            CloseButtonText = "刷新"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "Could not find the corresponding file, it may have been moved or deleted",
-                            CloseButtonText = "Refresh"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                     if (SettingControl.IsDetachTreeViewAndPresenter)
                     {
@@ -2873,26 +2318,13 @@ namespace FileManager
 
             if (!await FileControlInstance.CurrentFolder.CheckExist().ConfigureAwait(true))
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
-                        CloseButtonText = "刷新"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Could not find the corresponding folder, it may have been moved or deleted",
-                        CloseButtonText = "Refresh"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                };
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 return;
             }
 
@@ -2926,27 +2358,16 @@ namespace FileManager
                     {
                         if (!await File.CheckExist().ConfigureAwait(true))
                         {
-                            if (Globalization.Language == LanguageEnum.Chinese)
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "无法找到对应的文件，该文件可能已被移动或删除",
-                                    CloseButtonText = "刷新"
-                                };
-                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "Could not find the corresponding file, it may have been moved or deleted",
-                                    CloseButtonText = "Refresh"
-                                };
-                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                            }
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                            };
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
                             await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+
                             Interlocked.Exchange(ref TabTarget, null);
                             return;
                         }
@@ -2961,7 +2382,7 @@ namespace FileManager
                             }
                         }
 
-                        if (!string.IsNullOrEmpty(AdminExcuteProgram) && AdminExcuteProgram != "RX内置查看器" && AdminExcuteProgram != "RX built-in viewer")
+                        if (!string.IsNullOrEmpty(AdminExcuteProgram) && AdminExcuteProgram != Globalization.GetString("RX_BuildIn_Viewer_Name"))
                         {
                             bool IsExcuted = false;
                             await foreach (string Path in SQLite.Current.GetProgramPickerRecordAsync(TabTarget.Type))
@@ -2985,57 +2406,34 @@ namespace FileManager
                                 }
                             }
 
-                            if(!IsExcuted)
+                            if (!IsExcuted)
                             {
                                 if ((await Launcher.FindFileHandlersAsync(TabTarget.Type)).FirstOrDefault((Item) => Item.DisplayInfo.DisplayName == AdminExcuteProgram) is AppInfo Info)
                                 {
-                                    if(!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
+                                    if (!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
                                     {
                                         ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
                                         if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                         {
                                             if (Dialog.OpenFailed)
                                             {
-                                                if (Globalization.Language == LanguageEnum.Chinese)
+                                                QueueContentDialog dialog = new QueueContentDialog
                                                 {
-                                                    QueueContentDialog dialog = new QueueContentDialog
-                                                    {
-                                                        Title = "提示",
-                                                        Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
-                                                        PrimaryButtonText = "默认应用",
-                                                        CloseButtonText = "取消"
-                                                    };
-                                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                                    {
-                                                        if (!await Launcher.LaunchFileAsync(File))
-                                                        {
-                                                            LauncherOptions options = new LauncherOptions
-                                                            {
-                                                                DisplayApplicationPicker = true
-                                                            };
-                                                            _ = await Launcher.LaunchFileAsync(File, options);
-                                                        }
-                                                    }
-                                                }
-                                                else
+                                                    Title = Globalization.GetString("Commom_Dialog_TipTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
+                                                    PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                                };
+
+                                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                                 {
-                                                    QueueContentDialog dialog = new QueueContentDialog
+                                                    if (!await Launcher.LaunchFileAsync(File))
                                                     {
-                                                        Title = "Tips",
-                                                        Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
-                                                        PrimaryButtonText = "Default app",
-                                                        CloseButtonText = "Cancel"
-                                                    };
-                                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                                    {
-                                                        if (!await Launcher.LaunchFileAsync(File))
+                                                        LauncherOptions options = new LauncherOptions
                                                         {
-                                                            LauncherOptions options = new LauncherOptions
-                                                            {
-                                                                DisplayApplicationPicker = true
-                                                            };
-                                                            _ = await Launcher.LaunchFileAsync(File, options);
-                                                        }
+                                                            DisplayApplicationPicker = true
+                                                        };
+                                                        _ = await Launcher.LaunchFileAsync(File, options);
                                                     }
                                                 }
                                             }
@@ -3049,46 +2447,23 @@ namespace FileManager
                                     {
                                         if (Dialog.OpenFailed)
                                         {
-                                            if (Globalization.Language == LanguageEnum.Chinese)
+                                            QueueContentDialog dialog = new QueueContentDialog
                                             {
-                                                QueueContentDialog dialog = new QueueContentDialog
-                                                {
-                                                    Title = "提示",
-                                                    Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
-                                                    PrimaryButtonText = "默认应用",
-                                                    CloseButtonText = "取消"
-                                                };
-                                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                                {
-                                                    if (!await Launcher.LaunchFileAsync(File))
-                                                    {
-                                                        LauncherOptions options = new LauncherOptions
-                                                        {
-                                                            DisplayApplicationPicker = true
-                                                        };
-                                                        _ = await Launcher.LaunchFileAsync(File, options);
-                                                    }
-                                                }
-                                            }
-                                            else
+                                                Title = Globalization.GetString("Commom_Dialog_TipTitle"),
+                                                Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
+                                                PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                            };
+
+                                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                             {
-                                                QueueContentDialog dialog = new QueueContentDialog
+                                                if (!await Launcher.LaunchFileAsync(File))
                                                 {
-                                                    Title = "Tips",
-                                                    Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
-                                                    PrimaryButtonText = "Default app",
-                                                    CloseButtonText = "Cancel"
-                                                };
-                                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                                {
-                                                    if (!await Launcher.LaunchFileAsync(File))
+                                                    LauncherOptions options = new LauncherOptions
                                                     {
-                                                        LauncherOptions options = new LauncherOptions
-                                                        {
-                                                            DisplayApplicationPicker = true
-                                                        };
-                                                        _ = await Launcher.LaunchFileAsync(File, options);
-                                                    }
+                                                        DisplayApplicationPicker = true
+                                                    };
+                                                    _ = await Launcher.LaunchFileAsync(File, options);
                                                 }
                                             }
                                         }
@@ -3149,46 +2524,23 @@ namespace FileManager
                                         {
                                             if (Dialog.OpenFailed)
                                             {
-                                                if (Globalization.Language == LanguageEnum.Chinese)
+                                                QueueContentDialog dialog = new QueueContentDialog
                                                 {
-                                                    QueueContentDialog dialog = new QueueContentDialog
-                                                    {
-                                                        Title = "提示",
-                                                        Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
-                                                        PrimaryButtonText = "默认应用",
-                                                        CloseButtonText = "取消"
-                                                    };
-                                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                                    {
-                                                        if (!await Launcher.LaunchFileAsync(File))
-                                                        {
-                                                            LauncherOptions options = new LauncherOptions
-                                                            {
-                                                                DisplayApplicationPicker = true
-                                                            };
-                                                            _ = await Launcher.LaunchFileAsync(File, options);
-                                                        }
-                                                    }
-                                                }
-                                                else
+                                                    Title = Globalization.GetString("Commom_Dialog_TipTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
+                                                    PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                                };
+
+                                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                                 {
-                                                    QueueContentDialog dialog = new QueueContentDialog
+                                                    if (!await Launcher.LaunchFileAsync(File))
                                                     {
-                                                        Title = "Tips",
-                                                        Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
-                                                        PrimaryButtonText = "Default app",
-                                                        CloseButtonText = "Cancel"
-                                                    };
-                                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                                    {
-                                                        if (!await Launcher.LaunchFileAsync(File))
+                                                        LauncherOptions options = new LauncherOptions
                                                         {
-                                                            LauncherOptions options = new LauncherOptions
-                                                            {
-                                                                DisplayApplicationPicker = true
-                                                            };
-                                                            _ = await Launcher.LaunchFileAsync(File, options);
-                                                        }
+                                                            DisplayApplicationPicker = true
+                                                        };
+                                                        _ = await Launcher.LaunchFileAsync(File, options);
                                                     }
                                                 }
                                             }
@@ -3202,26 +2554,13 @@ namespace FileManager
                     {
                         if (!await Folder.CheckExist().ConfigureAwait(true))
                         {
-                            if (Globalization.Language == LanguageEnum.Chinese)
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "无法找到对应的文件夹，该文件可能已被移动或删除",
-                                    CloseButtonText = "刷新"
-                                };
-                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "Could not find the corresponding folder, it may have been moved or deleted",
-                                    CloseButtonText = "Refresh"
-                                };
-                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                            }
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                            };
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                             if (SettingControl.IsDetachTreeViewAndPresenter)
                             {
@@ -3272,26 +2611,14 @@ namespace FileManager
 
             if (GeneralTransformer.IsAnyTransformTaskRunning)
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "提示",
-                        Content = "已存在正在进行中的任务，请等待其完成",
-                        CloseButtonText = "确定"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "Tips",
-                        Content = "There is already an ongoing task, please wait for it to complete",
-                        CloseButtonText = "Got it"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                    Content = Globalization.GetString("QueueDialog_TaskWorking_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
                 return;
             }
 
@@ -3300,7 +2627,7 @@ namespace FileManager
                 VideoEditDialog Dialog = new VideoEditDialog(File);
                 if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    StorageFile ExportFile = await FileControlInstance.CurrentFolder.CreateFileAsync($"{File.DisplayName} - {(Globalization.Language == LanguageEnum.Chinese ? "裁剪" : "Cropped")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
+                    StorageFile ExportFile = await FileControlInstance.CurrentFolder.CreateFileAsync($"{File.DisplayName} - {Globalization.GetString("Crop_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
                     await GeneralTransformer.GenerateCroppedVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding, Dialog.TrimmingPreference).ConfigureAwait(true);
                     if (Path.GetDirectoryName(ExportFile.Path) == FileControlInstance.CurrentFolder.Path && ApplicationData.Current.LocalSettings.Values["MediaCropStatus"] is string Status && Status == "Success")
                     {
@@ -3316,26 +2643,13 @@ namespace FileManager
 
             if (GeneralTransformer.IsAnyTransformTaskRunning)
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "提示",
-                        Content = "已存在正在进行中的任务，请等待其完成",
-                        CloseButtonText = "确定"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "Tips",
-                        Content = "There is already an ongoing task, please wait for it to complete",
-                        CloseButtonText = "Got it"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                    Content = Globalization.GetString("QueueDialog_TaskWorking_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
                 return;
             }
 
@@ -3344,7 +2658,7 @@ namespace FileManager
                 VideoMergeDialog Dialog = new VideoMergeDialog(Item);
                 if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    StorageFile ExportFile = await FileControlInstance.CurrentFolder.CreateFileAsync($"{Item.DisplayName} - {(Globalization.Language == LanguageEnum.Chinese ? "合并" : "Merged")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
+                    StorageFile ExportFile = await FileControlInstance.CurrentFolder.CreateFileAsync($"{Item.DisplayName} - {Globalization.GetString("Merge_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
                     await GeneralTransformer.GenerateMergeVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding).ConfigureAwait(true);
                     if (Path.GetDirectoryName(ExportFile.Path) == FileControlInstance.CurrentFolder.Path && ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"] is string Status && Status == "Success")
                     {
@@ -3365,46 +2679,23 @@ namespace FileManager
                 {
                     if (Dialog.OpenFailed)
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "提示",
-                                Content = "  RX文件管理器无法打开此文件\r\r  但可以使用其他应用程序打开",
-                                PrimaryButtonText = "默认应用",
-                                CloseButtonText = "取消"
-                            };
-                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                            {
-                                if (!await Launcher.LaunchFileAsync(Item))
-                                {
-                                    LauncherOptions options = new LauncherOptions
-                                    {
-                                        DisplayApplicationPicker = true
-                                    };
-                                    _ = await Launcher.LaunchFileAsync(Item, options);
-                                }
-                            }
-                        }
-                        else
+                            Title = Globalization.GetString("Commom_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
+                            PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                        };
+
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
-                            QueueContentDialog dialog = new QueueContentDialog
+                            if (!await Launcher.LaunchFileAsync(Item))
                             {
-                                Title = "Tips",
-                                Content = "  RX FileManager could not open this file\r\r  But it can be opened with other applications",
-                                PrimaryButtonText = "Default app",
-                                CloseButtonText = "Cancel"
-                            };
-                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                            {
-                                if (!await Launcher.LaunchFileAsync(Item))
+                                LauncherOptions options = new LauncherOptions
                                 {
-                                    LauncherOptions options = new LauncherOptions
-                                    {
-                                        DisplayApplicationPicker = true
-                                    };
-                                    _ = await Launcher.LaunchFileAsync(Item, options);
-                                }
+                                    DisplayApplicationPicker = true
+                                };
+                                _ = await Launcher.LaunchFileAsync(Item, options);
                             }
                         }
                     }
@@ -3703,33 +2994,17 @@ namespace FileManager
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "RX没有足够的权限在此文件夹新建文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                            PrimaryButtonText = "立刻",
-                            CloseButtonText = "稍后"
-                        };
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                        }
-                    }
-                    else
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                    };
+
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "RX does not have sufficient permissions to create new files in this folder\r\rEnter the system file manager immediately ？",
-                            PrimaryButtonText = "Enter",
-                            CloseButtonText = "Later"
-                        };
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                        }
+                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                     }
                 }
             }
@@ -3743,26 +3018,13 @@ namespace FileManager
 
             if (!await Item.CheckExist().ConfigureAwait(true))
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog1 = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "无法找到对应的文件夹，该文件夹可能已被移动或删除",
-                        CloseButtonText = "刷新"
-                    };
-                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog Dialog1 = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Could not find the corresponding folder, it may have been moved or deleted",
-                        CloseButtonText = "Refresh"
-                    };
-                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                };
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                 if (SettingControl.IsDetachTreeViewAndPresenter)
                 {
@@ -3779,7 +3041,7 @@ namespace FileManager
 
             if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
-                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在压缩" : "Compressing").ConfigureAwait(true);
+                await LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
 
                 if (dialog.IsCryptionEnable)
                 {
@@ -3814,12 +3076,12 @@ namespace FileManager
             if (e.Modifiers.HasFlag(DragDropModifiers.Control))
             {
                 e.AcceptedOperation = DataPackageOperation.Copy;
-                e.DragUIOverride.Caption = $"复制到 {FileControlInstance.CurrentFolder.DisplayName}";
+                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {FileControlInstance.CurrentFolder.DisplayName}";
             }
             else
             {
                 e.AcceptedOperation = DataPackageOperation.Move;
-                e.DragUIOverride.Caption = $"移动到 {FileControlInstance.CurrentFolder.DisplayName}";
+                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {FileControlInstance.CurrentFolder.DisplayName}";
             }
 
             e.DragUIOverride.IsContentVisible = true;
@@ -3840,26 +3102,13 @@ namespace FileManager
 
                     if (DragItemList.Contains(TargetFolder))
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "目标文件夹不可以包含在拖动项中",
-                                CloseButtonText = "确定"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "The target folder cannot be included in the drag item",
-                                CloseButtonText = "Got it"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_DragIncludeFolderError"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                         return;
                     }
@@ -3874,7 +3123,7 @@ namespace FileManager
                                 bool IsUnauthorized = false;
                                 bool IsSpaceError = false;
 
-                                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在复制" : "Copying").ConfigureAwait(true);
+                                await LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
                                 foreach (IStorageItem Item in DragItemList)
                                 {
@@ -3923,87 +3172,45 @@ namespace FileManager
 
                                 if (IsItemNotFound)
                                 {
-                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    QueueContentDialog Dialog = new QueueContentDialog
                                     {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "部分文件不存在，无法复制到指定位置",
-                                            CloseButtonText = "确定"
-                                        };
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    else
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "Some files do not exist and cannot be copyed to the specified location",
-                                            CloseButtonText = "Got it"
-                                        };
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                    }
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                                 }
                                 else if (IsUnauthorized)
                                 {
-                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    QueueContentDialog dialog = new QueueContentDialog
                                     {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                                            PrimaryButtonText = "立刻",
-                                            CloseButtonText = "稍后"
-                                        };
-                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                                        }
-                                    }
-                                    else
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                                    };
+
+                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                     {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                                            PrimaryButtonText = "Enter",
-                                            CloseButtonText = "Later"
-                                        };
-                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                                        }
+                                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                                     }
                                 }
                                 else if (IsSpaceError)
                                 {
-                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
                                     {
-                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "因设备剩余空间大小不足，部分文件无法复制",
-                                            CloseButtonText = "确定"
-                                        };
-                                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    else
-                                    {
-                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "Some files cannot be copyed due to insufficient free space on the device",
-                                            CloseButtonText = "Confirm"
-                                        };
-                                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                    }
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_CopyFail_FreeSpaceCritical_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                                 }
 
                                 break;
                             }
                         case DataPackageOperation.Move:
                             {
-                                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在剪切" : "Cutting").ConfigureAwait(true);
+                                await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
                                 bool IsItemNotFound = false;
                                 bool IsUnauthorized = false;
@@ -4065,103 +3272,48 @@ namespace FileManager
 
                                 if (IsItemNotFound)
                                 {
-                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    QueueContentDialog Dialog = new QueueContentDialog
                                     {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "部分文件不存在，无法移动到指定位置",
-                                            CloseButtonText = "确定"
-                                        };
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    else
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "Some files do not exist and cannot be moved to the specified location",
-                                            CloseButtonText = "Got it"
-                                        };
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                    }
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+
+                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                                 }
                                 else if (IsUnauthorized)
                                 {
-                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    QueueContentDialog dialog = new QueueContentDialog
                                     {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                                            PrimaryButtonText = "立刻",
-                                            CloseButtonText = "稍后"
-                                        };
-                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                                        }
-                                    }
-                                    else
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                                    };
+
+                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                     {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                                            PrimaryButtonText = "Enter",
-                                            CloseButtonText = "Later"
-                                        };
-                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                                        }
+                                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                                     }
                                 }
                                 else if (IsSpaceError)
                                 {
-                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
                                     {
-                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "因设备剩余空间大小不足，部分文件无法移动",
-                                            CloseButtonText = "确定"
-                                        };
-                                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    else
-                                    {
-                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "Some files cannot be moved due to insufficient free space on the device",
-                                            CloseButtonText = "Confirm"
-                                        };
-                                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                    }
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_MoveFail_FreeSpaceCritical_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                                 }
                                 else if (IsCaptured)
                                 {
-                                    QueueContentDialog dialog;
-
-                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    QueueContentDialog dialog = new QueueContentDialog
                                     {
-                                        dialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "部分文件正在被其他应用程序使用，因此无法移动",
-                                            CloseButtonText = "确定"
-                                        };
-                                    }
-                                    else
-                                    {
-                                        dialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "Some files are in use by other applications and cannot be moved",
-                                            CloseButtonText = "Got it"
-                                        };
-                                    }
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_MoveFail_Captured_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
 
                                     _ = await dialog.ShowAsync().ConfigureAwait(true);
                                 }
@@ -4238,12 +3390,12 @@ namespace FileManager
                 if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                 {
                     e.AcceptedOperation = DataPackageOperation.Copy;
-                    e.DragUIOverride.Caption = $"复制到 {Item.DisplayName}";
+                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Item.DisplayName}";
                 }
                 else
                 {
                     e.AcceptedOperation = DataPackageOperation.Move;
-                    e.DragUIOverride.Caption = $"移动到 {Item.DisplayName}";
+                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Item.DisplayName}";
                 }
 
                 e.DragUIOverride.IsContentVisible = true;
@@ -4297,26 +3449,13 @@ namespace FileManager
 
                     if (DragItemList.Contains(TargetFolder))
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "目标文件夹不可以包含在拖动项中",
-                                CloseButtonText = "确定"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "The target folder cannot be included in the drag item",
-                                CloseButtonText = "Got it"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_DragIncludeFolderError"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                         return;
                     }
@@ -4331,7 +3470,7 @@ namespace FileManager
                                 bool IsUnauthorized = false;
                                 bool IsSpaceError = false;
 
-                                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在复制" : "Copying").ConfigureAwait(true);
+                                await LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
                                 foreach (IStorageItem Item in DragItemList)
                                 {
@@ -4382,87 +3521,45 @@ namespace FileManager
 
                                 if (IsItemNotFound)
                                 {
-                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    QueueContentDialog Dialog = new QueueContentDialog
                                     {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "部分文件不存在，无法复制到指定位置",
-                                            CloseButtonText = "确定"
-                                        };
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    else
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "Some files do not exist and cannot be copyed to the specified location",
-                                            CloseButtonText = "Got it"
-                                        };
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                    }
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                                 }
                                 else if (IsUnauthorized)
                                 {
-                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    QueueContentDialog dialog = new QueueContentDialog
                                     {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                                            PrimaryButtonText = "立刻",
-                                            CloseButtonText = "稍后"
-                                        };
-                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                                        }
-                                    }
-                                    else
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                                    };
+
+                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                     {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                                            PrimaryButtonText = "Enter",
-                                            CloseButtonText = "Later"
-                                        };
-                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                                        }
+                                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                                     }
                                 }
                                 else if (IsSpaceError)
                                 {
-                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
                                     {
-                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "因设备剩余空间大小不足，部分文件无法复制",
-                                            CloseButtonText = "确定"
-                                        };
-                                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    else
-                                    {
-                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "Some files cannot be copyed due to insufficient free space on the device",
-                                            CloseButtonText = "Confirm"
-                                        };
-                                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                    }
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_CopyFail_FreeSpaceCritical_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                                 }
 
                                 break;
                             }
                         case DataPackageOperation.Move:
                             {
-                                await LoadingActivation(true, Globalization.Language == LanguageEnum.Chinese ? "正在剪切" : "Cutting").ConfigureAwait(true);
+                                await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
                                 bool IsItemNotFound = false;
                                 bool IsUnauthorized = false;
@@ -4539,103 +3636,48 @@ namespace FileManager
 
                                 if (IsItemNotFound)
                                 {
-                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    QueueContentDialog Dialog = new QueueContentDialog
                                     {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "部分文件不存在，无法移动到指定位置",
-                                            CloseButtonText = "确定"
-                                        };
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    else
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "Some files do not exist and cannot be moved to the specified location",
-                                            CloseButtonText = "Got it"
-                                        };
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                    }
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+
+                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                                 }
                                 else if (IsUnauthorized)
                                 {
-                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    QueueContentDialog dialog = new QueueContentDialog
                                     {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？",
-                                            PrimaryButtonText = "立刻",
-                                            CloseButtonText = "稍后"
-                                        };
-                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                                        }
-                                    }
-                                    else
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                                    };
+
+                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                     {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system file manager immediately ？",
-                                            PrimaryButtonText = "Enter",
-                                            CloseButtonText = "Later"
-                                        };
-                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                                        }
+                                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                                     }
                                 }
                                 else if (IsSpaceError)
                                 {
-                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
                                     {
-                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "因设备剩余空间大小不足，部分文件无法移动",
-                                            CloseButtonText = "确定"
-                                        };
-                                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    else
-                                    {
-                                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "Some files cannot be moved due to insufficient free space on the device",
-                                            CloseButtonText = "Confirm"
-                                        };
-                                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                    }
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_MoveFail_FreeSpaceCritical_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                                 }
                                 else if (IsCaptured)
                                 {
-                                    QueueContentDialog dialog;
-
-                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    QueueContentDialog dialog = new QueueContentDialog
                                     {
-                                        dialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "部分文件正在被其他应用程序使用，因此无法移动",
-                                            CloseButtonText = "确定"
-                                        };
-                                    }
-                                    else
-                                    {
-                                        dialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "Some files are in use by other applications and cannot be moved",
-                                            CloseButtonText = "Got it"
-                                        };
-                                    }
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_MoveFail_Captured_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
 
                                     _ = await dialog.ShowAsync().ConfigureAwait(true);
                                 }

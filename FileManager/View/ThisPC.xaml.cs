@@ -51,7 +51,7 @@ namespace FileManager
             {
                 Nav = Parameters.Item1.Content as Frame;
                 TabItem = Parameters.Item1;
-                TabItem.Header = Globalization.Language == LanguageEnum.Chinese ? "这台电脑" : "ThisPC";
+                TabItem.Header = Globalization.GetString("MainPage_PageDictionary_ThisPC_Label");
                 OpenTargetFolder = Parameters.Item2;
             }
         }
@@ -446,50 +446,24 @@ namespace FileManager
                     }
                     else
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "提示",
-                                Content = "所选择的驱动器已经存在",
-                                CloseButtonText = "知道了"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "Tips",
-                                Content = "The selected drive already exists",
-                                CloseButtonText = "Got it"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_DeviceExist_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
                 else
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "提示",
-                            Content = "所选择的内容并非是驱动器",
-                            CloseButtonText = "知道了"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Tips",
-                            Content = "The selected content is not a drive",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_DeviceSelectError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_TipTitle")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
         }

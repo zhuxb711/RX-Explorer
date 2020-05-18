@@ -25,18 +25,9 @@ namespace FileManager.Dialog
             InitializeComponent();
             this.SourceFile = SourceFile;
 
-            if (Globalization.Language == LanguageEnum.Chinese)
-            {
-                EncodingProfile.Items.Add("MP4编码(.mp4)");
-                EncodingProfile.Items.Add("WMV编码(.wmv)");
-                EncodingProfile.Items.Add("MKV编码(.mkv)");
-            }
-            else
-            {
-                EncodingProfile.Items.Add("MP4 Encoding(.mp4)");
-                EncodingProfile.Items.Add("WMV Encoding(.wmv)");
-                EncodingProfile.Items.Add("MKV Encoding(.mkv)");
-            }
+            EncodingProfile.Items.Add($"MP4(.mp4) {Globalization.GetString("Video_Dialog_Encoding_Text")}");
+            EncodingProfile.Items.Add($"WMV(.wmv) {Globalization.GetString("Video_Dialog_Encoding_Text")}");
+            EncodingProfile.Items.Add($"MKV(.mkv) {Globalization.GetString("Video_Dialog_Encoding_Text")}");
 
             EncodingQuality.Items.Add("2160p");
             EncodingQuality.Items.Add("1080p");

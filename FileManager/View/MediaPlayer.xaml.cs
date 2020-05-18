@@ -44,9 +44,7 @@ namespace FileManager
                 }
                 Item.ApplyDisplayProperties(Props);
 
-                Display.Text = Globalization.Language == LanguageEnum.Chinese
-                    ? "请欣赏：" + MediaFile.DisplayName
-                    : "Please Enjoy: " + MediaFile.DisplayName;
+                Display.Text = $"{Globalization.GetString("Media_Tip_Text")} {MediaFile.DisplayName}";
                 MVControl.Source = Item;
             }
             else
@@ -119,9 +117,7 @@ namespace FileManager
                     }
                     else
                     {
-                        return Globalization.Language == LanguageEnum.Chinese
-                            ? "未知"
-                            : "Unknown";
+                        return Globalization.GetString("UnknownText");
                     }
                 }
             }

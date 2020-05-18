@@ -12,24 +12,13 @@ namespace FileManager.Dialog
         public NewFileDialog()
         {
             InitializeComponent();
-            if (Globalization.Language == LanguageEnum.Chinese)
-            {
-                Extension.Items.Add("文本文件(.txt)");
-                Extension.Items.Add("压缩文件(.zip)");
-                Extension.Items.Add("RTF文件(.rtf)");
-                Extension.Items.Add("Microsoft Word文件(.docx)");
-                Extension.Items.Add("Microsoft PowerPoint文件(.pptx)");
-                Extension.Items.Add("Microsoft Excel文件(.xlsx)");
-            }
-            else
-            {
-                Extension.Items.Add("Text file(.txt)");
-                Extension.Items.Add("Compressed file(.zip)");
-                Extension.Items.Add("RTF file(.rtf)");
-                Extension.Items.Add("Microsoft Word(.docx)");
-                Extension.Items.Add("Microsoft PowerPoint(.pptx)");
-                Extension.Items.Add("Microsoft Excel(.xlsx)");
-            }
+
+            Extension.Items.Add($"{Globalization.GetString("File_Type_TXT_Description")}(.txt)");
+            Extension.Items.Add($"{Globalization.GetString("File_Type_Compress_Description")}(.zip)");
+            Extension.Items.Add($"{Globalization.GetString("File_Type_RTF_Description")}(.rtf)");
+            Extension.Items.Add("Microsoft Word(.docx)");
+            Extension.Items.Add("Microsoft PowerPoint(.pptx)");
+            Extension.Items.Add("Microsoft Excel(.xlsx)");
         }
 
         private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

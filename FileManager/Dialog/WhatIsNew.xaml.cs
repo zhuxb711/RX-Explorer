@@ -14,7 +14,7 @@ namespace FileManager.Dialog
 
         private void Init()
         {
-            if (Globalization.Language == LanguageEnum.Chinese)
+            if (Globalization.CurrentLanguage == LanguageEnum.Chinese)
             {
                 StorageFile UpdateFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese.txt")).AsTask().Result;
                 MarkDown.Text = FileIO.ReadTextAsync(UpdateFile).AsTask().Result;

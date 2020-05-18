@@ -71,34 +71,18 @@ namespace FileManager.Class
 
                 if (Window.Current.Content is Frame rootFrame)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        string Message =
-                        @$"版本：{string.Join('.', Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}
-                        {Environment.NewLine}以下是错误信息：
+                    string Message =
+                    @$"Version: {string.Join('.', Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}
+                        {Environment.NewLine}The following is the error message:
                         {Environment.NewLine}------------------------------------
-                        {Environment.NewLine}Exception错误类型：{Ex.GetType().Name}
-                        {Environment.NewLine}Message错误消息：{Environment.NewLine}{string.Join(Environment.NewLine, MessageSplit)}
-                        {Environment.NewLine}Source来源：{(string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source)}
-                        {Environment.NewLine}StackTrace堆栈追踪：{Environment.NewLine}{(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))}
-                        {Environment.NewLine}------------------------------------{Environment.NewLine}";
-
-                        rootFrame.Navigate(typeof(BlueScreen), Message);
-                    }
-                    else
-                    {
-                        string Message =
-                        @$"Version：{string.Join('.', Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}
-                        {Environment.NewLine}The following is the error message：
-                        {Environment.NewLine}------------------------------------
-                        {Environment.NewLine}Exception Code：{Ex.GetType().Name}
-                        {Environment.NewLine}Message：{Environment.NewLine}{string.Join(Environment.NewLine, MessageSplit)}
+                        {Environment.NewLine}Exception: {Ex.GetType().Name}
+                        {Environment.NewLine}Message:
+                        {Environment.NewLine}{string.Join(Environment.NewLine, MessageSplit)}
                         {Environment.NewLine}Source：{(string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source)}
                         {Environment.NewLine}StackTrace：{Environment.NewLine}{(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))}
                         {Environment.NewLine}------------------------------------{Environment.NewLine}";
 
-                        rootFrame.Navigate(typeof(BlueScreen), Message);
-                    }
+                    rootFrame.Navigate(typeof(BlueScreen), Message);
                 }
                 else
                 {
@@ -106,34 +90,18 @@ namespace FileManager.Class
 
                     Window.Current.Content = Frame;
 
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        string Message =
-                        @$"版本：{string.Join('.', Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}
-                        {Environment.NewLine}以下是错误信息：
+                    string Message =
+                    @$"Version: {string.Join('.', Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}
+                        {Environment.NewLine}The following is the error message:
                         {Environment.NewLine}------------------------------------
-                        {Environment.NewLine}Exception错误类型：{Ex.GetType().Name}
-                        {Environment.NewLine}Message错误消息：{Environment.NewLine}{string.Join(Environment.NewLine, MessageSplit)}
-                        {Environment.NewLine}Source来源：{(string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source)}
-                        {Environment.NewLine}StackTrace堆栈追踪：{Environment.NewLine}{(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))}
-                        {Environment.NewLine}------------------------------------{Environment.NewLine}";
-
-                        Frame.Navigate(typeof(BlueScreen), Message);
-                    }
-                    else
-                    {
-                        string Message =
-                        @$"Version：{string.Join('.', Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}
-                        {Environment.NewLine}The following is the error message：
-                        {Environment.NewLine}------------------------------------
-                        {Environment.NewLine}Exception Code：{Ex.GetType().Name}
-                        {Environment.NewLine}Message：{Environment.NewLine}{string.Join(Environment.NewLine, MessageSplit)}
+                        {Environment.NewLine}Exception: {Ex.GetType().Name}
+                        {Environment.NewLine}Message:
+                        {Environment.NewLine}{string.Join(Environment.NewLine, MessageSplit)}
                         {Environment.NewLine}Source：{(string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source)}
                         {Environment.NewLine}StackTrace：{Environment.NewLine}{(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))}
                         {Environment.NewLine}------------------------------------{Environment.NewLine}";
 
-                        Frame.Navigate(typeof(BlueScreen), Message);
-                    }
+                    Frame.Navigate(typeof(BlueScreen), Message);
                 }
             });
         }

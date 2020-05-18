@@ -96,26 +96,13 @@ namespace FileManager
             }
             catch (Exception)
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "错误",
-                        Content = "无法解析此PDF文件，PDF打开失败",
-                        CloseButtonText = "返回"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Unable to parse this PDF file, failed to open PDF",
-                        CloseButtonText = "Go back"
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_PDFOpenFailure"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
+                };
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                 FileControlNav.GoBack();
             }
@@ -163,10 +150,7 @@ namespace FileManager
 
         private void Flip_SelectionChanged1(object sender, SelectionChangedEventArgs e)
         {
-            int CurrentPage = Flip.SelectedIndex + 1;
-            PageNotification.Show(Globalization.Language == LanguageEnum.Chinese
-            ? $"第 {CurrentPage} 页 / (共 {Pdf.PageCount} 页)"
-            : $"Page {CurrentPage} / ({Pdf.PageCount} pages)", 1200);
+            PageNotification.Show(Globalization.GetString("Pdf_Page_Tip").Replace("CurrentPageIndex", (Flip.SelectedIndex + 1).ToString()).Replace("TotalPageCount", Pdf.PageCount.ToString()), 1200);
         }
 
         private async void Flip_SelectionChanged(object sender, SelectionChangedEventArgs e)

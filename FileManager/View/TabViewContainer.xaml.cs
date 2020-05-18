@@ -168,7 +168,7 @@ namespace FileManager
 
                     MainPage.ThisPage.NavView_BackRequested(null, null);
                 }
-                else if(ForwardButtonPressed)
+                else if (ForwardButtonPressed)
                 {
                     args.Handled = true;
                     SettingControl.IsInputFromPrimaryButton = false;
@@ -311,26 +311,13 @@ namespace FileManager
             {
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "提示",
-                            Content = $"由于缺少足够的访问权限，无法添加可移动设备：\"{args.Name}\"",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Tips",
-                            Content = $"Cannot add removable device：\"{args.Name}\" due to lack of sufficient permissions",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = $"{Globalization.GetString("QueueDialog_AddDeviceFail_Content")} \"{args.Name}\"",
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 });
             }
         }
@@ -372,7 +359,7 @@ namespace FileManager
                         }
                         catch
                         {
-                            UserFolderDialog Dialog = new UserFolderDialog(Globalization.Language == LanguageEnum.Chinese ? "下载" : "Downloads");
+                            UserFolderDialog Dialog = new UserFolderDialog(Globalization.GetString("Download_Folder_Name"));
                             if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                             {
                                 LibraryFolderList.Add(new LibraryFolder(Dialog.MissingFolder, await Dialog.MissingFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibrarySource.SystemBase));
@@ -393,7 +380,7 @@ namespace FileManager
                             }
                             else
                             {
-                                UserFolderDialog Dialog = new UserFolderDialog(Globalization.Language == LanguageEnum.Chinese ? "下载" : "Downloads");
+                                UserFolderDialog Dialog = new UserFolderDialog(Globalization.GetString("Download_Folder_Name"));
                                 if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                                 {
                                     LibraryFolderList.Add(new LibraryFolder(Dialog.MissingFolder, await Dialog.MissingFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibrarySource.SystemBase));
@@ -447,26 +434,13 @@ namespace FileManager
                 }
                 catch (Exception)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Opoos...",
-                            Content = "由于某些无法预料的原因，无法导入库文件夹",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Opoos...",
-                            Content = "Unable to import library folder for some unforeseen reasons",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_ImportLibraryFolderError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
 
                 Queue<string> ErrorList = new Queue<string>();
@@ -509,28 +483,15 @@ namespace FileManager
                     }
                 }
 
-                if(AccessError)
+                if (AccessError)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "警告",
-                            Content = "由于缺乏足够的权限，部分驱动器未能显示",
-                            CloseButtonText = "知道了"
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Warning",
-                            Content = "Some drives fail to display due to lack of sufficient permissions",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                        Content = Globalization.GetString("QueueDialog_DeviceHideForError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
 
                 foreach (string AdditionalDrivePath in VisibilityMap.Where((Item) => Item.Value && HardDeviceList.All((Device) => Item.Key != Device.Folder.Path)).Select((Result) => Result.Key))
@@ -569,28 +530,13 @@ namespace FileManager
                         Display += "   " + ErrorList.Dequeue() + "\r";
                     }
 
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "警告",
-                            Content = "部分已固定的文件夹已无法找到，将自动移除\r\r"
-                            + "包括：\r" + Display,
-                            CloseButtonText = "知道了"
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Warning",
-                            Content = "Some of the fixed folders are no longer found and will be automatically removed\r\r"
-                            + "Including：\r" + Display,
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                        Content = Globalization.GetString("QueueDialog_PinFolderNotFound_Content") + Display,
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
 
                 if (MainPage.ThisPage.IsUSBActivate && !string.IsNullOrWhiteSpace(MainPage.ThisPage.ActivateUSBDevicePath))

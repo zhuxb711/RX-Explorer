@@ -107,10 +107,12 @@ namespace FileManager
             }
         }
 
-        private void DismissExtendedSplash()
+        private async void DismissExtendedSplash()
         {
             try
             {
+                await Globalization.Initialize().ConfigureAwait(true);
+
                 Frame rootFrame = new Frame();
                 Window.Current.Content = rootFrame;
                 rootFrame.Navigate(typeof(MainPage), SplashImageRect);
@@ -133,9 +135,7 @@ namespace FileManager
             {
                 Window.Current.Content = this;
 
-                Display.Text = Globalization.Language == LanguageEnum.Chinese
-                                ? "请开启此应用的文件系统访问权限以正常工作\r然后重新启动该应用"
-                                : "Please enable file system access for this app to work properly\rThen restart the app";
+                Display.Text = Globalization.GetString("ExtendedSplash_Access_Tips");
                 ButtonPane.Visibility = Visibility.Visible;
             }
         }
@@ -144,71 +144,39 @@ namespace FileManager
         {
             try
             {
+                await Globalization.Initialize().ConfigureAwait(false);
+
                 if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("QuickStartInitialFinished"))
                 {
                     await SQLite.Current.ClearTableAsync("QuickStart").ConfigureAwait(false);
 
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        await SQLite.Current.SetQuickStartItemAsync("应用商店", "ms-appx:///QuickStartImage/MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("计算器", "ms-appx:///QuickStartImage/Calculator.png", "calculator:", QuickStartType.Application).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("系统设置", "ms-appx:///QuickStartImage/Setting.png", "ms-settings:", QuickStartType.Application).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("邮件", "ms-appx:///QuickStartImage/Email.png", "mailto:", QuickStartType.Application).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("日历", "ms-appx:///QuickStartImage/Calendar.png", "outlookcal:", QuickStartType.Application).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("必应地图", "ms-appx:///QuickStartImage/Map.png", "bingmaps:", QuickStartType.Application).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("天气", "ms-appx:///QuickStartImage/Weather.png", "bingweather:", QuickStartType.Application).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("必应", "ms-appx:///HotWebImage/Bing.png", "https://www.bing.com/", QuickStartType.WebSite).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("百度", "ms-appx:///HotWebImage/Baidu.png", "https://www.baidu.com/", QuickStartType.WebSite).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("微信", "ms-appx:///HotWebImage/Wechat.png", "https://wx.qq.com/", QuickStartType.WebSite).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("IT之家", "ms-appx:///HotWebImage/iThome.jpg", "https://www.ithome.com/", QuickStartType.WebSite).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("微博", "ms-appx:///HotWebImage/Weibo.png", "https://www.weibo.com/", QuickStartType.WebSite).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        await SQLite.Current.SetQuickStartItemAsync("Microsoft Store", "ms-appx:///QuickStartImage/MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("Calculator", "ms-appx:///QuickStartImage/Calculator.png", "calculator:", QuickStartType.Application).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("Setting", "ms-appx:///QuickStartImage/Setting.png", "ms-settings:", QuickStartType.Application).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("Email", "ms-appx:///QuickStartImage/Email.png", "mailto:", QuickStartType.Application).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("Calendar", "ms-appx:///QuickStartImage/Calendar.png", "outlookcal:", QuickStartType.Application).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("Bing Map", "ms-appx:///QuickStartImage/Map.png", "bingmaps:", QuickStartType.Application).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("Weather", "ms-appx:///QuickStartImage/Weather.png", "bingweather:", QuickStartType.Application).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("Bing", "ms-appx:///HotWebImage/Bing.png", "https://www.bing.com/", QuickStartType.WebSite).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("Facebook", "ms-appx:///HotWebImage/Facebook.png", "https://www.facebook.com/", QuickStartType.WebSite).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("Instagram", "ms-appx:///HotWebImage/Instagram.png", "https://www.instagram.com/", QuickStartType.WebSite).ConfigureAwait(false);
-                        await SQLite.Current.SetQuickStartItemAsync("Twitter", "ms-appx:///HotWebImage/Twitter.png", "https://twitter.com", QuickStartType.WebSite).ConfigureAwait(false);
-                    }
+                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_1"), "ms-appx:///QuickStartImage/MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_2"), "ms-appx:///QuickStartImage/Calculator.png", "calculator:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_3"), "ms-appx:///QuickStartImage/Setting.png", "ms-settings:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_4"), "ms-appx:///QuickStartImage/Email.png", "mailto:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_5"), "ms-appx:///QuickStartImage/Calendar.png", "outlookcal:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_6"), "ms-appx:///QuickStartImage/Map.png", "bingmaps:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_7"), "ms-appx:///QuickStartImage/Weather.png", "bingweather:", QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_8"), "ms-appx:///HotWebImage/Bing.png", "https://www.bing.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_9"), "ms-appx:///HotWebImage/Facebook.png", "https://www.facebook.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_10"), "ms-appx:///HotWebImage/Instagram.png", "https://www.instagram.com/", QuickStartType.WebSite).ConfigureAwait(false);
+                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_11"), "ms-appx:///HotWebImage/Twitter.png", "https://twitter.com", QuickStartType.WebSite).ConfigureAwait(false);
+
 
                     ApplicationData.Current.LocalSettings.Values["QuickStartInitialFinished"] = true;
                 }
 
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    await SQLite.Current.UpdateQuickStartItemAsync("Microsoft Store", "应用商店", "ms-appx:///QuickStartImage/MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("Calculator", "计算器", "ms-appx:///QuickStartImage/Calculator.png", "calculator:", QuickStartType.Application).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("Setting", "系统设置", "ms-appx:///QuickStartImage/Setting.png", "ms-settings:", QuickStartType.Application).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("Email", "邮件", "ms-appx:///QuickStartImage/Email.png", "mailto:", QuickStartType.Application).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("Calendar", "日历", "ms-appx:///QuickStartImage/Calendar.png", "outlookcal:", QuickStartType.Application).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("Bing Map", "必应地图", "ms-appx:///QuickStartImage/Map.png", "bingmaps:", QuickStartType.Application).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("Weather", "天气", "ms-appx:///QuickStartImage/Weather.png", "bingweather:", QuickStartType.Application).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("Bing", "必应", "ms-appx:///HotWebImage/Bing.png", "https://www.bing.com/", QuickStartType.WebSite).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("Facebook", "百度", "ms-appx:///HotWebImage/Baidu.png", "https://www.baidu.com/", QuickStartType.WebSite).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("Instagram", "微信", "ms-appx:///HotWebImage/Wechat.png", "https://wx.qq.com/", QuickStartType.WebSite).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("Twitter", "微博", "ms-appx:///HotWebImage/Weibo.png", "https://www.weibo.com/", QuickStartType.WebSite).ConfigureAwait(false);
-                }
-                else
-                {
-                    await SQLite.Current.UpdateQuickStartItemAsync("应用商店", "Microsoft Store", "ms-appx:///QuickStartImage/MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("计算器", "Calculator", "ms-appx:///QuickStartImage/Calculator.png", "calculator:", QuickStartType.Application).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("系统设置", "Setting", "ms-appx:///QuickStartImage/Setting.png", "ms-settings:", QuickStartType.Application).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("邮件", "Email", "ms-appx:///QuickStartImage/Email.png", "mailto:", QuickStartType.Application).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("日历", "Calendar", "ms-appx:///QuickStartImage/Calendar.png", "outlookcal:", QuickStartType.Application).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("必应地图", "Bing Map", "ms-appx:///QuickStartImage/Map.png", "bingmaps:", QuickStartType.Application).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("天气", "Weather", "ms-appx:///QuickStartImage/Weather.png", "bingweather:", QuickStartType.Application).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("必应", "Bing", "ms-appx:///HotWebImage/Bing.png", "https://www.bing.com/", QuickStartType.WebSite).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("百度", "Facebook", "ms-appx:///HotWebImage/Facebook.png", "https://www.facebook.com/", QuickStartType.WebSite).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("微信", "Instagram", "ms-appx:///HotWebImage/Instagram.png", "https://www.instagram.com/", QuickStartType.WebSite).ConfigureAwait(false);
-                    await SQLite.Current.UpdateQuickStartItemAsync("微博", "Twitter", "ms-appx:///HotWebImage/Twitter.png", "https://twitter.com", QuickStartType.WebSite).ConfigureAwait(false);
-                }
+                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/MicrosoftStore.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_1"), QuickStartType.Application).ConfigureAwait(false);
+                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Calculator.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_2"), QuickStartType.Application).ConfigureAwait(false);
+                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Setting.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_3"), QuickStartType.Application).ConfigureAwait(false);
+                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Email.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_4"), QuickStartType.Application).ConfigureAwait(false);
+                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Calendar.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_5"), QuickStartType.Application).ConfigureAwait(false);
+                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Map.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_6"), QuickStartType.Application).ConfigureAwait(false);
+                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Weather.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_7"), QuickStartType.Application).ConfigureAwait(false);
+                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///HotWebImage/Bing.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_8"), QuickStartType.WebSite).ConfigureAwait(false);
+                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///HotWebImage/Facebook.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_9"), QuickStartType.WebSite).ConfigureAwait(false);
+                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///HotWebImage/Instagram.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_10"), QuickStartType.WebSite).ConfigureAwait(false);
+                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///HotWebImage/Twitter.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_11"), QuickStartType.WebSite).ConfigureAwait(false);
 
                 bool IsFileAccessible = await CheckFileAccessAuthority().ConfigureAwait(false);
 
@@ -220,10 +188,7 @@ namespace FileManager
                 {
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
-
-                        Display.Text = Globalization.Language == LanguageEnum.Chinese
-                                        ? "请开启此应用的文件系统访问权限以正常工作\r然后重新启动该应用"
-                                        : "Please enable file system access for this app to work properly\rThen restart the app";
+                        Display.Text = Globalization.GetString("ExtendedSplash_Access_Tips");
                         ButtonPane.Visibility = Visibility.Visible;
                     });
                 }
@@ -267,94 +232,49 @@ namespace FileManager
         private async void NavigationButton_Click(object sender, RoutedEventArgs e)
         {
             await Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-broadfilesystemaccess"));
-            if (Globalization.Language == LanguageEnum.Chinese)
-            {
-                ToastContent Content = new ToastContent()
-                {
-                    Scenario = ToastScenario.Reminder,
 
-                    Visual = new ToastVisual()
+            ToastContent Content = new ToastContent()
+            {
+                Scenario = ToastScenario.Reminder,
+
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
                     {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
+                        Children =
                             {
                                 new AdaptiveText()
                                 {
-                                    Text = "正在等待用户完成操作..."
+                                    Text = Globalization.GetString("Toast_BroadFileSystemAccess_Text_1")
                                 },
 
                                 new AdaptiveText()
                                 {
-                                    Text = "请开启文件系统权限"
+                                    Text = Globalization.GetString("Toast_BroadFileSystemAccess_Text_2")
                                 },
 
                                 new AdaptiveText()
                                 {
-                                    Text = "随后点击下方的立即启动"
+                                    Text = Globalization.GetString("Toast_BroadFileSystemAccess_Text_3")
                                 }
                             }
-                        }
-                    },
+                    }
+                },
 
-                    Actions = new ToastActionsCustom
-                    {
-                        Buttons =
+                Actions = new ToastActionsCustom
+                {
+                    Buttons =
                         {
-                            new ToastButton("立即启动","Restart")
+                            new ToastButton(Globalization.GetString("Toast_BroadFileSystemAccess_ActionButton_1"),"Restart")
                             {
                                 ActivationType =ToastActivationType.Foreground
                             },
-                            new ToastButtonDismiss("稍后")
+                            new ToastButtonDismiss(Globalization.GetString("Toast_BroadFileSystemAccess_ActionButton_2"))
                         }
-                    }
-                };
-                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-            }
-            else
-            {
-                ToastContent Content = new ToastContent()
-                {
-                    Scenario = ToastScenario.Reminder,
+                }
+            };
 
-                    Visual = new ToastVisual()
-                    {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = "Waiting for user to complete operation..."
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = "Please turn on file system permissions"
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = "Then click on the launch below to start immediately"
-                                }
-                            }
-                        }
-                    },
-
-                    Actions = new ToastActionsCustom
-                    {
-                        Buttons =
-                        {
-                            new ToastButton("Launch","Restart")
-                            {
-                                ActivationType =ToastActivationType.Foreground
-                            },
-                            new ToastButtonDismiss("Later")
-                        }
-                    }
-                };
-                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-            }
+            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
 
             Application.Current.Exit();
         }

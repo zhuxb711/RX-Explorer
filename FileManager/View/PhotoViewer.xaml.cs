@@ -81,26 +81,13 @@ namespace FileManager
 
                 if (FileList.Count == 0)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "由于读取图片文件夹出现异常，图片查看器未能读取到任何图片文件。请重试。",
-                            CloseButtonText = "返回"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "The image viewer failed to read any image file due to an abnormality in reading the image folder. Please try again.",
-                            CloseButtonText = "Go back"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("Queue_Dialog_ImageReadError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                     FileControlInstance.Nav.GoBack();
                     return;
@@ -109,7 +96,7 @@ namespace FileManager
                 PhotoCollection = new ObservableCollection<PhotoDisplaySupport>(FileList.Select((Item) => new PhotoDisplaySupport(Item)));
                 Flip.ItemsSource = PhotoCollection;
 
-                if(!await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmapAsync().ConfigureAwait(true))
+                if (!await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmapAsync().ConfigureAwait(true))
                 {
                     CouldnotLoadTip.Visibility = Visibility.Visible;
                 }
@@ -322,32 +309,18 @@ namespace FileManager
 
         private async void Delete_Click(object sender, RoutedEventArgs e)
         {
-            QueueContentDialog Dialog;
-            if (Globalization.Language == LanguageEnum.Chinese)
+            QueueContentDialog Dialog = new QueueContentDialog
             {
-                Dialog = new QueueContentDialog
-                {
-                    Title = "警告",
-                    Content = "此操作将永久删除该图像文件",
-                    PrimaryButtonText = "继续",
-                    CloseButtonText = "取消"
-                };
-            }
-            else
-            {
-                Dialog = new QueueContentDialog
-                {
-                    Title = "Warning",
-                    Content = "This action will permanently delete the image file",
-                    PrimaryButtonText = "Continue",
-                    CloseButtonText = "Cancel"
-                };
-            }
+                Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                Content = Globalization.GetString("QueueDialog_DeleteFile_Content"),
+                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+            };
 
             if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
                 PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
-                await (await Item.PhotoFile.GetStorageItem()).DeleteAsync(StorageDeleteOption.PermanentDelete);
+                await (await Item.PhotoFile.GetStorageItem().ConfigureAwait(true)).DeleteAsync(StorageDeleteOption.PermanentDelete);
                 PhotoCollection.Remove(Item);
                 Behavior.InitAnimation(InitOption.Full);
             }

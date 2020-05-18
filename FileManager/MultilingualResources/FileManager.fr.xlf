@@ -62,10 +62,6 @@
           <source>Properties</source>
           <target state="new">Properties</target>
         </trans-unit>
-        <trans-unit id="AttributeFileName.Text" translate="yes" xml:space="preserve">
-          <source>FileName</source>
-          <target state="new">FileName</target>
-        </trans-unit>
         <trans-unit id="AttributeInclude.Text" translate="yes" xml:space="preserve">
           <source>Includes</source>
           <target state="new">Includes</target>
@@ -1807,6 +1803,1241 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</t
         <trans-unit id="UnpairText" translate="yes" xml:space="preserve">
           <source>Unpair</source>
           <target state="new">Unpair</target>
+        </trans-unit>
+        <trans-unit id="DelayLoadNotification_Content_1" translate="yes" xml:space="preserve">
+          <source>Unable to get thumbnails of some files, so content loading may be slow</source>
+          <target state="new">Unable to get thumbnails of some files, so content loading may be slow</target>
+        </trans-unit>
+        <trans-unit id="DelayLoadNotification_Content_2" translate="yes" xml:space="preserve">
+          <source>Please wait patiently</source>
+          <target state="new">Please wait patiently</target>
+        </trans-unit>
+        <trans-unit id="DelayLoadNotification_Title" translate="yes" xml:space="preserve">
+          <source>There may be a delay in loading</source>
+          <target state="new">There may be a delay in loading</target>
+        </trans-unit>
+        <trans-unit id="FeedBackItem_SupportDescription_Negative" translate="yes" xml:space="preserve">
+          <source>against</source>
+          <target state="new">against</target>
+        </trans-unit>
+        <trans-unit id="FeedBackItem_SupportDescription_Positive" translate="yes" xml:space="preserve">
+          <source>agree</source>
+          <target state="new">agree</target>
+        </trans-unit>
+        <trans-unit id="Network_Error_Dialog_Content" translate="yes" xml:space="preserve">
+          <source>This operation cannot be performed due to network reasons</source>
+          <target state="new">This operation cannot be performed due to network reasons</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Merge_Cancel" translate="yes" xml:space="preserve">
+          <source>Video merge task was canceled</source>
+          <target state="new">Video merge task was canceled</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Merge_Error" translate="yes" xml:space="preserve">
+          <source>Encountered unknown error while merging video</source>
+          <target state="new">Encountered unknown error while merging video</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Merge_Success" translate="yes" xml:space="preserve">
+          <source>Video successfully merged</source>
+          <target state="new">Video successfully merged</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Crop_Cancel" translate="yes" xml:space="preserve">
+          <source>Video crop task was canceled</source>
+          <target state="new">Video crop task was canceled</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Crop_Error" translate="yes" xml:space="preserve">
+          <source>Encountered unknown error while cropping video</source>
+          <target state="new">Encountered unknown error while cropping video</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Crop_Success" translate="yes" xml:space="preserve">
+          <source>Video successfully cropped</source>
+          <target state="new">Video successfully cropped</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_CloseButton" translate="yes" xml:space="preserve">
+          <source>Got it</source>
+          <target state="new">Got it</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_ErrorTitle" translate="yes" xml:space="preserve">
+          <source>Error</source>
+          <target state="new">Error</target>
+        </trans-unit>
+        <trans-unit id="EnDecode_Dialog_Content" translate="yes" xml:space="preserve">
+          <source>Cannot convert image format due to missing encoder or unsupported operation</source>
+          <target state="new">Cannot convert image format due to missing encoder or unsupported operation</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Transcode_Cancel" translate="yes" xml:space="preserve">
+          <source>Transcoding task is cancelled</source>
+          <target state="new">Transcoding task is cancelled</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Transcode_Failure" translate="yes" xml:space="preserve">
+          <source>Transcoding failed:</source>
+          <target state="new">Transcoding failed:</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Transcode_NotSupport" translate="yes" xml:space="preserve">
+          <source>Transcoding format is not supported</source>
+          <target state="new">Transcoding format is not supported</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Transcode_Success" translate="yes" xml:space="preserve">
+          <source>Transcoding has been successfully completed</source>
+          <target state="new">Transcoding has been successfully completed</target>
+        </trans-unit>
+        <trans-unit id="Crop_Toast_ProbarTitle" translate="yes" xml:space="preserve">
+          <source>Processing...</source>
+          <target state="new">Processing...</target>
+        </trans-unit>
+        <trans-unit id="Crop_Toast_Title" translate="yes" xml:space="preserve">
+          <source>Cropping:</source>
+          <target state="new">Cropping:</target>
+        </trans-unit>
+        <trans-unit id="Merge_Toast_ProbarTitle" translate="yes" xml:space="preserve">
+          <source>Processing...</source>
+          <target state="new">Processing...</target>
+        </trans-unit>
+        <trans-unit id="Merge_Toast_Title" translate="yes" xml:space="preserve">
+          <source>Merging the video...</source>
+          <target state="new">Merging the video...</target>
+        </trans-unit>
+        <trans-unit id="Transcode_Toast_Title" translate="yes" xml:space="preserve">
+          <source>Transcoding:</source>
+          <target state="new">Transcoding:</target>
+        </trans-unit>
+        <trans-unit id="Toast_ClickToCancel_Text" translate="yes" xml:space="preserve">
+          <source>Click the prompt to cancel</source>
+          <target state="new">Click the prompt to cancel</target>
+        </trans-unit>
+        <trans-unit id="Crop_Toast_Complete_Text" translate="yes" xml:space="preserve">
+          <source>Cropping has been completed!</source>
+          <target state="new">Cropping has been completed!</target>
+        </trans-unit>
+        <trans-unit id="Toast_ClickToClear_Text" translate="yes" xml:space="preserve">
+          <source>Click to remove the prompt</source>
+          <target state="new">Click to remove the prompt</target>
+        </trans-unit>
+        <trans-unit id="Merge_Toast_Complete_Text" translate="yes" xml:space="preserve">
+          <source>Merging has been completed!</source>
+          <target state="new">Merging has been completed!</target>
+        </trans-unit>
+        <trans-unit id="Transcode_Toast_Complete_Text_1" translate="yes" xml:space="preserve">
+          <source>Transcoding has been completed!</source>
+          <target state="new">Transcoding has been completed!</target>
+        </trans-unit>
+        <trans-unit id="Transcode_Toast_Complete_Text_2" translate="yes" xml:space="preserve">
+          <source>has been successfully transcoded to</source>
+          <target state="new">has been successfully transcoded to</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: FILE1 has been successfully transcoded to FILE2</note>
+        </trans-unit>
+        <trans-unit id="Crop_Toast_Cancel_Text_1" translate="yes" xml:space="preserve">
+          <source>Cropping task has been cancelled</source>
+          <target state="new">Cropping task has been cancelled</target>
+        </trans-unit>
+        <trans-unit id="Crop_Toast_Cancel_Text_2" translate="yes" xml:space="preserve">
+          <source>You can try restarting the task</source>
+          <target state="new">You can try restarting the task</target>
+        </trans-unit>
+        <trans-unit id="Merge_Toast_Cancel_Text_1" translate="yes" xml:space="preserve">
+          <source>Merging task has been cancelled</source>
+          <target state="new">Merging task has been cancelled</target>
+        </trans-unit>
+        <trans-unit id="Merge_Toast_Cancel_Text_2" translate="yes" xml:space="preserve">
+          <source>You can try restarting the task</source>
+          <target state="new">You can try restarting the task</target>
+        </trans-unit>
+        <trans-unit id="Transcode_Toast_Cancel_Text_1" translate="yes" xml:space="preserve">
+          <source>Transcode has been cancelled</source>
+          <target state="new">Transcode has been cancelled</target>
+        </trans-unit>
+        <trans-unit id="Transcode_Toast_Cancel_Text_2" translate="yes" xml:space="preserve">
+          <source>You can try restarting the transcode</source>
+          <target state="new">You can try restarting the transcode</target>
+        </trans-unit>
+        <trans-unit id="Disk_Capacity_Description" translate="yes" xml:space="preserve">
+          <source>free of</source>
+          <target state="new">free of</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Describe the available capacity and total capacity of the disk, such as "128GB free of 256GB"</note>
+        </trans-unit>
+        <trans-unit id="WIFIShare_Error_Web_Content" translate="yes" xml:space="preserve">
+          <source>Unable to find the specified resource, please check the URL</source>
+          <target state="new">Unable to find the specified resource, please check the URL</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_DeviceName" translate="yes" xml:space="preserve">
+          <source>Target device:</source>
+          <target state="new">Target device:</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: Target device: [Bluetooth Device Name]</note>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_FileName" translate="yes" xml:space="preserve">
+          <source>File to transfer: </source>
+          <target state="new">File to transfer: </target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: File to transfer:  [FileName]</note>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Status_1" translate="yes" xml:space="preserve">
+          <source>Transferring</source>
+          <target state="new">Transferring</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Description_1" translate="yes" xml:space="preserve">
+          <source>Target device terminated file transfer</source>
+          <target state="new">Target device terminated file transfer</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_ExitButton" translate="yes" xml:space="preserve">
+          <source>Exit</source>
+          <target state="new">Exit</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_RetryButton" translate="yes" xml:space="preserve">
+          <source>Retry</source>
+          <target state="new">Retry</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Status_2" translate="yes" xml:space="preserve">
+          <source>Transmission terminated</source>
+          <target state="new">Transmission terminated</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Description_2" translate="yes" xml:space="preserve">
+          <source>File transfer terminated</source>
+          <target state="new">File transfer terminated</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Description_3" translate="yes" xml:space="preserve">
+          <source>Connection failed:</source>
+          <target state="new">Connection failed:</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: Connection failed: [Reason]</note>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Description_4" translate="yes" xml:space="preserve">
+          <source>File transfer completed</source>
+          <target state="new">File transfer completed</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Status_3" translate="yes" xml:space="preserve">
+          <source>Transfer completed</source>
+          <target state="new">Transfer completed</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Tips_Text_1" translate="yes" xml:space="preserve">
+          <source>Please select a paired device first</source>
+          <target state="new">Please select a paired device first</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Description_5" translate="yes" xml:space="preserve">
+          <source>File transfer terminated unexpectedly:</source>
+          <target state="new">File transfer terminated unexpectedly:</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: File transfer terminated unexpectedly: &lt;Reason&gt;</note>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Description_6" translate="yes" xml:space="preserve">
+          <source>Unable to reconnect the target device</source>
+          <target state="new">Unable to reconnect the target device</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Tips_Text_2" translate="yes" xml:space="preserve">
+          <source>Unable to connect to this Bluetooth device, please turn on the Bluetooth switch of this device</source>
+          <target state="new">Unable to connect to this Bluetooth device, please turn on the Bluetooth switch of this device</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Status_Text_1" translate="yes" xml:space="preserve">
+          <source>Searching</source>
+          <target state="new">Searching</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Status_Text_2" translate="yes" xml:space="preserve">
+          <source>Search Complete</source>
+          <target state="new">Search Complete</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Tips_Text_3" translate="yes" xml:space="preserve">
+          <source>Unable to discover the ObexObjectPush service for Bluetooth devices, which is not supported</source>
+          <target state="new">Unable to discover the ObexObjectPush service for Bluetooth devices, which is not supported</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Tips_Text_4" translate="yes" xml:space="preserve">
+          <source>Pair failed</source>
+          <target state="new">Pair failed</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Tips_Text_5" translate="yes" xml:space="preserve">
+          <source>Please confirm that the PIN is the same as the paired device</source>
+          <target state="new">Please confirm that the PIN is the same as the paired device</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Tips_Text_6" translate="yes" xml:space="preserve">
+          <source>Please confirm whether to pair with the device</source>
+          <target state="new">Please confirm whether to pair with the device</target>
+        </trans-unit>
+        <trans-unit id="Device_Capacity_Unit" translate="yes" xml:space="preserve">
+          <source>bytes</source>
+          <target state="new">bytes</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: 1024 bytes</note>
+        </trans-unit>
+        <trans-unit id="Device_Type_1" translate="yes" xml:space="preserve">
+          <source>Local drive</source>
+          <target state="new">Local drive</target>
+        </trans-unit>
+        <trans-unit id="Device_Type_2" translate="yes" xml:space="preserve">
+          <source>Network drive</source>
+          <target state="new">Network drive</target>
+        </trans-unit>
+        <trans-unit id="Device_Type_3" translate="yes" xml:space="preserve">
+          <source>Removable drive</source>
+          <target state="new">Removable drive</target>
+        </trans-unit>
+        <trans-unit id="Device_Type_4" translate="yes" xml:space="preserve">
+          <source>Ram drive</source>
+          <target state="new">Ram drive</target>
+        </trans-unit>
+        <trans-unit id="Device_Type_5" translate="yes" xml:space="preserve">
+          <source>Unknown</source>
+          <target state="new">Unknown</target>
+        </trans-unit>
+        <trans-unit id="File_Type_Compress_Description" translate="yes" xml:space="preserve">
+          <source>Compressed file</source>
+          <target state="new">Compressed file</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">.zip description</note>
+        </trans-unit>
+        <trans-unit id="File_Type_RTF_Description" translate="yes" xml:space="preserve">
+          <source>RTF file</source>
+          <target state="new">RTF file</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">.rtf description</note>
+        </trans-unit>
+        <trans-unit id="File_Type_TXT_Description" translate="yes" xml:space="preserve">
+          <source>Text file</source>
+          <target state="new">Text file</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">.txt description</note>
+        </trans-unit>
+        <trans-unit id="ProgramPicker_Dialog_Title_1" translate="yes" xml:space="preserve">
+          <source>Continue using</source>
+          <target state="new">Continue using</target>
+        </trans-unit>
+        <trans-unit id="ProgramPicker_Dialog_Title_2" translate="yes" xml:space="preserve">
+          <source>Choose another application</source>
+          <target state="new">Choose another application</target>
+        </trans-unit>
+        <trans-unit id="ProgramPicker_Dialog_BuiltInViewer" translate="yes" xml:space="preserve">
+          <source>RX built-in viewer</source>
+          <target state="new">RX built-in viewer</target>
+        </trans-unit>
+        <trans-unit id="ProgramPicker_Dialog_BuiltInViewer_Description" translate="yes" xml:space="preserve">
+          <source>RX provides basic viewing functions</source>
+          <target state="new">RX provides basic viewing functions</target>
+        </trans-unit>
+        <trans-unit id="FileProperty_Bitrate" translate="yes" xml:space="preserve">
+          <source>Bitrate</source>
+          <target state="new">Bitrate</target>
+        </trans-unit>
+        <trans-unit id="FileProperty_Duration" translate="yes" xml:space="preserve">
+          <source>Duration</source>
+          <target state="new">Duration</target>
+        </trans-unit>
+        <trans-unit id="FileProperty_Latitude" translate="yes" xml:space="preserve">
+          <source>Latitude</source>
+          <target state="new">Latitude</target>
+        </trans-unit>
+        <trans-unit id="FileProperty_Longitude" translate="yes" xml:space="preserve">
+          <source>Longitude</source>
+          <target state="new">Longitude</target>
+        </trans-unit>
+        <trans-unit id="FileProperty_Resolution" translate="yes" xml:space="preserve">
+          <source>Resolution</source>
+          <target state="new">Resolution</target>
+        </trans-unit>
+        <trans-unit id="FileProperty_ShootingDate" translate="yes" xml:space="preserve">
+          <source>Shooting date</source>
+          <target state="new">Shooting date</target>
+        </trans-unit>
+        <trans-unit id="AttributeName.Text" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="new">Name</target>
+        </trans-unit>
+        <trans-unit id="SizeProperty_Calculating_Text" translate="yes" xml:space="preserve">
+          <source>Calculating...</source>
+          <target state="new">Calculating...</target>
+        </trans-unit>
+        <trans-unit id="FolderInfo_File_Count" translate="yes" xml:space="preserve">
+          <source>files</source>
+          <target state="new">files</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Format: [File Count] files, Example: 20 files (in folder)</note>
+        </trans-unit>
+        <trans-unit id="FolderInfo_Folder_Count" translate="yes" xml:space="preserve">
+          <source>folders</source>
+          <target state="new">folders</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Format: [Folder Count] folders, Example: 20 folders (in folder)</note>
+        </trans-unit>
+        <trans-unit id="QuickStart_Protocal_Application_PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Protocal</source>
+          <target state="new">Protocal</target>
+        </trans-unit>
+        <trans-unit id="QuickStart_Protocal_Web_PlaceholderText" translate="yes" xml:space="preserve">
+          <source>WebSite</source>
+          <target state="new">WebSite</target>
+        </trans-unit>
+        <trans-unit id="Reset_Dialog_TotalFile" translate="yes" xml:space="preserve">
+          <source>In total</source>
+          <target state="new">In total</target>
+        </trans-unit>
+        <trans-unit id="SecureArea_AES_128Level_Description" translate="yes" xml:space="preserve">
+          <source>Recommand</source>
+          <target state="new">Recommand</target>
+        </trans-unit>
+        <trans-unit id="SecureArea_AES_256Level_Description" translate="yes" xml:space="preserve">
+          <source>Safer</source>
+          <target state="new">Safer</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_Memory_Available_Text" translate="yes" xml:space="preserve">
+          <source>available</source>
+          <target state="new">available</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: Total 1024 MB, 512MB available</note>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_Memory_Total_Text" translate="yes" xml:space="preserve">
+          <source>Total</source>
+          <target state="new">Total</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: Total 1024 MB, 512MB available</note>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_Memory_Usage_Text" translate="yes" xml:space="preserve">
+          <source>The software memory usage</source>
+          <target state="new">The software memory usage</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_CPU_L1Cache_Text" translate="yes" xml:space="preserve">
+          <source>L1 cache</source>
+          <target state="new">L1 cache</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_CPU_L2Cache_Text" translate="yes" xml:space="preserve">
+          <source>L2 cache</source>
+          <target state="new">L2 cache</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_CPU_L3Cache_Text" translate="yes" xml:space="preserve">
+          <source>L3 cache</source>
+          <target state="new">L3 cache</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_CPU_LogicalCore_Text" translate="yes" xml:space="preserve">
+          <source>logical core</source>
+          <target state="new">logical core</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: 8 logical core (in CPU)</note>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_CPU_PhysicalCore_Text" translate="yes" xml:space="preserve">
+          <source>physical core</source>
+          <target state="new">physical core</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: 4 physical core (in CPU)</note>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_Monitor_MaxBrightness_Text" translate="yes" xml:space="preserve">
+          <source>Max average brightness</source>
+          <target state="new">Max average brightness</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_Monitor_PeakBrightness_Text" translate="yes" xml:space="preserve">
+          <source>Peak brightness</source>
+          <target state="new">Peak brightness</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_Gateway_Text" translate="yes" xml:space="preserve">
+          <source>Gateway</source>
+          <target state="new">Gateway</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_GPU_Memory_Text" translate="yes" xml:space="preserve">
+          <source>GPU memory</source>
+          <target state="new">GPU memory</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_GPU_Model_Text" translate="yes" xml:space="preserve">
+          <source>GPU model</source>
+          <target state="new">GPU model</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_NetworkAdapter_Text" translate="yes" xml:space="preserve">
+          <source>Network Adapter</source>
+          <target state="new">Network Adapter</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_Primary_DNS_Text" translate="yes" xml:space="preserve">
+          <source>Primary DNS server</source>
+          <target state="new">Primary DNS server</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_Secondary_DNS_Text" translate="yes" xml:space="preserve">
+          <source>Secondary DNS server</source>
+          <target state="new">Secondary DNS server</target>
+        </trans-unit>
+        <trans-unit id="Transcode_Dialog_Format_Text" translate="yes" xml:space="preserve">
+          <source>format</source>
+          <target state="new">format</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: MP4 format</note>
+        </trans-unit>
+        <trans-unit id="Transcode_Image_Preview_Resolution" translate="yes" xml:space="preserve">
+          <source>Preview resolution</source>
+          <target state="new">Preview resolution</target>
+        </trans-unit>
+        <trans-unit id="Transcode_Simaple_Rate_Text" translate="yes" xml:space="preserve">
+          <source>Sampling-Rate</source>
+          <target state="new">Sampling-Rate</target>
+        </trans-unit>
+        <trans-unit id="VideoEdit_Dialog_Crop_Precision_Level_1" translate="yes" xml:space="preserve">
+          <source>Precision (Slower)</source>
+          <target state="new">Precision (Slower)</target>
+        </trans-unit>
+        <trans-unit id="VideoEdit_Dialog_Crop_Precision_Level_2" translate="yes" xml:space="preserve">
+          <source>Fast (Faster)</source>
+          <target state="new">Fast (Faster)</target>
+        </trans-unit>
+        <trans-unit id="Video_Dialog_Encoding_Text" translate="yes" xml:space="preserve">
+          <source>Encoding</source>
+          <target state="new">Encoding</target>
+        </trans-unit>
+        <trans-unit id="Zip_Dialog_Level_1" translate="yes" xml:space="preserve">
+          <source>Max</source>
+          <target state="new">Max</target>
+        </trans-unit>
+        <trans-unit id="Zip_Dialog_Level_2" translate="yes" xml:space="preserve">
+          <source>Standard</source>
+          <target state="new">Standard</target>
+        </trans-unit>
+        <trans-unit id="Zip_Dialog_Level_3" translate="yes" xml:space="preserve">
+          <source>Package only</source>
+          <target state="new">Package only</target>
+        </trans-unit>
+        <trans-unit id="Zip_Dialog_Password_PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter decompression password</source>
+          <target state="new">Enter decompression password</target>
+        </trans-unit>
+        <trans-unit id="Zip_Dialog_Password_Title" translate="yes" xml:space="preserve">
+          <source>Password required</source>
+          <target state="new">Password required</target>
+        </trans-unit>
+        <trans-unit id="Toast_EnterBackground_Text_1" translate="yes" xml:space="preserve">
+          <source>Please do not minimize RX-Explorer</source>
+          <target state="new">Please do not minimize RX-Explorer</target>
+        </trans-unit>
+        <trans-unit id="Toast_EnterBackground_Text_2" translate="yes" xml:space="preserve">
+          <source>Windows policy may terminate RX-Explorer</source>
+          <target state="new">Windows policy may terminate RX-Explorer</target>
+        </trans-unit>
+        <trans-unit id="Toast_EnterBackground_Text_3" translate="yes" xml:space="preserve">
+          <source>Click to activate</source>
+          <target state="new">Click to activate</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_WarningTitle" translate="yes" xml:space="preserve">
+          <source>Warning</source>
+          <target state="new">Warning</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_WaitUntilFinish_CloseButton" translate="yes" xml:space="preserve">
+          <source>Later</source>
+          <target state="new">Later</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_WaitUntilFinish_Content" translate="yes" xml:space="preserve">
+          <source>RX Explorer is running some tasks, closing at this time may cause data errors, Do you want to continue?</source>
+          <target state="new">RX Explorer is running some tasks, closing at this time may cause data errors, Do you want to continue?</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_WaitUntilFinish_PrimaryButton" translate="yes" xml:space="preserve">
+          <source>Right now</source>
+          <target state="new">Right now</target>
+        </trans-unit>
+        <trans-unit id="MainPage_PageDictionary_SecureArea_Label" translate="yes" xml:space="preserve">
+          <source>Security Area</source>
+          <target state="new">Security Area</target>
+        </trans-unit>
+        <trans-unit id="MainPage_PageDictionary_ThisPC_Label" translate="yes" xml:space="preserve">
+          <source>ThisPC</source>
+          <target state="new">ThisPC</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_TipTitle" translate="yes" xml:space="preserve">
+          <source>Tips</source>
+          <target state="new">Tips</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_BackgroundTaskDisable_CloseButton" translate="yes" xml:space="preserve">
+          <source>Never remind</source>
+          <target state="new">Never remind</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_BackgroundTaskDisable_Content" translate="yes" xml:space="preserve">
+          <source>Background tasks are disabled, RX will not be able to notify you in time when the update is released. Please manually enable background task permissions</source>
+          <target state="new">Background tasks are disabled, RX will not be able to notify you in time when the update is released. Please manually enable background task permissions</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_BackgroundTaskDisable_PrimaryButton" translate="yes" xml:space="preserve">
+          <source>Authorize now</source>
+          <target state="new">Authorize now</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_BackgroundTaskDisable_SecondaryButton" translate="yes" xml:space="preserve">
+          <source>Remind later</source>
+          <target state="new">Remind later</target>
+        </trans-unit>
+        <trans-unit id="TeachingTip_PinToMenu_Subtitle" translate="yes" xml:space="preserve">
+          <source>Pin the RX FileManager to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</source>
+          <target state="new">Pin the RX FileManager to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Donate_AlreadyPurchase_Content" translate="yes" xml:space="preserve">
+          <source>You have already supported RX once, thank you very much\r\rThe original intention of RX is not to make money, so you can't repeat purchase it\r\rYou can advertise the RX to the people around you, and it is also the best support for RX（*＾-＾*）\r\rSincerely,\rRuofan</source>
+          <target state="new">You have already supported RX once, thank you very much\r\rThe original intention of RX is not to make money, so you can't repeat purchase it\r\rYou can advertise the RX to the people around you, and it is also the best support for RX（*＾-＾*）\r\rSincerely,\rRuofan</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Donate_AlreadyPurchase_Title" translate="yes" xml:space="preserve">
+          <source>Thanks again</source>
+          <target state="new">Thanks again</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Donate_NetworkError_Content" translate="yes" xml:space="preserve">
+          <source>Unable to open support page due to Microsoft Store or network, please try again later</source>
+          <target state="new">Unable to open support page due to Microsoft Store or network, please try again later</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Donate_NetworkError_Title" translate="yes" xml:space="preserve">
+          <source>Sorry</source>
+          <target state="new">Sorry</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Donate_NotPurchase_Content" translate="yes" xml:space="preserve">
+          <source>Whether supported or not, RX is always the same\r\rEven if you finally decide to give up supporting the project, thank you very much for being able to click to see it\r\rSincerely,\rRuofan</source>
+          <target state="new">Whether supported or not, RX is always the same\r\rEven if you finally decide to give up supporting the project, thank you very much for being able to click to see it\r\rSincerely,\rRuofan</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Donate_NotPurchase_Title" translate="yes" xml:space="preserve">
+          <source>Appreciation</source>
+          <target state="new">Appreciation</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Donate_Success_Content" translate="yes" xml:space="preserve">
+          <source>Thank you for your support, we will work hard to make RX better and better q(≧▽≦q)\r\rThe RX file manager was born to fill the gaps in the UWP file manager\rThis is not a profitable project, so downloading and using are free and do not include ads\rRX's goal is to create a free and full-featured file manager\rRX File Manager is a project I developed in my spare time\rI hope everyone likes\r\rSincerely,\rRuofan</source>
+          <target state="new">Thank you for your support, we will work hard to make RX better and better q(≧▽≦q)\r\rThe RX file manager was born to fill the gaps in the UWP file manager\rThis is not a profitable project, so downloading and using are free and do not include ads\rRX's goal is to create a free and full-featured file manager\rRX File Manager is a project I developed in my spare time\rI hope everyone likes\r\rSincerely,\rRuofan</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Donate_Success_Title" translate="yes" xml:space="preserve">
+          <source>Appreciation</source>
+          <target state="new">Appreciation</target>
+        </trans-unit>
+        <trans-unit id="TeachingTip_Donate_Subtitle" translate="yes" xml:space="preserve">
+          <source>It takes a lot of effort for developers to develop RX Explorer\r🎉You can volunteer to contribute a little pocket money to developers.🎉\r\rIf you don't want to, you can click \"Later\" to cancel\rIf you want to donate, you can click \"Donate\" to support developer\r\rTips: Donator can unlock the unique file safe feature: \"Security Area\"</source>
+          <target state="new">It takes a lot of effort for developers to develop RX Explorer\r🎉You can volunteer to contribute a little pocket money to developers.🎉\r\rIf you don't want to, you can click \"Later\" to cancel\rIf you want to donate, you can click \"Donate\" to support developer\r\rTips: Donator can unlock the unique file safe feature: \"Security Area\"</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="Crash_Screenshot_Send_Text" translate="yes" xml:space="preserve">
+          <source>Screenshot before the crash (Please send as an email attachment)</source>
+          <target state="new">Screenshot before the crash (Please send as an email attachment)</target>
+        </trans-unit>
+        <trans-unit id="CropperPage_Custom_Text" translate="yes" xml:space="preserve">
+          <source>Custom</source>
+          <target state="new">Custom</target>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_1" translate="yes" xml:space="preserve">
+          <source>Origin</source>
+          <target state="new">Origin</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_2" translate="yes" xml:space="preserve">
+          <source>Invert</source>
+          <target state="new">Invert</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_3" translate="yes" xml:space="preserve">
+          <source>Gray</source>
+          <target state="new">Gray</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_4" translate="yes" xml:space="preserve">
+          <source>Binary</source>
+          <target state="new">Binary</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_5" translate="yes" xml:space="preserve">
+          <source>Sepia</source>
+          <target state="new">Sepia</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_6" translate="yes" xml:space="preserve">
+          <source>Mosaic</source>
+          <target state="new">Mosaic</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_7" translate="yes" xml:space="preserve">
+          <source>Sketch</source>
+          <target state="new">Sketch</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_8" translate="yes" xml:space="preserve">
+          <source>Blurry</source>
+          <target state="new">Blurry</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_9" translate="yes" xml:space="preserve">
+          <source>OilPainting</source>
+          <target state="new">OilPainting</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_Access_Tips" translate="yes" xml:space="preserve">
+          <source>Please enable file system access for this app to work properly\rThen restart the app</source>
+          <target state="new">Please enable file system access for this app to work properly\rThen restart the app</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_1" translate="yes" xml:space="preserve">
+          <source>Microsoft Store</source>
+          <target state="new">Microsoft Store</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_10" translate="yes" xml:space="preserve">
+          <source>Instagram</source>
+          <target state="new">Instagram</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_11" translate="yes" xml:space="preserve">
+          <source>Twitter</source>
+          <target state="new">Twitter</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_2" translate="yes" xml:space="preserve">
+          <source>Calculator</source>
+          <target state="new">Calculator</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_3" translate="yes" xml:space="preserve">
+          <source>Setting</source>
+          <target state="new">Setting</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_4" translate="yes" xml:space="preserve">
+          <source>Email</source>
+          <target state="new">Email</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_5" translate="yes" xml:space="preserve">
+          <source>Calendar</source>
+          <target state="new">Calendar</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_6" translate="yes" xml:space="preserve">
+          <source>Bing Map</source>
+          <target state="new">Bing Map</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_7" translate="yes" xml:space="preserve">
+          <source>Weather</source>
+          <target state="new">Weather</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_8" translate="yes" xml:space="preserve">
+          <source>Bing</source>
+          <target state="new">Bing</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_9" translate="yes" xml:space="preserve">
+          <source>Facebook</source>
+          <target state="new">Facebook</target>
+        </trans-unit>
+        <trans-unit id="Toast_BroadFileSystemAccess_ActionButton_1" translate="yes" xml:space="preserve">
+          <source>Launch</source>
+          <target state="new">Launch</target>
+        </trans-unit>
+        <trans-unit id="Toast_BroadFileSystemAccess_ActionButton_2" translate="yes" xml:space="preserve">
+          <source>Later</source>
+          <target state="new">Later</target>
+        </trans-unit>
+        <trans-unit id="Toast_BroadFileSystemAccess_Text_1" translate="yes" xml:space="preserve">
+          <source>Waiting for user to complete operation...</source>
+          <target state="new">Waiting for user to complete operation...</target>
+        </trans-unit>
+        <trans-unit id="Toast_BroadFileSystemAccess_Text_2" translate="yes" xml:space="preserve">
+          <source>Please turn on file system permissions</source>
+          <target state="new">Please turn on file system permissions</target>
+        </trans-unit>
+        <trans-unit id="Toast_BroadFileSystemAccess_Text_3" translate="yes" xml:space="preserve">
+          <source>Then click on the launch below to start immediately</source>
+          <target state="new">Then click on the launch below to start immediately</target>
+        </trans-unit>
+        <trans-unit id="FileControl_ItemDisplayMode_Details" translate="yes" xml:space="preserve">
+          <source>Details</source>
+          <target state="new">Details</target>
+        </trans-unit>
+        <trans-unit id="FileControl_ItemDisplayMode_Large_Icon" translate="yes" xml:space="preserve">
+          <source>Large icons</source>
+          <target state="new">Large icons</target>
+        </trans-unit>
+        <trans-unit id="FileControl_ItemDisplayMode_List" translate="yes" xml:space="preserve">
+          <source>List</source>
+          <target state="new">List</target>
+        </trans-unit>
+        <trans-unit id="FileControl_ItemDisplayMode_Medium_Icon" translate="yes" xml:space="preserve">
+          <source>Medium icons</source>
+          <target state="new">Medium icons</target>
+        </trans-unit>
+        <trans-unit id="FileControl_ItemDisplayMode_Small_Icon" translate="yes" xml:space="preserve">
+          <source>Small icons</source>
+          <target state="new">Small icons</target>
+        </trans-unit>
+        <trans-unit id="FileControl_ItemDisplayMode_Tiles" translate="yes" xml:space="preserve">
+          <source>Tiles</source>
+          <target state="new">Tiles</target>
+        </trans-unit>
+        <trans-unit id="SearchBox_PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Search</source>
+          <target state="new">Search</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_LocateFolderFailure_Content" translate="yes" xml:space="preserve">
+          <source>Unable to locate folder, which may have been deleted or moved</source>
+          <target state="new">Unable to locate folder, which may have been deleted or moved</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_BluetoothShare" translate="yes" xml:space="preserve">
+          <source>Bluetooth</source>
+          <target state="new">Bluetooth</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_ChooseAnotherApp" translate="yes" xml:space="preserve">
+          <source>Choose another app</source>
+          <target state="new">Choose another app</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Compression" translate="yes" xml:space="preserve">
+          <source>Compression</source>
+          <target state="new">Compression</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Copy" translate="yes" xml:space="preserve">
+          <source>Copy</source>
+          <target state="new">Copy</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Create" translate="yes" xml:space="preserve">
+          <source>Create</source>
+          <target state="new">Create</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_CreateFile" translate="yes" xml:space="preserve">
+          <source>Create file</source>
+          <target state="new">Create file</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_CreateFolder" translate="yes" xml:space="preserve">
+          <source>Create folder</source>
+          <target state="new">Create folder</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Cut" translate="yes" xml:space="preserve">
+          <source>Cut</source>
+          <target state="new">Cut</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Delete" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="new">Delete</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Edit" translate="yes" xml:space="preserve">
+          <source>Edit</source>
+          <target state="new">Edit</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Merge" translate="yes" xml:space="preserve">
+          <source>Merge</source>
+          <target state="new">Merge</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Montage" translate="yes" xml:space="preserve">
+          <source>Montage</source>
+          <target state="new">Montage</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Open" translate="yes" xml:space="preserve">
+          <source>Open</source>
+          <target state="new">Open</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_OpenAsAdministrator" translate="yes" xml:space="preserve">
+          <source>Open as administrator</source>
+          <target state="new">Open as administrator</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_OpenInWinExplorer" translate="yes" xml:space="preserve">
+          <source>Open in Windows Explorer</source>
+          <target state="new">Open in Windows Explorer</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_OpenWith" translate="yes" xml:space="preserve">
+          <source>Open with...</source>
+          <target state="new">Open with...</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Paste" translate="yes" xml:space="preserve">
+          <source>Paste</source>
+          <target state="new">Paste</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_PinToHome" translate="yes" xml:space="preserve">
+          <source>Pin to homepage</source>
+          <target state="new">Pin to homepage</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Property" translate="yes" xml:space="preserve">
+          <source>Property</source>
+          <target state="new">Property</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Refresh" translate="yes" xml:space="preserve">
+          <source>Refresh</source>
+          <target state="new">Refresh</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Rename" translate="yes" xml:space="preserve">
+          <source>Rename</source>
+          <target state="new">Rename</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Share" translate="yes" xml:space="preserve">
+          <source>Share</source>
+          <target state="new">Share</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_SystemShare" translate="yes" xml:space="preserve">
+          <source>System share</source>
+          <target state="new">System share</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Transcode" translate="yes" xml:space="preserve">
+          <source>Transcode</source>
+          <target state="new">Transcode</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_WIFIShare" translate="yes" xml:space="preserve">
+          <source>WIFI</source>
+          <target state="new">WIFI</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_CancelButton" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="new">Cancel</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_ContinueButton" translate="yes" xml:space="preserve">
+          <source>Continue</source>
+          <target state="new">Continue</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteFolder_Content" translate="yes" xml:space="preserve">
+          <source>This will permanently delete everything in the folder\r\rWhether to continue?</source>
+          <target state="new">This will permanently delete everything in the folder\r\rWhether to continue?</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_LaterButton" translate="yes" xml:space="preserve">
+          <source>Later</source>
+          <target state="new">Later</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_NowButton" translate="yes" xml:space="preserve">
+          <source>Now</source>
+          <target state="new">Now</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedDeleteFolder_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to delete this folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</source>
+          <target state="new">RX does not have permission to delete this folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteFolderError_Content" translate="yes" xml:space="preserve">
+          <source>An error occurred while deleting the folder</source>
+          <target state="new">An error occurred while deleting the folder</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_EmptyFolderName_Content" translate="yes" xml:space="preserve">
+          <source>Folder name cannot be empty, rename failed</source>
+          <target state="new">Folder name cannot be empty, rename failed</target>
+        </trans-unit>
+        <trans-unit id="Create_NewFolder_Admin_Name" translate="yes" xml:space="preserve">
+          <source>New folder</source>
+          <target state="new">New folder</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedRenameFolder_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to rename this folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</source>
+          <target state="new">RX does not have permission to rename this folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedCreateFolder_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</source>
+          <target state="new">RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RepeatAddToHomePage_Content" translate="yes" xml:space="preserve">
+          <source>This folder has been added to the home page, can not be added repeatedly</source>
+          <target state="new">This folder has been added to the home page, can not be added repeatedly</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_LocatePathFailure_Content" translate="yes" xml:space="preserve">
+          <source>Unable to locate the path:</source>
+          <target state="new">Unable to locate the path:</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SameFolder_Content" translate="yes" xml:space="preserve">
+          <source>The target folder is the same as the source folder</source>
+          <target state="new">The target folder is the same as the source folder</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CopyFailForNotExist_Content" translate="yes" xml:space="preserve">
+          <source>Some files do not exist and cannot be copyed to the specified location</source>
+          <target state="new">Some files do not exist and cannot be copyed to the specified location</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedPaste_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</source>
+          <target state="new">RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CopyFail_FreeSpaceCritical_Content" translate="yes" xml:space="preserve">
+          <source>Some files cannot be copyed due to insufficient free space on the device</source>
+          <target state="new">Some files cannot be copyed due to insufficient free space on the device</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_MoveFailForNotExist_Content" translate="yes" xml:space="preserve">
+          <source>Some files do not exist and cannot be moved to the specified location</source>
+          <target state="new">Some files do not exist and cannot be moved to the specified location</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_MoveFail_FreeSpaceCritical_Content" translate="yes" xml:space="preserve">
+          <source>Some files cannot be moved due to insufficient free space on the device</source>
+          <target state="new">Some files cannot be moved due to insufficient free space on the device</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_MoveFail_Captured_Content" translate="yes" xml:space="preserve">
+          <source>Some files are in use by other applications and cannot be moved</source>
+          <target state="new">Some files are in use by other applications and cannot be moved</target>
+        </trans-unit>
+        <trans-unit id="Drag_Tip_CopyTo" translate="yes" xml:space="preserve">
+          <source>Copy to</source>
+          <target state="new">Copy to</target>
+        </trans-unit>
+        <trans-unit id="Drag_Tip_MoveTo" translate="yes" xml:space="preserve">
+          <source>Move to</source>
+          <target state="new">Move to</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Copying" translate="yes" xml:space="preserve">
+          <source>Copying</source>
+          <target state="new">Copying</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_CheckingLicense" translate="yes" xml:space="preserve">
+          <source>Checking license...</source>
+          <target state="new">Checking license...</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Compressing" translate="yes" xml:space="preserve">
+          <source>Compressing</source>
+          <target state="new">Compressing</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Deleting" translate="yes" xml:space="preserve">
+          <source>Deleting</source>
+          <target state="new">Deleting</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Extracting" translate="yes" xml:space="preserve">
+          <source>Extracting</source>
+          <target state="new">Extracting</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Moving" translate="yes" xml:space="preserve">
+          <source>Moving</source>
+          <target state="new">Moving</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Transcoding" translate="yes" xml:space="preserve">
+          <source>Transcoding</source>
+          <target state="new">Transcoding</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Undoing" translate="yes" xml:space="preserve">
+          <source>Undoing</source>
+          <target state="new">Undoing</target>
+        </trans-unit>
+        <trans-unit id="Drag_Tip_ReleaseToAdd" translate="yes" xml:space="preserve">
+          <source>Release to add files</source>
+          <target state="new">Release to add files</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Exporting" translate="yes" xml:space="preserve">
+          <source>Exporting</source>
+          <target state="new">Exporting</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Importing" translate="yes" xml:space="preserve">
+          <source>Importing</source>
+          <target state="new">Importing</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Loading" translate="yes" xml:space="preserve">
+          <source>Loading</source>
+          <target state="new">Loading</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_NoFeedback" translate="yes" xml:space="preserve">
+          <source>No feedback or suggestions</source>
+          <target state="new">No feedback or suggestions</target>
+        </trans-unit>
+        <trans-unit id="Download_Folder_Name" translate="yes" xml:space="preserve">
+          <source>Downloads</source>
+          <target state="new">Downloads</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Name of [Downloads folder]</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UndoFailure_Content" translate="yes" xml:space="preserve">
+          <source>Since some files/folders no longer exist, the undo operation could not be completed completely</source>
+          <target state="new">Since some files/folders no longer exist, the undo operation could not be completed completely</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteFile_Content" translate="yes" xml:space="preserve">
+          <source>This operation will permanently delete the file\r\rWhether to continue?</source>
+          <target state="new">This operation will permanently delete the file\r\rWhether to continue?</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_RefreshButton" translate="yes" xml:space="preserve">
+          <source>Refresh</source>
+          <target state="new">Refresh</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteFiles_Content" translate="yes" xml:space="preserve">
+          <source>This operation will permanently delete these files\r\rWhether to continue?</source>
+          <target state="new">This operation will permanently delete these files\r\rWhether to continue?</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteItemError_Content" translate="yes" xml:space="preserve">
+          <source>Unable to delete some files/folders, the file/folders may have been moved or deleted</source>
+          <target state="new">Unable to delete some files/folders, the file/folders may have been moved or deleted</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RenameNumError_Content" translate="yes" xml:space="preserve">
+          <source>This operation allows only one object to be renamed at a time</source>
+          <target state="new">This operation allows only one object to be renamed at a time</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_LocateFileFailure_Content" translate="yes" xml:space="preserve">
+          <source>Could not find the corresponding file, it may have been moved or deleted</source>
+          <target state="new">Could not find the corresponding file, it may have been moved or deleted</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_EmptyFileName_Content" translate="yes" xml:space="preserve">
+          <source>File name cannot be empty, rename failed</source>
+          <target state="new">File name cannot be empty, rename failed</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to rename, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</source>
+          <target state="new">RX does not have permission to rename, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_OpenBluetooth_Content" translate="yes" xml:space="preserve">
+          <source>Please turn on Bluetooth and try again</source>
+          <target state="new">Please turn on Bluetooth and try again</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Decompression" translate="yes" xml:space="preserve">
+          <source>Decompression</source>
+          <target state="new">Decompression</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedDecompression_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file.\r\rEnter the system explorer immediately?</source>
+          <target state="new">RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file.\r\rEnter the system explorer immediately?</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DecompressionError_Content" translate="yes" xml:space="preserve">
+          <source>An exception occurred while extracting the file\r\rError Message：\r\r</source>
+          <target state="new">An exception occurred while extracting the file\r\rError Message：\r\r</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CompressionError_Content" translate="yes" xml:space="preserve">
+          <source>An exception occurred while compressing the file\r\rError Message：\r\r</source>
+          <target state="new">An exception occurred while compressing the file\r\rError Message：\r\r</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedCompression_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rEnter the system explorer immediately?</source>
+          <target state="new">RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rEnter the system explorer immediately?</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_TaskWorking_Content" translate="yes" xml:space="preserve">
+          <source>There is already an ongoing task, please wait for it to complete</source>
+          <target state="new">There is already an ongoing task, please wait for it to complete</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_OpenFailure_Content" translate="yes" xml:space="preserve">
+          <source>RX FileManager could not open this file\r\rBut it can be opened with other applications</source>
+          <target state="new">RX FileManager could not open this file\r\rBut it can be opened with other applications</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_OpenFailure_PrimaryButton" translate="yes" xml:space="preserve">
+          <source>Default app</source>
+          <target state="new">Default app</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedCreateNewFile_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have sufficient permissions to create new files in this folder\r\rEnter the system explorer immediately?</source>
+          <target state="new">RX does not have sufficient permissions to create new files in this folder\r\rEnter the system explorer immediately?</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DragIncludeFolderError" translate="yes" xml:space="preserve">
+          <source>The target folder cannot be included in the drag item</source>
+          <target state="new">The target folder cannot be included in the drag item</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_WiFiError_Content" translate="yes" xml:space="preserve">
+          <source>WIFI transmission has an unexpected error：\r</source>
+          <target state="new">WIFI transmission has an unexpected error：\r</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="RX_BuildIn_Viewer_Name" translate="yes" xml:space="preserve">
+          <source>RX built-in viewer</source>
+          <target state="new">RX built-in viewer</target>
+        </trans-unit>
+        <trans-unit id="Crop_Image_Name_Tail" translate="yes" xml:space="preserve">
+          <source>Cropped</source>
+          <target state="new">Cropped</target>
+        </trans-unit>
+        <trans-unit id="Merge_Image_Name_Tail" translate="yes" xml:space="preserve">
+          <source>Merged</source>
+          <target state="new">Merged</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_GoBack" translate="yes" xml:space="preserve">
+          <source>Go back</source>
+          <target state="new">Go back</target>
+        </trans-unit>
+        <trans-unit id="Media_Tip_Text" translate="yes" xml:space="preserve">
+          <source>Please Enjoy:</source>
+          <target state="new">Please Enjoy:</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_PDFOpenFailure" translate="yes" xml:space="preserve">
+          <source>Unable to parse this PDF file, failed to open PDF</source>
+          <target state="new">Unable to parse this PDF file, failed to open PDF</target>
+        </trans-unit>
+        <trans-unit id="Pdf_Page_Tip" translate="yes" xml:space="preserve">
+          <source>Page [CurrentPageIndex] / ([TotalPageCount] pages)</source>
+          <target state="new">Page [CurrentPageIndex] / ([TotalPageCount] pages)</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Used to display the current number of PDF pages and the total number of pages. Do not modify [CurrentPageIndex] and [TotalPageCount]. They are placeholders. Please place it in the correct position according to the word order of the corresponding language</note>
+        </trans-unit>
+        <trans-unit id="Queue_Dialog_ImageReadError_Content" translate="yes" xml:space="preserve">
+          <source>The image viewer failed to read any image file due to an abnormality in reading the image folder. Please try again.</source>
+          <target state="new">The image viewer failed to read any image file due to an abnormality in reading the image folder. Please try again.</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_TryAgain" translate="yes" xml:space="preserve">
+          <source>Try again</source>
+          <target state="new">Try again</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_UsePassword" translate="yes" xml:space="preserve">
+          <source>Use password</source>
+          <target state="new">Use password</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_WinHelloAuthFail_Content" translate="yes" xml:space="preserve">
+          <source>Windows Hello authentication failed, you do not have permission to enter the Security Area</source>
+          <target state="new">Windows Hello authentication failed, you do not have permission to enter the Security Area</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_WinHelloCredentialLost_Content" translate="yes" xml:space="preserve">
+          <source>Windows Hello authentication credentials are lost, you cannot use Windows Hello, please use the password to enter \r\rAfter you re-enter the security domain, enter settings to re-register Windows Hello</source>
+          <target state="new">Windows Hello authentication credentials are lost, you cannot use Windows Hello, please use the password to enter \r\rAfter you re-enter the security domain, enter settings to re-register Windows Hello</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_WinHelloDisable_Content" translate="yes" xml:space="preserve">
+          <source>Windows Hello is disabled and cannot enter the Security Area through Windows Hello</source>
+          <target state="new">Windows Hello is disabled and cannot enter the Security Area through Windows Hello</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SecureAreaUnlock_Content" translate="yes" xml:space="preserve">
+          <source>Thank you for your support of the RX Explorer, the security area has been unlocked</source>
+          <target state="new">Thank you for your support of the RX Explorer, the security area has been unlocked</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SecureAreaNetworkUnavailable_Content" translate="yes" xml:space="preserve">
+          <source>Cannot check license status because the current network or user is unavailable</source>
+          <target state="new">Cannot check license status because the current network or user is unavailable</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_EncryptError_Content" translate="yes" xml:space="preserve">
+          <source>An unexpected error occurred while encrypting the file, the import process has ended</source>
+          <target state="new">An unexpected error occurred while encrypting the file, the import process has ended</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SecureAreaImportFiliter_Content" translate="yes" xml:space="preserve">
+          <source>Security Area does not support importing folder, all folders have been filtered</source>
+          <target state="new">Security Area does not support importing folder, all folders have been filtered</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DecryptError_Content" translate="yes" xml:space="preserve">
+          <source>An unexpected error occurred while decrypting the file, the export process has ended</source>
+          <target state="new">An unexpected error occurred while decrypting the file, the export process has ended</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DecryptPasswordError_Content" translate="yes" xml:space="preserve">
+          <source>The decryption failed due to the wrong decryption password, the export task has been terminated \r\rThis may be caused by a mismatch in the data of the files to be decrypted</source>
+          <target state="new">The decryption failed due to the wrong decryption password, the export task has been terminated \r\rThis may be caused by a mismatch in the data of the files to be decrypted</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_FileDamageError_Content" translate="yes" xml:space="preserve">
+          <source>Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r\rThis may be caused by the file data being damaged or modified</source>
+          <target state="new">Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r\rThis may be caused by the file data being damaged or modified</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedCreateDecryptFile_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to create an decrypted file here</source>
+          <target state="new">RX does not have permission to create an decrypted file here</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_RetryButton" translate="yes" xml:space="preserve">
+          <source>Retry</source>
+          <target state="new">Retry</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_WinHelloSetupError_Content" translate="yes" xml:space="preserve">
+          <source>Windows Hello could not be set up correctly, please try again</source>
+          <target state="new">Windows Hello could not be set up correctly, please try again</target>
+        </trans-unit>
+        <trans-unit id="Setting_UIMode_Custom" translate="yes" xml:space="preserve">
+          <source>Custom</source>
+          <target state="new">Custom</target>
+        </trans-unit>
+        <trans-unit id="Setting_UIMode_Recommand" translate="yes" xml:space="preserve">
+          <source>Recommand</source>
+          <target state="new">Recommand</target>
+        </trans-unit>
+        <trans-unit id="Setting_UIMode_SolidColor" translate="yes" xml:space="preserve">
+          <source>Solid Color</source>
+          <target state="new">Solid Color</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ClearHistory_Content" translate="yes" xml:space="preserve">
+          <source>Search history cleanup completed</source>
+          <target state="new">Search history cleanup completed</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RestartFail_Content" translate="yes" xml:space="preserve">
+          <source>There was a problem during the automatic restart, please restart the RX Explorer manually</source>
+          <target state="new">There was a problem during the automatic restart, please restart the RX Explorer manually</target>
+        </trans-unit>
+        <trans-unit id="DecryptFail_Backup_Text" translate="yes" xml:space="preserve">
+          <source>Error file backup</source>
+          <target state="new">Error file backup</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_NotSupportARM_Content" translate="yes" xml:space="preserve">
+          <source>Some components that the system information dialog depends on only support X86 or X64 processors\rUnsupport ARM processor for now, so this dialog will not be opened</source>
+          <target state="new">Some components that the system information dialog depends on only support X86 or X64 processors\rUnsupport ARM processor for now, so this dialog will not be opened</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_FeedBackNetworkError_Content" translate="yes" xml:space="preserve">
+          <source>This operation cannot be performed due to network reasons</source>
+          <target state="new">This operation cannot be performed due to network reasons</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_FeedBackRepeatError_Content" translate="yes" xml:space="preserve">
+          <source>The same feedback already exists, please do not submit it repeatedly</source>
+          <target state="new">The same feedback already exists, please do not submit it repeatedly</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_BootAtStart_Content" translate="yes" xml:space="preserve">
+          <source>RX cannot be turned on automatically because startup is disabled by the system\rYou can go to the [System Settings] page to manage</source>
+          <target state="new">RX cannot be turned on automatically because startup is disabled by the system\rYou can go to the [System Settings] page to manage</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_AddDeviceFail_Content" translate="yes" xml:space="preserve">
+          <source>Cannot add removable device due to lack of sufficient permissions, Device name:</source>
+          <target state="new">Cannot add removable device due to lack of sufficient permissions, Device name:</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ImportLibraryFolderError_Content" translate="yes" xml:space="preserve">
+          <source>Unable to import library folder for some unforeseen reasons</source>
+          <target state="new">Unable to import library folder for some unforeseen reasons</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeviceHideForError_Content" translate="yes" xml:space="preserve">
+          <source>Some drives fail to display due to lack of sufficient permissions</source>
+          <target state="new">Some drives fail to display due to lack of sufficient permissions</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_PinFolderNotFound_Content" translate="yes" xml:space="preserve">
+          <source>Some of the fixed folders are no longer found and will be automatically removed\r\rIncluding：\r</source>
+          <target state="new">Some of the fixed folders are no longer found and will be automatically removed\r\rIncluding：\r</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeviceExist_Content" translate="yes" xml:space="preserve">
+          <source>The selected drive already exists</source>
+          <target state="new">The selected drive already exists</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeviceSelectError_Content" translate="yes" xml:space="preserve">
+          <source>The selected content is not a drive</source>
+          <target state="new">The selected content is not a drive</target>
         </trans-unit>
       </group>
     </body>

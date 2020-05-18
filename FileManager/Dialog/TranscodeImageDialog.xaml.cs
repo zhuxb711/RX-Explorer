@@ -68,7 +68,7 @@ namespace FileManager.Dialog
             var ScalePixelData = GetScalePixelData(ScaleCombo.SelectedItem.ToString());
             ScaleWidth = ScalePixelData.Item1;
             ScaleHeight = ScalePixelData.Item2;
-            PreviewText.Text = Globalization.Language == LanguageEnum.Chinese ? ("预览分辨率: " + ScaleWidth + " X " + ScaleHeight) : ("Preview resolution: " + ScaleWidth + " X " + ScaleHeight);
+            PreviewText.Text = $"{Globalization.GetString("Transcode_Image_Preview_Resolution")}: {ScaleWidth} X {ScaleHeight}";
         }
 
         private void ScaleMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -99,77 +99,38 @@ namespace FileManager.Dialog
                 SuggestedStartLocation = PickerLocationId.Desktop
             };
 
-            if (Globalization.Language == LanguageEnum.Chinese)
+            switch (Format.SelectedItem.ToString().Split(" ").FirstOrDefault())
             {
-                switch (Format.SelectedItem.ToString().Split(" ").FirstOrDefault())
-                {
-                    case "PNG":
-                        {
-                            Picker.FileTypeChoices.Add("PNG格式", new string[] { ".png" });
-                            Picker.SuggestedFileName = "Image.png";
-                            break;
-                        }
-                    case "BMP":
-                        {
-                            Picker.FileTypeChoices.Add("BMP格式", new string[] { ".bmp" });
-                            Picker.SuggestedFileName = "Image.bmp";
-                            break;
-                        }
-                    case "JPEG":
-                        {
-                            Picker.FileTypeChoices.Add("JPEG格式", new string[] { ".jpg" });
-                            Picker.SuggestedFileName = "Image.jpg";
-                            break;
-                        }
-                    case "HEIF":
-                        {
-                            Picker.FileTypeChoices.Add("HEIF格式", new string[] { ".heic" });
-                            Picker.SuggestedFileName = "Image.heic";
-                            break;
-                        }
-                    case "TIFF":
-                        {
-                            Picker.FileTypeChoices.Add("TIFF格式", new string[] { ".tiff" });
-                            Picker.SuggestedFileName = "Image.tiff";
-                            break;
-                        }
-                }
-            }
-            else
-            {
-                switch (Format.SelectedItem.ToString().Split(" ").FirstOrDefault())
-                {
-                    case "PNG":
-                        {
-                            Picker.FileTypeChoices.Add("PNG format", new string[] { ".png" });
-                            Picker.SuggestedFileName = "Image.png";
-                            break;
-                        }
-                    case "BMP":
-                        {
-                            Picker.FileTypeChoices.Add("BMP format", new string[] { ".bmp" });
-                            Picker.SuggestedFileName = "Image.bmp";
-                            break;
-                        }
-                    case "JPEG":
-                        {
-                            Picker.FileTypeChoices.Add("JPEG format", new string[] { ".jpg" });
-                            Picker.SuggestedFileName = "Image.jpg";
-                            break;
-                        }
-                    case "HEIF":
-                        {
-                            Picker.FileTypeChoices.Add("HEIF format", new string[] { ".heic" });
-                            Picker.SuggestedFileName = "Image.heic";
-                            break;
-                        }
-                    case "TIFF":
-                        {
-                            Picker.FileTypeChoices.Add("TIFF format", new string[] { ".tiff" });
-                            Picker.SuggestedFileName = "Image.tiff";
-                            break;
-                        }
-                }
+                case "PNG":
+                    {
+                        Picker.FileTypeChoices.Add($"PNG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new string[] { ".png" });
+                        Picker.SuggestedFileName = "Image.png";
+                        break;
+                    }
+                case "BMP":
+                    {
+                        Picker.FileTypeChoices.Add($"BMP {Globalization.GetString("Transcode_Dialog_Format_Text")}", new string[] { ".bmp" });
+                        Picker.SuggestedFileName = "Image.bmp";
+                        break;
+                    }
+                case "JPEG":
+                    {
+                        Picker.FileTypeChoices.Add($"JPEG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new string[] { ".jpg" });
+                        Picker.SuggestedFileName = "Image.jpg";
+                        break;
+                    }
+                case "HEIF":
+                    {
+                        Picker.FileTypeChoices.Add($"HEIF {Globalization.GetString("Transcode_Dialog_Format_Text")}", new string[] { ".heic" });
+                        Picker.SuggestedFileName = "Image.heic";
+                        break;
+                    }
+                case "TIFF":
+                    {
+                        Picker.FileTypeChoices.Add($"TIFF {Globalization.GetString("Transcode_Dialog_Format_Text")}", new string[] { ".tiff" });
+                        Picker.SuggestedFileName = "Image.tiff";
+                        break;
+                    }
             }
         }
     }

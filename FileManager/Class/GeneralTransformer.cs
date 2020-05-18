@@ -1,6 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -79,51 +78,25 @@ namespace FileManager.Class
               {
                   CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                   {
-                      if (Globalization.Language == LanguageEnum.Chinese)
+                      switch (ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"].ToString())
                       {
-                          switch (ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"].ToString())
-                          {
-                              case "Success":
-                                  {
-                                      TabViewContainer.ThisPage.Notification.Show("视频已成功完成合并", 5000);
-                                      ShowMergeCompleteNotification();
-                                      break;
-                                  }
-                              case "Cancel":
-                                  {
-                                      TabViewContainer.ThisPage.Notification.Show("视频合并任务被取消", 5000);
-                                      ShowMergeCancelNotification();
-                                      break;
-                                  }
-                              default:
-                                  {
-                                      TabViewContainer.ThisPage.Notification.Show("合并视频时遇到未知错误", 5000);
-                                      break;
-                                  }
-                          }
-                      }
-                      else
-                      {
-                          switch (ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"].ToString())
-                          {
-                              case "Success":
-                                  {
-                                      TabViewContainer.ThisPage.Notification.Show("Video successfully merged", 5000);
-                                      ShowMergeCompleteNotification();
-                                      break;
-                                  }
-                              case "Cancel":
-                                  {
-                                      TabViewContainer.ThisPage.Notification.Show("Video merge task was canceled", 5000);
-                                      ShowMergeCancelNotification();
-                                      break;
-                                  }
-                              default:
-                                  {
-                                      TabViewContainer.ThisPage.Notification.Show("Encountered unknown error while merging video", 5000);
-                                      break;
-                                  }
-                          }
+                          case "Success":
+                              {
+                                  TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Merge_Success"), 5000);
+                                  ShowMergeCompleteNotification();
+                                  break;
+                              }
+                          case "Cancel":
+                              {
+                                  TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Merge_Cancel"), 5000);
+                                  ShowMergeCancelNotification();
+                                  break;
+                              }
+                          default:
+                              {
+                                  TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Merge_Error"), 5000);
+                                  break;
+                              }
                       }
                   }).AsTask().Wait();
 
@@ -185,51 +158,26 @@ namespace FileManager.Class
                {
                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                    {
-                       if (Globalization.Language == LanguageEnum.Chinese)
+
+                       switch (ApplicationData.Current.LocalSettings.Values["MediaCropStatus"].ToString())
                        {
-                           switch (ApplicationData.Current.LocalSettings.Values["MediaCropStatus"].ToString())
-                           {
-                               case "Success":
-                                   {
-                                       TabViewContainer.ThisPage.Notification.Show("视频已成功完成裁剪", 5000);
-                                       ShowCropCompleteNotification();
-                                       break;
-                                   }
-                               case "Cancel":
-                                   {
-                                       TabViewContainer.ThisPage.Notification.Show("视频裁剪任务被取消", 5000);
-                                       ShowCropCancelNotification();
-                                       break;
-                                   }
-                               default:
-                                   {
-                                       TabViewContainer.ThisPage.Notification.Show("裁剪视频时遇到未知错误", 5000);
-                                       break;
-                                   }
-                           }
-                       }
-                       else
-                       {
-                           switch (ApplicationData.Current.LocalSettings.Values["MediaCropStatus"].ToString())
-                           {
-                               case "Success":
-                                   {
-                                       TabViewContainer.ThisPage.Notification.Show("Video successfully cropped", 5000);
-                                       ShowCropCompleteNotification();
-                                       break;
-                                   }
-                               case "Cancel":
-                                   {
-                                       TabViewContainer.ThisPage.Notification.Show("Video crop task was canceled", 5000);
-                                       ShowCropCancelNotification();
-                                       break;
-                                   }
-                               default:
-                                   {
-                                       TabViewContainer.ThisPage.Notification.Show("Encountered unknown error while cropping video", 5000);
-                                       break;
-                                   }
-                           }
+                           case "Success":
+                               {
+                                   TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Crop_Success"), 5000);
+                                   ShowCropCompleteNotification();
+                                   break;
+                               }
+                           case "Cancel":
+                               {
+                                   TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Crop_Cancel"), 5000);
+                                   ShowCropCancelNotification();
+                                   break;
+                               }
+                           default:
+                               {
+                                   TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Crop_Error"), 5000);
+                                   break;
+                               }
                        }
                    }).AsTask().Wait();
 
@@ -303,26 +251,13 @@ namespace FileManager.Class
 
                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                                 {
-                                    if (Globalization.Language == LanguageEnum.Chinese)
+                                    QueueContentDialog dialog = new QueueContentDialog
                                     {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = "错误",
-                                            Content = "由于缺失编码器或操作不受支持，无法进行图像格式转换",
-                                            CloseButtonText = "确定"
-                                        };
-                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    else
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = "Error",
-                                            Content = "Cannot convert image format due to missing encoder or unsupported operation",
-                                            CloseButtonText = "Got it"
-                                        };
-                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                    }
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("EnDecode_Dialog_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+                                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                                 }).AsTask().Wait();
                             }
                         }
@@ -468,45 +403,22 @@ namespace FileManager.Class
                    {
                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                        {
-                           if (Globalization.Language == LanguageEnum.Chinese)
+                           switch (ExcuteStatus)
                            {
-                               switch (ExcuteStatus)
-                               {
-                                   case "Success":
-                                       TabViewContainer.ThisPage.Notification.Show("转码已成功完成", 5000);
-                                       ShowTranscodeCompleteNotification(Para.Item1, Para.Item2);
-                                       break;
-                                   case "Cancel":
-                                       TabViewContainer.ThisPage.Notification.Show("转码任务被取消", 5000);
-                                       ShowTranscodeCancelNotification();
-                                       break;
-                                   case "NotSupport":
-                                       TabViewContainer.ThisPage.Notification.Show("转码格式不支持", 5000);
-                                       break;
-                                   default:
-                                       TabViewContainer.ThisPage.Notification.Show("转码失败:" + ExcuteStatus, 5000);
-                                       break;
-                               }
-                           }
-                           else
-                           {
-                               switch (ExcuteStatus)
-                               {
-                                   case "Success":
-                                       TabViewContainer.ThisPage.Notification.Show("Transcoding has been successfully completed", 5000);
-                                       ShowTranscodeCompleteNotification(Para.Item1, Para.Item2);
-                                       break;
-                                   case "Cancel":
-                                       TabViewContainer.ThisPage.Notification.Show("Transcoding task is cancelled", 5000);
-                                       ShowTranscodeCancelNotification();
-                                       break;
-                                   case "NotSupport":
-                                       TabViewContainer.ThisPage.Notification.Show("Transcoding format is not supported", 5000);
-                                       break;
-                                   default:
-                                       TabViewContainer.ThisPage.Notification.Show("Transcoding failed:" + ExcuteStatus, 5000);
-                                       break;
-                               }
+                               case "Success":
+                                   TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Transcode_Success"), 5000);
+                                   ShowTranscodeCompleteNotification(Para.Item1, Para.Item2);
+                                   break;
+                               case "Cancel":
+                                   TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Transcode_Cancel"), 5000);
+                                   ShowTranscodeCancelNotification();
+                                   break;
+                               case "NotSupport":
+                                   TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Transcode_NotSupport"), 5000);
+                                   break;
+                               default:
+                                   TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Transcode_Failure") + ExcuteStatus, 5000);
+                                   break;
                            }
                        }).AsTask().Wait();
                    }
@@ -530,14 +442,12 @@ namespace FileManager.Class
                         {
                             new AdaptiveText()
                             {
-                                Text = Globalization.Language==LanguageEnum.Chinese
-                                ? ("正在裁剪:"+SourceFile.DisplayName)
-                                : ("Cropping:"+SourceFile.DisplayName)
+                                Text = Globalization.GetString("Crop_Toast_Title")
                             },
 
                             new AdaptiveProgressBar()
                             {
-                                Title = Globalization.Language==LanguageEnum.Chinese?"正在处理...":"Processing",
+                                Title = Globalization.GetString("Crop_Toast_ProbarTitle"),
                                 Value = new BindableProgressBarValue("ProgressValue"),
                                 ValueStringOverride = new BindableString("ProgressValueString"),
                                 Status = new BindableString("ProgressStatus")
@@ -547,13 +457,13 @@ namespace FileManager.Class
                 }
             };
 
-            NotificationData Data = new NotificationData();
-            Data.SequenceNumber = 0;
+            NotificationData Data = new NotificationData
+            {
+                SequenceNumber = 0
+            };
             Data.Values["ProgressValue"] = "0";
             Data.Values["ProgressValueString"] = "0%";
-            Data.Values["ProgressStatus"] = Globalization.Language == LanguageEnum.Chinese
-                ? "点击该提示以取消"
-                : "Click the prompt to cancel";
+            Data.Values["ProgressStatus"] = Globalization.GetString("Toast_ClickToCancel_Text");
 
             ToastNotification Toast = new ToastNotification(content.GetXml())
             {
@@ -586,14 +496,12 @@ namespace FileManager.Class
                         {
                             new AdaptiveText()
                             {
-                                Text = Globalization.Language==LanguageEnum.Chinese
-                                ? "正在合并视频文件..."
-                                : "Merging the video..."
+                                Text = Globalization.GetString("Merge_Toast_ProbarTitle")
                             },
 
                             new AdaptiveProgressBar()
                             {
-                                Title = Globalization.Language==LanguageEnum.Chinese?"正在处理...":"Processing",
+                                Title = Globalization.GetString("Merge_Toast_ProbarTitle"),
                                 Value = new BindableProgressBarValue("ProgressValue"),
                                 ValueStringOverride = new BindableString("ProgressValueString"),
                                 Status = new BindableString("ProgressStatus")
@@ -603,13 +511,13 @@ namespace FileManager.Class
                 }
             };
 
-            NotificationData Data = new NotificationData();
-            Data.SequenceNumber = 0;
+            NotificationData Data = new NotificationData
+            {
+                SequenceNumber = 0
+            };
             Data.Values["ProgressValue"] = "0";
             Data.Values["ProgressValueString"] = "0%";
-            Data.Values["ProgressStatus"] = Globalization.Language == LanguageEnum.Chinese
-                                            ? "点击该提示以取消"
-                                            : "Click the prompt to cancel";
+            Data.Values["ProgressStatus"] = Globalization.GetString("Toast_ClickToCancel_Text");
 
             ToastNotification Toast = new ToastNotification(content.GetXml())
             {
@@ -644,9 +552,7 @@ namespace FileManager.Class
                         {
                             new AdaptiveText()
                             {
-                                Text = Globalization.Language==LanguageEnum.Chinese
-                                ? ("正在转换:"+SourceFile.DisplayName)
-                                : ("Transcoding:"+SourceFile.DisplayName)
+                                Text = Globalization.GetString("Transcode_Toast_Title")
                             },
 
                             new AdaptiveProgressBar()
@@ -661,13 +567,13 @@ namespace FileManager.Class
                 }
             };
 
-            NotificationData Data = new NotificationData();
-            Data.SequenceNumber = 0;
+            NotificationData Data = new NotificationData
+            {
+                SequenceNumber = 0
+            };
             Data.Values["ProgressValue"] = "0";
             Data.Values["ProgressValueString"] = "0%";
-            Data.Values["ProgressStatus"] = Globalization.Language == LanguageEnum.Chinese
-                                            ? "点击该提示以取消"
-                                            : "Click the prompt to cancel";
+            Data.Values["ProgressStatus"] = Globalization.GetString("Toast_ClickToCancel_Text");
 
             ToastNotification Toast = new ToastNotification(content.GetXml())
             {
@@ -690,400 +596,204 @@ namespace FileManager.Class
         {
             ToastNotificationManager.History.Remove("CropVideoNotification");
 
-            if (Globalization.Language == LanguageEnum.Chinese)
+            ToastContent Content = new ToastContent()
             {
-                var Content = new ToastContent()
+                Scenario = ToastScenario.Default,
+                Launch = "Transcode",
+                Visual = new ToastVisual()
                 {
-                    Scenario = ToastScenario.Default,
-                    Launch = "Transcode",
-                    Visual = new ToastVisual()
+                    BindingGeneric = new ToastBindingGeneric()
                     {
-                        BindingGeneric = new ToastBindingGeneric()
+                        Children =
                         {
-                            Children =
+                            new AdaptiveText()
                             {
-                                new AdaptiveText()
-                                {
-                                    Text = "裁剪已完成！"
-                                },
+                                Text = Globalization.GetString("Crop_Toast_Complete_Text")
+                            },
 
-                                new AdaptiveText()
-                                {
-                                    Text = "点击以消除提示"
-                                }
+                            new AdaptiveText()
+                            {
+                                Text = Globalization.GetString("Toast_ClickToClear_Text")
                             }
                         }
-                    },
-                };
-                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-            }
-            else
-            {
-                var Content = new ToastContent()
-                {
-                    Scenario = ToastScenario.Default,
-                    Launch = "Transcode",
-                    Visual = new ToastVisual()
-                    {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = "Cropping has been completed！"
-                                },
 
-                                new AdaptiveText()
-                                {
-                                    Text = "Click to remove the prompt"
-                                }
-                            }
-                        }
-                    },
-                };
-                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-            }
+                    }
+                },
+            };
+            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
         }
 
         private static void ShowMergeCompleteNotification()
         {
             ToastNotificationManager.History.Remove("MergeVideoNotification");
 
-            if (Globalization.Language == LanguageEnum.Chinese)
+            ToastContent Content = new ToastContent()
             {
-                var Content = new ToastContent()
+                Scenario = ToastScenario.Default,
+                Launch = "Transcode",
+                Visual = new ToastVisual()
                 {
-                    Scenario = ToastScenario.Default,
-                    Launch = "Transcode",
-                    Visual = new ToastVisual()
+                    BindingGeneric = new ToastBindingGeneric()
                     {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
+                        Children =
                             {
                                 new AdaptiveText()
                                 {
-                                    Text = "合并已完成！"
+                                    Text = Globalization.GetString("Merge_Toast_Complete_Text")
                                 },
 
                                 new AdaptiveText()
                                 {
-                                    Text = "点击以消除提示"
+                                    Text = Globalization.GetString("Toast_ClickToClear_Text")
                                 }
                             }
-                        }
-                    },
-                };
-                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-            }
-            else
-            {
-                var Content = new ToastContent()
-                {
-                    Scenario = ToastScenario.Default,
-                    Launch = "Transcode",
-                    Visual = new ToastVisual()
-                    {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = "Merging has been completed！"
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = "Click to remove the prompt"
-                                }
-                            }
-                        }
-                    },
-                };
-                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-            }
+                    }
+                },
+            };
+            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
         }
 
         private static void ShowTranscodeCompleteNotification(StorageFile SourceFile, StorageFile DestinationFile)
         {
             ToastNotificationManager.History.Remove("TranscodeNotification");
 
-            if (Globalization.Language == LanguageEnum.Chinese)
+            ToastContent Content = new ToastContent()
             {
-                var Content = new ToastContent()
+                Scenario = ToastScenario.Default,
+                Launch = "Transcode",
+                Visual = new ToastVisual()
                 {
-                    Scenario = ToastScenario.Default,
-                    Launch = "Transcode",
-                    Visual = new ToastVisual()
+                    BindingGeneric = new ToastBindingGeneric()
                     {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
+                        Children =
                             {
                                 new AdaptiveText()
                                 {
-                                    Text = "转换已完成！"
+                                    Text = Globalization.GetString("Transcode_Toast_Complete_Text_1")
                                 },
 
                                 new AdaptiveText()
                                 {
-                                   Text = SourceFile.Name + " 已成功转换为 " + DestinationFile.Name
+                                   Text = $"{SourceFile.Name} {Globalization.GetString("Transcode_Toast_Complete_Text_2")} {DestinationFile.Name}"
                                 },
 
                                 new AdaptiveText()
                                 {
-                                    Text = "点击以消除提示"
+                                    Text = Globalization.GetString("Toast_ClickToClear_Text")
                                 }
                             }
-                        }
-                    },
-                };
-                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-            }
-            else
-            {
-                var Content = new ToastContent()
-                {
-                    Scenario = ToastScenario.Default,
-                    Launch = "Transcode",
-                    Visual = new ToastVisual()
-                    {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = "Transcoding has been completed！"
-                                },
+                    }
+                },
+            };
 
-                                new AdaptiveText()
-                                {
-                                   Text = SourceFile.Name + " has been successfully transcoded to " + DestinationFile.Name
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = "Click to remove the prompt"
-                                }
-                            }
-                        }
-                    },
-                };
-                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-            }
+            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
         }
 
         private static void ShowCropCancelNotification()
         {
             ToastNotificationManager.History.Remove("CropVideoNotification");
 
-            if (Globalization.Language == LanguageEnum.Chinese)
+            ToastContent Content = new ToastContent()
             {
-                var Content = new ToastContent()
+                Scenario = ToastScenario.Default,
+                Launch = "Transcode",
+                Visual = new ToastVisual()
                 {
-                    Scenario = ToastScenario.Default,
-                    Launch = "Transcode",
-                    Visual = new ToastVisual()
+                    BindingGeneric = new ToastBindingGeneric()
                     {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
+                        Children =
                             {
                                 new AdaptiveText()
                                 {
-                                    Text = "裁剪任务已被取消"
+                                    Text = Globalization.GetString("Crop_Toast_Cancel_Text_1")
                                 },
 
                                 new AdaptiveText()
                                 {
-                                   Text = "您可以尝试重新启动此任务"
+                                   Text = Globalization.GetString("Crop_Toast_Cancel_Text_2")
                                 },
 
                                 new AdaptiveText()
                                 {
-                                    Text = "点击以消除提示"
+                                    Text = Globalization.GetString("Toast_ClickToClear_Text")
                                 }
                             }
-                        }
                     }
-                };
-                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-            }
-            else
-            {
-                var Content = new ToastContent()
-                {
-                    Scenario = ToastScenario.Default,
-                    Launch = "Transcode",
-                    Visual = new ToastVisual()
-                    {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = "Cropping task has been cancelled"
-                                },
+                }
+            };
 
-                                new AdaptiveText()
-                                {
-                                   Text = "You can try restarting the task"
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = "Click to remove the prompt"
-                                }
-                            }
-                        }
-                    }
-                };
-                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-            }
+            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
         }
 
         private static void ShowMergeCancelNotification()
         {
             ToastNotificationManager.History.Remove("MergeVideoNotification");
 
-            if (Globalization.Language == LanguageEnum.Chinese)
+            ToastContent Content = new ToastContent()
             {
-                var Content = new ToastContent()
+                Scenario = ToastScenario.Default,
+                Launch = "Transcode",
+                Visual = new ToastVisual()
                 {
-                    Scenario = ToastScenario.Default,
-                    Launch = "Transcode",
-                    Visual = new ToastVisual()
+                    BindingGeneric = new ToastBindingGeneric()
                     {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
+                        Children =
                             {
                                 new AdaptiveText()
                                 {
-                                    Text = "合并任务已被取消"
+                                    Text = Globalization.GetString("Merge_Toast_Cancel_Text_1")
                                 },
 
                                 new AdaptiveText()
                                 {
-                                   Text = "您可以尝试重新启动此任务"
+                                   Text = Globalization.GetString("Merge_Toast_Cancel_Text_2")
                                 },
 
                                 new AdaptiveText()
                                 {
-                                    Text = "点击以消除提示"
+                                    Text = Globalization.GetString("Toast_ClickToClear_Text")
                                 }
                             }
-                        }
                     }
-                };
-                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-            }
-            else
-            {
-                var Content = new ToastContent()
-                {
-                    Scenario = ToastScenario.Default,
-                    Launch = "Transcode",
-                    Visual = new ToastVisual()
-                    {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = "Merging task has been cancelled"
-                                },
+                }
+            };
 
-                                new AdaptiveText()
-                                {
-                                   Text = "You can try restarting the task"
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = "Click to remove the prompt"
-                                }
-                            }
-                        }
-                    }
-                };
-                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-            }
+            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
         }
 
         private static void ShowTranscodeCancelNotification()
         {
             ToastNotificationManager.History.Remove("TranscodeNotification");
 
-            if (Globalization.Language == LanguageEnum.Chinese)
+            ToastContent Content = new ToastContent()
             {
-                var Content = new ToastContent()
+                Scenario = ToastScenario.Default,
+                Launch = "Transcode",
+                Visual = new ToastVisual()
                 {
-                    Scenario = ToastScenario.Default,
-                    Launch = "Transcode",
-                    Visual = new ToastVisual()
+                    BindingGeneric = new ToastBindingGeneric()
                     {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
+                        Children =
                             {
                                 new AdaptiveText()
                                 {
-                                    Text = "格式转换已被取消"
+                                    Text = Globalization.GetString("Transcode_Toast_Cancel_Text_1")
                                 },
 
                                 new AdaptiveText()
                                 {
-                                   Text = "您可以尝试重新启动转换"
+                                   Text = Globalization.GetString("Transcode_Toast_Cancel_Text_2")
                                 },
 
                                 new AdaptiveText()
                                 {
-                                    Text = "点击以消除提示"
+                                    Text = Globalization.GetString("Toast_ClickToClear_Text")
                                 }
                             }
-                        }
                     }
-                };
-                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-            }
-            else
-            {
-                var Content = new ToastContent()
-                {
-                    Scenario = ToastScenario.Default,
-                    Launch = "Transcode",
-                    Visual = new ToastVisual()
-                    {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = "Transcode has been cancelled"
-                                },
-
-                                new AdaptiveText()
-                                {
-                                   Text = "You can try restarting the transcode"
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = "Click to remove the prompt"
-                                }
-                            }
-                        }
-                    }
-                };
-                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
-            }
+                }
+            };
+            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
         }
     }
 }

@@ -75,9 +75,7 @@ namespace FileManager.Dialog
             {
                 if (BluetoothControl.SelectedIndex == -1 || !BluetoothDeviceCollection[BluetoothControl.SelectedIndex].DeviceInfo.Pairing.IsPaired)
                 {
-                    Tips.Text = Globalization.Language == LanguageEnum.Chinese
-                                ? "请先选择一个已配对的设备"
-                                : "Please select a paired device first";
+                    Tips.Text = Globalization.GetString("BluetoothUI_Tips_Text_1");
                     Tips.Visibility = Visibility.Visible;
                     args.Cancel = true;
                 }
@@ -102,9 +100,7 @@ namespace FileManager.Dialog
 
                     if (ObexServiceProvider.GetObexNewInstance() == null)
                     {
-                        throw new Exception(Globalization.Language == LanguageEnum.Chinese
-                                            ? "无法连接至此蓝牙设备，请打开此设备的蓝牙开关"
-                                            : "Unable to connect to this Bluetooth device, please turn on the Bluetooth switch of this device");
+                        throw new Exception(Globalization.GetString("BluetoothUI_Tips_Text_2"));
                     }
                 }
             }
@@ -138,9 +134,7 @@ namespace FileManager.Dialog
                 BluetoothWatcher.Stop();
                 BluetoothWatcher = null;
                 Progress.IsActive = true;
-                StatusText.Text = Globalization.Language == LanguageEnum.Chinese
-                    ? "正在搜索"
-                    : "Searching";
+                StatusText.Text = Globalization.GetString("BluetoothUI_Status_Text");
             }
 
             //根据指定的筛选条件创建检测器
@@ -159,9 +153,7 @@ namespace FileManager.Dialog
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 Progress.IsActive = false;
-                StatusText.Text = Globalization.Language == LanguageEnum.Chinese
-                ? "搜索完成"
-                : "Search Complete";
+                StatusText.Text = Globalization.GetString("BluetoothUI_Status_Text_2");
             });
         }
 
@@ -276,9 +268,7 @@ namespace FileManager.Dialog
 
                 if (Services.Services.Count == 0)
                 {
-                    throw new Exception(Globalization.Language == LanguageEnum.Chinese
-                                        ? "无法发现蓝牙设备的ObexObjectPush服务，该设备不受支持"
-                                        : "Unable to discover the ObexObjectPush service for Bluetooth devices, which is not supported");
+                    throw new Exception(Globalization.GetString("BluetoothUI_Tips_Text_3"));
                 }
 
                 RfcommDeviceService RfcService = Services.Services[0];
@@ -286,9 +276,7 @@ namespace FileManager.Dialog
             }
             catch
             {
-                throw new Exception(Globalization.Language == LanguageEnum.Chinese
-                                    ? "无法连接至此蓝牙设备，请打开此设备的蓝牙开关"
-                                    : "Unable to connect to this Bluetooth device, please turn on the Bluetooth switch of this device");
+                throw new Exception(Globalization.GetString("BluetoothUI_Tips_Text_2"));
             }
         }
 
@@ -297,7 +285,8 @@ namespace FileManager.Dialog
             Button btn = sender as Button;
             BluetoothControl.SelectedItem = btn.DataContext;
             LastSelectIndex = BluetoothControl.SelectedIndex;
-            if (btn.Content.ToString() == "配对" || btn.Content.ToString() == "Pair")
+
+            if (btn.Content.ToString() == Globalization.GetString("PairText"))
             {
                 await PairAsync(BluetoothDeviceCollection[LastSelectIndex].DeviceInfo).ConfigureAwait(false);
             }
@@ -339,7 +328,7 @@ namespace FileManager.Dialog
             }
             else
             {
-                Tips.Text = Globalization.Language == LanguageEnum.Chinese ? "配对失败" : "Pair failed";
+                Tips.Text = Globalization.GetString("BluetoothUI_Tips_Text_4");
             }
         }
 
@@ -353,7 +342,7 @@ namespace FileManager.Dialog
                     {
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                         {
-                            Tips.Text = Globalization.Language == LanguageEnum.Chinese ? ("请确认PIN码与配对设备一致\r" + args.Pin) : ("Please confirm that the PIN is the same as the paired device\r" + args.Pin);
+                            Tips.Text = $"{Globalization.GetString("BluetoothUI_Tips_Text_5")}{Environment.NewLine}{args.Pin}";
                             Tips.Visibility = Visibility.Visible;
                             PinConfirm.Visibility = Visibility.Visible;
                             PinRefuse.Visibility = Visibility.Visible;
@@ -364,7 +353,7 @@ namespace FileManager.Dialog
                     {
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                         {
-                            Tips.Text = Globalization.Language == LanguageEnum.Chinese ? "请确认是否与设备配对" : "Please confirm whether to pair with the device";
+                            Tips.Text = Globalization.GetString("BluetoothUI_Tips_Text_6");
                             Tips.Visibility = Visibility.Visible;
                             PinConfirm.Visibility = Visibility.Visible;
                             PinRefuse.Visibility = Visibility.Visible;
@@ -389,7 +378,7 @@ namespace FileManager.Dialog
         {
             IsPinConfirm = true;
             PinLock.Set();
-            Tips.Text = "";
+            Tips.Text = string.Empty;
             Tips.Visibility = Visibility.Collapsed;
             PinConfirm.Visibility = Visibility.Collapsed;
             PinRefuse.Visibility = Visibility.Collapsed;
@@ -399,7 +388,7 @@ namespace FileManager.Dialog
         {
             IsPinConfirm = false;
             PinLock.Set();
-            Tips.Text = "";
+            Tips.Text = string.Empty;
             Tips.Visibility = Visibility.Collapsed;
             PinConfirm.Visibility = Visibility.Collapsed;
             PinRefuse.Visibility = Visibility.Collapsed;

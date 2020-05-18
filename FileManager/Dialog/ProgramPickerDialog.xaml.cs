@@ -59,23 +59,15 @@ namespace FileManager.Dialog
                         Area1.Visibility = Visibility.Visible;
                         CurrentUseProgramList.Visibility = Visibility.Visible;
 
-                        if (Globalization.Language == LanguageEnum.Chinese)
-                        {
-                            Title1.Text = "继续使用以下应用";
-                            Title2.Text = "选择其他应用";
-                        }
-                        else
-                        {
-                            Title1.Text = "Continue using";
-                            Title2.Text = "Choose another application";
-                        }
+                        Title1.Text = Globalization.GetString("ProgramPicker_Dialog_Title_1");
+                        Title2.Text = Globalization.GetString("ProgramPicker_Dialog_Title_2");
                         break;
                     }
                 default:
                     {
                         Area1.Visibility = Visibility.Collapsed;
                         CurrentUseProgramList.Visibility = Visibility.Collapsed;
-                        Title2.Text = Globalization.Language == LanguageEnum.Chinese ? "选择其他应用" : "Choose another application";
+                        Title2.Text = Globalization.GetString("ProgramPicker_Dialog_Title_2");
                         break;
                     }
             }
@@ -85,7 +77,7 @@ namespace FileManager.Dialog
 
         private async void ProgramPickerDialog_Loading(FrameworkElement sender, object args)
         {
-            LoadingText.Text = Globalization.Language == LanguageEnum.Chinese ? "正在加载..." : "Loading...";
+            LoadingText.Text = Globalization.GetString("TextViewerLoading.Text");
             LoadingText.Visibility = Visibility.Visible;
             WholeArea.Visibility = Visibility.Collapsed;
 
@@ -164,26 +156,12 @@ namespace FileManager.Dialog
 
                 if (CurrentUseProgramList.Items.Count == 0)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        CurrentUseProgramList.Items.Add(new ProgramPickerItem(new BitmapImage(new Uri("ms-appx:///Assets/Viewer.png")), "RX内置查看器", "RX提供基本的查看功能", Package.Current.Id.FamilyName));
-                    }
-                    else
-                    {
-                        CurrentUseProgramList.Items.Add(new ProgramPickerItem(new BitmapImage(new Uri("ms-appx:///Assets/Viewer.png")), "RX built-in viewer", "RX provides basic viewing functions", Package.Current.Id.FamilyName));
-                    }
+                    CurrentUseProgramList.Items.Add(new ProgramPickerItem(new BitmapImage(new Uri("ms-appx:///Assets/Viewer.png")), Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer"), Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer_Description"), Package.Current.Id.FamilyName));
                     CurrentUseProgramList.SelectedIndex = 0;
                 }
                 else
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        ProgramCollection.Add(new ProgramPickerItem(new BitmapImage(new Uri("ms-appx:///Assets/Viewer.png")), "RX内置查看器", "RX提供基本的查看功能", Package.Current.Id.FamilyName));
-                    }
-                    else
-                    {
-                        ProgramCollection.Add(new ProgramPickerItem(new BitmapImage(new Uri("ms-appx:///Assets/Viewer.png")), "RX built-in viewer", "RX provides basic viewing functions", Package.Current.Id.FamilyName));
-                    }
+                    ProgramCollection.Add(new ProgramPickerItem(new BitmapImage(new Uri("ms-appx:///Assets/Viewer.png")), Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer"), Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer_Description"), Package.Current.Id.FamilyName));
                 }
             }
 

@@ -160,26 +160,13 @@ namespace FileManager
                     }
                     catch
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "无法定位文件夹，该文件夹可能已被删除或移动",
-                                CloseButtonText = "确定"
-                            };
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "Unable to locate folder, which may have been deleted or moved",
-                                CloseButtonText = "Confirm"
-                            };
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
                 else
@@ -203,26 +190,13 @@ namespace FileManager
                     }
                     catch (FileNotFoundException)
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "无法定位文件，该文件可能已被删除或移动",
-                                CloseButtonText = "确定"
-                            };
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "Unable to locate file, which may have been deleted or moved",
-                                CloseButtonText = "Confirm"
-                            };
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                        };
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
             }

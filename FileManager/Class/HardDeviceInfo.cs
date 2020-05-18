@@ -85,14 +85,7 @@ namespace FileManager.Class
         {
             get
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    return FreeSpace + " 可用, 共 " + Capacity;
-                }
-                else
-                {
-                    return FreeSpace + " free of " + Capacity;
-                }
+                return $"{FreeSpace} {Globalization.GetString("Disk_Capacity_Description")} {Capacity}";
             }
         }
 

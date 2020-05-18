@@ -1,6 +1,4 @@
 ﻿using FileManager.Class;
-using System;
-using Windows.Security.Credentials;
 using Windows.UI.Xaml.Controls;
 
 
@@ -17,19 +15,12 @@ namespace FileManager.Dialog
         public SecureAreaWelcomeDialog()
         {
             InitializeComponent();
+
             Loading += SecureAreaWelcomeDialog_Loading;
-            if (Globalization.Language == LanguageEnum.Chinese)
-            {
-                SecureLevel.Items.Add("AES-128bit (推荐)");
-                SecureLevel.Items.Add("AES-256bit (高安全性)");
-                SecureLevel.SelectedIndex = 0;
-            }
-            else
-            {
-                SecureLevel.Items.Add("AES-128bit (Recommand)");
-                SecureLevel.Items.Add("AES-256bit (Safer)");
-                SecureLevel.SelectedIndex = 0;
-            }
+
+            SecureLevel.Items.Add($"AES-128bit ({Globalization.GetString("SecureArea_AES_128Level_Description")})");
+            SecureLevel.Items.Add($"AES-256bit ({Globalization.GetString("SecureArea_AES_256Level_Description")})");
+            SecureLevel.SelectedIndex = 0;
         }
 
         private async void SecureAreaWelcomeDialog_Loading(Windows.UI.Xaml.FrameworkElement sender, object args)

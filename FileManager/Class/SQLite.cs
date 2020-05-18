@@ -398,6 +398,30 @@ namespace FileManager.Class
             }
         }
 
+        public async Task UpdateQuickStartItemAsync(string FullPath, string NewName, QuickStartType Type)
+        {
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
+            {
+                using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select Count(*) From QuickStart Where FullPath=@FullPath"))
+                {
+                    _ = Command.Parameters.AddWithValue("@FullPath", FullPath);
+
+                    if (Convert.ToInt32(await Command.ExecuteScalarAsync().ConfigureAwait(false)) == 0)
+                    {
+                        return;
+                    }
+                }
+
+                using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Update QuickStart Set Name=@NewName Where FullPath=@FullPath And Type=@Type"))
+                {
+                    _ = Command.Parameters.AddWithValue("@FullPath", FullPath);
+                    _ = Command.Parameters.AddWithValue("@NewName", NewName);
+                    _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
+                    _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+            }
+        }
+
         /// <summary>
         /// 删除快速启动项的内容
         /// </summary>

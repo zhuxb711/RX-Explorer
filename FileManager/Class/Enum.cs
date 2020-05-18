@@ -175,7 +175,11 @@ namespace FileManager.Class
         /// <summary>
         /// 界面使用英文
         /// </summary>
-        English = 2
+        English = 2,
+        /// <summary>
+        /// 界面使用法语
+        /// </summary>
+        French=4
     }
 
     /// <summary>

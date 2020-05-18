@@ -258,10 +258,6 @@
           <source>Properties</source>
           <target state="translated">属性</target>
         </trans-unit>
-        <trans-unit id="AttributeFileName.Text" translate="yes" xml:space="preserve">
-          <source>FileName</source>
-          <target state="translated">文件名</target>
-        </trans-unit>
         <trans-unit id="AttributeLocation.Text" translate="yes" xml:space="preserve">
           <source>Location</source>
           <target state="translated">路径</target>
@@ -1806,7 +1802,1242 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="UnpairText" translate="yes" xml:space="preserve">
           <source>Unpair</source>
-          <target state="new">Unpair</target>
+          <target state="translated">取消配对</target>
+        </trans-unit>
+        <trans-unit id="DelayLoadNotification_Content_1" translate="yes" xml:space="preserve">
+          <source>Unable to get thumbnails of some files, so content loading may be slow</source>
+          <target state="translated">无法获取部分文件的缩略图，因此内容加载可能变慢</target>
+        </trans-unit>
+        <trans-unit id="DelayLoadNotification_Content_2" translate="yes" xml:space="preserve">
+          <source>Please wait patiently</source>
+          <target state="translated">请耐心等待</target>
+        </trans-unit>
+        <trans-unit id="DelayLoadNotification_Title" translate="yes" xml:space="preserve">
+          <source>There may be a delay in loading</source>
+          <target state="translated">加载可能存在延迟</target>
+        </trans-unit>
+        <trans-unit id="FeedBackItem_SupportDescription_Negative" translate="yes" xml:space="preserve">
+          <source>against</source>
+          <target state="translated">反对</target>
+        </trans-unit>
+        <trans-unit id="FeedBackItem_SupportDescription_Positive" translate="yes" xml:space="preserve">
+          <source>agree</source>
+          <target state="translated">支持</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_CloseButton" translate="yes" xml:space="preserve">
+          <source>Got it</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="Network_Error_Dialog_Content" translate="yes" xml:space="preserve">
+          <source>This operation cannot be performed due to network reasons</source>
+          <target state="translated">因网络原因无法进行此项操作</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_ErrorTitle" translate="yes" xml:space="preserve">
+          <source>Error</source>
+          <target state="translated">错误</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Merge_Cancel" translate="yes" xml:space="preserve">
+          <source>Video merge task was canceled</source>
+          <target state="translated">视频合并任务被取消</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Merge_Error" translate="yes" xml:space="preserve">
+          <source>Encountered unknown error while merging video</source>
+          <target state="translated">合并视频时遇到未知错误</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Merge_Success" translate="yes" xml:space="preserve">
+          <source>Video successfully merged</source>
+          <target state="translated">视频已成功完成合并</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Crop_Cancel" translate="yes" xml:space="preserve">
+          <source>Video crop task was canceled</source>
+          <target state="translated">视频裁剪任务被取消</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Crop_Error" translate="yes" xml:space="preserve">
+          <source>Encountered unknown error while cropping video</source>
+          <target state="translated">裁剪视频时遇到未知错误</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Crop_Success" translate="yes" xml:space="preserve">
+          <source>Video successfully cropped</source>
+          <target state="translated">视频已成功完成裁剪</target>
+        </trans-unit>
+        <trans-unit id="EnDecode_Dialog_Content" translate="yes" xml:space="preserve">
+          <source>Cannot convert image format due to missing encoder or unsupported operation</source>
+          <target state="translated">由于缺失编码器或操作不受支持，无法进行图像格式转换</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Transcode_Cancel" translate="yes" xml:space="preserve">
+          <source>Transcoding task is cancelled</source>
+          <target state="translated">转码任务被取消</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Transcode_Failure" translate="yes" xml:space="preserve">
+          <source>Transcoding failed:</source>
+          <target state="translated">转码失败:</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Transcode_NotSupport" translate="yes" xml:space="preserve">
+          <source>Transcoding format is not supported</source>
+          <target state="translated">转码格式不支持</target>
+        </trans-unit>
+        <trans-unit id="GeneralTransformer_Transcode_Success" translate="yes" xml:space="preserve">
+          <source>Transcoding has been successfully completed</source>
+          <target state="translated">转码已成功完成</target>
+        </trans-unit>
+        <trans-unit id="Crop_Toast_ProbarTitle" translate="yes" xml:space="preserve">
+          <source>Processing...</source>
+          <target state="translated">正在处理...</target>
+        </trans-unit>
+        <trans-unit id="Crop_Toast_Title" translate="yes" xml:space="preserve">
+          <source>Cropping:</source>
+          <target state="translated">正在裁剪:</target>
+        </trans-unit>
+        <trans-unit id="Merge_Toast_ProbarTitle" translate="yes" xml:space="preserve">
+          <source>Processing...</source>
+          <target state="translated">正在处理...</target>
+        </trans-unit>
+        <trans-unit id="Merge_Toast_Title" translate="yes" xml:space="preserve">
+          <source>Merging the video...</source>
+          <target state="translated">正在合并视频...</target>
+        </trans-unit>
+        <trans-unit id="Transcode_Toast_Title" translate="yes" xml:space="preserve">
+          <source>Transcoding:</source>
+          <target state="translated">正在转换:</target>
+        </trans-unit>
+        <trans-unit id="Toast_ClickToCancel_Text" translate="yes" xml:space="preserve">
+          <source>Click the prompt to cancel</source>
+          <target state="translated">点击此提示以取消</target>
+        </trans-unit>
+        <trans-unit id="Crop_Toast_Complete_Text" translate="yes" xml:space="preserve">
+          <source>Cropping has been completed!</source>
+          <target state="translated">裁剪已完成！</target>
+        </trans-unit>
+        <trans-unit id="Toast_ClickToClear_Text" translate="yes" xml:space="preserve">
+          <source>Click to remove the prompt</source>
+          <target state="translated">点击以消除此提示</target>
+        </trans-unit>
+        <trans-unit id="Merge_Toast_Complete_Text" translate="yes" xml:space="preserve">
+          <source>Merging has been completed!</source>
+          <target state="translated">合并已完成！</target>
+        </trans-unit>
+        <trans-unit id="Transcode_Toast_Complete_Text_1" translate="yes" xml:space="preserve">
+          <source>Transcoding has been completed!</source>
+          <target state="translated">转码已完成！</target>
+        </trans-unit>
+        <trans-unit id="Transcode_Toast_Complete_Text_2" translate="yes" xml:space="preserve">
+          <source>has been successfully transcoded to</source>
+          <target state="translated">已成功转换为</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: FILE1 has been successfully transcoded to FILE2</note>
+        </trans-unit>
+        <trans-unit id="Crop_Toast_Cancel_Text_1" translate="yes" xml:space="preserve">
+          <source>Cropping task has been cancelled</source>
+          <target state="translated">裁剪任务已被取消</target>
+        </trans-unit>
+        <trans-unit id="Crop_Toast_Cancel_Text_2" translate="yes" xml:space="preserve">
+          <source>You can try restarting the task</source>
+          <target state="translated">您可以尝试重启该任务</target>
+        </trans-unit>
+        <trans-unit id="Merge_Toast_Cancel_Text_1" translate="yes" xml:space="preserve">
+          <source>Merging task has been cancelled</source>
+          <target state="translated">合并已完成</target>
+        </trans-unit>
+        <trans-unit id="Merge_Toast_Cancel_Text_2" translate="yes" xml:space="preserve">
+          <source>You can try restarting the task</source>
+          <target state="translated">您可以尝试重启此任务</target>
+        </trans-unit>
+        <trans-unit id="Transcode_Toast_Cancel_Text_1" translate="yes" xml:space="preserve">
+          <source>Transcode has been cancelled</source>
+          <target state="translated">转码已被取消</target>
+        </trans-unit>
+        <trans-unit id="Transcode_Toast_Cancel_Text_2" translate="yes" xml:space="preserve">
+          <source>You can try restarting the transcode</source>
+          <target state="translated">您可以尝试重启转码任务</target>
+        </trans-unit>
+        <trans-unit id="Disk_Capacity_Description" translate="yes" xml:space="preserve">
+          <source>free of</source>
+          <target state="translated">可用，共</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Describe the available capacity and total capacity of the disk, such as "128GB free of 256GB"</note>
+        </trans-unit>
+        <trans-unit id="WIFIShare_Error_Web_Content" translate="yes" xml:space="preserve">
+          <source>Unable to find the specified resource, please check the URL</source>
+          <target state="translated">无法找到指定的资源，请检查URL</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_DeviceName" translate="yes" xml:space="preserve">
+          <source>Target device:</source>
+          <target state="translated">目标设备:</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: Target device: [Bluetooth Device Name]</note>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_FileName" translate="yes" xml:space="preserve">
+          <source>File to transfer: </source>
+          <target state="translated">传输文件名:</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: File to transfer:  [FileName]</note>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Status_1" translate="yes" xml:space="preserve">
+          <source>Transferring</source>
+          <target state="translated">正在传输</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Description_1" translate="yes" xml:space="preserve">
+          <source>Target device terminated file transfer</source>
+          <target state="translated">目标设备终止了文件传输</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_ExitButton" translate="yes" xml:space="preserve">
+          <source>Exit</source>
+          <target state="translated">退出</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_RetryButton" translate="yes" xml:space="preserve">
+          <source>Retry</source>
+          <target state="translated">重试</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Status_2" translate="yes" xml:space="preserve">
+          <source>Transmission terminated</source>
+          <target state="translated">传输中止</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Description_2" translate="yes" xml:space="preserve">
+          <source>File transfer terminated</source>
+          <target state="translated">文件传输中止</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Description_3" translate="yes" xml:space="preserve">
+          <source>Connection failed:</source>
+          <target state="translated">连接失败:</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: Connection failed: [Reason]</note>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Description_4" translate="yes" xml:space="preserve">
+          <source>File transfer completed</source>
+          <target state="translated">文件传输已完成</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Status_3" translate="yes" xml:space="preserve">
+          <source>Transfer completed</source>
+          <target state="translated">传输完成</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Tips_Text_1" translate="yes" xml:space="preserve">
+          <source>Please select a paired device first</source>
+          <target state="translated">请先选择一个已配对的设备</target>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Description_5" translate="yes" xml:space="preserve">
+          <source>File transfer terminated unexpectedly:</source>
+          <target state="translated">文件传输意外中止:</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: File transfer terminated unexpectedly: &lt;Reason&gt;</note>
+        </trans-unit>
+        <trans-unit id="Bluetooth_Transfer_Description_6" translate="yes" xml:space="preserve">
+          <source>Unable to reconnect the target device</source>
+          <target state="translated">未能重新连接至目标设备</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Tips_Text_2" translate="yes" xml:space="preserve">
+          <source>Unable to connect to this Bluetooth device, please turn on the Bluetooth switch of this device</source>
+          <target state="translated">无法连接至此蓝牙设备，请打开此设备的蓝牙开关</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Status_Text_1" translate="yes" xml:space="preserve">
+          <source>Searching</source>
+          <target state="translated">正在搜索</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Status_Text_2" translate="yes" xml:space="preserve">
+          <source>Search Complete</source>
+          <target state="translated">搜索完成</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Tips_Text_3" translate="yes" xml:space="preserve">
+          <source>Unable to discover the ObexObjectPush service for Bluetooth devices, which is not supported</source>
+          <target state="translated">无法发现蓝牙设备的ObexObjectPush服务，该设备不受支持</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Tips_Text_4" translate="yes" xml:space="preserve">
+          <source>Pair failed</source>
+          <target state="translated">配对失败</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Tips_Text_5" translate="yes" xml:space="preserve">
+          <source>Please confirm that the PIN is the same as the paired device</source>
+          <target state="translated">请确认PIN码与配对设备一致</target>
+        </trans-unit>
+        <trans-unit id="BluetoothUI_Tips_Text_6" translate="yes" xml:space="preserve">
+          <source>Please confirm whether to pair with the device</source>
+          <target state="translated">请确认是否与设备配对</target>
+        </trans-unit>
+        <trans-unit id="Device_Capacity_Unit" translate="yes" xml:space="preserve">
+          <source>bytes</source>
+          <target state="translated">字节</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: 1024 bytes</note>
+        </trans-unit>
+        <trans-unit id="Device_Type_1" translate="yes" xml:space="preserve">
+          <source>Local drive</source>
+          <target state="translated">本地驱动器</target>
+        </trans-unit>
+        <trans-unit id="Device_Type_2" translate="yes" xml:space="preserve">
+          <source>Network drive</source>
+          <target state="translated">网络驱动器</target>
+        </trans-unit>
+        <trans-unit id="Device_Type_3" translate="yes" xml:space="preserve">
+          <source>Removable drive</source>
+          <target state="translated">可移动驱动器</target>
+        </trans-unit>
+        <trans-unit id="Device_Type_4" translate="yes" xml:space="preserve">
+          <source>Ram drive</source>
+          <target state="translated">内存驱动器</target>
+        </trans-unit>
+        <trans-unit id="Device_Type_5" translate="yes" xml:space="preserve">
+          <source>Unknown</source>
+          <target state="translated">未知</target>
+        </trans-unit>
+        <trans-unit id="File_Type_Compress_Description" translate="yes" xml:space="preserve">
+          <source>Compressed file</source>
+          <target state="translated">压缩文件</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">.zip description</note>
+        </trans-unit>
+        <trans-unit id="File_Type_RTF_Description" translate="yes" xml:space="preserve">
+          <source>RTF file</source>
+          <target state="translated">RTF文件</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">.rtf description</note>
+        </trans-unit>
+        <trans-unit id="File_Type_TXT_Description" translate="yes" xml:space="preserve">
+          <source>Text file</source>
+          <target state="translated">文本文件</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">.txt description</note>
+        </trans-unit>
+        <trans-unit id="ProgramPicker_Dialog_Title_1" translate="yes" xml:space="preserve">
+          <source>Continue using</source>
+          <target state="translated">继续使用以下应用</target>
+        </trans-unit>
+        <trans-unit id="ProgramPicker_Dialog_Title_2" translate="yes" xml:space="preserve">
+          <source>Choose another application</source>
+          <target state="translated">选择其他应用</target>
+        </trans-unit>
+        <trans-unit id="ProgramPicker_Dialog_BuiltInViewer" translate="yes" xml:space="preserve">
+          <source>RX built-in viewer</source>
+          <target state="translated">RX内置查看器</target>
+        </trans-unit>
+        <trans-unit id="ProgramPicker_Dialog_BuiltInViewer_Description" translate="yes" xml:space="preserve">
+          <source>RX provides basic viewing functions</source>
+          <target state="translated">RX提供基本的查看功能</target>
+        </trans-unit>
+        <trans-unit id="FileProperty_Bitrate" translate="yes" xml:space="preserve">
+          <source>Bitrate</source>
+          <target state="translated">比特率</target>
+        </trans-unit>
+        <trans-unit id="FileProperty_Duration" translate="yes" xml:space="preserve">
+          <source>Duration</source>
+          <target state="translated">持续时间</target>
+        </trans-unit>
+        <trans-unit id="FileProperty_Latitude" translate="yes" xml:space="preserve">
+          <source>Latitude</source>
+          <target state="translated">纬度</target>
+        </trans-unit>
+        <trans-unit id="FileProperty_Longitude" translate="yes" xml:space="preserve">
+          <source>Longitude</source>
+          <target state="translated">经度</target>
+        </trans-unit>
+        <trans-unit id="FileProperty_Resolution" translate="yes" xml:space="preserve">
+          <source>Resolution</source>
+          <target state="translated">分辨率</target>
+        </trans-unit>
+        <trans-unit id="FileProperty_ShootingDate" translate="yes" xml:space="preserve">
+          <source>Shooting date</source>
+          <target state="translated">拍摄时间</target>
+        </trans-unit>
+        <trans-unit id="AttributeName.Text" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">名称</target>
+        </trans-unit>
+        <trans-unit id="SizeProperty_Calculating_Text" translate="yes" xml:space="preserve">
+          <source>Calculating...</source>
+          <target state="translated">计算中...</target>
+        </trans-unit>
+        <trans-unit id="FolderInfo_File_Count" translate="yes" xml:space="preserve">
+          <source>files</source>
+          <target state="translated">个文件</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Format: [File Count] files, Example: 20 files (in folder)</note>
+        </trans-unit>
+        <trans-unit id="FolderInfo_Folder_Count" translate="yes" xml:space="preserve">
+          <source>folders</source>
+          <target state="translated">个文件夹</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Format: [Folder Count] folders, Example: 20 folders (in folder)</note>
+        </trans-unit>
+        <trans-unit id="QuickStart_Protocal_Application_PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Protocal</source>
+          <target state="translated">启动协议</target>
+        </trans-unit>
+        <trans-unit id="QuickStart_Protocal_Web_PlaceholderText" translate="yes" xml:space="preserve">
+          <source>WebSite</source>
+          <target state="translated">网址</target>
+        </trans-unit>
+        <trans-unit id="Reset_Dialog_TotalFile" translate="yes" xml:space="preserve">
+          <source>In total</source>
+          <target state="translated">总共</target>
+        </trans-unit>
+        <trans-unit id="SecureArea_AES_128Level_Description" translate="yes" xml:space="preserve">
+          <source>Recommand</source>
+          <target state="translated">推荐</target>
+        </trans-unit>
+        <trans-unit id="SecureArea_AES_256Level_Description" translate="yes" xml:space="preserve">
+          <source>Safer</source>
+          <target state="translated">更安全</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_Memory_Available_Text" translate="yes" xml:space="preserve">
+          <source>available</source>
+          <target state="translated">可用</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: Total 1024 MB, 512MB available</note>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_Memory_Total_Text" translate="yes" xml:space="preserve">
+          <source>Total</source>
+          <target state="translated">总共</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: Total 1024 MB, 512MB available</note>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_Memory_Usage_Text" translate="yes" xml:space="preserve">
+          <source>The software memory usage</source>
+          <target state="translated">软件内存使用情况</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_CPU_L1Cache_Text" translate="yes" xml:space="preserve">
+          <source>L1 cache</source>
+          <target state="translated">L1缓存</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_CPU_L2Cache_Text" translate="yes" xml:space="preserve">
+          <source>L2 cache</source>
+          <target state="translated">L2缓存</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_CPU_L3Cache_Text" translate="yes" xml:space="preserve">
+          <source>L3 cache</source>
+          <target state="translated">L3缓存</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_CPU_LogicalCore_Text" translate="yes" xml:space="preserve">
+          <source>logical core</source>
+          <target state="translated">个逻辑核心</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: 8 logical core (in CPU)</note>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_CPU_PhysicalCore_Text" translate="yes" xml:space="preserve">
+          <source>physical core</source>
+          <target state="translated">个物理核心</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: 4 physical core (in CPU)</note>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_Monitor_MaxBrightness_Text" translate="yes" xml:space="preserve">
+          <source>Max average brightness</source>
+          <target state="translated">最大平均亮度</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_Monitor_PeakBrightness_Text" translate="yes" xml:space="preserve">
+          <source>Peak brightness</source>
+          <target state="translated">峰值亮度</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_Gateway_Text" translate="yes" xml:space="preserve">
+          <source>Gateway</source>
+          <target state="translated">网关</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_GPU_Memory_Text" translate="yes" xml:space="preserve">
+          <source>GPU memory</source>
+          <target state="translated">GPU内存</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_GPU_Model_Text" translate="yes" xml:space="preserve">
+          <source>GPU model</source>
+          <target state="translated">GPU型号</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_NetworkAdapter_Text" translate="yes" xml:space="preserve">
+          <source>Network Adapter</source>
+          <target state="translated">网络适配器</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_Primary_DNS_Text" translate="yes" xml:space="preserve">
+          <source>Primary DNS server</source>
+          <target state="translated">主DNS服务器</target>
+        </trans-unit>
+        <trans-unit id="SystemInfo_Dialog_Secondary_DNS_Text" translate="yes" xml:space="preserve">
+          <source>Secondary DNS server</source>
+          <target state="translated">副DNS服务器</target>
+        </trans-unit>
+        <trans-unit id="Transcode_Dialog_Format_Text" translate="yes" xml:space="preserve">
+          <source>format</source>
+          <target state="translated">格式</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Example: MP4 format</note>
+        </trans-unit>
+        <trans-unit id="Transcode_Image_Preview_Resolution" translate="yes" xml:space="preserve">
+          <source>Preview resolution</source>
+          <target state="translated">预览分辨率</target>
+        </trans-unit>
+        <trans-unit id="Transcode_Simaple_Rate_Text" translate="yes" xml:space="preserve">
+          <source>Sampling-Rate</source>
+          <target state="translated">采样率</target>
+        </trans-unit>
+        <trans-unit id="VideoEdit_Dialog_Crop_Precision_Level_1" translate="yes" xml:space="preserve">
+          <source>Precision (Slower)</source>
+          <target state="translated">精确裁剪 (速度较慢)</target>
+        </trans-unit>
+        <trans-unit id="VideoEdit_Dialog_Crop_Precision_Level_2" translate="yes" xml:space="preserve">
+          <source>Fast (Faster)</source>
+          <target state="translated">快速裁剪 (速度较快)</target>
+        </trans-unit>
+        <trans-unit id="Video_Dialog_Encoding_Text" translate="yes" xml:space="preserve">
+          <source>Encoding</source>
+          <target state="translated">编码</target>
+        </trans-unit>
+        <trans-unit id="Zip_Dialog_Level_1" translate="yes" xml:space="preserve">
+          <source>Max</source>
+          <target state="translated">最大</target>
+        </trans-unit>
+        <trans-unit id="Zip_Dialog_Level_2" translate="yes" xml:space="preserve">
+          <source>Standard</source>
+          <target state="translated">标准</target>
+        </trans-unit>
+        <trans-unit id="Zip_Dialog_Level_3" translate="yes" xml:space="preserve">
+          <source>Package only</source>
+          <target state="translated">仅存储</target>
+        </trans-unit>
+        <trans-unit id="Zip_Dialog_Password_PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter decompression password</source>
+          <target state="translated">请输入解压密码</target>
+        </trans-unit>
+        <trans-unit id="Zip_Dialog_Password_Title" translate="yes" xml:space="preserve">
+          <source>Password required</source>
+          <target state="translated">需要密码</target>
+        </trans-unit>
+        <trans-unit id="Toast_EnterBackground_Text_1" translate="yes" xml:space="preserve">
+          <source>Please do not minimize RX-Explorer</source>
+          <target state="translated">请不要最小化RX文件管理器</target>
+        </trans-unit>
+        <trans-unit id="Toast_EnterBackground_Text_2" translate="yes" xml:space="preserve">
+          <source>Windows policy may terminate RX-Explorer</source>
+          <target state="translated">"Windows策略可能会终止RX的运行</target>
+        </trans-unit>
+        <trans-unit id="Toast_EnterBackground_Text_3" translate="yes" xml:space="preserve">
+          <source>Click to activate</source>
+          <target state="translated">点击以重新激活</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_WarningTitle" translate="yes" xml:space="preserve">
+          <source>Warning</source>
+          <target state="translated">警告</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_WaitUntilFinish_CloseButton" translate="yes" xml:space="preserve">
+          <source>Later</source>
+          <target state="translated">等待完成</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_WaitUntilFinish_Content" translate="yes" xml:space="preserve">
+          <source>RX Explorer is running some tasks, closing at this time may cause data errors, Do you want to continue?</source>
+          <target state="translated">RX文件管理器正在运行一些任务，此时关闭可能导致数据不正确，是否继续?</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_WaitUntilFinish_PrimaryButton" translate="yes" xml:space="preserve">
+          <source>Right now</source>
+          <target state="translated">立即关闭</target>
+        </trans-unit>
+        <trans-unit id="MainPage_PageDictionary_SecureArea_Label" translate="yes" xml:space="preserve">
+          <source>Security Area</source>
+          <target state="translated">安全域</target>
+        </trans-unit>
+        <trans-unit id="MainPage_PageDictionary_ThisPC_Label" translate="yes" xml:space="preserve">
+          <source>ThisPC</source>
+          <target state="translated">这台电脑</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_TipTitle" translate="yes" xml:space="preserve">
+          <source>Tips</source>
+          <target state="translated">提示</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_BackgroundTaskDisable_CloseButton" translate="yes" xml:space="preserve">
+          <source>Never remind</source>
+          <target state="translated">不再提醒</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_BackgroundTaskDisable_Content" translate="yes" xml:space="preserve">
+          <source>Background tasks are disabled, RX will not be able to notify you in time when the update is released. Please manually enable background task permissions</source>
+          <target state="translated">后台任务被禁用，RX将无法在更新发布时及时通知您，请手动开启后台任务权限</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_BackgroundTaskDisable_PrimaryButton" translate="yes" xml:space="preserve">
+          <source>Authorize now</source>
+          <target state="translated">现在授权</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_BackgroundTaskDisable_SecondaryButton" translate="yes" xml:space="preserve">
+          <source>Remind later</source>
+          <target state="translated">稍后提醒</target>
+        </trans-unit>
+        <trans-unit id="TeachingTip_PinToMenu_Subtitle" translate="yes" xml:space="preserve">
+          <source>Pin the RX FileManager to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</source>
+          <target state="translated">将RX文件管理器固定在和开始屏幕任务栏，启动更快更方便哦！\r\r★固定至开始菜单\r\r★固定至任务栏</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Donate_AlreadyPurchase_Content" translate="yes" xml:space="preserve">
+          <source>You have already supported RX once, thank you very much\r\rThe original intention of RX is not to make money, so you can't repeat purchase it\r\rYou can advertise the RX to the people around you, and it is also the best support for RX（*＾-＾*）\r\rSincerely,\rRuofan</source>
+          <target state="translated">您已为RX支持过一次了，您的心意开发者已心领\r\rRX的初衷并非是赚钱，因此不可重复支持哦\r\r您可以向周围的人宣传一下RX，也是对RX的最好的支持哦（*＾-＾*）\r\rRuofan,\r敬上</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Donate_AlreadyPurchase_Title" translate="yes" xml:space="preserve">
+          <source>Thanks again</source>
+          <target state="translated">再次感谢</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Donate_NetworkError_Content" translate="yes" xml:space="preserve">
+          <source>Unable to open support page due to Microsoft Store or network, please try again later</source>
+          <target state="translated">由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Donate_NetworkError_Title" translate="yes" xml:space="preserve">
+          <source>Sorry</source>
+          <target state="translated">抱歉</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Donate_NotPurchase_Content" translate="yes" xml:space="preserve">
+          <source>Whether supported or not, RX is always the same\r\rEven if you finally decide to give up supporting the project, thank you very much for being able to click to see it\r\rSincerely,\rRuofan</source>
+          <target state="translated">无论支持与否，RX始终如一\r\r即使您最终决定放弃支持本项目，依然十分感谢您能够点进来看一看\r\rRuofan,\r敬上</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Donate_NotPurchase_Title" translate="yes" xml:space="preserve">
+          <source>Appreciation</source>
+          <target state="translated">感谢</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Donate_Success_Content" translate="yes" xml:space="preserve">
+          <source>Thank you for your support, we will work hard to make RX better and better q(≧▽≦q)\r\rThe RX file manager was born to fill the gaps in the UWP file manager\rThis is not a profitable project, so downloading and using are free and do not include ads\rRX's goal is to create a free and full-featured file manager\rRX File Manager is a project I developed in my spare time\rI hope everyone likes\r\rSincerely,\rRuofan</source>
+          <target state="translated">感谢您的支持，我们将努力将RX做得越来越好q(≧▽≦q)\r\rRX文件管理器的诞生，是为了填补UWP文件管理器缺位的空白\r它并非是一个盈利项目，因此下载和使用都是免费的，并且不含有广告\rRX的目标是打造一个免费且功能全面文件管理器\rRX文件管理器是我利用业余时间开发的项目\r希望大家能够喜欢\r\rRuofan,\r敬上</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Donate_Success_Title" translate="yes" xml:space="preserve">
+          <source>Appreciation</source>
+          <target state="translated">感谢</target>
+        </trans-unit>
+        <trans-unit id="TeachingTip_Donate_Subtitle" translate="yes" xml:space="preserve">
+          <source>It takes a lot of effort for developers to develop RX Explorer\r🎉You can volunteer to contribute a little pocket money to developers.🎉\r\rIf you don't want to, you can click \"Later\" to cancel\rIf you want to donate, you can click \"Donate\" to support developer\r\rTips: Donator can unlock the unique file safe feature: \"Security Area\"</source>
+          <target state="translated">开发者开发RX文件管理器花费了大量精力\r🎉您可以自愿为开发者贡献一点小零花钱🎉\r\r若您不愿意，则可以点击\"跪安\"以取消\r若您愿意支持开发者，则可以点击\"准奏\"\r\rTips: 支持的小伙伴可以解锁独有文件保险柜功能：“安全域”</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="Crash_Screenshot_Send_Text" translate="yes" xml:space="preserve">
+          <source>Screenshot before the crash (Please send as an email attachment)</source>
+          <target state="translated">崩溃前屏幕截图(请作为邮件附件发送)</target>
+        </trans-unit>
+        <trans-unit id="CropperPage_Custom_Text" translate="yes" xml:space="preserve">
+          <source>Custom</source>
+          <target state="translated">自定义</target>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_1" translate="yes" xml:space="preserve">
+          <source>Origin</source>
+          <target state="translated">原图</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_2" translate="yes" xml:space="preserve">
+          <source>Invert</source>
+          <target state="translated">反色</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_3" translate="yes" xml:space="preserve">
+          <source>Gray</source>
+          <target state="translated">灰度</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_4" translate="yes" xml:space="preserve">
+          <source>Binary</source>
+          <target state="translated">黑白</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_5" translate="yes" xml:space="preserve">
+          <source>Sepia</source>
+          <target state="translated">怀旧</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_6" translate="yes" xml:space="preserve">
+          <source>Mosaic</source>
+          <target state="translated">马赛克</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_7" translate="yes" xml:space="preserve">
+          <source>Sketch</source>
+          <target state="translated">素描</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_8" translate="yes" xml:space="preserve">
+          <source>Blurry</source>
+          <target state="translated">模糊</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="CropperPage_Filter_Type_9" translate="yes" xml:space="preserve">
+          <source>OilPainting</source>
+          <target state="translated">油画</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_Access_Tips" translate="yes" xml:space="preserve">
+          <source>Please enable file system access for this app to work properly\rThen restart the app</source>
+          <target state="translated">请开启此应用的文件系统访问权限以正常工作\r然后重新启动该应用</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_1" translate="yes" xml:space="preserve">
+          <source>Microsoft Store</source>
+          <target state="translated">微软商店</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_10" translate="yes" xml:space="preserve">
+          <source>Instagram</source>
+          <target state="translated">Instagram</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_11" translate="yes" xml:space="preserve">
+          <source>Twitter</source>
+          <target state="translated">推特</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_2" translate="yes" xml:space="preserve">
+          <source>Calculator</source>
+          <target state="translated">计算器</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_3" translate="yes" xml:space="preserve">
+          <source>Setting</source>
+          <target state="translated">系统设置</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_4" translate="yes" xml:space="preserve">
+          <source>Email</source>
+          <target state="translated">邮件</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_5" translate="yes" xml:space="preserve">
+          <source>Calendar</source>
+          <target state="translated">日历</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_6" translate="yes" xml:space="preserve">
+          <source>Bing Map</source>
+          <target state="translated">必应地图</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_7" translate="yes" xml:space="preserve">
+          <source>Weather</source>
+          <target state="translated">天气</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_8" translate="yes" xml:space="preserve">
+          <source>Bing</source>
+          <target state="translated">必应搜索</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_QuickStartItem_Name_9" translate="yes" xml:space="preserve">
+          <source>Facebook</source>
+          <target state="translated">Facebook</target>
+        </trans-unit>
+        <trans-unit id="Toast_BroadFileSystemAccess_ActionButton_1" translate="yes" xml:space="preserve">
+          <source>Launch</source>
+          <target state="translated">启动</target>
+        </trans-unit>
+        <trans-unit id="Toast_BroadFileSystemAccess_ActionButton_2" translate="yes" xml:space="preserve">
+          <source>Later</source>
+          <target state="translated">稍后</target>
+        </trans-unit>
+        <trans-unit id="Toast_BroadFileSystemAccess_Text_1" translate="yes" xml:space="preserve">
+          <source>Waiting for user to complete operation...</source>
+          <target state="translated">正在等待用户完成操作...</target>
+        </trans-unit>
+        <trans-unit id="Toast_BroadFileSystemAccess_Text_2" translate="yes" xml:space="preserve">
+          <source>Please turn on file system permissions</source>
+          <target state="translated">请开启文件系统权限</target>
+        </trans-unit>
+        <trans-unit id="Toast_BroadFileSystemAccess_Text_3" translate="yes" xml:space="preserve">
+          <source>Then click on the launch below to start immediately</source>
+          <target state="translated">随后点击下方的启动</target>
+        </trans-unit>
+        <trans-unit id="FileControl_ItemDisplayMode_Details" translate="yes" xml:space="preserve">
+          <source>Details</source>
+          <target state="translated">详细列表</target>
+        </trans-unit>
+        <trans-unit id="FileControl_ItemDisplayMode_Large_Icon" translate="yes" xml:space="preserve">
+          <source>Large icons</source>
+          <target state="translated">大图标</target>
+        </trans-unit>
+        <trans-unit id="FileControl_ItemDisplayMode_List" translate="yes" xml:space="preserve">
+          <source>List</source>
+          <target state="translated">列表</target>
+        </trans-unit>
+        <trans-unit id="FileControl_ItemDisplayMode_Medium_Icon" translate="yes" xml:space="preserve">
+          <source>Medium icons</source>
+          <target state="translated">中图标</target>
+        </trans-unit>
+        <trans-unit id="FileControl_ItemDisplayMode_Small_Icon" translate="yes" xml:space="preserve">
+          <source>Small icons</source>
+          <target state="translated">小图标</target>
+        </trans-unit>
+        <trans-unit id="FileControl_ItemDisplayMode_Tiles" translate="yes" xml:space="preserve">
+          <source>Tiles</source>
+          <target state="translated">平铺</target>
+        </trans-unit>
+        <trans-unit id="SearchBox_PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Search</source>
+          <target state="translated">搜索</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_LocateFolderFailure_Content" translate="yes" xml:space="preserve">
+          <source>Unable to locate folder, which may have been deleted or moved</source>
+          <target state="translated">无法定位文件夹，该文件夹可能已被删除或移动</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_BluetoothShare" translate="yes" xml:space="preserve">
+          <source>Bluetooth</source>
+          <target state="translated">蓝牙</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_ChooseAnotherApp" translate="yes" xml:space="preserve">
+          <source>Choose another app</source>
+          <target state="translated">选择其他应用</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Compression" translate="yes" xml:space="preserve">
+          <source>Compression</source>
+          <target state="translated">压缩</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Copy" translate="yes" xml:space="preserve">
+          <source>Copy</source>
+          <target state="translated">复制</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Create" translate="yes" xml:space="preserve">
+          <source>Create</source>
+          <target state="translated">新建</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_CreateFile" translate="yes" xml:space="preserve">
+          <source>Create file</source>
+          <target state="translated">新建文件</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_CreateFolder" translate="yes" xml:space="preserve">
+          <source>Create folder</source>
+          <target state="translated">新建文件夹</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Cut" translate="yes" xml:space="preserve">
+          <source>Cut</source>
+          <target state="translated">剪切</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Delete" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="translated">删除</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Edit" translate="yes" xml:space="preserve">
+          <source>Edit</source>
+          <target state="translated">编辑</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Merge" translate="yes" xml:space="preserve">
+          <source>Merge</source>
+          <target state="translated">合并</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Montage" translate="yes" xml:space="preserve">
+          <source>Montage</source>
+          <target state="translated">剪辑</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Open" translate="yes" xml:space="preserve">
+          <source>Open</source>
+          <target state="translated">打开</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_OpenAsAdministrator" translate="yes" xml:space="preserve">
+          <source>Open as administrator</source>
+          <target state="translated">以管理员权限打开</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_OpenInWinExplorer" translate="yes" xml:space="preserve">
+          <source>Open in Windows Explorer</source>
+          <target state="translated">使用系统管理器打开</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_OpenWith" translate="yes" xml:space="preserve">
+          <source>Open with...</source>
+          <target state="translated">打开方式...</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Paste" translate="yes" xml:space="preserve">
+          <source>Paste</source>
+          <target state="translated">粘贴</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_PinToHome" translate="yes" xml:space="preserve">
+          <source>Pin to homepage</source>
+          <target state="translated">固定至主界面</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Property" translate="yes" xml:space="preserve">
+          <source>Property</source>
+          <target state="translated">属性</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Refresh" translate="yes" xml:space="preserve">
+          <source>Refresh</source>
+          <target state="translated">刷新</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Rename" translate="yes" xml:space="preserve">
+          <source>Rename</source>
+          <target state="translated">重命名</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Share" translate="yes" xml:space="preserve">
+          <source>Share</source>
+          <target state="translated">共享</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_SystemShare" translate="yes" xml:space="preserve">
+          <source>System share</source>
+          <target state="translated">系统共享</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Transcode" translate="yes" xml:space="preserve">
+          <source>Transcode</source>
+          <target state="translated">转码</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_WIFIShare" translate="yes" xml:space="preserve">
+          <source>WIFI</source>
+          <target state="translated">WIFI</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_CancelButton" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_ContinueButton" translate="yes" xml:space="preserve">
+          <source>Continue</source>
+          <target state="translated">继续</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteFolder_Content" translate="yes" xml:space="preserve">
+          <source>This will permanently delete everything in the folder\r\rWhether to continue?</source>
+          <target state="translated">此操作将永久删除该文件夹内的所有内容\r\r是否继续?</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_LaterButton" translate="yes" xml:space="preserve">
+          <source>Later</source>
+          <target state="translated">稍后</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_NowButton" translate="yes" xml:space="preserve">
+          <source>Now</source>
+          <target state="translated">立刻</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedDeleteFolder_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to delete this folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</source>
+          <target state="translated">RX无权删除此文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteFolderError_Content" translate="yes" xml:space="preserve">
+          <source>An error occurred while deleting the folder</source>
+          <target state="translated">删除文件夹时出现错误</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_EmptyFolderName_Content" translate="yes" xml:space="preserve">
+          <source>Folder name cannot be empty, rename failed</source>
+          <target state="translated">文件夹名不能为空，重命名失败</target>
+        </trans-unit>
+        <trans-unit id="Create_NewFolder_Admin_Name" translate="yes" xml:space="preserve">
+          <source>New folder</source>
+          <target state="translated">新建文件夹</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedRenameFolder_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to rename this folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</source>
+          <target state="translated">RX无权重命名此文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedCreateFolder_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</source>
+          <target state="translated">RX无权在此创建文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RepeatAddToHomePage_Content" translate="yes" xml:space="preserve">
+          <source>This folder has been added to the home page, can not be added repeatedly</source>
+          <target state="translated">此文件夹已经添加到主界面了，不能重复添加哦</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_LocatePathFailure_Content" translate="yes" xml:space="preserve">
+          <source>Unable to locate the path:</source>
+          <target state="translated">无法找到路径:</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SameFolder_Content" translate="yes" xml:space="preserve">
+          <source>The target folder is the same as the source folder</source>
+          <target state="translated">目标文件夹和源文件夹相同</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CopyFailForNotExist_Content" translate="yes" xml:space="preserve">
+          <source>Some files do not exist and cannot be copyed to the specified location</source>
+          <target state="translated">部分文件不存在，无法复制到指定位置</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedPaste_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</source>
+          <target state="translated">RX无权将文件粘贴至此处，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CopyFail_FreeSpaceCritical_Content" translate="yes" xml:space="preserve">
+          <source>Some files cannot be copyed due to insufficient free space on the device</source>
+          <target state="translated">因设备剩余空间大小不足，部分文件无法复制</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_MoveFailForNotExist_Content" translate="yes" xml:space="preserve">
+          <source>Some files do not exist and cannot be moved to the specified location</source>
+          <target state="translated">部分文件不存在，无法移动到指定位置</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_MoveFail_FreeSpaceCritical_Content" translate="yes" xml:space="preserve">
+          <source>Some files cannot be moved due to insufficient free space on the device</source>
+          <target state="translated">因设备剩余空间大小不足，部分文件无法移动</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_MoveFail_Captured_Content" translate="yes" xml:space="preserve">
+          <source>Some files are in use by other applications and cannot be moved</source>
+          <target state="translated">部分文件正在被其他应用程序使用，因此无法移动</target>
+        </trans-unit>
+        <trans-unit id="Drag_Tip_CopyTo" translate="yes" xml:space="preserve">
+          <source>Copy to</source>
+          <target state="translated">复制到</target>
+        </trans-unit>
+        <trans-unit id="Drag_Tip_MoveTo" translate="yes" xml:space="preserve">
+          <source>Move to</source>
+          <target state="translated">移动到</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Copying" translate="yes" xml:space="preserve">
+          <source>Copying</source>
+          <target state="translated">正在复制</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_CheckingLicense" translate="yes" xml:space="preserve">
+          <source>Checking license...</source>
+          <target state="translated">正在检测许可证...</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Compressing" translate="yes" xml:space="preserve">
+          <source>Compressing</source>
+          <target state="translated">正在压缩</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Deleting" translate="yes" xml:space="preserve">
+          <source>Deleting</source>
+          <target state="translated">正在删除</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Extracting" translate="yes" xml:space="preserve">
+          <source>Extracting</source>
+          <target state="translated">正在解压</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Moving" translate="yes" xml:space="preserve">
+          <source>Moving</source>
+          <target state="translated">正在移动</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Transcoding" translate="yes" xml:space="preserve">
+          <source>Transcoding</source>
+          <target state="translated">正在转码</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Undoing" translate="yes" xml:space="preserve">
+          <source>Undoing</source>
+          <target state="translated">正在撤销</target>
+        </trans-unit>
+        <trans-unit id="Drag_Tip_ReleaseToAdd" translate="yes" xml:space="preserve">
+          <source>Release to add files</source>
+          <target state="translated">松开即可添加文件</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Exporting" translate="yes" xml:space="preserve">
+          <source>Exporting</source>
+          <target state="translated">正在导出</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Importing" translate="yes" xml:space="preserve">
+          <source>Importing</source>
+          <target state="translated">正在导入</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Loading" translate="yes" xml:space="preserve">
+          <source>Loading</source>
+          <target state="translated">正在加载</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_NoFeedback" translate="yes" xml:space="preserve">
+          <source>No feedback or suggestions</source>
+          <target state="translated">无任何反馈或建议</target>
+        </trans-unit>
+        <trans-unit id="Download_Folder_Name" translate="yes" xml:space="preserve">
+          <source>Downloads</source>
+          <target state="translated">下载</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Name of [Downloads folder]</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UndoFailure_Content" translate="yes" xml:space="preserve">
+          <source>Since some files/folders no longer exist, the undo operation could not be completed completely</source>
+          <target state="translated">由于部分文件/文件夹已不存在，因此撤销操作未能完全完成</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteFile_Content" translate="yes" xml:space="preserve">
+          <source>This operation will permanently delete the file\r\rWhether to continue?</source>
+          <target state="translated">此操作将永久删除该文件\r\r是否继续?</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_RefreshButton" translate="yes" xml:space="preserve">
+          <source>Refresh</source>
+          <target state="translated">刷新</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteFiles_Content" translate="yes" xml:space="preserve">
+          <source>This operation will permanently delete these files\r\rWhether to continue?</source>
+          <target state="translated">此操作将永久删除这些文件\r\r是否继续？</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteItemError_Content" translate="yes" xml:space="preserve">
+          <source>Unable to delete some files/folders, the file/folders may have been moved or deleted</source>
+          <target state="translated">无法删除部分文件/文件夹，该文件/文件夹可能已被移动或删除</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RenameNumError_Content" translate="yes" xml:space="preserve">
+          <source>This operation allows only one object to be renamed at a time</source>
+          <target state="translated">此操作一次仅允许重命名一个对象</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_LocateFileFailure_Content" translate="yes" xml:space="preserve">
+          <source>Could not find the corresponding file, it may have been moved or deleted</source>
+          <target state="translated">无法找到对应的文件，该文件可能已被移动或删除</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_EmptyFileName_Content" translate="yes" xml:space="preserve">
+          <source>File name cannot be empty, rename failed</source>
+          <target state="translated">文件名不能为空，重命名失败</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to rename, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</source>
+          <target state="translated">RX无权重命名此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_OpenBluetooth_Content" translate="yes" xml:space="preserve">
+          <source>Please turn on Bluetooth and try again</source>
+          <target state="translated">请开启蓝牙开关后再试</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Decompression" translate="yes" xml:space="preserve">
+          <source>Decompression</source>
+          <target state="translated">解压</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedDecompression_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file.\r\rEnter the system explorer immediately?</source>
+          <target state="translated">RX无权在此处解压Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DecompressionError_Content" translate="yes" xml:space="preserve">
+          <source>An exception occurred while extracting the file\r\rError Message：\r\r</source>
+          <target state="translated">解压文件时发生异常\r\r错误信息：\r\r</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CompressionError_Content" translate="yes" xml:space="preserve">
+          <source>An exception occurred while compressing the file\r\rError Message：\r\r</source>
+          <target state="translated">压缩文件时发生异常\r\r错误信息：\r\r</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedCompression_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rEnter the system explorer immediately?</source>
+          <target state="translated">RX无权在此处创建Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_TaskWorking_Content" translate="yes" xml:space="preserve">
+          <source>There is already an ongoing task, please wait for it to complete</source>
+          <target state="translated">已存在正在进行中的任务，请等待其完成</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_OpenFailure_Content" translate="yes" xml:space="preserve">
+          <source>RX FileManager could not open this file\r\rBut it can be opened with other applications</source>
+          <target state="translated">RX文件管理器无法打开此文件\r\r但可以使用其他应用程序打开</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_OpenFailure_PrimaryButton" translate="yes" xml:space="preserve">
+          <source>Default app</source>
+          <target state="translated">默认应用</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedCreateNewFile_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have sufficient permissions to create new files in this folder\r\rEnter the system explorer immediately?</source>
+          <target state="translated">RX没有足够的权限在此文件夹新建文件\r\r是否立即进入系统文件管理器进行相应操作？</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DragIncludeFolderError" translate="yes" xml:space="preserve">
+          <source>The target folder cannot be included in the drag item</source>
+          <target state="translated">目标文件夹不可以包含在拖动项中</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_WiFiError_Content" translate="yes" xml:space="preserve">
+          <source>WIFI transmission has an unexpected error：\r</source>
+          <target state="translated">WIFI传输出现意外错误：\r</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="RX_BuildIn_Viewer_Name" translate="yes" xml:space="preserve">
+          <source>RX built-in viewer</source>
+          <target state="translated">RX内置查看器</target>
+        </trans-unit>
+        <trans-unit id="Crop_Image_Name_Tail" translate="yes" xml:space="preserve">
+          <source>Cropped</source>
+          <target state="translated">裁剪</target>
+        </trans-unit>
+        <trans-unit id="Merge_Image_Name_Tail" translate="yes" xml:space="preserve">
+          <source>Merged</source>
+          <target state="translated">合并</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_GoBack" translate="yes" xml:space="preserve">
+          <source>Go back</source>
+          <target state="translated">返回</target>
+        </trans-unit>
+        <trans-unit id="Media_Tip_Text" translate="yes" xml:space="preserve">
+          <source>Please Enjoy:</source>
+          <target state="translated">请欣赏:</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_PDFOpenFailure" translate="yes" xml:space="preserve">
+          <source>Unable to parse this PDF file, failed to open PDF</source>
+          <target state="translated">无法解析此PDF文件，PDF打开失败</target>
+        </trans-unit>
+        <trans-unit id="Pdf_Page_Tip" translate="yes" xml:space="preserve">
+          <source>Page [CurrentPageIndex] / ([TotalPageCount] pages)</source>
+          <target state="translated">第 [CurrentPageIndex] 页 / (共 [TotalPageCount] 页)</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Used to display the current number of PDF pages and the total number of pages. Do not modify [CurrentPageIndex] and [TotalPageCount]. They are placeholders. Please place it in the correct position according to the word order of the corresponding language</note>
+        </trans-unit>
+        <trans-unit id="Queue_Dialog_ImageReadError_Content" translate="yes" xml:space="preserve">
+          <source>The image viewer failed to read any image file due to an abnormality in reading the image folder. Please try again.</source>
+          <target state="translated">由于读取图片文件夹出现异常，图片查看器未能读取到任何图片文件。请重试。</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_TryAgain" translate="yes" xml:space="preserve">
+          <source>Try again</source>
+          <target state="translated">再次尝试</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_UsePassword" translate="yes" xml:space="preserve">
+          <source>Use password</source>
+          <target state="translated">使用密码</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_WinHelloAuthFail_Content" translate="yes" xml:space="preserve">
+          <source>Windows Hello authentication failed, you do not have permission to enter the Security Area</source>
+          <target state="translated">Windows Hello认证不通过，您无进入安全域的权限</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_WinHelloCredentialLost_Content" translate="yes" xml:space="preserve">
+          <source>Windows Hello authentication credentials are lost, you cannot use Windows Hello, please use the password to enter \r\rAfter you re-enter the security domain, enter settings to re-register Windows Hello</source>
+          <target state="translated">Windows Hello认证凭据丢失，无法使用Windows Hello，请使用密码进入\r\r您可以在重新进入安全域后，进入设置重新注册Windows Hello</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_WinHelloDisable_Content" translate="yes" xml:space="preserve">
+          <source>Windows Hello is disabled and cannot enter the Security Area through Windows Hello</source>
+          <target state="translated">Windows Hello已被禁用，无法通过Windows Hello进入安全域</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SecureAreaUnlock_Content" translate="yes" xml:space="preserve">
+          <source>Thank you for your support of the RX Explorer, the security area has been unlocked</source>
+          <target state="translated">感谢您对RX文件管理器的支持，安全域功能已经解锁</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SecureAreaNetworkUnavailable_Content" translate="yes" xml:space="preserve">
+          <source>Cannot check license status because the current network or user is unavailable</source>
+          <target state="translated">当前网络或用户不可用，因此无法检查许可证状态</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_EncryptError_Content" translate="yes" xml:space="preserve">
+          <source>An unexpected error occurred while encrypting the file, the import process has ended</source>
+          <target state="translated">加密文件时出现意外错误，导入过程已经终止</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SecureAreaImportFiliter_Content" translate="yes" xml:space="preserve">
+          <source>Security Area does not support importing folder, all folders have been filtered</source>
+          <target state="translated">安全域不支持导入文件夹类型，所有文件夹类型均已被过滤</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DecryptError_Content" translate="yes" xml:space="preserve">
+          <source>An unexpected error occurred while decrypting the file, the export process has ended</source>
+          <target state="translated">解密文件时出现意外错误，导出过程已经终止</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DecryptPasswordError_Content" translate="yes" xml:space="preserve">
+          <source>The decryption failed due to the wrong decryption password, the export task has been terminated \r\rThis may be caused by a mismatch in the data of the files to be decrypted</source>
+          <target state="translated">由于解密密码错误，解密失败，导出任务已经终止\r\r这可能是由于待解密文件数据不匹配造成的</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_FileDamageError_Content" translate="yes" xml:space="preserve">
+          <source>Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r\rThis may be caused by the file data being damaged or modified</source>
+          <target state="translated">由于待解密文件的内部结构损坏，解密失败，导出任务已经终止\r\r这可能是由于文件数据已损坏或被修改造成的</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedCreateDecryptFile_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to create an decrypted file here</source>
+          <target state="translated">RX无权在此处创建解密文件，可能是您无权访问此文件夹</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_RetryButton" translate="yes" xml:space="preserve">
+          <source>Retry</source>
+          <target state="translated">重试</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_WinHelloSetupError_Content" translate="yes" xml:space="preserve">
+          <source>Windows Hello could not be set up correctly, please try again</source>
+          <target state="translated">无法正确设置Windows Hello，请重试</target>
+        </trans-unit>
+        <trans-unit id="Setting_UIMode_Custom" translate="yes" xml:space="preserve">
+          <source>Custom</source>
+          <target state="translated">自定义</target>
+        </trans-unit>
+        <trans-unit id="Setting_UIMode_Recommand" translate="yes" xml:space="preserve">
+          <source>Recommand</source>
+          <target state="translated">推荐</target>
+        </trans-unit>
+        <trans-unit id="Setting_UIMode_SolidColor" translate="yes" xml:space="preserve">
+          <source>Solid Color</source>
+          <target state="translated">纯色</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ClearHistory_Content" translate="yes" xml:space="preserve">
+          <source>Search history cleanup completed</source>
+          <target state="translated">搜索历史记录清理完成</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RestartFail_Content" translate="yes" xml:space="preserve">
+          <source>There was a problem during the automatic restart, please restart the RX Explorer manually</source>
+          <target state="translated">自动重新启动过程中出现问题，请手动重启RX文件管理器</target>
+        </trans-unit>
+        <trans-unit id="DecryptFail_Backup_Text" translate="yes" xml:space="preserve">
+          <source>Error file backup</source>
+          <target state="translated">错误文件备份</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_NotSupportARM_Content" translate="yes" xml:space="preserve">
+          <source>Some components that the system information dialog depends on only support X86 or X64 processors\rUnsupport ARM processor for now, so this dialog will not be opened</source>
+          <target state="translated">系统信息窗口所依赖的部分组件仅支持在X86或X64处理器上实现\rARM处理器暂不支持，因此无法打开此窗口</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_FeedBackNetworkError_Content" translate="yes" xml:space="preserve">
+          <source>This operation cannot be performed due to network reasons</source>
+          <target state="translated">由于网络原因，此操作无法完成</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_FeedBackRepeatError_Content" translate="yes" xml:space="preserve">
+          <source>The same feedback already exists, please do not submit it repeatedly</source>
+          <target state="translated">已存在相同的反馈内容，请勿重复提交</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_BootAtStart_Content" translate="yes" xml:space="preserve">
+          <source>RX cannot be turned on automatically because startup is disabled by the system\rYou can go to the [System Settings] page to manage</source>
+          <target state="translated">由于自动启动被系统禁用，RX无法自动开启此功能\r您可以前往[系统设置]页面管理</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_AddDeviceFail_Content" translate="yes" xml:space="preserve">
+          <source>Cannot add removable device due to lack of sufficient permissions, Device name:</source>
+          <target state="translated">由于缺乏相应的权限，无法添加可移动设备，设备名称:</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ImportLibraryFolderError_Content" translate="yes" xml:space="preserve">
+          <source>Unable to import library folder for some unforeseen reasons</source>
+          <target state="translated">由于某些无法预料的原因，无法导入库文件夹</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeviceHideForError_Content" translate="yes" xml:space="preserve">
+          <source>Some drives fail to display due to lack of sufficient permissions</source>
+          <target state="translated">由于缺乏足够的权限，部分驱动器未能显示</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_PinFolderNotFound_Content" translate="yes" xml:space="preserve">
+          <source>Some of the fixed folders are no longer found and will be automatically removed\r\rIncluding：\r</source>
+          <target state="translated">部分固定的文件夹已无法找到，将自动移除\r\r包括：\r</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeviceExist_Content" translate="yes" xml:space="preserve">
+          <source>The selected drive already exists</source>
+          <target state="translated">所选择的驱动器已经存在</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeviceSelectError_Content" translate="yes" xml:space="preserve">
+          <source>The selected content is not a drive</source>
+          <target state="translated">所选择的内容并非是驱动器</target>
         </trans-unit>
       </group>
     </body>

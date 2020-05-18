@@ -41,7 +41,7 @@ namespace FileManager.Dialog
                 ClearSecure.IsEnabled = false;
             }
 
-            ClearSecure.Content += Globalization.Language == LanguageEnum.Chinese ? $"(共 {Count} 个)" : $"({Count} in total)";
+            ClearSecure.Content += $"({Globalization.GetString("Reset_Dialog_TotalFile")}: {Count})";
         }
 
         private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

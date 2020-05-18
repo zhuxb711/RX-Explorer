@@ -130,14 +130,7 @@ namespace FileManager.Dialog
                 if (!string.IsNullOrEmpty(SystemInformation.MemoryInfo))
                 {
                     var MemoryGroup = SystemInformation.MemoryInfo.Split("||");
-                    if (Globalization.Language == LanguageEnum.Chinese)
-                    {
-                        return "共 " + MemoryGroup[0] + " (" + MemoryGroup[1] + " 可用)";
-                    }
-                    else
-                    {
-                        return "Total " + MemoryGroup[0] + " (" + MemoryGroup[1] + " available)";
-                    }
+                    return $"{Globalization.GetString("SystemInfo_Dialog_Memory_Total_Text")} " + MemoryGroup[0] + " (" + MemoryGroup[1] + $" {Globalization.GetString("SystemInfo_Dialog_Memory_Available_Text")})";
                 }
                 else
                 {
@@ -150,16 +143,8 @@ namespace FileManager.Dialog
         {
             get
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    return "此软件内存占用: " + (MemoryManager.AppMemoryUsage / 1048576f < 1024 ? Math.Round(MemoryManager.AppMemoryUsage / 1048576f, 2).ToString("0.00") + " MB"
-                                                                                                : Math.Round(MemoryManager.AppMemoryUsage / 1073741824f, 2).ToString("0.00") + " GB");
-                }
-                else
-                {
-                    return "This software memory usage: " + (MemoryManager.AppMemoryUsage / 1048576f < 1024 ? Math.Round(MemoryManager.AppMemoryUsage / 1048576f, 2).ToString("0.00") + " MB"
-                                                                                                : Math.Round(MemoryManager.AppMemoryUsage / 1073741824f, 2).ToString("0.00") + " GB");
-                }
+                return $"{Globalization.GetString("SystemInfo_Dialog_Memory_Usage_Text")}: " + (MemoryManager.AppMemoryUsage / 1048576f < 1024 ? Math.Round(MemoryManager.AppMemoryUsage / 1048576f, 2).ToString("0.00") + " MB"
+                                                                                               : Math.Round(MemoryManager.AppMemoryUsage / 1073741824f, 2).ToString("0.00") + " GB");
             }
         }
 
@@ -209,7 +194,7 @@ namespace FileManager.Dialog
 
                 TextBlock PeakLuminance = new TextBlock
                 {
-                    Text = Globalization.Language==LanguageEnum.Chinese?"峰值亮度": "Peak brightness",
+                    Text = Globalization.GetString("SystemInfo_Dialog_Monitor_PeakBrightness_Text"),
                     VerticalAlignment = VerticalAlignment.Center
                 };
                 PeakLuminance.SetValue(Grid.RowProperty, DisplayGrid.RowDefinitions.Count - 1);
@@ -217,7 +202,7 @@ namespace FileManager.Dialog
 
                 TextBlock PeakLuminanceDescription = new TextBlock
                 {
-                    Text = $"{ColorInfo.MaxLuminanceInNits.ToString("F1")} Nits",
+                    Text = $"{ColorInfo.MaxLuminanceInNits:F1} Nits",
                     VerticalAlignment = VerticalAlignment.Center
                 };
                 PeakLuminanceDescription.SetValue(Grid.RowProperty, DisplayGrid.RowDefinitions.Count - 1);
@@ -233,7 +218,7 @@ namespace FileManager.Dialog
 
                 TextBlock MaxAverageLuminance = new TextBlock
                 {
-                    Text = Globalization.Language == LanguageEnum.Chinese ? "最大平均亮度": "Max average brightness",
+                    Text = Globalization.GetString("SystemInfo_Dialog_Monitor_MaxBrightness_Text"),
                     VerticalAlignment = VerticalAlignment.Center
                 };
                 MaxAverageLuminance.SetValue(Grid.RowProperty, DisplayGrid.RowDefinitions.Count - 1);
@@ -241,7 +226,7 @@ namespace FileManager.Dialog
 
                 TextBlock MaxAverageLuminanceDescription = new TextBlock
                 {
-                    Text = $"{ColorInfo.MaxAverageFullFrameLuminanceInNits.ToString("F1")} Nits",
+                    Text = $"{ColorInfo.MaxAverageFullFrameLuminanceInNits:F1} Nits",
                     VerticalAlignment = VerticalAlignment.Center
                 };
                 MaxAverageLuminanceDescription.SetValue(Grid.RowProperty, DisplayGrid.RowDefinitions.Count - 1);
@@ -254,10 +239,9 @@ namespace FileManager.Dialog
             string CoreInfo = SystemInformation.CPUCoreInfo;
             if (!string.IsNullOrEmpty(CoreInfo))
             {
-                var CoreInfoGroup = CoreInfo.Split("||");
-                CPUCoreCount = Globalization.Language == LanguageEnum.Chinese
-                    ? (CoreInfoGroup[0] + "个物理核心  ,  " + CoreInfoGroup[1] + "个逻辑核心")
-                    : (CoreInfoGroup[0] + " physical core  ,  " + CoreInfoGroup[1] + " logical core");
+                string[] CoreInfoGroup = CoreInfo.Split("||");
+                CPUCoreCount = $"{CoreInfoGroup[0]} {Globalization.GetString("SystemInfo_Dialog_CPU_PhysicalCore_Text")} , {CoreInfoGroup[1]} {Globalization.GetString("SystemInfo_Dialog_CPU_LogicalCore_Text")}";
+                
                 float L1Size = Convert.ToSingle(CoreInfoGroup[2]);
                 float L2Size = Convert.ToSingle(CoreInfoGroup[3]);
                 float L3Size = Convert.ToSingle(CoreInfoGroup[4]);
@@ -270,9 +254,7 @@ namespace FileManager.Dialog
                 CPUArchitecture = (Package.Current.Id.Architecture == ProcessorArchitecture.X86
                                     ? "X86"
                                     : "X64");
-                CPUCache = Globalization.Language == LanguageEnum.Chinese
-                    ? ("L1缓存: " + L1SizeDescription + "   L2缓存: " + L2SizeDescription + "   L3缓存: " + L3SizeDescription)
-                    : ("L1 cache: " + L1SizeDescription + "   L2 cache: " + L2SizeDescription + "   L3 cache: " + L3SizeDescription);
+                CPUCache = $"{Globalization.GetString("SystemInfo_Dialog_CPU_L1Cache_Text")}: {L1SizeDescription}   {Globalization.GetString("SystemInfo_Dialog_CPU_L2Cache_Text")}: {L2SizeDescription}   {Globalization.GetString("SystemInfo_Dialog_CPU_L3Cache_Text")}: {L3SizeDescription}";
             }
 
             EasClientDeviceInformation EAS = new EasClientDeviceInformation();
@@ -309,7 +291,7 @@ namespace FileManager.Dialog
 
                     TextBlock GPUNameDescriptionBlock = new TextBlock
                     {
-                        Text = Globalization.Language == LanguageEnum.Chinese ? "GPU型号" : "GPU model",
+                        Text = Globalization.GetString("SystemInfo_Dialog_GPU_Model_Text"),
                         VerticalAlignment = VerticalAlignment.Center
                     };
                     GPUNameDescriptionBlock.SetValue(Grid.RowProperty, i * 3);
@@ -327,7 +309,7 @@ namespace FileManager.Dialog
 
                     TextBlock GPUMemoryDescriptionBlock = new TextBlock
                     {
-                        Text = Globalization.Language == LanguageEnum.Chinese ? "GPU内存" : "GPU memory",
+                        Text = Globalization.GetString("SystemInfo_Dialog_GPU_Memory_Text"),
                         VerticalAlignment = VerticalAlignment.Center
                     };
                     GPUMemoryDescriptionBlock.SetValue(Grid.RowProperty, i * 3 + 1);
@@ -379,7 +361,7 @@ namespace FileManager.Dialog
                 TextBlock AdapterDescriptionBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = Globalization.Language == LanguageEnum.Chinese ? "网络适配器" : "Network Adapter"
+                    Text = Globalization.GetString("SystemInfo_Dialog_NetworkAdapter_Text")
                 };
                 AdapterDescriptionBlock.SetValue(Grid.RowProperty, i * 8);
                 AdapterDescriptionBlock.SetValue(Grid.ColumnProperty, 0);
@@ -435,7 +417,7 @@ namespace FileManager.Dialog
                 TextBlock GatewayDescriptionBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = Globalization.Language == LanguageEnum.Chinese ? "网关" : "Gateway"
+                    Text = Globalization.GetString("SystemInfo_Dialog_Gateway_Text")
                 };
                 GatewayDescriptionBlock.SetValue(Grid.RowProperty, i * 8 + 3);
                 GatewayDescriptionBlock.SetValue(Grid.ColumnProperty, 0);
@@ -473,7 +455,7 @@ namespace FileManager.Dialog
                 TextBlock PrimaryDNSDescriptionBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = Globalization.Language == LanguageEnum.Chinese ? "主DNS服务器" : "Primary DNS Server"
+                    Text = Globalization.GetString("SystemInfo_Dialog_Primary_DNS_Text")
                 };
                 PrimaryDNSDescriptionBlock.SetValue(Grid.RowProperty, i * 8 + 5);
                 PrimaryDNSDescriptionBlock.SetValue(Grid.ColumnProperty, 0);
@@ -492,7 +474,7 @@ namespace FileManager.Dialog
                 TextBlock SecondaryDNSDescriptionBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = Globalization.Language == LanguageEnum.Chinese ? "副DNS服务器" : "Secondary DNS server"
+                    Text = Globalization.GetString("SystemInfo_Dialog_Secondary_DNS_Text")
                 };
                 SecondaryDNSDescriptionBlock.SetValue(Grid.RowProperty, i * 8 + 6);
                 SecondaryDNSDescriptionBlock.SetValue(Grid.ColumnProperty, 0);

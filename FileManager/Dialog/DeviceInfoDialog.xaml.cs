@@ -11,27 +11,18 @@ namespace FileManager.Dialog
         HardDeviceInfo Device;
         public DeviceInfoDialog(HardDeviceInfo Device)
         {
-            if (Device == null)
-            {
-                throw new ArgumentNullException(nameof(Device), "Parameter could not be null");
-            }
-
             InitializeComponent();
-            this.Device = Device;
+
+            this.Device = Device ?? throw new ArgumentNullException(nameof(Device), "Parameter could not be null");
+
             DeviceName.Text = Device.Name;
             Thumbnail.Source = Device.Thumbnail;
-            if (Globalization.Language == LanguageEnum.Chinese)
-            {
-                FreeByte.Text = Device.FreeByte.ToString("N0") + " 字节";
-                TotalByte.Text = Device.TotalByte.ToString("N0") + " 字节";
-                UsedByte.Text = (Device.TotalByte - Device.FreeByte).ToString("N0") + " 字节";
-            }
-            else
-            {
-                FreeByte.Text = Device.FreeByte.ToString("N0") + " bytes";
-                TotalByte.Text = Device.TotalByte.ToString("N0") + " bytes";
-                UsedByte.Text = (Device.TotalByte - Device.FreeByte).ToString("N0") + " bytes";
-            }
+
+            string Unit = Globalization.GetString("Device_Capacity_Unit");
+            FreeByte.Text = $"{Device.FreeByte:N0} {Unit}";
+            TotalByte.Text = $"{Device.TotalByte:N0} {Unit}";
+            UsedByte.Text = $"{Device.TotalByte - Device.FreeByte:N0)} {Unit}";
+
             FreeSpace.Text = Device.FreeSpace;
             TotalSpace.Text = Device.Capacity;
             UsedSpace.Text = GetSizeDescription(Device.TotalByte - Device.FreeByte);
@@ -49,34 +40,34 @@ namespace FileManager.Dialog
                 {
                     case DriveType.Fixed:
                         {
-                            DeviceType.Text = Globalization.Language == LanguageEnum.Chinese ? "本地驱动器" : "Local drive";
+                            DeviceType.Text = Globalization.GetString("Device_Type_1");
                             break;
                         }
                     case DriveType.Network:
                         {
-                            DeviceType.Text = Globalization.Language == LanguageEnum.Chinese ? "网络驱动器" : "Network drive";
+                            DeviceType.Text = Globalization.GetString("Device_Type_2");
                             break;
                         }
                     case DriveType.Removable:
                         {
-                            DeviceType.Text = Globalization.Language == LanguageEnum.Chinese ? "可移动驱动器" : "Removable drive";
+                            DeviceType.Text = Globalization.GetString("Device_Type_3");
                             break;
                         }
                     case DriveType.Ram:
                         {
-                            DeviceType.Text = Globalization.Language == LanguageEnum.Chinese ? "内存驱动器" : "Ram drive";
+                            DeviceType.Text = Globalization.GetString("Device_Type_4");
                             break;
                         }
                     default:
                         {
-                            DeviceType.Text = Globalization.Language == LanguageEnum.Chinese ? "未知" : "Unknown";
+                            DeviceType.Text = Globalization.GetString("Device_Type_5");
                             break;
                         }
                 }
             }
             else
             {
-                DeviceType.Text = Globalization.Language == LanguageEnum.Chinese ? "未知" : "Unknown";
+                DeviceType.Text = Globalization.GetString("Device_Type_5");
             }
         }
 

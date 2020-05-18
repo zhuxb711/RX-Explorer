@@ -44,7 +44,7 @@ namespace FileManager
                 FileSavePicker Picker = new FileSavePicker
                 {
                     SuggestedStartLocation = PickerLocationId.Desktop,
-                    SuggestedFileName = Globalization.Language == LanguageEnum.Chinese ? "崩溃前屏幕截图(请作为邮件附件发送).png" : "Screenshot before the crash (Please send as an email attachment).png"
+                    SuggestedFileName = $"{Globalization.GetString("Crash_Screenshot_Send_Text")}.png"
                 };
                 Picker.FileTypeChoices.Add("PNG", new string[] { ".png" });
                 if (await Picker.PickSaveFileAsync() is StorageFile SaveFile)

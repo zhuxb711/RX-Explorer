@@ -5,12 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
-using TinyPinyin.Core;
 using Windows.ApplicationModel;
 using Windows.Storage;
 
@@ -180,11 +178,11 @@ namespace FileManager.Class
                             {
                                 if (Reader["Behavior"].ToString() != "NULL")
                                 {
-                                    yield return new FeedBackItem(Globalization.Language == LanguageEnum.Chinese ? Reader["UserName"].ToString() : (Reader["UserName"].ToString().All((Char) => !PinyinHelper.IsChinese(Char)) ? Reader["UserName"].ToString() : PinyinHelper.GetPinyin(Reader["UserName"].ToString())), Reader["Title"].ToString(), Reader["Suggestion"].ToString(), Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString(), Reader["Behavior"].ToString());
+                                    yield return new FeedBackItem(Reader["UserName"].ToString(), Reader["Title"].ToString(), Reader["Suggestion"].ToString(), Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString(), Reader["Behavior"].ToString());
                                 }
                                 else
                                 {
-                                    yield return new FeedBackItem(Globalization.Language == LanguageEnum.Chinese ? Reader["UserName"].ToString() : (Reader["UserName"].ToString().All((Char) => !PinyinHelper.IsChinese(Char)) ? Reader["UserName"].ToString() : PinyinHelper.GetPinyin(Reader["UserName"].ToString())), Reader["Title"].ToString(), Reader["Suggestion"].ToString(), Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString());
+                                    yield return new FeedBackItem(Reader["UserName"].ToString(), Reader["Title"].ToString(), Reader["Suggestion"].ToString(), Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString());
                                 }
                             }
                         }

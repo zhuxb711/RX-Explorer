@@ -78,29 +78,14 @@ namespace FileManager
                                 case AuthenticatorState.UnknownError:
                                 case AuthenticatorState.VerifyFailed:
                                     {
-                                        QueueContentDialog Dialog;
-                                        if (Globalization.Language == LanguageEnum.Chinese)
+                                        QueueContentDialog Dialog = new QueueContentDialog
                                         {
-                                            Dialog = new QueueContentDialog
-                                            {
-                                                Title = "错误",
-                                                Content = "Windows Hello认证不通过，您无进入安全域的权限",
-                                                PrimaryButtonText = "再次尝试",
-                                                SecondaryButtonText = "使用密码",
-                                                CloseButtonText = "返回"
-                                            };
-                                        }
-                                        else
-                                        {
-                                            Dialog = new QueueContentDialog
-                                            {
-                                                Title = "Error",
-                                                Content = "Windows Hello authentication failed, you do not have permission to enter the Security Area",
-                                                PrimaryButtonText = "Try again",
-                                                SecondaryButtonText = "Use password",
-                                                CloseButtonText = "Go back"
-                                            };
-                                        }
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_WinHelloAuthFail_Content"),
+                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_TryAgain"),
+                                            SecondaryButtonText = Globalization.GetString("Common_Dialog_UsePassword"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
+                                        };
 
                                         ContentDialogResult Result = await Dialog.ShowAsync().ConfigureAwait(true);
 
@@ -125,26 +110,13 @@ namespace FileManager
                                 case AuthenticatorState.UserNotRegistered:
                                 case AuthenticatorState.CredentialNotFound:
                                     {
-                                        if (Globalization.Language == LanguageEnum.Chinese)
+                                        QueueContentDialog Dialog = new QueueContentDialog
                                         {
-                                            QueueContentDialog Dialog = new QueueContentDialog
-                                            {
-                                                Title = "错误",
-                                                Content = "Windows Hello认证凭据丢失，无法使用Windows Hello，请使用密码进入\r\r您可以在重新进入安全域后，进入设置重新注册Windows Hello",
-                                                CloseButtonText = "确定"
-                                            };
-                                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                        }
-                                        else
-                                        {
-                                            QueueContentDialog Dialog = new QueueContentDialog
-                                            {
-                                                Title = "Error",
-                                                Content = "Windows Hello authentication credentials are lost, you cannot use Windows Hello, please use the password to enter \r \rAfter you re-enter the security domain, enter settings to re-register Windows Hello",
-                                                CloseButtonText = "Confirm"
-                                            };
-                                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                        }
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_WinHelloCredentialLost_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                                         ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
 
@@ -156,27 +128,13 @@ namespace FileManager
                                     }
                                 case AuthenticatorState.WindowsHelloUnsupport:
                                     {
-                                        QueueContentDialog Dialog;
-                                        if (Globalization.Language == LanguageEnum.Chinese)
+                                        QueueContentDialog Dialog = new QueueContentDialog
                                         {
-                                            Dialog = new QueueContentDialog
-                                            {
-                                                Title = "警告",
-                                                Content = "Windows Hello已被禁用，无法通过Windows Hello进入安全域",
-                                                PrimaryButtonText = "使用密码",
-                                                CloseButtonText = "返回"
-                                            };
-                                        }
-                                        else
-                                        {
-                                            Dialog = new QueueContentDialog
-                                            {
-                                                Title = "Warning",
-                                                Content = "Windows Hello is disabled and cannot enter the Security Area through Windows Hello",
-                                                PrimaryButtonText = "Use password",
-                                                CloseButtonText = "Go back"
-                                            };
-                                        }
+                                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                            Content = Globalization.GetString("QueueDialog_WinHelloDisable_Content"),
+                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_UsePassword"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
+                                        };
 
                                         ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
 
@@ -211,7 +169,7 @@ namespace FileManager
                     {
                         try
                         {
-                            LoadingText.Text = Globalization.Language == LanguageEnum.Chinese ? "正在检查许可证..." : "Checking license...";
+                            LoadingText.Text = Globalization.GetString("Progress_Tip_CheckingLicense");
                             CancelButton.Visibility = Visibility.Collapsed;
                             LoadingControl.IsLoading = true;
                             MainPage.ThisPage.IsAnyTaskRunning = true;
@@ -242,26 +200,13 @@ namespace FileManager
                                     {
                                         ApplicationData.Current.LocalSettings.Values["SecureAreaUsePermission"] = true;
 
-                                        if (Globalization.Language == LanguageEnum.Chinese)
+                                        QueueContentDialog SuccessDialog = new QueueContentDialog
                                         {
-                                            QueueContentDialog SuccessDialog = new QueueContentDialog
-                                            {
-                                                Title = "成功",
-                                                Content = "感谢您对RX文件管理器的支持，安全域功能已经解锁",
-                                                CloseButtonText = "知道了"
-                                            };
-                                            _ = await SuccessDialog.ShowAsync().ConfigureAwait(true);
-                                        }
-                                        else
-                                        {
-                                            QueueContentDialog SuccessDialog = new QueueContentDialog
-                                            {
-                                                Title = "Success",
-                                                Content = "Thank you for your support of the RX Explorer, the security area has been unlocked",
-                                                CloseButtonText = "Got it"
-                                            };
-                                            _ = await SuccessDialog.ShowAsync().ConfigureAwait(true);
-                                        }
+                                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                            Content = Globalization.GetString("QueueDialog_SecureAreaUnlock_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+                                        _ = await SuccessDialog.ShowAsync().ConfigureAwait(true);
                                     }
                                     else
                                     {
@@ -278,26 +223,14 @@ namespace FileManager
                         }
                         catch (NetworkException)
                         {
-                            if (Globalization.Language == LanguageEnum.Chinese)
+                            QueueContentDialog ErrorDialog = new QueueContentDialog
                             {
-                                QueueContentDialog ErrorDialog = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "当前网络或用户不可用，因此无法检查许可证状态",
-                                    CloseButtonText = "返回"
-                                };
-                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                QueueContentDialog ErrorDialog = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "Cannot check license status because the current network or user is unavailable",
-                                    CloseButtonText = "Back"
-                                };
-                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                            }
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_SecureAreaNetworkUnavailable_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
+                            };
+                            _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+
                             GoBack();
                             return;
                         }
@@ -507,26 +440,14 @@ namespace FileManager
                     }
                     else
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "加密文件时出现意外错误，导入过程已经终止",
-                                CloseButtonText = "确定"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "An unexpected error occurred while encrypting the file, the import process has ended",
-                                CloseButtonText = "Got it"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        break;
                     }
                 }
             }
@@ -552,26 +473,13 @@ namespace FileManager
 
                 if (Items.Any((Item) => Item.IsOfType(StorageItemTypes.Folder)))
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "提示",
-                            Content = "安全域不支持导入文件夹类型，所有文件夹类型均已被过滤",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Tips",
-                            Content = "Security Area does not support importing folder, all folders have been filtered",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_SecureAreaImportFiliter_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
 
                 ActivateLoading(true, true);
@@ -591,26 +499,14 @@ namespace FileManager
                         }
                         else
                         {
-                            if (Globalization.Language == LanguageEnum.Chinese)
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "加密文件时出现意外错误，导入过程已经终止",
-                                    CloseButtonText = "确定"
-                                };
-                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "An unexpected error occurred while encrypting the file, the import process has ended",
-                                    CloseButtonText = "Got it"
-                                };
-                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                            }
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                            break;
                         }
                     }
                 }
@@ -632,12 +528,12 @@ namespace FileManager
         private void SecureGridView_DragEnter(object sender, DragEventArgs e)
         {
             e.AcceptedOperation = DataPackageOperation.Copy;
-            e.DragUIOverride.Caption = Globalization.Language == LanguageEnum.Chinese ? "松开即可添加文件" : "Release to add files";
+            e.DragUIOverride.Caption = Globalization.GetString("Drag_Tip_ReleaseToAdd");
         }
 
         private void SecureGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (SecureGridView.SelectedItem is FileSystemStorageItem Item)
+            if (SecureGridView.SelectedItem is FileSystemStorageItem)
             {
                 DeleteFile.IsEnabled = true;
                 ExportFile.IsEnabled = true;
@@ -658,35 +554,18 @@ namespace FileManager
         {
             if (SecureGridView.SelectedItem is FileSystemStorageItem Item)
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "警告",
-                        PrimaryButtonText = "是",
-                        Content = "此操作将永久删除 \" " + Item.Name + " \"\r\r是否继续?",
-                        CloseButtonText = "否"
-                    };
-                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                    {
-                        await (await Item.GetStorageItem()).DeleteAsync(StorageDeleteOption.PermanentDelete);
-                        SecureCollection.Remove(Item);
-                    }
-                }
-                else
+                    Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                    Content = Globalization.GetString("QueueDialog_DeleteFile_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                };
+
+                if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = "Warning",
-                        PrimaryButtonText = "Continue",
-                        Content = "This action will permanently delete \" " + Item.Name + " \"\r\rWhether to continue?",
-                        CloseButtonText = "Cancel"
-                    };
-                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                    {
-                        await (await Item.GetStorageItem()).DeleteAsync(StorageDeleteOption.PermanentDelete);
-                        SecureCollection.Remove(Item);
-                    }
+                    await (await Item.GetStorageItem().ConfigureAwait(true)).DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    SecureCollection.Remove(Item);
                 }
             }
         }
@@ -715,111 +594,59 @@ namespace FileManager
                     {
                         ActivateLoading(true, false);
 
-                        if (await ((StorageFile)await Item.GetStorageItem()).DecryptAsync(Folder, FileEncryptionAesKey, Cancellation.Token).ConfigureAwait(true) is StorageFile)
+                        if (await ((StorageFile)await Item.GetStorageItem().ConfigureAwait(true)).DecryptAsync(Folder, FileEncryptionAesKey, Cancellation.Token).ConfigureAwait(true) is StorageFile)
                         {
-                            await (await Item.GetStorageItem()).DeleteAsync(StorageDeleteOption.PermanentDelete);
+                            await (await Item.GetStorageItem().ConfigureAwait(true)).DeleteAsync(StorageDeleteOption.PermanentDelete);
                             SecureCollection.Remove(Item);
 
                             _ = await Launcher.LaunchFolderAsync(Folder);
                         }
                         else
                         {
-                            if (Globalization.Language == LanguageEnum.Chinese)
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "解密文件时出现意外错误，导出过程已经终止",
-                                    CloseButtonText = "确定"
-                                };
-                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "An unexpected error occurred while decrypting the file, the export process has ended",
-                                    CloseButtonText = "Got it"
-                                };
-                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                            }
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_DecryptError_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
                     }
                     catch (PasswordErrorException)
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "由于解密密码错误，解密失败，导出任务已经终止\r\r这可能是由于待解密文件数据不匹配造成的",
-                                CloseButtonText = "确定"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "The decryption failed due to the wrong decryption password, the export task has been terminated \r \rThis may be caused by a mismatch in the data of the files to be decrypted",
-                                CloseButtonText = "Got it"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_DecryptPasswordError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                         await Task.Delay(1500).ConfigureAwait(true);
                         ActivateLoading(false);
                     }
                     catch (FileDamagedException)
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "由于待解密文件的内部结构损坏，解密失败，导出任务已经终止\r\r这可能是由于文件数据已损坏或被修改造成的",
-                                CloseButtonText = "确定"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r \rThis may be caused by the file data being damaged or modified",
-                                CloseButtonText = "Got it"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_FileDamageError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                         await Task.Delay(1500).ConfigureAwait(true);
                         ActivateLoading(false);
                     }
                     catch (UnauthorizedAccessException)
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "RX无权在此处创建解密文件，可能是您无权访问此文件夹",
-                                CloseButtonText = "确定"
-                            };
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "RX does not have permission to create an decrypted file here",
-                                CloseButtonText = "Got it"
-                            };
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_UnauthorizedCreateDecryptFile_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
 
                         await Task.Delay(1500).ConfigureAwait(true);
                         ActivateLoading(false);
@@ -879,27 +706,14 @@ namespace FileManager
                 {
                     if (dialog.DesireName == RenameItem.Type)
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog content = new QueueContentDialog
                         {
-                            QueueContentDialog content = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "文件名不能为空，重命名失败",
-                                CloseButtonText = "确定"
-                            };
-                            await content.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog content = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "File name cannot be empty, rename failed",
-                                CloseButtonText = "Confirm"
-                            };
-                            await content.ShowAsync().ConfigureAwait(true);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_EmptyFileName_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
 
+                        await content.ShowAsync().ConfigureAwait(true);
                         return;
                     }
 
@@ -912,15 +726,13 @@ namespace FileManager
         {
             if (ActivateOrNot)
             {
-                LoadingText.Text = IsImport
-                ? Globalization.Language == LanguageEnum.Chinese ? "正在导入..." : "Importing..."
-                : Globalization.Language == LanguageEnum.Chinese ? "正在导出..." : "Exporting...";
+                LoadingText.Text = IsImport ? Globalization.GetString("Progress_Tip_Importing") : Globalization.GetString("Progress_Tip_Exporting");
 
                 CancelButton.Visibility = Visibility.Visible;
             }
+
             LoadingControl.IsLoading = ActivateOrNot;
             MainPage.ThisPage.IsAnyTaskRunning = ActivateOrNot;
-
         }
 
         private void WindowsHelloQuestion_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
@@ -998,33 +810,16 @@ namespace FileManager
             RETRY:
                 if ((await WindowsHelloAuthenticator.RegisterUserAsync().ConfigureAwait(true)) != AuthenticatorState.RegisterSuccess)
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "无法正确设置Windows Hello，请重试",
-                            PrimaryButtonText = "重试",
-                            CloseButtonText = "取消"
-                        };
-                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                        {
-                            goto RETRY;
-                        }
-                    }
-                    else
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_WinHelloSetupError_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                    };
+                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "Windows Hello could not be set up correctly, please try again",
-                            PrimaryButtonText = "Retry",
-                            CloseButtonText = "Cancel"
-                        };
-                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                        {
-                            goto RETRY;
-                        }
+                        goto RETRY;
                     }
 
                     UseWindowsHello.Toggled -= UseWindowsHello_Toggled;
@@ -1065,7 +860,7 @@ namespace FileManager
 
         private void SecureGridView_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
         {
-            if(e.HoldingState==Windows.UI.Input.HoldingState.Started)
+            if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
                 {

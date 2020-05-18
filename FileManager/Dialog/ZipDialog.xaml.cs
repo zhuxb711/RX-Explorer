@@ -45,34 +45,17 @@ namespace FileManager.Dialog
                 FName.Text = FileName + ".zip";
                 FName.SelectAll();
 
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    ZipMethod.Items.Add("最大");
-                    ZipMethod.Items.Add("标准");
-                    ZipMethod.Items.Add("仅存储");
-                }
-                else
-                {
-                    ZipMethod.Items.Add("Max");
-                    ZipMethod.Items.Add("Standard");
-                    ZipMethod.Items.Add("Package only");
-                }
+                ZipMethod.Items.Add(Globalization.GetString("Zip_Dialog_Level_1"));
+                ZipMethod.Items.Add(Globalization.GetString("Zip_Dialog_Level_2"));
+                ZipMethod.Items.Add(Globalization.GetString("Zip_Dialog_Level_3"));
 
                 ZipCryption.SelectedIndex = 0;
                 ZipMethod.SelectedIndex = 1;
             }
             else
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    Title = "需要解压密码";
-                    Pass.PlaceholderText = "输入解密密码";
-                }
-                else
-                {
-                    Title = "Password required";
-                    Pass.PlaceholderText = "Enter decompression password";
-                }
+                Title = Globalization.GetString("Zip_Dialog_Password_Title");
+                Pass.PlaceholderText = Globalization.GetString("Zip_Dialog_Password_PlaceholderText");
 
                 FName.Visibility = Visibility.Collapsed;
                 ZipMethod.Visibility = Visibility.Collapsed;
@@ -123,19 +106,19 @@ namespace FileManager.Dialog
                     case "Max":
                     case "最大":
                         {
-                            Level = CompressionLevel.Max; 
+                            Level = CompressionLevel.Max;
                             break;
                         }
                     case "Standard":
                     case "标准":
                         {
-                            Level = CompressionLevel.Standard; 
+                            Level = CompressionLevel.Standard;
                             break;
                         }
                     case "Package only":
                     case "仅存储":
                         {
-                            Level = CompressionLevel.PackageOnly; 
+                            Level = CompressionLevel.PackageOnly;
                             break;
                         }
                 }

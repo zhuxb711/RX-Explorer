@@ -32,42 +32,21 @@ namespace FileManager.Dialog
             this.VideoFile = VideoFile;
             Loading += VideoEditDialog_Loading;
 
-            if (Globalization.Language == LanguageEnum.Chinese)
-            {
-                EncodingProfile.Items.Add("MP4编码(.mp4)");
-                EncodingProfile.Items.Add("WMV编码(.wmv)");
-                EncodingProfile.Items.Add("MKV编码(.mkv)");
+            EncodingProfile.Items.Add($"MP4(.mp4) {Globalization.GetString("Video_Dialog_Encoding_Text")}");
+            EncodingProfile.Items.Add($"WMV(.wmv) {Globalization.GetString("Video_Dialog_Encoding_Text")}");
+            EncodingProfile.Items.Add($"MKV(.mkv) {Globalization.GetString("Video_Dialog_Encoding_Text")}");
 
-                EncodingQuality.Items.Add("2160p");
-                EncodingQuality.Items.Add("1080p");
-                EncodingQuality.Items.Add("720p");
-                EncodingQuality.Items.Add("480p");
+            EncodingQuality.Items.Add("2160p");
+            EncodingQuality.Items.Add("1080p");
+            EncodingQuality.Items.Add("720p");
+            EncodingQuality.Items.Add("480p");
 
-                TrimmingProfile.Items.Add("精确裁剪 (速度较慢)");
-                TrimmingProfile.Items.Add("快速裁剪 (速度较快)");
+            TrimmingProfile.Items.Add(Globalization.GetString("VideoEdit_Dialog_Crop_Precision_Level_1"));
+            TrimmingProfile.Items.Add(Globalization.GetString("VideoEdit_Dialog_Crop_Precision_Level_2"));
 
-                EncodingProfile.SelectedIndex = 0;
-                EncodingQuality.SelectedIndex = 0;
-                TrimmingProfile.SelectedIndex = 0;
-            }
-            else
-            {
-                EncodingProfile.Items.Add("MP4 Encoding(.mp4)");
-                EncodingProfile.Items.Add("WMV Encoding(.wmv)");
-                EncodingProfile.Items.Add("MKV Encoding(.mkv)");
-
-                EncodingQuality.Items.Add("2160p");
-                EncodingQuality.Items.Add("1080p");
-                EncodingQuality.Items.Add("720p");
-                EncodingQuality.Items.Add("480p");
-
-                TrimmingProfile.Items.Add("Precision (Slower)");
-                TrimmingProfile.Items.Add("Fast (Faster)");
-
-                EncodingProfile.SelectedIndex = 0;
-                EncodingQuality.SelectedIndex = 0;
-                TrimmingProfile.SelectedIndex = 0;
-            }
+            EncodingProfile.SelectedIndex = 0;
+            EncodingQuality.SelectedIndex = 0;
+            TrimmingProfile.SelectedIndex = 0;
         }
 
         private async void VideoEditDialog_Loading(FrameworkElement sender, object args)

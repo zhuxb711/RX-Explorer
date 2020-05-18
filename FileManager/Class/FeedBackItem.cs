@@ -164,14 +164,7 @@ namespace FileManager.Class
             this.UserID = UserID;
             this.GUID = GUID;
             this.UserVoteAction = UserVoteAction;
-            if (Globalization.Language == LanguageEnum.Chinese)
-            {
-                SupportDescription = $"({LikeNum} 人支持 , {DislikeNum} 人反对)";
-            }
-            else
-            {
-                SupportDescription = $"({LikeNum} people agree , {DislikeNum} people against)";
-            }
+            SupportDescription = $"({LikeNum} {Globalization.GetString("FeedBackItem_SupportDescription_Positive")} , {DislikeNum} {Globalization.GetString("FeedBackItem_SupportDescription_Negative")})";
         }
 
         /// <summary>
@@ -218,9 +211,7 @@ namespace FileManager.Class
                     }
             }
 
-            SupportDescription = Globalization.Language == LanguageEnum.Chinese
-                                 ? $"({LikeNum} 人支持 , {DislikeNum} 人反对)"
-                                 : $"({LikeNum} people agree , {DislikeNum} people against)";
+            SupportDescription = $"({LikeNum} {Globalization.GetString("FeedBackItem_SupportDescription_Positive")} , {DislikeNum} {Globalization.GetString("FeedBackItem_SupportDescription_Negative")})";
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SupportDescription)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLike)));
@@ -235,26 +226,13 @@ namespace FileManager.Class
             {
                 if (!await MySQL.Current.UpdateFeedBackVoteAsync(this).ConfigureAwait(true))
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "因网络原因无法进行此项操作",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "This operation cannot be performed due to network reasons",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("Network_Error_Dialog_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
             finally

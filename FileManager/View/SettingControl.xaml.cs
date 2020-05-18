@@ -7,7 +7,6 @@ using System.Numerics;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using TinyPinyin.Core;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Services.Store;
@@ -56,7 +55,7 @@ namespace FileManager
 
             Version.Text = string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
 
-            EmptyFeedBack.Text = Globalization.Language == LanguageEnum.Chinese ? "正在加载..." : "Loading...";
+            EmptyFeedBack.Text = Globalization.GetString("Progress_Tip_Loading");
 
             Loading += SettingPage_Loading;
             Loaded += SettingPage_Loaded;
@@ -170,24 +169,14 @@ namespace FileManager
 
         private void SettingPage_Loading(FrameworkElement sender, object args)
         {
-            if (Globalization.Language == LanguageEnum.Chinese)
-            {
-                UIMode.Items.Add("推荐");
-                UIMode.Items.Add("纯色");
-                UIMode.Items.Add("自定义");
-                LanguageComboBox.Items.Add("简体中文");
-                LanguageComboBox.Items.Add("英语");
-                LanguageComboBox.SelectedIndex = 0;
-            }
-            else
-            {
-                UIMode.Items.Add("Recommand");
-                UIMode.Items.Add("Solid Color");
-                UIMode.Items.Add("Custom");
-                LanguageComboBox.Items.Add("Chinese Simplified");
-                LanguageComboBox.Items.Add("English");
-                LanguageComboBox.SelectedIndex = 1;
-            }
+            UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Recommand"));
+            UIMode.Items.Add(Globalization.GetString("Setting_UIMode_SolidColor"));
+            UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Custom"));
+
+            LanguageComboBox.Items.Add("中文(简体)");
+            LanguageComboBox.Items.Add("English (United States)");
+            LanguageComboBox.Items.Add("Français");
+            LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
 
             LanguageComboBox.SelectionChanged += LanguageComboBox_SelectionChanged;
 
@@ -237,7 +226,7 @@ namespace FileManager
             {
                 if (FeedBackCollection.Count == 0)
                 {
-                    EmptyFeedBack.Text = Globalization.Language == LanguageEnum.Chinese ? "无任何反馈或建议" : "No feedback or suggestions";
+                    EmptyFeedBack.Text = Globalization.GetString("Progress_Tip_NoFeedback");
                     SubmitIssueOnGithub.Visibility = Visibility.Visible;
                     EmptyFeedBackArea.Visibility = Visibility.Visible;
                     FeedBackList.Visibility = Visibility.Collapsed;
@@ -256,18 +245,11 @@ namespace FileManager
                 {
                     if (FeedBackItem.Title.StartsWith("@"))
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
-                        {
-                            FeedBackItem.UpdateTitleAndSuggestion(FeedBackItem.Title, await FeedBackItem.Suggestion.Translate().ConfigureAwait(true));
-                        }
-                        else
-                        {
-                            FeedBackItem.UpdateTitleAndSuggestion(FeedBackItem.Title.All((Char) => !PinyinHelper.IsChinese(Char)) ? FeedBackItem.Title : PinyinHelper.GetPinyin(FeedBackItem.Title), await FeedBackItem.Suggestion.Translate().ConfigureAwait(true));
-                        }
+                        FeedBackItem.UpdateTitleAndSuggestion(FeedBackItem.Title, await FeedBackItem.Suggestion.TranslateAsync().ConfigureAwait(true));
                     }
                     else
                     {
-                        FeedBackItem.UpdateTitleAndSuggestion(await FeedBackItem.Title.Translate().ConfigureAwait(true), await FeedBackItem.Suggestion.Translate().ConfigureAwait(true));
+                        FeedBackItem.UpdateTitleAndSuggestion(await FeedBackItem.Title.TranslateAsync().ConfigureAwait(true), await FeedBackItem.Suggestion.TranslateAsync().ConfigureAwait(true));
                     }
 
                     FeedBackCollection.Add(FeedBackItem);
@@ -278,7 +260,7 @@ namespace FileManager
             {
                 if (FeedBackCollection.Count == 0)
                 {
-                    EmptyFeedBack.Text = Globalization.Language == LanguageEnum.Chinese ? "无任何反馈或建议" : "No feedback or suggestions";
+                    EmptyFeedBack.Text = Globalization.GetString("Progress_Tip_NoFeedback");
                     SubmitIssueOnGithub.Visibility = Visibility.Visible;
                 }
                 else
@@ -315,26 +297,13 @@ namespace FileManager
             ConfirmFly.Hide();
             await SQLite.Current.ClearSearchHistoryRecord().ConfigureAwait(true);
 
-            if (Globalization.Language == LanguageEnum.Chinese)
+            QueueContentDialog dialog = new QueueContentDialog
             {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = "提示",
-                    Content = "搜索历史记录清理完成",
-                    CloseButtonText = "确定"
-                };
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
-            }
-            else
-            {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = "Tips",
-                    Content = "Search history cleanup completed",
-                    CloseButtonText = "Confirm"
-                };
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
-            }
+                Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                Content = Globalization.GetString("QueueDialog_ClearHistory_Content"),
+                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+            };
+            _ = await dialog.ShowAsync().ConfigureAwait(true);
         }
 
         private void FlyoutCancel_Click(object sender, RoutedEventArgs e)
@@ -370,33 +339,20 @@ namespace FileManager
                         case AppRestartFailureReason.NotInForeground:
                         case AppRestartFailureReason.Other:
                             {
-                                if (Globalization.Language == LanguageEnum.Chinese)
+                                QueueContentDialog Dialog1 = new QueueContentDialog
                                 {
-                                    QueueContentDialog Dialog1 = new QueueContentDialog
-                                    {
-                                        Title = "错误",
-                                        Content = "自动重新启动过程中出现问题，请手动重启RX文件管理器",
-                                        CloseButtonText = "确定"
-                                    };
-                                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                                }
-                                else
-                                {
-                                    QueueContentDialog Dialog1 = new QueueContentDialog
-                                    {
-                                        Title = "Error",
-                                        Content = "There was a problem during the automatic restart, please restart the RX Explorer manually",
-                                        CloseButtonText = "Got it"
-                                    };
-                                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                                }
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_RestartFail_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+                                _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                                 break;
                             }
                     }
                 }
                 else
                 {
-                    LoadingText.Text = Globalization.Language == LanguageEnum.Chinese ? "正在导出..." : "Exporting";
+                    LoadingText.Text = Globalization.GetString("Progress_Tip_Exporting");
                     LoadingControl.IsLoading = true;
                     MainPage.ThisPage.IsAnyTaskRunning = true;
 
@@ -413,52 +369,29 @@ namespace FileManager
                         }
                         catch (Exception ex)
                         {
-                            await Item.MoveAsync(Dialog.ExportFolder, Item.Name + (Globalization.Language == LanguageEnum.Chinese ? "-解密错误备份" : "-Decrypt Error Backup"), NameCollisionOption.GenerateUniqueName);
+                            await Item.MoveAsync(Dialog.ExportFolder, $"{Item.Name}-{Globalization.GetString("DecryptFail_Backup_Text")}", NameCollisionOption.GenerateUniqueName);
+
                             if (ex is PasswordErrorException)
                             {
-                                if (Globalization.Language == LanguageEnum.Chinese)
+                                QueueContentDialog Dialog1 = new QueueContentDialog
                                 {
-                                    QueueContentDialog Dialog1 = new QueueContentDialog
-                                    {
-                                        Title = "错误",
-                                        Content = "由于解密密码错误，解密失败，导出任务已经终止\r\r这可能是由于待解密文件数据不匹配造成的",
-                                        CloseButtonText = "确定"
-                                    };
-                                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                                }
-                                else
-                                {
-                                    QueueContentDialog Dialog1 = new QueueContentDialog
-                                    {
-                                        Title = "Error",
-                                        Content = "The decryption failed due to the wrong decryption password, the export task has been terminated \r \rThis may be caused by a mismatch in the data of the files to be decrypted",
-                                        CloseButtonText = "Got it"
-                                    };
-                                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                                }
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_DecryptPasswordError_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                             }
                             else if (ex is FileDamagedException)
                             {
-                                if (Globalization.Language == LanguageEnum.Chinese)
+                                QueueContentDialog Dialog1 = new QueueContentDialog
                                 {
-                                    QueueContentDialog Dialog1 = new QueueContentDialog
-                                    {
-                                        Title = "错误",
-                                        Content = "由于待解密文件的内部结构损坏，解密失败，导出任务已经终止\r\r这可能是由于文件数据已损坏或被修改造成的",
-                                        CloseButtonText = "确定"
-                                    };
-                                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                                }
-                                else
-                                {
-                                    QueueContentDialog Dialog1 = new QueueContentDialog
-                                    {
-                                        Title = "Error",
-                                        Content = "Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r \rThis may be caused by the file data being damaged or modified",
-                                        CloseButtonText = "Got it"
-                                    };
-                                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                                }
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_FileDamageError_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                             }
                         }
                     }
@@ -493,26 +426,13 @@ namespace FileManager
                         case AppRestartFailureReason.NotInForeground:
                         case AppRestartFailureReason.Other:
                             {
-                                if (Globalization.Language == LanguageEnum.Chinese)
+                                QueueContentDialog Dialog1 = new QueueContentDialog
                                 {
-                                    QueueContentDialog Dialog1 = new QueueContentDialog
-                                    {
-                                        Title = "错误",
-                                        Content = "自动重新启动过程中出现问题，请手动重启RX文件管理器",
-                                        CloseButtonText = "确定"
-                                    };
-                                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                                }
-                                else
-                                {
-                                    QueueContentDialog Dialog1 = new QueueContentDialog
-                                    {
-                                        Title = "Error",
-                                        Content = "There was a problem during the automatic restart, please restart the RX Explorer manually",
-                                        CloseButtonText = "Got it"
-                                    };
-                                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                                }
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_RestartFail_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+                                _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                                 break;
                             }
                     }
@@ -651,224 +571,80 @@ namespace FileManager
 
         private async void Donation_Click(object sender, RoutedEventArgs e)
         {
-            if (Globalization.Language == LanguageEnum.Chinese)
+            QueueContentDialog dialog = new QueueContentDialog
             {
-                QueueContentDialog dialog = new QueueContentDialog
+                Title = Globalization.GetString("DonateTip.Title"),
+                Content = Globalization.GetString("TeachingTip_Donate_Subtitle"),
+                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+            };
+            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+            {
+                StoreContext Store = StoreContext.GetDefault();
+                StoreProductQueryResult StoreProductResult = await Store.GetAssociatedStoreProductsAsync(new string[] { "Durable" });
+                if (StoreProductResult.ExtendedError == null)
                 {
-                    Title = "支持",
-                    Content = "开发者开发RX文件管理器花费了大量精力\r" +
-                              "🎉您可以自愿为开发者贡献一点小零花钱🎉\r\r" +
-                              "若您不愿意，则可以点击\"跪安\"以取消\r" +
-                              "若您愿意支持开发者，则可以点击\"准奏\"\r\r" +
-                              "Tips: 支持的小伙伴可以解锁独有文件保险柜功能：“安全域”",
-                    PrimaryButtonText = "准奏",
-                    CloseButtonText = "跪安"
-                };
-                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                {
-                    StoreContext Store = StoreContext.GetDefault();
-                    StoreProductQueryResult PurchasedProductResult = await Store.GetUserCollectionAsync(new string[] { "Durable" });
-                    if (PurchasedProductResult.ExtendedError == null)
+                    StoreProduct Product = StoreProductResult.Products.Values.FirstOrDefault();
+                    if (Product != null)
                     {
-                        if (PurchasedProductResult.Products.Count > 0)
+                        switch ((await Store.RequestPurchaseAsync(Product.StoreId)).Status)
                         {
-                            QueueContentDialog QueueContenDialog = new QueueContentDialog
-                            {
-                                Title = "再次感谢",
-                                Content = "您已为RX支持过一次了，您的心意开发者已心领\r\r" +
-                                          "RX的初衷并非是赚钱，因此不可重复支持哦\r\r" +
-                                          "您可以向周围的人宣传一下RX，也是对RX的最好的支持哦（*＾-＾*）\r\r" +
-                                          "Ruofan,\r敬上",
-                                CloseButtonText = "朕知道了"
-                            };
-                            _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            StoreProductQueryResult StoreProductResult = await Store.GetAssociatedStoreProductsAsync(new string[] { "Durable" });
-                            if (StoreProductResult.ExtendedError == null)
-                            {
-                                StoreProduct Product = StoreProductResult.Products.Values.FirstOrDefault();
-                                if (Product != null)
+                            case StorePurchaseStatus.Succeeded:
                                 {
-                                    switch ((await Store.RequestPurchaseAsync(Product.StoreId)).Status)
+                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
                                     {
-                                        case StorePurchaseStatus.Succeeded:
-                                            {
-                                                QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                                {
-                                                    Title = "感谢",
-                                                    Content = "感谢您的支持，我们将努力将RX做得越来越好q(≧▽≦q)\r\r" +
-                                                              "RX文件管理器的诞生，是为了填补UWP文件管理器缺位的空白\r" +
-                                                              "它并非是一个盈利项目，因此下载和使用都是免费的，并且不含有广告\r" +
-                                                              "RX的目标是打造一个免费且功能全面文件管理器\r" +
-                                                              "RX文件管理器是我利用业余时间开发的项目\r" +
-                                                              "希望大家能够喜欢\r\r" +
-                                                              "Ruofan,\r敬上",
-                                                    CloseButtonText = "朕知道了"
-                                                };
-                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                                break;
-                                            }
-                                        case StorePurchaseStatus.NotPurchased:
-                                            {
-                                                QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                                {
-                                                    Title = "感谢",
-                                                    Content = "无论支持与否，RX始终如一\r\r" +
-                                                              "即使您最终决定放弃支持本项目，依然十分感谢您能够点进来看一看\r\r" +
-                                                              "Ruofan,\r敬上",
-                                                    CloseButtonText = "朕知道了"
-                                                };
-                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                                break;
-                                            }
-                                        default:
-                                            {
-                                                QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                                {
-                                                    Title = "抱歉",
-                                                    Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
-                                                    CloseButtonText = "朕知道了"
-                                                };
-                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                                break;
-                                            }
-                                    }
+                                        Title = Globalization.GetString("QueueDialog_Donate_Success_Title"),
+                                        Content = Globalization.GetString("QueueDialog_Donate_Success_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                    break;
                                 }
-                            }
-                            else
-                            {
-                                QueueContentDialog QueueContenDialog = new QueueContentDialog
+                            case StorePurchaseStatus.AlreadyPurchased:
                                 {
-                                    Title = "抱歉",
-                                    Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
-                                    CloseButtonText = "朕知道了"
-                                };
-                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                            }
+                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("QueueDialog_Donate_AlreadyPurchase_Title"),
+                                        Content = Globalization.GetString("QueueDialog_Donate_AlreadyPurchase_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                    break;
+                                }
+                            case StorePurchaseStatus.NotPurchased:
+                                {
+                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("QueueDialog_Donate_NotPurchase_Title"),
+                                        Content = Globalization.GetString("QueueDialog_Donate_NotPurchase_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                    break;
+                                }
+                            default:
+                                {
+                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("QueueDialog_Donate_NetworkError_Title"),
+                                        Content = Globalization.GetString("QueueDialog_Donate_NetworkError_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                    break;
+                                }
                         }
-                    }
-                    else
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = "抱歉",
-                            Content = "由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试",
-                            CloseButtonText = "朕知道了"
-                        };
-                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
-            }
-            else
-            {
-                QueueContentDialog dialog = new QueueContentDialog
+                else
                 {
-                    Title = "Donation",
-                    Content = "It takes a lot of effort for developers to develop RX file manager\r" +
-                              "🎉You can volunteer to contribute a little pocket money to developers.🎉\r\r" +
-                              "If you don't want to, you can click \"Later\" to cancel\r" +
-                              "if you want to donate, you can click \"Donate\" to support developer\r\r" +
-                              "Tips: Donator can unlock the unique file safe feature: \"Security Area\"",
-                    PrimaryButtonText = "Donate",
-                    CloseButtonText = "Later"
-                };
-                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                {
-                    StoreContext Store = StoreContext.GetDefault();
-                    StoreProductQueryResult PurchasedProductResult = await Store.GetUserCollectionAsync(new string[] { "Durable" });
-                    if (PurchasedProductResult.ExtendedError == null)
+                    QueueContentDialog QueueContenDialog = new QueueContentDialog
                     {
-                        if (PurchasedProductResult.Products.Count > 0)
-                        {
-                            QueueContentDialog QueueContenDialog = new QueueContentDialog
-                            {
-                                Title = "Thanks again",
-                                Content = "You have already supported RX once, thank you very much\r\r" +
-                                          "The original intention of RX is not to make money, so you can't repeat purchase it.\r\r" +
-                                          "You can advertise the RX to the people around you, and it is also the best support for RX（*＾-＾*）\r\r" +
-                                          "Sincerely,\rRuofan",
-                                CloseButtonText = "Got it"
-                            };
-                            _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            StoreProductQueryResult StoreProductResult = await Store.GetAssociatedStoreProductsAsync(new string[] { "Durable" });
-                            if (StoreProductResult.ExtendedError == null)
-                            {
-                                StoreProduct Product = StoreProductResult.Products.Values.FirstOrDefault();
-                                if (Product != null)
-                                {
-                                    switch ((await Store.RequestPurchaseAsync(Product.StoreId)).Status)
-                                    {
-                                        case StorePurchaseStatus.Succeeded:
-                                            {
-                                                QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                                {
-                                                    Title = "Appreciation",
-                                                    Content = "Thank you for your support, we will work hard to make RX better and better q(≧▽≦q)\r\r" +
-                                                              "The RX file manager was born to fill the gaps in the UWP file manager\r" +
-                                                              "This is not a profitable project, so downloading and using are free and do not include ads\r" +
-                                                              "RX's goal is to create a free and full-featured file manager\r" +
-                                                              "RX File Manager is a project I developed in my spare time\r" +
-                                                              "I hope everyone likes\r\r" +
-                                                              "Sincerely,\rRuofan",
-                                                    CloseButtonText = "Got it"
-                                                };
-                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                                break;
-                                            }
-                                        case StorePurchaseStatus.NotPurchased:
-                                            {
-                                                QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                                {
-                                                    Title = "Appreciation",
-                                                    Content = "Whether supported or not, RX is always the same\r\r" +
-                                                              "Even if you finally decide to give up supporting the project, thank you very much for being able to click to see it\r\r" +
-                                                              "Sincerely,\rRuofan",
-                                                    CloseButtonText = "Got it"
-                                                };
-                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                                break;
-                                            }
-                                        default:
-                                            {
-                                                QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                                {
-                                                    Title = "Sorry",
-                                                    Content = "Unable to open support page due to Microsoft Store or network, please try again later",
-                                                    CloseButtonText = "Got it"
-                                                };
-                                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                                break;
-                                            }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                {
-                                    Title = "Sorry",
-                                    Content = "Unable to open support page due to Microsoft Store or network, please try again later",
-                                    CloseButtonText = "Got it"
-                                };
-                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        QueueContentDialog QueueContenDialog = new QueueContentDialog
-                        {
-                            Title = "Sorry",
-                            Content = "Unable to open support page due to Microsoft Store or network, please try again later",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("QueueDialog_Donate_NetworkError_Title"),
+                        Content = Globalization.GetString("QueueDialog_Donate_NetworkError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
                 }
             }
         }
@@ -888,26 +664,13 @@ namespace FileManager
             }
             else
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                QueueContentDialog dialog = new QueueContentDialog
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = "抱歉",
-                        Content = "系统信息窗口所依赖的部分组件仅支持在X86或X64处理器上实现\rARM处理器暂不支持，因此无法打开此窗口",
-                        CloseButtonText = "知道了"
-                    };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = "Sorry",
-                        Content = "Some components that the system information dialog depends on only support X86 or X64 processors\rUnsupport ARM processor for now, so this dialog will not be opened",
-                        CloseButtonText = "Got it"
-                    };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_NotSupportARM_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
 
         }
@@ -930,35 +693,22 @@ namespace FileManager
                         }
                         else
                         {
-                            if (Globalization.Language == LanguageEnum.Chinese)
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "因网络原因无法进行此项操作",
-                                    CloseButtonText = "确定"
-                                };
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "This operation cannot be performed due to network reasons",
-                                    CloseButtonText = "Got it"
-                                };
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
                         }
                     }
                     else
                     {
                         QueueContentDialog TipsDialog = new QueueContentDialog
                         {
-                            Title = "Tips",
-                            Content = "The same feedback already exists, please do not submit it repeatedly",
-                            CloseButtonText = "Got it"
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_FeedBackRepeatError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
                         _ = await TipsDialog.ShowAsync().ConfigureAwait(true);
                     }
@@ -968,26 +718,13 @@ namespace FileManager
                     FeedBackItem Item = new FeedBackItem(UserName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
                     if (!await MySQL.Current.SetFeedBackAsync(Item).ConfigureAwait(true))
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "因网络原因无法进行此项操作",
-                                CloseButtonText = "确定"
-                            };
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "This operation cannot be performed due to network reasons",
-                                CloseButtonText = "Got it"
-                            };
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
                     }
                     else
                     {
@@ -1017,26 +754,13 @@ namespace FileManager
                 {
                     if (!await MySQL.Current.UpdateFeedBackAsync(Dialog.TitleName, Dialog.FeedBack, SelectItem.GUID).ConfigureAwait(true))
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "因网络原因无法进行此项操作",
-                                CloseButtonText = "确定"
-                            };
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "This operation cannot be performed due to network reasons",
-                                CloseButtonText = "Got it"
-                            };
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
                     }
                     else
                     {
@@ -1052,26 +776,13 @@ namespace FileManager
             {
                 if (!await MySQL.Current.DeleteFeedBackAsync(SelectItem).ConfigureAwait(true))
                 {
-                    if (Globalization.Language == LanguageEnum.Chinese)
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "错误",
-                            Content = "因网络原因无法进行此项操作",
-                            CloseButtonText = "确定"
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = "Error",
-                            Content = "This operation cannot be performed due to network reasons",
-                            CloseButtonText = "Got it"
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -1274,33 +985,17 @@ namespace FileManager
                             AutoBoot.IsOn = false;
                             AutoBoot.Toggled += AutoBoot_Toggled;
 
-                            if (Globalization.Language == LanguageEnum.Chinese)
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "提示",
-                                    Content = "由于自动启动被系统禁用，RX无法自动开启此功能\r您可以前往[系统设置]页面管理",
-                                    PrimaryButtonText = "立即开启",
-                                    CloseButtonText = "暂不开启"
-                                };
-                                if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                                {
-                                    await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
-                                }
-                            }
-                            else
+                                Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                Content = Globalization.GetString("QueueDialog_BootAtStart_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                            };
+
+                            if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = "Tips",
-                                    Content = "RX cannot be turned on automatically because startup is disabled by the system\rYou can go to the [System Settings] page to manage",
-                                    PrimaryButtonText = "Now",
-                                    CloseButtonText = "Later"
-                                };
-                                if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                                {
-                                    await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
-                                }
+                                await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
                             }
                             break;
                         }
@@ -1372,7 +1067,7 @@ namespace FileManager
 
                             if (Regex.IsMatch(SelectItem.UserID, "^\\s*([A-Za-z0-9_-]+(\\.\\w+)*@(\\w+\\.)+\\w{2,5})\\s*$"))
                             {
-                                if (Globalization.Language == LanguageEnum.Chinese)
+                                if (Globalization.CurrentLanguage == LanguageEnum.Chinese)
                                 {
                                     string Message = $"您的反馈原文：\r------------------------------------\r{SelectItem.Title}{Environment.NewLine}{SelectItem.Suggestion}\r------------------------------------\r\r开发者回复内容：\r------------------------------------\r{Item.Title}{Environment.NewLine}{Item.Suggestion}\r------------------------------------{Environment.NewLine}";
                                     _ = await Launcher.LaunchUriAsync(new Uri($"mailto:{SelectItem.UserID}?subject=开发者已回复您的反馈&body={Uri.EscapeDataString(Message)}"), new LauncherOptions { TreatAsUntrusted = false, DisplayApplicationPicker = false });
@@ -1386,35 +1081,22 @@ namespace FileManager
                         }
                         else
                         {
-                            if (Globalization.Language == LanguageEnum.Chinese)
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = "错误",
-                                    Content = "因网络原因无法进行此项操作",
-                                    CloseButtonText = "确定"
-                                };
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = "Error",
-                                    Content = "This operation cannot be performed due to network reasons",
-                                    CloseButtonText = "Got it"
-                                };
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
                         }
                     }
                     else
                     {
                         QueueContentDialog TipsDialog = new QueueContentDialog
                         {
-                            Title = "Tips",
-                            Content = "The same feedback already exists, please do not submit it repeatedly",
-                            CloseButtonText = "Got it"
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_FeedBackRepeatError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
                         _ = await TipsDialog.ShowAsync().ConfigureAwait(true);
                     }
@@ -1478,26 +1160,13 @@ namespace FileManager
                 case AppRestartFailureReason.NotInForeground:
                 case AppRestartFailureReason.Other:
                     {
-                        if (Globalization.Language == LanguageEnum.Chinese)
+                        QueueContentDialog Dialog1 = new QueueContentDialog
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "错误",
-                                Content = "自动重新启动过程中出现问题，请手动重启RX文件管理器",
-                                CloseButtonText = "确定"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "Error",
-                                Content = "There was a problem during the automatic restart, please restart the RX Explorer manually",
-                                CloseButtonText = "Got it"
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_RestartFail_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                         break;
                     }
             }

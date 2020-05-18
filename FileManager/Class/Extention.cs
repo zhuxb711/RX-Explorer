@@ -134,7 +134,7 @@ namespace FileManager.Class
         /// </summary>
         /// <param name="Text">要翻译的内容</param>
         /// <returns></returns>
-        public static Task<string> Translate(this string Text)
+        public static Task<string> TranslateAsync(this string Text)
         {
             return Task.Run(() =>
             {
@@ -149,7 +149,27 @@ namespace FileManager.Class
                         {
                             Detection DetectResult = Client.DetectLanguage(Text);
 
-                            string CurrentLanguage = Globalization.Language == LanguageEnum.Chinese ? LanguageCodes.ChineseSimplified : LanguageCodes.English;
+                            string CurrentLanguage = string.Empty;
+
+                            switch (Globalization.CurrentLanguage)
+                            {
+                                case LanguageEnum.English:
+                                    {
+                                        CurrentLanguage = LanguageCodes.English;
+                                        break;
+                                    }
+
+                                case LanguageEnum.Chinese:
+                                    {
+                                        CurrentLanguage = LanguageCodes.ChineseSimplified;
+                                        break;
+                                    }
+                                case LanguageEnum.French:
+                                    {
+                                        CurrentLanguage = LanguageCodes.French;
+                                        break;
+                                    }
+                            }
 
                             if (DetectResult.Language.StartsWith(CurrentLanguage))
                             {
@@ -1035,78 +1055,39 @@ namespace FileManager.Class
                         {
                             if (!ToastNotificationManager.History.GetHistory().Any((Toast) => Toast.Tag == "DelayLoadNotification"))
                             {
-                                if (Globalization.Language == LanguageEnum.Chinese)
+                                ToastContent Content = new ToastContent()
                                 {
-                                    var Content = new ToastContent()
+                                    Scenario = ToastScenario.Default,
+                                    Launch = "Transcode",
+                                    Visual = new ToastVisual()
                                     {
-                                        Scenario = ToastScenario.Default,
-                                        Launch = "Transcode",
-                                        Visual = new ToastVisual()
+                                        BindingGeneric = new ToastBindingGeneric()
                                         {
-                                            BindingGeneric = new ToastBindingGeneric()
-                                            {
-                                                Children =
+                                            Children =
                                                 {
                                                     new AdaptiveText()
                                                     {
-                                                        Text = "加载可能存在延迟"
+                                                        Text = Globalization.GetString("DelayLoadNotification_Title")
                                                     },
 
                                                     new AdaptiveText()
                                                     {
-                                                       Text = "无法获取部分文件的缩略图，因此内容加载可能变慢"
+                                                       Text = Globalization.GetString("DelayLoadNotification_Content_1")
                                                     },
 
                                                     new AdaptiveText()
                                                     {
-                                                        Text = "请耐心等待"
+                                                        Text = Globalization.GetString("DelayLoadNotification_Content_2")
                                                     }
                                                 }
-                                            }
                                         }
-                                    };
-                                    ToastNotification Notification = new ToastNotification(Content.GetXml())
-                                    {
-                                        Tag = "DelayLoadNotification"
-                                    };
-                                    ToastNotificationManager.CreateToastNotifier().Show(Notification);
-                                }
-                                else
+                                    }
+                                };
+                                ToastNotification Notification = new ToastNotification(Content.GetXml())
                                 {
-                                    var Content = new ToastContent()
-                                    {
-                                        Scenario = ToastScenario.Default,
-                                        Launch = "Transcode",
-                                        Visual = new ToastVisual()
-                                        {
-                                            BindingGeneric = new ToastBindingGeneric()
-                                            {
-                                                Children =
-                                                {
-                                                    new AdaptiveText()
-                                                    {
-                                                        Text = "There may be a delay in loading"
-                                                    },
-
-                                                    new AdaptiveText()
-                                                    {
-                                                       Text = "Unable to get thumbnails of some files, so content loading may be slow"
-                                                    },
-
-                                                    new AdaptiveText()
-                                                    {
-                                                        Text = "Please wait patiently"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    };
-                                    ToastNotification Notification = new ToastNotification(Content.GetXml())
-                                    {
-                                        Tag = "DelayLoadNotification"
-                                    };
-                                    ToastNotificationManager.CreateToastNotifier().Show(Notification);
-                                }
+                                    Tag = "DelayLoadNotification"
+                                };
+                                ToastNotificationManager.CreateToastNotifier().Show(Notification);
                             }
 
                             return null;

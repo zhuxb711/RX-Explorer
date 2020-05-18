@@ -30,19 +30,14 @@ namespace FileManager
         public CropperPage()
         {
             InitializeComponent();
-            if (Globalization.Language == LanguageEnum.Chinese)
-            {
-                AspList.Items.Add("自定义");
-            }
-            else
-            {
-                AspList.Items.Add("Custom");
-            }
+
+            AspList.Items.Add(Globalization.GetString("CropperPage_Custom_Text"));
             AspList.Items.Add("16:9");
             AspList.Items.Add("7:5");
             AspList.Items.Add("4:3");
             AspList.Items.Add("3:2");
             AspList.Items.Add("1:1");
+
             AspList.SelectedIndex = 0;
         }
 
@@ -55,7 +50,7 @@ namespace FileManager
                     FileControlNav = Parameters.Item1;
 
                     PhotoDisplaySupport Item = Parameters.Item2 as PhotoDisplaySupport;
-                    OriginFile = (await Item.PhotoFile.GetStorageItem()) as StorageFile;
+                    OriginFile = (await Item.PhotoFile.GetStorageItem().ConfigureAwait(true)) as StorageFile;
                     OriginImage = await Item.GenerateImageWithRotation().ConfigureAwait(true);
                     OriginBackupImage = SoftwareBitmap.Copy(OriginImage);
 
@@ -147,30 +142,15 @@ namespace FileManager
                 }
             }
 
-            if (Globalization.Language == LanguageEnum.Chinese)
-            {
-                FilterCollection.Add(new FilterItem(Source1, "原图", FilterType.Origin));
-                FilterCollection.Add(new FilterItem(Source2, "反色", FilterType.Invert));
-                FilterCollection.Add(new FilterItem(Source3, "灰度", FilterType.Gray));
-                FilterCollection.Add(new FilterItem(Source4, "黑白", FilterType.Threshold));
-                FilterCollection.Add(new FilterItem(Source8, "怀旧", FilterType.Sepia));
-                FilterCollection.Add(new FilterItem(Source9, "马赛克", FilterType.Mosaic));
-                FilterCollection.Add(new FilterItem(Source5, "素描", FilterType.Sketch));
-                FilterCollection.Add(new FilterItem(Source6, "模糊", FilterType.GaussianBlur));
-                FilterCollection.Add(new FilterItem(Source7, "油画", FilterType.OilPainting));
-            }
-            else
-            {
-                FilterCollection.Add(new FilterItem(Source1, "Origin", FilterType.Origin));
-                FilterCollection.Add(new FilterItem(Source2, "Invert", FilterType.Invert));
-                FilterCollection.Add(new FilterItem(Source3, "Gray", FilterType.Gray));
-                FilterCollection.Add(new FilterItem(Source4, "Binary", FilterType.Threshold));
-                FilterCollection.Add(new FilterItem(Source8, "Sepia", FilterType.Sepia));
-                FilterCollection.Add(new FilterItem(Source9, "Mosaic", FilterType.Mosaic));
-                FilterCollection.Add(new FilterItem(Source5, "Sketch", FilterType.Sketch));
-                FilterCollection.Add(new FilterItem(Source6, "Blurry", FilterType.GaussianBlur));
-                FilterCollection.Add(new FilterItem(Source7, "OilPainting", FilterType.OilPainting));
-            }
+            FilterCollection.Add(new FilterItem(Source1, Globalization.GetString("CropperPage_Filter_Type_1"), FilterType.Origin));
+            FilterCollection.Add(new FilterItem(Source2, Globalization.GetString("CropperPage_Filter_Type_2"), FilterType.Invert));
+            FilterCollection.Add(new FilterItem(Source3, Globalization.GetString("CropperPage_Filter_Type_3"), FilterType.Gray));
+            FilterCollection.Add(new FilterItem(Source4, Globalization.GetString("CropperPage_Filter_Type_4"), FilterType.Threshold));
+            FilterCollection.Add(new FilterItem(Source8, Globalization.GetString("CropperPage_Filter_Type_5"), FilterType.Sepia));
+            FilterCollection.Add(new FilterItem(Source9, Globalization.GetString("CropperPage_Filter_Type_6"), FilterType.Mosaic));
+            FilterCollection.Add(new FilterItem(Source5, Globalization.GetString("CropperPage_Filter_Type_7"), FilterType.Sketch));
+            FilterCollection.Add(new FilterItem(Source6, Globalization.GetString("CropperPage_Filter_Type_8"), FilterType.GaussianBlur));
+            FilterCollection.Add(new FilterItem(Source7, Globalization.GetString("CropperPage_Filter_Type_9"), FilterType.OilPainting));
 
             FilterGrid.SelectedIndex = 0;
             FilterGrid.SelectionChanged += FilterGrid_SelectionChanged;
@@ -214,35 +194,16 @@ namespace FileManager
 
         private async void SaveAs_Click(SplitButton sender, SplitButtonClickEventArgs args)
         {
-            FileSavePicker Picker;
-            if (Globalization.Language == LanguageEnum.Chinese)
+            FileSavePicker Picker = new FileSavePicker
             {
-                Picker = new FileSavePicker
-                {
-                    SuggestedFileName = Path.GetFileNameWithoutExtension(OriginFile.Name),
-                    CommitButtonText = "保存",
-                    SuggestedStartLocation = PickerLocationId.Desktop
-                };
-                Picker.FileTypeChoices.Add("PNG格式", new List<string>() { ".png" });
-                Picker.FileTypeChoices.Add("JPEG格式", new List<string>() { ".jpg" });
-                Picker.FileTypeChoices.Add("BMP格式", new List<string>() { ".bmp" });
-                Picker.FileTypeChoices.Add("GIF格式", new List<string>() { ".gif" });
-                Picker.FileTypeChoices.Add("TIFF格式", new List<string>() { ".tiff" });
-            }
-            else
-            {
-                Picker = new FileSavePicker
-                {
-                    SuggestedFileName = Path.GetFileNameWithoutExtension(OriginFile.Name),
-                    CommitButtonText = "Save",
-                    SuggestedStartLocation = PickerLocationId.Desktop
-                };
-                Picker.FileTypeChoices.Add("PNG format", new List<string>() { ".png" });
-                Picker.FileTypeChoices.Add("JPEG format", new List<string>() { ".jpg" });
-                Picker.FileTypeChoices.Add("BMP format", new List<string>() { ".bmp" });
-                Picker.FileTypeChoices.Add("GIF format", new List<string>() { ".gif" });
-                Picker.FileTypeChoices.Add("TIFF format", new List<string>() { ".tiff" });
-            }
+                SuggestedFileName = Path.GetFileNameWithoutExtension(OriginFile.Name),
+                SuggestedStartLocation = PickerLocationId.Desktop
+            };
+            Picker.FileTypeChoices.Add($"PNG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".png" });
+            Picker.FileTypeChoices.Add($"JPEG {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".jpg" });
+            Picker.FileTypeChoices.Add($"BMP {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".bmp" });
+            Picker.FileTypeChoices.Add($"GIF {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".gif" });
+            Picker.FileTypeChoices.Add($"TIFF {Globalization.GetString("Transcode_Dialog_Format_Text")}", new List<string>() { ".tiff" });
 
             StorageFile File = await Picker.PickSaveFileAsync();
 

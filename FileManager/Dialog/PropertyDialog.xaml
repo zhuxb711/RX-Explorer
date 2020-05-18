@@ -18,7 +18,7 @@
                     <ColumnDefinition Width="90" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="文件名"
+                <TextBlock Text="名称"
                            x:Uid="AttributeFileName"
                            Name="Na" />
                 <TextBlock Text="{x:Bind FileName,Mode=OneWay}"

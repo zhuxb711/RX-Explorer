@@ -97,7 +97,7 @@ namespace FileManager.Class
                                }
                                else
                                {
-                                   string ErrorMessage = $"<html><head><title>Error 404 Bad Request</title></head><body><p style=\"font-size:50px\">HTTP ERROR 404</p><p style=\"font-size:40px\">{(Globalization.Language == LanguageEnum.Chinese ? "无法找到指定的资源，请检查URL" : "Unable to find the specified resource, please check the URL")}</p></body></html>";
+                                   string ErrorMessage = $"<html><head><title>Error 404 Bad Request</title></head><body><p style=\"font-size:50px\">HTTP ERROR 404</p><p style=\"font-size:40px\">{Globalization.GetString("WIFIShare_Error_Web_Content")}</p></body></html>";
                                    Context.Response.StatusCode = 404;
                                    Context.Response.StatusDescription = "Bad Request";
                                    Context.Response.ContentType = "text/html";

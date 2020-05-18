@@ -159,8 +159,8 @@
   <data name="AttributeDialog.Title" xml:space="preserve">
     <value>Properties</value>
   </data>
-  <data name="AttributeFileName.Text" xml:space="preserve">
-    <value>FileName</value>
+  <data name="AttributeName.Text" xml:space="preserve">
+    <value>Name</value>
   </data>
   <data name="AttributeInclude.Text" xml:space="preserve">
     <value>Includes</value>
@@ -1453,6 +1453,30 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SubmitIssueOnGithub.Content" xml:space="preserve">
     <value>Submit an issue on Github</value>
   </data>
+  <data name="DelayLoadNotification_Content_1" xml:space="preserve">
+    <value>Unable to get thumbnails of some files, so content loading may be slow</value>
+  </data>
+  <data name="DelayLoadNotification_Content_2" xml:space="preserve">
+    <value>Please wait patiently</value>
+  </data>
+  <data name="DelayLoadNotification_Title" xml:space="preserve">
+    <value>There may be a delay in loading</value>
+  </data>
+  <data name="FeedBackItem_SupportDescription_Negative" xml:space="preserve">
+    <value>against</value>
+  </data>
+  <data name="FeedBackItem_SupportDescription_Positive" xml:space="preserve">
+    <value>agree</value>
+  </data>
+  <data name="Common_Dialog_CloseButton" xml:space="preserve">
+    <value>Got it</value>
+  </data>
+  <data name="Network_Error_Dialog_Content" xml:space="preserve">
+    <value>This operation cannot be performed due to network reasons</value>
+  </data>
+  <data name="Common_Dialog_ErrorTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
   <data name="PairedText" xml:space="preserve">
     <value>Paired</value>
   </data>
@@ -1467,5 +1491,918 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="UnpairText" xml:space="preserve">
     <value>Unpair</value>
+  </data>
+  <data name="Bluetooth_Transfer_Description_1" xml:space="preserve">
+    <value>Target device terminated file transfer</value>
+  </data>
+  <data name="Bluetooth_Transfer_Description_2" xml:space="preserve">
+    <value>File transfer terminated</value>
+  </data>
+  <data name="Bluetooth_Transfer_Description_3" xml:space="preserve">
+    <value>Connection failed:</value>
+    <comment>Example: Connection failed: [Reason]</comment>
+  </data>
+  <data name="Bluetooth_Transfer_Description_4" xml:space="preserve">
+    <value>File transfer completed</value>
+  </data>
+  <data name="Bluetooth_Transfer_DeviceName" xml:space="preserve">
+    <value>Target device:</value>
+    <comment>Example: Target device: [Bluetooth Device Name]</comment>
+  </data>
+  <data name="Bluetooth_Transfer_ExitButton" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="Bluetooth_Transfer_FileName" xml:space="preserve">
+    <value>File to transfer: </value>
+    <comment>Example: File to transfer:  [FileName]</comment>
+  </data>
+  <data name="Bluetooth_Transfer_RetryButton" xml:space="preserve">
+    <value>Retry</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_1" xml:space="preserve">
+    <value>Transferring</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_2" xml:space="preserve">
+    <value>Transmission terminated</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_3" xml:space="preserve">
+    <value>Transfer completed</value>
+  </data>
+  <data name="Crop_Toast_Cancel_Text_1" xml:space="preserve">
+    <value>Cropping task has been cancelled</value>
+  </data>
+  <data name="Crop_Toast_Cancel_Text_2" xml:space="preserve">
+    <value>You can try restarting the task</value>
+  </data>
+  <data name="Crop_Toast_Complete_Text" xml:space="preserve">
+    <value>Cropping has been completed!</value>
+  </data>
+  <data name="Crop_Toast_ProbarTitle" xml:space="preserve">
+    <value>Processing...</value>
+  </data>
+  <data name="Crop_Toast_Title" xml:space="preserve">
+    <value>Cropping:</value>
+  </data>
+  <data name="Disk_Capacity_Description" xml:space="preserve">
+    <value>free of</value>
+    <comment>Describe the available capacity and total capacity of the disk, such as "128GB free of 256GB"</comment>
+  </data>
+  <data name="EnDecode_Dialog_Content" xml:space="preserve">
+    <value>Cannot convert image format due to missing encoder or unsupported operation</value>
+  </data>
+  <data name="GeneralTransformer_Crop_Cancel" xml:space="preserve">
+    <value>Video crop task was canceled</value>
+  </data>
+  <data name="GeneralTransformer_Crop_Error" xml:space="preserve">
+    <value>Encountered unknown error while cropping video</value>
+  </data>
+  <data name="GeneralTransformer_Crop_Success" xml:space="preserve">
+    <value>Video successfully cropped</value>
+  </data>
+  <data name="GeneralTransformer_Merge_Cancel" xml:space="preserve">
+    <value>Video merge task was canceled</value>
+  </data>
+  <data name="GeneralTransformer_Merge_Error" xml:space="preserve">
+    <value>Encountered unknown error while merging video</value>
+  </data>
+  <data name="GeneralTransformer_Merge_Success" xml:space="preserve">
+    <value>Video successfully merged</value>
+  </data>
+  <data name="GeneralTransformer_Transcode_Cancel" xml:space="preserve">
+    <value>Transcoding task is cancelled</value>
+  </data>
+  <data name="GeneralTransformer_Transcode_Failure" xml:space="preserve">
+    <value>Transcoding failed:</value>
+  </data>
+  <data name="GeneralTransformer_Transcode_NotSupport" xml:space="preserve">
+    <value>Transcoding format is not supported</value>
+  </data>
+  <data name="GeneralTransformer_Transcode_Success" xml:space="preserve">
+    <value>Transcoding has been successfully completed</value>
+  </data>
+  <data name="Merge_Toast_Cancel_Text_1" xml:space="preserve">
+    <value>Merging task has been cancelled</value>
+  </data>
+  <data name="Merge_Toast_Cancel_Text_2" xml:space="preserve">
+    <value>You can try restarting the task</value>
+  </data>
+  <data name="Merge_Toast_Complete_Text" xml:space="preserve">
+    <value>Merging has been completed!</value>
+  </data>
+  <data name="Merge_Toast_ProbarTitle" xml:space="preserve">
+    <value>Processing...</value>
+  </data>
+  <data name="Merge_Toast_Title" xml:space="preserve">
+    <value>Merging the video...</value>
+  </data>
+  <data name="Toast_ClickToCancel_Text" xml:space="preserve">
+    <value>Click the prompt to cancel</value>
+  </data>
+  <data name="Toast_ClickToClear_Text" xml:space="preserve">
+    <value>Click to remove the prompt</value>
+  </data>
+  <data name="Transcode_Toast_Cancel_Text_1" xml:space="preserve">
+    <value>Transcode has been cancelled</value>
+  </data>
+  <data name="Transcode_Toast_Cancel_Text_2" xml:space="preserve">
+    <value>You can try restarting the transcode</value>
+  </data>
+  <data name="Transcode_Toast_Complete_Text_1" xml:space="preserve">
+    <value>Transcoding has been completed!</value>
+  </data>
+  <data name="Transcode_Toast_Complete_Text_2" xml:space="preserve">
+    <value>has been successfully transcoded to</value>
+    <comment>Example: FILE1 has been successfully transcoded to FILE2</comment>
+  </data>
+  <data name="Transcode_Toast_Title" xml:space="preserve">
+    <value>Transcoding:</value>
+  </data>
+  <data name="WIFIShare_Error_Web_Content" xml:space="preserve">
+    <value>Unable to find the specified resource, please check the URL</value>
+  </data>
+  <data name="BluetoothUI_Status_Text_1" xml:space="preserve">
+    <value>Searching</value>
+  </data>
+  <data name="BluetoothUI_Status_Text_2" xml:space="preserve">
+    <value>Search Complete</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_1" xml:space="preserve">
+    <value>Please select a paired device first</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_2" xml:space="preserve">
+    <value>Unable to connect to this Bluetooth device, please turn on the Bluetooth switch of this device</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_3" xml:space="preserve">
+    <value>Unable to discover the ObexObjectPush service for Bluetooth devices, which is not supported</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_4" xml:space="preserve">
+    <value>Pair failed</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_5" xml:space="preserve">
+    <value>Please confirm that the PIN is the same as the paired device</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_6" xml:space="preserve">
+    <value>Please confirm whether to pair with the device</value>
+  </data>
+  <data name="Bluetooth_Transfer_Description_5" xml:space="preserve">
+    <value>File transfer terminated unexpectedly:</value>
+    <comment>Example: File transfer terminated unexpectedly: &lt;Reason&gt;</comment>
+  </data>
+  <data name="Bluetooth_Transfer_Description_6" xml:space="preserve">
+    <value>Unable to reconnect the target device</value>
+  </data>
+  <data name="Device_Capacity_Unit" xml:space="preserve">
+    <value>bytes</value>
+    <comment>Example: 1024 bytes</comment>
+  </data>
+  <data name="Device_Type_1" xml:space="preserve">
+    <value>Local drive</value>
+  </data>
+  <data name="Device_Type_2" xml:space="preserve">
+    <value>Network drive</value>
+  </data>
+  <data name="Device_Type_3" xml:space="preserve">
+    <value>Removable drive</value>
+  </data>
+  <data name="Device_Type_4" xml:space="preserve">
+    <value>Ram drive</value>
+  </data>
+  <data name="Device_Type_5" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="FileProperty_Bitrate" xml:space="preserve">
+    <value>Bitrate</value>
+  </data>
+  <data name="FileProperty_Duration" xml:space="preserve">
+    <value>Duration</value>
+  </data>
+  <data name="FileProperty_Latitude" xml:space="preserve">
+    <value>Latitude</value>
+  </data>
+  <data name="FileProperty_Longitude" xml:space="preserve">
+    <value>Longitude</value>
+  </data>
+  <data name="FileProperty_Resolution" xml:space="preserve">
+    <value>Resolution</value>
+  </data>
+  <data name="FileProperty_ShootingDate" xml:space="preserve">
+    <value>Shooting date</value>
+  </data>
+  <data name="File_Type_Compress_Description" xml:space="preserve">
+    <value>Compressed file</value>
+    <comment>.zip description</comment>
+  </data>
+  <data name="File_Type_RTF_Description" xml:space="preserve">
+    <value>RTF file</value>
+    <comment>.rtf description</comment>
+  </data>
+  <data name="File_Type_TXT_Description" xml:space="preserve">
+    <value>Text file</value>
+    <comment>.txt description</comment>
+  </data>
+  <data name="ProgramPicker_Dialog_BuiltInViewer" xml:space="preserve">
+    <value>RX built-in viewer</value>
+  </data>
+  <data name="ProgramPicker_Dialog_BuiltInViewer_Description" xml:space="preserve">
+    <value>RX provides basic viewing functions</value>
+  </data>
+  <data name="ProgramPicker_Dialog_Title_1" xml:space="preserve">
+    <value>Continue using</value>
+  </data>
+  <data name="ProgramPicker_Dialog_Title_2" xml:space="preserve">
+    <value>Choose another application</value>
+  </data>
+  <data name="SizeProperty_Calculating_Text" xml:space="preserve">
+    <value>Calculating...</value>
+  </data>
+  <data name="Common_Dialog_TipTitle" xml:space="preserve">
+    <value>Tips</value>
+  </data>
+  <data name="Common_Dialog_WarningTitle" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Crash_Screenshot_Send_Text" xml:space="preserve">
+    <value>Screenshot before the crash (Please send as an email attachment)</value>
+  </data>
+  <data name="CropperPage_Custom_Text" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="CropperPage_Filter_Type_1" xml:space="preserve">
+    <value>Origin</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_2" xml:space="preserve">
+    <value>Invert</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_3" xml:space="preserve">
+    <value>Gray</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_4" xml:space="preserve">
+    <value>Binary</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_5" xml:space="preserve">
+    <value>Sepia</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_6" xml:space="preserve">
+    <value>Mosaic</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_7" xml:space="preserve">
+    <value>Sketch</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_8" xml:space="preserve">
+    <value>Blurry</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_9" xml:space="preserve">
+    <value>OilPainting</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="ExtendedSplash_Access_Tips" xml:space="preserve">
+    <value>Please enable file system access for this app to work properly\rThen restart the app</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_1" xml:space="preserve">
+    <value>Microsoft Store</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_10" xml:space="preserve">
+    <value>Instagram</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_11" xml:space="preserve">
+    <value>Twitter</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_2" xml:space="preserve">
+    <value>Calculator</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_3" xml:space="preserve">
+    <value>Setting</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_4" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_5" xml:space="preserve">
+    <value>Calendar</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_6" xml:space="preserve">
+    <value>Bing Map</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_7" xml:space="preserve">
+    <value>Weather</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_8" xml:space="preserve">
+    <value>Bing</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_9" xml:space="preserve">
+    <value>Facebook</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_Large_Icon" xml:space="preserve">
+    <value>Large icons</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_List" xml:space="preserve">
+    <value>List</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_Medium_Icon" xml:space="preserve">
+    <value>Medium icons</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_Small_Icon" xml:space="preserve">
+    <value>Small icons</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_Tiles" xml:space="preserve">
+    <value>Tiles</value>
+  </data>
+  <data name="FolderInfo_File_Count" xml:space="preserve">
+    <value>files</value>
+    <comment>Format: [File Count] files, Example: 20 files (in folder)</comment>
+  </data>
+  <data name="FolderInfo_Folder_Count" xml:space="preserve">
+    <value>folders</value>
+    <comment>Format: [Folder Count] folders, Example: 20 folders (in folder)</comment>
+  </data>
+  <data name="MainPage_PageDictionary_SecureArea_Label" xml:space="preserve">
+    <value>Security Area</value>
+  </data>
+  <data name="MainPage_PageDictionary_ThisPC_Label" xml:space="preserve">
+    <value>ThisPC</value>
+  </data>
+  <data name="Operate_Text_BluetoothShare" xml:space="preserve">
+    <value>Bluetooth</value>
+  </data>
+  <data name="Operate_Text_ChooseAnotherApp" xml:space="preserve">
+    <value>Choose another app</value>
+  </data>
+  <data name="Operate_Text_Compression" xml:space="preserve">
+    <value>Compression</value>
+  </data>
+  <data name="Operate_Text_Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="Operate_Text_Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Operate_Text_CreateFile" xml:space="preserve">
+    <value>Create file</value>
+  </data>
+  <data name="Operate_Text_CreateFolder" xml:space="preserve">
+    <value>Create folder</value>
+  </data>
+  <data name="Operate_Text_Cut" xml:space="preserve">
+    <value>Cut</value>
+  </data>
+  <data name="Operate_Text_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Operate_Text_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Operate_Text_Merge" xml:space="preserve">
+    <value>Merge</value>
+  </data>
+  <data name="Operate_Text_Montage" xml:space="preserve">
+    <value>Montage</value>
+  </data>
+  <data name="Operate_Text_Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Operate_Text_OpenAsAdministrator" xml:space="preserve">
+    <value>Open as administrator</value>
+  </data>
+  <data name="Operate_Text_OpenInWinExplorer" xml:space="preserve">
+    <value>Open in Windows Explorer</value>
+  </data>
+  <data name="Operate_Text_OpenWith" xml:space="preserve">
+    <value>Open with...</value>
+  </data>
+  <data name="Operate_Text_Paste" xml:space="preserve">
+    <value>Paste</value>
+  </data>
+  <data name="Operate_Text_PinToHome" xml:space="preserve">
+    <value>Pin to homepage</value>
+  </data>
+  <data name="Operate_Text_Property" xml:space="preserve">
+    <value>Property</value>
+  </data>
+  <data name="Operate_Text_Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="Operate_Text_Rename" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="Operate_Text_Share" xml:space="preserve">
+    <value>Share</value>
+  </data>
+  <data name="Operate_Text_SystemShare" xml:space="preserve">
+    <value>System share</value>
+  </data>
+  <data name="Operate_Text_Transcode" xml:space="preserve">
+    <value>Transcode</value>
+  </data>
+  <data name="Operate_Text_WIFIShare" xml:space="preserve">
+    <value>WIFI</value>
+  </data>
+  <data name="QueueDialog_BackgroundTaskDisable_CloseButton" xml:space="preserve">
+    <value>Never remind</value>
+  </data>
+  <data name="QueueDialog_BackgroundTaskDisable_Content" xml:space="preserve">
+    <value>Background tasks are disabled, RX will not be able to notify you in time when the update is released. Please manually enable background task permissions</value>
+  </data>
+  <data name="QueueDialog_BackgroundTaskDisable_PrimaryButton" xml:space="preserve">
+    <value>Authorize now</value>
+  </data>
+  <data name="QueueDialog_BackgroundTaskDisable_SecondaryButton" xml:space="preserve">
+    <value>Remind later</value>
+  </data>
+  <data name="QueueDialog_Donate_AlreadyPurchase_Content" xml:space="preserve">
+    <value>You have already supported RX once, thank you very much\r\rThe original intention of RX is not to make money, so you can't repeat purchase it\r\rYou can advertise the RX to the people around you, and it is also the best support for RX（*＾-＾*）\r\rSincerely,\rRuofan</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_Donate_AlreadyPurchase_Title" xml:space="preserve">
+    <value>Thanks again</value>
+  </data>
+  <data name="QueueDialog_Donate_NetworkError_Content" xml:space="preserve">
+    <value>Unable to open support page due to Microsoft Store or network, please try again later</value>
+  </data>
+  <data name="QueueDialog_Donate_NetworkError_Title" xml:space="preserve">
+    <value>Sorry</value>
+  </data>
+  <data name="QueueDialog_Donate_NotPurchase_Content" xml:space="preserve">
+    <value>Whether supported or not, RX is always the same\r\rEven if you finally decide to give up supporting the project, thank you very much for being able to click to see it\r\rSincerely,\rRuofan</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_Donate_NotPurchase_Title" xml:space="preserve">
+    <value>Appreciation</value>
+  </data>
+  <data name="QueueDialog_Donate_Success_Content" xml:space="preserve">
+    <value>Thank you for your support, we will work hard to make RX better and better q(≧▽≦q)\r\rThe RX file manager was born to fill the gaps in the UWP file manager\rThis is not a profitable project, so downloading and using are free and do not include ads\rRX's goal is to create a free and full-featured file manager\rRX File Manager is a project I developed in my spare time\rI hope everyone likes\r\rSincerely,\rRuofan</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_Donate_Success_Title" xml:space="preserve">
+    <value>Appreciation</value>
+  </data>
+  <data name="QueueDialog_LocateFolderFailure_Content" xml:space="preserve">
+    <value>Unable to locate folder, which may have been deleted or moved</value>
+  </data>
+  <data name="QueueDialog_WaitUntilFinish_CloseButton" xml:space="preserve">
+    <value>Later</value>
+  </data>
+  <data name="QueueDialog_WaitUntilFinish_Content" xml:space="preserve">
+    <value>RX Explorer is running some tasks, closing at this time may cause data errors, Do you want to continue?</value>
+  </data>
+  <data name="QueueDialog_WaitUntilFinish_PrimaryButton" xml:space="preserve">
+    <value>Right now</value>
+  </data>
+  <data name="QuickStart_Protocal_Application_PlaceholderText" xml:space="preserve">
+    <value>Protocal</value>
+  </data>
+  <data name="QuickStart_Protocal_Web_PlaceholderText" xml:space="preserve">
+    <value>WebSite</value>
+  </data>
+  <data name="Reset_Dialog_TotalFile" xml:space="preserve">
+    <value>In total</value>
+  </data>
+  <data name="SearchBox_PlaceholderText" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="SecureArea_AES_128Level_Description" xml:space="preserve">
+    <value>Recommand</value>
+  </data>
+  <data name="SecureArea_AES_256Level_Description" xml:space="preserve">
+    <value>Safer</value>
+  </data>
+  <data name="SystemInfo_Dialog_CPU_L1Cache_Text" xml:space="preserve">
+    <value>L1 cache</value>
+  </data>
+  <data name="SystemInfo_Dialog_CPU_L2Cache_Text" xml:space="preserve">
+    <value>L2 cache</value>
+  </data>
+  <data name="SystemInfo_Dialog_CPU_L3Cache_Text" xml:space="preserve">
+    <value>L3 cache</value>
+  </data>
+  <data name="SystemInfo_Dialog_CPU_LogicalCore_Text" xml:space="preserve">
+    <value>logical core</value>
+    <comment>Example: 8 logical core (in CPU)</comment>
+  </data>
+  <data name="SystemInfo_Dialog_CPU_PhysicalCore_Text" xml:space="preserve">
+    <value>physical core</value>
+    <comment>Example: 4 physical core (in CPU)</comment>
+  </data>
+  <data name="SystemInfo_Dialog_Gateway_Text" xml:space="preserve">
+    <value>Gateway</value>
+  </data>
+  <data name="SystemInfo_Dialog_GPU_Memory_Text" xml:space="preserve">
+    <value>GPU memory</value>
+  </data>
+  <data name="SystemInfo_Dialog_GPU_Model_Text" xml:space="preserve">
+    <value>GPU model</value>
+  </data>
+  <data name="SystemInfo_Dialog_Memory_Available_Text" xml:space="preserve">
+    <value>available</value>
+    <comment>Example: Total 1024 MB, 512MB available</comment>
+  </data>
+  <data name="SystemInfo_Dialog_Memory_Total_Text" xml:space="preserve">
+    <value>Total</value>
+    <comment>Example: Total 1024 MB, 512MB available</comment>
+  </data>
+  <data name="SystemInfo_Dialog_Memory_Usage_Text" xml:space="preserve">
+    <value>The software memory usage</value>
+  </data>
+  <data name="SystemInfo_Dialog_Monitor_MaxBrightness_Text" xml:space="preserve">
+    <value>Max average brightness</value>
+  </data>
+  <data name="SystemInfo_Dialog_Monitor_PeakBrightness_Text" xml:space="preserve">
+    <value>Peak brightness</value>
+  </data>
+  <data name="SystemInfo_Dialog_NetworkAdapter_Text" xml:space="preserve">
+    <value>Network Adapter</value>
+  </data>
+  <data name="SystemInfo_Dialog_Primary_DNS_Text" xml:space="preserve">
+    <value>Primary DNS server</value>
+  </data>
+  <data name="SystemInfo_Dialog_Secondary_DNS_Text" xml:space="preserve">
+    <value>Secondary DNS server</value>
+  </data>
+  <data name="TeachingTip_Donate_Subtitle" xml:space="preserve">
+    <value>It takes a lot of effort for developers to develop RX Explorer\r🎉You can volunteer to contribute a little pocket money to developers.🎉\r\rIf you don't want to, you can click \"Later\" to cancel\rIf you want to donate, you can click \"Donate\" to support developer\r\rTips: Donator can unlock the unique file safe feature: \"Security Area\"</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="TeachingTip_PinToMenu_Subtitle" xml:space="preserve">
+    <value>Pin the RX FileManager to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_ActionButton_1" xml:space="preserve">
+    <value>Launch</value>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_ActionButton_2" xml:space="preserve">
+    <value>Later</value>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_Text_1" xml:space="preserve">
+    <value>Waiting for user to complete operation...</value>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_Text_2" xml:space="preserve">
+    <value>Please turn on file system permissions</value>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_Text_3" xml:space="preserve">
+    <value>Then click on the launch below to start immediately</value>
+  </data>
+  <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
+    <value>Please do not minimize RX-Explorer</value>
+  </data>
+  <data name="Toast_EnterBackground_Text_2" xml:space="preserve">
+    <value>Windows policy may terminate RX-Explorer</value>
+  </data>
+  <data name="Toast_EnterBackground_Text_3" xml:space="preserve">
+    <value>Click to activate</value>
+  </data>
+  <data name="Transcode_Dialog_Format_Text" xml:space="preserve">
+    <value>format</value>
+    <comment>Example: MP4 format</comment>
+  </data>
+  <data name="Transcode_Image_Preview_Resolution" xml:space="preserve">
+    <value>Preview resolution</value>
+  </data>
+  <data name="Transcode_Simaple_Rate_Text" xml:space="preserve">
+    <value>Sampling-Rate</value>
+  </data>
+  <data name="VideoEdit_Dialog_Crop_Precision_Level_1" xml:space="preserve">
+    <value>Precision (Slower)</value>
+  </data>
+  <data name="VideoEdit_Dialog_Crop_Precision_Level_2" xml:space="preserve">
+    <value>Fast (Faster)</value>
+  </data>
+  <data name="Video_Dialog_Encoding_Text" xml:space="preserve">
+    <value>Encoding</value>
+  </data>
+  <data name="Zip_Dialog_Level_1" xml:space="preserve">
+    <value>Max</value>
+  </data>
+  <data name="Zip_Dialog_Level_2" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="Zip_Dialog_Level_3" xml:space="preserve">
+    <value>Package only</value>
+  </data>
+  <data name="Zip_Dialog_Password_PlaceholderText" xml:space="preserve">
+    <value>Enter decompression password</value>
+  </data>
+  <data name="Zip_Dialog_Password_Title" xml:space="preserve">
+    <value>Password required</value>
+  </data>
+  <data name="Common_Dialog_CancelButton" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Common_Dialog_ContinueButton" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="Common_Dialog_LaterButton" xml:space="preserve">
+    <value>Later</value>
+  </data>
+  <data name="Common_Dialog_NowButton" xml:space="preserve">
+    <value>Now</value>
+  </data>
+  <data name="Create_NewFolder_Admin_Name" xml:space="preserve">
+    <value>New folder</value>
+  </data>
+  <data name="Drag_Tip_CopyTo" xml:space="preserve">
+    <value>Copy to</value>
+  </data>
+  <data name="Drag_Tip_MoveTo" xml:space="preserve">
+    <value>Move to</value>
+  </data>
+  <data name="Drag_Tip_ReleaseToAdd" xml:space="preserve">
+    <value>Release to add files</value>
+  </data>
+  <data name="Progress_Tip_CheckingLicense" xml:space="preserve">
+    <value>Checking license...</value>
+  </data>
+  <data name="Progress_Tip_Compressing" xml:space="preserve">
+    <value>Compressing</value>
+  </data>
+  <data name="Progress_Tip_Copying" xml:space="preserve">
+    <value>Copying</value>
+  </data>
+  <data name="Progress_Tip_Deleting" xml:space="preserve">
+    <value>Deleting</value>
+  </data>
+  <data name="Progress_Tip_Exporting" xml:space="preserve">
+    <value>Exporting</value>
+  </data>
+  <data name="Progress_Tip_Extracting" xml:space="preserve">
+    <value>Extracting</value>
+  </data>
+  <data name="Progress_Tip_Importing" xml:space="preserve">
+    <value>Importing</value>
+  </data>
+  <data name="Progress_Tip_Loading" xml:space="preserve">
+    <value>Loading</value>
+  </data>
+  <data name="Progress_Tip_Moving" xml:space="preserve">
+    <value>Moving</value>
+  </data>
+  <data name="Progress_Tip_Transcoding" xml:space="preserve">
+    <value>Transcoding</value>
+  </data>
+  <data name="Progress_Tip_Undoing" xml:space="preserve">
+    <value>Undoing</value>
+  </data>
+  <data name="QueueDialog_CopyFailForNotExist_Content" xml:space="preserve">
+    <value>Some files do not exist and cannot be copyed to the specified location</value>
+  </data>
+  <data name="QueueDialog_CopyFail_FreeSpaceCritical_Content" xml:space="preserve">
+    <value>Some files cannot be copyed due to insufficient free space on the device</value>
+  </data>
+  <data name="QueueDialog_DeleteFolderError_Content" xml:space="preserve">
+    <value>An error occurred while deleting the folder</value>
+  </data>
+  <data name="QueueDialog_DeleteFolder_Content" xml:space="preserve">
+    <value>This will permanently delete everything in the folder\r\rWhether to continue?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_EmptyFolderName_Content" xml:space="preserve">
+    <value>Folder name cannot be empty, rename failed</value>
+  </data>
+  <data name="QueueDialog_LocatePathFailure_Content" xml:space="preserve">
+    <value>Unable to locate the path:</value>
+  </data>
+  <data name="QueueDialog_MoveFailForNotExist_Content" xml:space="preserve">
+    <value>Some files do not exist and cannot be moved to the specified location</value>
+  </data>
+  <data name="QueueDialog_MoveFail_Captured_Content" xml:space="preserve">
+    <value>Some files are in use by other applications and cannot be moved</value>
+  </data>
+  <data name="QueueDialog_MoveFail_FreeSpaceCritical_Content" xml:space="preserve">
+    <value>Some files cannot be moved due to insufficient free space on the device</value>
+  </data>
+  <data name="QueueDialog_RepeatAddToHomePage_Content" xml:space="preserve">
+    <value>This folder has been added to the home page, can not be added repeatedly</value>
+  </data>
+  <data name="QueueDialog_SameFolder_Content" xml:space="preserve">
+    <value>The target folder is the same as the source folder</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedCreateFolder_Content" xml:space="preserve">
+    <value>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UnauthorizedDeleteFolder_Content" xml:space="preserve">
+    <value>RX does not have permission to delete this folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
+    <value>RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UnauthorizedRenameFolder_Content" xml:space="preserve">
+    <value>RX does not have permission to rename this folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="Common_Dialog_GoBack" xml:space="preserve">
+    <value>Go back</value>
+  </data>
+  <data name="Common_Dialog_RefreshButton" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="Common_Dialog_RetryButton" xml:space="preserve">
+    <value>Retry</value>
+  </data>
+  <data name="Common_Dialog_TryAgain" xml:space="preserve">
+    <value>Try again</value>
+  </data>
+  <data name="Common_Dialog_UsePassword" xml:space="preserve">
+    <value>Use password</value>
+  </data>
+  <data name="Crop_Image_Name_Tail" xml:space="preserve">
+    <value>Cropped</value>
+  </data>
+  <data name="DecryptFail_Backup_Text" xml:space="preserve">
+    <value>Error file backup</value>
+  </data>
+  <data name="Download_Folder_Name" xml:space="preserve">
+    <value>Downloads</value>
+    <comment>Name of [Downloads folder]</comment>
+  </data>
+  <data name="Media_Tip_Text" xml:space="preserve">
+    <value>Please Enjoy:</value>
+  </data>
+  <data name="Merge_Image_Name_Tail" xml:space="preserve">
+    <value>Merged</value>
+  </data>
+  <data name="Operate_Text_Decompression" xml:space="preserve">
+    <value>Decompression</value>
+  </data>
+  <data name="Pdf_Page_Tip" xml:space="preserve">
+    <value>Page [CurrentPageIndex] / ([TotalPageCount] pages)</value>
+    <comment>Used to display the current number of PDF pages and the total number of pages. Do not modify [CurrentPageIndex] and [TotalPageCount]. They are placeholders. Please place it in the correct position according to the word order of the corresponding language</comment>
+  </data>
+  <data name="Progress_Tip_NoFeedback" xml:space="preserve">
+    <value>No feedback or suggestions</value>
+  </data>
+  <data name="QueueDialog_AddDeviceFail_Content" xml:space="preserve">
+    <value>Cannot add removable device due to lack of sufficient permissions, Device name:</value>
+  </data>
+  <data name="QueueDialog_BootAtStart_Content" xml:space="preserve">
+    <value>RX cannot be turned on automatically because startup is disabled by the system\rYou can go to the [System Settings] page to manage</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_ClearHistory_Content" xml:space="preserve">
+    <value>Search history cleanup completed</value>
+  </data>
+  <data name="QueueDialog_CompressionError_Content" xml:space="preserve">
+    <value>An exception occurred while compressing the file\r\rError Message：\r\r</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_DecompressionError_Content" xml:space="preserve">
+    <value>An exception occurred while extracting the file\r\rError Message：\r\r</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_DecryptError_Content" xml:space="preserve">
+    <value>An unexpected error occurred while decrypting the file, the export process has ended</value>
+  </data>
+  <data name="QueueDialog_DecryptPasswordError_Content" xml:space="preserve">
+    <value>The decryption failed due to the wrong decryption password, the export task has been terminated \r\rThis may be caused by a mismatch in the data of the files to be decrypted</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_DeleteFiles_Content" xml:space="preserve">
+    <value>This operation will permanently delete these files\r\rWhether to continue?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_DeleteFile_Content" xml:space="preserve">
+    <value>This operation will permanently delete the file\r\rWhether to continue?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_DeleteItemError_Content" xml:space="preserve">
+    <value>Unable to delete some files/folders, the file/folders may have been moved or deleted</value>
+  </data>
+  <data name="QueueDialog_DeviceExist_Content" xml:space="preserve">
+    <value>The selected drive already exists</value>
+  </data>
+  <data name="QueueDialog_DeviceHideForError_Content" xml:space="preserve">
+    <value>Some drives fail to display due to lack of sufficient permissions</value>
+  </data>
+  <data name="QueueDialog_DeviceSelectError_Content" xml:space="preserve">
+    <value>The selected content is not a drive</value>
+  </data>
+  <data name="QueueDialog_DragIncludeFolderError" xml:space="preserve">
+    <value>The target folder cannot be included in the drag item</value>
+  </data>
+  <data name="QueueDialog_EmptyFileName_Content" xml:space="preserve">
+    <value>File name cannot be empty, rename failed</value>
+  </data>
+  <data name="QueueDialog_EncryptError_Content" xml:space="preserve">
+    <value>An unexpected error occurred while encrypting the file, the import process has ended</value>
+  </data>
+  <data name="QueueDialog_FeedBackNetworkError_Content" xml:space="preserve">
+    <value>This operation cannot be performed due to network reasons</value>
+  </data>
+  <data name="QueueDialog_FeedBackRepeatError_Content" xml:space="preserve">
+    <value>The same feedback already exists, please do not submit it repeatedly</value>
+  </data>
+  <data name="QueueDialog_FileDamageError_Content" xml:space="preserve">
+    <value>Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r\rThis may be caused by the file data being damaged or modified</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_ImportLibraryFolderError_Content" xml:space="preserve">
+    <value>Unable to import library folder for some unforeseen reasons</value>
+  </data>
+  <data name="QueueDialog_LocateFileFailure_Content" xml:space="preserve">
+    <value>Could not find the corresponding file, it may have been moved or deleted</value>
+  </data>
+  <data name="QueueDialog_NotSupportARM_Content" xml:space="preserve">
+    <value>Some components that the system information dialog depends on only support X86 or X64 processors\rUnsupport ARM processor for now, so this dialog will not be opened</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_OpenBluetooth_Content" xml:space="preserve">
+    <value>Please turn on Bluetooth and try again</value>
+  </data>
+  <data name="QueueDialog_OpenFailure_Content" xml:space="preserve">
+    <value>RX FileManager could not open this file\r\rBut it can be opened with other applications</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_OpenFailure_PrimaryButton" xml:space="preserve">
+    <value>Default app</value>
+  </data>
+  <data name="QueueDialog_PDFOpenFailure" xml:space="preserve">
+    <value>Unable to parse this PDF file, failed to open PDF</value>
+  </data>
+  <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
+    <value>Some of the fixed folders are no longer found and will be automatically removed\r\rIncluding：\r</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_RenameNumError_Content" xml:space="preserve">
+    <value>This operation allows only one object to be renamed at a time</value>
+  </data>
+  <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
+    <value>There was a problem during the automatic restart, please restart the RX Explorer manually</value>
+  </data>
+  <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
+    <value>Security Area does not support importing folder, all folders have been filtered</value>
+  </data>
+  <data name="QueueDialog_SecureAreaNetworkUnavailable_Content" xml:space="preserve">
+    <value>Cannot check license status because the current network or user is unavailable</value>
+  </data>
+  <data name="QueueDialog_SecureAreaUnlock_Content" xml:space="preserve">
+    <value>Thank you for your support of the RX Explorer, the security area has been unlocked</value>
+  </data>
+  <data name="QueueDialog_TaskWorking_Content" xml:space="preserve">
+    <value>There is already an ongoing task, please wait for it to complete</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedCompression_Content" xml:space="preserve">
+    <value>RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rEnter the system explorer immediately?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UnauthorizedCreateDecryptFile_Content" xml:space="preserve">
+    <value>RX does not have permission to create an decrypted file here</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedCreateNewFile_Content" xml:space="preserve">
+    <value>RX does not have sufficient permissions to create new files in this folder\r\rEnter the system explorer immediately?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UnauthorizedDecompression_Content" xml:space="preserve">
+    <value>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file.\r\rEnter the system explorer immediately?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
+    <value>RX does not have permission to rename, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
+    <value>Since some files/folders no longer exist, the undo operation could not be completed completely</value>
+  </data>
+  <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
+    <value>WIFI transmission has an unexpected error：\r</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_WinHelloAuthFail_Content" xml:space="preserve">
+    <value>Windows Hello authentication failed, you do not have permission to enter the Security Area</value>
+  </data>
+  <data name="QueueDialog_WinHelloCredentialLost_Content" xml:space="preserve">
+    <value>Windows Hello authentication credentials are lost, you cannot use Windows Hello, please use the password to enter \r\rAfter you re-enter the security domain, enter settings to re-register Windows Hello</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_WinHelloDisable_Content" xml:space="preserve">
+    <value>Windows Hello is disabled and cannot enter the Security Area through Windows Hello</value>
+  </data>
+  <data name="QueueDialog_WinHelloSetupError_Content" xml:space="preserve">
+    <value>Windows Hello could not be set up correctly, please try again</value>
+  </data>
+  <data name="Queue_Dialog_ImageReadError_Content" xml:space="preserve">
+    <value>The image viewer failed to read any image file due to an abnormality in reading the image folder. Please try again.</value>
+  </data>
+  <data name="RX_BuildIn_Viewer_Name" xml:space="preserve">
+    <value>RX built-in viewer</value>
+  </data>
+  <data name="Setting_UIMode_Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="Setting_UIMode_Recommand" xml:space="preserve">
+    <value>Recommand</value>
+  </data>
+  <data name="Setting_UIMode_SolidColor" xml:space="preserve">
+    <value>Solid Color</value>
   </data>
 </root>

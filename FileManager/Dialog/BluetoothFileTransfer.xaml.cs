@@ -21,9 +21,12 @@ namespace FileManager.Dialog
         {
             InitializeComponent();
             this.FileToSend = FileToSend ?? throw new ArgumentNullException(nameof(FileToSend), "Parameter could not be null");
+
             ObexClient = ObexServiceProvider.GetObexNewInstance();
-            TransferName.Text = Globalization.Language == LanguageEnum.Chinese ? $"传输文件名：{FileToSend.Name}" : $"File to transfer：{FileToSend.Name}";
-            TransferDeviceName.Text = Globalization.Language == LanguageEnum.Chinese ? $"目标设备：{ObexServiceProvider.DeviceName}" : $"Target device：{ObexServiceProvider.DeviceName}";
+
+            TransferName.Text = $"{Globalization.GetString("Bluetooth_Transfer_FileName")}: {FileToSend.Name}";
+            TransferDeviceName.Text = $"{Globalization.GetString("Bluetooth_Transfer_DeviceName")}: {ObexServiceProvider.DeviceName}";
+
             Loaded += BluetoothFileTransfer_Loaded;
             Closing += BluetoothFileTransfer_Closing;
         }
@@ -58,9 +61,7 @@ namespace FileManager.Dialog
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Title = Globalization.Language == LanguageEnum.Chinese
-                ? "正在传输中"
-                : "Transferring";
+                Title = Globalization.GetString("Bluetooth_Transfer_Status_1");
             });
         }
 
@@ -74,20 +75,10 @@ namespace FileManager.Dialog
 
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    Title = "传输终止";
-                    ProgressText.Text = "目标设备终止了文件传输";
-                    CloseButtonText = "退出";
-                    SecondaryButtonText = "重试";
-                }
-                else
-                {
-                    Title = "Transmission terminated";
-                    ProgressText.Text = "Target device terminated file transfer";
-                    CloseButtonText = "Exit";
-                    SecondaryButtonText = "Retry";
-                }
+                Title = Globalization.GetString("Bluetooth_Transfer_Status_2");
+                ProgressText.Text = Globalization.GetString("Bluetooth_Transfer_Description_1");
+                CloseButtonText = Globalization.GetString("Bluetooth_Transfer_ExitButton");
+                SecondaryButtonText = Globalization.GetString("Bluetooth_Transfer_RetryButton");
             });
         }
 
@@ -95,20 +86,10 @@ namespace FileManager.Dialog
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    Title = "传输终止";
-                    ProgressText.Text = "文件传输终止";
-                    CloseButtonText = "退出";
-                    SecondaryButtonText = "重试";
-                }
-                else
-                {
-                    Title = "Transmission terminated";
-                    ProgressText.Text = "File transfer terminated";
-                    CloseButtonText = "Exit";
-                    SecondaryButtonText = "Retry";
-                }
+                Title = Globalization.GetString("Bluetooth_Transfer_Status_2");
+                ProgressText.Text = Globalization.GetString("Bluetooth_Transfer_Description_2");
+                CloseButtonText = Globalization.GetString("Bluetooth_Transfer_ExitButton");
+                SecondaryButtonText = Globalization.GetString("Bluetooth_Transfer_RetryButton");
             });
         }
 
@@ -116,20 +97,10 @@ namespace FileManager.Dialog
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    Title = "传输终止";
-                    ProgressText.Text = "连接失败: " + e.ExceptionObject.Message;
-                    CloseButtonText = "退出";
-                    SecondaryButtonText = "重试";
-                }
-                else
-                {
-                    Title = "Transmission terminated";
-                    ProgressText.Text = "Connection failed: " + e.ExceptionObject.Message;
-                    CloseButtonText = "Exit";
-                    SecondaryButtonText = "Retry";
-                }
+                Title = Globalization.GetString("Bluetooth_Transfer_Status_2");
+                ProgressText.Text = $"{Globalization.GetString("Bluetooth_Transfer_Description_2")} {e.ExceptionObject.Message}";
+                CloseButtonText = Globalization.GetString("Bluetooth_Transfer_ExitButton");
+                SecondaryButtonText = Globalization.GetString("Bluetooth_Transfer_RetryButton");
             });
         }
 
@@ -138,20 +109,10 @@ namespace FileManager.Dialog
             AbortFromHere = true;
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    Title = "传输完成";
-                    ProgressControl.Value = 100;
-                    ProgressText.Text = "100%" + " \r文件传输完成";
-                    SecondaryButtonText = "完成";
-                }
-                else
-                {
-                    Title = "Transfer completed";
-                    ProgressControl.Value = 100;
-                    ProgressText.Text = "100%" + " \rFile transfer completed";
-                    SecondaryButtonText = "Complete";
-                }
+                Title = Globalization.GetString("Bluetooth_Transfer_Status_3");
+                ProgressControl.Value = 100;
+                ProgressText.Text = $"100%{Environment.NewLine}{Globalization.GetString("Bluetooth_Transfer_Description_4")}";
+                SecondaryButtonText = Globalization.GetString("Common_Dialog_CloseButton");
             });
         }
 
@@ -173,20 +134,10 @@ namespace FileManager.Dialog
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
-                {
-                    Title = "传输终止";
-                    ProgressText.Text = "文件传输意外终止:" + e.ExceptionObject.Message;
-                    CloseButtonText = "退出";
-                    SecondaryButtonText = "重试";
-                }
-                else
-                {
-                    Title = "Transmission terminated";
-                    ProgressText.Text = "File transfer terminated unexpectedly:" + e.ExceptionObject.Message;
-                    CloseButtonText = "Exit";
-                    SecondaryButtonText = "Retry";
-                }
+                Title = Globalization.GetString("Bluetooth_Transfer_Status_2");
+                ProgressText.Text = $"{Globalization.GetString("Bluetooth_Transfer_Description_5")} {e.ExceptionObject.Message}";
+                CloseButtonText = Globalization.GetString("Bluetooth_Transfer_ExitButton");
+                SecondaryButtonText = Globalization.GetString("Bluetooth_Transfer_RetryButton");
             });
         }
 
@@ -196,111 +147,55 @@ namespace FileManager.Dialog
 
             try
             {
-                if (Globalization.Language == LanguageEnum.Chinese)
+                if (SecondaryButtonText == Globalization.GetString("Bluetooth_Transfer_RetryButton"))
                 {
-                    if (SecondaryButtonText == "终止")
+                    args.Cancel = true;
+                    ProgressControl.IsIndeterminate = true;
+                    ProgressText.Text = "0%";
+
+                    ObexClient.DataTransferFailed -= ObexClient_DataTransferFailed;
+                    ObexClient.DataTransferProgressed -= ObexClient_DataTransferProgressed;
+                    ObexClient.DataTransferSucceeded -= ObexClient_DataTransferSucceeded;
+                    ObexClient.ConnectionFailed -= ObexClient_ConnectionFailed;
+                    ObexClient.Aborted -= ObexClient_Aborted;
+                    ObexClient.Disconnected -= ObexClient_Disconnected;
+                    ObexClient.DeviceConnected -= ObexClient_DeviceConnected;
+
+                    ObexClient = ObexServiceProvider.GetObexNewInstance();
+
+                    ObexClient.DataTransferFailed += ObexClient_DataTransferFailed;
+                    ObexClient.DataTransferProgressed += ObexClient_DataTransferProgressed;
+                    ObexClient.DataTransferSucceeded += ObexClient_DataTransferSucceeded;
+                    ObexClient.ConnectionFailed += ObexClient_ConnectionFailed;
+                    ObexClient.Aborted += ObexClient_Aborted;
+                    ObexClient.Disconnected += ObexClient_Disconnected;
+                    ObexClient.DeviceConnected += ObexClient_DeviceConnected;
+
+                    try
                     {
-                        args.Cancel = true;
-                        AbortFromHere = true;
-
-                        try
-                        {
-                            await ObexClient.AbortAsync().ConfigureAwait(true);
-                        }
-                        catch (Exception)
-                        {
-
-                        }
+                        ProgressControl.Value = 0;
+                        CloseButtonText = string.Empty;
+                        SecondaryButtonText = Globalization.GetString("BluetoothTranfer.SecondaryButtonText");
+                        await ObexClient.ConnectAsync().ConfigureAwait(true);
+                        await ObexClient.SendFileAsync(FileToSend).ConfigureAwait(true);
                     }
-                    else if (SecondaryButtonText == "重试")
+                    catch (Exception)
                     {
-                        args.Cancel = true;
-                        ProgressControl.IsIndeterminate = true;
-                        ProgressText.Text = "0%";
-
-                        ObexClient.DataTransferFailed -= ObexClient_DataTransferFailed;
-                        ObexClient.DataTransferProgressed -= ObexClient_DataTransferProgressed;
-                        ObexClient.DataTransferSucceeded -= ObexClient_DataTransferSucceeded;
-                        ObexClient.ConnectionFailed -= ObexClient_ConnectionFailed;
-                        ObexClient.Aborted -= ObexClient_Aborted;
-                        ObexClient.Disconnected -= ObexClient_Disconnected;
-                        ObexClient.DeviceConnected -= ObexClient_DeviceConnected;
-
-                        ObexClient = ObexServiceProvider.GetObexNewInstance();
-
-                        ObexClient.DataTransferFailed += ObexClient_DataTransferFailed;
-                        ObexClient.DataTransferProgressed += ObexClient_DataTransferProgressed;
-                        ObexClient.DataTransferSucceeded += ObexClient_DataTransferSucceeded;
-                        ObexClient.ConnectionFailed += ObexClient_ConnectionFailed;
-                        ObexClient.Aborted += ObexClient_Aborted;
-                        ObexClient.Disconnected += ObexClient_Disconnected;
-                        ObexClient.DeviceConnected += ObexClient_DeviceConnected;
-
-                        try
-                        {
-                            ProgressControl.Value = 0;
-                            CloseButtonText = string.Empty;
-                            SecondaryButtonText = "终止";
-                            await ObexClient.ConnectAsync().ConfigureAwait(true);
-                            await ObexClient.SendFileAsync(FileToSend).ConfigureAwait(true);
-                        }
-                        catch (Exception)
-                        {
-                            ProgressText.Text = "无法重新连接目标设备";
-                        }
+                        ProgressText.Text = Globalization.GetString("Bluetooth_Transfer_Description_6");
                     }
                 }
                 else
                 {
-                    if (SecondaryButtonText == "Abort")
+                    args.Cancel = true;
+                    AbortFromHere = true;
+
+                    try
                     {
-                        args.Cancel = true;
-                        AbortFromHere = true;
-
-                        try
-                        {
-                            await ObexClient.AbortAsync().ConfigureAwait(true);
-                        }
-                        catch (Exception)
-                        {
-
-                        }
+                        await ObexClient.AbortAsync().ConfigureAwait(true);
                     }
-                    else if (SecondaryButtonText == "Retry")
+                    catch (Exception)
                     {
-                        args.Cancel = true;
-                        ProgressText.Text = "0%";
 
-                        ObexClient.DataTransferFailed -= ObexClient_DataTransferFailed;
-                        ObexClient.DataTransferProgressed -= ObexClient_DataTransferProgressed;
-                        ObexClient.DataTransferSucceeded -= ObexClient_DataTransferSucceeded;
-                        ObexClient.ConnectionFailed -= ObexClient_ConnectionFailed;
-                        ObexClient.Aborted -= ObexClient_Aborted;
-                        ObexClient.Disconnected -= ObexClient_Disconnected;
-                        ObexClient.DeviceConnected -= ObexClient_DeviceConnected;
-
-                        ObexClient = ObexServiceProvider.GetObexNewInstance();
-
-                        ObexClient.DataTransferFailed += ObexClient_DataTransferFailed;
-                        ObexClient.DataTransferProgressed += ObexClient_DataTransferProgressed;
-                        ObexClient.DataTransferSucceeded += ObexClient_DataTransferSucceeded;
-                        ObexClient.ConnectionFailed += ObexClient_ConnectionFailed;
-                        ObexClient.Aborted += ObexClient_Aborted;
-                        ObexClient.Disconnected += ObexClient_Disconnected;
-                        ObexClient.DeviceConnected += ObexClient_DeviceConnected;
-
-                        try
-                        {
-                            ProgressControl.Value = 0;
-                            CloseButtonText = string.Empty;
-                            SecondaryButtonText = "Abort";
-                            await ObexClient.ConnectAsync().ConfigureAwait(true);
-                            await ObexClient.SendFileAsync(FileToSend).ConfigureAwait(true);
-                        }
-                        catch (Exception)
-                        {
-                            ProgressText.Text = "Unable to reconnect the target device";
-                        }
                     }
                 }
             }
