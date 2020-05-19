@@ -331,7 +331,14 @@ namespace FileManager
             IsNavigateToCropperPage = true;
             try
             {
-                FileControlInstance.Nav.Navigate(typeof(CropperPage), new Tuple<Frame, object>(FileControlInstance.Nav, Flip.SelectedItem), new DrillInNavigationTransitionInfo());
+                if (AnimationController.Current.IsEnableAnimation)
+                {
+                    FileControlInstance.Nav.Navigate(typeof(CropperPage), new Tuple<Frame, object>(FileControlInstance.Nav, Flip.SelectedItem), new DrillInNavigationTransitionInfo());
+                }
+                else
+                {
+                    FileControlInstance.Nav.Navigate(typeof(CropperPage), new Tuple<Frame, object>(FileControlInstance.Nav, Flip.SelectedItem), new SuppressNavigationTransitionInfo());
+                }
             }
             catch (Exception ex)
             {

@@ -14,15 +14,27 @@ namespace FileManager.Dialog
 
         private void Init()
         {
-            if (Globalization.CurrentLanguage == LanguageEnum.Chinese)
+            switch (Globalization.CurrentLanguage)
             {
-                StorageFile UpdateFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese.txt")).AsTask().Result;
-                MarkDown.Text = FileIO.ReadTextAsync(UpdateFile).AsTask().Result;
-            }
-            else
-            {
-                StorageFile UpdateFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-English.txt")).AsTask().Result;
-                MarkDown.Text = FileIO.ReadTextAsync(UpdateFile).AsTask().Result;
+                case LanguageEnum.Chinese:
+                    {
+                        StorageFile UpdateFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese.txt")).AsTask().Result;
+                        MarkDown.Text = FileIO.ReadTextAsync(UpdateFile).AsTask().Result;
+                        break;
+                    }
+
+                case LanguageEnum.English:
+                    {
+                        StorageFile UpdateFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-English.txt")).AsTask().Result;
+                        MarkDown.Text = FileIO.ReadTextAsync(UpdateFile).AsTask().Result;
+                        break;
+                    }
+                case LanguageEnum.French:
+                    {
+                        StorageFile UpdateFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-French.txt")).AsTask().Result;
+                        MarkDown.Text = FileIO.ReadTextAsync(UpdateFile).AsTask().Result;
+                        break;
+                    }
             }
         }
     }

@@ -154,7 +154,7 @@
                       VerticalScrollBarVisibility="Hidden"
                       Padding="20"
                       x:Name="Scroll">
-            <Grid>
+            <Grid Padding="0,0,0,20">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="350" />
                     <ColumnDefinition />
@@ -214,7 +214,7 @@
                                   OnContent="黑色"
                                   OffContent="白色"
                                   Margin="0,20,0,0"
-                                  x:Uid="CustionFontColor"
+                                  x:Uid="CustomFontColor"
                                   Name="CustomFontColor"
                                   Toggled="CustomFontColor_Toggled" />
 
@@ -268,7 +268,15 @@
                                x:Uid="SettingPersonalize"
                                FontSize="22"
                                Margin="0,30,0,0" />
-                    
+
+                    <ToggleSwitch Margin="0,20,0,0"
+                                  Header="动画效果"
+                                  OffContent="禁用"
+                                  OnContent="启用"
+                                  x:Uid="SettingPageAnimationSwitch"
+                                  Name="AnimationSwitch"
+                                  IsOn="{x:Bind local:AnimationController.Current.IsEnableAnimation,Mode=TwoWay}"/>
+
                     <ComboBox Header="模式"
                               x:Uid="SettingPageUIMode"
                               Margin="0,20,0,0"
@@ -281,9 +289,11 @@
                                 Name="SolidColorArea"
                                 Orientation="Horizontal">
                         <RadioButton Content="白色"
+                                     x:Uid="SolidColor_White"
                                      Name="SolidColor_White"
                                      Checked="SolidColor_White_Checked" />
                         <RadioButton Content="黑色"
+                                     x:Uid="SolidColor_Black"
                                      Name="SolidColor_Black"
                                      Checked="SolidColor_Black_Checked" />
                     </StackPanel>
@@ -508,8 +518,16 @@
                                x:Uid="SettingAbout"
                                Text="关于"
                                FontSize="22" />
+                    <TextBlock FontSize="16"
+                               Text="特别感谢以下提供翻译的人员:"
+                               Margin="0,20,0,0"
+                               x:Uid="ThankTranslate"
+                               Name="ThankTranslate" />
+                    <TextBlock Text="Yann Lacroix"
+                               FontSize="15"
+                               Margin="0,3,0,0" />
                     <HyperlinkButton Content="Github"
-                                     Margin="0,20,0,0"
+                                     Margin="0,15,0,0"
                                      FontSize="16"
                                      NavigateUri="https://github.com/zhuxb711/FileManager" />
                     <HyperlinkButton Content="联系开发者"
@@ -554,12 +572,8 @@
                               SelectionMode="None"
                               ScrollViewer.VerticalScrollBarVisibility="Hidden"
                               IsRightTapEnabled="True"
-                              RightTapped="FeedBackList_RightTapped">
-                        <ListView.ItemContainerTransitions>
-                            <TransitionCollection>
-                                <AddDeleteThemeTransition />
-                            </TransitionCollection>
-                        </ListView.ItemContainerTransitions>
+                              RightTapped="FeedBackList_RightTapped"
+                              ItemContainerTransitions="{x:Bind local:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="local:FeedBackItem">
                                 <Grid Padding="5">

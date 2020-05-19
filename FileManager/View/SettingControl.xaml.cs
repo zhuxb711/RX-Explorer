@@ -21,7 +21,7 @@ using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
-
+using AnimationController = FileManager.Class.AnimationController;
 
 namespace FileManager
 {
@@ -98,13 +98,16 @@ namespace FileManager
             {
                 IsOpened = true;
 
-                Scroll.ChangeView(null, 0, null, true);
-
                 Visibility = Visibility.Visible;
 
-                ActivateAnimation(Gr, TimeSpan.FromMilliseconds(600), TimeSpan.FromMilliseconds(200), 200, false);
-                ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(300), 150, false);
-                ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(300), 150, false);
+                if (AnimationController.Current.IsEnableAnimation)
+                {
+                    Scroll.ChangeView(null, 0, null, true);
+
+                    ActivateAnimation(Gr, TimeSpan.FromMilliseconds(600), TimeSpan.FromMilliseconds(200), 200, false);
+                    ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(300), 150, false);
+                    ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(300), 150, false);
+                }
 
                 await ExcuteWhenShown().ConfigureAwait(false);
             }
@@ -116,11 +119,14 @@ namespace FileManager
             {
                 IsOpened = false;
 
-                ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(600), TimeSpan.FromMilliseconds(200), 150, true);
-                ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(600), TimeSpan.FromMilliseconds(200), 150, true);
-                ActivateAnimation(Gr, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(300), 200, true);
+                if (AnimationController.Current.IsEnableAnimation)
+                {
+                    ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(600), TimeSpan.FromMilliseconds(200), 150, true);
+                    ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(600), TimeSpan.FromMilliseconds(200), 150, true);
+                    ActivateAnimation(Gr, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(300), 200, true);
 
-                await Task.Delay(1400).ConfigureAwait(true);
+                    await Task.Delay(1400).ConfigureAwait(true);
+                }
 
                 Visibility = Visibility.Collapsed;
 
@@ -1142,6 +1148,11 @@ namespace FileManager
                 case 1:
                     {
                         Globalization.SwitchTo(LanguageEnum.English);
+                        break;
+                    }
+                case 2:
+                    {
+                        Globalization.SwitchTo(LanguageEnum.French);
                         break;
                     }
             }

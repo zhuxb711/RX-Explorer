@@ -12,4 +12,2323 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AddDevice.Label" xml:space="preserve">
+    <value>Niveau de sécurité</value>
+  </data>
+  <data name="AESCheckBox.Content" xml:space="preserve">
+    <value>Supprimer le fichier source une fois le chiffrement terminé</value>
+  </data>
+  <data name="AESDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="AESDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="AESDialog.Title" xml:space="preserve">
+    <value>Chiffrement AES</value>
+  </data>
+  <data name="AESMethod.Header" xml:space="preserve">
+    <value>Méthode de chiffrement</value>
+  </data>
+  <data name="AESPassword.Header" xml:space="preserve">
+    <value>Clé de chiffrement</value>
+  </data>
+  <data name="AESPassword.PlaceholderText" xml:space="preserve">
+    <value>Mot de passe</value>
+  </data>
+  <data name="AppDelete.Label" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="AppDisplayName" xml:space="preserve">
+    <value>RX Explorer</value>
+  </data>
+  <data name="AppEdit.Label" xml:space="preserve">
+    <value>Editer</value>
+  </data>
+  <data name="AttributeCreated.Text" xml:space="preserve">
+    <value>Créé</value>
+  </data>
+  <data name="AttributeDialog.CloseButtonText" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="AttributeDialog.Title" xml:space="preserve">
+    <value>Propriétés</value>
+  </data>
+  <data name="AttributeInclude.Text" xml:space="preserve">
+    <value>Inclut</value>
+  </data>
+  <data name="AttributeExtraData.Text" xml:space="preserve">
+    <value>Informations relatives</value>
+  </data>
+  <data name="AttributeLocation.Text" xml:space="preserve">
+    <value>Localisation</value>
+  </data>
+  <data name="AttributeModified.Text" xml:space="preserve">
+    <value>Modifié</value>
+  </data>
+  <data name="AttributeSecureLevel.Text" xml:space="preserve">
+    <value>Niveau de sécurité</value>
+  </data>
+  <data name="AttributeSize.Text" xml:space="preserve">
+    <value>Taille</value>
+  </data>
+  <data name="AttributeType.Text" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="AutoBootOnStartup.Header" xml:space="preserve">
+    <value>Lancement au démarrage</value>
+  </data>
+  <data name="AutoBootOnStartup.OffContent" xml:space="preserve">
+    <value>Désactiver</value>
+  </data>
+  <data name="AutoBootOnStartup.OnContent" xml:space="preserve">
+    <value>Activer</value>
+  </data>
+  <data name="BlueScreenReport.Content" xml:space="preserve">
+    <value>Rapport au développeur</value>
+  </data>
+  <data name="BlueScreenReset.Content" xml:space="preserve">
+    <value>Réinitialiser</value>
+  </data>
+  <data name="BluetoothShare.Text" xml:space="preserve">
+    <value>Bluetooth</value>
+  </data>
+  <data name="BluetoothTranfer.SecondaryButtonText" xml:space="preserve">
+    <value>Abandonner</value>
+  </data>
+  <data name="BluetoothTranfer.Title" xml:space="preserve">
+    <value>Initialiser</value>
+  </data>
+  <data name="BluetoothUI.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="BluetoothUI.PrimaryButtonText" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="BluetoothUI.Title" xml:space="preserve">
+    <value>Sélectionner l'appareil cible</value>
+  </data>
+  <data name="BluetoothUIPinNo.Content" xml:space="preserve">
+    <value>Non</value>
+  </data>
+  <data name="BluetoothUIPinYes.Content" xml:space="preserve">
+    <value>Oui</value>
+  </data>
+  <data name="BluetoothUISearching.Text" xml:space="preserve">
+    <value>Recherche en cours</value>
+  </data>
+  <data name="Browser.Content" xml:space="preserve">
+    <value>Navigateur</value>
+  </data>
+  <data name="ChooseOtherApp.Text" xml:space="preserve">
+    <value>Ouvre avec...</value>
+  </data>
+  <data name="CloseButton.Content" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  <data name="CrashText.Text" xml:space="preserve">
+    <value>RX s'est arrêté accidentellement...(￣▽￣)/</value>
+  </data>
+  <data name="CropperPageAlphaSlider.Header" xml:space="preserve">
+    <value>Contraste</value>
+  </data>
+  <data name="CropperPageAspButton.Text" xml:space="preserve">
+    <value>Ratio d'affichage</value>
+  </data>
+  <data name="CropperPageAutoOptimizeButton.Text" xml:space="preserve">
+    <value>Optimisation Automatique</value>
+  </data>
+  <data name="CropperPageBackButton.Content" xml:space="preserve">
+    <value>Retour</value>
+  </data>
+  <data name="CropperPageBetaSlider.Header" xml:space="preserve">
+    <value>Luminosité</value>
+  </data>
+  <data name="CropperPageCropperOptionTitle.Text" xml:space="preserve">
+    <value>Options de recadrage</value>
+  </data>
+  <data name="CropperPageFilterTitle.Text" xml:space="preserve">
+    <value>Filtre d'image</value>
+  </data>
+  <data name="CropperPageFlipButton.Text" xml:space="preserve">
+    <value>Retourner</value>
+  </data>
+  <data name="CropperPageHistogram.Text" xml:space="preserve">
+    <value>Distribution de couleur</value>
+  </data>
+  <data name="CropperPageImageAdjustTitle.Text" xml:space="preserve">
+    <value>Ajuster l'image</value>
+  </data>
+  <data name="CropperPageResetButton.Text" xml:space="preserve">
+    <value>Réinitialiser</value>
+  </data>
+  <data name="CropperPageRotateButton.Text" xml:space="preserve">
+    <value>Rotation</value>
+  </data>
+  <data name="CropperPageSaveAsButton.Text" xml:space="preserve">
+    <value>Enregistrer sous</value>
+  </data>
+  <data name="CropperPageSaveButton.Text" xml:space="preserve">
+    <value>Remplacer</value>
+  </data>
+  <data name="CropperPageSavingTips.Text" xml:space="preserve">
+    <value>Sauvegarde en cours</value>
+  </data>
+  <data name="CustomUISubtype1.Content" xml:space="preserve">
+    <value>Arrière-plan acrylique</value>
+  </data>
+  <data name="CustomUISubtype2.Content" xml:space="preserve">
+    <value>Image en arrière-plan personnalisée</value>
+  </data>
+  <data name="DeviceAttribute.Label" xml:space="preserve">
+    <value>Propriétés</value>
+  </data>
+  <data name="DeviceCapacity.Text" xml:space="preserve">
+    <value>Capacité</value>
+  </data>
+  <data name="DeviceDialog.CloseButtonText" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="DeviceExpander.Text" xml:space="preserve">
+    <value>Appareils</value>
+  </data>
+  <data name="DeviceFreeSpace.Text" xml:space="preserve">
+    <value>Espace libre</value>
+  </data>
+  <data name="DeviceType.Text" xml:space="preserve">
+    <value>Type de lecteur:</value>
+  </data>
+  <data name="DeviceUsedSpace.Text" xml:space="preserve">
+    <value>Espace utilisé</value>
+  </data>
+  <data name="DonateTip.ActionButtonContent" xml:space="preserve">
+    <value>Faire un don</value>
+  </data>
+  <data name="DonateTip.CloseButtonContent" xml:space="preserve">
+    <value>Plus tard</value>
+  </data>
+  <data name="DonateTip.Title" xml:space="preserve">
+    <value>Faire un don au développeur</value>
+  </data>
+  <data name="EmptyFlyoutNew.Label" xml:space="preserve">
+    <value>Nouveau</value>
+  </data>
+  <data name="EmptyFlyoutNewFile.Text" xml:space="preserve">
+    <value>Fichier</value>
+  </data>
+  <data name="EmptyFlyoutNewFolder.Text" xml:space="preserve">
+    <value>Dossier</value>
+  </data>
+  <data name="FeedBackAddButton.Text" xml:space="preserve">
+    <value>Ajouter mon commentaire</value>
+  </data>
+  <data name="FeedBackAgainstText.Text" xml:space="preserve">
+    <value>Contre</value>
+  </data>
+  <data name="FeedBackAgreeText.Text" xml:space="preserve">
+    <value>Pour</value>
+  </data>
+  <data name="FeedBackDeleteButton.Label" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="FeedBackDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="FeedBackDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Envoyer</value>
+  </data>
+  <data name="FeedBackDialog.Title" xml:space="preserve">
+    <value>Voter</value>
+  </data>
+  <data name="FeedBackDialogContent.Header" xml:space="preserve">
+    <value>Commentaires et suggestions</value>
+  </data>
+  <data name="FeedBackDialogContent.PlaceholderText" xml:space="preserve">
+    <value>Veuillez entrer du texte</value>
+  </data>
+  <data name="FeedBackDialogTitle.Header" xml:space="preserve">
+    <value>Titre</value>
+  </data>
+  <data name="FeedBackDialogTitle.PlaceholderText" xml:space="preserve">
+    <value>Veuillez entrer un titre</value>
+  </data>
+  <data name="FeedBackEditButton.Label" xml:space="preserve">
+    <value>Editer</value>
+  </data>
+  <data name="FeedBackListHeader.Text" xml:space="preserve">
+    <value>Liste des commentaires</value>
+  </data>
+  <data name="FeedBackTip.Subtitle" xml:space="preserve">
+    <value>Cette liste montre vos suggestions et commentaires à tous les autres utilisateurs. Vous pouvez aussi noter les suggestions d'autres utilisateurs. Le développeur vous écoute et priorise l'implantation des suggestions qui sont les plus attendues par la communauté. Vous pouvez seulement modifier ou supprimer les suggestions que vous publiez.</value>
+  </data>
+  <data name="FeedBackTip.Title" xml:space="preserve">
+    <value>Description de la liste</value>
+  </data>
+  <data name="FileAttribute.Label" xml:space="preserve">
+    <value>Propriétés</value>
+  </data>
+  <data name="FileControlAttribute.Label" xml:space="preserve">
+    <value>Propriétés</value>
+  </data>
+  <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Retour</value>
+  </data>
+  <data name="FileControlCreateFolder.Label" xml:space="preserve">
+    <value>Nouveau dossier</value>
+  </data>
+  <data name="FileControlDeleteFolder.Label" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="FileControlForwardButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Suivant</value>
+  </data>
+  <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Monter</value>
+  </data>
+  <data name="FileControlRenameFolder.Label" xml:space="preserve">
+    <value>Renommer</value>
+  </data>
+  <data name="FileCopy.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Copier</value>
+  </data>
+  <data name="FileCut.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Déplacer</value>
+  </data>
+  <data name="FileDelete.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="FileEdit.Label" xml:space="preserve">
+    <value>Editer</value>
+  </data>
+  <data name="FileOpen.Label" xml:space="preserve">
+    <value>Ouvrir</value>
+  </data>
+  <data name="FilePaste.Label" xml:space="preserve">
+    <value>Coller</value>
+  </data>
+  <data name="FileRename.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Renommer</value>
+  </data>
+  <data name="FileShare.Label" xml:space="preserve">
+    <value>Partager</value>
+  </data>
+  <data name="FolderAttribute.Label" xml:space="preserve">
+    <value>Propriétés</value>
+  </data>
+  <data name="FolderOpen.Label" xml:space="preserve">
+    <value>Ouvrir</value>
+  </data>
+  <data name="FolderRename.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Renommer</value>
+  </data>
+  <data name="HasFile.Text" xml:space="preserve">
+    <value>Vide</value>
+  </data>
+  <data name="HideDevice.Label" xml:space="preserve">
+    <value>Cacher le lecteur</value>
+  </data>
+  <data name="HotWebTitle.Text" xml:space="preserve">
+    <value>Sites populaires</value>
+  </data>
+  <data name="LibraryCancelButton.Label" xml:space="preserve">
+    <value>Détacher</value>
+  </data>
+  <data name="LibraryExpander.Text" xml:space="preserve">
+    <value>Bibliothèque</value>
+  </data>
+  <data name="LibraryOpenButton.Label" xml:space="preserve">
+    <value>Ouvrir</value>
+  </data>
+  <data name="MergeDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="MergeDialog.SecondaryButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="MergeDialog.Title" xml:space="preserve">
+    <value>Fusionner</value>
+  </data>
+  <data name="MergeDialogEmptyTip.Subtitle" xml:space="preserve">
+    <value>La vidéo doit être ajoutée pour continuer</value>
+  </data>
+  <data name="MergeDialogEmptyTip.Title" xml:space="preserve">
+    <value>Astuces</value>
+  </data>
+  <data name="MergeDialogEncodingProfile.Text" xml:space="preserve">
+    <value>Configuration de l'encodage</value>
+  </data>
+  <data name="MergeDialogEncodingQuality.Text" xml:space="preserve">
+    <value>Qualité</value>
+  </data>
+  <data name="MergeDialogPickClip.Content" xml:space="preserve">
+    <value>Sélectionner un clip</value>
+  </data>
+  <data name="MergeDialogText.Text" xml:space="preserve">
+    <value>Fusionner</value>
+  </data>
+  <data name="NewFileDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="NewFileDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="NewFileDialog.Title" xml:space="preserve">
+    <value>Créer un nouveau fichier</value>
+  </data>
+  <data name="NewFileDialogFileName.Header" xml:space="preserve">
+    <value>Nom de fichier</value>
+  </data>
+  <data name="NewFileDialogFileName.PlaceholderText" xml:space="preserve">
+    <value>Entrer un nom de fichier</value>
+  </data>
+  <data name="NewFileDialogInvalidInputTip.Subtitle" xml:space="preserve">
+    <value>Le type de fichier spécifié n'est pas valable. Veuillez réessayer</value>
+  </data>
+  <data name="NewFileDialogInvalidInputTip.Title" xml:space="preserve">
+    <value>Malformé</value>
+  </data>
+  <data name="NewFileDialogType.PlaceholderText" xml:space="preserve">
+    <value>Entrer ou sélectionner un type</value>
+  </data>
+  <data name="OpenDevice.Label" xml:space="preserve">
+    <value>Ouvrir</value>
+  </data>
+  <data name="OtherOpenMethod.Label" xml:space="preserve">
+    <value>Ouvrir avec...</value>
+  </data>
+  <data name="PdfPasswordDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="PdfPasswordDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="PdfPasswordDialog.Title" xml:space="preserve">
+    <value>Besoin d'un mot de passe</value>
+  </data>
+  <data name="PdfPasswordDialogPasswordBox.Header" xml:space="preserve">
+    <value>Mot de passe du PDF</value>
+  </data>
+  <data name="PdfPasswordDialogPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>Veuillez entrer le mot de passe pour ouvrir ce PDF</value>
+  </data>
+  <data name="PermissionButton.Content" xml:space="preserve">
+    <value>Permission</value>
+  </data>
+  <data name="PhotoViewerAdjustButton.Label" xml:space="preserve">
+    <value>Editer</value>
+  </data>
+  <data name="PhotoViewerDeleteButton.Label" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="PhotoViewerRotateButton.Label" xml:space="preserve">
+    <value>Rotation</value>
+  </data>
+  <data name="PhotoViewerSaveTips.Text" xml:space="preserve">
+    <value>Enregistrement...</value>
+  </data>
+  <data name="PhotoViewerTranscodeButton.Label" xml:space="preserve">
+    <value>Transcription</value>
+  </data>
+  <data name="PinTip.ActionButtonContent" xml:space="preserve">
+    <value>Maintenant</value>
+  </data>
+  <data name="PinTip.CloseButtonContent" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  <data name="PinTip.Title" xml:space="preserve">
+    <value>Lancement rapide</value>
+  </data>
+  <data name="PinToLibrary.Label" xml:space="preserve">
+    <value>Epingler à la page d'accueil</value>
+  </data>
+  <data name="ProgramPickerDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="ProgramPickerDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="ProgramPickerDialog.Title" xml:space="preserve">
+    <value>Ouvrir avec</value>
+  </data>
+  <data name="ProgramPickerDialogPickOther.Content" xml:space="preserve">
+    <value>Choisir une autre application</value>
+  </data>
+  <data name="ProgramPickerDialogUseAsAdmin.Content" xml:space="preserve">
+    <value>Toujours utiliser cette application pour ouvrir ce type de fichier</value>
+  </data>
+  <data name="PreLaunchHeader.Text" xml:space="preserve">
+    <value>Permettre la technologie de pré-lancement</value>
+  </data>
+  <data name="PreLaunchSwitch.OnContent" xml:space="preserve">
+    <value>Activer</value>
+  </data>
+  <data name="PreLaunchSwitch.OffContent" xml:space="preserve">
+    <value>Désactiver</value>
+  </data>
+  <data name="PreLaunchTip.Title" xml:space="preserve">
+    <value>Technologie de pré-lancement</value>
+  </data>
+  <data name="PreLaunchTip.Subtitle" xml:space="preserve">
+    <value>Quand la technologie de pré-lancement est activée, Windows va automatiquement décider quand pré-lancer RX Explorer selon les ressources système disponibles et votre usage. Cela permet un chargement beaucoup plus rapide de RX Explorer.</value>
+  </data>
+  <data name="QRText.Header" xml:space="preserve">
+    <value>Copier ce lien vers votre navigateur pour télécharger</value>
+  </data>
+  <data name="QuickStartChooseIcon.Content" xml:space="preserve">
+    <value>Sélectionner image</value>
+  </data>
+  <data name="QuickStartDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="QuickStartDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="QuickStartDialog.Title" xml:space="preserve">
+    <value>Personnalisé</value>
+  </data>
+  <data name="QuickStartDisplayName.PlaceholderText" xml:space="preserve">
+    <value>NomAffiché</value>
+  </data>
+  <data name="QuickStartEmptyTip.Subtitle" xml:space="preserve">
+    <value>Ne peut pas être vide</value>
+  </data>
+  <data name="QuickStartExistTip.Subtitle" xml:space="preserve">
+    <value>Ce nom existe déjà et ne peut pas être ajouté</value>
+  </data>
+  <data name="QuickStartFailureTips.Subtitle" xml:space="preserve">
+    <value>Impossible d'accèder à l'icône de ce site automatiquement, veuillez sélectionner l'icône manuellement</value>
+  </data>
+  <data name="QuickStartFormatErrorTip.Subtitle" xml:space="preserve">
+    <value>Protocole ou format d'adresse erroné</value>
+  </data>
+  <data name="QuickStartGetWebImage.Content" xml:space="preserve">
+    <value>Acquisition automatique</value>
+  </data>
+  <data name="QuickStartLink.Content" xml:space="preserve">
+    <value>Lancer l'application avec un URL</value>
+  </data>
+  <data name="QuickStartLink.NavigateUri" xml:space="preserve">
+    <value>https://docs.microsoft.com/en-us/windows/uwp/launch-resume/launch-app-with-uri</value>
+  </data>
+  <data name="QuickStartProtocal.PlaceholderText" xml:space="preserve">
+    <value>Protocole</value>
+  </data>
+  <data name="QuickStartProtocalTip.Subtitle" xml:space="preserve">
+    <value>Référence du protocole</value>
+  </data>
+  <data name="QuickStartTitle.Text" xml:space="preserve">
+    <value>Démarrage rapide</value>
+  </data>
+  <data name="RateTip.ActionButtonContent" xml:space="preserve">
+    <value>Evaluer</value>
+  </data>
+  <data name="RateTip.CloseButtonContent" xml:space="preserve">
+    <value>Plus tard</value>
+  </data>
+  <data name="RateTip.Subtitle" xml:space="preserve">
+    <value>Votre évaluation est très importante, s'il vous plaît prenez quelques minutes pour évaluer l'application.</value>
+  </data>
+  <data name="RateTip.Title" xml:space="preserve">
+    <value>S'il vous plaît évaluez nous</value>
+  </data>
+  <data name="RefreshView.Label" xml:space="preserve">
+    <value>Rafraîchir</value>
+  </data>
+  <data name="RenameDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="RenameDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="RenameDialog.Title" xml:space="preserve">
+    <value>Renommer</value>
+  </data>
+  <data name="RenamePreview.Text" xml:space="preserve">
+    <value>Aperçu</value>
+  </data>
+  <data name="RenameDialogInvalidCharTip.Title" xml:space="preserve">
+    <value>Erreur</value>
+  </data>
+  <data name="RenameDialogInvalidCharTip.Subtitle" xml:space="preserve">
+    <value>Un nom de fichier ne peut pas contenir les caractères suivants :
+\ / : * ? " &lt; &gt; |</value>
+  </data>
+  <data name="ResetDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="ResetDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Continuer</value>
+  </data>
+  <data name="ResetDialog.Title" xml:space="preserve">
+    <value>Avertissement</value>
+  </data>
+  <data name="ResetDialogButton.Content" xml:space="preserve">
+    <value>Sélectionner destination</value>
+  </data>
+  <data name="ResetDialogCheckBox1.Content" xml:space="preserve">
+    <value>Paramètres de l'application, et données stockées</value>
+  </data>
+  <data name="ResetDialogCheckBox2.Content" xml:space="preserve">
+    <value>Fichiers dans l'Espace Securisé</value>
+  </data>
+  <data name="ResetDialogText1.Text" xml:space="preserve">
+    <value>Cela va réinitialiser RX Explorer</value>
+  </data>
+  <data name="ResetDialogText2.Text" xml:space="preserve">
+    <value>Notamment:</value>
+  </data>
+  <data name="ResetDialogTip.Subtitle" xml:space="preserve">
+    <value>Veuillez sélectionner un dossier de destination</value>
+  </data>
+  <data name="RunWithSystemAuthority.Text" xml:space="preserve">
+    <value>Ouvrir en tant qu'administrateur</value>
+  </data>
+  <data name="SAVerifyDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="SAVerifyDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="SAVerifyDialog.Title" xml:space="preserve">
+    <value>Saisir les identifiants</value>
+  </data>
+  <data name="SAVerifyDialogErrorTip.Subtitle" xml:space="preserve">
+    <value>Mot de passe erroné, veuillez réessayer</value>
+  </data>
+  <data name="SAVerifyDialogErrorTip.Title" xml:space="preserve">
+    <value>Erreur</value>
+  </data>
+  <data name="SAVerifyDialogPasswordBox.Header" xml:space="preserve">
+    <value>Mot de passe</value>
+  </data>
+  <data name="SAVerifyDialogPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>Saisir le mot de passe</value>
+  </data>
+  <data name="SAWelcomeDialog.CloseButtonText" xml:space="preserve">
+    <value>Retour</value>
+  </data>
+  <data name="SAWelcomeDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Continuer</value>
+  </data>
+  <data name="SAWelcomeDialog.Title" xml:space="preserve">
+    <value>Première configuration</value>
+  </data>
+  <data name="SAWelcomeDialogConfrimPassword.Header" xml:space="preserve">
+    <value>Saisir une nouvelle fois le mot de passe</value>
+  </data>
+  <data name="SAWelcomeDialogConfrimPassword.PlaceholderText" xml:space="preserve">
+    <value>Saisir le mot de passe maître</value>
+  </data>
+  <data name="SAWelcomeDialogEmptyTip.Subtitle" xml:space="preserve">
+    <value>Ce champ est requis</value>
+  </data>
+  <data name="SAWelcomeDialogErrorTip.Subtitle" xml:space="preserve">
+    <value>Les mots de passe ne correspondent pas</value>
+  </data>
+  <data name="SAWelcomeDialogPrimaryPassword.Header" xml:space="preserve">
+    <value>Mot de passe maître</value>
+  </data>
+  <data name="SAWelcomeDialogPrimaryPassword.PlaceholderText" xml:space="preserve">
+    <value>Définir le mot de passe de déverrouillage</value>
+  </data>
+  <data name="SAWelcomeDialogSecureLevel.Header" xml:space="preserve">
+    <value>Niveau de sécurité</value>
+  </data>
+  <data name="SAWelcomeDialogUseWH.Content" xml:space="preserve">
+    <value>Utiliser Windows Hello plutôt qu'un mot de passe</value>
+  </data>
+  <data name="SearchFlyoutCancel.Content" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="SearchFlyoutConfirm.Content" xml:space="preserve">
+    <value>Rechercher</value>
+  </data>
+  <data name="SearchFlyoutDeepRadio.Content" xml:space="preserve">
+    <value>Rechercher dans les sous répertoires (plus lent)</value>
+  </data>
+  <data name="SearchFlyoutShallowRadio.Content" xml:space="preserve">
+    <value>Rechercher uniquement dans le répertoire courant (plus rapide)</value>
+  </data>
+  <data name="SearchHasItem.Text" xml:space="preserve">
+    <value>Aucun résultat</value>
+  </data>
+  <data name="SearchingText.Text" xml:space="preserve">
+    <value>Recherche en cours</value>
+  </data>
+  <data name="SearchLocation.Label" xml:space="preserve">
+    <value>Ouvrir dossier</value>
+  </data>
+  <data name="SearchModified.Text" xml:space="preserve">
+    <value>Modifié le</value>
+  </data>
+  <data name="SearchName.Text" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="SearchPath.Text" xml:space="preserve">
+    <value>Chemin</value>
+  </data>
+  <data name="SearchProperties.Label" xml:space="preserve">
+    <value>Propriétés</value>
+  </data>
+  <data name="SearchResult.Text" xml:space="preserve">
+    <value>Résultat de la recherche</value>
+  </data>
+  <data name="SearchSize.Text" xml:space="preserve">
+    <value>Taille</value>
+  </data>
+  <data name="SearchCopyPath.Label" xml:space="preserve">
+    <value>Copier le chemin complet</value>
+  </data>
+  <data name="SearchTip.CloseButtonContent" xml:space="preserve">
+    <value>Compris</value>
+  </data>
+  <data name="SearchTip.Subtitle" xml:space="preserve">
+    <value>Videz cette boîte de recherche ou cliquez sur n'importe quel dossier pour annuler la recherche</value>
+  </data>
+  <data name="SearchType.Text" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="SecureArea.Content" xml:space="preserve">
+    <value>Espace Sécurisé</value>
+  </data>
+  <data name="SecureAreaAddFileButton.Label" xml:space="preserve">
+    <value>Ajouter fichier</value>
+  </data>
+  <data name="SecureAreaDeleteButton.Label" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="SecureAreaDropText.Text" xml:space="preserve">
+    <value>Cliquez sur le bouton ou faites glisser le fichier ici</value>
+  </data>
+  <data name="SecureAreaEncryptTip.Subtitle" xml:space="preserve">
+    <value>Le mode AES-128-CBC permet un niveau suffisant de sécurité par défaut, cependant, vous pouvez choisir le mode AES-256-CBC pour une meilleure sécurité. Les processeurs de deuxième génération et au delà supportent deux modes d'accélération matérielle, donc il n'y a aucun risque lié aux performances.</value>
+  </data>
+  <data name="SecureAreaEncryptTip.Title" xml:space="preserve">
+    <value>AES mode</value>
+  </data>
+  <data name="SecureAreaExportButton.Label" xml:space="preserve">
+    <value>Exporter</value>
+  </data>
+  <data name="SecureAreaIntroDialog.CloseButtonText" xml:space="preserve">
+    <value>Retour</value>
+  </data>
+  <data name="SecureAreaIntroDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Débloquer</value>
+  </data>
+  <data name="SecureAreaIntroDialog.Title" xml:space="preserve">
+    <value>Introduction à l'Espace Sécurisé</value>
+  </data>
+  <data name="SecureAreaProperty.Label" xml:space="preserve">
+    <value>Propriété</value>
+  </data>
+  <data name="SecureAreaRenameButton.Label" xml:space="preserve">
+    <value>Renommer</value>
+  </data>
+  <data name="SecureAreaSettingAboutHeader.Text" xml:space="preserve">
+    <value>A propos</value>
+  </data>
+  <data name="SecureAreaSettingAboutText1.Text" xml:space="preserve">
+    <value>RX coffre-fort de fichiers intégré</value>
+  </data>
+  <data name="SecureAreaSettingAboutText2.Text" xml:space="preserve">
+    <value>Basé sur l'algorithme AES-CBC et combiné à de multiples mesures d'authentification de sécurité au niveau du système pour garantir le stockage sécurisé des fichiers</value>
+  </data>
+  <data name="SecureAreaSettingAESMode1.Content" xml:space="preserve">
+    <value>AES-128bit CBC mode</value>
+  </data>
+  <data name="SecureAreaSettingAESMode2.Content" xml:space="preserve">
+    <value>AES-256bit CBC mode</value>
+  </data>
+  <data name="SecureAreaSettingButton.Label" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="SecureAreaSettingEncryptionHeader.Text" xml:space="preserve">
+    <value>Mode de chiffrement</value>
+  </data>
+  <data name="SecureAreaSettingHeader.Text" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="SecureAreaSettingLockMode1.Content" xml:space="preserve">
+    <value>Verrouiller automatiquement lorsque je quitte cette page</value>
+  </data>
+  <data name="SecureAreaSettingLockMode2.Content" xml:space="preserve">
+    <value>Verrouiller lors de la fermeture de l'application</value>
+  </data>
+  <data name="SecureAreaSettingLockModeHeader.Text" xml:space="preserve">
+    <value>Mode de verrouillage de l'Espace Sécurisé</value>
+  </data>
+  <data name="SecureAreaSettingUseWH.Header" xml:space="preserve">
+    <value>Authentification simplifiée avec Windows Hello</value>
+  </data>
+  <data name="SecureAreaWHTip.Subtitle" xml:space="preserve">
+    <value>L'utilisation de Windows Hello renforce la sécurité de l'Espace Sécurisé. Windows Hello enregistre les informations d'identification nécessaires dans la puce de sécurité TPM. La puce TPM n'est pas affectée par des vulnérabilités logicielles et matérielles, donc ces informations ne seront jamais divulguées. RX utilise cette fonctionnalité, combinée au cryptage AES, pour fournir une protection de sécurité sans précédent.</value>
+  </data>
+  <data name="SecureAreaWHTip.Title" xml:space="preserve">
+    <value>Combiner avec Windows Hello</value>
+  </data>
+  <data name="SettingAbout.Text" xml:space="preserve">
+    <value>A propos</value>
+  </data>
+  <data name="SettingAdvance.Text" xml:space="preserve">
+    <value>Avancé</value>
+  </data>
+  <data name="SettingBasicText.Text" xml:space="preserve">
+    <value>Basique</value>
+  </data>
+  <data name="SettingCleanup.Content" xml:space="preserve">
+    <value>Réinitialiser</value>
+  </data>
+  <data name="SettingClearHistory.Content" xml:space="preserve">
+    <value>Effacer l'historique des recherches</value>
+  </data>
+  <data name="SettingClearHistoryFlyoutCancelButton.Content" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="SettingClearHistoryFlyoutContent.Text" xml:space="preserve">
+    <value>L'historique des recherches va être effacé, voulez-vous continuer ?</value>
+  </data>
+  <data name="SettingClearHistoryFlyoutContinueButton.Content" xml:space="preserve">
+    <value>Continuer</value>
+  </data>
+  <data name="SettingContactDeveloper.Content" xml:space="preserve">
+    <value>Contacter le développeur</value>
+  </data>
+  <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
+    <value>Méthode d'ouverture de dossier</value>
+  </data>
+  <data name="SettingFolderOpenMethod.OffContent" xml:space="preserve">
+    <value>Clic</value>
+  </data>
+  <data name="SettingFolderOpenMethod.OnContent" xml:space="preserve">
+    <value>Double clic</value>
+  </data>
+  <data name="SettingLike.Text" xml:space="preserve">
+    <value>Aimer l'application</value>
+  </data>
+  <data name="SettingOpenLeftArea.Header" xml:space="preserve">
+    <value>Barre latérale</value>
+  </data>
+  <data name="SettingOpenLeftArea.OffContent" xml:space="preserve">
+    <value>Cacher</value>
+  </data>
+  <data name="SettingOpenLeftArea.OnContent" xml:space="preserve">
+    <value>Afficher</value>
+  </data>
+  <data name="SettingOther.Text" xml:space="preserve">
+    <value>Autre</value>
+  </data>
+  <data name="SettingPageColorPickerTip.Title" xml:space="preserve">
+    <value>Couleur de l'acrylique</value>
+  </data>
+  <data name="SettingPageLuminosityTip.Title" xml:space="preserve">
+    <value>Transmittance de l'arrière-plan</value>
+  </data>
+  <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
+    <value>La transmittance du fond détermine le pourcentage de lumière qui peut traverser le fond du thème acrylique. Plus la valeur est faible, plus le rapport de couleur du thème acrylique est élevé, et plus le pourcentage de lumière provenant de l'arrière-plan est élevé. Cette fonctionnalité n'est pas disponible pour les versions antérieures à Win10-1903.</value>
+  </data>
+  <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
+    <value>L'ajustement de cette valeur peut entraîner un contenu peu clair ou non reconnu</value>
+  </data>
+  <data name="SettingPageOpacityTip.Title" xml:space="preserve">
+    <value>Transparence des couleurs</value>
+  </data>
+  <data name="SettingPageOpacityTipText1.Text" xml:space="preserve">
+    <value>Transparence de la couleur du thème acrylique, plus la valeur est grande, plus la couleur acrylique est claire, plus la valeur est faible, plus la couleur est foncée.</value>
+  </data>
+  <data name="SettingPageOpacityTipText2.Text" xml:space="preserve">
+    <value>Cette valeur est à 60% par défaut</value>
+  </data>
+  <data name="SettingPageThemeColorButton.Content" xml:space="preserve">
+    <value>Couleur du thème acrylique</value>
+  </data>
+  <data name="SettingPageTintLuminositySliderHeader.Text" xml:space="preserve">
+    <value>Transmittance de l'arrière-plan acrylique</value>
+  </data>
+  <data name="SettingPageTintOpacitySliderHeader.Text" xml:space="preserve">
+    <value>Transparence de la couleur de l'acrylique</value>
+  </data>
+  <data name="SettingPageUIMode.Header" xml:space="preserve">
+    <value>Mode</value>
+  </data>
+  <data name="SettingPrivacyPolicyLink.Content" xml:space="preserve">
+    <value>Déclaration de confidentialité de l'utilisateur</value>
+  </data>
+  <data name="SettingRecovery.Text" xml:space="preserve">
+    <value>Restauration</value>
+  </data>
+  <data name="SettingSettingPrivacyPolicyTitle.Text" xml:space="preserve">
+    <value>Vie privée</value>
+  </data>
+  <data name="SettingSupportDeveloper.Content" xml:space="preserve">
+    <value>Faire un don</value>
+  </data>
+  <data name="SettingSystemInfo.Content" xml:space="preserve">
+    <value>Informations système</value>
+  </data>
+  <data name="SettingUpdateLogButton.Content" xml:space="preserve">
+    <value>Voir le journal des mises à jour</value>
+  </data>
+  <data name="SettingVersion.Text" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="SystemInfoDialog.CloseButtonText" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  <data name="SystemInfoDialog.Title" xml:space="preserve">
+    <value>Informations système</value>
+  </data>
+  <data name="SystemInfoDialogBasicInfo.Text" xml:space="preserve">
+    <value>Informations basiques</value>
+  </data>
+  <data name="SystemInfoDialogCPUArchitecture.Text" xml:space="preserve">
+    <value>Architecture du processeur</value>
+  </data>
+  <data name="SystemInfoDialogCPUCache.Text" xml:space="preserve">
+    <value>Cache du processeur</value>
+  </data>
+  <data name="SystemInfoDialogCPUCore.Text" xml:space="preserve">
+    <value>Coeurs du processeur</value>
+  </data>
+  <data name="SystemInfoDialogCPUFeature.Text" xml:space="preserve">
+    <value>Fonctionnalités du CPU</value>
+  </data>
+  <data name="SystemInfoDialogCPUInfo.Text" xml:space="preserve">
+    <value>Processeur</value>
+  </data>
+  <data name="SystemInfoDialogCPUModel.Text" xml:space="preserve">
+    <value>Modèle du processeur</value>
+  </data>
+  <data name="SystemInfoDialogCurrentColorMode.Text" xml:space="preserve">
+    <value>Mode de couleur actuel</value>
+  </data>
+  <data name="SystemInfoDialogDeivceModel.Text" xml:space="preserve">
+    <value>Modèle de l'appareil</value>
+  </data>
+  <data name="SystemInfoDialogDeviceName.Text" xml:space="preserve">
+    <value>Nom de l'appareil</value>
+  </data>
+  <data name="SystemInfoDialogDisplayTitle.Text" xml:space="preserve">
+    <value>Ecran</value>
+  </data>
+  <data name="SystemInfoDialogGPUInfo.Text" xml:space="preserve">
+    <value>Processeur graphique</value>
+  </data>
+  <data name="SystemInfoDialogManufacturer.Text" xml:space="preserve">
+    <value>Fabricant</value>
+  </data>
+  <data name="SystemInfoDialogMemoryInfo.Text" xml:space="preserve">
+    <value>Mémoire vive</value>
+  </data>
+  <data name="SystemInfoDialogNetwork.Text" xml:space="preserve">
+    <value>Réseau</value>
+  </data>
+  <data name="SystemInfoDialogPixeldensity.Text" xml:space="preserve">
+    <value>Densité de pixels</value>
+  </data>
+  <data name="SystemInfoDialogResolution.Text" xml:space="preserve">
+    <value>Résolution</value>
+  </data>
+  <data name="SystemInfoDialogResolutionScale.Text" xml:space="preserve">
+    <value>Echelle</value>
+  </data>
+  <data name="SystemInfoDialogScreenSize.Text" xml:space="preserve">
+    <value>Taille de l'écran</value>
+  </data>
+  <data name="SystemInfoDialogWindowsLanguage.Text" xml:space="preserve">
+    <value>Langue Windows</value>
+  </data>
+  <data name="SystemInfoDialogWindowsVersion.Text" xml:space="preserve">
+    <value>Version de Windows</value>
+  </data>
+  <data name="SystemManagerOpen.Label" xml:space="preserve">
+    <value>Ouvrir dans l'Explorateur Windows</value>
+  </data>
+  <data name="SystemShare.Text" xml:space="preserve">
+    <value>Options de partage système</value>
+  </data>
+  <data name="TextViewerCancel.Label" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="TextViewerLoading.Text" xml:space="preserve">
+    <value>Chargement...</value>
+  </data>
+  <data name="TextViewerSave.Label" xml:space="preserve">
+    <value>Enregistrer</value>
+  </data>
+  <data name="ThisPC.Content" xml:space="preserve">
+    <value>Ce PC</value>
+  </data>
+  <data name="Transcode.Text" xml:space="preserve">
+    <value>Transcodage</value>
+  </data>
+  <data name="TranscodeBoost.Content" xml:space="preserve">
+    <value>Accélération matériel (Recommandé)</value>
+  </data>
+  <data name="TranscodeDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="TranscodeDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="TranscodeDialog.Title" xml:space="preserve">
+    <value>Transcodage</value>
+  </data>
+  <data name="TranscodeFormat.Header" xml:space="preserve">
+    <value>Format de conversion</value>
+  </data>
+  <data name="TranscodeImageDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="TranscodeImageDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="TranscodeImageDialog.Title" xml:space="preserve">
+    <value>Transcodage</value>
+  </data>
+  <data name="TranscodeImageDialogEnableScale.Content" xml:space="preserve">
+    <value>Autoriser le zoom</value>
+  </data>
+  <data name="TranscodeImageDialogFormat.Header" xml:space="preserve">
+    <value>Format cible</value>
+  </data>
+  <data name="TranscodeImageDialogPickLocationButton.Content" xml:space="preserve">
+    <value>Répertoire de destination</value>
+  </data>
+  <data name="TranscodeImageDialogScale.Header" xml:space="preserve">
+    <value>Proportion</value>
+  </data>
+  <data name="TranscodeImageDialogTips.Subtitle" xml:space="preserve">
+    <value>Veuillez spécifier un répertoire de destination</value>
+  </data>
+  <data name="TranscodeImageDialogTips.Title" xml:space="preserve">
+    <value>Astuces</value>
+  </data>
+  <data name="TranscodeImageDialogZoomMode.Header" xml:space="preserve">
+    <value>Mode de zoom</value>
+  </data>
+  <data name="TranscodeQuality.Header" xml:space="preserve">
+    <value>Qualité</value>
+  </data>
+  <data name="UpdateLogDialog.CloseButtonText" xml:space="preserve">
+    <value>Compris</value>
+  </data>
+  <data name="UpdateLogDialog.Title" xml:space="preserve">
+    <value>Récemment mis à jour</value>
+  </data>
+  <data name="USBDisplayName" xml:space="preserve">
+    <value>Ouvrir et voir les fichiers</value>
+  </data>
+  <data name="UserFolderDialog.CloseButtonText" xml:space="preserve">
+    <value>Ignorer pour l'instant</value>
+  </data>
+  <data name="UserFolderDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="UserFolderDialog.Title" xml:space="preserve">
+    <value>Choisissez le dossier de la bibliothèque</value>
+  </data>
+  <data name="UserFolderNotReferTip.Subtitle" xml:space="preserve">
+    <value>Veuillez spécifier un dossier et confirmez</value>
+  </data>
+  <data name="UserFolderReferButton.Content" xml:space="preserve">
+    <value>Spécifier</value>
+  </data>
+  <data name="UserFolderText1.Text" xml:space="preserve">
+    <value>Impossible de déterminer automatiquement le dossier de la bibliothèque</value>
+  </data>
+  <data name="UserFolderText2.Text" xml:space="preserve">
+    <value>Veuillez spécifier le dossier de la bibliothèque manuellement</value>
+  </data>
+  <data name="VideoEditDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="VideoEditDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="VideoEditDialog.Title" xml:space="preserve">
+    <value>Montage</value>
+  </data>
+  <data name="VideoEditDialogErrorTip.Subtitle" xml:space="preserve">
+    <value>Ce format horaire est incorrect, veuillez saisir à nouveau</value>
+  </data>
+  <data name="VideoEditDialogErrorTip.Title" xml:space="preserve">
+    <value>Astuces</value>
+  </data>
+  <data name="VideoEditDialogText1.Text" xml:space="preserve">
+    <value>Recadrer</value>
+  </data>
+  <data name="VideoEditDialogText2.Text" xml:space="preserve">
+    <value>Configuration du codage de sortie</value>
+  </data>
+  <data name="VideoEditDialogText3.Text" xml:space="preserve">
+    <value>Qualité de sortie</value>
+  </data>
+  <data name="VideoEditDialogText4.Text" xml:space="preserve">
+    <value>Précision du recadrage</value>
+  </data>
+  <data name="VideoEditDialogUseSameProfile.Text" xml:space="preserve">
+    <value>Utiliser le même encodage que la vidéo source</value>
+  </data>
+  <data name="VideoMerge.Text" xml:space="preserve">
+    <value>Fusionner</value>
+  </data>
+  <data name="VideoMontage.Text" xml:space="preserve">
+    <value>Montage</value>
+  </data>
+  <data name="WebAllowDB.Header" xml:space="preserve">
+    <value>Autoriser l'utilisation de IndexedDB</value>
+  </data>
+  <data name="WebAllowJS.Header" xml:space="preserve">
+    <value>Autoriser l'exécution de JavaScript</value>
+  </data>
+  <data name="WebClearCache.Content" xml:space="preserve">
+    <value>Vider le cache et l'historique</value>
+  </data>
+  <data name="WebDefaultSearchEngine.Header" xml:space="preserve">
+    <value>Moteur de recherche par défaut</value>
+  </data>
+  <data name="WebDelete.Label" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="WebDonwloadLoaction.Text" xml:space="preserve">
+    <value>Dossier de téléchargement par défaut</value>
+  </data>
+  <data name="WebDownloadButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Liste des téléchargements</value>
+  </data>
+  <data name="WebDownloadCancel.Content" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="WebDownloadCancelText.Text" xml:space="preserve">
+    <value>Annulé</value>
+  </data>
+  <data name="WebDownloadCompleteText.Text" xml:space="preserve">
+    <value>Completé</value>
+  </data>
+  <data name="WebDownloadErrorText.Text" xml:space="preserve">
+    <value>Erreur</value>
+  </data>
+  <data name="WebDownloadList.Text" xml:space="preserve">
+    <value>Liste des téléchargements</value>
+  </data>
+  <data name="WebDownloadListCopyLink.Label" xml:space="preserve">
+    <value>Copier le lien</value>
+  </data>
+  <data name="WebDownloadListEmpty.Text" xml:space="preserve">
+    <value>Vide</value>
+  </data>
+  <data name="WebDownloadListOpenLocation.Label" xml:space="preserve">
+    <value>Ouvrir l'emplacement du fichier</value>
+  </data>
+  <data name="WebDownloadPause.Content" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="WebDownloadPauseCancel.Content" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="WebDownloadPauseContinue.Content" xml:space="preserve">
+    <value>Continuer</value>
+  </data>
+  <data name="WebDownloadPauseText.Text" xml:space="preserve">
+    <value>Mis en pause</value>
+  </data>
+  <data name="WebEdit.Label" xml:space="preserve">
+    <value>Editer</value>
+  </data>
+  <data name="WebExplorerButton.Content" xml:space="preserve">
+    <value>Naviguer</value>
+  </data>
+  <data name="WebFavButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Favoris</value>
+  </data>
+  <data name="WebFavFlyoutCancel.Content" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="WebFavFlyoutConfirm.Content" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="WebFavName.Header" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="WebFavouriteClear.Text" xml:space="preserve">
+    <value>Tout effacer</value>
+  </data>
+  <data name="WebFavouriteClearCancel.Content" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="WebFavouriteClearConfirm.Content" xml:space="preserve">
+    <value>Continuer</value>
+  </data>
+  <data name="WebFavouriteClearText.Text" xml:space="preserve">
+    <value>Supprimer tous les filtres ?</value>
+  </data>
+  <data name="WebFavouriteFlyoutDelete.Label" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="WebFavouriteListTitle.Header" xml:space="preserve">
+    <value>Favoris</value>
+  </data>
+  <data name="WebFavouriteText.Text" xml:space="preserve">
+    <value>Favoris</value>
+  </data>
+  <data name="WebHistoryClear.Text" xml:space="preserve">
+    <value>Tout supprimer</value>
+  </data>
+  <data name="WebHistoryClearCancel.Content" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="WebHistoryClearConfirm.Content" xml:space="preserve">
+    <value>Continuer</value>
+  </data>
+  <data name="WebHistoryClearText.Text" xml:space="preserve">
+    <value>Supprimer tous l'historique ?</value>
+  </data>
+  <data name="WebHistoryEmptyTip.Text" xml:space="preserve">
+    <value>Vide</value>
+  </data>
+  <data name="WebHistoryTitle.Header" xml:space="preserve">
+    <value>Historique</value>
+  </data>
+  <data name="WebInPrivate.Header" xml:space="preserve">
+    <value>Mode InPrivate</value>
+  </data>
+  <data name="WebInPrivateConfirm.Content" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="WebInPrivateExit.Content" xml:space="preserve">
+    <value>Quitter mode InPrivate</value>
+  </data>
+  <data name="WebInPrivateText.Text" xml:space="preserve">
+    <value>Le navigateur est lancé en mode InPrivate et ne sauvegardera aucune donnée.</value>
+  </data>
+  <data name="WebScreenShot.Content" xml:space="preserve">
+    <value>Capture d'écran et envoi par Bluetooth</value>
+  </data>
+  <data name="WebSettingAbout.Content" xml:space="preserve">
+    <value>A propos</value>
+  </data>
+  <data name="WebSettingAdvanceTile.Text" xml:space="preserve">
+    <value>Avancé</value>
+  </data>
+  <data name="WebSettingButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="WebSettingClearFlyCancel.Content" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="WebSettingClearFlyConfirm.Content" xml:space="preserve">
+    <value>Continuer</value>
+  </data>
+  <data name="WebSettingClearFlyText.Text" xml:space="preserve">
+    <value>Toutes les caches, y compris l'historique de navigation, seront effacées</value>
+  </data>
+  <data name="WebSettingOtherTitle.Text" xml:space="preserve">
+    <value>Autre</value>
+  </data>
+  <data name="WebSettingShowMainPage.Header" xml:space="preserve">
+    <value>Afficher le bouton d'accueil</value>
+  </data>
+  <data name="WebSettingTitle.Text" xml:space="preserve">
+    <value>Personnalisé</value>
+  </data>
+  <data name="WebSettingUrl.Header" xml:space="preserve">
+    <value>URL de la page d'accueil</value>
+  </data>
+  <data name="WebSettingUrl.PlaceholderText" xml:space="preserve">
+    <value>Entrez l'URL</value>
+  </data>
+  <data name="WebSpecificUrl.Header" xml:space="preserve">
+    <value>URL de la page</value>
+  </data>
+  <data name="WebSpecificUrl.PlaceholderText" xml:space="preserve">
+    <value>Entez l'URL</value>
+  </data>
+  <data name="WebSuggestBox.PlaceholderText" xml:space="preserve">
+    <value>Rechercher ou entrez l'URL</value>
+  </data>
+  <data name="WebTabOpenMethod.Header" xml:space="preserve">
+    <value>Ouvrir avec</value>
+  </data>
+  <data name="WevFavEmptyTip.Text" xml:space="preserve">
+    <value>Vide</value>
+  </data>
+  <data name="WIFIShare.Text" xml:space="preserve">
+    <value>WiFi</value>
+  </data>
+  <data name="WIFIShareText.Text" xml:space="preserve">
+    <value>Ne fermez pas cette fenêtre pendant la transmission</value>
+  </data>
+  <data name="WIFIShareTip.Title" xml:space="preserve">
+    <value>Partage par WiFi</value>
+  </data>
+  <data name="ZipDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="ZipDialog.Title" xml:space="preserve">
+    <value>Options de compression</value>
+  </data>
+  <data name="ZipDialogCheckBox.Content" xml:space="preserve">
+    <value>Activer le chiffrement</value>
+  </data>
+  <data name="ZipDialogEncryption.Header" xml:space="preserve">
+    <value>Méthode de chiffrement</value>
+  </data>
+  <data name="ZipDialogLevel.Header" xml:space="preserve">
+    <value>Niveau de compression</value>
+  </data>
+  <data name="ZipDialogName.Header" xml:space="preserve">
+    <value>Nom de fichier</value>
+  </data>
+  <data name="ZipDialogPassword.Header" xml:space="preserve">
+    <value>Mot de passe</value>
+  </data>
+  <data name="ZipDialogPassword.PlaceholderText" xml:space="preserve">
+    <value>Entrez le mot de passe</value>
+  </data>
+  <data name="Zip.Label" xml:space="preserve">
+    <value>Compression</value>
+  </data>
+  <data name="ZipDialog.CloseButtonText" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="SettingTreeViewDetach.Header" xml:space="preserve">
+    <value>Dossier de destination</value>
+  </data>
+  <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
+    <value>Cacher</value>
+  </data>
+  <data name="SettingTreeViewDetach.OnContent" xml:space="preserve">
+    <value>Afficher</value>
+  </data>
+  <data name="EnableQuicklook.OffContent" xml:space="preserve">
+    <value>Désactiver</value>
+  </data>
+  <data name="EnableQuicklook.OnContent" xml:space="preserve">
+    <value>Activer</value>
+  </data>
+  <data name="QuicklookHeader.Text" xml:space="preserve">
+    <value>Quicklook</value>
+  </data>
+  <data name="QuicklookTip.Subtitle" xml:space="preserve">
+    <value>QuickLook est un logiciel auxiliaire qui permet de visualiser rapidement et facilement le contenu des fichiers. Pour activer cette fonction, vous devez installer QuickLook à l'avance et vous assurer que QuickLook fonctionne correctement. Vous pouvez cliquer sur n'importe quel fichier dans RX Explorer et appuyer sur la barre d'espace pour activer QuickLook</value>
+  </data>
+  <data name="AppName.Text" xml:space="preserve">
+    <value>RX Explorer</value>
+  </data>
+  <data name="SettingPersonalize.Text" xml:space="preserve">
+    <value>Personnalisé</value>
+  </data>
+  <data name="LanguageComboBox.Header" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="LanguageRestartButton.Content" xml:space="preserve">
+    <value>Redémarrer maintenant</value>
+  </data>
+  <data name="NewFileDialogTypeTip.Subtitle" xml:space="preserve">
+    <value>Vous pouvez saisir manuellement le type de fichier que vous devez créer, ou vous pouvez sélectionner le type prédéfini par RX Explorer. Toutefois, RX Explorer ne peut garantir la création correcte que des types prédéfinis. Il ne peut pas garantir que les types que vous saisissez manuellement peuvent être créés correctement.</value>
+  </data>
+  <data name="NewFileDIalogTypeTip.Title" xml:space="preserve">
+    <value>Explication</value>
+  </data>
+  <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
+    <value>Type de fichier</value>
+  </data>
+  <data name="SubmitIssueOnGithub.Content" xml:space="preserve">
+    <value>Soumettre un problème sur Github</value>
+  </data>
+  <data name="PairedText" xml:space="preserve">
+    <value>Appairé</value>
+  </data>
+  <data name="PairText" xml:space="preserve">
+    <value>Coupler</value>
+  </data>
+  <data name="ReadyToPairText" xml:space="preserve">
+    <value>Prêt pour s'appairer</value>
+  </data>
+  <data name="UnknownText" xml:space="preserve">
+    <value>Inconnu</value>
+  </data>
+  <data name="UnpairText" xml:space="preserve">
+    <value>Déconnecter</value>
+  </data>
+  <data name="DelayLoadNotification_Content_1" xml:space="preserve">
+    <value>Impossible d'obtenir les vignettes de certains fichiers, le chargement du contenu peut donc être lent</value>
+  </data>
+  <data name="DelayLoadNotification_Content_2" xml:space="preserve">
+    <value>Veuillez attendre patiemment</value>
+  </data>
+  <data name="DelayLoadNotification_Title" xml:space="preserve">
+    <value>Il peut y avoir un retard dans le chargement</value>
+  </data>
+  <data name="FeedBackItem_SupportDescription_Negative" xml:space="preserve">
+    <value>contre</value>
+  </data>
+  <data name="FeedBackItem_SupportDescription_Positive" xml:space="preserve">
+    <value>pour</value>
+  </data>
+  <data name="Network_Error_Dialog_Content" xml:space="preserve">
+    <value>Cette opération ne peut être réalisée à cause de problèmes de réseau</value>
+  </data>
+  <data name="GeneralTransformer_Merge_Cancel" xml:space="preserve">
+    <value>La fusion de vidéos a été annulé</value>
+  </data>
+  <data name="GeneralTransformer_Merge_Error" xml:space="preserve">
+    <value>Erreur inconnue rencontrée lors de la fusion de vidéos</value>
+  </data>
+  <data name="GeneralTransformer_Merge_Success" xml:space="preserve">
+    <value>Vidéos fusionnées avec succès</value>
+  </data>
+  <data name="GeneralTransformer_Crop_Cancel" xml:space="preserve">
+    <value>Le recadrage de la vidéo a été annulé</value>
+  </data>
+  <data name="GeneralTransformer_Crop_Error" xml:space="preserve">
+    <value>Erreur inconnue rencontrée lors du recadrage</value>
+  </data>
+  <data name="GeneralTransformer_Crop_Success" xml:space="preserve">
+    <value>Vidéo recadrée avec succès</value>
+  </data>
+  <data name="Common_Dialog_CloseButton" xml:space="preserve">
+    <value>Compris</value>
+  </data>
+  <data name="Common_Dialog_ErrorTitle" xml:space="preserve">
+    <value>Erreur</value>
+  </data>
+  <data name="EnDecode_Dialog_Content" xml:space="preserve">
+    <value>Impossible de convertir le format de l'image en raison d'un codeur manquant ou d'une opération non prise en charge</value>
+  </data>
+  <data name="GeneralTransformer_Transcode_Cancel" xml:space="preserve">
+    <value>Opération de trancodage annulée</value>
+  </data>
+  <data name="GeneralTransformer_Transcode_Failure" xml:space="preserve">
+    <value>Le trancodage a échoué</value>
+  </data>
+  <data name="GeneralTransformer_Transcode_NotSupport" xml:space="preserve">
+    <value>Le format du transcodage n'est pas supporté</value>
+  </data>
+  <data name="GeneralTransformer_Transcode_Success" xml:space="preserve">
+    <value>Transcodage terminé avec succès</value>
+  </data>
+  <data name="Crop_Toast_ProbarTitle" xml:space="preserve">
+    <value>Traitement...</value>
+  </data>
+  <data name="Crop_Toast_Title" xml:space="preserve">
+    <value>Recadrage:</value>
+  </data>
+  <data name="Merge_Toast_ProbarTitle" xml:space="preserve">
+    <value>Traitement...</value>
+  </data>
+  <data name="Merge_Toast_Title" xml:space="preserve">
+    <value>Fusion des videos...</value>
+  </data>
+  <data name="Transcode_Toast_Title" xml:space="preserve">
+    <value>Transcodage:</value>
+  </data>
+  <data name="Toast_ClickToCancel_Text" xml:space="preserve">
+    <value>Cliquez sur l'invite pour annuler</value>
+  </data>
+  <data name="Crop_Toast_Complete_Text" xml:space="preserve">
+    <value>Recadrage terminé avec succès</value>
+  </data>
+  <data name="Toast_ClickToClear_Text" xml:space="preserve">
+    <value>Cliquez pour retirer l'invite</value>
+  </data>
+  <data name="Merge_Toast_Complete_Text" xml:space="preserve">
+    <value>Fusion terminée avec succès</value>
+  </data>
+  <data name="Transcode_Toast_Complete_Text_1" xml:space="preserve">
+    <value>Transcodage terminé avec succès</value>
+  </data>
+  <data name="Transcode_Toast_Complete_Text_2" xml:space="preserve">
+    <value>a été transcodé avec succès en</value>
+    <comment>Example: FILE1 has been successfully transcoded to FILE2</comment>
+  </data>
+  <data name="Crop_Toast_Cancel_Text_1" xml:space="preserve">
+    <value>Opération de recadrage a été annulée</value>
+  </data>
+  <data name="Crop_Toast_Cancel_Text_2" xml:space="preserve">
+    <value>Vous pouvez essayer de redémarrer l'opération</value>
+  </data>
+  <data name="Merge_Toast_Cancel_Text_1" xml:space="preserve">
+    <value>Opération de fusion a été annulée</value>
+  </data>
+  <data name="Merge_Toast_Cancel_Text_2" xml:space="preserve">
+    <value>Vous pouvez essayer de redémarrer l'opération</value>
+  </data>
+  <data name="Transcode_Toast_Cancel_Text_1" xml:space="preserve">
+    <value>Trancodage a été annulé</value>
+  </data>
+  <data name="Transcode_Toast_Cancel_Text_2" xml:space="preserve">
+    <value>Vous pouvez essayer de redémarrer l'opération</value>
+  </data>
+  <data name="Disk_Capacity_Description" xml:space="preserve">
+    <value>libre sur</value>
+    <comment>Describe the available capacity and total capacity of the disk, such as "128GB free of 256GB"</comment>
+  </data>
+  <data name="WIFIShare_Error_Web_Content" xml:space="preserve">
+    <value>Si vous ne pouvez pas trouver la ressource spécifiée, veuillez vérifier l'URL</value>
+  </data>
+  <data name="Bluetooth_Transfer_DeviceName" xml:space="preserve">
+    <value>Appareil cible:</value>
+    <comment>Example: Target device: [Bluetooth Device Name]</comment>
+  </data>
+  <data name="Bluetooth_Transfer_FileName" xml:space="preserve">
+    <value>Fichiers a transférer: </value>
+    <comment>Example: File to transfer:  [FileName]</comment>
+  </data>
+  <data name="Bluetooth_Transfer_Status_1" xml:space="preserve">
+    <value>Transfert en cours</value>
+  </data>
+  <data name="Bluetooth_Transfer_Description_1" xml:space="preserve">
+    <value>L'appareil cible a terminé le transfert de fichier</value>
+  </data>
+  <data name="Bluetooth_Transfer_ExitButton" xml:space="preserve">
+    <value>Sortir</value>
+  </data>
+  <data name="Bluetooth_Transfer_RetryButton" xml:space="preserve">
+    <value>Réessayer</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_2" xml:space="preserve">
+    <value>Transfert terminé</value>
+  </data>
+  <data name="Bluetooth_Transfer_Description_2" xml:space="preserve">
+    <value>Transfert de fichiers terminé</value>
+  </data>
+  <data name="Bluetooth_Transfer_Description_3" xml:space="preserve">
+    <value>Connexion échouée:</value>
+    <comment>Example: Connection failed: [Reason]</comment>
+  </data>
+  <data name="Bluetooth_Transfer_Description_4" xml:space="preserve">
+    <value>Transfert de fichiers terminé</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_3" xml:space="preserve">
+    <value>Transfert terminé</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_1" xml:space="preserve">
+    <value>Veuillez d'abord sélectionner un appareil couplé</value>
+  </data>
+  <data name="Bluetooth_Transfer_Description_5" xml:space="preserve">
+    <value>Le transfert de fichiers a pris fin de manière inattendue :</value>
+    <comment>Example: File transfer terminated unexpectedly: &lt;Reason&gt;</comment>
+  </data>
+  <data name="Bluetooth_Transfer_Description_6" xml:space="preserve">
+    <value>Impossible de se reconnecter à l'appareil</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_2" xml:space="preserve">
+    <value>Impossible de se connecter à cet appareil Bluetooth, veuillez activer l'interrupteur Bluetooth de cet appareil</value>
+  </data>
+  <data name="BluetoothUI_Status_Text_1" xml:space="preserve">
+    <value>Recherche</value>
+  </data>
+  <data name="BluetoothUI_Status_Text_2" xml:space="preserve">
+    <value>Recherche terminée</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_3" xml:space="preserve">
+    <value>Impossible de découvrir le service ObexObjectPush pour les appareils Bluetooth, qui n'est pas supporté</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_4" xml:space="preserve">
+    <value>Le couplage a échoué</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_5" xml:space="preserve">
+    <value>Veuillez confirmer que le code PIN est le même que celui de l'appareil jumelé</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_6" xml:space="preserve">
+    <value>Veuillez confirmer si vous voulez vous jumeler avec l'appareil</value>
+  </data>
+  <data name="Device_Capacity_Unit" xml:space="preserve">
+    <value>bytes</value>
+    <comment>Example: 1024 bytes</comment>
+  </data>
+  <data name="Device_Type_1" xml:space="preserve">
+    <value>Lecteur local</value>
+  </data>
+  <data name="Device_Type_2" xml:space="preserve">
+    <value>Lecteur réseau</value>
+  </data>
+  <data name="Device_Type_3" xml:space="preserve">
+    <value>Lecteur amovible</value>
+  </data>
+  <data name="Device_Type_4" xml:space="preserve">
+    <value>Lecteur RAM</value>
+  </data>
+  <data name="Device_Type_5" xml:space="preserve">
+    <value>Inconnu</value>
+  </data>
+  <data name="File_Type_Compress_Description" xml:space="preserve">
+    <value>Fichier compressé</value>
+    <comment>.zip description</comment>
+  </data>
+  <data name="File_Type_RTF_Description" xml:space="preserve">
+    <value>Fichier RTF</value>
+    <comment>.rtf description</comment>
+  </data>
+  <data name="File_Type_TXT_Description" xml:space="preserve">
+    <value>Fichier texte</value>
+    <comment>.txt description</comment>
+  </data>
+  <data name="ProgramPicker_Dialog_Title_1" xml:space="preserve">
+    <value>Continuer à utiliser</value>
+  </data>
+  <data name="ProgramPicker_Dialog_Title_2" xml:space="preserve">
+    <value>Choisir une autre application</value>
+  </data>
+  <data name="ProgramPicker_Dialog_BuiltInViewer" xml:space="preserve">
+    <value>Visionneuse RX intégrée</value>
+  </data>
+  <data name="ProgramPicker_Dialog_BuiltInViewer_Description" xml:space="preserve">
+    <value>RX intégre des outils basiques de visualisation</value>
+  </data>
+  <data name="FileProperty_Bitrate" xml:space="preserve">
+    <value>Bitrate</value>
+  </data>
+  <data name="FileProperty_Duration" xml:space="preserve">
+    <value>Durée</value>
+  </data>
+  <data name="FileProperty_Latitude" xml:space="preserve">
+    <value>Latitude</value>
+  </data>
+  <data name="FileProperty_Longitude" xml:space="preserve">
+    <value>Longitude</value>
+  </data>
+  <data name="FileProperty_Resolution" xml:space="preserve">
+    <value>Résolution</value>
+  </data>
+  <data name="FileProperty_ShootingDate" xml:space="preserve">
+    <value>Date de création</value>
+  </data>
+  <data name="AttributeName.Text" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="SizeProperty_Calculating_Text" xml:space="preserve">
+    <value>Calcul...</value>
+  </data>
+  <data name="FolderInfo_File_Count" xml:space="preserve">
+    <value>fichiers</value>
+    <comment>Format: [File Count] files, Example: 20 files (in folder)</comment>
+  </data>
+  <data name="FolderInfo_Folder_Count" xml:space="preserve">
+    <value>dossiers</value>
+    <comment>Format: [Folder Count] folders, Example: 20 folders (in folder)</comment>
+  </data>
+  <data name="QuickStart_Protocal_Application_PlaceholderText" xml:space="preserve">
+    <value>Protocole</value>
+  </data>
+  <data name="QuickStart_Protocal_Web_PlaceholderText" xml:space="preserve">
+    <value>Site web</value>
+  </data>
+  <data name="Reset_Dialog_TotalFile" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="SecureArea_AES_128Level_Description" xml:space="preserve">
+    <value>Recommandé</value>
+  </data>
+  <data name="SecureArea_AES_256Level_Description" xml:space="preserve">
+    <value>Mieux sécurisé</value>
+  </data>
+  <data name="SystemInfo_Dialog_Memory_Available_Text" xml:space="preserve">
+    <value>disponible</value>
+    <comment>Example: Total 1024 MB, 512MB available</comment>
+  </data>
+  <data name="SystemInfo_Dialog_Memory_Total_Text" xml:space="preserve">
+    <value>Total</value>
+    <comment>Example: Total 1024 MB, 512MB available</comment>
+  </data>
+  <data name="SystemInfo_Dialog_Memory_Usage_Text" xml:space="preserve">
+    <value>Utilisation par l'application</value>
+  </data>
+  <data name="SystemInfo_Dialog_CPU_L1Cache_Text" xml:space="preserve">
+    <value>L1 cache</value>
+  </data>
+  <data name="SystemInfo_Dialog_CPU_L2Cache_Text" xml:space="preserve">
+    <value>L2 cache</value>
+  </data>
+  <data name="SystemInfo_Dialog_CPU_L3Cache_Text" xml:space="preserve">
+    <value>L3 cache</value>
+  </data>
+  <data name="SystemInfo_Dialog_CPU_LogicalCore_Text" xml:space="preserve">
+    <value>coeurs logiques</value>
+    <comment>Example: 8 logical core (in CPU)</comment>
+  </data>
+  <data name="SystemInfo_Dialog_CPU_PhysicalCore_Text" xml:space="preserve">
+    <value>coeurs physiques</value>
+    <comment>Example: 4 physical core (in CPU)</comment>
+  </data>
+  <data name="SystemInfo_Dialog_Monitor_MaxBrightness_Text" xml:space="preserve">
+    <value>Luminosité moyenne maximale</value>
+  </data>
+  <data name="SystemInfo_Dialog_Monitor_PeakBrightness_Text" xml:space="preserve">
+    <value>Luminosité maximale</value>
+  </data>
+  <data name="SystemInfo_Dialog_Gateway_Text" xml:space="preserve">
+    <value>Passerelle</value>
+  </data>
+  <data name="SystemInfo_Dialog_GPU_Memory_Text" xml:space="preserve">
+    <value>Mémoire vidéo</value>
+  </data>
+  <data name="SystemInfo_Dialog_GPU_Model_Text" xml:space="preserve">
+    <value>Modèle de la carte graphique</value>
+  </data>
+  <data name="SystemInfo_Dialog_NetworkAdapter_Text" xml:space="preserve">
+    <value>Adaptateur réseau</value>
+  </data>
+  <data name="SystemInfo_Dialog_Primary_DNS_Text" xml:space="preserve">
+    <value>Serveur DNS primaire</value>
+  </data>
+  <data name="SystemInfo_Dialog_Secondary_DNS_Text" xml:space="preserve">
+    <value>Serveur DNS secondaire</value>
+  </data>
+  <data name="Transcode_Dialog_Format_Text" xml:space="preserve">
+    <value>format</value>
+    <comment>Example: MP4 format</comment>
+  </data>
+  <data name="Transcode_Image_Preview_Resolution" xml:space="preserve">
+    <value>Résolution de la prévisualisation</value>
+  </data>
+  <data name="Transcode_Simaple_Rate_Text" xml:space="preserve">
+    <value>Taux d'échantillonnage</value>
+  </data>
+  <data name="VideoEdit_Dialog_Crop_Precision_Level_1" xml:space="preserve">
+    <value>Précis (Plus lent)</value>
+  </data>
+  <data name="VideoEdit_Dialog_Crop_Precision_Level_2" xml:space="preserve">
+    <value>Rapide (Plus rapide)</value>
+  </data>
+  <data name="Video_Dialog_Encoding_Text" xml:space="preserve">
+    <value>Encodage</value>
+  </data>
+  <data name="Zip_Dialog_Level_1" xml:space="preserve">
+    <value>Max</value>
+  </data>
+  <data name="Zip_Dialog_Level_2" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="Zip_Dialog_Level_3" xml:space="preserve">
+    <value>Archive seulement</value>
+  </data>
+  <data name="Zip_Dialog_Password_PlaceholderText" xml:space="preserve">
+    <value>Entrez le mot de passe pour décompresser</value>
+  </data>
+  <data name="Zip_Dialog_Password_Title" xml:space="preserve">
+    <value>Mot de passe requis</value>
+  </data>
+  <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
+    <value>Veuillez ne pas minimiser la fenêtre de RX Explorer</value>
+  </data>
+  <data name="Toast_EnterBackground_Text_2" xml:space="preserve">
+    <value>La politique de Windows peut terminer RX Explorer</value>
+  </data>
+  <data name="Toast_EnterBackground_Text_3" xml:space="preserve">
+    <value>Cliquez pour activer</value>
+  </data>
+  <data name="Common_Dialog_WarningTitle" xml:space="preserve">
+    <value>Avertissement</value>
+  </data>
+  <data name="QueueDialog_WaitUntilFinish_CloseButton" xml:space="preserve">
+    <value>Plus tard</value>
+  </data>
+  <data name="QueueDialog_WaitUntilFinish_Content" xml:space="preserve">
+    <value>RX Explorer exécute certaines tâches, sa fermeture peut provoquer des erreurs de données. Voulez-vous continuer ?</value>
+  </data>
+  <data name="QueueDialog_WaitUntilFinish_PrimaryButton" xml:space="preserve">
+    <value>Tout de suite</value>
+  </data>
+  <data name="MainPage_PageDictionary_SecureArea_Label" xml:space="preserve">
+    <value>Espace Sécurisé</value>
+  </data>
+  <data name="MainPage_PageDictionary_ThisPC_Label" xml:space="preserve">
+    <value>Ce PC</value>
+  </data>
+  <data name="Common_Dialog_TipTitle" xml:space="preserve">
+    <value>Astuces</value>
+  </data>
+  <data name="QueueDialog_BackgroundTaskDisable_CloseButton" xml:space="preserve">
+    <value>Ne plus me le rappeler</value>
+  </data>
+  <data name="QueueDialog_BackgroundTaskDisable_Content" xml:space="preserve">
+    <value>Les tâches de fond sont désactivées, RX ne pourra pas vous avertir lors de mises à jour. Veuillez activer manuellement les autorisations de tâches en arrière-plan</value>
+  </data>
+  <data name="QueueDialog_BackgroundTaskDisable_PrimaryButton" xml:space="preserve">
+    <value>Authoriser maintenant</value>
+  </data>
+  <data name="QueueDialog_BackgroundTaskDisable_SecondaryButton" xml:space="preserve">
+    <value>Me le rappeller plus tard</value>
+  </data>
+  <data name="TeachingTip_PinToMenu_Subtitle" xml:space="preserve">
+    <value>Epingler RX Explorer au menu d'accueil et à la barre des tâches！\r\r★Epingler au menu d'accueil\r\r★Epingler à la barre des tâches</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_Donate_AlreadyPurchase_Content" xml:space="preserve">
+    <value>Vous avez déjà soutenu RX une fois, merci beaucoup\r\rL'intention initiale de RX n'est pas de faire de l'argent, donc vous ne pouvez pas l'acheter à nouveau\r\rVous pouvez faire de la publicité pour RX auprès des gens autour de vous, et c'est aussi un soutien important pour RX（*＾-＾*）\r\rSincérément,\rRuofan</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_Donate_AlreadyPurchase_Title" xml:space="preserve">
+    <value>Encore une fois merci !</value>
+  </data>
+  <data name="QueueDialog_Donate_NetworkError_Content" xml:space="preserve">
+    <value>Impossible d'ouvrir la page d'assistance à cause d'un problème lié au réseau ou au Microsoft Store, veuillez réessayer plus tard</value>
+  </data>
+  <data name="QueueDialog_Donate_NetworkError_Title" xml:space="preserve">
+    <value>Désolé</value>
+  </data>
+  <data name="QueueDialog_Donate_NotPurchase_Content" xml:space="preserve">
+    <value>Que vous nous souteniez ou non, RX est toujours le même\r\rMême si vous décidez finalement de renoncer à soutenir le projet, merci beaucoup d'avoir cliqué pour voir ce message\r\rSincèrement,\rRuofan</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_Donate_NotPurchase_Title" xml:space="preserve">
+    <value>Appréciation</value>
+  </data>
+  <data name="QueueDialog_Donate_Success_Content" xml:space="preserve">
+    <value>Merci pour votre soutien, nous travaillerons dur pour rendre RX meilleur q(≧▽≦q)\r\rLe gestionnaire de fichiers RX est né pour combler les lacunes du gestionnaire de fichiers UWP\rCe projet est à but non lucratif, donc le téléchargement et l'utilisation sont gratuits et n'incluent pas de publicités\rRX a pour but de créer un gestionnaire de fichiers gratuit et complet\rRX Explorer est un projet que j'ai développé pendant mon temps libre\rJ'espère qu'il vous plaît\r\rSincèrement,\rRuofan</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_Donate_Success_Title" xml:space="preserve">
+    <value>Appréciation</value>
+  </data>
+  <data name="TeachingTip_Donate_Subtitle" xml:space="preserve">
+    <value>It takes a lot of effort for developers to develop RX Explorer\r🎉You can volunteer to contribute a little pocket money to developers.🎉\r\rIf you don't want to, you can click \"Later\" to cancel\rIf you want to donate, you can click \"Donate\" to support developer\r\rTips: Donator can unlock the unique file safe feature: \"Security Area\"
+Il faut beaucoup d'efforts pour développer RX Explorer\r🎉Tu peux contribuer en donnant de quoi acheter un café.🎉\rSi vous ne voulez pas, vous pouvez cliquer sur \"Plus tard\" pour annuler\rSi vous voulez faire un don, vous pouvez cliquer sur \"Faire un don\" pour soutenir le développeur\r\rAstuce: Le donateur peut déverrouiller la fonctionnalité: \"Espace sécurisé\"</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="Crash_Screenshot_Send_Text" xml:space="preserve">
+    <value>Capture d'écran avant le crash (S'il vous plaît envoyez la en pièce jointe par mail)</value>
+  </data>
+  <data name="CropperPage_Custom_Text" xml:space="preserve">
+    <value>Personnalisé</value>
+  </data>
+  <data name="CropperPage_Filter_Type_1" xml:space="preserve">
+    <value>Origine</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_2" xml:space="preserve">
+    <value>Inverser</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_3" xml:space="preserve">
+    <value>Gris</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_4" xml:space="preserve">
+    <value>Binaire</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_5" xml:space="preserve">
+    <value>Sepia</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_6" xml:space="preserve">
+    <value>Mosaïque</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_7" xml:space="preserve">
+    <value>Croquis</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_8" xml:space="preserve">
+    <value>Flou</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_9" xml:space="preserve">
+    <value>Peinture à l'huile</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="ExtendedSplash_Access_Tips" xml:space="preserve">
+    <value>Veuillez activer l'accès au système de fichiers pour que cette application fonctionne correctement\rpuis redémarrer l'application</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_1" xml:space="preserve">
+    <value>Microsoft Store</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_10" xml:space="preserve">
+    <value>Instagram</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_11" xml:space="preserve">
+    <value>Twitter</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_2" xml:space="preserve">
+    <value>Calculatrice</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_3" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_4" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_5" xml:space="preserve">
+    <value>Calendrier</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_6" xml:space="preserve">
+    <value>Bing Map</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_7" xml:space="preserve">
+    <value>Météo</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_8" xml:space="preserve">
+    <value>Bing</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_9" xml:space="preserve">
+    <value>Facebook</value>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_ActionButton_1" xml:space="preserve">
+    <value>Démarrage</value>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_ActionButton_2" xml:space="preserve">
+    <value>Plus tard</value>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_Text_1" xml:space="preserve">
+    <value>Attente que l'utilisateur termine l'opération...</value>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_Text_2" xml:space="preserve">
+    <value>Veuillez activer les permissions du système</value>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_Text_3" xml:space="preserve">
+    <value>Cliquez ensuite sur le lancement ci-dessous pour commencer immédiatement</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_Details" xml:space="preserve">
+    <value>Détails</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_Large_Icon" xml:space="preserve">
+    <value>Icônes larges</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_List" xml:space="preserve">
+    <value>Liste</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_Medium_Icon" xml:space="preserve">
+    <value>Icônes moyennes</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_Small_Icon" xml:space="preserve">
+    <value>Icônes petites</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_Tiles" xml:space="preserve">
+    <value>Tuiles</value>
+  </data>
+  <data name="SearchBox_PlaceholderText" xml:space="preserve">
+    <value>Rechercher</value>
+  </data>
+  <data name="QueueDialog_LocateFolderFailure_Content" xml:space="preserve">
+    <value>Impossible de localiser le dossier, il a pu être supprimé ou déplacé</value>
+  </data>
+  <data name="Operate_Text_BluetoothShare" xml:space="preserve">
+    <value>Bluetooth</value>
+  </data>
+  <data name="Operate_Text_ChooseAnotherApp" xml:space="preserve">
+    <value>Choisir une autre application</value>
+  </data>
+  <data name="Operate_Text_Compression" xml:space="preserve">
+    <value>Compression</value>
+  </data>
+  <data name="Operate_Text_Copy" xml:space="preserve">
+    <value>Copier</value>
+  </data>
+  <data name="Operate_Text_Create" xml:space="preserve">
+    <value>Créer</value>
+  </data>
+  <data name="Operate_Text_CreateFile" xml:space="preserve">
+    <value>Créer un fichier</value>
+  </data>
+  <data name="Operate_Text_CreateFolder" xml:space="preserve">
+    <value>Créer un dossier</value>
+  </data>
+  <data name="Operate_Text_Cut" xml:space="preserve">
+    <value>Couper</value>
+  </data>
+  <data name="Operate_Text_Delete" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="Operate_Text_Edit" xml:space="preserve">
+    <value>Editer</value>
+  </data>
+  <data name="Operate_Text_Merge" xml:space="preserve">
+    <value>Fusionner</value>
+  </data>
+  <data name="Operate_Text_Montage" xml:space="preserve">
+    <value>Monter</value>
+  </data>
+  <data name="Operate_Text_Open" xml:space="preserve">
+    <value>Ouvrir</value>
+  </data>
+  <data name="Operate_Text_OpenAsAdministrator" xml:space="preserve">
+    <value>Ouvrir en tant qu'administrateur</value>
+  </data>
+  <data name="Operate_Text_OpenInWinExplorer" xml:space="preserve">
+    <value>Ouvrir dans l'explorateur Windows</value>
+  </data>
+  <data name="Operate_Text_OpenWith" xml:space="preserve">
+    <value>Ouvrir avec...</value>
+  </data>
+  <data name="Operate_Text_Paste" xml:space="preserve">
+    <value>Coller</value>
+  </data>
+  <data name="Operate_Text_PinToHome" xml:space="preserve">
+    <value>Epingler à l'écran d'accueil</value>
+  </data>
+  <data name="Operate_Text_Property" xml:space="preserve">
+    <value>Propriétés</value>
+  </data>
+  <data name="Operate_Text_Refresh" xml:space="preserve">
+    <value>Rafraîchir</value>
+  </data>
+  <data name="Operate_Text_Rename" xml:space="preserve">
+    <value>Renommer</value>
+  </data>
+  <data name="Operate_Text_Share" xml:space="preserve">
+    <value>Partager</value>
+  </data>
+  <data name="Operate_Text_SystemShare" xml:space="preserve">
+    <value>Options de partage du système</value>
+  </data>
+  <data name="Operate_Text_Transcode" xml:space="preserve">
+    <value>Transcodage</value>
+  </data>
+  <data name="Operate_Text_WIFIShare" xml:space="preserve">
+    <value>WiFi</value>
+  </data>
+  <data name="Common_Dialog_CancelButton" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="Common_Dialog_ContinueButton" xml:space="preserve">
+    <value>Continuer</value>
+  </data>
+  <data name="QueueDialog_DeleteFolder_Content" xml:space="preserve">
+    <value>Cette opération va supprimer le dossier et tout son contenu\r\rVoulez-vous continuer ?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="Common_Dialog_LaterButton" xml:space="preserve">
+    <value>Plus tard</value>
+  </data>
+  <data name="Common_Dialog_NowButton" xml:space="preserve">
+    <value>Maintenant</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedDeleteFolder_Content" xml:space="preserve">
+    <value>RX n'a pas la permission pour supprimer ce dossier, il se peut que vous n'ayez pas accès à ce dossier\r\rEntrer dans l'explorateur système immédiatement ?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_DeleteFolderError_Content" xml:space="preserve">
+    <value>Une erreur a été rencontrée pendant la suppression du dossier</value>
+  </data>
+  <data name="QueueDialog_EmptyFolderName_Content" xml:space="preserve">
+    <value>Le nom du dossier ne peut pas être vide, le renommage a échoué</value>
+  </data>
+  <data name="Create_NewFolder_Admin_Name" xml:space="preserve">
+    <value>Nouveau dossier</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedRenameFolder_Content" xml:space="preserve">
+    <value>RX n'a pas la permission pour renommer ce dossier, il se peut que vous n'ayez pas accès à ce dossier\r\rEntrer dans l'explorateur système immédiatement ?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UnauthorizedCreateFolder_Content" xml:space="preserve">
+    <value>RX n'a pas la permission pour créer un dossier, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_RepeatAddToHomePage_Content" xml:space="preserve">
+    <value>Ce dossier a été ajouté à l'écran d'accueil, il ne peut pas être ajouté de nouveau</value>
+  </data>
+  <data name="QueueDialog_LocatePathFailure_Content" xml:space="preserve">
+    <value>Impossible de localiser le chemin:</value>
+  </data>
+  <data name="QueueDialog_SameFolder_Content" xml:space="preserve">
+    <value>Le dossier cible est le même que le dossier source</value>
+  </data>
+  <data name="QueueDialog_CopyFailForNotExist_Content" xml:space="preserve">
+    <value>Certains fichiers n'existent pas et ne peuvent pas être copiés à l'emplacement spécifié</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
+    <value>RX n'a pas la permission pour copier, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_CopyFail_FreeSpaceCritical_Content" xml:space="preserve">
+    <value>Certains fichiers ne peuvent pas être copiés à cause d'un manque d'espace libre sur l'appareil</value>
+  </data>
+  <data name="QueueDialog_MoveFailForNotExist_Content" xml:space="preserve">
+    <value>Certains fichiers n'existent pas et ne peuvent pas être déplacés à l'emplacement spécifié</value>
+  </data>
+  <data name="QueueDialog_MoveFail_FreeSpaceCritical_Content" xml:space="preserve">
+    <value>Certains fichiers ne peuvent pas être déplacés à cause d'un manque d'espace libre sur l'appareil</value>
+  </data>
+  <data name="QueueDialog_MoveFail_Captured_Content" xml:space="preserve">
+    <value>Certains fichiers sont utilisés par d'autres processus et ne peuvent pas être déplacés</value>
+  </data>
+  <data name="Drag_Tip_CopyTo" xml:space="preserve">
+    <value>Copier vers</value>
+  </data>
+  <data name="Drag_Tip_MoveTo" xml:space="preserve">
+    <value>Déplacer vers</value>
+  </data>
+  <data name="Progress_Tip_Copying" xml:space="preserve">
+    <value>Copie en cours</value>
+  </data>
+  <data name="Progress_Tip_CheckingLicense" xml:space="preserve">
+    <value>Vérification de la license...</value>
+  </data>
+  <data name="Progress_Tip_Compressing" xml:space="preserve">
+    <value>Compression en cours</value>
+  </data>
+  <data name="Progress_Tip_Deleting" xml:space="preserve">
+    <value>Suppression en cours</value>
+  </data>
+  <data name="Progress_Tip_Extracting" xml:space="preserve">
+    <value>Extraction en cours</value>
+  </data>
+  <data name="Progress_Tip_Moving" xml:space="preserve">
+    <value>Déplacement en cours</value>
+  </data>
+  <data name="Progress_Tip_Transcoding" xml:space="preserve">
+    <value>Transcodage en cours</value>
+  </data>
+  <data name="Progress_Tip_Undoing" xml:space="preserve">
+    <value>Annulation en cours</value>
+  </data>
+  <data name="Drag_Tip_ReleaseToAdd" xml:space="preserve">
+    <value>Lâcher pour ajouter les fichiers</value>
+  </data>
+  <data name="Progress_Tip_Exporting" xml:space="preserve">
+    <value>Export en cours</value>
+  </data>
+  <data name="Progress_Tip_Importing" xml:space="preserve">
+    <value>Import en cours</value>
+  </data>
+  <data name="Progress_Tip_Loading" xml:space="preserve">
+    <value>Chargement...</value>
+  </data>
+  <data name="Progress_Tip_NoFeedback" xml:space="preserve">
+    <value>Aucun commentaire ou suggestion</value>
+  </data>
+  <data name="Download_Folder_Name" xml:space="preserve">
+    <value>Téléchargements</value>
+    <comment>Name of [Downloads folder]</comment>
+  </data>
+  <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
+    <value>Comme certains fichiers/dossiers n'existent plus, l'opération d'annulation n'a pas pu être menée à bien complètement</value>
+  </data>
+  <data name="QueueDialog_DeleteFile_Content" xml:space="preserve">
+    <value>Cette opération va supprimer de manière permanente le fichier\r\rVoulez-vous continuer ?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="Common_Dialog_RefreshButton" xml:space="preserve">
+    <value>Rafraîchir</value>
+  </data>
+  <data name="QueueDialog_DeleteFiles_Content" xml:space="preserve">
+    <value>Cette opération va supprimer de manière permanente les fichiers\r\rVoulez-vous continuer ?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_DeleteItemError_Content" xml:space="preserve">
+    <value>Impossible de supprimer certains fichiers/dossiers, les fichiers/dossiers peuvent avoir été déplacés ou supprimés</value>
+  </data>
+  <data name="QueueDialog_RenameNumError_Content" xml:space="preserve">
+    <value>Cette opération ne permet de renommer qu'un objet à la fois</value>
+  </data>
+  <data name="QueueDialog_LocateFileFailure_Content" xml:space="preserve">
+    <value>Impossible de trouver le fichier correspondant, il a pu être déplacé ou supprimé</value>
+  </data>
+  <data name="QueueDialog_EmptyFileName_Content" xml:space="preserve">
+    <value>Le nom de fichier ne peut être vide, le renommage a échoué</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
+    <value>RX n'a pas la permission pour renommer, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_OpenBluetooth_Content" xml:space="preserve">
+    <value>Veuillez activer le Bluetooth puis réessayez</value>
+  </data>
+  <data name="Operate_Text_Decompression" xml:space="preserve">
+    <value>Décompression</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedDecompression_Content" xml:space="preserve">
+    <value>RX n'a pas la permission pour décompresser le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_DecompressionError_Content" xml:space="preserve">
+    <value>Une exception a été rencontré lors de l'extraction du fichier\r\rMessage d'Erreur：\r\r</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_CompressionError_Content" xml:space="preserve">
+    <value>Une exception a été rencontré lors de la compression du fichier\r\rMessage d'Erreur：\r\r</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UnauthorizedCompression_Content" xml:space="preserve">
+    <value>RX n'a pas la permission pour créer le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_TaskWorking_Content" xml:space="preserve">
+    <value>Il a déjà une tâche en cours, veuillez attendre la fin de cette dernière</value>
+  </data>
+  <data name="QueueDialog_OpenFailure_Content" xml:space="preserve">
+    <value>RX Explorer ne peut pas ouvrir ce fichier\r\rMais d'autres applications peuvent l'ouvrir</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_OpenFailure_PrimaryButton" xml:space="preserve">
+    <value>Application par défaut</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedCreateNewFile_Content" xml:space="preserve">
+    <value>RX n'a pas les permissions suffisantes pour créer de nouveaux fichiers dans ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_DragIncludeFolderError" xml:space="preserve">
+    <value>Le dossier cible ne peut pas être inclus dans le glisser-déposer.</value>
+  </data>
+  <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
+    <value>La transmission WiFi a rencontrée une erreur：\r</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="RX_BuildIn_Viewer_Name" xml:space="preserve">
+    <value>Visionneuse RX intégrée</value>
+  </data>
+  <data name="Crop_Image_Name_Tail" xml:space="preserve">
+    <value>Recadré</value>
+  </data>
+  <data name="Merge_Image_Name_Tail" xml:space="preserve">
+    <value>Fusionné</value>
+  </data>
+  <data name="Common_Dialog_GoBack" xml:space="preserve">
+    <value>Retour</value>
+  </data>
+  <data name="Media_Tip_Text" xml:space="preserve">
+    <value>Profitez-en:</value>
+  </data>
+  <data name="QueueDialog_PDFOpenFailure" xml:space="preserve">
+    <value>Impossible de coller ce fichier PDF, l'ouverture a échoué</value>
+  </data>
+  <data name="Pdf_Page_Tip" xml:space="preserve">
+    <value>Page [CurrentPageIndex] / ([TotalPageCount] pages)</value>
+    <comment>Used to display the current number of PDF pages and the total number of pages. Do not modify [CurrentPageIndex] and [TotalPageCount]. They are placeholders. Please place it in the correct position according to the word order of the corresponding language</comment>
+  </data>
+  <data name="Queue_Dialog_ImageReadError_Content" xml:space="preserve">
+    <value>La visionneuse d'images n'a pu lire aucun fichier image en raison d'une anomalie dans la lecture du dossier image. Veuillez réessayer.</value>
+  </data>
+  <data name="Common_Dialog_TryAgain" xml:space="preserve">
+    <value>Réessayez</value>
+  </data>
+  <data name="Common_Dialog_UsePassword" xml:space="preserve">
+    <value>Utiliser un mot de passe</value>
+  </data>
+  <data name="QueueDialog_WinHelloAuthFail_Content" xml:space="preserve">
+    <value>L'authentification avec Windows Hello a échoué, vous n'avez pas la permission d'entrer dans l'Espace Sécurisé</value>
+  </data>
+  <data name="QueueDialog_WinHelloCredentialLost_Content" xml:space="preserve">
+    <value>Les données d'authentification de Windows Hello sont perdues, vous ne pouvez pas utiliser Windows Hello, veuillez utiliser le mot de passe pour entrer \r\rAprès être ré-entré dans le domaine de sécurité, entrez les paramètres pour ré-enregistrer Windows Hello</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_WinHelloDisable_Content" xml:space="preserve">
+    <value>Windows Hello est désactivé et vous ne pouvez pas l'utiliser afin d'accèder à l'Espace Sécurisé</value>
+  </data>
+  <data name="QueueDialog_SecureAreaUnlock_Content" xml:space="preserve">
+    <value>Merci pour votre support de RX Explorer, l'Espace Sécurisé a été débloqué</value>
+  </data>
+  <data name="QueueDialog_SecureAreaNetworkUnavailable_Content" xml:space="preserve">
+    <value>Impossible de vérifier le statut de la licence parce que le réseau ou l'utilisateur actuel n'est pas disponible</value>
+  </data>
+  <data name="QueueDialog_EncryptError_Content" xml:space="preserve">
+    <value>Une erreur inattendue s'est produite lors du chiffrement du fichier, le processus d'importation est terminé</value>
+  </data>
+  <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
+    <value>L'Espace Sécurisé ne prend pas en charge l'importation de dossiers, tous les dossiers ont été filtrés</value>
+  </data>
+  <data name="QueueDialog_DecryptError_Content" xml:space="preserve">
+    <value>Une erreur inattendue s'est produite lors du déchiffrement du fichier, le processus d'exportation est terminé</value>
+  </data>
+  <data name="QueueDialog_DecryptPasswordError_Content" xml:space="preserve">
+    <value>Le déchiffrement a échoué à cause d'un mauvais mot de passe, la tâche d'exportation a été interrompue \r\rCeci peut être causé par une discordance dans les données des fichiers à déchiffrer</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_FileDamageError_Content" xml:space="preserve">
+    <value>Parce que la structure interne du fichier à déchiffrer est endommagée et que le déchiffrement échoue, la tâche d'exportation a été interrompue \r\rCeci peut être dû au fait que les données du fichier sont endommagées ou modifiées</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UnauthorizedCreateDecryptFile_Content" xml:space="preserve">
+    <value>RX n'a pas la permission de créer un fichier déchiffré ici</value>
+  </data>
+  <data name="Common_Dialog_RetryButton" xml:space="preserve">
+    <value>Réessayez</value>
+  </data>
+  <data name="QueueDialog_WinHelloSetupError_Content" xml:space="preserve">
+    <value>Windows Hello n'a pas été initialisé correctement, veuillez réessayer</value>
+  </data>
+  <data name="Setting_UIMode_Custom" xml:space="preserve">
+    <value>Personnalisé</value>
+  </data>
+  <data name="Setting_UIMode_Recommand" xml:space="preserve">
+    <value>Recommandé</value>
+  </data>
+  <data name="Setting_UIMode_SolidColor" xml:space="preserve">
+    <value>Couleur pleine</value>
+  </data>
+  <data name="QueueDialog_ClearHistory_Content" xml:space="preserve">
+    <value>Historique de recherche bien complété</value>
+  </data>
+  <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
+    <value>Il y a eu un problème pendant le redémarrage automatique, veuillez redémarrer RX Explorer manuellement</value>
+  </data>
+  <data name="DecryptFail_Backup_Text" xml:space="preserve">
+    <value>Sauvegarde des fichiers d'erreur</value>
+  </data>
+  <data name="QueueDialog_NotSupportARM_Content" xml:space="preserve">
+    <value>Certains composants dont dépend le dialogue d'information sur le système ne supportent pour l'instant que les processeurs X86 ou X64\rIls ne supportent pas le processeur ARM, cet invite ne sera donc pas ouvert</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_FeedBackNetworkError_Content" xml:space="preserve">
+    <value>Cette opération n'est pas possible à cause de problèmes de réseau</value>
+  </data>
+  <data name="QueueDialog_FeedBackRepeatError_Content" xml:space="preserve">
+    <value>Le même commentaire existe déjà, s'il vous plaît merci de ne pas créer de copies</value>
+  </data>
+  <data name="QueueDialog_BootAtStart_Content" xml:space="preserve">
+    <value>RX ne peut pas être démarré automatiquement car le démarrage est désactivé par le système\rVous pouvez aller à cette page [System Settings] pour modifier ceci</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_AddDeviceFail_Content" xml:space="preserve">
+    <value>Impossible de retirer l'appareil à cause d'un manque de permissions. Nom de l'appareil:</value>
+  </data>
+  <data name="QueueDialog_ImportLibraryFolderError_Content" xml:space="preserve">
+    <value>Impossible d'importer le dossier de la bibliothèque pour des raisons imprévues</value>
+  </data>
+  <data name="QueueDialog_DeviceHideForError_Content" xml:space="preserve">
+    <value>Certains lecteurs ne peuvent être ouverts à cause d'un manque de permissiosn</value>
+  </data>
+  <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
+    <value>Certains des dossiers fixes ne sont plus trouvés et seront automatiquement supprimés\r\rDont：\r</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_DeviceExist_Content" xml:space="preserve">
+    <value>Les lecteurs sélectionnés existent déjà</value>
+  </data>
+  <data name="QueueDialog_DeviceSelectError_Content" xml:space="preserve">
+    <value>La sélection active n'est pas un lecteur</value>
+  </data>
+  <data name="SecureAreaImportCancelButton.Content" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="CustomFontColor.Header" xml:space="preserve">
+    <value>Couleur de police personnalisée</value>
+  </data>
+  <data name="CustomFontColor.OffContent" xml:space="preserve">
+    <value>Blanc</value>
+  </data>
+  <data name="CustomFontColor.OnContent" xml:space="preserve">
+    <value>Noir</value>
+  </data>
+  <data name="SolidColor_Black.Content" xml:space="preserve">
+    <value>Noir</value>
+  </data>
+  <data name="SolidColor_White.Content" xml:space="preserve">
+    <value>Blanc</value>
+  </data>
+  <data name="Folder_Admin_DisplayType" xml:space="preserve">
+    <value>Dossier</value>
+  </data>
+  <data name="Application_Admin_Name" xml:space="preserve">
+    <value>Application</value>
+  </data>
+  <data name="Zip_Admin_Name_Text" xml:space="preserve">
+    <value>Nouveau_Zip</value>
+  </data>
+  <data name="SettingPageAnimationSwitch.Header" xml:space="preserve">
+    <value>Effet d'animation</value>
+  </data>
+  <data name="SettingPageAnimationSwitch.OffContent" xml:space="preserve">
+    <value>Désactiver</value>
+  </data>
+  <data name="SettingPageAnimationSwitch.OnContent" xml:space="preserve">
+    <value>Activer</value>
+  </data>
+  <data name="ThankTranslate.Text" xml:space="preserve">
+    <value>Remerciements particuliers aux traducteurs suivants:</value>
+  </data>
 </root>

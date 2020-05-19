@@ -14,16 +14,11 @@
         <local:BetaSliderValueConverter x:Key="BetaSliderConverter" />
     </Page.Resources>
 
-    <Grid>
+    <Grid ChildrenTransitions="{x:Bind local:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
-        <Grid.ChildrenTransitions>
-            <TransitionCollection>
-                <AddDeleteThemeTransition />
-            </TransitionCollection>
-        </Grid.ChildrenTransitions>
         <controls:ImageCropper Name="Cropper"
                                CropShape="Rectangular"
                                ThumbPlacement="Corners"
@@ -207,7 +202,8 @@
                               ItemsSource="{x:Bind FilterCollection}"
                               HorizontalAlignment="Center"
                               Width="260"
-                              Margin="0,20,0,0">
+                              Margin="0,20,0,0"
+                              ItemContainerTransitions="{x:Bind local:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="local:FilterItem">
                                 <StackPanel>
@@ -232,11 +228,6 @@
                                                HorizontalAlignment="Stretch" />
                             </ItemsPanelTemplate>
                         </GridView.ItemsPanel>
-                        <GridView.ItemContainerTransitions>
-                            <TransitionCollection>
-                                <AddDeleteThemeTransition />
-                            </TransitionCollection>
-                        </GridView.ItemContainerTransitions>
                     </GridView>
 
                     <TextBlock Text="色阶分布"

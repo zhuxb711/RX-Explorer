@@ -150,6 +150,7 @@
     <SuppressPseudoWarning Condition="'$(Configuration)' == 'Debug'">true</SuppressPseudoWarning>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Class\AnimationController.cs" />
     <Compile Include="Class\BackgroundController.cs" />
     <Compile Include="Class\BackgroundPicture.cs" />
     <Compile Include="Class\BluetoothList.cs" />
@@ -319,12 +320,15 @@
     <Content Include="Assets\FolderIcon.png" />
     <Content Include="Assets\IntroFile-Chinese.txt" />
     <Content Include="Assets\IntroFile-English.txt" />
+    <Content Include="Assets\IntroFile-French.txt" />
     <Content Include="Assets\Lock.png" />
     <Content Include="Assets\LockFile.png" />
     <Content Include="Assets\SAIntro1_cn.png" />
     <Content Include="Assets\SAIntro1_en.png" />
+    <Content Include="Assets\SAIntro1_fr.png" />
     <Content Include="Assets\UpdateLog-Chinese.txt" />
     <Content Include="Assets\UpdateLog-English.txt" />
+    <Content Include="Assets\UpdateLog-French.txt" />
     <Content Include="Assets\Viewer.png" />
     <Content Include="CustomImage\Picture14.jpg" />
     <Content Include="CustomImage\Picture10.jpg" />

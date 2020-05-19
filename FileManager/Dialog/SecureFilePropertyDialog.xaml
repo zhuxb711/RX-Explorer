@@ -14,7 +14,7 @@
         <StackPanel Orientation="Horizontal">
             <StackPanel Width="80">
                 <TextBlock Text="文件名"
-                           x:Uid="AttributeFileName"
+                           x:Uid="AttributeName"
                            Name="Na"
                            Height="40" />
                 <TextBlock Text="类型"

@@ -6,6 +6,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:controls1="using:Microsoft.UI.Xaml.Controls"
+      xmlns:Cls="using:FileManager.Class"
       mc:Ignorable="d"
       NavigationCacheMode="Required"
       Background="Transparent">
@@ -144,6 +145,27 @@
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
+        <CommandBarFlyout x:Name="MixedFlyout"
+                          Placement="RightEdgeAlignedTop">
+            <AppBarButton Icon="Copy"
+                          ToolTipService.ToolTip="复制"
+                          x:Uid="FileCopy"
+                          Click="Copy_Click" />
+            <AppBarButton Icon="Cut"
+                          ToolTipService.ToolTip="剪切"
+                          x:Uid="FileCut"
+                          Click="Cut_Click"/>
+            <AppBarButton Icon="Delete"
+                          ToolTipService.ToolTip="删除"
+                          x:Uid="FileDelete"
+                          Click="Delete_Click" />
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Bookmarks"
+                              x:Name="MixZip"
+                              Click="MixZip_Click" />
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
+
         <CommandBarFlyout x:Name="FolderFlyout"
                           Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Copy"
@@ -270,6 +292,7 @@
                     </StackPanel>
                     <TextBlock Margin="0,10,0,0"
                                x:Uid="WIFIShareText"
+                               TextWrapping="WrapWholeWords"
                                Text="传输过程中请勿关闭此窗口，否则将停止分享" />
                 </StackPanel>
             </controls1:TeachingTip.Content>
@@ -540,7 +563,8 @@
                   IsDoubleTapEnabled="True"
                   DoubleTapped="GridViewControl_DoubleTapped"
                   x:FieldModifier="Public"
-                  Visibility="Collapsed">
+                  Visibility="Collapsed"
+                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterListViewTransitions,Mode=OneWay}">
             <ListView.Header>
                 <controls:ScrollHeader Mode="Sticky"
                                        Name="ListHeader"
@@ -553,11 +577,6 @@
                     </Setter>
                 </Style>
             </ListView.ItemContainerStyle>
-            <ListView.ItemContainerTransitions>
-                <TransitionCollection>
-                    <AddDeleteThemeTransition/>
-                </TransitionCollection>
-            </ListView.ItemContainerTransitions>
         </ListView>
         <GridView Name="GridViewControl"
                   Background="Transparent"
@@ -582,18 +601,14 @@
                   IsItemClickEnabled="True"
                   IsDoubleTapEnabled="True"
                   DoubleTapped="GridViewControl_DoubleTapped"
-                  x:FieldModifier="Public">
+                  x:FieldModifier="Public"
+                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterGridViewTransitions,Mode=OneWay}">
             <GridView.ItemsPanel>
                 <ItemsPanelTemplate>
                     <ItemsWrapGrid Orientation="Horizontal"
                                    HorizontalAlignment="Stretch" />
                 </ItemsPanelTemplate>
             </GridView.ItemsPanel>
-            <GridView.ItemContainerTransitions>
-                <TransitionCollection>
-                    <PaneThemeTransition Edge="Left" />
-                </TransitionCollection>
-            </GridView.ItemContainerTransitions>
         </GridView>
         <TextBlock Name="HasFile"
                    x:FieldModifier="public"

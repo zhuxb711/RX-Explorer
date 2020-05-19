@@ -1,0 +1,22 @@
+﻿*****
+###Quoi de neuf dans la version 4.7.5.0
+
+>#####Mise à jour des fonctionnalités
+
+>>#####Ajout du commutateur "Setting-Personalization-Animation effect"
+
+>>#####Nouveau menu de clic droit multi-sélection, maintenant vous pouvez utiliser le menu de clic droit après la multi-sélection
+
+>>#####Nouveau système de détection de programme associé par défaut, plus besoin de spécifier manuellement le programme ouvert
+
+>>#####Nouvelle langue-français
+
+>#####Correction d'un bug
+
+>>#####Correction du problème suivant: lorsque le dossier est compressé, le dossier le plus à l'extérieur ne sera pas inclus dans le fichier compressé
+
+>>#####Résolution de nombreux problèmes de traduction
+
+>>#####Résolution du problème selon lequel l'invite "absence d'autorisation" peut apparaître à plusieurs reprises
+
+>>#####Résolution d'un problème pouvant entraîner un plantage lors du déplacement d'un onglet vers la zone de fichiers

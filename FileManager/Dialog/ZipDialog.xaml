@@ -14,12 +14,7 @@
         <local:ZipCryptConverter x:Key="ZipConverter" />
     </local:QueueContentDialog.Resources>
 
-    <StackPanel>
-        <StackPanel.ChildrenTransitions>
-            <TransitionCollection>
-                <AddDeleteThemeTransition />
-            </TransitionCollection>
-        </StackPanel.ChildrenTransitions>
+    <StackPanel ChildrenTransitions="{x:Bind local:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
         <TextBox Header="文件名"
                  x:Uid="ZipDialogName"
                  Name="FName" />
@@ -34,7 +29,7 @@
                       HorizontalAlignment="Stretch"
                       Header="压缩等级"
                       Margin="0,10,0,0"
-                      Width="130"
+                      Width="150"
                       Name="ZipMethod" />
             <ComboBox Grid.Column="1"
                       x:Uid="ZipDialogEncryption"
@@ -42,7 +37,7 @@
                       Margin="10,10,0,0"
                       Visibility="{x:Bind EnableCryption.IsChecked,Mode=OneWay,Converter={StaticResource ZipConverter}}"
                       Header="加密方法"
-                      Width="130"
+                      Width="150"
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch">
                 <x:String>AES-128</x:String>

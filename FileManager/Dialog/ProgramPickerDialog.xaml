@@ -5,6 +5,7 @@
                           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                           mc:Ignorable="d"
+                          xmlns:Cls="using:FileManager.Class"
                           x:Uid="ProgramPickerDialog"
                           Title="选择打开方式"
                           PrimaryButtonText="确定"
@@ -28,7 +29,8 @@
                       x:Name="CurrentUseProgramList"
                       ScrollViewer.VerticalScrollMode="Disabled"
                       ScrollViewer.HorizontalScrollMode="Disabled"
-                      SelectionChanged="CurrentUseProgramList_SelectionChanged">
+                      SelectionChanged="CurrentUseProgramList_SelectionChanged"
+                      ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="local:ProgramPickerItem">
                         <StackPanel Orientation="Horizontal"
@@ -55,11 +57,6 @@
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-                <ListView.ItemContainerTransitions>
-                    <TransitionCollection>
-                        <AddDeleteThemeTransition />
-                    </TransitionCollection>
-                </ListView.ItemContainerTransitions>
             </ListView>
             <StackPanel>
                 <TextBlock FontSize="18"

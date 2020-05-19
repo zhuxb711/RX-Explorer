@@ -38,7 +38,7 @@ namespace FileManager.Dialog
 
         private async void SecureFilePropertyDialog_Loading(Windows.UI.Xaml.FrameworkElement sender, object args)
         {
-            StorageFile Item = (await StorageItem.GetStorageItem()) as StorageFile;
+            StorageFile Item = (await StorageItem.GetStorageItem().ConfigureAwait(true)) as StorageFile;
             FileSize = StorageItem.Size;
             FileName = StorageItem.DisplayName;
             FileType = StorageItem.DisplayType;

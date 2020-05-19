@@ -31,7 +31,7 @@ namespace FileManager.Class
         {
             get
             {
-                return Folder.DisplayType;
+                return Globalization.GetString("Folder_Admin_DisplayType");
             }
         }
 

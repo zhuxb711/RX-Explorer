@@ -152,7 +152,14 @@ namespace FileManager
 
             try
             {
-                Nav.Navigate(typeof(FilePresenter), new Tuple<FileControl, Frame>(this, Nav), new DrillInNavigationTransitionInfo());
+                if (AnimationController.Current.IsEnableAnimation)
+                {
+                    Nav.Navigate(typeof(FilePresenter), new Tuple<FileControl, Frame>(this, Nav), new DrillInNavigationTransitionInfo());
+                }
+                else
+                {
+                    Nav.Navigate(typeof(FilePresenter), new Tuple<FileControl, Frame>(this, Nav), new SuppressNavigationTransitionInfo());
+                }
 
                 ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Tiles"));
                 ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Details"));
@@ -1053,7 +1060,14 @@ namespace FileManager
                 {
                     StorageItemQueryResult FileQuery = CurrentFolder.CreateItemQueryWithOptions(Options);
 
-                    Nav.Navigate(typeof(SearchPage), new Tuple<FileControl, StorageItemQueryResult>(this, FileQuery), new DrillInNavigationTransitionInfo());
+                    if (AnimationController.Current.IsEnableAnimation)
+                    {
+                        Nav.Navigate(typeof(SearchPage), new Tuple<FileControl, StorageItemQueryResult>(this, FileQuery), new DrillInNavigationTransitionInfo());
+                    }
+                    else
+                    {
+                        Nav.Navigate(typeof(SearchPage), new Tuple<FileControl, StorageItemQueryResult>(this, FileQuery), new SuppressNavigationTransitionInfo());
+                    }
                 }
                 else
                 {
@@ -1945,19 +1959,26 @@ namespace FileManager
 
         private void AddressButton_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+            if (e.DataView.Contains(StandardDataFormats.StorageItems))
             {
-                e.AcceptedOperation = DataPackageOperation.Copy;
-                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {(e.OriginalSource as Button).Content}";
+                if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                {
+                    e.AcceptedOperation = DataPackageOperation.Copy;
+                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {(e.OriginalSource as Button).Content}";
+                }
+                else
+                {
+                    e.AcceptedOperation = DataPackageOperation.Move;
+                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {(e.OriginalSource as Button).Content}";
+                }
+
+                e.DragUIOverride.IsContentVisible = true;
+                e.DragUIOverride.IsCaptionVisible = true;
             }
             else
             {
-                e.AcceptedOperation = DataPackageOperation.Move;
-                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {(e.OriginalSource as Button).Content}";
+                e.AcceptedOperation = DataPackageOperation.None;
             }
-
-            e.DragUIOverride.IsContentVisible = true;
-            e.DragUIOverride.IsCaptionVisible = true;
         }
 
         private async void FolderTree_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)

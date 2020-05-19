@@ -282,13 +282,13 @@
   <data name="CropperPageSavingTips.Text" xml:space="preserve">
     <value>Saving</value>
   </data>
-  <data name="CustionFontColor.Header" xml:space="preserve">
+  <data name="CustomFontColor.Header" xml:space="preserve">
     <value>Custom font color</value>
   </data>
-  <data name="CustionFontColor.OffContent" xml:space="preserve">
+  <data name="CustomFontColor.OffContent" xml:space="preserve">
     <value>White</value>
   </data>
-  <data name="CustionFontColor.OnContent" xml:space="preserve">
+  <data name="CustomFontColor.OnContent" xml:space="preserve">
     <value>Black</value>
   </data>
   <data name="CustomUISubtype1.Content" xml:space="preserve">
@@ -313,7 +313,7 @@
     <value>Free space</value>
   </data>
   <data name="DeviceType.Text" xml:space="preserve">
-    <value>Disk Type：</value>
+    <value>Disk Type:</value>
   </data>
   <data name="DeviceUsedSpace.Text" xml:space="preserve">
     <value>Used space</value>
@@ -2140,7 +2140,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Importing</value>
   </data>
   <data name="Progress_Tip_Loading" xml:space="preserve">
-    <value>Loading</value>
+    <value>Loading...</value>
   </data>
   <data name="Progress_Tip_Moving" xml:space="preserve">
     <value>Moving</value>
@@ -2404,5 +2404,35 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="Setting_UIMode_SolidColor" xml:space="preserve">
     <value>Solid Color</value>
+  </data>
+  <data name="SecureAreaImportCancelButton.Content" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="SolidColor_Black.Content" xml:space="preserve">
+    <value>Black</value>
+  </data>
+  <data name="SolidColor_White.Content" xml:space="preserve">
+    <value>White</value>
+  </data>
+  <data name="Folder_Admin_DisplayType" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="Application_Admin_Name" xml:space="preserve">
+    <value>Application</value>
+  </data>
+  <data name="Zip_Admin_Name_Text" xml:space="preserve">
+    <value>New_Zip</value>
+  </data>
+  <data name="SettingPageAnimationSwitch.Header" xml:space="preserve">
+    <value>Animation effect</value>
+  </data>
+  <data name="SettingPageAnimationSwitch.OffContent" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="SettingPageAnimationSwitch.OnContent" xml:space="preserve">
+    <value>Enable</value>
+  </data>
+  <data name="ThankTranslate.Text" xml:space="preserve">
+    <value>Special thanks to the following translators:</value>
   </data>
 </root>

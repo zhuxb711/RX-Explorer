@@ -19,7 +19,7 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="名称"
-                           x:Uid="AttributeFileName"
+                           x:Uid="AttributeName"
                            Name="Na" />
                 <TextBlock Text="{x:Bind FileName,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind FileName,Mode=OneWay}"

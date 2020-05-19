@@ -26,8 +26,8 @@
                         <RowDefinition Height="35" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="180" />
-                        <ColumnDefinition Width="350" />
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="330" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Windows 版本"
                                x:Uid="SystemInfoDialogWindowsVersion"
@@ -89,8 +89,8 @@
                         <RowDefinition Height="35" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="180" />
-                        <ColumnDefinition Width="350" />
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="330" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Row="0"
                                Grid.Column="0"
@@ -151,8 +151,8 @@
                         <RowDefinition Height="80" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="180" />
-                        <ColumnDefinition Width="350" />
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="330" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="CPU型号"
                                x:Uid="SystemInfoDialogCPUModel"
@@ -211,8 +211,8 @@
                         <RowDefinition Height="35" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="180" />
-                        <ColumnDefinition Width="350" />
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="330" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Row="0"
                                Grid.Column="0"
@@ -235,8 +235,8 @@
                 <Grid Margin="0,10,0,0"
                       Name="GPUGrid">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="180" />
-                        <ColumnDefinition Width="350" />
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="330" />
                     </Grid.ColumnDefinitions>
                 </Grid>
                 <TextBlock Text="网络信息"
@@ -246,8 +246,8 @@
                 <Grid Margin="0,10,0,0"
                       Name="NetworkGrid">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="180" />
-                        <ColumnDefinition Width="350" />
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="330" />
                     </Grid.ColumnDefinitions>
                 </Grid>
             </StackPanel>

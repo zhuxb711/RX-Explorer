@@ -27,12 +27,7 @@
     </local:QueueContentDialog.Resources>
 
     <Grid Background="Transparent">
-        <StackPanel>
-            <StackPanel.ChildrenTransitions>
-                <TransitionCollection>
-                    <EntranceThemeTransition />
-                </TransitionCollection>
-            </StackPanel.ChildrenTransitions>
+        <StackPanel ChildrenTransitions="{x:Bind local:AnimationController.Current.EntranceTransitions,Mode=OneWay}">
             <MediaPlayerElement Width="640"
                                 Height="360"
                                 Name="MediaPlay"

@@ -42,9 +42,9 @@
                         Background="{ThemeResource SystemAccentColor}" />
                 <Grid Margin="5,0,0,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="75" />
-                        <ColumnDefinition Width="160" />
-                        <ColumnDefinition Width="90" />
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="170" />
+                        <ColumnDefinition Width="80" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="已用空间"
                                x:Uid="DeviceUsedSpace"
@@ -66,9 +66,9 @@
                         Background="LightGray" />
                 <Grid Margin="5,0,0,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="75" />
-                        <ColumnDefinition Width="160" />
-                        <ColumnDefinition Width="90" />
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="170" />
+                        <ColumnDefinition Width="80" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="可用空间"
                                x:Uid="DeviceFreeSpace"
@@ -86,9 +86,9 @@
 
             <Grid Margin="25,5,0,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="75" />
-                    <ColumnDefinition Width="160" />
-                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="170" />
+                    <ColumnDefinition Width="80" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="总计空间"
                            x:Uid="DeviceCapacity"
@@ -105,7 +105,7 @@
             <controls:RadialProgressBar x:Name="RadialProgress"
                                         Value="0"
                                         Foreground="{ThemeResource SystemAccentColor}"
-                                        Thickness="12"
+                                        Thickness="13"
                                         Minimum="0"
                                         Maximum="100"
                                         Width="120"
@@ -113,9 +113,10 @@
                                         Outline="LightGray"
                                         Margin="0,20,0,10" />
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="磁盘类型："
+                <TextBlock Text="磁盘类型:"
                            x:Uid="DeviceType" />
-                <TextBlock x:Name="DeviceType" />
+                <TextBlock x:Name="DeviceType" 
+                           Margin="5,0,0,0"/>
             </StackPanel>
         </StackPanel>
     </Grid>

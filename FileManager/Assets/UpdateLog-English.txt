@@ -1,4 +1,27 @@
 ﻿*****
+###What's new in Ver.4.7.5.0
+
+>#####Feature update
+
+>>#####Added "Setting-Personalization-Animation effect" switch
+
+>>#####New multi-select right-click menu, now you can use the right-click menu after multi-select
+
+>>#####New system default associated program detection, now no need to manually specify the open program
+
+>>#####New language-French
+
+>#####Bug fix
+
+>>#####Fixed the problem that when the folder is compressed, the outermost folder will not be included in the compressed file
+
+>>#####Solved many translation problems
+
+>>#####Solved the problem that the prompt of "lack of permission" may appear repeatedly
+
+>>#####Resolved an issue that could cause a crash when dragging a tab to the file area
+
+*****
 ###What's new in Ver.4.7.0.0
 
 >#####Feature update

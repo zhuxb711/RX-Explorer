@@ -250,7 +250,7 @@
     <value>可用空间</value>
   </data>
   <data name="DeviceType.Text" xml:space="preserve">
-    <value>磁盘类型：</value>
+    <value>磁盘类型:</value>
   </data>
   <data name="DeviceUsedSpace.Text" xml:space="preserve">
     <value>已用空间</value>
@@ -1148,15 +1148,6 @@
   </data>
   <data name="VideoMerge.Text" xml:space="preserve">
     <value>合并</value>
-  </data>
-  <data name="CustionFontColor.Header" xml:space="preserve">
-    <value>自定义字体颜色</value>
-  </data>
-  <data name="CustionFontColor.OffContent" xml:space="preserve">
-    <value>白色</value>
-  </data>
-  <data name="CustionFontColor.OnContent" xml:space="preserve">
-    <value>黑色</value>
   </data>
   <data name="AutoBootOnStartup.OffContent" xml:space="preserve">
     <value>禁用</value>
@@ -2094,7 +2085,7 @@
     <value>正在导入</value>
   </data>
   <data name="Progress_Tip_Loading" xml:space="preserve">
-    <value>正在加载</value>
+    <value>正在加载...</value>
   </data>
   <data name="Progress_Tip_NoFeedback" xml:space="preserve">
     <value>无任何反馈或建议</value>
@@ -2299,5 +2290,44 @@
   </data>
   <data name="QueueDialog_DeviceSelectError_Content" xml:space="preserve">
     <value>所选择的内容并非是驱动器</value>
+  </data>
+  <data name="SecureAreaImportCancelButton.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="CustomFontColor.Header" xml:space="preserve">
+    <value>自定义字体颜色</value>
+  </data>
+  <data name="CustomFontColor.OffContent" xml:space="preserve">
+    <value>白色</value>
+  </data>
+  <data name="CustomFontColor.OnContent" xml:space="preserve">
+    <value>黑色</value>
+  </data>
+  <data name="SolidColor_Black.Content" xml:space="preserve">
+    <value>黑色</value>
+  </data>
+  <data name="SolidColor_White.Content" xml:space="preserve">
+    <value>白色</value>
+  </data>
+  <data name="Folder_Admin_DisplayType" xml:space="preserve">
+    <value>文件夹</value>
+  </data>
+  <data name="Application_Admin_Name" xml:space="preserve">
+    <value>应用程序</value>
+  </data>
+  <data name="Zip_Admin_Name_Text" xml:space="preserve">
+    <value>新建Zip文件</value>
+  </data>
+  <data name="SettingPageAnimationSwitch.Header" xml:space="preserve">
+    <value>动画效果</value>
+  </data>
+  <data name="SettingPageAnimationSwitch.OffContent" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="SettingPageAnimationSwitch.OnContent" xml:space="preserve">
+    <value>启用</value>
+  </data>
+  <data name="ThankTranslate.Text" xml:space="preserve">
+    <value>特别感谢以下翻译人员:</value>
   </data>
 </root>

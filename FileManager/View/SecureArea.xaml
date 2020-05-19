@@ -103,7 +103,8 @@
                   PointerPressed="SecureGridView_PointerPressed"
                   DragEnter="SecureGridView_DragEnter"
                   SelectionChanged="SecureGridView_SelectionChanged"
-                  Padding="20">
+                  Padding="20"
+                  ItemContainerTransitions="{x:Bind local:AnimationController.Current.PaneLeftTransitions,Mode=OneWay}">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="local:FileSystemStorageItem">
                     <StackPanel Width="215"
@@ -140,16 +141,11 @@
                                    HorizontalAlignment="Stretch" />
                 </ItemsPanelTemplate>
             </GridView.ItemsPanel>
-            <GridView.ItemContainerTransitions>
-                <TransitionCollection>
-                    <PaneThemeTransition Edge="Left" />
-                </TransitionCollection>
-            </GridView.ItemContainerTransitions>
         </GridView>
         <SplitView Grid.Row="1"
                    Canvas.ZIndex="1"
                    PanePlacement="Right"
-                   OpenPaneLength="350"
+                   OpenPaneLength="380"
                    DisplayMode="Overlay"
                    Name="SettingPane"
                    PaneOpening="SettingPane_PaneOpening"
@@ -227,12 +223,8 @@
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     IsHitTestVisible="False"
-                    Name="EmptyTips">
-            <StackPanel.ChildrenTransitions>
-                <TransitionCollection>
-                    <PaneThemeTransition Edge="Top"/>
-                </TransitionCollection>
-            </StackPanel.ChildrenTransitions>
+                    Name="EmptyTips"
+                    ChildrenTransitions="{x:Bind local:AnimationController.Current.PaneTopTransitions,Mode=OneWay}">
             <Image Source="ms-appx:///Assets/Lock.png"
                    Stretch="Uniform"
                    Width="100" />
@@ -260,6 +252,7 @@
                 <Button Content="取消"
                         Width="100"
                         Margin="0,10,0,0"
+                        x:Uid="SecureAreaImportCancelButton"
                         Name="CancelButton"
                         HorizontalAlignment="Center"
                         Click="CancelButton_Click"

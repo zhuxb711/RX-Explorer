@@ -31,19 +31,16 @@ namespace FileManager.Class
             {
                 case LanguageEnum.Chinese:
                     {
-                        ApplicationLanguages.PrimaryLanguageOverride = "zh-Hans";
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 0;
                         break;
                     }
                 case LanguageEnum.English:
                     {
-                        ApplicationLanguages.PrimaryLanguageOverride = "en-US";
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 1;
                         break;
                     }
                 case LanguageEnum.French:
                     {
-                        ApplicationLanguages.PrimaryLanguageOverride = "fr";
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 2;
                         break;
                     }
@@ -69,16 +66,19 @@ namespace FileManager.Class
                     case 0:
                         {
                             CurrentLanguage = LanguageEnum.Chinese;
+                            ApplicationLanguages.PrimaryLanguageOverride = "zh-Hans";
                             break;
                         }
                     case 1:
                         {
                             CurrentLanguage = LanguageEnum.English;
+                            ApplicationLanguages.PrimaryLanguageOverride = "en-US";
                             break;
                         }
                     case 2:
                         {
                             CurrentLanguage = LanguageEnum.French;
+                            ApplicationLanguages.PrimaryLanguageOverride = "fr";
                             break;
                         }
                 }
@@ -121,10 +121,11 @@ namespace FileManager.Class
 
                     if (string.IsNullOrEmpty(Value))
                     {
-                        throw new Exception("Could not find the key");
+                        throw new Exception("Value is empty");
                     }
                     else
                     {
+                        Value = Value.Replace(@"\r", Environment.NewLine);
                         ResourceCache.Add(Key, Value);
                         return Value;
                     }

@@ -349,6 +349,7 @@ namespace FileManager
             FileFlyout.Hide();
             FolderFlyout.Hide();
             EmptyFlyout.Hide();
+            MixedFlyout.Hide();
         }
 
         private async Task Ctrl_Z_Click()
@@ -1298,6 +1299,41 @@ namespace FileManager
 
         private void ViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            MixZip.IsEnabled = true;
+            if (SelectedItems.Any((Item) => Item.StorageType != StorageItemTypes.Folder))
+            {
+                if (SelectedItems.All((Item) => Item.StorageType == StorageItemTypes.File))
+                {
+                    if (SelectedItems.All((Item) => Item.Type == ".zip"))
+                    {
+                        MixZip.Label = Globalization.GetString("Operate_Text_Decompression");
+                    }
+                    else if (SelectedItems.All((Item) => Item.Type != ".zip"))
+                    {
+                        MixZip.Label = Globalization.GetString("Operate_Text_Compression");
+                    }
+                    else
+                    {
+                        MixZip.IsEnabled = false;
+                    }
+                }
+                else
+                {
+                    if (SelectedItems.Where((It) => It.StorageType == StorageItemTypes.File).Any((Item) => Item.Type == ".zip"))
+                    {
+                        MixZip.IsEnabled = false;
+                    }
+                    else
+                    {
+                        MixZip.Label = Globalization.GetString("Operate_Text_Compression");
+                    }
+                }
+            }
+            else
+            {
+                MixZip.Label = Globalization.GetString("Operate_Text_Compression");
+            }
+
             if (SelectedItem is FileSystemStorageItem Item)
             {
                 if (Item.StorageType == StorageItemTypes.File)
@@ -1359,8 +1395,11 @@ namespace FileManager
 
         private void ViewControl_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            SelectedIndex = -1;
-            FileControlInstance.IsSearchOrPathBoxFocused = false;
+            if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
+            {
+                SelectedIndex = -1;
+                FileControlInstance.IsSearchOrPathBoxFocused = false;
+            }
         }
 
         private void GridViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
@@ -1369,15 +1408,14 @@ namespace FileManager
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
                 {
-                    SelectedIndex = FileCollection.IndexOf(Context);
-
-                    if (Context.StorageType == StorageItemTypes.Folder)
+                    if (SelectedItems.Length <= 1 || !SelectedItems.Contains(Context))
                     {
-                        ControlContextFlyout = FolderFlyout;
+                        SelectedIndex = FileCollection.IndexOf(Context);
+                        ControlContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
                     }
                     else
                     {
-                        ControlContextFlyout = FileFlyout;
+                        ControlContextFlyout = MixedFlyout;
                     }
                 }
                 else
@@ -1397,15 +1435,14 @@ namespace FileManager
             }
             else if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
             {
-                SelectedIndex = FileCollection.IndexOf(Context);
-
-                if (Context.StorageType == StorageItemTypes.Folder)
+                if (SelectedItems.Length <= 1 || !SelectedItems.Contains(Context))
                 {
-                    ControlContextFlyout = FolderFlyout;
+                    SelectedIndex = FileCollection.IndexOf(Context);
+                    ControlContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
                 }
                 else
                 {
-                    ControlContextFlyout = FileFlyout;
+                    ControlContextFlyout = MixedFlyout;
                 }
             }
 
@@ -1501,10 +1538,10 @@ namespace FileManager
                     {
                         await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level).ConfigureAwait(true);
                     }
+
+                    await LoadingActivation(false).ConfigureAwait(false);
                 }
             }
-
-            await LoadingActivation(false).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1609,6 +1646,10 @@ namespace FileManager
                     };
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
+                finally
+                {
+                    await LoadingActivation(false).ConfigureAwait(false);
+                }
             }
 
             return NewFolder;
@@ -1683,7 +1724,123 @@ namespace FileManager
                         }
                         else if (ZipTarget is StorageFolder ZipFolder)
                         {
-                            await ZipFolderCore(ZipFolder, OutputStream, string.Empty, EnableCryption, Size, Password).ConfigureAwait(true);
+                            await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, EnableCryption, Size, Password).ConfigureAwait(true);
+                        }
+
+                        await OutputStream.FlushAsync().ConfigureAwait(true);
+                        OutputStream.Finish();
+                    }
+                    catch (Exception e)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_CompressionError_Content") + e.Message,
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    }
+                }
+
+                if (FileCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.File) is FileSystemStorageItem Item)
+                {
+                    FileCollection.Insert(FileCollection.IndexOf(Item), new FileSystemStorageItem(Newfile, await Newfile.GetSizeRawDataAsync().ConfigureAwait(true), await Newfile.GetThumbnailBitmapAsync().ConfigureAwait(true), await Newfile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                }
+                else
+                {
+                    FileCollection.Add(new FileSystemStorageItem(Newfile, await Newfile.GetSizeRawDataAsync().ConfigureAwait(true), await Newfile.GetThumbnailBitmapAsync().ConfigureAwait(true), await Newfile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_UnauthorizedCompression_Content"),
+                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                };
+
+                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                {
+                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 执行ZIP文件创建功能
+        /// </summary>
+        /// <param name="FileList">待压缩文件</param>
+        /// <param name="NewZipName">生成的Zip文件名</param>
+        /// <param name="ZipLevel">压缩等级</param>
+        /// <param name="EnableCryption">是否启用加密</param>
+        /// <param name="Size">AES加密密钥长度</param>
+        /// <param name="Password">密码</param>
+        /// <returns>无</returns>
+        private async Task CreateZipAsync(IEnumerable<FileSystemStorageItem> ZipItemGroup, string NewZipName, int ZipLevel, bool EnableCryption = false, KeySize Size = KeySize.None, string Password = null)
+        {
+            try
+            {
+                StorageFile Newfile = await FileControlInstance.CurrentFolder.CreateFileAsync(NewZipName, CreationCollisionOption.GenerateUniqueName);
+
+                using (Stream NewFileStream = await Newfile.OpenStreamForWriteAsync().ConfigureAwait(true))
+                using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
+                {
+                    OutputStream.IsStreamOwner = false;
+                    OutputStream.SetLevel(ZipLevel);
+                    OutputStream.UseZip64 = UseZip64.Dynamic;
+
+                    if (EnableCryption)
+                    {
+                        OutputStream.Password = Password;
+                    }
+
+                    try
+                    {
+                        foreach (FileSystemStorageItem StorageItem in ZipItemGroup)
+                        {
+                            if (await StorageItem.GetStorageItem().ConfigureAwait(true) is StorageFile ZipFile)
+                            {
+                                if (EnableCryption)
+                                {
+                                    using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                                    {
+                                        ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
+                                        {
+                                            DateTime = DateTime.Now,
+                                            AESKeySize = (int)Size,
+                                            IsCrypted = true,
+                                            CompressionMethod = CompressionMethod.Deflated,
+                                            Size = FileStream.Length
+                                        };
+
+                                        OutputStream.PutNextEntry(NewEntry);
+
+                                        await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
+                                    }
+                                }
+                                else
+                                {
+                                    using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                                    {
+                                        ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
+                                        {
+                                            DateTime = DateTime.Now,
+                                            CompressionMethod = CompressionMethod.Deflated,
+                                            Size = FileStream.Length
+                                        };
+
+                                        OutputStream.PutNextEntry(NewEntry);
+
+                                        await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
+                                    }
+                                }
+                            }
+                            else if (await StorageItem.GetStorageItem().ConfigureAwait(true) is StorageFolder ZipFolder)
+                            {
+                                await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, EnableCryption, Size, Password).ConfigureAwait(true);
+                            }
                         }
 
                         await OutputStream.FlushAsync().ConfigureAwait(true);
@@ -1746,111 +1903,53 @@ namespace FileManager
                 {
                     if (Item is StorageFolder InnerFolder)
                     {
-                        if (string.IsNullOrEmpty(BaseFolderName))
+                        if (EnableCryption)
                         {
-                            if (EnableCryption)
-                            {
-                                await ZipFolderCore(InnerFolder, OutputStream, $"{InnerFolder.Name}/", true, Size, Password).ConfigureAwait(false);
-                            }
-                            else
-                            {
-                                await ZipFolderCore(InnerFolder, OutputStream, $"{InnerFolder.Name}/").ConfigureAwait(false);
-                            }
+                            await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", true, Size, Password).ConfigureAwait(false);
                         }
                         else
                         {
-                            if (EnableCryption)
-                            {
-                                await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}{InnerFolder.Name}/", true, Size, Password).ConfigureAwait(false);
-                            }
-                            else
-                            {
-                                await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}{InnerFolder.Name}/").ConfigureAwait(false);
-                            }
+                            await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}").ConfigureAwait(false);
                         }
                     }
                     else if (Item is StorageFile InnerFile)
                     {
-                        if (string.IsNullOrEmpty(BaseFolderName))
+                        if (EnableCryption)
                         {
-                            if (EnableCryption)
+                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(true))
                             {
-                                using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                                ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{InnerFile.Name}")
                                 {
-                                    ZipEntry NewEntry = new ZipEntry(InnerFile.Name)
-                                    {
-                                        DateTime = DateTime.Now,
-                                        AESKeySize = (int)Size,
-                                        IsCrypted = true,
-                                        CompressionMethod = CompressionMethod.Deflated,
-                                        Size = FileStream.Length
-                                    };
+                                    DateTime = DateTime.Now,
+                                    AESKeySize = (int)Size,
+                                    IsCrypted = true,
+                                    CompressionMethod = CompressionMethod.Deflated,
+                                    Size = FileStream.Length
+                                };
 
-                                    OutputStream.PutNextEntry(NewEntry);
+                                OutputStream.PutNextEntry(NewEntry);
 
-                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
+                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
 
-                                    OutputStream.CloseEntry();
-                                }
-                            }
-                            else
-                            {
-                                using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(true))
-                                {
-                                    ZipEntry NewEntry = new ZipEntry(InnerFile.Name)
-                                    {
-                                        DateTime = DateTime.Now,
-                                        CompressionMethod = CompressionMethod.Deflated,
-                                        Size = FileStream.Length
-                                    };
-
-                                    OutputStream.PutNextEntry(NewEntry);
-
-                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
-
-                                    OutputStream.CloseEntry();
-                                }
+                                OutputStream.CloseEntry();
                             }
                         }
                         else
                         {
-                            if (EnableCryption)
+                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(true))
                             {
-                                using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                                ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{InnerFile.Name}")
                                 {
-                                    ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}{InnerFile.Name}")
-                                    {
-                                        DateTime = DateTime.Now,
-                                        AESKeySize = (int)Size,
-                                        IsCrypted = true,
-                                        CompressionMethod = CompressionMethod.Deflated,
-                                        Size = FileStream.Length
-                                    };
+                                    DateTime = DateTime.Now,
+                                    CompressionMethod = CompressionMethod.Deflated,
+                                    Size = FileStream.Length
+                                };
 
-                                    OutputStream.PutNextEntry(NewEntry);
+                                OutputStream.PutNextEntry(NewEntry);
 
-                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
+                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
 
-                                    OutputStream.CloseEntry();
-                                }
-                            }
-                            else
-                            {
-                                using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(true))
-                                {
-                                    ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}{InnerFile.Name}")
-                                    {
-                                        DateTime = DateTime.Now,
-                                        CompressionMethod = CompressionMethod.Deflated,
-                                        Size = FileStream.Length
-                                    };
-
-                                    OutputStream.PutNextEntry(NewEntry);
-
-                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
-
-                                    OutputStream.CloseEntry();
-                                }
+                                OutputStream.CloseEntry();
                             }
                         }
                     }
@@ -2479,7 +2578,14 @@ namespace FileManager
                                 case ".png":
                                 case ".bmp":
                                     {
-                                        FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new DrillInNavigationTransitionInfo());
+                                        if (AnimationController.Current.IsEnableAnimation)
+                                        {
+                                            FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new DrillInNavigationTransitionInfo());
+                                        }
+                                        else
+                                        {
+                                            FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new SuppressNavigationTransitionInfo());
+                                        }
                                         break;
                                     }
                                 case ".mkv":
@@ -2492,17 +2598,38 @@ namespace FileManager
                                 case ".mov":
                                 case ".alac":
                                     {
-                                        FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
+                                        if (AnimationController.Current.IsEnableAnimation)
+                                        {
+                                            FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
+                                        }
+                                        else
+                                        {
+                                            FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
+                                        }
                                         break;
                                     }
                                 case ".txt":
                                     {
-                                        FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, FileSystemStorageItem>(FileControlInstance, TabTarget), new DrillInNavigationTransitionInfo());
+                                        if (AnimationController.Current.IsEnableAnimation)
+                                        {
+                                            FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, FileSystemStorageItem>(FileControlInstance, TabTarget), new DrillInNavigationTransitionInfo());
+                                        }
+                                        else
+                                        {
+                                            FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, FileSystemStorageItem>(FileControlInstance, TabTarget), new SuppressNavigationTransitionInfo());
+                                        }
                                         break;
                                     }
                                 case ".pdf":
                                     {
-                                        FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new DrillInNavigationTransitionInfo());
+                                        if (AnimationController.Current.IsEnableAnimation)
+                                        {
+                                            FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new DrillInNavigationTransitionInfo());
+                                        }
+                                        else
+                                        {
+                                            FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new SuppressNavigationTransitionInfo());
+                                        }
                                         break;
                                     }
                                 case ".exe":
@@ -3073,19 +3200,26 @@ namespace FileManager
 
         private void ViewControl_DragOver(object sender, DragEventArgs e)
         {
-            if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+            if (e.DataView.Contains(StandardDataFormats.StorageItems))
             {
-                e.AcceptedOperation = DataPackageOperation.Copy;
-                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {FileControlInstance.CurrentFolder.DisplayName}";
+                if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                {
+                    e.AcceptedOperation = DataPackageOperation.Copy;
+                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {FileControlInstance.CurrentFolder.DisplayName}";
+                }
+                else
+                {
+                    e.AcceptedOperation = DataPackageOperation.Move;
+                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {FileControlInstance.CurrentFolder.DisplayName}";
+                }
+
+                e.DragUIOverride.IsContentVisible = true;
+                e.DragUIOverride.IsCaptionVisible = true;
             }
             else
             {
-                e.AcceptedOperation = DataPackageOperation.Move;
-                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {FileControlInstance.CurrentFolder.DisplayName}";
+                e.AcceptedOperation = DataPackageOperation.None;
             }
-
-            e.DragUIOverride.IsContentVisible = true;
-            e.DragUIOverride.IsCaptionVisible = true;
         }
 
         private async void Item_Drop(object sender, DragEventArgs e)
@@ -3383,23 +3517,30 @@ namespace FileManager
 
         private void ItemContainer_DragEnter(object sender, DragEventArgs e)
         {
-            if (sender is SelectorItem)
+            if (e.DataView.Contains(StandardDataFormats.StorageItems))
             {
-                FileSystemStorageItem Item = (sender as SelectorItem).Content as FileSystemStorageItem;
-
-                if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                if (sender is SelectorItem)
                 {
-                    e.AcceptedOperation = DataPackageOperation.Copy;
-                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Item.DisplayName}";
-                }
-                else
-                {
-                    e.AcceptedOperation = DataPackageOperation.Move;
-                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Item.DisplayName}";
-                }
+                    FileSystemStorageItem Item = (sender as SelectorItem).Content as FileSystemStorageItem;
 
-                e.DragUIOverride.IsContentVisible = true;
-                e.DragUIOverride.IsCaptionVisible = true;
+                    if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                    {
+                        e.AcceptedOperation = DataPackageOperation.Copy;
+                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Item.DisplayName}";
+                    }
+                    else
+                    {
+                        e.AcceptedOperation = DataPackageOperation.Move;
+                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Item.DisplayName}";
+                    }
+
+                    e.DragUIOverride.IsContentVisible = true;
+                    e.DragUIOverride.IsCaptionVisible = true;
+                }
+            }
+            else
+            {
+                e.AcceptedOperation = DataPackageOperation.None;
             }
         }
 
@@ -3720,6 +3861,139 @@ namespace FileManager
                     ControlContextFlyout = EmptyFlyout;
                 }
             }
+        }
+
+        private async void MixZip_Click(object sender, RoutedEventArgs e)
+        {
+            Restore();
+
+            foreach (FileSystemStorageItem Item in SelectedItems)
+            {
+                if (Item.StorageType == StorageItemTypes.Folder)
+                {
+                    StorageFolder Folder = (await Item.GetStorageItem().ConfigureAwait(true)) as StorageFolder;
+
+                    if (!await Folder.CheckExist().ConfigureAwait(true))
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
+                        if (SettingControl.IsDetachTreeViewAndPresenter)
+                        {
+                            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+                        }
+                        return;
+                    }
+                }
+                else
+                {
+                    StorageFile File = (await Item.GetStorageItem().ConfigureAwait(true)) as StorageFile;
+
+                    if (!await File.CheckExist().ConfigureAwait(true))
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
+                        if (SettingControl.IsDetachTreeViewAndPresenter)
+                        {
+                            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+                        }
+                        return;
+                    }
+                }
+            }
+
+            bool IsCompress = false;
+            if (SelectedItems.All((Item) => Item.StorageType == StorageItemTypes.File))
+            {
+                if (SelectedItems.All((Item) => Item.Type == ".zip"))
+                {
+                    IsCompress = false;
+                }
+                else if (SelectedItems.All((Item) => Item.Type != ".zip"))
+                {
+                    IsCompress = true;
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else if (SelectedItems.All((Item) => Item.StorageType == StorageItemTypes.Folder))
+            {
+                IsCompress = true;
+            }
+            else
+            {
+                if (SelectedItems.Where((It) => It.StorageType == StorageItemTypes.File).All((Item) => Item.Type != ".zip"))
+                {
+                    IsCompress = true;
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            if (IsCompress)
+            {
+                ZipDialog dialog = new ZipDialog(true, Globalization.GetString("Zip_Admin_Name_Text"));
+
+                if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                {
+                    await LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
+
+                    if (dialog.IsCryptionEnable)
+                    {
+                        await CreateZipAsync(SelectedItems, dialog.FileName, (int)dialog.Level, true, dialog.Key, dialog.Password).ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        await CreateZipAsync(SelectedItems, dialog.FileName, (int)dialog.Level).ConfigureAwait(true);
+                    }
+
+                    await LoadingActivation(false).ConfigureAwait(true);
+                }
+            }
+            else
+            {
+                foreach (FileSystemStorageItem Item in SelectedItems)
+                {
+                    StorageFile File = (await Item.GetStorageItem().ConfigureAwait(true)) as StorageFile;
+
+                    if ((await UnZipAsync(File).ConfigureAwait(true)) is StorageFolder NewFolder)
+                    {
+                        if (FileCollection.Where((Item) => Item.StorageType == StorageItemTypes.Folder).All((Folder) => Folder.Name != NewFolder.Name))
+                        {
+                            FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+
+                            if (!SettingControl.IsDetachTreeViewAndPresenter)
+                            {
+                                await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                            }
+                        }
+                    }
+                }
+            }
+
         }
     }
 }

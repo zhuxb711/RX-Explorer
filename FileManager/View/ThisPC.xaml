@@ -183,7 +183,8 @@
                       Padding="5"
                       IsHoldingEnabled="True"
                       Holding="QuickStartGridView_Holding"
-                      ContextFlyout="{StaticResource AppFlyout}">
+                      ContextFlyout="{StaticResource AppFlyout}"
+                      ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
                 <GridView.ItemTemplateSelector>
                     <Cls:QuickStartSelector NormalDataTemplate="{StaticResource NormalDataTemplate}"
                                               AddDataTemplate="{StaticResource AddDataTemplate}" />
@@ -195,12 +196,6 @@
                                        HorizontalAlignment="Stretch" />
                     </ItemsPanelTemplate>
                 </GridView.ItemsPanel>
-                <GridView.ItemContainerTransitions>
-                    <TransitionCollection>
-                        <AddDeleteThemeTransition />
-                        <PaneThemeTransition Edge="Bottom" />
-                    </TransitionCollection>
-                </GridView.ItemContainerTransitions>
             </GridView>
             <StackPanel Grid.Row="2">
                 <TextBlock Text="热门网站"
@@ -225,7 +220,8 @@
                       RightTapped="WebGridView_RightTapped"
                       Grid.Row="3"
                       Padding="5"
-                      ContextFlyout="{StaticResource WebFlyout}">
+                      ContextFlyout="{StaticResource WebFlyout}"
+                      ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
                 <GridView.ItemTemplateSelector>
                     <Cls:QuickStartSelector NormalDataTemplate="{StaticResource NormalDataTemplate}"
                                               AddDataTemplate="{StaticResource AddDataTemplate}" />
@@ -237,12 +233,6 @@
                                        HorizontalAlignment="Stretch" />
                     </ItemsPanelTemplate>
                 </GridView.ItemsPanel>
-                <GridView.ItemContainerTransitions>
-                    <TransitionCollection>
-                        <AddDeleteThemeTransition />
-                        <PaneThemeTransition Edge="Bottom" />
-                    </TransitionCollection>
-                </GridView.ItemContainerTransitions>
             </GridView>
         </Grid>
         <ScrollViewer Grid.Column="2"
@@ -284,8 +274,8 @@
                               RightTapped="LibraryGrid_RightTapped"
                               Holding="LibraryGrid_Holding"
                               PointerPressed="LibraryGrid_PointerPressed"
-                              DoubleTapped="LibraryGrid_DoubleTapped">
-
+                              DoubleTapped="LibraryGrid_DoubleTapped"
+                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="Cls:LibraryFolder">
                                 <StackPanel Orientation="Horizontal"
@@ -321,11 +311,6 @@
                                                HorizontalAlignment="Stretch" />
                             </ItemsPanelTemplate>
                         </GridView.ItemsPanel>
-                        <GridView.ItemContainerTransitions>
-                            <TransitionCollection>
-                                <PaneThemeTransition Edge="Right" />
-                            </TransitionCollection>
-                        </GridView.ItemContainerTransitions>
                     </GridView>
                 </controls:Expander>
                 <controls:Expander x:Name="DeviceExpander"
@@ -369,7 +354,8 @@
                                   PointerPressed="DeviceGrid_PointerPressed"
                                   RightTapped="DeviceGrid_RightTapped"
                                   SelectionChanged="DeviceGrid_SelectionChanged"
-                                  DoubleTapped="DeviceGrid_DoubleTapped">
+                                  DoubleTapped="DeviceGrid_DoubleTapped"
+                                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
                             <GridView.ItemTemplate>
                                 <DataTemplate x:DataType="Cls:HardDeviceInfo">
                                     <StackPanel Orientation="Horizontal"
@@ -412,12 +398,6 @@
                                                    HorizontalAlignment="Stretch" />
                                 </ItemsPanelTemplate>
                             </GridView.ItemsPanel>
-                            <GridView.ItemContainerTransitions>
-                                <TransitionCollection>
-                                    <AddDeleteThemeTransition />
-                                    <PaneThemeTransition Edge="Right" />
-                                </TransitionCollection>
-                            </GridView.ItemContainerTransitions>
                         </GridView>
                     </Grid>
                 </controls:Expander>

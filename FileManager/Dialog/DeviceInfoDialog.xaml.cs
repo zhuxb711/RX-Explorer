@@ -21,7 +21,7 @@ namespace FileManager.Dialog
             string Unit = Globalization.GetString("Device_Capacity_Unit");
             FreeByte.Text = $"{Device.FreeByte:N0} {Unit}";
             TotalByte.Text = $"{Device.TotalByte:N0} {Unit}";
-            UsedByte.Text = $"{Device.TotalByte - Device.FreeByte:N0)} {Unit}";
+            UsedByte.Text = $"{Device.TotalByte - Device.FreeByte:N0} {Unit}";
 
             FreeSpace.Text = Device.FreeSpace;
             TotalSpace.Text = Device.Capacity;

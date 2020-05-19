@@ -150,7 +150,7 @@ namespace FileManager
 
         private void Flip_SelectionChanged1(object sender, SelectionChangedEventArgs e)
         {
-            PageNotification.Show(Globalization.GetString("Pdf_Page_Tip").Replace("CurrentPageIndex", (Flip.SelectedIndex + 1).ToString()).Replace("TotalPageCount", Pdf.PageCount.ToString()), 1200);
+            PageNotification.Show(Globalization.GetString("Pdf_Page_Tip").Replace("[CurrentPageIndex]", (Flip.SelectedIndex + 1).ToString()).Replace("[TotalPageCount]", Pdf.PageCount.ToString()), 1200);
         }
 
         private async void Flip_SelectionChanged(object sender, SelectionChangedEventArgs e)

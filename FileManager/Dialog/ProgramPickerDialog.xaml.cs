@@ -77,7 +77,7 @@ namespace FileManager.Dialog
 
         private async void ProgramPickerDialog_Loading(FrameworkElement sender, object args)
         {
-            LoadingText.Text = Globalization.GetString("TextViewerLoading.Text");
+            LoadingText.Text = Globalization.GetString("Progress_Tip_Loading");
             LoadingText.Visibility = Visibility.Visible;
             WholeArea.Visibility = Visibility.Collapsed;
 
@@ -92,7 +92,7 @@ namespace FileManager.Dialog
 
                     string Description = Convert.ToString((await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"]);
 
-                    TempList.Add(new ProgramPickerItem(await ExcuteFile.GetThumbnailBitmapAsync().ConfigureAwait(true), string.IsNullOrEmpty(Description) ? ExcuteFile.DisplayName : Description, ExcuteFile.DisplayType, Path: SystemAssociate));
+                    TempList.Add(new ProgramPickerItem(await ExcuteFile.GetThumbnailBitmapAsync().ConfigureAwait(true), string.IsNullOrEmpty(Description) ? ExcuteFile.DisplayName : Description, Globalization.GetString("Application_Admin_Name"), Path: SystemAssociate));
 
                     await SQLite.Current.SetProgramPickerRecordAsync(OpenFile.FileType, SystemAssociate).ConfigureAwait(true);
                 }
@@ -123,7 +123,7 @@ namespace FileManager.Dialog
                 {
                     StorageFile ExcuteFile = await StorageFile.GetFileFromPathAsync(Path);
                     string ExtraAppName = (await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"].ToString();
-                    TempList.Add(new ProgramPickerItem(await ExcuteFile.GetThumbnailBitmapAsync().ConfigureAwait(true), ExtraAppName, ExcuteFile.DisplayType, Path: ExcuteFile.Path));
+                    TempList.Add(new ProgramPickerItem(await ExcuteFile.GetThumbnailBitmapAsync().ConfigureAwait(true), ExtraAppName, Globalization.GetString("Application_Admin_Name"), Path: ExcuteFile.Path));
                 }
                 catch (Exception)
                 {

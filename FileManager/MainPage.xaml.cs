@@ -182,7 +182,7 @@ namespace FileManager
                     ActivateUSBDevicePath = Paras[1];
                 }
 
-                if (Win10VersionChecker.Windows10_1903)
+                if (Win10VersionChecker.Windows10_1903 && AnimationController.Current.IsEnableAnimation)
                 {
                     EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, Parameter.Item2);
                     EntranceEffectProvider.PrepareEntranceEffect();
@@ -190,7 +190,7 @@ namespace FileManager
             }
             else if (e.Parameter is Rect SplashRect)
             {
-                if (Win10VersionChecker.Windows10_1903)
+                if (Win10VersionChecker.Windows10_1903 && AnimationController.Current.IsEnableAnimation)
                 {
                     EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, SplashRect);
                     EntranceEffectProvider.PrepareEntranceEffect();
@@ -227,12 +227,12 @@ namespace FileManager
                     {typeof(SecureArea),Globalization.GetString("MainPage_PageDictionary_SecureArea_Label") }
                 };
 
-                if (Win10VersionChecker.Windows10_1903)
+                if (Win10VersionChecker.Windows10_1903 && AnimationController.Current.IsEnableAnimation)
                 {
                     EntranceEffectProvider.StartEntranceEffect();
                 }
 
-                Nav.Navigate(typeof(TabViewContainer));
+                Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
 
                 var PictureUri = await SQLite.Current.GetBackgroundPictureAsync().ConfigureAwait(true);
                 var FileList = await (await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists)).GetFilesAsync();
@@ -577,22 +577,15 @@ namespace FileManager
                         await SettingControl.Hide().ConfigureAwait(true);
                     }
 
-                    switch (args.InvokedItem.ToString())
+                    if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
                     {
-                        case "这台电脑":
-                        case "ThisPC":
-                            {
-                                NavView.IsBackEnabled = (TabViewContainer.CurrentPageNav?.CanGoBack).GetValueOrDefault();
-                                Nav.Navigate(typeof(TabViewContainer), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
-                                break;
-                            }
-                        case "安全域":
-                        case "Security Area":
-                            {
-                                NavView.IsBackEnabled = false;
-                                Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
-                                break;
-                            }
+                        NavView.IsBackEnabled = (TabViewContainer.CurrentPageNav?.CanGoBack).GetValueOrDefault();
+                        Nav.Navigate(typeof(TabViewContainer), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                    }
+                    else if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
+                    {
+                        NavView.IsBackEnabled = false;
+                        Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
                     }
                 }
             }

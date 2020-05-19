@@ -40,7 +40,14 @@ namespace FileManager
 
             if (OpenTargetFolder != null)
             {
-                Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, OpenTargetFolder, this), new DrillInNavigationTransitionInfo());
+                if (AnimationController.Current.IsEnableAnimation)
+                {
+                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, OpenTargetFolder, this), new DrillInNavigationTransitionInfo());
+                }
+                else
+                {
+                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, OpenTargetFolder, this), new SuppressNavigationTransitionInfo());
+                }
                 OpenTargetFolder = null;
             }
         }
@@ -58,20 +65,23 @@ namespace FileManager
 
         private void DeviceGrid_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
         {
-            ProgressBar ProBar = args.ItemContainer.FindChildOfType<ProgressBar>();
-            Storyboard Story = new Storyboard();
-            DoubleAnimation Animation = new DoubleAnimation()
+            if (AnimationController.Current.IsEnableAnimation)
             {
-                To = (args.Item as HardDeviceInfo).Percent,
-                From = 0,
-                EnableDependentAnimation = true,
-                EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut },
-                Duration = new TimeSpan(0, 0, 0, 0, 800)
-            };
-            Storyboard.SetTarget(Animation, ProBar);
-            Storyboard.SetTargetProperty(Animation, "Value");
-            Story.Children.Add(Animation);
-            Story.Begin();
+                ProgressBar ProBar = args.ItemContainer.FindChildOfType<ProgressBar>();
+                Storyboard Story = new Storyboard();
+                DoubleAnimation Animation = new DoubleAnimation()
+                {
+                    To = (args.Item as HardDeviceInfo).Percent,
+                    From = 0,
+                    EnableDependentAnimation = true,
+                    EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut },
+                    Duration = new TimeSpan(0, 0, 0, 0, 800)
+                };
+                Storyboard.SetTarget(Animation, ProBar);
+                Storyboard.SetTargetProperty(Animation, "Value");
+                Story.Children.Add(Animation);
+                Story.Begin();
+            }
         }
 
         private void DeviceGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
@@ -80,7 +90,14 @@ namespace FileManager
             {
                 if (SettingControl.IsInputFromPrimaryButton && (e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Device)
                 {
-                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
+                    if (AnimationController.Current.IsEnableAnimation)
+                    {
+                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
+                    }
+                    else
+                    {
+                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new SuppressNavigationTransitionInfo());
+                    }
                 }
             }
             catch (Exception ex)
@@ -95,7 +112,14 @@ namespace FileManager
             {
                 if (SettingControl.IsInputFromPrimaryButton && (e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Library)
                 {
-                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
+                    if (AnimationController.Current.IsEnableAnimation)
+                    {
+                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
+                    }
+                    else
+                    {
+                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new SuppressNavigationTransitionInfo());
+                    }
                 }
 
             }
@@ -239,7 +263,14 @@ namespace FileManager
             {
                 if (DeviceGrid.SelectedItem is HardDeviceInfo Device)
                 {
-                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
+                    if (AnimationController.Current.IsEnableAnimation)
+                    {
+                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
+                    }
+                    else
+                    {
+                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new SuppressNavigationTransitionInfo());
+                    }
                 }
             }
             catch (Exception ex)
@@ -299,7 +330,14 @@ namespace FileManager
             {
                 if (LibraryGrid.SelectedItem is LibraryFolder Library)
                 {
-                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
+                    if (AnimationController.Current.IsEnableAnimation)
+                    {
+                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
+                    }
+                    else
+                    {
+                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new SuppressNavigationTransitionInfo());
+                    }
                 }
             }
             catch (Exception ex)
@@ -314,7 +352,14 @@ namespace FileManager
             {
                 if (LibraryGrid.SelectedItem is LibraryFolder Library)
                 {
-                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
+                    if (AnimationController.Current.IsEnableAnimation)
+                    {
+                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
+                    }
+                    else
+                    {
+                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new SuppressNavigationTransitionInfo());
+                    }
                 }
             }
             catch (Exception ex)
@@ -394,7 +439,14 @@ namespace FileManager
                 {
                     if (e.ClickedItem is HardDeviceInfo Device)
                     {
-                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
+                        }
+                        else
+                        {
+                            Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new SuppressNavigationTransitionInfo());
+                        }
                     }
                 }
             }
@@ -412,7 +464,14 @@ namespace FileManager
                 {
                     if (e.ClickedItem is LibraryFolder Library)
                     {
-                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
+                        }
+                        else
+                        {
+                            Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new SuppressNavigationTransitionInfo());
+                        }
                     }
                 }
             }

@@ -545,7 +545,15 @@ namespace FileManager
                     if (HardDeviceList.FirstOrDefault((Device) => Device.Folder.Path == MainPage.ThisPage.ActivateUSBDevicePath) is HardDeviceInfo HardDevice)
                     {
                         await Task.Delay(1000).ConfigureAwait(true);
-                        CurrentPageNav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabViewControl.TabItems.FirstOrDefault() as TabViewItem, HardDevice.Folder, CurrentPageNav.Content as ThisPC), new DrillInNavigationTransitionInfo());
+
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            CurrentPageNav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabViewControl.TabItems.FirstOrDefault() as TabViewItem, HardDevice.Folder, CurrentPageNav.Content as ThisPC), new DrillInNavigationTransitionInfo());
+                        }
+                        else
+                        {
+                            CurrentPageNav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabViewControl.TabItems.FirstOrDefault() as TabViewItem, HardDevice.Folder, CurrentPageNav.Content as ThisPC), new SuppressNavigationTransitionInfo());
+                        }
                     }
                 }
             }

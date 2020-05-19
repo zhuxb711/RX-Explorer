@@ -323,8 +323,8 @@
           <target state="translated">可用空间</target>
         </trans-unit>
         <trans-unit id="DeviceType.Text" translate="yes" xml:space="preserve">
-          <source>Disk Type：</source>
-          <target state="translated">磁盘类型：</target>
+          <source>Disk Type:</source>
+          <target state="translated">磁盘类型:</target>
         </trans-unit>
         <trans-unit id="DeviceUsedSpace.Text" translate="yes" xml:space="preserve">
           <source>Used space</source>
@@ -1521,18 +1521,6 @@
         <trans-unit id="VideoMerge.Text" translate="yes" xml:space="preserve">
           <source>Merge</source>
           <target state="translated">合并</target>
-        </trans-unit>
-        <trans-unit id="CustionFontColor.Header" translate="yes" xml:space="preserve">
-          <source>Custom font color</source>
-          <target state="translated">自定义字体颜色</target>
-        </trans-unit>
-        <trans-unit id="CustionFontColor.OffContent" translate="yes" xml:space="preserve">
-          <source>White</source>
-          <target state="translated">白色</target>
-        </trans-unit>
-        <trans-unit id="CustionFontColor.OnContent" translate="yes" xml:space="preserve">
-          <source>Black</source>
-          <target state="translated">黑色</target>
         </trans-unit>
         <trans-unit id="AutoBootOnStartup.OffContent" translate="yes" xml:space="preserve">
           <source>Disable</source>
@@ -2770,8 +2758,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">正在导入</target>
         </trans-unit>
         <trans-unit id="Progress_Tip_Loading" translate="yes" xml:space="preserve">
-          <source>Loading</source>
-          <target state="translated">正在加载</target>
+          <source>Loading...</source>
+          <target state="translated">正在加载...</target>
         </trans-unit>
         <trans-unit id="Progress_Tip_NoFeedback" translate="yes" xml:space="preserve">
           <source>No feedback or suggestions</source>
@@ -3038,6 +3026,58 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="QueueDialog_DeviceSelectError_Content" translate="yes" xml:space="preserve">
           <source>The selected content is not a drive</source>
           <target state="translated">所选择的内容并非是驱动器</target>
+        </trans-unit>
+        <trans-unit id="SecureAreaImportCancelButton.Content" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="CustomFontColor.Header" translate="yes" xml:space="preserve">
+          <source>Custom font color</source>
+          <target state="translated">自定义字体颜色</target>
+        </trans-unit>
+        <trans-unit id="CustomFontColor.OffContent" translate="yes" xml:space="preserve">
+          <source>White</source>
+          <target state="translated">白色</target>
+        </trans-unit>
+        <trans-unit id="CustomFontColor.OnContent" translate="yes" xml:space="preserve">
+          <source>Black</source>
+          <target state="translated">黑色</target>
+        </trans-unit>
+        <trans-unit id="SolidColor_Black.Content" translate="yes" xml:space="preserve">
+          <source>Black</source>
+          <target state="translated">黑色</target>
+        </trans-unit>
+        <trans-unit id="SolidColor_White.Content" translate="yes" xml:space="preserve">
+          <source>White</source>
+          <target state="translated">白色</target>
+        </trans-unit>
+        <trans-unit id="Folder_Admin_DisplayType" translate="yes" xml:space="preserve">
+          <source>Folder</source>
+          <target state="translated">文件夹</target>
+        </trans-unit>
+        <trans-unit id="Application_Admin_Name" translate="yes" xml:space="preserve">
+          <source>Application</source>
+          <target state="translated">应用程序</target>
+        </trans-unit>
+        <trans-unit id="Zip_Admin_Name_Text" translate="yes" xml:space="preserve">
+          <source>New_Zip</source>
+          <target state="translated">新建Zip文件</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAnimationSwitch.Header" translate="yes" xml:space="preserve">
+          <source>Animation effect</source>
+          <target state="translated">动画效果</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAnimationSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disable</source>
+          <target state="translated">禁用</target>
+        </trans-unit>
+        <trans-unit id="SettingPageAnimationSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enable</source>
+          <target state="translated">启用</target>
+        </trans-unit>
+        <trans-unit id="ThankTranslate.Text" translate="yes" xml:space="preserve">
+          <source>Special thanks to the following translators:</source>
+          <target state="translated">特别感谢以下翻译人员:</target>
         </trans-unit>
       </group>
     </body>
