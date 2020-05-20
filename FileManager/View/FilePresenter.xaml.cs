@@ -168,7 +168,7 @@ namespace FileManager
             }
         }
 
-        private FileSystemStorageItem[] SelectedItems
+        public FileSystemStorageItem[] SelectedItems
         {
             get
             {
@@ -3863,7 +3863,7 @@ namespace FileManager
             }
         }
 
-        private async void MixZip_Click(object sender, RoutedEventArgs e)
+        public async void MixZip_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 

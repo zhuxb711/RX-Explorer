@@ -2018,7 +2018,7 @@ namespace FileManager
 
             FilePresenter Instance = TabViewContainer.ThisPage.FFInstanceContainer[this];
 
-            if (Instance.SelectedItem is FileSystemStorageItem Item)
+            if (Instance.SelectedItems.Length > 1)
             {
                 AppBarButton CopyButton = new AppBarButton
                 {
@@ -2044,233 +2044,309 @@ namespace FileManager
                 DeleteButton.Click += Instance.Delete_Click;
                 BottomCommandBar.PrimaryCommands.Add(DeleteButton);
 
-                AppBarButton RenameButton = new AppBarButton
+                bool EnableMixZipButton = true;
+                string MixZipButtonText = Globalization.GetString("Operate_Text_Compression");
+
+                if (Instance.SelectedItems.Any((Item) => Item.StorageType != StorageItemTypes.Folder))
                 {
-                    Icon = new SymbolIcon(Symbol.Rename),
-                    Label = Globalization.GetString("Operate_Text_Rename")
-                };
-                RenameButton.Click += Instance.Rename_Click;
-                BottomCommandBar.PrimaryCommands.Add(RenameButton);
-
-                if (Item.StorageType == StorageItemTypes.File)
-                {
-                    AppBarButton OpenButton = new AppBarButton
+                    if (Instance.SelectedItems.All((Item) => Item.StorageType == StorageItemTypes.File))
                     {
-                        Icon = new SymbolIcon(Symbol.OpenFile),
-                        Label = Globalization.GetString("Operate_Text_Open")
-                    };
-                    OpenButton.Click += Instance.FileOpen_Click;
-                    BottomCommandBar.SecondaryCommands.Add(OpenButton);
-
-                    MenuFlyout OpenFlyout = new MenuFlyout();
-                    MenuFlyoutItem AdminItem = new MenuFlyoutItem
+                        if (Instance.SelectedItems.All((Item) => Item.Type == ".zip"))
+                        {
+                            MixZipButtonText = Globalization.GetString("Operate_Text_Decompression");
+                        }
+                        else if (Instance.SelectedItems.All((Item) => Item.Type != ".zip"))
+                        {
+                            MixZipButtonText = Globalization.GetString("Operate_Text_Compression");
+                        }
+                        else
+                        {
+                            EnableMixZipButton = false;
+                        }
+                    }
+                    else
                     {
-                        Icon = new SymbolIcon(Symbol.Admin),
-                        Text = Globalization.GetString("Operate_Text_OpenAsAdministrator"),
-                        IsEnabled = Instance.RunWithSystemAuthority.IsEnabled
-                    };
-                    AdminItem.Click += Instance.RunWithSystemAuthority_Click;
-                    OpenFlyout.Items.Add(AdminItem);
-
-                    MenuFlyoutItem OtherItem = new MenuFlyoutItem
-                    {
-                        Icon = new SymbolIcon(Symbol.SwitchApps),
-                        Text = Globalization.GetString("Operate_Text_ChooseAnotherApp"),
-                        IsEnabled = Instance.ChooseOtherApp.IsEnabled
-                    };
-                    OtherItem.Click += Instance.ChooseOtherApp_Click;
-                    OpenFlyout.Items.Add(OtherItem);
-
-                    BottomCommandBar.SecondaryCommands.Add(new AppBarButton
-                    {
-                        Icon = new SymbolIcon(Symbol.AllApps),
-                        Label = Globalization.GetString("Operate_Text_OpenWith"),
-                        Flyout = OpenFlyout
-                    });
-
-                    BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
-
-                    MenuFlyout EditFlyout = new MenuFlyout();
-                    MenuFlyoutItem MontageItem = new MenuFlyoutItem
-                    {
-                        Icon = new FontIcon { Glyph = "\uE177" },
-                        Text = Globalization.GetString("Operate_Text_Montage"),
-                        IsEnabled = Instance.VideoEdit.IsEnabled
-                    };
-                    MontageItem.Click += Instance.VideoEdit_Click;
-                    EditFlyout.Items.Add(MontageItem);
-
-                    MenuFlyoutItem MergeItem = new MenuFlyoutItem
-                    {
-                        Icon = new FontIcon { Glyph = "\uE11E" },
-                        Text = Globalization.GetString("Operate_Text_Merge"),
-                        IsEnabled = Instance.VideoMerge.IsEnabled
-                    };
-                    MergeItem.Click += Instance.VideoMerge_Click;
-                    EditFlyout.Items.Add(MergeItem);
-
-                    MenuFlyoutItem TranscodeItem = new MenuFlyoutItem
-                    {
-                        Icon = new FontIcon { Glyph = "\uE1CA" },
-                        Text = Globalization.GetString("Operate_Text_Transcode"),
-                        IsEnabled = Instance.Transcode.IsEnabled
-                    };
-                    TranscodeItem.Click += Instance.Transcode_Click;
-                    EditFlyout.Items.Add(TranscodeItem);
-
-                    BottomCommandBar.SecondaryCommands.Add(new AppBarButton
-                    {
-                        Icon = new SymbolIcon(Symbol.Edit),
-                        Label = Globalization.GetString("Operate_Text_Edit"),
-                        Flyout = EditFlyout
-                    });
-
-                    MenuFlyout ShareFlyout = new MenuFlyout();
-                    MenuFlyoutItem SystemShareItem = new MenuFlyoutItem
-                    {
-                        Icon = new SymbolIcon(Symbol.Share),
-                        Text = Globalization.GetString("Operate_Text_SystemShare")
-                    };
-                    SystemShareItem.Click += Instance.SystemShare_Click;
-                    ShareFlyout.Items.Add(SystemShareItem);
-
-                    MenuFlyoutItem WIFIShareItem = new MenuFlyoutItem
-                    {
-                        Icon = new FontIcon { Glyph = "\uE701" },
-                        Text = Globalization.GetString("Operate_Text_WIFIShare")
-                    };
-                    WIFIShareItem.Click += Instance.WIFIShare_Click;
-                    ShareFlyout.Items.Add(WIFIShareItem);
-
-                    MenuFlyoutItem BluetoothShare = new MenuFlyoutItem
-                    {
-                        Icon = new FontIcon { Glyph = "\uE702" },
-                        Text = Globalization.GetString("Operate_Text_BluetoothShare")
-                    };
-                    BluetoothShare.Click += Instance.BluetoothShare_Click;
-                    ShareFlyout.Items.Add(BluetoothShare);
-
-                    BottomCommandBar.SecondaryCommands.Add(new AppBarButton
-                    {
-                        Icon = new SymbolIcon(Symbol.Share),
-                        Label = Globalization.GetString("Operate_Text_Share"),
-                        Flyout = ShareFlyout
-                    });
-
-                    AppBarButton CompressionButton = new AppBarButton
-                    {
-                        Icon = new SymbolIcon(Symbol.Bookmarks),
-                        Label = Instance.Zip.Label,
-                    };
-                    CompressionButton.Click += Instance.Zip_Click;
-                    BottomCommandBar.SecondaryCommands.Add(CompressionButton);
-
-                    BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
-
-                    AppBarButton PropertyButton = new AppBarButton
-                    {
-                        Icon = new SymbolIcon(Symbol.Tag),
-                        Label = Globalization.GetString("Operate_Text_Property"),
-                    };
-                    PropertyButton.Click += Instance.Attribute_Click;
-                    BottomCommandBar.SecondaryCommands.Add(PropertyButton);
+                        if (Instance.SelectedItems.Where((It) => It.StorageType == StorageItemTypes.File).Any((Item) => Item.Type == ".zip"))
+                        {
+                            EnableMixZipButton = false;
+                        }
+                        else
+                        {
+                            MixZipButtonText = Globalization.GetString("Operate_Text_Compression");
+                        }
+                    }
                 }
                 else
                 {
-                    AppBarButton OpenButton = new AppBarButton
+                    MixZipButtonText = Globalization.GetString("Operate_Text_Compression");
+                }
+
+
+                AppBarButton CompressionButton = new AppBarButton
+                {
+                    Icon = new SymbolIcon(Symbol.Bookmarks),
+                    Label = MixZipButtonText,
+                    IsEnabled = EnableMixZipButton
+                };
+                CompressionButton.Click += Instance.MixZip_Click;
+                BottomCommandBar.SecondaryCommands.Add(CompressionButton);
+            }
+            else
+            {
+                if (Instance.SelectedItem is FileSystemStorageItem Item)
+                {
+                    AppBarButton CopyButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Copy),
+                        Label = Globalization.GetString("Operate_Text_Copy")
+                    };
+                    CopyButton.Click += Instance.Copy_Click;
+                    BottomCommandBar.PrimaryCommands.Add(CopyButton);
+
+                    AppBarButton CutButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Cut),
+                        Label = Globalization.GetString("Operate_Text_Cut")
+                    };
+                    CutButton.Click += Instance.Cut_Click;
+                    BottomCommandBar.PrimaryCommands.Add(CutButton);
+
+                    AppBarButton DeleteButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Delete),
+                        Label = Globalization.GetString("Operate_Text_Delete")
+                    };
+                    DeleteButton.Click += Instance.Delete_Click;
+                    BottomCommandBar.PrimaryCommands.Add(DeleteButton);
+
+                    AppBarButton RenameButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Rename),
+                        Label = Globalization.GetString("Operate_Text_Rename")
+                    };
+                    RenameButton.Click += Instance.Rename_Click;
+                    BottomCommandBar.PrimaryCommands.Add(RenameButton);
+
+                    if (Item.StorageType == StorageItemTypes.File)
+                    {
+                        AppBarButton OpenButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.OpenFile),
+                            Label = Globalization.GetString("Operate_Text_Open")
+                        };
+                        OpenButton.Click += Instance.FileOpen_Click;
+                        BottomCommandBar.SecondaryCommands.Add(OpenButton);
+
+                        MenuFlyout OpenFlyout = new MenuFlyout();
+                        MenuFlyoutItem AdminItem = new MenuFlyoutItem
+                        {
+                            Icon = new SymbolIcon(Symbol.Admin),
+                            Text = Globalization.GetString("Operate_Text_OpenAsAdministrator"),
+                            IsEnabled = Instance.RunWithSystemAuthority.IsEnabled
+                        };
+                        AdminItem.Click += Instance.RunWithSystemAuthority_Click;
+                        OpenFlyout.Items.Add(AdminItem);
+
+                        MenuFlyoutItem OtherItem = new MenuFlyoutItem
+                        {
+                            Icon = new SymbolIcon(Symbol.SwitchApps),
+                            Text = Globalization.GetString("Operate_Text_ChooseAnotherApp"),
+                            IsEnabled = Instance.ChooseOtherApp.IsEnabled
+                        };
+                        OtherItem.Click += Instance.ChooseOtherApp_Click;
+                        OpenFlyout.Items.Add(OtherItem);
+
+                        BottomCommandBar.SecondaryCommands.Add(new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.AllApps),
+                            Label = Globalization.GetString("Operate_Text_OpenWith"),
+                            Flyout = OpenFlyout
+                        });
+
+                        BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
+
+                        MenuFlyout EditFlyout = new MenuFlyout();
+                        MenuFlyoutItem MontageItem = new MenuFlyoutItem
+                        {
+                            Icon = new FontIcon { Glyph = "\uE177" },
+                            Text = Globalization.GetString("Operate_Text_Montage"),
+                            IsEnabled = Instance.VideoEdit.IsEnabled
+                        };
+                        MontageItem.Click += Instance.VideoEdit_Click;
+                        EditFlyout.Items.Add(MontageItem);
+
+                        MenuFlyoutItem MergeItem = new MenuFlyoutItem
+                        {
+                            Icon = new FontIcon { Glyph = "\uE11E" },
+                            Text = Globalization.GetString("Operate_Text_Merge"),
+                            IsEnabled = Instance.VideoMerge.IsEnabled
+                        };
+                        MergeItem.Click += Instance.VideoMerge_Click;
+                        EditFlyout.Items.Add(MergeItem);
+
+                        MenuFlyoutItem TranscodeItem = new MenuFlyoutItem
+                        {
+                            Icon = new FontIcon { Glyph = "\uE1CA" },
+                            Text = Globalization.GetString("Operate_Text_Transcode"),
+                            IsEnabled = Instance.Transcode.IsEnabled
+                        };
+                        TranscodeItem.Click += Instance.Transcode_Click;
+                        EditFlyout.Items.Add(TranscodeItem);
+
+                        BottomCommandBar.SecondaryCommands.Add(new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.Edit),
+                            Label = Globalization.GetString("Operate_Text_Edit"),
+                            Flyout = EditFlyout
+                        });
+
+                        MenuFlyout ShareFlyout = new MenuFlyout();
+                        MenuFlyoutItem SystemShareItem = new MenuFlyoutItem
+                        {
+                            Icon = new SymbolIcon(Symbol.Share),
+                            Text = Globalization.GetString("Operate_Text_SystemShare")
+                        };
+                        SystemShareItem.Click += Instance.SystemShare_Click;
+                        ShareFlyout.Items.Add(SystemShareItem);
+
+                        MenuFlyoutItem WIFIShareItem = new MenuFlyoutItem
+                        {
+                            Icon = new FontIcon { Glyph = "\uE701" },
+                            Text = Globalization.GetString("Operate_Text_WIFIShare")
+                        };
+                        WIFIShareItem.Click += Instance.WIFIShare_Click;
+                        ShareFlyout.Items.Add(WIFIShareItem);
+
+                        MenuFlyoutItem BluetoothShare = new MenuFlyoutItem
+                        {
+                            Icon = new FontIcon { Glyph = "\uE702" },
+                            Text = Globalization.GetString("Operate_Text_BluetoothShare")
+                        };
+                        BluetoothShare.Click += Instance.BluetoothShare_Click;
+                        ShareFlyout.Items.Add(BluetoothShare);
+
+                        BottomCommandBar.SecondaryCommands.Add(new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.Share),
+                            Label = Globalization.GetString("Operate_Text_Share"),
+                            Flyout = ShareFlyout
+                        });
+
+                        AppBarButton CompressionButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.Bookmarks),
+                            Label = Instance.Zip.Label
+                        };
+                        CompressionButton.Click += Instance.Zip_Click;
+                        BottomCommandBar.SecondaryCommands.Add(CompressionButton);
+
+                        BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
+
+                        AppBarButton PropertyButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.Tag),
+                            Label = Globalization.GetString("Operate_Text_Property")
+                        };
+                        PropertyButton.Click += Instance.Attribute_Click;
+                        BottomCommandBar.SecondaryCommands.Add(PropertyButton);
+                    }
+                    else
+                    {
+                        AppBarButton OpenButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.BackToWindow),
+                            Label = Globalization.GetString("Operate_Text_Open")
+                        };
+                        OpenButton.Click += Instance.FolderOpen_Click;
+                        BottomCommandBar.SecondaryCommands.Add(OpenButton);
+
+                        AppBarButton CompressionButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.Bookmarks),
+                            Label = Globalization.GetString("Operate_Text_Compression")
+                        };
+                        CompressionButton.Click += Instance.CompressFolder_Click;
+                        BottomCommandBar.SecondaryCommands.Add(CompressionButton);
+
+                        AppBarButton PinButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.Add),
+                            Label = Globalization.GetString("Operate_Text_PinToHome")
+                        };
+                        PinButton.Click += Instance.AddToLibray_Click;
+                        BottomCommandBar.SecondaryCommands.Add(PinButton);
+
+                        AppBarButton PropertyButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.Tag),
+                            Label = Globalization.GetString("Operate_Text_Property")
+                        };
+                        PropertyButton.Click += Instance.FolderProperty_Click;
+                        BottomCommandBar.SecondaryCommands.Add(PropertyButton);
+                    }
+                }
+                else
+                {
+                    AppBarButton PasteButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Paste),
+                        Label = Globalization.GetString("Operate_Text_Paste")
+                    };
+                    PasteButton.Click += Instance.Paste_Click;
+                    BottomCommandBar.PrimaryCommands.Add(PasteButton);
+
+                    AppBarButton RefreshButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Refresh),
+                        Label = Globalization.GetString("Operate_Text_Refresh")
+                    };
+                    RefreshButton.Click += Instance.Refresh_Click;
+                    BottomCommandBar.PrimaryCommands.Add(RefreshButton);
+
+                    AppBarButton WinExButton = new AppBarButton
                     {
                         Icon = new SymbolIcon(Symbol.BackToWindow),
-                        Label = Globalization.GetString("Operate_Text_Open"),
+                        Label = Globalization.GetString("Operate_Text_OpenInWinExplorer")
                     };
-                    OpenButton.Click += Instance.FolderOpen_Click;
-                    BottomCommandBar.SecondaryCommands.Add(OpenButton);
+                    WinExButton.Click += Instance.UseSystemFileMananger_Click;
+                    BottomCommandBar.PrimaryCommands.Add(WinExButton);
 
-                    AppBarButton CompressionButton = new AppBarButton
+                    MenuFlyout NewFlyout = new MenuFlyout();
+                    MenuFlyoutItem CreateFileItem = new MenuFlyoutItem
                     {
-                        Icon = new SymbolIcon(Symbol.Bookmarks),
-                        Label = Globalization.GetString("Operate_Text_Compression"),
+                        Icon = new SymbolIcon(Symbol.Page2),
+                        Text = Globalization.GetString("Operate_Text_CreateFile"),
+                        MinWidth = 150
                     };
-                    CompressionButton.Click += Instance.CompressFolder_Click;
-                    BottomCommandBar.SecondaryCommands.Add(CompressionButton);
+                    CreateFileItem.Click += Instance.CreateFile_Click;
+                    NewFlyout.Items.Add(CreateFileItem);
 
-                    AppBarButton PinButton = new AppBarButton
+                    MenuFlyoutItem CreateFolder = new MenuFlyoutItem
+                    {
+                        Icon = new SymbolIcon(Symbol.NewFolder),
+                        Text = Globalization.GetString("Operate_Text_CreateFolder"),
+                        MinWidth = 150
+                    };
+                    CreateFolder.Click += Instance.CreateFolder_Click;
+                    NewFlyout.Items.Add(CreateFolder);
+
+                    BottomCommandBar.SecondaryCommands.Add(new AppBarButton
                     {
                         Icon = new SymbolIcon(Symbol.Add),
-                        Label = Globalization.GetString("Operate_Text_PinToHome")
-                    };
-                    PinButton.Click += Instance.AddToLibray_Click;
-                    BottomCommandBar.SecondaryCommands.Add(PinButton);
+                        Label = Globalization.GetString("Operate_Text_Create"),
+                        Flyout = NewFlyout
+                    });
+
+                    BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
 
                     AppBarButton PropertyButton = new AppBarButton
                     {
                         Icon = new SymbolIcon(Symbol.Tag),
-                        Label = Globalization.GetString("Operate_Text_Property"),
+                        Label = Globalization.GetString("Operate_Text_Property")
                     };
-                    PropertyButton.Click += Instance.FolderProperty_Click;
+                    PropertyButton.Click += Instance.ParentProperty_Click;
                     BottomCommandBar.SecondaryCommands.Add(PropertyButton);
                 }
-            }
-            else
-            {
-                AppBarButton PasteButton = new AppBarButton
-                {
-                    Icon = new SymbolIcon(Symbol.Paste),
-                    Label = Globalization.GetString("Operate_Text_Paste")
-                };
-                PasteButton.Click += Instance.Paste_Click;
-                BottomCommandBar.PrimaryCommands.Add(PasteButton);
-
-                AppBarButton RefreshButton = new AppBarButton
-                {
-                    Icon = new SymbolIcon(Symbol.Refresh),
-                    Label = Globalization.GetString("Operate_Text_Refresh")
-                };
-                RefreshButton.Click += Instance.Refresh_Click;
-                BottomCommandBar.PrimaryCommands.Add(RefreshButton);
-
-                AppBarButton WinExButton = new AppBarButton
-                {
-                    Icon = new SymbolIcon(Symbol.BackToWindow),
-                    Label = Globalization.GetString("Operate_Text_OpenInWinExplorer")
-                };
-                WinExButton.Click += Instance.UseSystemFileMananger_Click;
-                BottomCommandBar.PrimaryCommands.Add(WinExButton);
-
-                MenuFlyout NewFlyout = new MenuFlyout();
-                MenuFlyoutItem CreateFileItem = new MenuFlyoutItem
-                {
-                    Icon = new SymbolIcon(Symbol.Page2),
-                    Text = Globalization.GetString("Operate_Text_CreateFile"),
-                    MinWidth = 150
-                };
-                CreateFileItem.Click += Instance.CreateFile_Click;
-                NewFlyout.Items.Add(CreateFileItem);
-
-                MenuFlyoutItem CreateFolder = new MenuFlyoutItem
-                {
-                    Icon = new SymbolIcon(Symbol.NewFolder),
-                    Text = Globalization.GetString("Operate_Text_CreateFolder"),
-                    MinWidth = 150
-                };
-                CreateFolder.Click += Instance.CreateFolder_Click;
-                NewFlyout.Items.Add(CreateFolder);
-
-                BottomCommandBar.SecondaryCommands.Add(new AppBarButton
-                {
-                    Icon = new SymbolIcon(Symbol.Add),
-                    Label = Globalization.GetString("Operate_Text_Create"),
-                    Flyout = NewFlyout
-                });
-
-                BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
-
-                AppBarButton PropertyButton = new AppBarButton
-                {
-                    Icon = new SymbolIcon(Symbol.Tag),
-                    Label = Globalization.GetString("Operate_Text_Property"),
-                };
-                PropertyButton.Click += Instance.ParentProperty_Click;
-                BottomCommandBar.SecondaryCommands.Add(PropertyButton);
             }
         }
     }
