@@ -75,8 +75,6 @@ namespace RX_Explorer.Class
 
         static Globalization()
         {
-            ApplicationLanguages.ManifestLanguages.ToList().ForEach((Item) => ExceptionTracer.LogAsync(Item).Wait());
-
             if (ApplicationData.Current.LocalSettings.Values["LanguageOverride"] is int LanguageIndex)
             {
                 switch (LanguageIndex)
@@ -109,16 +107,19 @@ namespace RX_Explorer.Class
                 {
                     CurrentLanguage = LanguageEnum.Chinese;
                     ApplicationLanguages.PrimaryLanguageOverride = "zh-Hans";
+                    ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 0;
                 }
                 else if (PrimaryLanguage.StartsWith("fr", StringComparison.OrdinalIgnoreCase))
                 {
                     CurrentLanguage = LanguageEnum.French;
                     ApplicationLanguages.PrimaryLanguageOverride = "fr-FR";
+                    ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 2;
                 }
                 else
                 {
                     CurrentLanguage = LanguageEnum.English;
                     ApplicationLanguages.PrimaryLanguageOverride = "en-US";
+                    ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 1;
                 }
             }
         }
