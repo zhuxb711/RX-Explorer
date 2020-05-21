@@ -1,0 +1,256 @@
+﻿<local:QueueContentDialog x:Class="RX_Explorer.Dialog.SystemInfoDialog"
+                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                          xmlns:local="using:RX_Explorer.Class"
+                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                          mc:Ignorable="d"
+                          Title="系统信息"
+                          CloseButtonText="关闭"
+                          x:Uid="SystemInfoDialog">
+
+    <Grid>
+        <ScrollViewer VerticalScrollMode="Enabled"
+                      Margin="10"
+                      Height="400">
+            <StackPanel>
+                <TextBlock Text="基本信息"
+                           x:Uid="SystemInfoDialogBasicInfo"
+                           FontSize="20" />
+                <Grid Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="330" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Windows 版本"
+                               x:Uid="SystemInfoDialogWindowsVersion"
+                               VerticalAlignment="Center"
+                               Grid.Column="0"
+                               Grid.Row="0" />
+                    <TextBlock Grid.Column="1"
+                               Grid.Row="0"
+                               Text="{x:Bind WindowsVersion}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Text="Windows 语言"
+                               x:Uid="SystemInfoDialogWindowsLanguage"
+                               VerticalAlignment="Center"
+                               Grid.Column="0"
+                               Grid.Row="1" />
+                    <TextBlock Grid.Column="1"
+                               Grid.Row="1"
+                               Text="{x:Bind SystemLanguage}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Text="制造商"
+                               x:Uid="SystemInfoDialogManufacturer"
+                               VerticalAlignment="Center"
+                               Grid.Column="0"
+                               Grid.Row="2" />
+                    <TextBlock Grid.Row="2"
+                               Grid.Column="1"
+                               Text="{x:Bind SystemManufacturer}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Text="设备名称"
+                               x:Uid="SystemInfoDialogDeviceName"
+                               Grid.Column="0"
+                               Grid.Row="3"
+                               VerticalAlignment="Center" />
+                    <TextBlock VerticalAlignment="Center"
+                               Grid.Column="1"
+                               Grid.Row="3"
+                               Text="{x:Bind DeviceName}" />
+                    <TextBlock Text="设备型号"
+                               x:Uid="SystemInfoDialogDeivceModel"
+                               VerticalAlignment="Center"
+                               Grid.Column="0"
+                               Grid.Row="4" />
+                    <TextBlock VerticalAlignment="Center"
+                               Grid.Column="1"
+                               Grid.Row="4"
+                               Text="{x:Bind DeviceModel}" />
+                </Grid>
+                <TextBlock Text="屏幕信息"
+                           FontSize="20"
+                           x:Uid="SystemInfoDialogDisplayTitle"
+                           Margin="0,20,0,0" />
+                <Grid Margin="0,10,0,0"
+                      Name="DisplayGrid">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"/>
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="330" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0"
+                               Grid.Column="0"
+                               Text="屏幕尺寸"
+                               x:Uid="SystemInfoDialogScreenSize"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="0"
+                               Grid.Column="1"
+                               Text="{x:Bind ScreenSize}"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1"
+                               Grid.Column="0"
+                               Text="分辨率"
+                               x:Uid="SystemInfoDialogResolution"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="1"
+                               Grid.Column="1"
+                               Text="{x:Bind Resolution}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="2"
+                               Grid.Column="0"
+                               Text="像素密度"
+                               x:Uid="SystemInfoDialogPixeldensity"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="2"
+                               Grid.Column="1"
+                               Text="{x:Bind DisplayDpi}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="3"
+                               Grid.Column="0"
+                               Text="Windows缩放"
+                               x:Uid="SystemInfoDialogResolutionScale"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="3"
+                               Grid.Column="1"
+                               Text="{x:Bind ResolutionScale}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="4"
+                               Grid.Column="0"
+                               Text="目前色彩模式"
+                               x:Uid="SystemInfoDialogCurrentColorMode"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="4"
+                               Grid.Column="1"
+                               Text="{x:Bind CurrentColorMode}"
+                               VerticalAlignment="Center" />
+                </Grid>
+                <TextBlock Text="CPU信息"
+                           x:Uid="SystemInfoDialogCPUInfo"
+                           FontSize="20"
+                           Margin="0,20,0,0" />
+                <Grid Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="80" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="330" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="CPU型号"
+                               x:Uid="SystemInfoDialogCPUModel"
+                               Grid.Column="0"
+                               Grid.Row="0"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="0"
+                               Grid.Column="1"
+                               Text="{x:Bind CPUName}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Text="CPU架构"
+                               x:Uid="SystemInfoDialogCPUArchitecture"
+                               Grid.Column="0"
+                               Grid.Row="1"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="1"
+                               Grid.Column="1"
+                               Text="{x:Bind CPUArchitecture}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Text="CPU内核"
+                               x:Uid="SystemInfoDialogCPUCore"
+                               Grid.Column="0"
+                               Grid.Row="2"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="2"
+                               Grid.Column="1"
+                               Text="{x:Bind CPUCoreCount}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Text="CPU缓存"
+                               x:Uid="SystemInfoDialogCPUCache"
+                               Grid.Column="0"
+                               Grid.Row="3"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="3"
+                               Grid.Column="1"
+                               VerticalAlignment="Center"
+                               Text="{x:Bind CPUCache}" />
+                    <TextBlock Text="CPU特性"
+                               x:Uid="SystemInfoDialogCPUFeature"
+                               Grid.Column="0"
+                               Grid.Row="4"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="4"
+                               Grid.Column="1"
+                               TextWrapping="Wrap"
+                               Text="{x:Bind CPUFeature}"
+                               VerticalAlignment="Center" />
+                </Grid>
+                <TextBlock Text="内存信息"
+                           x:Uid="SystemInfoDialogMemoryInfo"
+                           Margin="0,20,0,0"
+                           FontSize="20" />
+                <Grid Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="330" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0"
+                               Grid.Column="0"
+                               VerticalAlignment="Center"
+                               x:Uid="SystemInfoDialogMemoryInfo"
+                               Text="内存信息" />
+                    <TextBlock Grid.Row="0"
+                               Grid.Column="1"
+                               VerticalAlignment="Center"
+                               Text="{x:Bind MemoryInfo}" />
+                    <TextBlock Grid.Row="1"
+                               Grid.Column="1"
+                               VerticalAlignment="Center"
+                               Text="{x:Bind CurrentMemoryUsage}" />
+                </Grid>
+                <TextBlock Text="GPU信息"
+                           Margin="0,20,0,0"
+                           x:Uid="SystemInfoDialogGPUInfo"
+                           FontSize="20" />
+                <Grid Margin="0,10,0,0"
+                      Name="GPUGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="330" />
+                    </Grid.ColumnDefinitions>
+                </Grid>
+                <TextBlock Text="网络信息"
+                           Margin="0,20,0,0"
+                           x:Uid="SystemInfoDialogNetwork"
+                           FontSize="20" />
+                <Grid Margin="0,10,0,0"
+                      Name="NetworkGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="330" />
+                    </Grid.ColumnDefinitions>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</local:QueueContentDialog>

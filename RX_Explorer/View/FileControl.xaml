@@ -1,0 +1,335 @@
+﻿<Page x:Class="RX_Explorer.FileControl"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:local="using:RX_Explorer"
+      xmlns:Cls="using:RX_Explorer.Class"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      NavigationCacheMode="Required"
+      mc:Ignorable="d"
+      Background="Transparent">
+
+    <Page.Resources>
+        <Cls:SpliterConverter x:Key="Converter"/>
+
+        <Flyout x:Name="AddressExtentionFlyout"
+                Placement="BottomEdgeAlignedLeft"
+                Closing="AddressExtentionFlyout_Closing">
+            <ListView MaxHeight="300"
+                      MaxWidth="250"
+                      MinWidth="150"
+                      SelectionMode="None"
+                      IsItemClickEnabled="True"
+                      Name="AddressExtensionSubFolderList"
+                      ItemClick="AddressExtensionSubFolderList_ItemClick"
+                      ItemsSource="{x:Bind AddressExtentionList}"
+                      ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      IncrementalLoadingTrigger="Edge"
+                      DataFetchSize="1.5">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Width="18"
+                                     Height="18"
+                                     Margin="0,2,0,0">
+                                <FontIcon Glyph="&#xED41;" />
+                            </Viewbox>
+                            <TextBlock Text="{Binding}"
+                                       Margin="5,0,0,0"
+                                       MaxWidth="200"
+                                       MinWidth="100"
+                                       FontSize="14"
+                                       TextWrapping="NoWrap"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTipService.ToolTip="{Binding}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Flyout>
+
+        <Cls:FolderStateConverter x:Key="StateConverter" />
+
+        <CommandBarFlyout Placement="RightEdgeAlignedTop"
+                          x:Name="RightTabFlyout">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="NewFolder"
+                              Label="新建文件夹"
+                              x:Uid="FileControlCreateFolder"
+                              Name="CreateFolder"
+                              Click="CreateFolder_Click" />
+                <AppBarButton Icon="Delete"
+                              Label="删除此文件夹"
+                              x:Uid="FileControlDeleteFolder"
+                              Name="FolderDelete"
+                              Click="FolderDelete_Click" />
+                <AppBarButton Icon="Rename"
+                              Label="重命名此文件夹"
+                              x:Uid="FileControlRenameFolder"
+                              Name="FolderRename"
+                              Click="FolderRename_Click" />
+                <AppBarButton Icon="Add" 
+                              x:Name="FolderAdd"
+                              Label="固定至主界面"
+                              x:Uid="PinToLibrary"
+                              Click="FolderAdd_Click"/>
+                <AppBarButton Icon="Tag"
+                              Label="属性"
+                              x:Uid="FileControlAttribute"
+                              x:Name="FolderAttribute"
+                              Click="FolderAttribute_Click" />
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
+
+        <muxc:TeachingTip x:Name="SearchTip"
+                              x:Uid="SearchTip"
+                              Grid.Row="1"
+                              Title="Tips"
+                              Target="{x:Bind GlobeSearch}"
+                              PreferredPlacement="BottomRight"
+                              IsLightDismissEnabled="True"
+                              Subtitle="清空这个搜索框或点击任意文件夹即可退出搜索状态哦！"
+                              CloseButtonContent="知道啦">
+        </muxc:TeachingTip>
+    </Page.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="35" />
+                <ColumnDefinition Width="35" />
+                <ColumnDefinition Width="35" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="220" />
+            </Grid.ColumnDefinitions>
+            <Button HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    ToolTipService.ToolTip="后退"
+                    x:Uid="FileControlBackButton"
+                    Name="GoBackRecord"
+                    x:FieldModifier="public"
+                    Click="GoBackRecord_Click"
+                    AllowFocusWhenDisabled="True"
+                    IsEnabled="False"
+                    Style="{ThemeResource ButtonRevealStyle}"
+                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
+                <Viewbox>
+                    <SymbolIcon Symbol="Back" />
+                </Viewbox>
+            </Button>
+            <Button Grid.Column="1"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    x:Uid="FileControlForwardButton"
+                    Name="GoForwardRecord"
+                    x:FieldModifier="public"
+                    Click="GoForwardRecord_Click"
+                    IsEnabled="False"
+                    ToolTipService.ToolTip="前进"
+                    AllowFocusWhenDisabled="True"
+                    Style="{ThemeResource ButtonRevealStyle}"
+                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
+                <Viewbox>
+                    <SymbolIcon Symbol="Forward" />
+                </Viewbox>
+            </Button>
+            <Button HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    x:Uid="FileControlParentButton"
+                    Grid.Column="2"
+                    x:Name="GoParentFolder"
+                    IsEnabled="False"
+                    Click="GoParentFolder_Click"
+                    Style="{ThemeResource ButtonRevealStyle}"
+                    ToolTipService.ToolTip="返回上级"
+                    AllowFocusWhenDisabled="True"
+                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
+                <Viewbox>
+                    <SymbolIcon Symbol="Up" />
+                </Viewbox>
+            </Button>
+            <AutoSuggestBox Grid.Column="3"
+                            Grid.ColumnSpan="2"
+                            Margin="5,0,0,0"
+                            VerticalAlignment="Center" 
+                            Name="AddressBox"
+                            UpdateTextOnSelect="False"
+                            KeyDown="AddressBox_KeyDown"
+                            QueryIcon="Forward"
+                            x:FieldModifier="public"
+                            GotFocus="AddressBox_GotFocus"
+                            LostFocus="AddressBox_LostFocus"
+                            QuerySubmitted="AddressBox_QuerySubmitted"
+                            TextChanged="AddressBox_TextChanged"/>
+            <ScrollViewer HorizontalScrollBarVisibility="Hidden"
+                          HorizontalScrollMode="Enabled"
+                          VerticalScrollMode="Disabled"
+                          VerticalScrollBarVisibility="Hidden"
+                          HorizontalAlignment="Left"
+                          Grid.Column="3"
+                          Margin="12,0,0,0"
+                          Name="AddressButtonScrollViewer">
+                <muxc:ItemsRepeater ItemsSource="{x:Bind AddressButtonList}">
+                    <muxc:ItemsRepeater.Layout>
+                        <muxc:StackLayout Orientation="Horizontal"
+                                          Spacing="0" />
+                    </muxc:ItemsRepeater.Layout>
+                    <muxc:ItemsRepeater.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="{Binding}"
+                                        VerticalAlignment="Center"
+                                        Name="AddressButton"
+                                        Padding="3,5,3,6"
+                                        Click="AddressButton_Click"
+                                        AllowDrop="True"
+                                        Drop="AddressButton_Drop"
+                                        DragEnter="AddressButton_DragEnter"
+                                        Background="{ThemeResource ButtonDisabledBackgroundThemeBrush}" />
+                                <Button Background="{ThemeResource ButtonDisabledBackgroundThemeBrush}"
+                                        VerticalAlignment="Center"
+                                        HorizontalContentAlignment="Center"
+                                        Padding="3,5,3,6"
+                                        Name="AddressExtention"
+                                        Click="AddressExtention_Click">
+                                    <Button.Content>
+                                        <TextBlock Text="›"
+                                                   FontSize="16"
+                                                   TextAlignment="Center"/>
+                                    </Button.Content>
+                                </Button>
+                            </StackPanel>
+                        </DataTemplate>
+                    </muxc:ItemsRepeater.ItemTemplate>
+                </muxc:ItemsRepeater>
+            </ScrollViewer>
+
+            <ComboBox Grid.Column="5"
+                      Margin="5,0,5,0"
+                      Width="140"
+                      Height="32.5"
+                      x:Name="ItemDisplayMode"
+                      VerticalAlignment="Center"
+                      SelectionChanged="ItemDisplayMode_SelectionChanged" />
+            <AutoSuggestBox QueryIcon="Find"
+                            PlaceholderText="搜索..."
+                            Name="GlobeSearch"
+                            x:FieldModifier="public"
+                            Grid.Column="6"
+                            VerticalAlignment="Center"
+                            GotFocus="GlobeSearch_GotFocus"
+                            QuerySubmitted="GlobeSearch_QuerySubmitted"
+                            TextChanged="GlobeSearch_TextChanged"
+                            UpdateTextOnSelect="True"
+                            Margin="0,0,5,0">
+                <FlyoutBase.AttachedFlyout>
+                    <Flyout Placement="BottomEdgeAlignedLeft"
+                            x:Name="SearchFlyout"
+                            Opened="SearchFlyout_Opened">
+                        <StackPanel MinWidth="220">
+                            <RadioButton Name="ShallowRadio"
+                                         x:Uid="SearchFlyoutShallowRadio"
+                                         Content="仅搜索当前目录(较快)"
+                                         Tag="Shallow"
+                                         IsChecked="True"
+                                         GroupName="Search" />
+                            <RadioButton Name="DeepRadio"
+                                         Margin="0,5,0,0"
+                                         x:Uid="SearchFlyoutDeepRadio"
+                                         Content="深度搜索全部目录(较慢)"
+                                         Tag="Deep"
+                                         GroupName="Search" />
+                            <StackPanel Margin="0,5,0,0"
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="Right">
+                                <Button Content="搜索"
+                                        x:Uid="SearchFlyoutConfirm"
+                                        Name="SearchConfirm"
+                                        Click="SearchConfirm_Click" />
+                                <Button Content="取消"
+                                        x:Uid="SearchFlyoutCancel"
+                                        Name="SearchCancel"
+                                        Margin="10,0,0,0"
+                                        Click="SearchCancel_Click" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Flyout>
+                </FlyoutBase.AttachedFlyout>
+            </AutoSuggestBox>
+        </Grid>
+        <Grid Grid.Row="1"
+              Margin="0,5,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="TreeViewGridCol"
+                                  Width="{x:Bind local:TabViewContainer.ThisPage.TreeViewLength,Mode=OneWay}" />
+                <ColumnDefinition Width="{x:Bind TreeViewGridCol.Width,Mode=OneWay,Converter={StaticResource Converter}}" />
+                <ColumnDefinition Width="5*" />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="40" />
+                </Grid.RowDefinitions>
+                <Frame Name="Nav"
+                       Margin="0,0,0,-20"
+                       x:FieldModifier="Public" />
+                <CommandBar IsOpen="False"
+                            Grid.Row="1"
+                            VerticalAlignment="Bottom"
+                            ClosedDisplayMode="Minimal"
+                            DefaultLabelPosition="Right"
+                            Name="BottomCommandBar"
+                            Opening="BottomCommandBar_Opening"
+                            Background="{StaticResource ElementAcrylicBrush}">
+                </CommandBar>
+            </Grid>
+            <muxc:TreeView Name="FolderTree"
+                           x:FieldModifier="public"
+                           Expanding="FolderTree_Expanding"
+                           ItemInvoked="FolderTree_ItemInvoked"
+                           Collapsed="FolderTree_Collapsed"
+                           HorizontalAlignment="Stretch"
+                           SelectionMode="Single"
+                           VerticalAlignment="Stretch"
+                           CanReorderItems="False"
+                           CanDragItems="False"
+                           IsHoldingEnabled="True"
+                           Holding="FolderTree_Holding"
+                           Padding="0,0,5,0"
+                           RightTapped="FolderTree_RightTapped">
+                <muxc:TreeView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Height="40"
+                                    Orientation="Horizontal">
+                            <Viewbox Height="30"
+                                     VerticalAlignment="Center">
+                                <FontIcon FontFamily="Segoe MDL2 Assets"
+                                          Glyph="{Binding IsExpanded,Mode=OneWay,Converter={StaticResource StateConverter}}"
+                                          Margin="0,5,5,0"
+                                          Name="Icon" />
+                            </Viewbox>
+                            <TextBlock Text="{Binding Content.DisplayName}"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center"
+                                       Style="{ThemeResource BodyTextBlockStyle}"
+                                       FontSize="16" />
+                        </StackPanel>
+                    </DataTemplate>
+                </muxc:TreeView.ItemTemplate>
+            </muxc:TreeView>
+            <controls:GridSplitter Background="LightSlateGray"
+                                   HorizontalAlignment="Center"
+                                   ResizeBehavior="BasedOnAlignment"
+                                   ResizeDirection="Auto"
+                                   Grid.Column="1"/>
+        </Grid>
+    </Grid>
+</Page>

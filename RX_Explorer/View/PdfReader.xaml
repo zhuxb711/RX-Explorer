@@ -1,0 +1,68 @@
+﻿<Page x:Class="RX_Explorer.PdfReader"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:RX_Explorer"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:controls1="using:Microsoft.UI.Xaml.Controls"
+      mc:Ignorable="d"
+      NavigationCacheMode="Required"
+      Background="Transparent">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="100" />
+        </Grid.RowDefinitions>
+        <FlipView Name="Flip"
+                  Grid.RowSpan="2">
+            <FlipView.ItemTemplate>
+                <DataTemplate>
+                    <ScrollViewer x:Name="ScrollViewerMain"
+                                  IsDoubleTapEnabled="True"
+                                  PointerPressed="ScrollViewerMain_PointerPressed"
+                                  PointerMoved="ScrollViewerMain_PointerMoved"
+                                  PointerReleased="ScrollViewerMain_PointerReleased"
+                                  DoubleTapped="ScrollViewerMain_DoubleTapped"
+                                  ZoomMode="Enabled"
+                                  MinZoomFactor="0.5"
+                                  MaxZoomFactor="4"
+                                  HorizontalScrollMode="Enabled"
+                                  VerticalScrollMode="Enabled"
+                                  HorizontalScrollBarVisibility="Hidden"
+                                  VerticalScrollBarVisibility="Hidden">
+                        <Image Source="{Binding}"
+                               MaxWidth="{Binding Path=ViewportWidth,ElementName=ScrollViewerMain}"
+                               MaxHeight="{Binding Path=ViewportHeight,ElementName=ScrollViewerMain}" />
+                    </ScrollViewer>
+                </DataTemplate>
+            </FlipView.ItemTemplate>
+        </FlipView>
+        <controls:InAppNotification HorizontalContentAlignment="Center"
+                                    ShowDismissButton="False"
+                                    Name="PageNotification"
+                                    StackMode="Replace"
+                                    Width="300"
+                                    HorizontalAlignment="Center"
+                                    Grid.Row="1" />
+        <controls:Loading x:Name="LoadingControl"
+                          IsLoading="False"
+                          Grid.RowSpan="2">
+            <controls:Loading.Background>
+                <SolidColorBrush Color="Black"
+                                 Opacity="0.65" />
+            </controls:Loading.Background>
+            <StackPanel>
+                <TextBlock FontSize="22"
+                           VerticalAlignment="Center"
+                           TextAlignment="Center"
+                           x:Uid="TextViewerLoading"
+                           Text="正在加载..."/>
+                <controls1:ProgressBar IsIndeterminate="True"
+                                       Width="180"
+                                       Name="ProBar"
+                                       Margin="0,10,0,0" />
+            </StackPanel>
+        </controls:Loading>
+    </Grid>
+</Page>

@@ -307,7 +307,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="..\filemanager\package.storeassociation.xml" />
+    <Xml Include="..\RX_Explorer\package.storeassociation.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

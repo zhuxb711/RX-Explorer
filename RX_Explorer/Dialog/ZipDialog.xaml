@@ -1,0 +1,52 @@
+﻿<local:QueueContentDialog x:Class="RX_Explorer.Dialog.ZipDialog"
+                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                          xmlns:local="using:RX_Explorer.Class"
+                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                          mc:Ignorable="d"
+                          Title="Zip压缩选项"
+                          PrimaryButtonText="确定"
+                          CloseButtonText="取消"
+                          x:Uid="ZipDialog"
+                          PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
+    <local:QueueContentDialog.Resources>
+        <local:ZipCryptConverter x:Key="ZipConverter" />
+    </local:QueueContentDialog.Resources>
+
+    <StackPanel ChildrenTransitions="{x:Bind local:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
+        <TextBox Header="文件名"
+                 x:Uid="ZipDialogName"
+                 Name="FName" />
+        <PasswordBox x:Uid="ZipDialogPassword"
+                     Name="Pass"
+                     Header="密码"
+                     Margin="0,10,0,0"
+                     PlaceholderText="输入加密密码"
+                     Visibility="{x:Bind EnableCryption.IsChecked,Mode=OneWay,Converter={StaticResource ZipConverter}}" />
+        <StackPanel Orientation="Horizontal">
+            <ComboBox x:Uid="ZipDialogLevel"
+                      HorizontalAlignment="Stretch"
+                      Header="压缩等级"
+                      Margin="0,10,0,0"
+                      Width="150"
+                      Name="ZipMethod" />
+            <ComboBox Grid.Column="1"
+                      x:Uid="ZipDialogEncryption"
+                      Name="ZipCryption"
+                      Margin="10,10,0,0"
+                      Visibility="{x:Bind EnableCryption.IsChecked,Mode=OneWay,Converter={StaticResource ZipConverter}}"
+                      Header="加密方法"
+                      Width="150"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch">
+                <x:String>AES-128</x:String>
+                <x:String>AES-256</x:String>
+            </ComboBox>
+        </StackPanel>
+        <CheckBox x:Uid="ZipDialogCheckBox"
+                  Content="启用Zip加密"
+                  Margin="0,10,0,0"
+                  Name="EnableCryption" />
+    </StackPanel>
+</local:QueueContentDialog>

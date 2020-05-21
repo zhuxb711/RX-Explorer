@@ -1,0 +1,100 @@
+﻿<Page x:Class="RX_Explorer.PhotoViewer"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:RX_Explorer.Class"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      NavigationCacheMode="Required"
+      mc:Ignorable="d"
+      Background="Transparent">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <CommandBar Background="Transparent"
+                    HorizontalAlignment="Center"
+                    IsOpen="False"
+                    DefaultLabelPosition="Right">
+            <AppBarButton Icon="Repair"
+                          Label="Adjust"
+                          x:Name="Adjust"
+                          x:Uid="PhotoViewerAdjustButton"
+                          Click="Adjust_Click" />
+            <AppBarButton Icon="Rotate"
+                          Label="Rotation"
+                          x:Uid="PhotoViewerRotateButton"
+                          x:Name="ImageRotate"
+                          Click="ImageRotate_Click" />
+            <AppBarButton Icon="Delete"
+                          Label="Delete"
+                          x:Name="Delete"
+                          x:Uid="PhotoViewerDeleteButton"
+                          Click="Delete_Click" />
+            <AppBarButton Icon="Switch"
+                          Label="Transcode"
+                          x:Uid="PhotoViewerTranscodeButton"
+                          x:Name="TranscodeImage"
+                          Click="TranscodeImage_Click" />
+        </CommandBar>
+        <FlipView x:Name="Flip"
+                  Grid.Row="1"
+                  Background="Transparent">
+            <FlipView.ItemTemplate>
+                <DataTemplate x:DataType="local:PhotoDisplaySupport">
+                    <ScrollViewer x:Name="ScrollViewerMain"
+                                  IsDoubleTapEnabled="True"
+                                  DoubleTapped="ScrollViewerMain_DoubleTapped"
+                                  PointerMoved="ScrollViewerMain_PointerMoved"
+                                  PointerPressed="ScrollViewerMain_PointerPressed"
+                                  PointerReleased="ScrollViewerMain_PointerReleased"
+                                  ZoomMode="Enabled"
+                                  MinZoomFactor="0.5"
+                                  MaxZoomFactor="4"
+                                  HorizontalScrollMode="Enabled"
+                                  VerticalScrollMode="Enabled"
+                                  HorizontalScrollBarVisibility="Hidden"
+                                  VerticalScrollBarVisibility="Hidden">
+                        <Image MaxWidth="{Binding Path=ViewportWidth,ElementName=ScrollViewerMain}"
+                               MaxHeight="{Binding Path=ViewportHeight,ElementName=ScrollViewerMain}"
+                               Source="{x:Bind BitmapSource,Mode=OneWay}">
+                        </Image>
+                    </ScrollViewer>
+                </DataTemplate>
+            </FlipView.ItemTemplate>
+        </FlipView>
+
+        <controls:Loading x:Name="TranscodeLoadingControl"
+                          IsLoading="False"
+                          Grid.RowSpan="2">
+            <controls:Loading.Background>
+                <SolidColorBrush Color="Black"
+                                 Opacity="0.65" />
+            </controls:Loading.Background>
+            <StackPanel>
+                <TextBlock Text="正在保存..."
+                           x:Uid="PhotoViewerSaveTips"
+                           Margin="10,0,0,0"
+                           FontSize="18"
+                           VerticalAlignment="Center"
+                           TextAlignment="Center" />
+                <muxc:ProgressBar Width="150"
+                                  Margin="0,10,0,0"
+                                  IsIndeterminate="True"/>
+            </StackPanel>
+        </controls:Loading>
+
+        <TextBlock Grid.Row="1"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"
+                   Text="无法加载此图片"
+                   FontSize="18"
+                   Name="CouldnotLoadTip"
+                   Visibility="Collapsed"/>
+    </Grid>
+</Page>

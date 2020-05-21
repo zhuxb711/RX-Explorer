@@ -103,7 +103,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /r /y $(TargetDir)$(TargetName).exe $(SolutionDir)FileManager\FullTrust</PostBuildEvent>
+    <PostBuildEvent>xcopy /r /y $(TargetDir)$(TargetName).exe $(SolutionDir)RX_Explorer\FullTrust</PostBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
