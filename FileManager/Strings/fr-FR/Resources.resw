@@ -40,7 +40,7 @@
     <value>Supprimer</value>
   </data>
   <data name="AppDisplayName" xml:space="preserve">
-    <value>RX Explorer</value>
+    <value>RX Explorateur</value>
   </data>
   <data name="AppEdit.Label" xml:space="preserve">
     <value>Editer</value>
@@ -469,7 +469,7 @@
     <value>Technologie de pré-lancement</value>
   </data>
   <data name="PreLaunchTip.Subtitle" xml:space="preserve">
-    <value>Quand la technologie de pré-lancement est activée, Windows va automatiquement décider quand pré-lancer RX Explorer selon les ressources système disponibles et votre usage. Cela permet un chargement beaucoup plus rapide de RX Explorer.</value>
+    <value>Quand la technologie de pré-lancement est activée, Windows va automatiquement décider quand pré-lancer RX Explorateur selon les ressources système disponibles et votre usage. Cela permet un chargement beaucoup plus rapide de RX Explorateur.</value>
   </data>
   <data name="QRText.Header" xml:space="preserve">
     <value>Copier ce lien vers votre navigateur pour télécharger</value>
@@ -572,7 +572,7 @@
     <value>Fichiers dans l'Espace Securisé</value>
   </data>
   <data name="ResetDialogText1.Text" xml:space="preserve">
-    <value>Cela va réinitialiser RX Explorer</value>
+    <value>Cela va réinitialiser RX Explorateur</value>
   </data>
   <data name="ResetDialogText2.Text" xml:space="preserve">
     <value>Notamment:</value>
@@ -1310,10 +1310,10 @@
     <value>Quicklook</value>
   </data>
   <data name="QuicklookTip.Subtitle" xml:space="preserve">
-    <value>QuickLook est un logiciel auxiliaire qui permet de visualiser rapidement et facilement le contenu des fichiers. Pour activer cette fonction, vous devez installer QuickLook à l'avance et vous assurer que QuickLook fonctionne correctement. Vous pouvez cliquer sur n'importe quel fichier dans RX Explorer et appuyer sur la barre d'espace pour activer QuickLook</value>
+    <value>QuickLook est un logiciel auxiliaire qui permet de visualiser rapidement et facilement le contenu des fichiers. Pour activer cette fonction, vous devez installer QuickLook à l'avance et vous assurer que QuickLook fonctionne correctement. Vous pouvez cliquer sur n'importe quel fichier dans RX Explorateur et appuyer sur la barre d'espace pour activer QuickLook</value>
   </data>
   <data name="AppName.Text" xml:space="preserve">
-    <value>RX Explorer</value>
+    <value>RX Explorateur</value>
   </data>
   <data name="SettingPersonalize.Text" xml:space="preserve">
     <value>Personnalisé</value>
@@ -1325,7 +1325,7 @@
     <value>Redémarrer maintenant</value>
   </data>
   <data name="NewFileDialogTypeTip.Subtitle" xml:space="preserve">
-    <value>Vous pouvez saisir manuellement le type de fichier que vous devez créer, ou vous pouvez sélectionner le type prédéfini par RX Explorer. Toutefois, RX Explorer ne peut garantir la création correcte que des types prédéfinis. Il ne peut pas garantir que les types que vous saisissez manuellement peuvent être créés correctement.</value>
+    <value>Vous pouvez saisir manuellement le type de fichier que vous devez créer, ou vous pouvez sélectionner le type prédéfini par RX Explorateur. Toutefois, RX Explorateur ne peut garantir la création correcte que des types prédéfinis. Il ne peut pas garantir que les types que vous saisissez manuellement peuvent être créés correctement.</value>
   </data>
   <data name="NewFileDIalogTypeTip.Title" xml:space="preserve">
     <value>Explication</value>
@@ -1711,10 +1711,10 @@
     <value>Mot de passe requis</value>
   </data>
   <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
-    <value>Veuillez ne pas minimiser la fenêtre de RX Explorer</value>
+    <value>Veuillez ne pas minimiser la fenêtre de RX Explorateur</value>
   </data>
   <data name="Toast_EnterBackground_Text_2" xml:space="preserve">
-    <value>La politique de Windows peut terminer RX Explorer</value>
+    <value>La politique de Windows peut terminer RX Explorateur</value>
   </data>
   <data name="Toast_EnterBackground_Text_3" xml:space="preserve">
     <value>Cliquez pour activer</value>
@@ -1726,7 +1726,7 @@
     <value>Plus tard</value>
   </data>
   <data name="QueueDialog_WaitUntilFinish_Content" xml:space="preserve">
-    <value>RX Explorer exécute certaines tâches, sa fermeture peut provoquer des erreurs de données. Voulez-vous continuer ?</value>
+    <value>RX Explorateur exécute certaines tâches, sa fermeture peut provoquer des erreurs de données. Voulez-vous continuer ?</value>
   </data>
   <data name="QueueDialog_WaitUntilFinish_PrimaryButton" xml:space="preserve">
     <value>Tout de suite</value>
@@ -1753,7 +1753,7 @@
     <value>Me le rappeller plus tard</value>
   </data>
   <data name="TeachingTip_PinToMenu_Subtitle" xml:space="preserve">
-    <value>Epingler RX Explorer au menu d'accueil et à la barre des tâches！\r\r★Epingler au menu d'accueil\r\r★Epingler à la barre des tâches</value>
+    <value>Epingler RX Explorateur au menu d'accueil et à la barre des tâches！\r\r★Epingler au menu d'accueil\r\r★Epingler à la barre des tâches</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_Donate_AlreadyPurchase_Content" xml:space="preserve">
@@ -1777,15 +1777,15 @@
     <value>Appréciation</value>
   </data>
   <data name="QueueDialog_Donate_Success_Content" xml:space="preserve">
-    <value>Merci pour votre soutien, nous travaillerons dur pour rendre RX meilleur q(≧▽≦q)\r\rLe gestionnaire de fichiers RX est né pour combler les lacunes du gestionnaire de fichiers UWP\rCe projet est à but non lucratif, donc le téléchargement et l'utilisation sont gratuits et n'incluent pas de publicités\rRX a pour but de créer un gestionnaire de fichiers gratuit et complet\rRX Explorer est un projet que j'ai développé pendant mon temps libre\rJ'espère qu'il vous plaît\r\rSincèrement,\rRuofan</value>
+    <value>Merci pour votre soutien, nous travaillerons dur pour rendre RX meilleur q(≧▽≦q)\r\rLe gestionnaire de fichiers RX est né pour combler les lacunes du gestionnaire de fichiers UWP\rCe projet est à but non lucratif, donc le téléchargement et l'utilisation sont gratuits et n'incluent pas de publicités\rRX a pour but de créer un gestionnaire de fichiers gratuit et complet\rRX Explorateur est un projet que j'ai développé pendant mon temps libre\rJ'espère qu'il vous plaît\r\rSincèrement,\rRuofan</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_Donate_Success_Title" xml:space="preserve">
     <value>Appréciation</value>
   </data>
   <data name="TeachingTip_Donate_Subtitle" xml:space="preserve">
-    <value>It takes a lot of effort for developers to develop RX Explorer\r🎉You can volunteer to contribute a little pocket money to developers.🎉\r\rIf you don't want to, you can click \"Later\" to cancel\rIf you want to donate, you can click \"Donate\" to support developer\r\rTips: Donator can unlock the unique file safe feature: \"Security Area\"
-Il faut beaucoup d'efforts pour développer RX Explorer\r🎉Tu peux contribuer en donnant de quoi acheter un café.🎉\rSi vous ne voulez pas, vous pouvez cliquer sur \"Plus tard\" pour annuler\rSi vous voulez faire un don, vous pouvez cliquer sur \"Faire un don\" pour soutenir le développeur\r\rAstuce: Le donateur peut déverrouiller la fonctionnalité: \"Espace sécurisé\"</value>
+    <value>It takes a lot of effort for developers to develop RX Explorateur\r🎉You can volunteer to contribute a little pocket money to developers.🎉\r\rIf you don't want to, you can click \"Later\" to cancel\rIf you want to donate, you can click \"Donate\" to support developer\r\rTips: Donator can unlock the unique file safe feature: \"Security Area\"
+Il faut beaucoup d'efforts pour développer RX Explorateur\r🎉Tu peux contribuer en donnant de quoi acheter un café.🎉\rSi vous ne voulez pas, vous pouvez cliquer sur \"Plus tard\" pour annuler\rSi vous voulez faire un don, vous pouvez cliquer sur \"Faire un don\" pour soutenir le développeur\r\rAstuce: Le donateur peut déverrouiller la fonctionnalité: \"Espace sécurisé\"</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Crash_Screenshot_Send_Text" xml:space="preserve">
@@ -2151,7 +2151,7 @@ Il faut beaucoup d'efforts pour développer RX Explorer\r🎉Tu peux contribuer 
     <value>Il a déjà une tâche en cours, veuillez attendre la fin de cette dernière</value>
   </data>
   <data name="QueueDialog_OpenFailure_Content" xml:space="preserve">
-    <value>RX Explorer ne peut pas ouvrir ce fichier\r\rMais d'autres applications peuvent l'ouvrir</value>
+    <value>RX Explorateur ne peut pas ouvrir ce fichier\r\rMais d'autres applications peuvent l'ouvrir</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_OpenFailure_PrimaryButton" xml:space="preserve">
@@ -2210,7 +2210,7 @@ Il faut beaucoup d'efforts pour développer RX Explorer\r🎉Tu peux contribuer 
     <value>Windows Hello est désactivé et vous ne pouvez pas l'utiliser afin d'accèder à l'Espace Sécurisé</value>
   </data>
   <data name="QueueDialog_SecureAreaUnlock_Content" xml:space="preserve">
-    <value>Merci pour votre support de RX Explorer, l'Espace Sécurisé a été débloqué</value>
+    <value>Merci pour votre support de RX Explorateur, l'Espace Sécurisé a été débloqué</value>
   </data>
   <data name="QueueDialog_SecureAreaNetworkUnavailable_Content" xml:space="preserve">
     <value>Impossible de vérifier le statut de la licence parce que le réseau ou l'utilisateur actuel n'est pas disponible</value>
@@ -2254,7 +2254,7 @@ Il faut beaucoup d'efforts pour développer RX Explorer\r🎉Tu peux contribuer 
     <value>Historique de recherche bien complété</value>
   </data>
   <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
-    <value>Il y a eu un problème pendant le redémarrage automatique, veuillez redémarrer RX Explorer manuellement</value>
+    <value>Il y a eu un problème pendant le redémarrage automatique, veuillez redémarrer RX Explorateur manuellement</value>
   </data>
   <data name="DecryptFail_Backup_Text" xml:space="preserve">
     <value>Sauvegarde des fichiers d'erreur</value>

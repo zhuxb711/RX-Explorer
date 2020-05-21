@@ -15,7 +15,7 @@
     Version="4.7.5.0" />
 
   <Properties>
-    <DisplayName>ms-resource:AppDisplayName</DisplayName>
+    <DisplayName>ms-resource:App_Display_Name</DisplayName>
     <PublisherDisplayName>Ruo_Fan</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
@@ -26,7 +26,9 @@
   </Dependencies>
 
   <Resources>
-    <Resource Language="x-generate"/>
+    <Resource Language="en-US"/>
+    <Resource Language="zh-Hans"/>
+    <Resource Language="fr-FR"/>
   </Resources>
 
   <Applications>
@@ -34,8 +36,8 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="ms-resource:AppDisplayName"
-        Description="ms-resource:AppDisplayName"
+        DisplayName="ms-resource:App_Display_Name"
+        Description="ms-resource:App_Display_Name"
         BackgroundColor="transparent"
         Square150x150Logo="Images\Square150x150Logo.png"
         Square44x44Logo="Images\Square44x44Logo.png">

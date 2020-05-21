@@ -29,7 +29,7 @@
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-    <PackageCertificateThumbprint>B8261191E6D2053DB7905482E9153EDBCC1B12A9</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>BEE1AD15C5118EFDB0CD7650141D40B315F2635B</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -430,7 +430,7 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <None Include="SecureAccess\NetworkAccess.pri" />
-    <PRIResource Include="Strings\fr\Resources.resw" />
+    <PRIResource Include="Strings\fr-FR\Resources.resw" />
     <PRIResource Include="Strings\zh-Hans\Resources.resw" />
     <PRIResource Include="Strings\en-US\Resources.resw">
       <SubType>Designer</SubType>
@@ -694,7 +694,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <XliffResource Include="MultilingualResources\FileManager.fr.xlf" />
+    <XliffResource Include="MultilingualResources\FileManager.fr-FR.xlf" />
     <XliffResource Include="MultilingualResources\FileManager.zh-Hans.xlf" />
   </ItemGroup>
   <ItemGroup>

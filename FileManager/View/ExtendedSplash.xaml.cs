@@ -111,8 +111,6 @@ namespace FileManager
         {
             try
             {
-                await Globalization.Initialize().ConfigureAwait(true);
-
                 Frame rootFrame = new Frame();
                 Window.Current.Content = rootFrame;
                 rootFrame.Navigate(typeof(MainPage), SplashImageRect);
@@ -144,8 +142,6 @@ namespace FileManager
         {
             try
             {
-                await Globalization.Initialize().ConfigureAwait(false);
-
                 if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("QuickStartInitialFinished"))
                 {
                     await SQLite.Current.ClearTableAsync("QuickStart").ConfigureAwait(false);

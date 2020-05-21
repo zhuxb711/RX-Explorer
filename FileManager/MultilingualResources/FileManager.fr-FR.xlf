@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
-  <file datatype="xml" source-language="en-US" target-language="fr" original="FILEMANAGER/STRINGS/EN-US/RESOURCES.RESW" tool-id="MultilingualAppToolkit" product-name="n/a" product-version="n/a" build-num="n/a">
+  <file datatype="xml" source-language="en-US" target-language="fr-FR" original="FILEMANAGER/STRINGS/EN-US/RESOURCES.RESW" tool-id="MultilingualAppToolkit" product-name="n/a" product-version="n/a" build-num="n/a">
     <header>
       <tool tool-id="MultilingualAppToolkit" tool-name="Multilingual App Toolkit" tool-version="4.0.6916.0" tool-company="Microsoft" />
     </header>
@@ -44,7 +44,7 @@
         </trans-unit>
         <trans-unit id="AppDisplayName" translate="yes" xml:space="preserve">
           <source>RX Explorer</source>
-          <target state="translated">RX Explorer</target>
+          <target state="translated">RX Explorateur</target>
         </trans-unit>
         <trans-unit id="AppEdit.Label" translate="yes" xml:space="preserve">
           <source>Edit</source>
@@ -616,7 +616,7 @@
         </trans-unit>
         <trans-unit id="PreLaunchTip.Subtitle" translate="yes" xml:space="preserve">
           <source>When preload technology is enabled, Windows will automatically decide whether to preload the RX Explorer when system resources are sufficient based on your usage. If the RX Explorer has been loaded by Windows in advance, it will greatly improve the startup speed</source>
-          <target state="translated">Quand la technologie de pré-lancement est activée, Windows va automatiquement décider quand pré-lancer RX Explorer selon les ressources système disponibles et votre usage. Cela permet un chargement beaucoup plus rapide de RX Explorer.</target>
+          <target state="translated">Quand la technologie de pré-lancement est activée, Windows va automatiquement décider quand pré-lancer RX Explorateur selon les ressources système disponibles et votre usage. Cela permet un chargement beaucoup plus rapide de RX Explorateur.</target>
         </trans-unit>
         <trans-unit id="QRText.Header" translate="yes" xml:space="preserve">
           <source>Copy this link to your browser to download</source>
@@ -754,7 +754,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="ResetDialogText1.Text" translate="yes" xml:space="preserve">
           <source>This will initialize the RX Explorer</source>
-          <target state="translated">Cela va réinitialiser RX Explorer</target>
+          <target state="translated">Cela va réinitialiser RX Explorateur</target>
         </trans-unit>
         <trans-unit id="ResetDialogText2.Text" translate="yes" xml:space="preserve">
           <source>Including:</source>
@@ -1738,11 +1738,11 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="QuicklookTip.Subtitle" translate="yes" xml:space="preserve">
           <source>QuickLook is an auxiliary software for convenient and quick viewing of file contents. To enable this feature, you must install QuickLook in advance and ensure that QuickLook works properly. You can click on any file in the RX Explorer and press the space bar to activate QuickLook</source>
-          <target state="translated">QuickLook est un logiciel auxiliaire qui permet de visualiser rapidement et facilement le contenu des fichiers. Pour activer cette fonction, vous devez installer QuickLook à l'avance et vous assurer que QuickLook fonctionne correctement. Vous pouvez cliquer sur n'importe quel fichier dans RX Explorer et appuyer sur la barre d'espace pour activer QuickLook</target>
+          <target state="translated">QuickLook est un logiciel auxiliaire qui permet de visualiser rapidement et facilement le contenu des fichiers. Pour activer cette fonction, vous devez installer QuickLook à l'avance et vous assurer que QuickLook fonctionne correctement. Vous pouvez cliquer sur n'importe quel fichier dans RX Explorateur et appuyer sur la barre d'espace pour activer QuickLook</target>
         </trans-unit>
         <trans-unit id="AppName.Text" translate="yes" xml:space="preserve">
           <source>RX Explorer</source>
-          <target state="translated">RX Explorer</target>
+          <target state="translated">RX Explorateur</target>
         </trans-unit>
         <trans-unit id="SettingPersonalize.Text" translate="yes" xml:space="preserve">
           <source>Personalize</source>
@@ -1758,7 +1758,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="NewFileDialogTypeTip.Subtitle" translate="yes" xml:space="preserve">
           <source>You can manually enter the file type you need to create, or you can select the type predefined by the RX Explorer. However, the RX Explorer can only guarantee the correct creation of pre-defined types. It cannot guarantee that the types you enter manually can be created correctly.</source>
-          <target state="translated">Vous pouvez saisir manuellement le type de fichier que vous devez créer, ou vous pouvez sélectionner le type prédéfini par RX Explorer. Toutefois, RX Explorer ne peut garantir la création correcte que des types prédéfinis. Il ne peut pas garantir que les types que vous saisissez manuellement peuvent être créés correctement.</target>
+          <target state="translated">Vous pouvez saisir manuellement le type de fichier que vous devez créer, ou vous pouvez sélectionner le type prédéfini par RX Explorateur. Toutefois, RX Explorateur ne peut garantir la création correcte que des types prédéfinis. Il ne peut pas garantir que les types que vous saisissez manuellement peuvent être créés correctement.</target>
         </trans-unit>
         <trans-unit id="NewFileDIalogTypeTip.Title" translate="yes" xml:space="preserve">
           <source>Explanation</source>
@@ -2267,11 +2267,11 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="Toast_EnterBackground_Text_1" translate="yes" xml:space="preserve">
           <source>Please do not minimize RX-Explorer</source>
-          <target state="translated">Veuillez ne pas minimiser la fenêtre de RX Explorer</target>
+          <target state="translated">Veuillez ne pas minimiser la fenêtre de RX Explorateur</target>
         </trans-unit>
         <trans-unit id="Toast_EnterBackground_Text_2" translate="yes" xml:space="preserve">
           <source>Windows policy may terminate RX-Explorer</source>
-          <target state="translated">La politique de Windows peut terminer RX Explorer</target>
+          <target state="translated">La politique de Windows peut terminer RX Explorateur</target>
         </trans-unit>
         <trans-unit id="Toast_EnterBackground_Text_3" translate="yes" xml:space="preserve">
           <source>Click to activate</source>
@@ -2287,7 +2287,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="QueueDialog_WaitUntilFinish_Content" translate="yes" xml:space="preserve">
           <source>RX Explorer is running some tasks, closing at this time may cause data errors, Do you want to continue?</source>
-          <target state="translated">RX Explorer exécute certaines tâches, sa fermeture peut provoquer des erreurs de données. Voulez-vous continuer ?</target>
+          <target state="translated">RX Explorateur exécute certaines tâches, sa fermeture peut provoquer des erreurs de données. Voulez-vous continuer ?</target>
         </trans-unit>
         <trans-unit id="QueueDialog_WaitUntilFinish_PrimaryButton" translate="yes" xml:space="preserve">
           <source>Right now</source>
@@ -2323,7 +2323,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="TeachingTip_PinToMenu_Subtitle" translate="yes" xml:space="preserve">
           <source>Pin the RX FileManager to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</source>
-          <target state="translated">Epingler RX Explorer au menu d'accueil et à la barre des tâches！\r\r★Epingler au menu d'accueil\r\r★Epingler à la barre des tâches</target>
+          <target state="translated">Epingler RX Explorateur au menu d'accueil et à la barre des tâches！\r\r★Epingler au menu d'accueil\r\r★Epingler à la barre des tâches</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_Donate_AlreadyPurchase_Content" translate="yes" xml:space="preserve">
@@ -2354,7 +2354,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="QueueDialog_Donate_Success_Content" translate="yes" xml:space="preserve">
           <source>Thank you for your support, we will work hard to make RX better and better q(≧▽≦q)\r\rThe RX file manager was born to fill the gaps in the UWP file manager\rThis is not a profitable project, so downloading and using are free and do not include ads\rRX's goal is to create a free and full-featured file manager\rRX File Manager is a project I developed in my spare time\rI hope everyone likes\r\rSincerely,\rRuofan</source>
-          <target state="translated">Merci pour votre soutien, nous travaillerons dur pour rendre RX meilleur q(≧▽≦q)\r\rLe gestionnaire de fichiers RX est né pour combler les lacunes du gestionnaire de fichiers UWP\rCe projet est à but non lucratif, donc le téléchargement et l'utilisation sont gratuits et n'incluent pas de publicités\rRX a pour but de créer un gestionnaire de fichiers gratuit et complet\rRX Explorer est un projet que j'ai développé pendant mon temps libre\rJ'espère qu'il vous plaît\r\rSincèrement,\rRuofan</target>
+          <target state="translated">Merci pour votre soutien, nous travaillerons dur pour rendre RX meilleur q(≧▽≦q)\r\rLe gestionnaire de fichiers RX est né pour combler les lacunes du gestionnaire de fichiers UWP\rCe projet est à but non lucratif, donc le téléchargement et l'utilisation sont gratuits et n'incluent pas de publicités\rRX a pour but de créer un gestionnaire de fichiers gratuit et complet\rRX Explorateur est un projet que j'ai développé pendant mon temps libre\rJ'espère qu'il vous plaît\r\rSincèrement,\rRuofan</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_Donate_Success_Title" translate="yes" xml:space="preserve">
@@ -2363,8 +2363,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="TeachingTip_Donate_Subtitle" translate="yes" xml:space="preserve">
           <source>It takes a lot of effort for developers to develop RX Explorer\r🎉You can volunteer to contribute a little pocket money to developers.🎉\r\rIf you don't want to, you can click \"Later\" to cancel\rIf you want to donate, you can click \"Donate\" to support developer\r\rTips: Donator can unlock the unique file safe feature: \"Security Area\"</source>
-          <target state="translated">It takes a lot of effort for developers to develop RX Explorer\r🎉You can volunteer to contribute a little pocket money to developers.🎉\r\rIf you don't want to, you can click \"Later\" to cancel\rIf you want to donate, you can click \"Donate\" to support developer\r\rTips: Donator can unlock the unique file safe feature: \"Security Area\"
-Il faut beaucoup d'efforts pour développer RX Explorer\r🎉Tu peux contribuer en donnant de quoi acheter un café.🎉\rSi vous ne voulez pas, vous pouvez cliquer sur \"Plus tard\" pour annuler\rSi vous voulez faire un don, vous pouvez cliquer sur \"Faire un don\" pour soutenir le développeur\r\rAstuce: Le donateur peut déverrouiller la fonctionnalité: \"Espace sécurisé\"</target>
+          <target state="translated">It takes a lot of effort for developers to develop RX Explorateur\r🎉You can volunteer to contribute a little pocket money to developers.🎉\r\rIf you don't want to, you can click \"Later\" to cancel\rIf you want to donate, you can click \"Donate\" to support developer\r\rTips: Donator can unlock the unique file safe feature: \"Security Area\"
+Il faut beaucoup d'efforts pour développer RX Explorateur\r🎉Tu peux contribuer en donnant de quoi acheter un café.🎉\rSi vous ne voulez pas, vous pouvez cliquer sur \"Plus tard\" pour annuler\rSi vous voulez faire un don, vous pouvez cliquer sur \"Faire un don\" pour soutenir le développeur\r\rAstuce: Le donateur peut déverrouiller la fonctionnalité: \"Espace sécurisé\"</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="Crash_Screenshot_Send_Text" translate="yes" xml:space="preserve">
@@ -2844,7 +2844,7 @@ Il faut beaucoup d'efforts pour développer RX Explorer\r🎉Tu peux contribuer 
         </trans-unit>
         <trans-unit id="QueueDialog_OpenFailure_Content" translate="yes" xml:space="preserve">
           <source>RX FileManager could not open this file\r\rBut it can be opened with other applications</source>
-          <target state="translated">RX Explorer ne peut pas ouvrir ce fichier\r\rMais d'autres applications peuvent l'ouvrir</target>
+          <target state="translated">RX Explorateur ne peut pas ouvrir ce fichier\r\rMais d'autres applications peuvent l'ouvrir</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_OpenFailure_PrimaryButton" translate="yes" xml:space="preserve">
@@ -2921,7 +2921,7 @@ Il faut beaucoup d'efforts pour développer RX Explorer\r🎉Tu peux contribuer 
         </trans-unit>
         <trans-unit id="QueueDialog_SecureAreaUnlock_Content" translate="yes" xml:space="preserve">
           <source>Thank you for your support of the RX Explorer, the security area has been unlocked</source>
-          <target state="translated">Merci pour votre support de RX Explorer, l'Espace Sécurisé a été débloqué</target>
+          <target state="translated">Merci pour votre support de RX Explorateur, l'Espace Sécurisé a été débloqué</target>
         </trans-unit>
         <trans-unit id="QueueDialog_SecureAreaNetworkUnavailable_Content" translate="yes" xml:space="preserve">
           <source>Cannot check license status because the current network or user is unavailable</source>
@@ -2979,7 +2979,7 @@ Il faut beaucoup d'efforts pour développer RX Explorer\r🎉Tu peux contribuer 
         </trans-unit>
         <trans-unit id="QueueDialog_RestartFail_Content" translate="yes" xml:space="preserve">
           <source>There was a problem during the automatic restart, please restart the RX Explorer manually</source>
-          <target state="translated">Il y a eu un problème pendant le redémarrage automatique, veuillez redémarrer RX Explorer manuellement</target>
+          <target state="translated">Il y a eu un problème pendant le redémarrage automatique, veuillez redémarrer RX Explorateur manuellement</target>
         </trans-unit>
         <trans-unit id="DecryptFail_Backup_Text" translate="yes" xml:space="preserve">
           <source>Error file backup</source>

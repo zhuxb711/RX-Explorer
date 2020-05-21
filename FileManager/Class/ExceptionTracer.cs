@@ -133,8 +133,26 @@ namespace FileManager.Class
                 Locker.WaitOne();
             }).ConfigureAwait(false);
 
-            StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("RX_Error_Message.txt", CreationCollisionOption.OpenIfExists);
-            await FileIO.AppendTextAsync(TempFile, Message + Environment.NewLine);
+            string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            if (!string.IsNullOrEmpty(DesktopPath))
+            {
+                try
+                {
+                    StorageFolder DesktopFolder = await StorageFolder.GetFolderFromPathAsync(DesktopPath);
+                    StorageFile TempFile = await DesktopFolder.CreateFileAsync("RX_Error_Message.txt", CreationCollisionOption.OpenIfExists);
+                    await FileIO.AppendTextAsync(TempFile, Message + Environment.NewLine);
+                }
+                catch
+                {
+                    StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("RX_Error_Message.txt", CreationCollisionOption.OpenIfExists);
+                    await FileIO.AppendTextAsync(TempFile, Message + Environment.NewLine);
+                }
+            }
+            else
+            {
+                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("RX_Error_Message.txt", CreationCollisionOption.OpenIfExists);
+                await FileIO.AppendTextAsync(TempFile, Message + Environment.NewLine);
+            }
 
             Locker.Set();
         }

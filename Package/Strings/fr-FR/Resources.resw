@@ -118,9 +118,9 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="App_Display_Name" xml:space="preserve">
-    <value>RX Explorer</value>
+    <value>RX Explorateur</value>
   </data>
   <data name="USB_Display_Name" xml:space="preserve">
-    <value>Open and view files</value>
+    <value>Ouvrir et afficher des fichiers</value>
   </data>
 </root>

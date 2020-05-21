@@ -27,7 +27,9 @@
   </Dependencies>
 
   <Resources>
-    <Resource Language="x-generate"/>
+    <Resource Language="en-US"/>
+    <Resource Language="zh-Hans"/>
+    <Resource Language="fr-FR"/>
   </Resources>
 
   <Applications>

@@ -1,8 +1,10 @@
 ﻿using FileManager.Class;
 using System;
+using System.Linq;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
+using Windows.Globalization;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI;
