@@ -575,83 +575,73 @@ namespace RX_Explorer
             ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] = AcrylicColorPicker.Color.ToString();
         }
 
-        private async void Donation_Click(object sender, RoutedEventArgs e)
+        private async void Purchase_Click(object sender, RoutedEventArgs e)
         {
-            QueueContentDialog dialog = new QueueContentDialog
+            StoreContext Store = StoreContext.GetDefault();
+            StoreProductResult ProductResult = await Store.GetStoreProductForCurrentAppAsync();
+
+            if (ProductResult.ExtendedError == null)
             {
-                Title = Globalization.GetString("DonateTip.Title"),
-                Content = Globalization.GetString("TeachingTip_Donate_Subtitle"),
-                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-            };
-            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-            {
-                StoreContext Store = StoreContext.GetDefault();
-                StoreProductQueryResult StoreProductResult = await Store.GetAssociatedStoreProductsAsync(new string[] { "Durable" });
-                if (StoreProductResult.ExtendedError == null)
+                if (ProductResult.Product != null)
                 {
-                    StoreProduct Product = StoreProductResult.Products.Values.FirstOrDefault();
-                    if (Product != null)
+                    switch ((await ProductResult.Product.RequestPurchaseAsync()).Status)
                     {
-                        switch ((await Store.RequestPurchaseAsync(Product.StoreId)).Status)
-                        {
-                            case StorePurchaseStatus.Succeeded:
+                        case StorePurchaseStatus.Succeeded:
+                            {
+                                QueueContentDialog QueueContenDialog = new QueueContentDialog
                                 {
-                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("QueueDialog_Donate_Success_Title"),
-                                        Content = Globalization.GetString("QueueDialog_Donate_Success_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                    break;
-                                }
-                            case StorePurchaseStatus.AlreadyPurchased:
+                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                    Content = Globalization.GetString("QueueDialog_Store_PurchaseSuccess_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                break;
+                            }
+                        case StorePurchaseStatus.AlreadyPurchased:
+                            {
+                                QueueContentDialog QueueContenDialog = new QueueContentDialog
                                 {
-                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("QueueDialog_Donate_AlreadyPurchase_Title"),
-                                        Content = Globalization.GetString("QueueDialog_Donate_AlreadyPurchase_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                    break;
-                                }
-                            case StorePurchaseStatus.NotPurchased:
+                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                    Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                break;
+                            }
+                        case StorePurchaseStatus.NotPurchased:
+                            {
+                                QueueContentDialog QueueContenDialog = new QueueContentDialog
                                 {
-                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("QueueDialog_Donate_NotPurchase_Title"),
-                                        Content = Globalization.GetString("QueueDialog_Donate_NotPurchase_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                    break;
-                                }
-                            default:
+                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                    Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                break;
+                            }
+                        default:
+                            {
+                                QueueContentDialog QueueContenDialog = new QueueContentDialog
                                 {
-                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("QueueDialog_Donate_NetworkError_Title"),
-                                        Content = Globalization.GetString("QueueDialog_Donate_NetworkError_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                    break;
-                                }
-                        }
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                break;
+                            }
                     }
                 }
-                else
+            }
+            else
+            {
+                QueueContentDialog QueueContenDialog = new QueueContentDialog
                 {
-                    QueueContentDialog QueueContenDialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("QueueDialog_Donate_NetworkError_Title"),
-                        Content = Globalization.GetString("QueueDialog_Donate_NetworkError_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
             }
         }
 

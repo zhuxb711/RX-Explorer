@@ -213,15 +213,6 @@
   <data name="DeviceUsedSpace.Text" xml:space="preserve">
     <value>Espace utilisé</value>
   </data>
-  <data name="DonateTip.ActionButtonContent" xml:space="preserve">
-    <value>Faire un don</value>
-  </data>
-  <data name="DonateTip.CloseButtonContent" xml:space="preserve">
-    <value>Plus tard</value>
-  </data>
-  <data name="DonateTip.Title" xml:space="preserve">
-    <value>Faire un don au développeur</value>
-  </data>
   <data name="EmptyFlyoutNew.Label" xml:space="preserve">
     <value>Nouveau</value>
   </data>
@@ -870,9 +861,6 @@
   </data>
   <data name="SettingSettingPrivacyPolicyTitle.Text" xml:space="preserve">
     <value>Vie privée</value>
-  </data>
-  <data name="SettingSupportDeveloper.Content" xml:space="preserve">
-    <value>Faire un don</value>
   </data>
   <data name="SettingSystemInfo.Content" xml:space="preserve">
     <value>Informations système</value>
@@ -1814,33 +1802,6 @@
   <data name="QueueDialog_BackgroundTaskDisable_SecondaryButton" xml:space="preserve">
     <value>Me le rappeller plus tard</value>
   </data>
-  <data name="QueueDialog_Donate_AlreadyPurchase_Content" xml:space="preserve">
-    <value>Vous avez déjà soutenu RX une fois, merci beaucoup\r\rL'intention initiale de RX n'est pas de faire de l'argent, donc vous ne pouvez pas l'acheter à nouveau\r\rVous pouvez faire de la publicité pour RX auprès des gens autour de vous, et c'est aussi un soutien important pour RX（*＾-＾*）\r\rSincérément,\rRuofan</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_Donate_AlreadyPurchase_Title" xml:space="preserve">
-    <value>Encore une fois merci !</value>
-  </data>
-  <data name="QueueDialog_Donate_NetworkError_Content" xml:space="preserve">
-    <value>Impossible d'ouvrir la page d'assistance à cause d'un problème lié au réseau ou au Microsoft Store, veuillez réessayer plus tard</value>
-  </data>
-  <data name="QueueDialog_Donate_NetworkError_Title" xml:space="preserve">
-    <value>Désolé</value>
-  </data>
-  <data name="QueueDialog_Donate_NotPurchase_Content" xml:space="preserve">
-    <value>Que vous nous souteniez ou non, RX est toujours le même\r\rMême si vous décidez finalement de renoncer à soutenir le projet, merci beaucoup d'avoir cliqué pour voir ce message\r\rSincèrement,\rRuofan</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_Donate_NotPurchase_Title" xml:space="preserve">
-    <value>Appréciation</value>
-  </data>
-  <data name="QueueDialog_Donate_Success_Content" xml:space="preserve">
-    <value>Merci pour votre soutien, nous travaillerons dur pour rendre RX meilleur q(≧▽≦q)\r\rLe gestionnaire de fichiers RX est né pour combler les lacunes du gestionnaire de fichiers UWP\rCe projet est à but non lucratif, donc le téléchargement et l'utilisation sont gratuits et n'incluent pas de publicités\rRX a pour but de créer un gestionnaire de fichiers gratuit et complet\rRX Explorateur est un projet que j'ai développé pendant mon temps libre\rJ'espère qu'il vous plaît\r\rSincèrement,\rRuofan</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_Donate_Success_Title" xml:space="preserve">
-    <value>Appréciation</value>
-  </data>
   <data name="QueueDialog_LocateFolderFailure_Content" xml:space="preserve">
     <value>Impossible de localiser le dossier, il a pu être supprimé ou déplacé</value>
   </data>
@@ -1923,9 +1884,8 @@
   <data name="SystemInfo_Dialog_Secondary_DNS_Text" xml:space="preserve">
     <value>Serveur DNS secondaire</value>
   </data>
-  <data name="TeachingTip_Donate_Subtitle" xml:space="preserve">
-    <value>It takes a lot of effort for developers to develop RX Explorateur\r🎉You can volunteer to contribute a little pocket money to developers.🎉\r\rIf you don't want to, you can click \"Later\" to cancel\rIf you want to donate, you can click \"Donate\" to support developer\r\rTips: Donator can unlock the unique file safe feature: \"Security Area\"
-Il faut beaucoup d'efforts pour développer RX Explorateur\r🎉Tu peux contribuer en donnant de quoi acheter un café.🎉\rSi vous ne voulez pas, vous pouvez cliquer sur \"Plus tard\" pour annuler\rSi vous voulez faire un don, vous pouvez cliquer sur \"Faire un don\" pour soutenir le développeur\r\rAstuce: Le donateur peut déverrouiller la fonctionnalité: \"Espace sécurisé\"</value>
+  <data name="TeachingTip_PinToMenu_Subtitle" xml:space="preserve">
+    <value>Épinglez le RX Explorer pour démarrer l'écran et la barre des tâches ！\r\r★Épingler à l'écran de démarrage\r\r★Épingle à la barre des tâches</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Toast_BroadFileSystemAccess_ActionButton_1" xml:space="preserve">
@@ -2211,6 +2171,10 @@ Il faut beaucoup d'efforts pour développer RX Explorateur\r🎉Tu peux contribu
   <data name="QueueDialog_OpenBluetooth_Content" xml:space="preserve">
     <value>Veuillez activer le Bluetooth puis réessayez</value>
   </data>
+  <data name="QueueDialog_OpenFailure_Content" xml:space="preserve">
+    <value>RX-Explorer n'a pas pu ouvrir ce fichier\r\rMais il peut être ouvert avec d'autres applications</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
   <data name="QueueDialog_OpenFailure_PrimaryButton" xml:space="preserve">
     <value>Application par défaut</value>
   </data>
@@ -2322,5 +2286,33 @@ Il faut beaucoup d'efforts pour développer RX Explorateur\r🎉Tu peux contribu
   </data>
   <data name="ThankTranslate.Text" xml:space="preserve">
     <value>Remerciements particuliers aux traducteurs suivants:</value>
+  </data>
+  <data name="PurchaseTip.ActionButtonContent" xml:space="preserve">
+    <value>Achat</value>
+  </data>
+  <data name="PurchaseTip.CloseButtonContent" xml:space="preserve">
+    <value>Plus tard</value>
+  </data>
+  <data name="PurchaseTip.Title" xml:space="preserve">
+    <value>Achetez cette appli</value>
+  </data>
+  <data name="QueueDialog_Store_NetworkError_Content" xml:space="preserve">
+    <value>Impossible d'ouvrir la page d'achat en raison du Microsoft Store ou du réseau, veuillez réessayer plus tard</value>
+  </data>
+  <data name="QueueDialog_Store_AlreadyPurchase_Content" xml:space="preserve">
+    <value>Vous avez déjà acheté cette application et ne pouvez pas l'acheter à plusieurs reprises</value>
+  </data>
+  <data name="QueueDialog_Store_NotPurchase_Content" xml:space="preserve">
+    <value>L'opération d'achat a été annulée, vous pouvez continuer à utiliser cette application, mais les fonctions associées ne seront pas déverrouillées</value>
+  </data>
+  <data name="QueueDialog_Store_PurchaseSuccess_Content" xml:space="preserve">
+    <value>L'application a été achetée avec succès, les fonctions associées ont été déverrouillées, merci pour votre soutien</value>
+  </data>
+  <data name="TeachingTip_PurchaseTip_Subtitle" xml:space="preserve">
+    <value>🎉Vous pouvez aider les développeurs à poursuivre le développement en achetant cette application. 🎉\r\rSi vous ne le souhaitez pas, vous pouvez cliquer sur "Plus tard" pour annuler \rSi vous souhaitez acheter, vous pouvez cliquer sur "Acheter" pour l'acheter. application\r\rConseils: L'achat peut déverrouiller la fonction unique de sécurité des fichiers: "Zone de sécurité"</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="SettingPurchase.Content" xml:space="preserve">
+    <value>Achetez cette application</value>
   </data>
 </root>

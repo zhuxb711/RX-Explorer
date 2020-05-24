@@ -274,18 +274,6 @@
           <source>Used space</source>
           <target state="translated">Espace utilisé</target>
         </trans-unit>
-        <trans-unit id="DonateTip.ActionButtonContent" translate="yes" xml:space="preserve">
-          <source>Donate</source>
-          <target state="translated">Faire un don</target>
-        </trans-unit>
-        <trans-unit id="DonateTip.CloseButtonContent" translate="yes" xml:space="preserve">
-          <source>Later</source>
-          <target state="translated">Plus tard</target>
-        </trans-unit>
-        <trans-unit id="DonateTip.Title" translate="yes" xml:space="preserve">
-          <source>Donate developer</source>
-          <target state="translated">Faire un don au développeur</target>
-        </trans-unit>
         <trans-unit id="EmptyFlyoutNew.Label" translate="yes" xml:space="preserve">
           <source>Create</source>
           <target state="translated">Nouveau</target>
@@ -1151,10 +1139,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="SettingSettingPrivacyPolicyTitle.Text" translate="yes" xml:space="preserve">
           <source>Privacy</source>
           <target state="translated">Vie privée</target>
-        </trans-unit>
-        <trans-unit id="SettingSupportDeveloper.Content" translate="yes" xml:space="preserve">
-          <source>Donate</source>
-          <target state="translated">Faire un don</target>
         </trans-unit>
         <trans-unit id="SettingSystemInfo.Content" translate="yes" xml:space="preserve">
           <source>System Information</source>
@@ -2402,41 +2386,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Remind later</source>
           <target state="translated">Me le rappeller plus tard</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_Donate_AlreadyPurchase_Content" translate="yes" xml:space="preserve">
-          <source>You have already supported RX once, thank you very much\r\rThe original intention of RX is not to make money, so you can't repeat purchase it\r\rYou can advertise the RX to the people around you, and it is also the best support for RX（*＾-＾*）\r\rSincerely,\rRuofan</source>
-          <target state="translated">Vous avez déjà soutenu RX une fois, merci beaucoup\r\rL'intention initiale de RX n'est pas de faire de l'argent, donc vous ne pouvez pas l'acheter à nouveau\r\rVous pouvez faire de la publicité pour RX auprès des gens autour de vous, et c'est aussi un soutien important pour RX（*＾-＾*）\r\rSincérément,\rRuofan</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
-        <trans-unit id="QueueDialog_Donate_AlreadyPurchase_Title" translate="yes" xml:space="preserve">
-          <source>Thanks again</source>
-          <target state="translated">Encore une fois merci !</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_Donate_NetworkError_Content" translate="yes" xml:space="preserve">
-          <source>Unable to open support page due to Microsoft Store or network, please try again later</source>
-          <target state="translated">Impossible d'ouvrir la page d'assistance à cause d'un problème lié au réseau ou au Microsoft Store, veuillez réessayer plus tard</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_Donate_NetworkError_Title" translate="yes" xml:space="preserve">
-          <source>Sorry</source>
-          <target state="translated">Désolé</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_Donate_NotPurchase_Content" translate="yes" xml:space="preserve">
-          <source>Whether supported or not, RX is always the same\r\rEven if you finally decide to give up supporting the project, thank you very much for being able to click to see it\r\rSincerely,\rRuofan</source>
-          <target state="translated">Que vous nous souteniez ou non, RX est toujours le même\r\rMême si vous décidez finalement de renoncer à soutenir le projet, merci beaucoup d'avoir cliqué pour voir ce message\r\rSincèrement,\rRuofan</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
-        <trans-unit id="QueueDialog_Donate_NotPurchase_Title" translate="yes" xml:space="preserve">
-          <source>Appreciation</source>
-          <target state="translated">Appréciation</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_Donate_Success_Content" translate="yes" xml:space="preserve">
-          <source>Thank you for your support, we will work hard to make RX better and better q(≧▽≦q)\r\rThe RX file manager was born to fill the gaps in the UWP file manager\rThis is not a profitable project, so downloading and using are free and do not include ads\rRX's goal is to create a free and full-featured file manager\rRX File Manager is a project I developed in my spare time\rI hope everyone likes\r\rSincerely,\rRuofan</source>
-          <target state="translated">Merci pour votre soutien, nous travaillerons dur pour rendre RX meilleur q(≧▽≦q)\r\rLe gestionnaire de fichiers RX est né pour combler les lacunes du gestionnaire de fichiers UWP\rCe projet est à but non lucratif, donc le téléchargement et l'utilisation sont gratuits et n'incluent pas de publicités\rRX a pour but de créer un gestionnaire de fichiers gratuit et complet\rRX Explorateur est un projet que j'ai développé pendant mon temps libre\rJ'espère qu'il vous plaît\r\rSincèrement,\rRuofan</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
-        <trans-unit id="QueueDialog_Donate_Success_Title" translate="yes" xml:space="preserve">
-          <source>Appreciation</source>
-          <target state="translated">Appréciation</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_LocateFolderFailure_Content" translate="yes" xml:space="preserve">
           <source>Unable to locate folder, which may have been deleted or moved</source>
           <target state="translated">Impossible de localiser le dossier, il a pu être supprimé ou déplacé</target>
@@ -2545,15 +2494,9 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Secondary DNS server</source>
           <target state="translated">Serveur DNS secondaire</target>
         </trans-unit>
-        <trans-unit id="TeachingTip_Donate_Subtitle" translate="yes" xml:space="preserve">
-          <source>It takes a lot of effort for developers to develop RX Explorer\r🎉You can volunteer to contribute a little pocket money to developers.🎉\r\rIf you don't want to, you can click \"Later\" to cancel\rIf you want to donate, you can click \"Donate\" to support developer\r\rTips: Donator can unlock the unique file safe feature: \"Security Area\"</source>
-          <target state="translated">It takes a lot of effort for developers to develop RX Explorateur\r🎉You can volunteer to contribute a little pocket money to developers.🎉\r\rIf you don't want to, you can click \"Later\" to cancel\rIf you want to donate, you can click \"Donate\" to support developer\r\rTips: Donator can unlock the unique file safe feature: \"Security Area\"
-Il faut beaucoup d'efforts pour développer RX Explorateur\r🎉Tu peux contribuer en donnant de quoi acheter un café.🎉\rSi vous ne voulez pas, vous pouvez cliquer sur \"Plus tard\" pour annuler\rSi vous voulez faire un don, vous pouvez cliquer sur \"Faire un don\" pour soutenir le développeur\r\rAstuce: Le donateur peut déverrouiller la fonctionnalité: \"Espace sécurisé\"</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
         <trans-unit id="TeachingTip_PinToMenu_Subtitle" translate="yes" xml:space="preserve">
-          <source>Pin the RX RX_Explorer to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</source>
-          <target state="new">Pin the RX RX_Explorer to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</target>
+          <source>Pin the RX-Explorer to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</source>
+          <target state="translated">Épinglez le RX Explorer pour démarrer l'écran et la barre des tâches ！\r\r★Épingler à l'écran de démarrage\r\r★Épingle à la barre des tâches</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="Toast_BroadFileSystemAccess_ActionButton_1" translate="yes" xml:space="preserve">
@@ -2929,8 +2872,8 @@ Il faut beaucoup d'efforts pour développer RX Explorateur\r🎉Tu peux contribu
           <target state="translated">Veuillez activer le Bluetooth puis réessayez</target>
         </trans-unit>
         <trans-unit id="QueueDialog_OpenFailure_Content" translate="yes" xml:space="preserve">
-          <source>RX RX_Explorer could not open this file\r\rBut it can be opened with other applications</source>
-          <target state="new">RX RX_Explorer could not open this file\r\rBut it can be opened with other applications</target>
+          <source>RX-Explorer could not open this file\r\rBut it can be opened with other applications</source>
+          <target state="translated">RX-Explorer n'a pas pu ouvrir ce fichier\r\rMais il peut être ouvert avec d'autres applications</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_OpenFailure_PrimaryButton" translate="yes" xml:space="preserve">
@@ -3079,6 +3022,43 @@ Il faut beaucoup d'efforts pour développer RX Explorateur\r🎉Tu peux contribu
         <trans-unit id="ThankTranslate.Text" translate="yes" xml:space="preserve">
           <source>Special thanks to the following translators:</source>
           <target state="translated">Remerciements particuliers aux traducteurs suivants:</target>
+        </trans-unit>
+        <trans-unit id="PurchaseTip.ActionButtonContent" translate="yes" xml:space="preserve">
+          <source>Purchase</source>
+          <target state="translated">Achat</target>
+        </trans-unit>
+        <trans-unit id="PurchaseTip.CloseButtonContent" translate="yes" xml:space="preserve">
+          <source>Later</source>
+          <target state="translated">Plus tard</target>
+        </trans-unit>
+        <trans-unit id="PurchaseTip.Title" translate="yes" xml:space="preserve">
+          <source>Purchase this app</source>
+          <target state="translated">Achetez cette appli</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Store_NetworkError_Content" translate="yes" xml:space="preserve">
+          <source>Unable to open purchase page due to Microsoft Store or network, please try again later</source>
+          <target state="translated">Impossible d'ouvrir la page d'achat en raison du Microsoft Store ou du réseau, veuillez réessayer plus tard</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Store_AlreadyPurchase_Content" translate="yes" xml:space="preserve">
+          <source>You have already purchased this application and cannot be purchased repeatedly</source>
+          <target state="translated">Vous avez déjà acheté cette application et ne pouvez pas l'acheter à plusieurs reprises</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Store_NotPurchase_Content" translate="yes" xml:space="preserve">
+          <source>The purchase operation has been cancelled, you can continue to use this application, but the related functions will not be unlocked</source>
+          <target state="translated">L'opération d'achat a été annulée, vous pouvez continuer à utiliser cette application, mais les fonctions associées ne seront pas déverrouillées</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Store_PurchaseSuccess_Content" translate="yes" xml:space="preserve">
+          <source>The application has been successfully purchased, the related functions have been unlocked, thank you for your support</source>
+          <target state="translated">L'application a été achetée avec succès, les fonctions associées ont été déverrouillées, merci pour votre soutien</target>
+        </trans-unit>
+        <trans-unit id="TeachingTip_PurchaseTip_Subtitle" translate="yes" xml:space="preserve">
+          <source>🎉You can support developers to continue to develop by purchasing this application.🎉\r\rIf you don't want to, you can click "Later" to cancel\rIf you want to purchase, you can click "Purchase" to purchase this application\r\rTips: Purchase can unlock the unique file safe feature: "Security Area"</source>
+          <target state="translated">🎉Vous pouvez aider les développeurs à poursuivre le développement en achetant cette application. 🎉\r\rSi vous ne le souhaitez pas, vous pouvez cliquer sur "Plus tard" pour annuler \rSi vous souhaitez acheter, vous pouvez cliquer sur "Acheter" pour l'acheter. application\r\rConseils: L'achat peut déverrouiller la fonction unique de sécurité des fichiers: "Zone de sécurité"</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="SettingPurchase.Content" translate="yes" xml:space="preserve">
+          <source>Purchase this app</source>
+          <target state="translated">Achetez cette application</target>
         </trans-unit>
       </group>
     </body>

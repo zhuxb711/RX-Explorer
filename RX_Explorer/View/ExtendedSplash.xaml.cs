@@ -12,6 +12,7 @@ using Windows.UI.Core;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.ApplicationModel;
 
 namespace RX_Explorer
 {
@@ -28,9 +29,10 @@ namespace RX_Explorer
             InitializeComponent();
             Window.Current.SetTitleBar(TitleBar);
 
-#if DEBUG
-            AppName.Text += " (Debug 模式)";
-#endif
+            if (Package.Current.IsDevelopmentMode)
+            {
+                AppName.Text += " (Development Mode)";
+            }
 
             Splash = Screen ?? throw new ArgumentNullException(nameof(Screen), "Parameter could not be null");
             SplashImageRect = Screen.ImageLocation;

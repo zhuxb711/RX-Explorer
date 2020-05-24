@@ -277,14 +277,33 @@ namespace RX_Explorer
 
         private static async Task<bool> CheckPurchaseStatusAsync()
         {
-            StoreContext Store = StoreContext.GetDefault();
-
-            StoreProductQueryResult PurchasedProductResult = await Store.GetUserCollectionAsync(new string[] { "Durable" });
-            if (PurchasedProductResult.ExtendedError == null)
+            try
             {
-                return PurchasedProductResult.Products.Count > 0;
+                StoreContext Store = StoreContext.GetDefault();
+                StoreAppLicense License = await Store.GetAppLicenseAsync();
+
+                if (License.AddOnLicenses.Any((Item) => Item.Value.InAppOfferToken == "Donation"))
+                {
+                    return true;
+                }
+
+                if (License.IsActive)
+                {
+                    if (License.IsTrial)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
             }
-            else
+            catch
             {
                 throw new NetworkException("Network Exception");
             }

@@ -274,18 +274,6 @@
           <source>Used space</source>
           <target state="translated">已用空间</target>
         </trans-unit>
-        <trans-unit id="DonateTip.ActionButtonContent" translate="yes" xml:space="preserve">
-          <source>Donate</source>
-          <target state="translated">支持开发者</target>
-        </trans-unit>
-        <trans-unit id="DonateTip.CloseButtonContent" translate="yes" xml:space="preserve">
-          <source>Later</source>
-          <target state="translated">稍后</target>
-        </trans-unit>
-        <trans-unit id="DonateTip.Title" translate="yes" xml:space="preserve">
-          <source>Donate developer</source>
-          <target state="translated">捐赠开发者</target>
-        </trans-unit>
         <trans-unit id="EmptyFlyoutNew.Label" translate="yes" xml:space="preserve">
           <source>Create</source>
           <target state="translated">新建</target>
@@ -1151,10 +1139,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="SettingSettingPrivacyPolicyTitle.Text" translate="yes" xml:space="preserve">
           <source>Privacy</source>
           <target state="translated">隐私</target>
-        </trans-unit>
-        <trans-unit id="SettingSupportDeveloper.Content" translate="yes" xml:space="preserve">
-          <source>Donate</source>
-          <target state="translated">支持开发者</target>
         </trans-unit>
         <trans-unit id="SettingSystemInfo.Content" translate="yes" xml:space="preserve">
           <source>System Information</source>
@@ -2402,41 +2386,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Remind later</source>
           <target state="translated">稍后提醒</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_Donate_AlreadyPurchase_Content" translate="yes" xml:space="preserve">
-          <source>You have already supported RX once, thank you very much\r\rThe original intention of RX is not to make money, so you can't repeat purchase it\r\rYou can advertise the RX to the people around you, and it is also the best support for RX（*＾-＾*）\r\rSincerely,\rRuofan</source>
-          <target state="translated">您已为RX支持过一次了，您的心意开发者已心领\r\rRX的初衷并非是赚钱，因此不可重复支持哦\r\r您可以向周围的人宣传一下RX，也是对RX的最好的支持哦（*＾-＾*）\r\rRuofan,\r敬上</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
-        <trans-unit id="QueueDialog_Donate_AlreadyPurchase_Title" translate="yes" xml:space="preserve">
-          <source>Thanks again</source>
-          <target state="translated">再次感谢</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_Donate_NetworkError_Content" translate="yes" xml:space="preserve">
-          <source>Unable to open support page due to Microsoft Store or network, please try again later</source>
-          <target state="translated">由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_Donate_NetworkError_Title" translate="yes" xml:space="preserve">
-          <source>Sorry</source>
-          <target state="translated">抱歉</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_Donate_NotPurchase_Content" translate="yes" xml:space="preserve">
-          <source>Whether supported or not, RX is always the same\r\rEven if you finally decide to give up supporting the project, thank you very much for being able to click to see it\r\rSincerely,\rRuofan</source>
-          <target state="translated">无论支持与否，RX始终如一\r\r即使您最终决定放弃支持本项目，依然十分感谢您能够点进来看一看\r\rRuofan,\r敬上</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
-        <trans-unit id="QueueDialog_Donate_NotPurchase_Title" translate="yes" xml:space="preserve">
-          <source>Appreciation</source>
-          <target state="translated">感谢</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_Donate_Success_Content" translate="yes" xml:space="preserve">
-          <source>Thank you for your support, we will work hard to make RX better and better q(≧▽≦q)\r\rThe RX file manager was born to fill the gaps in the UWP file manager\rThis is not a profitable project, so downloading and using are free and do not include ads\rRX's goal is to create a free and full-featured file manager\rRX File Manager is a project I developed in my spare time\rI hope everyone likes\r\rSincerely,\rRuofan</source>
-          <target state="translated">感谢您的支持，我们将努力将RX做得越来越好q(≧▽≦q)\r\rRX文件管理器的诞生，是为了填补UWP文件管理器缺位的空白\r它并非是一个盈利项目，因此下载和使用都是免费的，并且不含有广告\rRX的目标是打造一个免费且功能全面文件管理器\rRX文件管理器是我利用业余时间开发的项目\r希望大家能够喜欢\r\rRuofan,\r敬上</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
-        <trans-unit id="QueueDialog_Donate_Success_Title" translate="yes" xml:space="preserve">
-          <source>Appreciation</source>
-          <target state="translated">感谢</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_LocateFolderFailure_Content" translate="yes" xml:space="preserve">
           <source>Unable to locate folder, which may have been deleted or moved</source>
           <target state="translated">无法定位文件夹，该文件夹可能已被删除或移动</target>
@@ -2545,14 +2494,9 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Secondary DNS server</source>
           <target state="translated">副DNS服务器</target>
         </trans-unit>
-        <trans-unit id="TeachingTip_Donate_Subtitle" translate="yes" xml:space="preserve">
-          <source>It takes a lot of effort for developers to develop RX Explorer\r🎉You can volunteer to contribute a little pocket money to developers.🎉\r\rIf you don't want to, you can click \"Later\" to cancel\rIf you want to donate, you can click \"Donate\" to support developer\r\rTips: Donator can unlock the unique file safe feature: \"Security Area\"</source>
-          <target state="translated">开发者开发RX文件管理器花费了大量精力\r🎉您可以自愿为开发者贡献一点小零花钱🎉\r\r若您不愿意，则可以点击\"跪安\"以取消\r若您愿意支持开发者，则可以点击\"准奏\"\r\rTips: 支持的小伙伴可以解锁独有文件保险柜功能：“安全域”</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
         <trans-unit id="TeachingTip_PinToMenu_Subtitle" translate="yes" xml:space="preserve">
-          <source>Pin the RX RX_Explorer to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</source>
-          <target state="new">Pin the RX RX_Explorer to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</target>
+          <source>Pin the RX-Explorer to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</source>
+          <target state="translated">将RX文件管理器固定至开始屏幕和任务栏！\r\r★固定至开始屏幕\r\r★固定至任务栏</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="Toast_BroadFileSystemAccess_ActionButton_1" translate="yes" xml:space="preserve">
@@ -2928,8 +2872,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">请开启蓝牙开关后再试</target>
         </trans-unit>
         <trans-unit id="QueueDialog_OpenFailure_Content" translate="yes" xml:space="preserve">
-          <source>RX RX_Explorer could not open this file\r\rBut it can be opened with other applications</source>
-          <target state="new">RX RX_Explorer could not open this file\r\rBut it can be opened with other applications</target>
+          <source>RX-Explorer could not open this file\r\rBut it can be opened with other applications</source>
+          <target state="translated">RX文件管理器无法打开此文件\r\r但可以使用其他应用打开</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_OpenFailure_PrimaryButton" translate="yes" xml:space="preserve">
@@ -3078,6 +3022,43 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="ThankTranslate.Text" translate="yes" xml:space="preserve">
           <source>Special thanks to the following translators:</source>
           <target state="translated">特别感谢以下翻译人员:</target>
+        </trans-unit>
+        <trans-unit id="PurchaseTip.ActionButtonContent" translate="yes" xml:space="preserve">
+          <source>Purchase</source>
+          <target state="translated">购买</target>
+        </trans-unit>
+        <trans-unit id="PurchaseTip.CloseButtonContent" translate="yes" xml:space="preserve">
+          <source>Later</source>
+          <target state="translated">稍后</target>
+        </trans-unit>
+        <trans-unit id="PurchaseTip.Title" translate="yes" xml:space="preserve">
+          <source>Purchase this app</source>
+          <target state="translated">购买本应用</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Store_NetworkError_Content" translate="yes" xml:space="preserve">
+          <source>Unable to open purchase page due to Microsoft Store or network, please try again later</source>
+          <target state="translated">由于微软应用商店或网络原因，无法打开购买页面，请稍后重试</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Store_AlreadyPurchase_Content" translate="yes" xml:space="preserve">
+          <source>You have already purchased this application and cannot be purchased repeatedly</source>
+          <target state="translated">您已经购买了本应用，无法多次重复购买</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Store_NotPurchase_Content" translate="yes" xml:space="preserve">
+          <source>The purchase operation has been cancelled, you can continue to use this application, but the related functions will not be unlocked</source>
+          <target state="translated">购买操作已经取消，您可以继续使用本应用，但相关功能将不会解锁</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Store_PurchaseSuccess_Content" translate="yes" xml:space="preserve">
+          <source>The application has been successfully purchased, the related functions have been unlocked, thank you for your support</source>
+          <target state="translated">您已成功购买本应用，相关功能已经解锁，感谢您的支持</target>
+        </trans-unit>
+        <trans-unit id="TeachingTip_PurchaseTip_Subtitle" translate="yes" xml:space="preserve">
+          <source>🎉You can support developers to continue to develop by purchasing this application.🎉\r\rIf you don't want to, you can click "Later" to cancel\rIf you want to purchase, you can click "Purchase" to purchase this application\r\rTips: Purchase can unlock the unique file safe feature: "Security Area"</source>
+          <target state="translated">🎉您可以通过购买此应用来支持开发者🎉\r\r如果您不想购买此应用，您可以点击"稍后"按钮\r如果您愿意购买此应用，您可以点击"购买"按钮\r\r提示: 购买本应用可以解锁文件加密功能"安全域"</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="SettingPurchase.Content" translate="yes" xml:space="preserve">
+          <source>Purchase this app</source>
+          <target state="translated">购买本应用</target>
         </trans-unit>
       </group>
     </body>

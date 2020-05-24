@@ -509,11 +509,11 @@
                             Name="SystemInfoButton"
                             Click="SystemInfoButton_Click" />
                     <Button Style="{ThemeResource ButtonRevealStyle}"
-                            x:Name="Donation"
+                            x:Name="Purchase"
                             Margin="0,20,0,0"
-                            Content="支持开发者"
-                            x:Uid="SettingSupportDeveloper"
-                            Click="Donation_Click" />
+                            Content="购买本应用"
+                            x:Uid="SettingPurchase"
+                            Click="Purchase_Click" />
                     <TextBlock Margin="0,30,0,0"
                                x:Uid="SettingAbout"
                                Text="关于"

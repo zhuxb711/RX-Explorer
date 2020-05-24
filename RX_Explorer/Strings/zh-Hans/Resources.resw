@@ -213,15 +213,6 @@
   <data name="DeviceUsedSpace.Text" xml:space="preserve">
     <value>已用空间</value>
   </data>
-  <data name="DonateTip.ActionButtonContent" xml:space="preserve">
-    <value>支持开发者</value>
-  </data>
-  <data name="DonateTip.CloseButtonContent" xml:space="preserve">
-    <value>稍后</value>
-  </data>
-  <data name="DonateTip.Title" xml:space="preserve">
-    <value>捐赠开发者</value>
-  </data>
   <data name="EmptyFlyoutNew.Label" xml:space="preserve">
     <value>新建</value>
   </data>
@@ -870,9 +861,6 @@
   </data>
   <data name="SettingSettingPrivacyPolicyTitle.Text" xml:space="preserve">
     <value>隐私</value>
-  </data>
-  <data name="SettingSupportDeveloper.Content" xml:space="preserve">
-    <value>支持开发者</value>
   </data>
   <data name="SettingSystemInfo.Content" xml:space="preserve">
     <value>系统信息</value>
@@ -1814,33 +1802,6 @@
   <data name="QueueDialog_BackgroundTaskDisable_SecondaryButton" xml:space="preserve">
     <value>稍后提醒</value>
   </data>
-  <data name="QueueDialog_Donate_AlreadyPurchase_Content" xml:space="preserve">
-    <value>您已为RX支持过一次了，您的心意开发者已心领\r\rRX的初衷并非是赚钱，因此不可重复支持哦\r\r您可以向周围的人宣传一下RX，也是对RX的最好的支持哦（*＾-＾*）\r\rRuofan,\r敬上</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_Donate_AlreadyPurchase_Title" xml:space="preserve">
-    <value>再次感谢</value>
-  </data>
-  <data name="QueueDialog_Donate_NetworkError_Content" xml:space="preserve">
-    <value>由于Microsoft Store或网络原因，无法打开支持页面，请稍后再试</value>
-  </data>
-  <data name="QueueDialog_Donate_NetworkError_Title" xml:space="preserve">
-    <value>抱歉</value>
-  </data>
-  <data name="QueueDialog_Donate_NotPurchase_Content" xml:space="preserve">
-    <value>无论支持与否，RX始终如一\r\r即使您最终决定放弃支持本项目，依然十分感谢您能够点进来看一看\r\rRuofan,\r敬上</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_Donate_NotPurchase_Title" xml:space="preserve">
-    <value>感谢</value>
-  </data>
-  <data name="QueueDialog_Donate_Success_Content" xml:space="preserve">
-    <value>感谢您的支持，我们将努力将RX做得越来越好q(≧▽≦q)\r\rRX文件管理器的诞生，是为了填补UWP文件管理器缺位的空白\r它并非是一个盈利项目，因此下载和使用都是免费的，并且不含有广告\rRX的目标是打造一个免费且功能全面文件管理器\rRX文件管理器是我利用业余时间开发的项目\r希望大家能够喜欢\r\rRuofan,\r敬上</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_Donate_Success_Title" xml:space="preserve">
-    <value>感谢</value>
-  </data>
   <data name="QueueDialog_LocateFolderFailure_Content" xml:space="preserve">
     <value>无法定位文件夹，该文件夹可能已被删除或移动</value>
   </data>
@@ -1923,8 +1884,8 @@
   <data name="SystemInfo_Dialog_Secondary_DNS_Text" xml:space="preserve">
     <value>副DNS服务器</value>
   </data>
-  <data name="TeachingTip_Donate_Subtitle" xml:space="preserve">
-    <value>开发者开发RX文件管理器花费了大量精力\r🎉您可以自愿为开发者贡献一点小零花钱🎉\r\r若您不愿意，则可以点击\"跪安\"以取消\r若您愿意支持开发者，则可以点击\"准奏\"\r\rTips: 支持的小伙伴可以解锁独有文件保险柜功能：“安全域”</value>
+  <data name="TeachingTip_PinToMenu_Subtitle" xml:space="preserve">
+    <value>将RX文件管理器固定至开始屏幕和任务栏！\r\r★固定至开始屏幕\r\r★固定至任务栏</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Toast_BroadFileSystemAccess_ActionButton_1" xml:space="preserve">
@@ -2210,6 +2171,10 @@
   <data name="QueueDialog_OpenBluetooth_Content" xml:space="preserve">
     <value>请开启蓝牙开关后再试</value>
   </data>
+  <data name="QueueDialog_OpenFailure_Content" xml:space="preserve">
+    <value>RX文件管理器无法打开此文件\r\r但可以使用其他应用打开</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
   <data name="QueueDialog_OpenFailure_PrimaryButton" xml:space="preserve">
     <value>默认应用</value>
   </data>
@@ -2321,5 +2286,33 @@
   </data>
   <data name="ThankTranslate.Text" xml:space="preserve">
     <value>特别感谢以下翻译人员:</value>
+  </data>
+  <data name="PurchaseTip.ActionButtonContent" xml:space="preserve">
+    <value>购买</value>
+  </data>
+  <data name="PurchaseTip.CloseButtonContent" xml:space="preserve">
+    <value>稍后</value>
+  </data>
+  <data name="PurchaseTip.Title" xml:space="preserve">
+    <value>购买本应用</value>
+  </data>
+  <data name="QueueDialog_Store_NetworkError_Content" xml:space="preserve">
+    <value>由于微软应用商店或网络原因，无法打开购买页面，请稍后重试</value>
+  </data>
+  <data name="QueueDialog_Store_AlreadyPurchase_Content" xml:space="preserve">
+    <value>您已经购买了本应用，无法多次重复购买</value>
+  </data>
+  <data name="QueueDialog_Store_NotPurchase_Content" xml:space="preserve">
+    <value>购买操作已经取消，您可以继续使用本应用，但相关功能将不会解锁</value>
+  </data>
+  <data name="QueueDialog_Store_PurchaseSuccess_Content" xml:space="preserve">
+    <value>您已成功购买本应用，相关功能已经解锁，感谢您的支持</value>
+  </data>
+  <data name="TeachingTip_PurchaseTip_Subtitle" xml:space="preserve">
+    <value>🎉您可以通过购买此应用来支持开发者🎉\r\r如果您不想购买此应用，您可以点击"稍后"按钮\r如果您愿意购买此应用，您可以点击"购买"按钮\r\r提示: 购买本应用可以解锁文件加密功能"安全域"</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="SettingPurchase.Content" xml:space="preserve">
+    <value>购买本应用</value>
   </data>
 </root>

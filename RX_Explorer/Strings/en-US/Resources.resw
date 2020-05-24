@@ -318,14 +318,14 @@
   <data name="DeviceUsedSpace.Text" xml:space="preserve">
     <value>Used space</value>
   </data>
-  <data name="DonateTip.ActionButtonContent" xml:space="preserve">
-    <value>Donate</value>
+  <data name="PurchaseTip.ActionButtonContent" xml:space="preserve">
+    <value>Purchase</value>
   </data>
-  <data name="DonateTip.CloseButtonContent" xml:space="preserve">
+  <data name="PurchaseTip.CloseButtonContent" xml:space="preserve">
     <value>Later</value>
   </data>
-  <data name="DonateTip.Title" xml:space="preserve">
-    <value>Donate developer</value>
+  <data name="PurchaseTip.Title" xml:space="preserve">
+    <value>Purchase this app</value>
   </data>
   <data name="EmptyFlyoutNew.Label" xml:space="preserve">
     <value>Create</value>
@@ -976,8 +976,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SettingSettingPrivacyPolicyTitle.Text" xml:space="preserve">
     <value>Privacy</value>
   </data>
-  <data name="SettingSupportDeveloper.Content" xml:space="preserve">
-    <value>Donate</value>
+  <data name="SettingPurchase.Content" xml:space="preserve">
+    <value>Purchase this app</value>
   </data>
   <data name="SettingSystemInfo.Content" xml:space="preserve">
     <value>System Information</value>
@@ -1919,32 +1919,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_BackgroundTaskDisable_SecondaryButton" xml:space="preserve">
     <value>Remind later</value>
   </data>
-  <data name="QueueDialog_Donate_AlreadyPurchase_Content" xml:space="preserve">
-    <value>You have already supported RX once, thank you very much\r\rThe original intention of RX is not to make money, so you can't repeat purchase it\r\rYou can advertise the RX to the people around you, and it is also the best support for RX（*＾-＾*）\r\rSincerely,\rRuofan</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_Donate_AlreadyPurchase_Title" xml:space="preserve">
-    <value>Thanks again</value>
-  </data>
-  <data name="QueueDialog_Donate_NetworkError_Content" xml:space="preserve">
-    <value>Unable to open support page due to Microsoft Store or network, please try again later</value>
-  </data>
-  <data name="QueueDialog_Donate_NetworkError_Title" xml:space="preserve">
-    <value>Sorry</value>
-  </data>
-  <data name="QueueDialog_Donate_NotPurchase_Content" xml:space="preserve">
-    <value>Whether supported or not, RX is always the same\r\rEven if you finally decide to give up supporting the project, thank you very much for being able to click to see it\r\rSincerely,\rRuofan</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_Donate_NotPurchase_Title" xml:space="preserve">
-    <value>Appreciation</value>
-  </data>
-  <data name="QueueDialog_Donate_Success_Content" xml:space="preserve">
-    <value>Thank you for your support, we will work hard to make RX better and better q(≧▽≦q)\r\rThe RX file manager was born to fill the gaps in the UWP file manager\rThis is not a profitable project, so downloading and using are free and do not include ads\rRX's goal is to create a free and full-featured file manager\rRX File Manager is a project I developed in my spare time\rI hope everyone likes\r\rSincerely,\rRuofan</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_Donate_Success_Title" xml:space="preserve">
-    <value>Appreciation</value>
+  <data name="QueueDialog_Store_NetworkError_Content" xml:space="preserve">
+    <value>Unable to open purchase page due to Microsoft Store or network, please try again later</value>
   </data>
   <data name="QueueDialog_LocateFolderFailure_Content" xml:space="preserve">
     <value>Unable to locate folder, which may have been deleted or moved</value>
@@ -2028,12 +2004,12 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SystemInfo_Dialog_Secondary_DNS_Text" xml:space="preserve">
     <value>Secondary DNS server</value>
   </data>
-  <data name="TeachingTip_Donate_Subtitle" xml:space="preserve">
-    <value>It takes a lot of effort for developers to develop RX Explorer\r🎉You can volunteer to contribute a little pocket money to developers.🎉\r\rIf you don't want to, you can click \"Later\" to cancel\rIf you want to donate, you can click \"Donate\" to support developer\r\rTips: Donator can unlock the unique file safe feature: \"Security Area\"</value>
+  <data name="TeachingTip_PurchaseTip_Subtitle" xml:space="preserve">
+    <value>🎉You can support developers to continue to develop by purchasing this application.🎉\r\rIf you don't want to, you can click "Later" to cancel\rIf you want to purchase, you can click "Purchase" to purchase this application\r\rTips: Purchase can unlock the unique file safe feature: "Security Area"</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="TeachingTip_PinToMenu_Subtitle" xml:space="preserve">
-    <value>Pin the RX RX_Explorer to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</value>
+    <value>Pin the RX-Explorer to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Toast_BroadFileSystemAccess_ActionButton_1" xml:space="preserve">
@@ -2320,7 +2296,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Please turn on Bluetooth and try again</value>
   </data>
   <data name="QueueDialog_OpenFailure_Content" xml:space="preserve">
-    <value>RX RX_Explorer could not open this file\r\rBut it can be opened with other applications</value>
+    <value>RX-Explorer could not open this file\r\rBut it can be opened with other applications</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_OpenFailure_PrimaryButton" xml:space="preserve">
@@ -2434,5 +2410,14 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="ThankTranslate.Text" xml:space="preserve">
     <value>Special thanks to the following translators:</value>
+  </data>
+  <data name="QueueDialog_Store_AlreadyPurchase_Content" xml:space="preserve">
+    <value>You have already purchased this application and cannot be purchased repeatedly</value>
+  </data>
+  <data name="QueueDialog_Store_NotPurchase_Content" xml:space="preserve">
+    <value>The purchase operation has been cancelled, you can continue to use this application, but the related functions will not be unlocked</value>
+  </data>
+  <data name="QueueDialog_Store_PurchaseSuccess_Content" xml:space="preserve">
+    <value>The application has been successfully purchased, the related functions have been unlocked, thank you for your support</value>
   </data>
 </root>
