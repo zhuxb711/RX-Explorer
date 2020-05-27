@@ -90,9 +90,6 @@
   <data name="BlueScreenReport.Content" xml:space="preserve">
     <value>报告给开发者</value>
   </data>
-  <data name="BlueScreenReset.Content" xml:space="preserve">
-    <value>重置</value>
-  </data>
   <data name="BluetoothShare.Text" xml:space="preserve">
     <value>蓝牙</value>
   </data>
@@ -1358,7 +1355,7 @@
     <value>因网络原因无法进行此项操作</value>
   </data>
   <data name="Common_Dialog_ErrorTitle" xml:space="preserve">
-    <value>下载出错</value>
+    <value>错误</value>
   </data>
   <data name="PairedText" xml:space="preserve">
     <value>已配对</value>
@@ -2314,5 +2311,8 @@
   </data>
   <data name="SettingPurchase.Content" xml:space="preserve">
     <value>购买本应用</value>
+  </data>
+  <data name="QueueDialog_EditErrorWhenOpen_Content" xml:space="preserve">
+    <value>创建剪辑片段时失败,无法编辑此视频</value>
   </data>
 </root>

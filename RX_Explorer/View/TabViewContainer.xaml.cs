@@ -186,7 +186,7 @@ namespace RX_Explorer
             {
                 TabViewControl.TabItems.Add(Item);
                 TabViewControl.UpdateLayout();
-                TabViewControl.SelectedItem = TabViewControl.TabItems.Last();
+                TabViewControl.SelectedItem = Item;
 
                 if (TabViewControl.TabItems.Count > 1)
                 {
@@ -600,7 +600,9 @@ namespace RX_Explorer
             {
                 sender.TabItems.Add(Item);
                 sender.UpdateLayout();
-                if (TabViewControl.TabItems.Count > 1)
+                sender.SelectedItem = Item;
+
+                if (sender.TabItems.Count > 1)
                 {
                     foreach (TabViewItem Tab in TabViewControl.TabItems)
                     {

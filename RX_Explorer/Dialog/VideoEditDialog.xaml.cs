@@ -30,7 +30,7 @@ namespace RX_Explorer.Dialog
         {
             InitializeComponent();
             this.VideoFile = VideoFile;
-            Loading += VideoEditDialog_Loading;
+            Loaded += VideoEditDialog_Loaded;
 
             EncodingProfile.Items.Add($"MP4(.mp4) {Globalization.GetString("Video_Dialog_Encoding_Text")}");
             EncodingProfile.Items.Add($"WMV(.wmv) {Globalization.GetString("Video_Dialog_Encoding_Text")}");
@@ -49,17 +49,33 @@ namespace RX_Explorer.Dialog
             TrimmingProfile.SelectedIndex = 0;
         }
 
-        private async void VideoEditDialog_Loading(FrameworkElement sender, object args)
+        private async void VideoEditDialog_Loaded(object sender, RoutedEventArgs e)
         {
-            Composition = new MediaComposition();
-            VideoClip = await MediaClip.CreateFromFileAsync(VideoFile);
-            Composition.Clips.Add(VideoClip);
+            try
+            {
+                Composition = new MediaComposition();
+                VideoClip = await MediaClip.CreateFromFileAsync(VideoFile);
+                Composition.Clips.Add(VideoClip);
 
-            PreviewSource = MediaSource.CreateFromMediaStreamSource(Composition.GeneratePreviewMediaStreamSource(640, 360));
-            MediaPlay.Source = PreviewSource;
+                PreviewSource = MediaSource.CreateFromMediaStreamSource(Composition.GeneratePreviewMediaStreamSource(640, 360));
+                MediaPlay.Source = PreviewSource;
 
-            CutRange.Maximum = VideoClip.OriginalDuration.TotalMilliseconds;
-            CutRange.RangeMax = CutRange.Maximum;
+                CutRange.Maximum = VideoClip.OriginalDuration.TotalMilliseconds;
+                CutRange.RangeMax = CutRange.Maximum;
+            }
+            catch
+            {
+                Hide();
+
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_EditErrorWhenOpen_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                _ = await dialog.ShowAsync().ConfigureAwait(false);
+            }
         }
 
         private async void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

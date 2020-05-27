@@ -59,33 +59,5 @@ namespace RX_Explorer
         {
             await SendEmailAsync(Message.Text).ConfigureAwait(false);
         }
-
-        private async void Reset_Click(object sender, RoutedEventArgs e)
-        {
-            SQLite.Current.Dispose();
-            MySQL.Current.Dispose();
-
-            try
-            {
-                await ApplicationData.Current.ClearAsync();
-            }
-            catch (Exception)
-            {
-                try
-                {
-                    ApplicationData.Current.LocalSettings.Values.Clear();
-                    await ApplicationData.Current.LocalFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(false);
-                    await ApplicationData.Current.TemporaryFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(false);
-                    await ApplicationData.Current.LocalCacheFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(false);
-                }
-                catch
-                {
-
-                }
-            }
-
-            _ = await CoreApplication.RequestRestartAsync(string.Empty);
-        }
-
     }
 }

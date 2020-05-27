@@ -53,23 +53,14 @@
                        TextTrimming="CharacterEllipsis"
                        TextWrapping="Wrap" />
         </ScrollViewer>
-        <StackPanel Orientation="Horizontal"
+        <Button Width="120"
+                    Height="40"
                     Grid.Row="6"
                     Grid.Column="2"
-                    HorizontalAlignment="Right">
-            <Button Width="120"
-                    Height="40"
+                    HorizontalAlignment="Right"
                     Content="报告给开发者"
                     x:Uid="BlueScreenReport"
                     Name="Report"
                     Click="Report_Click" />
-            <Button Content="重置以恢复"
-                    Margin="15,0,0,0"
-                    Width="120"
-                    Height="40"
-                    x:Uid="BlueScreenReset"
-                    Name="Reset"
-                    Click="Reset_Click" />
-        </StackPanel>
     </Grid>
 </Page>

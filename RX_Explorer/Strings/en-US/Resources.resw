@@ -195,9 +195,6 @@
   <data name="BlueScreenReport.Content" xml:space="preserve">
     <value>Report to Developer</value>
   </data>
-  <data name="BlueScreenReset.Content" xml:space="preserve">
-    <value>Reset</value>
-  </data>
   <data name="BluetoothShare.Text" xml:space="preserve">
     <value>Bluetooth</value>
   </data>
@@ -2419,5 +2416,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_Store_PurchaseSuccess_Content" xml:space="preserve">
     <value>The application has been successfully purchased, the related functions have been unlocked, thank you for your support</value>
+  </data>
+  <data name="QueueDialog_EditErrorWhenOpen_Content" xml:space="preserve">
+    <value>Failed to create clip, unable to edit this video</value>
   </data>
 </root>

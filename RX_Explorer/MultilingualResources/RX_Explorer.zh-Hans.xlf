@@ -110,10 +110,6 @@
           <source>Report to Developer</source>
           <target state="translated">报告给开发者</target>
         </trans-unit>
-        <trans-unit id="BlueScreenReset.Content" translate="yes" xml:space="preserve">
-          <source>Reset</source>
-          <target state="translated">重置</target>
-        </trans-unit>
         <trans-unit id="BluetoothShare.Text" translate="yes" xml:space="preserve">
           <source>Bluetooth</source>
           <target state="translated">蓝牙</target>
@@ -1802,7 +1798,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="Common_Dialog_ErrorTitle" translate="yes" xml:space="preserve">
           <source>Error</source>
-          <target state="translated">下载出错</target>
+          <target state="translated">错误</target>
         </trans-unit>
         <trans-unit id="PairedText" translate="yes" xml:space="preserve">
           <source>Paired</source>
@@ -3059,6 +3055,10 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="SettingPurchase.Content" translate="yes" xml:space="preserve">
           <source>Purchase this app</source>
           <target state="translated">购买本应用</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_EditErrorWhenOpen_Content" translate="yes" xml:space="preserve">
+          <source>Failed to create clip, unable to edit this video</source>
+          <target state="translated">创建剪辑片段时失败,无法编辑此视频</target>
         </trans-unit>
       </group>
     </body>

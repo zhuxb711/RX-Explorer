@@ -110,10 +110,6 @@
           <source>Report to Developer</source>
           <target state="translated">Rapport au développeur</target>
         </trans-unit>
-        <trans-unit id="BlueScreenReset.Content" translate="yes" xml:space="preserve">
-          <source>Reset</source>
-          <target state="translated">Réinitialiser</target>
-        </trans-unit>
         <trans-unit id="BluetoothShare.Text" translate="yes" xml:space="preserve">
           <source>Bluetooth</source>
           <target state="translated">Bluetooth</target>
@@ -172,7 +168,7 @@
         </trans-unit>
         <trans-unit id="CropperPageAspButton.Text" translate="yes" xml:space="preserve">
           <source>Aspect ratio</source>
-          <target state="translated">Ratio d'affichage</target>
+          <target state="translated">Ratio</target>
         </trans-unit>
         <trans-unit id="CropperPageAutoOptimizeButton.Text" translate="yes" xml:space="preserve">
           <source>Auto Optimize</source>
@@ -1070,7 +1066,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="SettingOpenLeftArea.Header" translate="yes" xml:space="preserve">
           <source>Sidebar</source>
-          <target state="translated">Barre latérale</target>
+          <target state="translated">Barre latérale d'accueil</target>
         </trans-unit>
         <trans-unit id="SettingOpenLeftArea.OffContent" translate="yes" xml:space="preserve">
           <source>Hide</source>
@@ -1714,7 +1710,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="SettingTreeViewDetach.Header" translate="yes" xml:space="preserve">
           <source>Folder directory</source>
-          <target state="translated">Dossier de destination</target>
+          <target state="translated">Dossier de destination Arborescence</target>
         </trans-unit>
         <trans-unit id="SettingTreeViewDetach.OffContent" translate="yes" xml:space="preserve">
           <source>Hide</source>
@@ -2496,7 +2492,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="TeachingTip_PinToMenu_Subtitle" translate="yes" xml:space="preserve">
           <source>Pin the RX-Explorer to StartScreen and TaskBar ！\r\r★Pin to StartScreen\r\r★Pin to TaskBar</source>
-          <target state="translated">Épinglez le RX Explorer pour démarrer l'écran et la barre des tâches ！\r\r★Épingler à l'écran de démarrage\r\r★Épingle à la barre des tâches</target>
+          <target state="translated">Épinglez le RX-Explorateur pour démarrer l'écran et la barre des tâches ！\r\r★Épingler à l'écran de démarrage\r\r★Épingle à la barre des tâches</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="Toast_BroadFileSystemAccess_ActionButton_1" translate="yes" xml:space="preserve">
@@ -2873,7 +2869,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="QueueDialog_OpenFailure_Content" translate="yes" xml:space="preserve">
           <source>RX-Explorer could not open this file\r\rBut it can be opened with other applications</source>
-          <target state="translated">RX-Explorer n'a pas pu ouvrir ce fichier\r\rMais il peut être ouvert avec d'autres applications</target>
+          <target state="translated">RX-Explorateur n'a pas pu ouvrir ce fichier\r\rMais il peut être ouvert avec d'autres applications</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_OpenFailure_PrimaryButton" translate="yes" xml:space="preserve">
@@ -3059,6 +3055,10 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="SettingPurchase.Content" translate="yes" xml:space="preserve">
           <source>Purchase this app</source>
           <target state="translated">Achetez cette application</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_EditErrorWhenOpen_Content" translate="yes" xml:space="preserve">
+          <source>Failed to create clip, unable to edit this video</source>
+          <target state="translated">Impossible de créer le clip, impossible de modifier cette vidéo</target>
         </trans-unit>
       </group>
     </body>

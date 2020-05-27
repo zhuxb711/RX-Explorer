@@ -204,7 +204,7 @@ namespace RX_Explorer
             var CtrlState = WindowInstance.GetKeyState(VirtualKey.Control);
             var ShiftState = WindowInstance.GetKeyState(VirtualKey.Shift);
 
-            if (!FileControlInstance.IsSearchOrPathBoxFocused)
+            if (!FileControlInstance.IsSearchOrPathBoxFocused && !QueueContentDialog.IsRunningOrWaiting)
             {
                 switch (args.VirtualKey)
                 {
@@ -2716,6 +2716,8 @@ namespace RX_Explorer
                     Content = Globalization.GetString("QueueDialog_TaskWorking_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
+
+                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                 return;
             }

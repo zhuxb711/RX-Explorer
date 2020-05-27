@@ -11,8 +11,7 @@
                           Title="输入凭据"
                           PrimaryButtonText="确定"
                           CloseButtonText="取消"
-                          PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick"
-                          KeyDown="QueueContentDialog_KeyDown">
+                          PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
     <local:QueueContentDialog.Resources>
         <controls:TeachingTip x:Name="ErrorTip"

@@ -27,9 +27,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        private bool IsCloseRequested = false;
-        private ContentDialogResult CloseWithResult;
-
         /// <summary>
         /// 显示对话框
         /// </summary>
@@ -43,32 +40,13 @@ namespace RX_Explorer.Class
                 Locker.WaitOne();
             }).ConfigureAwait(true);
 
-            var Result = await base.ShowAsync();
+            ContentDialogResult Result = await base.ShowAsync();
 
             _ = Interlocked.Decrement(ref WaitCount);
 
             Locker.Set();
 
-            if (IsCloseRequested)
-            {
-                IsCloseRequested = false;
-                return CloseWithResult;
-            }
-            else
-            {
-                return Result;
-            }
-        }
-
-        /// <summary>
-        /// 关闭对话框并返回指定的枚举值
-        /// </summary>
-        /// <param name="CloseWithResult"></param>
-        public void Close(ContentDialogResult CloseWithResult)
-        {
-            IsCloseRequested = true;
-            this.CloseWithResult = CloseWithResult;
-            Hide();
+            return Result;
         }
 
         /// <summary>

@@ -21,7 +21,10 @@ namespace RX_Explorer.Dialog
 
         private void RenameDialog_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            RenameText.SelectAll();
+            if (OriginName != Path.GetExtension(OriginName))
+            {
+                RenameText.Select(0, OriginName.Length - Path.GetExtension(OriginName).Length);
+            }
         }
 
         private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -31,7 +34,7 @@ namespace RX_Explorer.Dialog
                 args.Cancel = true;
                 InvalidCharTip.IsOpen = true;
             }
-            else if(string.IsNullOrWhiteSpace(RenameText.Text))
+            else if (string.IsNullOrWhiteSpace(RenameText.Text))
             {
                 args.Cancel = true;
                 InvalidCharTip.IsOpen = true;

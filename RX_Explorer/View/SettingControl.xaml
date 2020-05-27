@@ -156,7 +156,7 @@
                       x:Name="Scroll">
             <Grid Padding="0,0,0,20">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="350" />
+                    <ColumnDefinition Width="400" />
                     <ColumnDefinition />
                     <ColumnDefinition Width="350" />
                 </Grid.ColumnDefinitions>
@@ -518,12 +518,12 @@
                                x:Uid="SettingAbout"
                                Text="关于"
                                FontSize="22" />
-                    <TextBlock FontSize="16"
+                    <TextBlock FontSize="15"
                                Text="特别感谢以下提供翻译的人员:"
                                Margin="0,20,0,0"
                                x:Uid="ThankTranslate"
                                Name="ThankTranslate" />
-                    <TextBlock Text="Yann Lacroix"
+                    <TextBlock Text="• Yann Lacroix"
                                FontSize="15"
                                Margin="0,3,0,0" />
                     <HyperlinkButton Content="Github"

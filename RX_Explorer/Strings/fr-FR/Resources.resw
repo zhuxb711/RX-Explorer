@@ -90,9 +90,6 @@
   <data name="BlueScreenReport.Content" xml:space="preserve">
     <value>Rapport au développeur</value>
   </data>
-  <data name="BlueScreenReset.Content" xml:space="preserve">
-    <value>Réinitialiser</value>
-  </data>
   <data name="BluetoothShare.Text" xml:space="preserve">
     <value>Bluetooth</value>
   </data>
@@ -136,7 +133,7 @@
     <value>Contraste</value>
   </data>
   <data name="CropperPageAspButton.Text" xml:space="preserve">
-    <value>Ratio d'affichage</value>
+    <value>Ratio</value>
   </data>
   <data name="CropperPageAutoOptimizeButton.Text" xml:space="preserve">
     <value>Optimisation Automatique</value>
@@ -809,7 +806,7 @@
     <value>Évaluez l'application</value>
   </data>
   <data name="SettingOpenLeftArea.Header" xml:space="preserve">
-    <value>Barre latérale</value>
+    <value>Barre latérale d'accueil</value>
   </data>
   <data name="SettingOpenLeftArea.OffContent" xml:space="preserve">
     <value>Cacher</value>
@@ -1292,7 +1289,7 @@
     <value>Annuler</value>
   </data>
   <data name="SettingTreeViewDetach.Header" xml:space="preserve">
-    <value>Dossier de destination</value>
+    <value>Dossier de destination Arborescence</value>
   </data>
   <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
     <value>Cacher</value>
@@ -1885,7 +1882,7 @@
     <value>Serveur DNS secondaire</value>
   </data>
   <data name="TeachingTip_PinToMenu_Subtitle" xml:space="preserve">
-    <value>Épinglez le RX Explorer pour démarrer l'écran et la barre des tâches ！\r\r★Épingler à l'écran de démarrage\r\r★Épingle à la barre des tâches</value>
+    <value>Épinglez le RX-Explorateur pour démarrer l'écran et la barre des tâches ！\r\r★Épingler à l'écran de démarrage\r\r★Épingle à la barre des tâches</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Toast_BroadFileSystemAccess_ActionButton_1" xml:space="preserve">
@@ -2172,7 +2169,7 @@
     <value>Veuillez activer le Bluetooth puis réessayez</value>
   </data>
   <data name="QueueDialog_OpenFailure_Content" xml:space="preserve">
-    <value>RX-Explorer n'a pas pu ouvrir ce fichier\r\rMais il peut être ouvert avec d'autres applications</value>
+    <value>RX-Explorateur n'a pas pu ouvrir ce fichier\r\rMais il peut être ouvert avec d'autres applications</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_OpenFailure_PrimaryButton" xml:space="preserve">
@@ -2314,5 +2311,8 @@
   </data>
   <data name="SettingPurchase.Content" xml:space="preserve">
     <value>Achetez cette application</value>
+  </data>
+  <data name="QueueDialog_EditErrorWhenOpen_Content" xml:space="preserve">
+    <value>Impossible de créer le clip, impossible de modifier cette vidéo</value>
   </data>
 </root>
