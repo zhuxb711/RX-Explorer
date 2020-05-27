@@ -1065,8 +1065,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Double clic</target>
         </trans-unit>
         <trans-unit id="SettingLike.Text" translate="yes" xml:space="preserve">
-          <source>Like the app</source>
-          <target state="translated">Aimer l'application</target>
+          <source>Rate the app</source>
+          <target state="translated">Évaluez l'application</target>
         </trans-unit>
         <trans-unit id="SettingOpenLeftArea.Header" translate="yes" xml:space="preserve">
           <source>Sidebar</source>

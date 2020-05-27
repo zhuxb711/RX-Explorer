@@ -18,7 +18,7 @@ namespace RX_Explorer.Class
         /// </summary>
         public static LanguageEnum CurrentLanguage { get; private set; }
 
-        private static readonly ResourceLoader Loader = ResourceLoader.GetForViewIndependentUse();
+        private static readonly ResourceLoader Loader;
         private static readonly Dictionary<string, string> ResourceCache = new Dictionary<string, string>();
 
         public static void SwitchTo(LanguageEnum Language)
@@ -122,6 +122,8 @@ namespace RX_Explorer.Class
                     ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 1;
                 }
             }
+
+            Loader = ResourceLoader.GetForViewIndependentUse();
         }
     }
 }

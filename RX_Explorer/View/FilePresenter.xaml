@@ -532,7 +532,7 @@
                        Width="30"/>
                 <TextBlock Margin="5,0,0,0"
                            VerticalAlignment="Center"
-                           FontSize="14"
+                           FontSize="15"
                            Text="{x:Bind DisplayName,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind DisplayName,Mode=OneWay}"
                            TextTrimming="CharacterEllipsis" />
@@ -547,7 +547,7 @@
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
                   PointerPressed="ViewControl_PointerPressed"
-                  RightTapped="ListViewControl_RightTapped"
+                  RightTapped="ViewControl_RightTapped"
                   SelectionChanged="ViewControl_SelectionChanged"
                   SelectionMode="Extended"
                   ItemClick="ViewControl_ItemClick"
@@ -559,9 +559,11 @@
                   AllowDrop="True"
                   DragOver="ViewControl_DragOver"
                   Drop="ViewControl_Drop"
+                  IsHoldingEnabled="True"
                   IsItemClickEnabled="True"
                   IsDoubleTapEnabled="True"
-                  DoubleTapped="GridViewControl_DoubleTapped"
+                  Holding="ViewControl_Holding"
+                  DoubleTapped="ViewControl_DoubleTapped"
                   x:FieldModifier="Public"
                   Visibility="Collapsed"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterListViewTransitions,Mode=OneWay}">
@@ -584,8 +586,8 @@
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
                   PointerPressed="ViewControl_PointerPressed"
-                  RightTapped="GridViewControl_RightTapped"
-                  Holding="GridViewControl_Holding"
+                  RightTapped="ViewControl_RightTapped"
+                  Holding="ViewControl_Holding"
                   SelectionChanged="ViewControl_SelectionChanged"
                   SelectionMode="Extended"
                   ItemClick="ViewControl_ItemClick"
@@ -600,7 +602,7 @@
                   DragItemsStarting="GridViewControl_DragItemsStarting"
                   IsItemClickEnabled="True"
                   IsDoubleTapEnabled="True"
-                  DoubleTapped="GridViewControl_DoubleTapped"
+                  DoubleTapped="ViewControl_DoubleTapped"
                   x:FieldModifier="Public"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterGridViewTransitions,Mode=OneWay}">
             <GridView.ItemsPanel>

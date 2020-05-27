@@ -806,7 +806,7 @@
     <value>Double clic</value>
   </data>
   <data name="SettingLike.Text" xml:space="preserve">
-    <value>Aimer l'application</value>
+    <value>Évaluez l'application</value>
   </data>
   <data name="SettingOpenLeftArea.Header" xml:space="preserve">
     <value>Barre latérale</value>

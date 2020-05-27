@@ -1,10 +1,11 @@
-﻿using RX_Explorer.Class;
-using RX_Explorer.Dialog;
-using ICSharpCode.SharpZipLib.Zip;
+﻿using ICSharpCode.SharpZipLib.Zip;
 using OpenCV;
+using RX_Explorer.Class;
+using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -89,32 +90,6 @@ namespace RX_Explorer
 
         WiFiShareProvider WiFiProvider;
         FileSystemStorageItem TabTarget = null;
-
-        private int SelectedIndex
-        {
-            get
-            {
-                if (UseGridOrList)
-                {
-                    return GridViewControl.SelectedIndex;
-                }
-                else
-                {
-                    return ListViewControl.SelectedIndex;
-                }
-            }
-            set
-            {
-                if (UseGridOrList)
-                {
-                    GridViewControl.SelectedIndex = value;
-                }
-                else
-                {
-                    ListViewControl.SelectedIndex = value;
-                }
-            }
-        }
 
         private FlyoutBase ControlContextFlyout
         {
@@ -233,7 +208,7 @@ namespace RX_Explorer
             {
                 switch (args.VirtualKey)
                 {
-                    case VirtualKey.Space when SelectedIndex != -1 && SettingControl.IsQuicklookAvailable && SettingControl.IsQuicklookEnable:
+                    case VirtualKey.Space when SelectedItem != null && SettingControl.IsQuicklookAvailable && SettingControl.IsQuicklookEnable:
                         {
                             await FullTrustExcutorController.ViewWithQuicklook(SelectedItem.Path).ConfigureAwait(false);
                             break;
@@ -251,19 +226,6 @@ namespace RX_Explorer
                     case VirtualKey.F5:
                         {
                             Refresh_Click(null, null);
-                            break;
-                        }
-                    case VirtualKey.Right when SelectedIndex == -1:
-                        {
-                            if (UseGridOrList)
-                            {
-                                GridViewControl.Focus(FocusState.Programmatic);
-                            }
-                            else
-                            {
-                                ListViewControl.Focus(FocusState.Programmatic);
-                            }
-                            SelectedIndex = 0;
                             break;
                         }
                     case VirtualKey.Enter when !QueueContentDialog.IsRunningOrWaiting && SelectedItem is FileSystemStorageItem Item:
@@ -1397,12 +1359,12 @@ namespace RX_Explorer
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
             {
-                SelectedIndex = -1;
+                SelectedItem = null;
                 FileControlInstance.IsSearchOrPathBoxFocused = false;
             }
         }
 
-        private void GridViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        private void ViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
@@ -1410,8 +1372,8 @@ namespace RX_Explorer
                 {
                     if (SelectedItems.Length <= 1 || !SelectedItems.Contains(Context))
                     {
-                        SelectedIndex = FileCollection.IndexOf(Context);
                         ControlContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                        SelectedItem = Context;
                     }
                     else
                     {
@@ -1421,28 +1383,6 @@ namespace RX_Explorer
                 else
                 {
                     ControlContextFlyout = EmptyFlyout;
-                }
-            }
-
-            e.Handled = true;
-        }
-
-        private void ListViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
-        {
-            if (e.OriginalSource is ContentPresenter || e.OriginalSource is Grid)
-            {
-                ControlContextFlyout = EmptyFlyout;
-            }
-            else if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
-            {
-                if (SelectedItems.Length <= 1 || !SelectedItems.Contains(Context))
-                {
-                    SelectedIndex = FileCollection.IndexOf(Context);
-                    ControlContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
-                }
-                else
-                {
-                    ControlContextFlyout = MixedFlyout;
                 }
             }
 
@@ -1957,7 +1897,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void GridViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private async void ViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
             if (SettingControl.IsInputFromPrimaryButton && (e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem ReFile)
             {
@@ -3839,21 +3779,20 @@ namespace RX_Explorer
 
         }
 
-        private void GridViewControl_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        private void ViewControl_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
         {
             if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
                 {
-                    SelectedIndex = FileCollection.IndexOf(Context);
-
-                    if (Context.StorageType == StorageItemTypes.Folder)
+                    if (SelectedItems.Length <= 1 || !SelectedItems.Contains(Context))
                     {
-                        ControlContextFlyout = FolderFlyout;
+                        ControlContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                        SelectedItem = Context;
                     }
                     else
                     {
-                        ControlContextFlyout = FileFlyout;
+                        ControlContextFlyout = MixedFlyout;
                     }
                 }
                 else

@@ -920,7 +920,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Double click</value>
   </data>
   <data name="SettingLike.Text" xml:space="preserve">
-    <value>Like the app</value>
+    <value>Rate the app</value>
   </data>
   <data name="SettingOpenLeftArea.Header" xml:space="preserve">
     <value>Sidebar</value>

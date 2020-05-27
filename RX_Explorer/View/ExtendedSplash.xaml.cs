@@ -160,7 +160,6 @@ namespace RX_Explorer
                     await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_10"), "ms-appx:///HotWebImage/Instagram.png", "https://www.instagram.com/", QuickStartType.WebSite).ConfigureAwait(false);
                     await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_11"), "ms-appx:///HotWebImage/Twitter.png", "https://twitter.com", QuickStartType.WebSite).ConfigureAwait(false);
 
-
                     ApplicationData.Current.LocalSettings.Values["QuickStartInitialFinished"] = true;
                 }
 

@@ -312,16 +312,13 @@ namespace RX_Explorer
         private static async Task<bool> PurchaseAsync()
         {
             StoreContext Store = StoreContext.GetDefault();
+            StoreProductResult ProductResult = await Store.GetStoreProductForCurrentAppAsync();
 
-            StoreProductQueryResult StoreProductResult = await Store.GetAssociatedStoreProductsAsync(new string[] { "Durable" });
-            if (StoreProductResult.ExtendedError == null)
+            if (ProductResult.ExtendedError == null)
             {
-                StoreProduct Product = StoreProductResult.Products.Values.FirstOrDefault();
-                if (Product != null)
+                if (ProductResult.Product != null)
                 {
-                    StorePurchaseResult PurchaseResult = await Store.RequestPurchaseAsync(Product.StoreId);
-
-                    if (PurchaseResult.Status == StorePurchaseStatus.Succeeded)
+                    if ((await ProductResult.Product.RequestPurchaseAsync()).Status == StorePurchaseStatus.Succeeded)
                     {
                         return true;
                     }
@@ -337,7 +334,7 @@ namespace RX_Explorer
             }
             else
             {
-                throw new NetworkException("Network Exception");
+                throw new NetworkException("Network error");
             }
         }
 

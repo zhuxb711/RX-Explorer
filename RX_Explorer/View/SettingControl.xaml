@@ -192,7 +192,7 @@
                     <StackPanel Orientation="Horizontal">
                         <ComboBox Margin="0,20,0,0"
                                   Header="语言"
-                                  Width="160"
+                                  MinWidth="150"
                                   Name="LanguageComboBox"
                                   x:Uid="LanguageComboBox"
                                   Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
