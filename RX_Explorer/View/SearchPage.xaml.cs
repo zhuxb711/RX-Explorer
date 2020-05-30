@@ -149,7 +149,6 @@ namespace RX_Explorer
                             TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Item.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
                             if (TargetNode != null)
                             {
-                                FileControlInstance.FolderTree.SelectNode(TargetNode);
                                 await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
                             }
                             else
@@ -182,8 +181,6 @@ namespace RX_Explorer
                         else
                         {
                             TreeViewNode CurrentNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Path.GetDirectoryName(Item.Path), (FileControlInstance.FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
-
-                            FileControlInstance.FolderTree.SelectNode(CurrentNode);
 
                             await FileControlInstance.DisplayItemsInFolder(CurrentNode).ConfigureAwait(false);
                         }

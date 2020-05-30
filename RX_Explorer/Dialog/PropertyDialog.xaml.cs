@@ -1,11 +1,9 @@
 ﻿using RX_Explorer.Class;
 using System;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
-using Windows.Storage.Search;
 using Windows.UI.Xaml;
 
 namespace RX_Explorer.Dialog
@@ -27,12 +25,6 @@ namespace RX_Explorer.Dialog
         public string Include { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        private CancellationTokenSource Cancellation;
-
-        private DispatcherTimer Timer;
-
-        private ulong Length = 0;
 
         public PropertyDialog(IStorageItem Item)
         {
@@ -131,8 +123,6 @@ namespace RX_Explorer.Dialog
                 {
                     ExtraDataArea.Visibility = Visibility.Collapsed;
 
-                    Cancellation = new CancellationTokenSource();
-
                     Include = Globalization.GetString("SizeProperty_Calculating_Text");
                     FileSize = Globalization.GetString("SizeProperty_Calculating_Text");
 
@@ -146,13 +136,13 @@ namespace RX_Explorer.Dialog
 
                     OnPropertyChanged();
 
-                    var CountTask = CalculateFolderAndFileCount(folder);
-                    var CalculateTask = CalculateFolderSize(folder);
-                    await Task.WhenAll(CountTask, CalculateTask).ContinueWith((task) =>
+                    await Task.Run(() =>
                     {
-                        Cancellation.Dispose();
-                        Cancellation = null;
-                    }, TaskScheduler.Current).ConfigureAwait(false);
+                        CalculateFolderAndFileCount(folder);
+                        CalculateFolderSize(folder);
+                    }).ConfigureAwait(true);
+
+                    OnPropertyChanged();
                 }
             };
         }
@@ -161,8 +151,7 @@ namespace RX_Explorer.Dialog
         {
             int Hour = 0;
             int Minute = 0;
-            int Second = 0;
-            Second = Convert.ToInt32(Span.TotalSeconds);
+            int Second = Convert.ToInt32(Span.TotalSeconds);
             if (Second >= 60)
             {
                 Minute = Second / 60;
@@ -177,85 +166,21 @@ namespace RX_Explorer.Dialog
             return string.Format("{0:D2}:{1:D2}:{2:D2}", Hour, Minute, Second);
         }
 
-        private async Task CalculateFolderSize(StorageFolder Folder)
+        private void CalculateFolderSize(StorageFolder Folder)
         {
-            Timer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMilliseconds(1000)
-            };
-            Timer.Tick += Timer_Tick;
+            long TotalSize = WIN_Native_API.CalculateSize(Folder.Path);
 
-            QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
-            {
-                FolderDepth = FolderDepth.Deep,
-                IndexerOption = IndexerOption.UseIndexerWhenAvailable
-            };
-            Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size" });
-            var Query = Folder.CreateFileQueryWithOptions(Options);
-
-            try
-            {
-                uint TotalFiles = await Query.GetItemCountAsync();
-
-                Timer.Start();
-
-                for (uint Index = 0; Index < TotalFiles && !Cancellation.IsCancellationRequested; Index += 100)
-                {
-                    var Files = await Query.GetFilesAsync(Index, 100).AsTask(Cancellation.Token).ConfigureAwait(true);
-
-                    for (int i = 0; i < Files.Count && !Cancellation.IsCancellationRequested; i++)
-                    {
-                        BasicProperties Properties = await Files[i].GetBasicPropertiesAsync();
-                        Length += Properties.Size;
-                    }
-                }
-
-                Timer_Tick(null, null);
-            }
-            catch (TaskCanceledException)
-            {
-
-            }
-            finally
-            {
-                Timer.Tick -= Timer_Tick;
-                Timer.Stop();
-            }
+            FileSize = TotalSize / 1024f < 1024 ? Math.Round(TotalSize / 1024f, 2).ToString("0.00") + " KB" :
+            (TotalSize / 1048576f < 1024 ? Math.Round(TotalSize / 1048576f, 2).ToString("0.00") + " MB" :
+            (TotalSize / 1073741824f < 1024 ? Math.Round(TotalSize / 1073741824f, 2).ToString("0.00") + " GB" :
+            Math.Round(TotalSize / Convert.ToDouble(1099511627776), 2).ToString() + " TB")) + " (" + TotalSize.ToString("N0") + $" {Globalization.GetString("Device_Capacity_Unit")})";
         }
 
-        private async Task CalculateFolderAndFileCount(StorageFolder folder)
+        private void CalculateFolderAndFileCount(StorageFolder Folder)
         {
-            QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
-            {
-                FolderDepth = FolderDepth.Deep,
-                IndexerOption = IndexerOption.UseIndexerWhenAvailable
-            };
-            StorageFolderQueryResult FolderQuery = folder.CreateFolderQueryWithOptions(Options);
-            StorageFileQueryResult FileQuery = folder.CreateFileQueryWithOptions(Options);
+            (uint FolderCount, uint FileCount) = WIN_Native_API.CalculateFolderAndFileCount(Folder.Path);
 
-            try
-            {
-                uint FolderCount = await FolderQuery.GetItemCountAsync().AsTask(Cancellation.Token).ConfigureAwait(true);
-                uint FileCount = await FileQuery.GetItemCountAsync().AsTask(Cancellation.Token).ConfigureAwait(true);
-
-                Include = $"{FileCount} {Globalization.GetString("FolderInfo_File_Count")} , {FolderCount} {Globalization.GetString("FolderInfo_Folder_Count")}";
-
-                OnPropertyChanged();
-            }
-            catch (TaskCanceledException)
-            {
-
-            }
-        }
-
-        private void Timer_Tick(object sender, object e)
-        {
-            FileSize = Length / 1024f < 1024 ? Math.Round(Length / 1024f, 2).ToString("0.00") + " KB" :
-                       (Length / 1048576f < 1024 ? Math.Round(Length / 1048576f, 2).ToString("0.00") + " MB" :
-                       (Length / 1073741824f < 1024 ? Math.Round(Length / 1073741824f, 2).ToString("0.00") + " GB" :
-                       Math.Round(Length / Convert.ToDouble(1099511627776), 2).ToString() + " TB")) + " (" + Length.ToString("N0") + $" {Globalization.GetString("Device_Capacity_Unit")})";
-
-            PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(FileSize)));
+            Include = $"{FileCount} {Globalization.GetString("FolderInfo_File_Count")} , {FolderCount} {Globalization.GetString("FolderInfo_Folder_Count")}";
         }
 
         public void OnPropertyChanged()
@@ -270,11 +195,6 @@ namespace RX_Explorer.Dialog
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(ChangeTime)));
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Include)));
             }
-        }
-
-        private void QueueContentDialog_CloseButtonClick(Windows.UI.Xaml.Controls.ContentDialog sender, Windows.UI.Xaml.Controls.ContentDialogButtonClickEventArgs args)
-        {
-            Cancellation?.Cancel();
         }
     }
 }

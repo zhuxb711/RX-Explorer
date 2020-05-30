@@ -1,5 +1,6 @@
 ﻿using RX_Explorer.Class;
 using System.IO;
+using System.Linq;
 using Windows.UI.Xaml.Controls;
 
 namespace RX_Explorer.Dialog
@@ -29,7 +30,7 @@ namespace RX_Explorer.Dialog
 
         private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            if (RenameText.Text.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
+            if (RenameText.Text.Any((Char) => Path.GetInvalidFileNameChars().Contains(Char)))
             {
                 args.Cancel = true;
                 InvalidCharTip.IsOpen = true;

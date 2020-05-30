@@ -106,6 +106,46 @@ namespace RX_Explorer
             }
         }
 
+        public bool LibraryExpanderIsExpand
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["LibraryExpanderIsExpand"] is bool IsExpand)
+                {
+                    return IsExpand;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["LibraryExpanderIsExpand"] = true;
+                    return true;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["LibraryExpanderIsExpand"] = value;
+            }
+        }
+
+        public bool DeviceExpanderIsExpand
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] is bool IsExpand)
+                {
+                    return IsExpand;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] = true;
+                    return true;
+                }
+            }
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] = value;
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public TabViewContainer()
@@ -567,12 +607,14 @@ namespace RX_Explorer
         {
             if ((args.Tab.Content as Frame).Content is ThisPC PC && TFInstanceContainer.ContainsKey(PC))
             {
+                TFInstanceContainer[PC].Dispose();
                 FFInstanceContainer.Remove(TFInstanceContainer[PC]);
                 FSInstanceContainer.Remove(TFInstanceContainer[PC]);
                 TFInstanceContainer.Remove(PC);
             }
             else if ((args.Tab.Content as Frame).Content is FileControl Control && TFInstanceContainer.ContainsValue(Control))
             {
+                Control.Dispose();
                 FFInstanceContainer.Remove(Control);
                 FSInstanceContainer.Remove(Control);
                 TFInstanceContainer.Remove(TFInstanceContainer.First((Item) => Item.Value == Control).Key);

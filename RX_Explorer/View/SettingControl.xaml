@@ -557,7 +557,7 @@
                                    Name="EmptyFeedBack"
                                    HorizontalAlignment="Center"
                                    FontSize="18"/>
-                        <HyperlinkButton NavigateUri="https://github.com/zhuxb711/RX_Explorer/issues"
+                        <HyperlinkButton NavigateUri="https://github.com/zhuxb711/RX-Explorer/issues"
                                          Content="在Github提交issue"
                                          x:Uid="SubmitIssueOnGithub"
                                          Name="SubmitIssueOnGithub"

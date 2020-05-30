@@ -1,4 +1,41 @@
 ﻿*****
+###What's new in Ver.4.8.0.0
+
+>#####Feature update
+
+>>#####A new column is added in "Details" and "List" modes. Click here to directly pop up the "Blank Area Right-click Menu"
+
+>>#####Automatically save and restore the "folder and library" and "device and drive" expanded and collapsed states
+
+>>#####Win10 2004 version is officially supported
+
+>#####Performance improvement
+
+>>#####Significantly improved the speed of calculating the number of folders and files in "Properties" and the speed of calculating the size of folders
+
+>>#####Removed some redundant operations
+
+>#####Bug fix
+
+>>#####Fixed an issue where clicking "Open with" might cause a crash
+
+>>#####Fixed an issue where entering illegal characters would cause a crash when modifying the name of the quick start item
+
+>>#####Fixed an issue that could cause a crash when repeatedly clicking the forward and backward buttons while viewing a file
+
+>>#####Fixed the problem of file directory loss, but the expansion speed was slightly reduced
+
+>>#####Fixed an issue of lack of touch long press support in "Details" and "List" modes
+
+>>#####Fixed an issue that the language option in the settings may be blocked
+
+>>#####Fixed an issue that the keyboard shortcut still responds even if there is a pop-up window (such as rename window, etc.)
+
+>>#####Fixed an issue that the full selection includes the suffix name when renaming
+
+>>#####Fixed an issue where some content could not be displayed correctly after language switching
+
+*****
 ###What's new in Ver.4.7.5.0
 
 >#####Feature update

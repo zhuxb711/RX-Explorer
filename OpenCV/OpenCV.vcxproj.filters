@@ -18,6 +18,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="..\filemanager\package.storeassociation.xml" />
+    <Xml Include="..\RX_Explorer\package.storeassociation.xml" />
   </ItemGroup>
 </Project>

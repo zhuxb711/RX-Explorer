@@ -87,7 +87,7 @@ namespace RX_Explorer.Class
         [DllImport("api-ms-win-core-timezone-l1-1-0.dll", SetLastError = true)]
         private static extern bool FileTimeToSystemTime(ref FILETIME lpFileTime, out SYSTEMTIME lpSystemTime);
 
-        public static bool CheckContainsAnyItem(string Path, ItemFilter Filter)
+        public static bool CheckContainsAnyItem(string Path, ItemFilters Filter)
         {
             IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
             if (Ptr.ToInt64() != -1)
@@ -98,14 +98,14 @@ namespace RX_Explorer.Class
                     {
                         if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
                         {
-                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilter.Folder))
+                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                             {
                                 if (Data.cFileName != "." && Data.cFileName != "..")
                                 {
                                     return true;
                                 }
                             }
-                            else if (Filter.HasFlag(ItemFilter.File))
+                            else if (Filter.HasFlag(ItemFilters.File))
                             {
                                 if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
                                 {
@@ -125,7 +125,90 @@ namespace RX_Explorer.Class
             return false;
         }
 
-        public static List<FileSystemStorageItem> GetStorageItems(string Path, ItemFilter Filter)
+        public static long CalculateSize(string Path)
+        {
+            long TotalSize = 0;
+
+            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            if (Ptr.ToInt64() != -1)
+            {
+                try
+                {
+                    do
+                    {
+                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                        {
+                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
+                            {
+                                if (Data.cFileName != "." && Data.cFileName != "..")
+                                {
+                                    TotalSize += CalculateSize(System.IO.Path.Combine(Path, Data.cFileName));
+                                }
+                            }
+                            else
+                            {
+                                if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
+                                {
+                                    TotalSize += (Data.nFileSizeHigh << 32) + (long)Data.nFileSizeLow;
+                                }
+                            }
+                        }
+                    }
+                    while (FindNextFile(Ptr, out Data));
+                }
+                finally
+                {
+                    FindClose(Ptr);
+                }
+            }
+
+            return TotalSize;
+        }
+
+        public static (uint, uint) CalculateFolderAndFileCount(string Path)
+        {
+            uint FolderCount = 0;
+            uint FileCount = 0;
+
+            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            if (Ptr.ToInt64() != -1)
+            {
+                try
+                {
+                    do
+                    {
+                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                        {
+                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
+                            {
+                                if (Data.cFileName != "." && Data.cFileName != "..")
+                                {
+                                    (uint SubFolderCount, uint SubFileCount) = CalculateFolderAndFileCount(System.IO.Path.Combine(Path, Data.cFileName));
+                                    FolderCount += ++SubFolderCount;
+                                    FileCount += SubFileCount;
+                                }
+                            }
+                            else
+                            {
+                                if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
+                                {
+                                    FileCount++;
+                                }
+                            }
+                        }
+                    }
+                    while (FindNextFile(Ptr, out Data));
+                }
+                finally
+                {
+                    FindClose(Ptr);
+                }
+            }
+
+            return (FolderCount, FileCount);
+        }
+
+        public static List<FileSystemStorageItem> GetStorageItems(string Path, ItemFilters Filter)
         {
             List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>();
 
@@ -138,7 +221,7 @@ namespace RX_Explorer.Class
                     {
                         if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
                         {
-                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilter.Folder))
+                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                             {
                                 if (Data.cFileName != "." && Data.cFileName != "..")
                                 {
@@ -147,7 +230,7 @@ namespace RX_Explorer.Class
                                     Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
                                 }
                             }
-                            else if (Filter.HasFlag(ItemFilter.File))
+                            else if (Filter.HasFlag(ItemFilters.File))
                             {
                                 if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
                                 {
@@ -169,8 +252,14 @@ namespace RX_Explorer.Class
             return Result;
         }
 
-        public static List<FileSystemStorageItem> GetStorageItems(StorageFolder Folder, ItemFilter Filter)
+
+        public static List<FileSystemStorageItem> GetStorageItems(StorageFolder Folder, ItemFilters Filter)
         {
+            if (Folder == null)
+            {
+                throw new ArgumentNullException(nameof(Folder), "Argument could not be null");
+            }
+
             List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>();
 
             IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Folder.Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
@@ -180,7 +269,7 @@ namespace RX_Explorer.Class
                 {
                     if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
                     {
-                        if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilter.Folder))
+                        if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                         {
                             if (Data.cFileName != "." && Data.cFileName != "..")
                             {
@@ -189,7 +278,7 @@ namespace RX_Explorer.Class
                                 Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
                             }
                         }
-                        else if (Filter.HasFlag(ItemFilter.File))
+                        else if (Filter.HasFlag(ItemFilters.File))
                         {
                             if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
                             {
@@ -206,6 +295,42 @@ namespace RX_Explorer.Class
             }
 
             return Result;
+        }
+
+        public async static IAsyncEnumerable<IStorageItem> GetStorageItemsWithInnerContent(StorageFolder Folder, ItemFilters Filter)
+        {
+            if (Folder == null)
+            {
+                throw new ArgumentNullException(nameof(Folder), "Argument could not be null");
+            }
+
+            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Folder.Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            if (Ptr.ToInt64() != -1)
+            {
+                do
+                {
+                    if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                    {
+                        if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
+                        {
+                            if (Data.cFileName != "." && Data.cFileName != "..")
+                            {
+                                yield return await StorageFolder.GetFolderFromPathAsync(System.IO.Path.Combine(Folder.Path, Data.cFileName));
+                            }
+                        }
+                        else if (Filter.HasFlag(ItemFilters.File))
+                        {
+                            if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
+                            {
+                                yield return await StorageFile.GetFileFromPathAsync(System.IO.Path.Combine(Folder.Path, Data.cFileName));
+                            }
+                        }
+                    }
+                }
+                while (FindNextFile(Ptr, out Data));
+
+                FindClose(Ptr);
+            }
         }
     }
 }

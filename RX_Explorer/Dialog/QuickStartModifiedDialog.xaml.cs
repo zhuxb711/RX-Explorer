@@ -126,8 +126,8 @@ namespace RX_Explorer.Dialog
                             string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
                             StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
-                            TabViewContainer.ThisPage.QuickStartList.Insert(TabViewContainer.ThisPage.QuickStartList.Count - 1, new QuickStartItem(Icon.Source as BitmapImage, new Uri(Protocal.Text), QuickStartType.Application, "QuickStartImage\\" + NewFile.Name, DisplayName.Text));
-                            await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, "QuickStartImage\\" + NewFile.Name, Protocal.Text, QuickStartType.Application).ConfigureAwait(true);
+                            TabViewContainer.ThisPage.QuickStartList.Insert(TabViewContainer.ThisPage.QuickStartList.Count - 1, new QuickStartItem(Icon.Source as BitmapImage, new Uri(Protocal.Text), QuickStartType.Application, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text));
+                            await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocal.Text, QuickStartType.Application).ConfigureAwait(true);
                             break;
                         }
 
@@ -148,8 +148,8 @@ namespace RX_Explorer.Dialog
                             string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
                             StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("HotWebImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
-                            TabViewContainer.ThisPage.HotWebList.Insert(TabViewContainer.ThisPage.HotWebList.Count - 1, new QuickStartItem(Icon.Source as BitmapImage, new Uri(Protocal.Text), QuickStartType.WebSite, "HotWebImage\\" + NewFile.Name, DisplayName.Text));
-                            await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, "HotWebImage\\" + NewFile.Name, Protocal.Text, QuickStartType.WebSite).ConfigureAwait(true);
+                            TabViewContainer.ThisPage.HotWebList.Insert(TabViewContainer.ThisPage.HotWebList.Count - 1, new QuickStartItem(Icon.Source as BitmapImage, new Uri(Protocal.Text), QuickStartType.WebSite, $"HotWebImage\\{NewFile.Name}", DisplayName.Text));
+                            await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"HotWebImage\\{NewFile.Name}", Protocal.Text, QuickStartType.WebSite).ConfigureAwait(true);
                             break;
                         }
                     case QuickStartType.UpdateApp:
@@ -166,14 +166,22 @@ namespace RX_Explorer.Dialog
                                 return;
                             }
 
+                            if (DisplayName.Text.Any((Char) => Path.GetInvalidFileNameChars().Contains(Char)))
+                            {
+                                args.Cancel = true;
+                                InvalidCharTip.IsOpen = true;
+                                Deferral.Complete();
+                                return;
+                            }
+
                             if (ImageFile != null)
                             {
                                 string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
                                 StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
-                                await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, "QuickStartImage\\" + NewFile.Name, Protocal.Text, QuickStartType.Application).ConfigureAwait(true);
+                                await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocal.Text, QuickStartType.Application).ConfigureAwait(true);
 
-                                QuickItem.Update(Icon.Source as BitmapImage, new Uri(Protocal.Text), "QuickStartImage\\" + NewFile.Name, DisplayName.Text);
+                                QuickItem.Update(Icon.Source as BitmapImage, new Uri(Protocal.Text), $"QuickStartImage\\{NewFile.Name}", DisplayName.Text);
                             }
                             else
                             {
@@ -197,14 +205,22 @@ namespace RX_Explorer.Dialog
                                 return;
                             }
 
+                            if (DisplayName.Text.Any((Char) => Path.GetInvalidFileNameChars().Contains(Char)))
+                            {
+                                args.Cancel = true;
+                                InvalidCharTip.IsOpen = true;
+                                Deferral.Complete();
+                                return;
+                            }
+
                             if (ImageFile != null)
                             {
                                 string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
                                 StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("HotWebImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
-                                await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, "HotWebImage\\" + NewFile.Name, Protocal.Text, QuickStartType.WebSite).ConfigureAwait(true);
+                                await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"HotWebImage\\{NewFile.Name}", Protocal.Text, QuickStartType.WebSite).ConfigureAwait(true);
 
-                                QuickItem.Update(Icon.Source as BitmapImage, new Uri(Protocal.Text), "HotWebImage\\" + NewFile.Name, DisplayName.Text);
+                                QuickItem.Update(Icon.Source as BitmapImage, new Uri(Protocal.Text), $"HotWebImage\\{NewFile.Name}", DisplayName.Text);
                             }
                             else
                             {

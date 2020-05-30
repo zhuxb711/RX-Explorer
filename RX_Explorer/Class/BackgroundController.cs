@@ -71,7 +71,7 @@ namespace RX_Explorer.Class
             {
                 lock (SyncRootProvider.SyncRoot)
                 {
-                    return Instance ?? (Instance = new BackgroundController());
+                    return Instance ??= new BackgroundController();
                 }
             }
         }

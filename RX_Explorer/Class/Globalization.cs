@@ -19,7 +19,7 @@ namespace RX_Explorer.Class
         public static LanguageEnum CurrentLanguage { get; private set; }
 
         private static readonly ResourceLoader Loader;
-        private static readonly Dictionary<string, string> ResourceCache = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> ResourceCache;
 
         public static void SwitchTo(LanguageEnum Language)
         {
@@ -28,16 +28,19 @@ namespace RX_Explorer.Class
                 case LanguageEnum.Chinese:
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 0;
+                        ApplicationLanguages.PrimaryLanguageOverride = "zh-Hans";
                         break;
                     }
                 case LanguageEnum.English:
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 1;
+                        ApplicationLanguages.PrimaryLanguageOverride = "en-US";
                         break;
                     }
                 case LanguageEnum.French:
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 2;
+                        ApplicationLanguages.PrimaryLanguageOverride = "fr-FR";
                         break;
                     }
             }
@@ -82,19 +85,16 @@ namespace RX_Explorer.Class
                     case 0:
                         {
                             CurrentLanguage = LanguageEnum.Chinese;
-                            ApplicationLanguages.PrimaryLanguageOverride = "zh-Hans";
                             break;
                         }
                     case 1:
                         {
                             CurrentLanguage = LanguageEnum.English;
-                            ApplicationLanguages.PrimaryLanguageOverride = "en-US";
                             break;
                         }
                     case 2:
                         {
                             CurrentLanguage = LanguageEnum.French;
-                            ApplicationLanguages.PrimaryLanguageOverride = "fr-FR";
                             break;
                         }
                 }
@@ -124,6 +124,7 @@ namespace RX_Explorer.Class
             }
 
             Loader = ResourceLoader.GetForViewIndependentUse();
+            ResourceCache = new Dictionary<string, string>();
         }
     }
 }

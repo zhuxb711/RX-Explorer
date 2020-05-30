@@ -5,7 +5,6 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -143,17 +142,17 @@ namespace RX_Explorer
             }
         }
 
-        public FileSystemStorageItem[] SelectedItems
+        public List<FileSystemStorageItem> SelectedItems
         {
             get
             {
                 if (UseGridOrList)
                 {
-                    return GridViewControl.SelectedItems.Select((Item) => Item as FileSystemStorageItem).ToArray();
+                    return GridViewControl.SelectedItems.Select((Item) => Item as FileSystemStorageItem).ToList();
                 }
                 else
                 {
-                    return ListViewControl.SelectedItems.Select((Item) => Item as FileSystemStorageItem).ToArray();
+                    return ListViewControl.SelectedItems.Select((Item) => Item as FileSystemStorageItem).ToList();
                 }
             }
         }
@@ -803,7 +802,7 @@ namespace RX_Explorer
             bool IsUnauthorized = false;
             bool IsCaptured = false;
 
-            if (SelectedItems.Length == 1)
+            if (SelectedItems.Count == 1)
             {
                 FileSystemStorageItem ItemToDelete = SelectedItems.FirstOrDefault();
 
@@ -1015,7 +1014,7 @@ namespace RX_Explorer
         {
             Restore();
 
-            if (SelectedItems.Length > 1)
+            if (SelectedItems.Count > 1)
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -1368,21 +1367,53 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
+                if(UseGridOrList)
                 {
-                    if (SelectedItems.Length <= 1 || !SelectedItems.Contains(Context))
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
                     {
-                        ControlContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
-                        SelectedItem = Context;
+                        if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
+                        {
+                            ControlContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                            SelectedItem = Context;
+                        }
+                        else
+                        {
+                            ControlContextFlyout = MixedFlyout;
+                        }
                     }
                     else
                     {
-                        ControlContextFlyout = MixedFlyout;
+                        SelectedItem = null;
+                        ControlContextFlyout = EmptyFlyout;
                     }
                 }
                 else
                 {
-                    ControlContextFlyout = EmptyFlyout;
+                    if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource as FrameworkElement).Name == "EmptyTextblock")
+                    {
+                        SelectedItem = null;
+                        ControlContextFlyout = EmptyFlyout;
+                    }
+                    else
+                    {
+                        if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
+                        {
+                            if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
+                            {
+                                ControlContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                SelectedItem = Context;
+                            }
+                            else
+                            {
+                                ControlContextFlyout = MixedFlyout;
+                            }
+                        }
+                        else
+                        {
+                            SelectedItem = null;
+                            ControlContextFlyout = EmptyFlyout;
+                        }
+                    }
                 }
             }
 
@@ -2642,23 +2673,25 @@ namespace RX_Explorer
                             return;
                         }
 
-                        if (SettingControl.IsDetachTreeViewAndPresenter)
+                        if (FileControlInstance.CurrentNode != null)
                         {
-                            await FileControlInstance.DisplayItemsInFolder(Folder).ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            if (!FileControlInstance.CurrentNode.IsExpanded)
+                            if (SettingControl.IsDetachTreeViewAndPresenter)
                             {
-                                FileControlInstance.CurrentNode.IsExpanded = true;
+                                await FileControlInstance.DisplayItemsInFolder(Folder).ConfigureAwait(true);
                             }
-
-                            TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(TabTarget.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
-
-                            if (TargetNode != null)
+                            else
                             {
-                                FileControlInstance.FolderTree.SelectNode(TargetNode);
-                                await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
+                                if (!FileControlInstance.CurrentNode.IsExpanded)
+                                {
+                                    FileControlInstance.CurrentNode.IsExpanded = true;
+                                }
+
+                                TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(TabTarget.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
+
+                                if (TargetNode != null)
+                                {
+                                    await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
+                                }
                             }
                         }
                     }
@@ -2717,7 +2750,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                 return;
             }
@@ -3785,21 +3818,53 @@ namespace RX_Explorer
         {
             if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
+                if (UseGridOrList)
                 {
-                    if (SelectedItems.Length <= 1 || !SelectedItems.Contains(Context))
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
                     {
-                        ControlContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
-                        SelectedItem = Context;
+                        if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
+                        {
+                            ControlContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                            SelectedItem = Context;
+                        }
+                        else
+                        {
+                            ControlContextFlyout = MixedFlyout;
+                        }
                     }
                     else
                     {
-                        ControlContextFlyout = MixedFlyout;
+                        SelectedItem = null;
+                        ControlContextFlyout = EmptyFlyout;
                     }
                 }
                 else
                 {
-                    ControlContextFlyout = EmptyFlyout;
+                    if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource as FrameworkElement).Name == "EmptyTextblock")
+                    {
+                        SelectedItem = null;
+                        ControlContextFlyout = EmptyFlyout;
+                    }
+                    else
+                    {
+                        if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
+                        {
+                            if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
+                            {
+                                ControlContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                SelectedItem = Context;
+                            }
+                            else
+                            {
+                                ControlContextFlyout = MixedFlyout;
+                            }
+                        }
+                        else
+                        {
+                            SelectedItem = null;
+                            ControlContextFlyout = EmptyFlyout;
+                        }
+                    }
                 }
             }
         }

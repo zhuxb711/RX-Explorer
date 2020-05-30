@@ -109,7 +109,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void DismissExtendedSplash()
+        private void DismissExtendedSplash()
         {
             try
             {

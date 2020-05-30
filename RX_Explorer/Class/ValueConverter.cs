@@ -54,7 +54,7 @@ namespace RX_Explorer.Class
         }
     }
 
-    public sealed class SizeDisplayConverter : IValueConverter
+    public sealed class PropertyDisplayConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {

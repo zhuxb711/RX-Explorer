@@ -42,7 +42,7 @@ namespace RX_Explorer.Class
             {
                 lock (SyncRootProvider.SyncRoot)
                 {
-                    return SQL ?? (SQL = new SQLite());
+                    return SQL ??= new SQLite();
                 }
             }
         }

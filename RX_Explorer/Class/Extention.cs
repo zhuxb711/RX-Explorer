@@ -40,7 +40,7 @@ namespace RX_Explorer.Class
 
             if (Node.Children.Count > 0)
             {
-                List<string> FolderList = WIN_Native_API.GetStorageItems(Node.Content as StorageFolder, ItemFilter.Folder).Select((Item) => Item.Path).ToList();
+                List<string> FolderList = WIN_Native_API.GetStorageItems(Node.Content as StorageFolder, ItemFilters.Folder).Select((Item) => Item.Path).ToList();
                 List<string> PathList = Node.Children.Select((Item) => (Item.Content as StorageFolder).Path).ToList();
                 List<string> AddList = FolderList.Except(PathList).ToList();
                 List<string> RemoveList = PathList.Except(FolderList).ToList();
@@ -50,7 +50,7 @@ namespace RX_Explorer.Class
                     Node.Children.Add(new TreeViewNode
                     {
                         Content = await StorageFolder.GetFolderFromPathAsync(AddPath),
-                        HasUnrealizedChildren = WIN_Native_API.CheckContainsAnyItem(AddPath, ItemFilter.Folder),
+                        HasUnrealizedChildren = WIN_Native_API.CheckContainsAnyItem(AddPath, ItemFilters.Folder),
                         IsExpanded = false
                     });
                 }
@@ -70,7 +70,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                Node.HasUnrealizedChildren = WIN_Native_API.CheckContainsAnyItem((Node.Content as StorageFolder).Path, ItemFilter.Folder);
+                Node.HasUnrealizedChildren = WIN_Native_API.CheckContainsAnyItem((Node.Content as StorageFolder).Path, ItemFilters.Folder);
             }
         }
 
@@ -93,7 +93,7 @@ namespace RX_Explorer.Class
                 {
                     while (true)
                     {
-                        var TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
+                        TreeViewNode TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
                         if (TargetNode != null)
                         {
                             return TargetNode;
@@ -115,7 +115,7 @@ namespace RX_Explorer.Class
                 {
                     while (true)
                     {
-                        var TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
+                        TreeViewNode TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
                         if (TargetNode != null)
                         {
                             return await FindFolderLocationInTree(TargetNode, Analysis).ConfigureAwait(true);
@@ -276,19 +276,15 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public static void SelectNode(this TreeView View, TreeViewNode Node)
         {
-            if (Node == null)
-            {
-                throw new ArgumentNullException(nameof(Node), "Parameter could not be null");
-            }
-
             if (View == null)
             {
                 throw new ArgumentNullException(nameof(View), "Parameter could not be null");
             }
 
-            View.UpdateLayout();
-
+            View.SelectedNode = null;
             View.SelectedNode = Node;
+
+            View.UpdateLayout();
 
             if (View.ContainerFromNode(Node) is TreeViewItem Item)
             {

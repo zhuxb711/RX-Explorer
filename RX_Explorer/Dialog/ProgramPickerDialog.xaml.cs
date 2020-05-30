@@ -102,14 +102,22 @@ namespace RX_Explorer.Dialog
                 }
             }
 
-            foreach (AppInfo Info in await Launcher.FindFileHandlersAsync(OpenFile.FileType))
+            try
             {
-                using (IRandomAccessStreamWithContentType LogoStream = await Info.DisplayInfo.GetLogo(new Windows.Foundation.Size(100, 100)).OpenReadAsync())
+                AppInfo[] Apps = (await Launcher.FindFileHandlersAsync(OpenFile.FileType)).ToArray();
+                foreach (AppInfo Info in Apps)
                 {
-                    BitmapImage Image = new BitmapImage();
-                    await Image.SetSourceAsync(LogoStream);
-                    TempList.Add(new ProgramPickerItem(Image, Info.DisplayInfo.DisplayName, Info.DisplayInfo.Description, Info.PackageFamilyName));
+                    using (IRandomAccessStreamWithContentType LogoStream = await Info.DisplayInfo.GetLogo(new Windows.Foundation.Size(100, 100)).OpenReadAsync())
+                    {
+                        BitmapImage Image = new BitmapImage();
+                        await Image.SetSourceAsync(LogoStream);
+                        TempList.Add(new ProgramPickerItem(Image, Info.DisplayInfo.DisplayName, Info.DisplayInfo.Description, Info.PackageFamilyName));
+                    }
                 }
+            }
+            catch
+            {
+
             }
 
             await foreach (string Path in SQLite.Current.GetProgramPickerRecordAsync(OpenFile.FileType))

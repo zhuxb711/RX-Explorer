@@ -36,7 +36,7 @@ namespace RX_Explorer.Class
             {
                 lock (SyncRootProvider.SyncRoot)
                 {
-                    return Instance ?? (Instance = new MySQL());
+                    return Instance ??= new MySQL();
                 }
             }
         }

@@ -11,7 +11,7 @@
       Background="Transparent">
 
     <Page.Resources>
-        <local:SizeDisplayConverter x:Key="StateConverter" />
+        <local:PropertyDisplayConverter x:Key="StateConverter" />
     </Page.Resources>
 
     <Grid>

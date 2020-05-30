@@ -1,4 +1,41 @@
 ﻿*****
+###Quoi de neuf dans la version 4.8.0.0
+
+>#####Mise à jour des fonctionnalités
+
+>>#####Une nouvelle colonne est ajoutée dans les modes "Détails" et "Liste". Cliquez ici pour faire apparaître directement le "Menu contextuel de la zone vide"
+
+>>#####Enregistrez et restaurez automatiquement les états développés et réduits de "dossier et bibliothèque" et "périphérique et lecteur"
+
+>>#####La version Win10 2004 est officiellement supportée
+
+>#####Amélioration des performances
+
+>>#####Amélioration significative de la vitesse de calcul du nombre de dossiers et de fichiers dans "Propriétés" et de la vitesse de calcul de la taille des dossiers
+
+>>#####Suppression de certaines opérations redondantes
+
+>#####Correction d'un bug
+
+>>#####Correction d'un problème où le fait de cliquer sur "Ouvrir avec" pouvait provoquer un crash
+
+>>#####Correction d'un problème où la saisie de caractères illégaux provoquait un crash lors de la modification du nom de l'élément de démarrage rapide
+
+>>#####Correction d'un problème qui pouvait provoquer un crash lors d'un clic répétitif sur les boutons avant et arrière lors de la visualisation d'un fichier
+
+>>#####Correction du problème de perte de répertoire de fichiers, mais la vitesse d'expansion a été légèrement réduite
+
+>>#####Correction d'un problème de manque de prise en charge de la pression longue dans les modes "Détails" et "Liste"
+
+>>#####Correction d'un problème de blocage de l'option de langue dans les paramètres
+
+>>#####Correction d'un problème auquel le raccourci clavier répond toujours même s'il y a une fenêtre contextuelle (comme renommer la fenêtre, etc.)
+
+>>#####Correction d'un problème selon lequel la sélection complète inclut le nom du suffixe lors du changement de nom
+
+>>#####Correction d'un problème où certains contenus ne pouvaient pas être affichés correctement après le changement de langue
+
+*****
 ###Quoi de neuf dans la version 4.7.5.0
 
 >#####Mise à jour des fonctionnalités

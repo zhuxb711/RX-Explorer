@@ -242,7 +242,7 @@ namespace RX_Explorer.Class
     }
 
     [Flags]
-    public enum ItemFilter
+    public enum ItemFilters
     {
         File = 1,
         Folder = 2

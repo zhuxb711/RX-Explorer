@@ -13,6 +13,12 @@
                           PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
     <local:QueueContentDialog.Resources>
+        <controls:TeachingTip x:Name="InvalidCharTip"
+                              IsLightDismissEnabled="True"
+                              Target="{x:Bind DisplayName}"
+                              x:Uid="RenameDialogInvalidCharTip"
+                              Title="错误"
+                              Subtitle="名称不能为空且不能包含非法字符&#x000A;非法字符包括 \ / : * ? &quot; &lt; &gt; |" />
         <controls:TeachingTip x:Name="EmptyTip"
                               Title="Tips"
                               PreferredPlacement="TopRight"

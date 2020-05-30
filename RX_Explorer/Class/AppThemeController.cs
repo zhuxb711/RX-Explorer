@@ -25,7 +25,7 @@ namespace RX_Explorer.Class
             {
                 lock (SyncRootProvider.SyncRoot)
                 {
-                    return Instance ?? (Instance = new AppThemeController());
+                    return Instance ??= new AppThemeController();
                 }
             }
         }

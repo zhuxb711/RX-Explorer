@@ -207,7 +207,7 @@ namespace RX_Explorer.Class
             {
                 lock (Locker)
                 {
-                    return Instance ?? (Instance = new AnimationController());
+                    return Instance ??= new AnimationController();
                 }
             }
         }

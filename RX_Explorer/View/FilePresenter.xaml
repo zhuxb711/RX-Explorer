@@ -12,7 +12,7 @@
       Background="Transparent">
 
     <Page.Resources>
-        <local:SizeDisplayConverter x:Key="StateConverter" />
+        <local:PropertyDisplayConverter x:Key="StateConverter" />
 
         <CommandBarFlyout x:Name="FileFlyout"
                           Placement="RightEdgeAlignedTop">
@@ -406,10 +406,12 @@
                       x:FieldModifier="public">
             <Grid Height="35">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="5*" />
-                    <ColumnDefinition Width="3*" />
-                    <ColumnDefinition Width="1.5*" />
-                    <ColumnDefinition Width="1.5*" />
+                    <ColumnDefinition Width="5*"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="1.5*"/>
+                    <ColumnDefinition Width="1.5*"/>
+                    <ColumnDefinition Width="1*"
+                                      MinWidth="50" />
                 </Grid.ColumnDefinitions>
                 <Button HorizontalContentAlignment="Left"
                         HorizontalAlignment="Stretch"
@@ -471,6 +473,11 @@
                                VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis"/>
                 </Button>
+                <Button Background="{StaticResource ElementAcrylicBrush}"
+                        Style="{StaticResource ListHeaderDisableButtonStyle}"
+                        Grid.Column="4"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"/>
             </Grid>
         </DataTemplate>
 
@@ -479,10 +486,12 @@
                       x:FieldModifier="public">
             <Grid HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="5*" />
-                    <ColumnDefinition Width="3*" />
-                    <ColumnDefinition Width="1.5*" />
-                    <ColumnDefinition Width="1.5*" />
+                    <ColumnDefinition Width="5*"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="1.5*"/>
+                    <ColumnDefinition Width="1.5*"/>
+                    <ColumnDefinition Width="1*" 
+                                      MinWidth="50"/>
                 </Grid.ColumnDefinitions>
                 <Image VerticalAlignment="Center"
                        HorizontalAlignment="Left"
@@ -509,6 +518,7 @@
                            Text="{x:Bind DisplayType,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind DisplayType}"
                            Grid.Column="2"
+                           Visibility="{x:Bind StorageType,Converter={StaticResource StateConverter}}"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock VerticalAlignment="Center"
                            FontSize="15"
@@ -517,26 +527,39 @@
                            TextTrimming="CharacterEllipsis"
                            Visibility="{x:Bind StorageType,Converter={StaticResource StateConverter}}"
                            Grid.Column="3" />
+                <TextBlock VerticalAlignment="Center"
+                           Margin="8,0,0,0"
+                           Grid.Column="4" 
+                           Name="EmptyTextblock"/>
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:DataType="local:FileSystemStorageItem"
                       x:Name="ListViewSimpleDataTemplate"
                       x:FieldModifier="public">
-            <StackPanel Orientation="Horizontal">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="5*"/>
+                    <ColumnDefinition Width="*"
+                                      MinWidth="50"/>
+                </Grid.ColumnDefinitions>
                 <Image VerticalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
-                       Margin="0,0,5,0"
                        Height="30"
                        Width="30"/>
-                <TextBlock Margin="5,0,0,0"
-                           VerticalAlignment="Center"
+                <TextBlock VerticalAlignment="Center"
                            FontSize="15"
                            Text="{x:Bind DisplayName,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind DisplayName,Mode=OneWay}"
-                           TextTrimming="CharacterEllipsis" />
-            </StackPanel>
+                           TextTrimming="CharacterEllipsis"
+                           Grid.Column="1"/>
+                <TextBlock VerticalAlignment="Center"
+                           Margin="8,0,0,0"
+                           Grid.Column="2"
+                           Name="EmptyTextblock" />
+            </Grid>
         </DataTemplate>
     </Page.Resources>
 
