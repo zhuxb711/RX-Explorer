@@ -235,6 +235,7 @@ namespace RX_Explorer
                 }
 
                 Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
+                Nav.Focus(FocusState.Programmatic);
 
                 var PictureUri = await SQLite.Current.GetBackgroundPictureAsync().ConfigureAwait(true);
                 var FileList = await (await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists)).GetFilesAsync();
@@ -645,6 +646,11 @@ namespace RX_Explorer
                 else
                 {
                     NavView.IsBackEnabled = false;
+                }
+
+                if (NavView.MenuItems.Select((Item) => Item as NavigationViewItem).FirstOrDefault((Item) => Item.Content.ToString() == PageDictionary[Nav.CurrentSourcePageType]) is NavigationViewItem Item)
+                {
+                    Item.IsSelected = true;
                 }
 
                 await SettingControl.Hide().ConfigureAwait(false);

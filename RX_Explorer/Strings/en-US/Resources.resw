@@ -2279,9 +2279,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r\rThis may be caused by the file data being damaged or modified</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_ImportLibraryFolderError_Content" xml:space="preserve">
-    <value>Unable to import library folder for some unforeseen reasons</value>
-  </data>
   <data name="QueueDialog_LocateFileFailure_Content" xml:space="preserve">
     <value>Could not find the corresponding file, it may have been moved or deleted</value>
   </data>

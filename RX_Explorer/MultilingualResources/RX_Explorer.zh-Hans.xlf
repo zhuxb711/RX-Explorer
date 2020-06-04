@@ -2586,7 +2586,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="Common_Dialog_NowButton" translate="yes" xml:space="preserve">
           <source>Now</source>
-          <target state="translated">即刻固定</target>
+          <target state="translated">立刻</target>
         </trans-unit>
         <trans-unit id="Create_NewFolder_Admin_Name" translate="yes" xml:space="preserve">
           <source>New folder</source>
@@ -2849,10 +2849,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Because the internal structure of the file to be decrypted is damaged and the decryption fails, the export task has been terminated \r\rThis may be caused by the file data being damaged or modified</source>
           <target state="translated">由于待解密文件的内部结构损坏，解密失败，导出任务已经终止\r\r这可能是由于文件数据已损坏或被修改造成的</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
-        <trans-unit id="QueueDialog_ImportLibraryFolderError_Content" translate="yes" xml:space="preserve">
-          <source>Unable to import library folder for some unforeseen reasons</source>
-          <target state="translated">由于某些无法预料的原因，无法导入库文件夹</target>
         </trans-unit>
         <trans-unit id="QueueDialog_LocateFileFailure_Content" translate="yes" xml:space="preserve">
           <source>Could not find the corresponding file, it may have been moved or deleted</source>

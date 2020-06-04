@@ -308,14 +308,7 @@ namespace RX_Explorer
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Context)
                 {
                     LibraryGrid.SelectedItem = Context;
-                    if (Context.Source == LibrarySource.UserCustom)
-                    {
-                        LibraryGrid.ContextFlyout = UserLibraryFlyout;
-                    }
-                    else
-                    {
-                        LibraryGrid.ContextFlyout = SystemLibraryFlyout;
-                    }
+                    LibraryGrid.ContextFlyout = LibraryFlyout;
                 }
                 else
                 {
@@ -324,29 +317,7 @@ namespace RX_Explorer
             }
         }
 
-        private void OpenSystemLibrary_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                if (LibraryGrid.SelectedItem is LibraryFolder Library)
-                {
-                    if (AnimationController.Current.IsEnableAnimation)
-                    {
-                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
-                    }
-                    else
-                    {
-                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new SuppressNavigationTransitionInfo());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ExceptionTracer.RequestBlueScreen(ex);
-            }
-        }
-
-        private void OpenUserLibrary_Click(object sender, RoutedEventArgs e)
+        private void OpenLibrary_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -373,7 +344,7 @@ namespace RX_Explorer
             if (LibraryGrid.SelectedItem is LibraryFolder Library)
             {
                 TabViewContainer.ThisPage.LibraryFolderList.Remove(Library);
-                await SQLite.Current.DeleteFolderLibraryAsync(Library.Folder.Path).ConfigureAwait(false);
+                await SQLite.Current.DeleteLibraryAsync(Library.Folder.Path).ConfigureAwait(false);
             }
         }
 
@@ -583,14 +554,7 @@ namespace RX_Explorer
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Context)
                 {
                     LibraryGrid.SelectedItem = Context;
-                    if (Context.Source == LibrarySource.UserCustom)
-                    {
-                        LibraryGrid.ContextFlyout = UserLibraryFlyout;
-                    }
-                    else
-                    {
-                        LibraryGrid.ContextFlyout = SystemLibraryFlyout;
-                    }
+                    LibraryGrid.ContextFlyout = LibraryFlyout;
                 }
                 else
                 {

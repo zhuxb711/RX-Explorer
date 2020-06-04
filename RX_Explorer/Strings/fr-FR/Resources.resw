@@ -2155,9 +2155,6 @@
     <value>Parce que la structure interne du fichier à déchiffrer est endommagée et que le déchiffrement échoue, la tâche d'exportation a été interrompue \r\rCeci peut être dû au fait que les données du fichier sont endommagées ou modifiées</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_ImportLibraryFolderError_Content" xml:space="preserve">
-    <value>Impossible d'importer le dossier de la bibliothèque pour des raisons imprévues</value>
-  </data>
   <data name="QueueDialog_LocateFileFailure_Content" xml:space="preserve">
     <value>Impossible de trouver le fichier correspondant, il a pu être déplacé ou supprimé</value>
   </data>

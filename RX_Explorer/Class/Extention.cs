@@ -1009,25 +1009,11 @@ namespace RX_Explorer.Class
                 }
                 else if (Item is StorageFile File)
                 {
-                    using (CancellationTokenSource Cancellation = new CancellationTokenSource(2000))
+                    using (CancellationTokenSource Cancellation = new CancellationTokenSource())
                     {
                         Task<StorageItemThumbnail> GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 100).AsTask(Cancellation.Token);
 
-                        bool IsSuccess = await Task.Run(() =>
-                        {
-                            SpinWait Spin = new SpinWait();
-
-                            while (!GetThumbnailTask.IsCompleted)
-                            {
-                                Spin.SpinOnce();
-                                if (Cancellation.IsCancellationRequested)
-                                {
-                                    return false;
-                                }
-                            }
-
-                            return true;
-                        }).ConfigureAwait(true);
+                        bool IsSuccess = await Task.Run(() => SpinWait.SpinUntil(() => GetThumbnailTask.IsCompleted, 2000)).ConfigureAwait(true);
 
                         if (IsSuccess)
                         {
@@ -1049,6 +1035,8 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
+                            Cancellation.Cancel();
+
                             if (!ToastNotificationManager.History.GetHistory().Any((Toast) => Toast.Tag == "DelayLoadNotification"))
                             {
                                 ToastContent Content = new ToastContent()

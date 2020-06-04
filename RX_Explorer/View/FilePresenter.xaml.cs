@@ -39,9 +39,8 @@ namespace RX_Explorer
         private static FileSystemStorageItem[] CopyFiles;
         private static FileSystemStorageItem[] MoveFiles;
         public static List<string> CopyAndMoveRecord { get; private set; } = new List<string>();
-        private TreeViewNode LastNode;
 
-        private Dictionary<SortTarget, SortDirection> SortMap = new Dictionary<SortTarget, SortDirection>
+        private readonly Dictionary<SortTarget, SortDirection> SortMap = new Dictionary<SortTarget, SortDirection>
         {
             {SortTarget.Name,SortDirection.Ascending },
             {SortTarget.Type,SortDirection.Ascending },
@@ -55,34 +54,37 @@ namespace RX_Explorer
 
         private int ViewDropLock = 0;
 
-        private bool useGridorList = true;
-
         private volatile FileSystemStorageItem StayInItem;
 
-        private DispatcherTimer PointerHoverTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
+        private readonly DispatcherTimer PointerHoverTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
 
-        public bool UseGridOrList
+        private ListViewBase itemPresenter;
+        public ListViewBase ItemPresenter
         {
             get
             {
-                return useGridorList;
+                return itemPresenter;
             }
             set
             {
-                useGridorList = value;
-                if (value)
+                if (value != itemPresenter)
                 {
-                    GridViewControl.Visibility = Visibility.Visible;
-                    ListViewControl.Visibility = Visibility.Collapsed;
-                    GridViewControl.ItemsSource = FileCollection;
-                    ListViewControl.ItemsSource = null;
-                }
-                else
-                {
-                    ListViewControl.Visibility = Visibility.Visible;
-                    GridViewControl.Visibility = Visibility.Collapsed;
-                    ListViewControl.ItemsSource = FileCollection;
-                    GridViewControl.ItemsSource = null;
+                    itemPresenter = value;
+
+                    if (value is GridView)
+                    {
+                        GridViewControl.Visibility = Visibility.Visible;
+                        ListViewControl.Visibility = Visibility.Collapsed;
+                        GridViewControl.ItemsSource = FileCollection;
+                        ListViewControl.ItemsSource = null;
+                    }
+                    else
+                    {
+                        ListViewControl.Visibility = Visibility.Visible;
+                        GridViewControl.Visibility = Visibility.Collapsed;
+                        ListViewControl.ItemsSource = FileCollection;
+                        GridViewControl.ItemsSource = null;
+                    }
                 }
             }
         }
@@ -90,55 +92,15 @@ namespace RX_Explorer
         WiFiShareProvider WiFiProvider;
         FileSystemStorageItem TabTarget = null;
 
-        private FlyoutBase ControlContextFlyout
-        {
-            get
-            {
-                if (UseGridOrList)
-                {
-                    return GridViewControl.ContextFlyout;
-                }
-                else
-                {
-                    return ListViewControl.ContextFlyout;
-                }
-            }
-            set
-            {
-                if (UseGridOrList)
-                {
-                    GridViewControl.ContextFlyout = value;
-                }
-                else
-                {
-                    ListViewControl.ContextFlyout = value;
-                }
-            }
-        }
-
         public FileSystemStorageItem SelectedItem
         {
             get
             {
-                if (UseGridOrList)
-                {
-                    return GridViewControl.SelectedItem as FileSystemStorageItem;
-                }
-                else
-                {
-                    return ListViewControl.SelectedItem as FileSystemStorageItem;
-                }
+                return ItemPresenter.SelectedItem as FileSystemStorageItem;
             }
             set
             {
-                if (UseGridOrList)
-                {
-                    GridViewControl.SelectedItem = value;
-                }
-                else
-                {
-                    ListViewControl.SelectedItem = value;
-                }
+                ItemPresenter.SelectedItem = value;
             }
         }
 
@@ -146,14 +108,7 @@ namespace RX_Explorer
         {
             get
             {
-                if (UseGridOrList)
-                {
-                    return GridViewControl.SelectedItems.Select((Item) => Item as FileSystemStorageItem).ToList();
-                }
-                else
-                {
-                    return ListViewControl.SelectedItems.Select((Item) => Item as FileSystemStorageItem).ToList();
-                }
+                return ItemPresenter.SelectedItems.Select((Item) => Item as FileSystemStorageItem).ToList();
             }
         }
 
@@ -186,13 +141,13 @@ namespace RX_Explorer
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is Tuple<FileControl, Frame> Parameters)
+            if (e.Parameter is FileControl Instance)
             {
-                FileControlInstance = Parameters.Item1;
+                FileControlInstance = Instance;
 
-                if (!TabViewContainer.ThisPage.FFInstanceContainer.ContainsKey(Parameters.Item1))
+                if (!TabViewContainer.ThisPage.FFInstanceContainer.ContainsKey(Instance))
                 {
-                    TabViewContainer.ThisPage.FFInstanceContainer.Add(Parameters.Item1, this);
+                    TabViewContainer.ThisPage.FFInstanceContainer.Add(Instance, this);
                 }
             }
         }
@@ -205,6 +160,8 @@ namespace RX_Explorer
 
             if (!FileControlInstance.IsSearchOrPathBoxFocused && !QueueContentDialog.IsRunningOrWaiting)
             {
+                args.Handled = true;
+
                 switch (args.VirtualKey)
                 {
                     case VirtualKey.Space when SelectedItem != null && SettingControl.IsQuicklookAvailable && SettingControl.IsQuicklookEnable:
@@ -227,16 +184,8 @@ namespace RX_Explorer
                             Refresh_Click(null, null);
                             break;
                         }
-                    case VirtualKey.Enter when !QueueContentDialog.IsRunningOrWaiting && SelectedItem is FileSystemStorageItem Item:
+                    case VirtualKey.Enter when SelectedItem is FileSystemStorageItem Item:
                         {
-                            if (UseGridOrList)
-                            {
-                                GridViewControl.Focus(FocusState.Programmatic);
-                            }
-                            else
-                            {
-                                ListViewControl.Focus(FocusState.Programmatic);
-                            }
                             await EnterSelectedItem(Item).ConfigureAwait(false);
                             break;
                         }
@@ -253,6 +202,11 @@ namespace RX_Explorer
                     case VirtualKey.V when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                         {
                             Paste_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItem == null:
+                        {
+                            ItemPresenter.SelectAll();
                             break;
                         }
                     case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
@@ -788,8 +742,6 @@ namespace RX_Explorer
             {
                 CopyFiles = null;
             }
-
-            LastNode = FileControlInstance.CurrentNode;
 
             MoveFiles = SelectedItems.ToArray();
         }
@@ -1367,24 +1319,24 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if(UseGridOrList)
+                if (ItemPresenter is GridView)
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
                     {
                         if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
                         {
-                            ControlContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                            ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
                             SelectedItem = Context;
                         }
                         else
                         {
-                            ControlContextFlyout = MixedFlyout;
+                            ItemPresenter.ContextFlyout = MixedFlyout;
                         }
                     }
                     else
                     {
                         SelectedItem = null;
-                        ControlContextFlyout = EmptyFlyout;
+                        ItemPresenter.ContextFlyout = EmptyFlyout;
                     }
                 }
                 else
@@ -1392,7 +1344,7 @@ namespace RX_Explorer
                     if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource as FrameworkElement).Name == "EmptyTextblock")
                     {
                         SelectedItem = null;
-                        ControlContextFlyout = EmptyFlyout;
+                        ItemPresenter.ContextFlyout = EmptyFlyout;
                     }
                     else
                     {
@@ -1400,18 +1352,18 @@ namespace RX_Explorer
                         {
                             if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
                             {
-                                ControlContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
                                 SelectedItem = Context;
                             }
                             else
                             {
-                                ControlContextFlyout = MixedFlyout;
+                                ItemPresenter.ContextFlyout = MixedFlyout;
                             }
                         }
                         else
                         {
                             SelectedItem = null;
-                            ControlContextFlyout = EmptyFlyout;
+                            ItemPresenter.ContextFlyout = EmptyFlyout;
                         }
                     }
                 }
@@ -2151,14 +2103,7 @@ namespace RX_Explorer
                 await Source.SetBitmapAsync(TransferImage);
             }
 
-            if (UseGridOrList)
-            {
-                QRTeachTip.Target = GridViewControl.ContainerFromItem(SelectedItem) as GridViewItem;
-            }
-            else
-            {
-                QRTeachTip.Target = ListViewControl.ContainerFromItem(SelectedItem) as ListViewItem;
-            }
+            QRTeachTip.Target = ItemPresenter.ContainerFromItem(SelectedItem) as FrameworkElement;
 
             QRTeachTip.IsOpen = true;
 
@@ -2283,9 +2228,8 @@ namespace RX_Explorer
             }
             else
             {
-                BitmapImage Thumbnail = await folder.GetThumbnailBitmapAsync().ConfigureAwait(true);
-                TabViewContainer.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, Thumbnail, LibrarySource.UserCustom));
-                await SQLite.Current.SetFolderLibraryAsync(folder.Path).ConfigureAwait(false);
+                TabViewContainer.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, await folder.GetThumbnailBitmapAsync().ConfigureAwait(true)));
+                await SQLite.Current.SetLibraryPathAsync(folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
             }
         }
 
@@ -2317,7 +2261,7 @@ namespace RX_Explorer
                     await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
                 }
             }
-            catch (UnauthorizedAccessException)
+            catch
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -2455,7 +2399,7 @@ namespace RX_Explorer
                         if (!string.IsNullOrEmpty(AdminExcuteProgram) && AdminExcuteProgram != Globalization.GetString("RX_BuildIn_Viewer_Name"))
                         {
                             bool IsExcuted = false;
-                            await foreach (string Path in SQLite.Current.GetProgramPickerRecordAsync(TabTarget.Type))
+                            foreach (string Path in await SQLite.Current.GetProgramPickerRecordAsync(TabTarget.Type).ConfigureAwait(true))
                             {
                                 try
                                 {
@@ -2465,14 +2409,14 @@ namespace RX_Explorer
 
                                     if (AppName == AdminExcuteProgram || ExcuteFile.DisplayName == AdminExcuteProgram)
                                     {
-                                        await FullTrustExcutorController.Run(Path, TabTarget.Path).ConfigureAwait(false);
+                                        await FullTrustExcutorController.Run(Path, TabTarget.Path).ConfigureAwait(true);
                                         IsExcuted = true;
                                         break;
                                     }
                                 }
                                 catch (Exception)
                                 {
-                                    await SQLite.Current.DeleteProgramPickerRecordAsync(TabTarget.Type, Path).ConfigureAwait(false);
+                                    await SQLite.Current.DeleteProgramPickerRecordAsync(TabTarget.Type, Path).ConfigureAwait(true);
                                 }
                             }
 
@@ -3521,7 +3465,7 @@ namespace RX_Explorer
 
         private void ItemContainer_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (SettingControl.IsQuicklookAvailable && SettingControl.IsQuicklookEnable && !SettingControl.IsDoubleClickEnable)
+            if (!SettingControl.IsDoubleClickEnable)
             {
                 PointerHoverTimer.Stop();
             }
@@ -3529,7 +3473,7 @@ namespace RX_Explorer
 
         private void ItemContainer_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (SettingControl.IsQuicklookAvailable && SettingControl.IsQuicklookEnable && !SettingControl.IsDoubleClickEnable)
+            if (!SettingControl.IsDoubleClickEnable)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
                 {
@@ -3818,24 +3762,24 @@ namespace RX_Explorer
         {
             if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
             {
-                if (UseGridOrList)
+                if (ItemPresenter is GridView)
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
                     {
                         if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
                         {
-                            ControlContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                            ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
                             SelectedItem = Context;
                         }
                         else
                         {
-                            ControlContextFlyout = MixedFlyout;
+                            ItemPresenter.ContextFlyout = MixedFlyout;
                         }
                     }
                     else
                     {
                         SelectedItem = null;
-                        ControlContextFlyout = EmptyFlyout;
+                        ItemPresenter.ContextFlyout = EmptyFlyout;
                     }
                 }
                 else
@@ -3843,7 +3787,7 @@ namespace RX_Explorer
                     if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource as FrameworkElement).Name == "EmptyTextblock")
                     {
                         SelectedItem = null;
-                        ControlContextFlyout = EmptyFlyout;
+                        ItemPresenter.ContextFlyout = EmptyFlyout;
                     }
                     else
                     {
@@ -3851,18 +3795,18 @@ namespace RX_Explorer
                         {
                             if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
                             {
-                                ControlContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
                                 SelectedItem = Context;
                             }
                             else
                             {
-                                ControlContextFlyout = MixedFlyout;
+                                ItemPresenter.ContextFlyout = MixedFlyout;
                             }
                         }
                         else
                         {
                             SelectedItem = null;
-                            ControlContextFlyout = EmptyFlyout;
+                            ItemPresenter.ContextFlyout = EmptyFlyout;
                         }
                     }
                 }

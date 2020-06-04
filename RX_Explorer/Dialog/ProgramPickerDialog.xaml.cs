@@ -86,20 +86,7 @@ namespace RX_Explorer.Dialog
             string SystemAssociate = await FullTrustExcutorController.GetAssociateFromPath(OpenFile.Path).ConfigureAwait(true);
             if (!string.IsNullOrEmpty(SystemAssociate))
             {
-                try
-                {
-                    StorageFile ExcuteFile = await StorageFile.GetFileFromPathAsync(SystemAssociate);
-
-                    string Description = Convert.ToString((await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"]);
-
-                    TempList.Add(new ProgramPickerItem(await ExcuteFile.GetThumbnailBitmapAsync().ConfigureAwait(true), string.IsNullOrEmpty(Description) ? ExcuteFile.DisplayName : Description, Globalization.GetString("Application_Admin_Name"), Path: SystemAssociate));
-
-                    await SQLite.Current.SetProgramPickerRecordAsync(OpenFile.FileType, SystemAssociate).ConfigureAwait(true);
-                }
-                catch
-                {
-
-                }
+                await SQLite.Current.SetProgramPickerRecordAsync(OpenFile.FileType, SystemAssociate).ConfigureAwait(true);
             }
 
             try
@@ -120,18 +107,16 @@ namespace RX_Explorer.Dialog
 
             }
 
-            await foreach (string Path in SQLite.Current.GetProgramPickerRecordAsync(OpenFile.FileType))
+            foreach (string Path in await SQLite.Current.GetProgramPickerRecordAsync(OpenFile.FileType).ConfigureAwait(true))
             {
-                if (Path == SystemAssociate)
-                {
-                    continue;
-                }
-
                 try
                 {
-                    StorageFile ExcuteFile = await StorageFile.GetFileFromPathAsync(Path);
-                    string ExtraAppName = (await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"].ToString();
-                    TempList.Add(new ProgramPickerItem(await ExcuteFile.GetThumbnailBitmapAsync().ConfigureAwait(true), ExtraAppName, Globalization.GetString("Application_Admin_Name"), Path: ExcuteFile.Path));
+                    if (TempList.Where((Item)=>Item.IsCustomApp).All((Item) => !Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        StorageFile ExcuteFile = await StorageFile.GetFileFromPathAsync(Path);
+                        string Description = Convert.ToString((await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"]);
+                        TempList.Add(new ProgramPickerItem(await ExcuteFile.GetThumbnailBitmapAsync().ConfigureAwait(true), string.IsNullOrEmpty(Description) ? ExcuteFile.DisplayName : Description, Globalization.GetString("Application_Admin_Name"), Path: ExcuteFile.Path));
+                    }
                 }
                 catch (Exception)
                 {

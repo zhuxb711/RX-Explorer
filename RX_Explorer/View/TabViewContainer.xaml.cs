@@ -1,18 +1,19 @@
-﻿using RX_Explorer.Class;
-using RX_Explorer.Dialog;
-using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml.Controls;
+using RX_Explorer.Class;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Devices.Enumeration;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -388,114 +389,202 @@ namespace RX_Explorer
                 QuickStartList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
                 HotWebList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
 
-                try
+                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("IsLibraryInitialized"))
                 {
-                    if (ApplicationData.Current.LocalSettings.Values["UserDefineDownloadPath"] is string UserDefinePath)
+                    try
                     {
+                        IReadOnlyList<User> UserList = await User.FindAllAsync();
+
+                        UserDataPaths DataPath = UserList.Count > 1 ? UserDataPaths.GetForUser(UserList[0]) : UserDataPaths.GetDefault();
+
                         try
                         {
-                            StorageFolder DownloadFolder = await StorageFolder.GetFolderFromPathAsync(UserDefinePath);
-                            LibraryFolderList.Add(new LibraryFolder(DownloadFolder, await DownloadFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibrarySource.SystemBase));
+                            if (!string.IsNullOrEmpty(DataPath.Downloads))
+                            {
+                                await SQLite.Current.SetLibraryPathAsync(DataPath.Downloads, LibraryType.Downloads).ConfigureAwait(true);
+                            }
+
+                            if (!string.IsNullOrEmpty(DataPath.Desktop))
+                            {
+                                await SQLite.Current.SetLibraryPathAsync(DataPath.Desktop, LibraryType.Desktop).ConfigureAwait(true);
+                            }
+
+                            if (!string.IsNullOrEmpty(DataPath.Videos))
+                            {
+                                await SQLite.Current.SetLibraryPathAsync(DataPath.Videos, LibraryType.Videos).ConfigureAwait(true);
+                            }
+
+                            if (!string.IsNullOrEmpty(DataPath.Pictures))
+                            {
+                                await SQLite.Current.SetLibraryPathAsync(DataPath.Pictures, LibraryType.Pictures).ConfigureAwait(true);
+                            }
+
+                            if (!string.IsNullOrEmpty(DataPath.Documents))
+                            {
+                                await SQLite.Current.SetLibraryPathAsync(DataPath.Documents, LibraryType.Document).ConfigureAwait(true);
+                            }
+
+                            if (!string.IsNullOrEmpty(DataPath.Music))
+                            {
+                                await SQLite.Current.SetLibraryPathAsync(DataPath.Music, LibraryType.Music).ConfigureAwait(true);
+                            }
+
+                            if (!string.IsNullOrEmpty(DataPath.Profile))
+                            {
+                                await SQLite.Current.SetLibraryPathAsync(Path.Combine(DataPath.Profile, "OneDrive"), LibraryType.OneDrive).ConfigureAwait(true);
+                            }
                         }
                         catch
                         {
-                            UserFolderDialog Dialog = new UserFolderDialog(Globalization.GetString("Download_Folder_Name"));
-                            if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                            {
-                                LibraryFolderList.Add(new LibraryFolder(Dialog.MissingFolder, await Dialog.MissingFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibrarySource.SystemBase));
-                                ApplicationData.Current.LocalSettings.Values["UserDefineDownloadPath"] = Dialog.MissingFolder.Path;
-                            }
+
                         }
                     }
-                    else
+                    catch
                     {
-                        string UserPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-                        if (!string.IsNullOrEmpty(UserPath))
+                        string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                        if (!string.IsNullOrEmpty(DesktopPath))
                         {
-                            StorageFolder CurrentFolder = await StorageFolder.GetFolderFromPathAsync(UserPath);
+                            await SQLite.Current.SetLibraryPathAsync(DesktopPath, LibraryType.Desktop).ConfigureAwait(true);
+                        }
 
-                            if ((await CurrentFolder.TryGetItemAsync("Downloads")) is StorageFolder DownloadFolder)
-                            {
-                                LibraryFolderList.Add(new LibraryFolder(DownloadFolder, await DownloadFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibrarySource.SystemBase));
-                            }
-                            else
-                            {
-                                UserFolderDialog Dialog = new UserFolderDialog(Globalization.GetString("Download_Folder_Name"));
-                                if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                                {
-                                    LibraryFolderList.Add(new LibraryFolder(Dialog.MissingFolder, await Dialog.MissingFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibrarySource.SystemBase));
-                                    ApplicationData.Current.LocalSettings.Values["UserDefineDownloadPath"] = Dialog.MissingFolder.Path;
-                                }
-                            }
+                        string VideoPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+                        if (!string.IsNullOrEmpty(VideoPath))
+                        {
+                            await SQLite.Current.SetLibraryPathAsync(VideoPath, LibraryType.Videos).ConfigureAwait(true);
+                        }
+
+                        string PicturesPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+                        if (!string.IsNullOrEmpty(PicturesPath))
+                        {
+                            await SQLite.Current.SetLibraryPathAsync(PicturesPath, LibraryType.Pictures).ConfigureAwait(true);
+                        }
+
+                        string DocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                        if (!string.IsNullOrEmpty(DocumentsPath))
+                        {
+                            await SQLite.Current.SetLibraryPathAsync(DocumentsPath, LibraryType.Document).ConfigureAwait(true);
+                        }
+
+                        string MusicPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+                        if (!string.IsNullOrEmpty(MusicPath))
+                        {
+                            await SQLite.Current.SetLibraryPathAsync(MusicPath, LibraryType.Music).ConfigureAwait(true);
+                        }
+
+                        string ProfilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                        if (!string.IsNullOrEmpty(ProfilePath))
+                        {
+                            await SQLite.Current.SetLibraryPathAsync(Path.Combine(ProfilePath, "OneDrive"), LibraryType.OneDrive).ConfigureAwait(true);
                         }
                     }
-
-                    string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-                    if (!string.IsNullOrEmpty(DesktopPath))
+                    finally
                     {
-                        StorageFolder DesktopFolder = await StorageFolder.GetFolderFromPathAsync(DesktopPath);
-                        LibraryFolderList.Add(new LibraryFolder(DesktopFolder, await DesktopFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibrarySource.SystemBase));
-                    }
-
-                    string VideoPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
-                    if (!string.IsNullOrEmpty(VideoPath))
-                    {
-                        StorageFolder VideoFolder = await StorageFolder.GetFolderFromPathAsync(VideoPath);
-                        LibraryFolderList.Add(new LibraryFolder(VideoFolder, await VideoFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibrarySource.SystemBase));
-                    }
-
-                    string PicturePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                    if (!string.IsNullOrEmpty(PicturePath))
-                    {
-                        StorageFolder PictureFolder = await StorageFolder.GetFolderFromPathAsync(PicturePath);
-                        LibraryFolderList.Add(new LibraryFolder(PictureFolder, await PictureFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibrarySource.SystemBase));
-                    }
-
-                    string DocumentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                    if (!string.IsNullOrEmpty(DocumentPath))
-                    {
-                        StorageFolder DocumentFolder = await StorageFolder.GetFolderFromPathAsync(DocumentPath);
-                        LibraryFolderList.Add(new LibraryFolder(DocumentFolder, await DocumentFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibrarySource.SystemBase));
-                    }
-
-                    string MusicPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-                    if (!string.IsNullOrEmpty(MusicPath))
-                    {
-                        StorageFolder MusicFolder = await StorageFolder.GetFolderFromPathAsync(MusicPath);
-                        LibraryFolderList.Add(new LibraryFolder(MusicFolder, await MusicFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibrarySource.SystemBase));
-                    }
-
-                    string UserProfilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-                    if (!string.IsNullOrEmpty(UserProfilePath))
-                    {
-                        StorageFolder OneDriveFolder = await StorageFolder.GetFolderFromPathAsync(Path.Combine(UserProfilePath, "OneDrive"));
-                        LibraryFolderList.Add(new LibraryFolder(OneDriveFolder, await OneDriveFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibrarySource.SystemBase));
+                        ApplicationData.Current.LocalSettings.Values["IsLibraryInitialized"] = true;
                     }
                 }
-                catch (Exception)
+                else
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    try
                     {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_ImportLibraryFolderError_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        IReadOnlyList<User> UserList = await User.FindAllAsync();
+
+                        UserDataPaths DataPath = UserList.Count > 1 ? UserDataPaths.GetForUser(UserList[0]) : UserDataPaths.GetDefault();
+
+                        try
+                        {
+                            if (!string.IsNullOrEmpty(DataPath.Downloads))
+                            {
+                                await SQLite.Current.UpdateLibraryAsync(DataPath.Downloads, LibraryType.Downloads).ConfigureAwait(true);
+                            }
+
+                            if (!string.IsNullOrEmpty(DataPath.Desktop))
+                            {
+                                await SQLite.Current.UpdateLibraryAsync(DataPath.Desktop, LibraryType.Desktop).ConfigureAwait(true);
+                            }
+
+                            if (!string.IsNullOrEmpty(DataPath.Videos))
+                            {
+                                await SQLite.Current.UpdateLibraryAsync(DataPath.Videos, LibraryType.Videos).ConfigureAwait(true);
+                            }
+
+                            if (!string.IsNullOrEmpty(DataPath.Pictures))
+                            {
+                                await SQLite.Current.UpdateLibraryAsync(DataPath.Pictures, LibraryType.Pictures).ConfigureAwait(true);
+                            }
+
+                            if (!string.IsNullOrEmpty(DataPath.Documents))
+                            {
+                                await SQLite.Current.UpdateLibraryAsync(DataPath.Documents, LibraryType.Document).ConfigureAwait(true);
+                            }
+
+                            if (!string.IsNullOrEmpty(DataPath.Music))
+                            {
+                                await SQLite.Current.UpdateLibraryAsync(DataPath.Music, LibraryType.Music).ConfigureAwait(true);
+                            }
+
+                            if (!string.IsNullOrEmpty(DataPath.Profile))
+                            {
+                                await SQLite.Current.UpdateLibraryAsync(Path.Combine(DataPath.Profile, "OneDrive"), LibraryType.OneDrive).ConfigureAwait(true);
+                            }
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    catch
+                    {
+                        string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                        if (!string.IsNullOrEmpty(DesktopPath))
+                        {
+                            await SQLite.Current.UpdateLibraryAsync(DesktopPath, LibraryType.Desktop).ConfigureAwait(true);
+                        }
+
+                        string VideoPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+                        if (!string.IsNullOrEmpty(VideoPath))
+                        {
+                            await SQLite.Current.UpdateLibraryAsync(VideoPath, LibraryType.Videos).ConfigureAwait(true);
+                        }
+
+                        string PicturesPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+                        if (!string.IsNullOrEmpty(PicturesPath))
+                        {
+                            await SQLite.Current.UpdateLibraryAsync(PicturesPath, LibraryType.Pictures).ConfigureAwait(true);
+                        }
+
+                        string DocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                        if (!string.IsNullOrEmpty(DocumentsPath))
+                        {
+                            await SQLite.Current.UpdateLibraryAsync(DocumentsPath, LibraryType.Document).ConfigureAwait(true);
+                        }
+
+                        string MusicPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+                        if (!string.IsNullOrEmpty(MusicPath))
+                        {
+                            await SQLite.Current.UpdateLibraryAsync(MusicPath, LibraryType.Music).ConfigureAwait(true);
+                        }
+
+                        string ProfilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                        if (!string.IsNullOrEmpty(ProfilePath))
+                        {
+                            await SQLite.Current.UpdateLibraryAsync(Path.Combine(ProfilePath, "OneDrive"), LibraryType.OneDrive).ConfigureAwait(true);
+                        }
+                    }
                 }
 
                 Queue<string> ErrorList = new Queue<string>();
-                foreach (var FolderPath in await SQLite.Current.GetFolderLibraryAsync().ConfigureAwait(true))
+                foreach (var FolderPath in await SQLite.Current.GetLibraryPathAsync().ConfigureAwait(true))
                 {
                     try
                     {
                         StorageFolder PinFile = await StorageFolder.GetFolderFromPathAsync(FolderPath);
                         BitmapImage Thumbnail = await PinFile.GetThumbnailBitmapAsync().ConfigureAwait(true);
-                        LibraryFolderList.Add(new LibraryFolder(PinFile, Thumbnail, LibrarySource.UserCustom));
+                        LibraryFolderList.Add(new LibraryFolder(PinFile, Thumbnail));
                     }
                     catch (Exception)
                     {
                         ErrorList.Enqueue(FolderPath);
-                        await SQLite.Current.DeleteFolderLibraryAsync(FolderPath).ConfigureAwait(true);
+                        await SQLite.Current.DeleteLibraryAsync(FolderPath).ConfigureAwait(true);
                     }
                 }
 
@@ -564,16 +653,17 @@ namespace RX_Explorer
 
                 if (ErrorList.Count > 0)
                 {
-                    string Display = string.Empty;
-                    while (ErrorList.Count > 0)
+                    StringBuilder Builder = new StringBuilder();
+
+                    while (ErrorList.TryDequeue(out string ErrorMessage))
                     {
-                        Display += "   " + ErrorList.Dequeue() + "\r";
+                        Builder.AppendLine($"   {ErrorMessage}");
                     }
 
                     QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                        Content = Globalization.GetString("QueueDialog_PinFolderNotFound_Content") + Display,
+                        Content = Globalization.GetString("QueueDialog_PinFolderNotFound_Content") + Builder.ToString(),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
                     _ = await dialog.ShowAsync().ConfigureAwait(true);

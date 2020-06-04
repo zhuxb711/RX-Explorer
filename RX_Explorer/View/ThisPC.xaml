@@ -70,39 +70,24 @@
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
-        <CommandBarFlyout x:Name="UserLibraryFlyout"
+        <CommandBarFlyout x:Name="LibraryFlyout"
                           Placement="RightEdgeAlignedTop">
             <CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
                               x:Uid="LibraryOpenButton"
-                              Click="OpenUserLibrary_Click"
-                              x:Name="OpenUserLibrary"/>
+                              Click="OpenLibrary_Click"
+                              x:Name="OpenLibrary" />
                 <AppBarButton Icon="Cancel"
                               Name="RemovePin"
                               x:Uid="LibraryCancelButton"
                               Label="取消固定"
-                              Click="RemovePin_Click"/>
+                              Click="RemovePin_Click" />
                 <AppBarButton Icon="Tag"
                               Label="属性"
                               x:Uid="FolderAttribute"
                               x:Name="LibraryProperties"
-                              Click="LibraryProperties_Click"/>
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
-
-        <CommandBarFlyout x:Name="SystemLibraryFlyout"
-                          Placement="RightEdgeAlignedTop">
-            <CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="BackToWindow"
-                              Label="打开"
-                              x:Uid="LibraryOpenButton"
-                              Click="OpenSystemLibrary_Click"
-                              x:Name="OpenSystemLibrary" />
-                <AppBarButton Icon="Tag"
-                              Label="属性"
-                              x:Uid="FolderAttribute"
-                              Click="LibraryProperties_Click"/>
+                              Click="LibraryProperties_Click" />
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
@@ -282,15 +267,15 @@
                                             Width="200"
                                             Padding="5">
                                     <Image IsHitTestVisible="False"
-                                           Height="60"
-                                           Width="60"
+                                           Height="55"
+                                           Width="55"
                                            VerticalAlignment="Center"
                                            Source="{x:Bind Thumbnail}"
                                            Stretch="Uniform" />
                                     <StackPanel Orientation="Vertical"
-                                                Margin="5,1,0,0">
+                                                Margin="5,2,0,0">
                                         <TextBlock IsHitTestVisible="False"
-                                                   FontSize="16"
+                                                   FontSize="15"
                                                    Width="125"
                                                    HorizontalAlignment="Left"
                                                    TextTrimming="CharacterEllipsis"
@@ -371,13 +356,13 @@
                                                     Orientation="Vertical"
                                                     Margin="10,0,0,0">
                                             <TextBlock IsHitTestVisible="False"
-                                                       FontSize="16"
+                                                       FontSize="15"
                                                        Width="200"
                                                        TextTrimming="CharacterEllipsis"
                                                        Text="{x:Bind Name}" />
                                             <ProgressBar x:Name="Pro"
                                                          Width="200"
-                                                         Height="14"
+                                                         Height="13"
                                                          Foreground="{x:Bind ProgressBarForeground}"
                                                          IsHitTestVisible="False"
                                                          Maximum="1"

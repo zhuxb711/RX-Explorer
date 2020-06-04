@@ -1,4 +1,21 @@
 ﻿*****
+###Quoi de neuf dans la version 4.8.2.0
+
+>#####Mise à jour des fonctionnalités
+
+>>#####Vous pouvez maintenant supprimer les dossiers fournis avec "Bibliothèques"
+
+>#####Correction d'un bug
+
+>>#####Correction d'un problème qui pouvait entraîner le déclenchement d'autres fonctions lors de l'appel de "Quicklook" à l'aide de la barre d'espace
+
+>>#####Résolution de quelques problèmes de traduction
+
+>>#####Correction d'un problème où le survol de la souris ne pouvait pas être sélectionné automatiquement en mode simple clic
+
+>>#####Résolution d'un problème où plusieurs "Bloc-notes" pouvaient s'afficher dans la fenêtre "Choisir une autre application"
+
+*****
 ###Quoi de neuf dans la version 4.8.0.0
 
 >#####Mise à jour des fonctionnalités

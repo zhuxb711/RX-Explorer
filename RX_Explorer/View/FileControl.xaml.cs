@@ -4,7 +4,6 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -168,11 +167,11 @@ namespace RX_Explorer
             {
                 if (AnimationController.Current.IsEnableAnimation)
                 {
-                    Nav.Navigate(typeof(FilePresenter), new Tuple<FileControl, Frame>(this, Nav), new DrillInNavigationTransitionInfo());
+                    Nav.Navigate(typeof(FilePresenter), this, new DrillInNavigationTransitionInfo());
                 }
                 else
                 {
-                    Nav.Navigate(typeof(FilePresenter), new Tuple<FileControl, Frame>(this, Nav), new SuppressNavigationTransitionInfo());
+                    Nav.Navigate(typeof(FilePresenter), this, new SuppressNavigationTransitionInfo());
                 }
 
                 ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Tiles"));
@@ -440,13 +439,13 @@ namespace RX_Explorer
 
                             Node.Children.Add(NewNode);
 
-                            if(ExpandCancel.IsCancellationRequested)
+                            if (ExpandCancel.IsCancellationRequested)
                             {
                                 break;
                             }
                         }
 
-                        if(!ExpandCancel.IsCancellationRequested)
+                        if (!ExpandCancel.IsCancellationRequested)
                         {
                             Node.HasUnrealizedChildren = false;
                         }
@@ -937,8 +936,8 @@ namespace RX_Explorer
             else
             {
                 BitmapImage Thumbnail = await folder.GetThumbnailBitmapAsync().ConfigureAwait(true);
-                TabViewContainer.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, Thumbnail, LibrarySource.UserCustom));
-                await SQLite.Current.SetFolderLibraryAsync(folder.Path).ConfigureAwait(false);
+                TabViewContainer.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, Thumbnail));
+                await SQLite.Current.SetLibraryPathAsync(folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
             }
         }
 
@@ -1403,10 +1402,7 @@ namespace RX_Explorer
                     {
                         TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].TileDataTemplate;
 
-                        if (!TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList)
-                        {
-                            TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList = true;
-                        }
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].ItemPresenter = TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl;
                         break;
                     }
                 case 1:
@@ -1415,10 +1411,7 @@ namespace RX_Explorer
                         TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewDetailDataTemplate;
                         TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl.ItemsSource = TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection;
 
-                        if (TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList)
-                        {
-                            TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList = false;
-                        }
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].ItemPresenter = TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl;
                         break;
                     }
 
@@ -1428,40 +1421,28 @@ namespace RX_Explorer
                         TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewSimpleDataTemplate;
                         TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl.ItemsSource = TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection;
 
-                        if (TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList)
-                        {
-                            TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList = false;
-                        }
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].ItemPresenter = TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl;
                         break;
                     }
                 case 3:
                     {
                         TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].LargeImageDataTemplate;
 
-                        if (!TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList)
-                        {
-                            TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList = true;
-                        }
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].ItemPresenter = TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl;
                         break;
                     }
                 case 4:
                     {
                         TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].MediumImageDataTemplate;
 
-                        if (!TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList)
-                        {
-                            TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList = true;
-                        }
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].ItemPresenter = TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl;
                         break;
                     }
                 case 5:
                     {
                         TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].SmallImageDataTemplate;
 
-                        if (!TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList)
-                        {
-                            TabViewContainer.ThisPage.FFInstanceContainer[this].UseGridOrList = true;
-                        }
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].ItemPresenter = TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl;
                         break;
                     }
             }

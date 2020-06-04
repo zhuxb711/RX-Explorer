@@ -1953,7 +1953,7 @@
     <value>稍后</value>
   </data>
   <data name="Common_Dialog_NowButton" xml:space="preserve">
-    <value>即刻固定</value>
+    <value>立刻</value>
   </data>
   <data name="Create_NewFolder_Admin_Name" xml:space="preserve">
     <value>新建文件夹</value>
@@ -2154,9 +2154,6 @@
   <data name="QueueDialog_FileDamageError_Content" xml:space="preserve">
     <value>由于待解密文件的内部结构损坏，解密失败，导出任务已经终止\r\r这可能是由于文件数据已损坏或被修改造成的</value>
     <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_ImportLibraryFolderError_Content" xml:space="preserve">
-    <value>由于某些无法预料的原因，无法导入库文件夹</value>
   </data>
   <data name="QueueDialog_LocateFileFailure_Content" xml:space="preserve">
     <value>无法找到对应的文件，该文件可能已被移动或删除</value>

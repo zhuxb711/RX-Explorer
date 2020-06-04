@@ -12,7 +12,13 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 文件夹名称
         /// </summary>
-        public string Name { get; private set; }
+        public string Name
+        {
+            get
+            {
+                return Folder.DisplayName;
+            }
+        }
 
         /// <summary>
         /// 文件夹缩略图
@@ -36,27 +42,15 @@ namespace RX_Explorer.Class
         }
 
         /// <summary>
-        /// 指示库的类型
-        /// </summary>
-        public LibrarySource Source { get; private set; }
-
-        /// <summary>
         /// 初始化LibraryFolder
         /// </summary>
         /// <param name="Folder">文件夹对象</param>
         /// <param name="Thumbnail">缩略图</param>
         /// <param name="Source">类型</param>
-        public LibraryFolder(StorageFolder Folder, BitmapImage Thumbnail, LibrarySource Source)
+        public LibraryFolder(StorageFolder Folder, BitmapImage Thumbnail)
         {
-            if (Folder == null)
-            {
-                throw new FileNotFoundException();
-            }
-
-            Name = Folder.Name;
+            this.Folder = Folder ?? throw new FileNotFoundException();
             this.Thumbnail = Thumbnail;
-            this.Folder = Folder;
-            this.Source = Source;
         }
     }
 }

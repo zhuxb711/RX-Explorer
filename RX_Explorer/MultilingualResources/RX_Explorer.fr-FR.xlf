@@ -2850,10 +2850,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Parce que la structure interne du fichier à déchiffrer est endommagée et que le déchiffrement échoue, la tâche d'exportation a été interrompue \r\rCeci peut être dû au fait que les données du fichier sont endommagées ou modifiées</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
-        <trans-unit id="QueueDialog_ImportLibraryFolderError_Content" translate="yes" xml:space="preserve">
-          <source>Unable to import library folder for some unforeseen reasons</source>
-          <target state="translated">Impossible d'importer le dossier de la bibliothèque pour des raisons imprévues</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_LocateFileFailure_Content" translate="yes" xml:space="preserve">
           <source>Could not find the corresponding file, it may have been moved or deleted</source>
           <target state="translated">Impossible de trouver le fichier correspondant, il a pu être déplacé ou supprimé</target>

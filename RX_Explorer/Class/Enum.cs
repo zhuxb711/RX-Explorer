@@ -179,7 +179,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 界面使用法语
         /// </summary>
-        French=4
+        French = 4
     }
 
     /// <summary>
@@ -229,16 +229,16 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 指定文件夹和库是自带还是用户固定
     /// </summary>
-    public enum LibrarySource
+    public enum LibraryType
     {
-        /// <summary>
-        /// 自带库
-        /// </summary>
-        SystemBase = 0,
-        /// <summary>
-        /// 用户自定义库
-        /// </summary>
-        UserCustom = 1
+        Downloads = 0,
+        Desktop = 1,
+        Videos = 2,
+        Pictures = 4,
+        Document = 8,
+        Music = 16,
+        OneDrive = 32,
+        UserCustom = 64
     }
 
     [Flags]

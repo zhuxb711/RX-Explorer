@@ -190,10 +190,7 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
-                                {
-                                    FileCount++;
-                                }
+                                FileCount++;
                             }
                         }
                     }

@@ -63,7 +63,9 @@
                         IsPaneOpen="False"
                         BackRequested="NavView_BackRequested"
                         x:FieldModifier="public"
-                        ItemInvoked="NavView_ItemInvoked">
+                        ItemInvoked="NavView_ItemInvoked"
+                        AllowFocusOnInteraction="False"
+                        SelectionFollowsFocus="Disabled">
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="这台电脑"
                                     x:Uid="ThisPC"

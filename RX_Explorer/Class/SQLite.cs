@@ -52,13 +52,12 @@ namespace RX_Explorer.Class
         /// </summary>
         private void InitializeDatabase()
         {
-            string NodePadPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\notepad.exe");
             string Command = $@"Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));
                                 Create Table If Not Exists WebFavourite (Subject Text Not Null, WebSite Text Not Null, Primary Key (WebSite));
                                 Create Table If Not Exists WebHistory (Subject Text Not Null, WebSite Text Not Null, DateTime Text Not Null, Primary Key (Subject, WebSite, DateTime));
                                 Create Table If Not Exists DownloadHistory (UniqueID Text Not Null, ActualName Text Not Null, Uri Text Not Null, State Text Not Null, Primary Key(UniqueID));
                                 Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
-                                Create Table If Not Exists FolderLibrary (Path Text Not Null, Primary Key (Path));
+                                Create Table If Not Exists Library (Path Text Not Null, Type Text Not Null, Primary Key (Path));
                                 Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
                                 Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));
                                 Create Table If Not Exists DeviceVisibility (Path Text Not Null, IsVisible Text Not Null, Primary Key(Path));
@@ -77,7 +76,7 @@ namespace RX_Explorer.Class
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture12.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture13.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');
-                                Insert Or Ignore Into ProgramPicker Values ('.*','{NodePadPath}');";
+                                Insert Or Ignore Into ProgramPicker Values ('.*','{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\notepad.exe")}');";
             using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBasePoolAsync().Result)
             using (SqliteCommand CreateTable = Connection.CreateDbCommandFromConnection<SqliteCommand>(Command))
             {
@@ -96,8 +95,10 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async IAsyncEnumerable<string> GetProgramPickerRecordAsync(string FileType)
+        public async Task<List<string>> GetProgramPickerRecordAsync(string FileType)
         {
+            List<string> Result = new List<string>();
+
             using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From ProgramPicker Where FileType = @FileType Or FileType = '.*'"))
             {
@@ -107,10 +108,14 @@ namespace RX_Explorer.Class
                 {
                     while (Reader.Read())
                     {
-                        yield return Reader[1].ToString();
+                        Result.Add(Reader[1].ToString());
                     }
                 }
             }
+
+            Result.Reverse();
+
+            return Result;
         }
 
         public async Task DeleteProgramPickerRecordAsync(string FileType, string Path)
@@ -233,11 +238,11 @@ namespace RX_Explorer.Class
         /// 获取文件夹和库区域内用户自定义的文件夹路径
         /// </summary>
         /// <returns></returns>
-        public async Task<List<string>> GetFolderLibraryAsync()
+        public async Task<List<string>> GetLibraryPathAsync()
         {
             List<string> list = new List<string>();
             using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From FolderLibrary"))
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From Library"))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
             {
                 while (query.Read())
@@ -253,10 +258,10 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Path">自定义文件夹的路径</param>
         /// <returns></returns>
-        public async Task DeleteFolderLibraryAsync(string Path)
+        public async Task DeleteLibraryAsync(string Path)
         {
             using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From FolderLibrary Where Path = @Path"))
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From Library Where Path = @Path"))
             {
                 _ = Command.Parameters.AddWithValue("@Path", Path);
                 _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
@@ -299,16 +304,28 @@ namespace RX_Explorer.Class
         }
 
         /// <summary>
-        /// 保存在文件夹和库区域显示的用户自定义文件夹路径
+        /// 保存在文件夹和库区域显示的文件夹路径
         /// </summary>
         /// <param name="Path">文件夹路径</param>
         /// <returns></returns>
-        public async Task SetFolderLibraryAsync(string Path)
+        public async Task SetLibraryPathAsync(string Path, LibraryType Type)
         {
             using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into FolderLibrary Values (@Path)"))
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Or Ignore Into Library Values (@Path,@Type)"))
             {
                 _ = Command.Parameters.AddWithValue("@Path", Path);
+                _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Type));
+                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+        }
+
+        public async Task UpdateLibraryAsync(string NewPath, LibraryType Type)
+        {
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Update Library Set Path=@NewPath Where Type=@Type"))
+            {
+                _ = Command.Parameters.AddWithValue("@NewPath", NewPath);
+                _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Type));
                 _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
