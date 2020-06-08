@@ -635,7 +635,7 @@
       <Version>2.4.2</Version>
     </PackageReference>
     <PackageReference Include="MySqlConnector">
-      <Version>0.67.0</Version>
+      <Version>0.68.1</Version>
     </PackageReference>
     <PackageReference Include="OpenCV.UWP.native.imgproc">
       <Version>0.0.2-alpha</Version>

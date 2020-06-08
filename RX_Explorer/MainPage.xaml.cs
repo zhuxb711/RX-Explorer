@@ -235,7 +235,6 @@ namespace RX_Explorer
                 }
 
                 Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
-                Nav.Focus(FocusState.Programmatic);
 
                 var PictureUri = await SQLite.Current.GetBackgroundPictureAsync().ConfigureAwait(true);
                 var FileList = await (await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists)).GetFilesAsync();
@@ -611,7 +610,7 @@ namespace RX_Explorer
 
                     if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
                     {
-                        NavView.IsBackEnabled = (TabViewContainer.CurrentPageNav?.CanGoBack).GetValueOrDefault();
+                        NavView.IsBackEnabled = (TabViewContainer.CurrentTabNavigation?.CanGoBack).GetValueOrDefault();
                         Nav.Navigate(typeof(TabViewContainer), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
                     }
                     else if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
@@ -641,7 +640,7 @@ namespace RX_Explorer
             {
                 if (Nav.CurrentSourcePageType == typeof(TabViewContainer))
                 {
-                    NavView.IsBackEnabled = (TabViewContainer.CurrentPageNav?.CanGoBack).GetValueOrDefault();
+                    NavView.IsBackEnabled = (TabViewContainer.CurrentTabNavigation?.CanGoBack).GetValueOrDefault();
                 }
                 else
                 {

@@ -5,6 +5,12 @@
 
 >>#####You can now remove the folders that come with "Libraries"
 
+>>#####Quicklook can now be used to view the root directory of the disk
+
+>>#####Expand keyboard shortcuts to the main interface
+
+>>#####Hover selection feature now supports "Libraries" and "Device and drive"
+
 >#####Bug fix
 
 >>#####Fixed an issue that could cause other functions to be triggered when calling "Quicklook" using the space bar

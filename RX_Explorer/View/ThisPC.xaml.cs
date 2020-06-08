@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
@@ -23,6 +24,12 @@ namespace RX_Explorer
         private TabViewItem TabItem;
         private QuickStartItem CurrentSelectedItem;
         private StorageFolder OpenTargetFolder;
+        private int LockResource = 0;
+        private object StayInItem;
+        private DispatcherTimer HoverTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(700)
+        };
 
         public ThisPC()
         {
@@ -32,6 +39,23 @@ namespace RX_Explorer
             QuickStartGridView.ItemsSource = TabViewContainer.ThisPage.QuickStartList;
             WebGridView.ItemsSource = TabViewContainer.ThisPage.HotWebList;
             Loaded += ThisPC_Loaded;
+            HoverTimer.Tick += HoverTimer_Tick;
+        }
+
+        private void HoverTimer_Tick(object sender, object e)
+        {
+            HoverTimer.Stop();
+
+            if (StayInItem is LibraryFolder)
+            {
+                LibraryGrid.SelectedItem = StayInItem;
+                DeviceGrid.SelectedIndex = -1;
+            }
+            else if (StayInItem is HardDeviceInfo)
+            {
+                DeviceGrid.SelectedItem = StayInItem;
+                LibraryGrid.SelectedIndex = -1;
+            }
         }
 
         private void ThisPC_Loaded(object sender, RoutedEventArgs e)
@@ -48,6 +72,7 @@ namespace RX_Explorer
                 {
                     Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, OpenTargetFolder, this), new SuppressNavigationTransitionInfo());
                 }
+
                 OpenTargetFolder = null;
             }
         }
@@ -65,22 +90,68 @@ namespace RX_Explorer
 
         private void DeviceGrid_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
         {
-            if (AnimationController.Current.IsEnableAnimation)
+            if (args.InRecycleQueue)
             {
-                ProgressBar ProBar = args.ItemContainer.FindChildOfType<ProgressBar>();
-                Storyboard Story = new Storyboard();
-                DoubleAnimation Animation = new DoubleAnimation()
+                args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
+                args.ItemContainer.PointerExited -= ItemContainer_PointerExited;
+            }
+            else
+            {
+                args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
+                args.ItemContainer.PointerExited += ItemContainer_PointerExited;
+
+                if (AnimationController.Current.IsEnableAnimation)
                 {
-                    To = (args.Item as HardDeviceInfo).Percent,
-                    From = 0,
-                    EnableDependentAnimation = true,
-                    EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut },
-                    Duration = new TimeSpan(0, 0, 0, 0, 800)
-                };
-                Storyboard.SetTarget(Animation, ProBar);
-                Storyboard.SetTargetProperty(Animation, "Value");
-                Story.Children.Add(Animation);
-                Story.Begin();
+                    ProgressBar ProBar = args.ItemContainer.FindChildOfType<ProgressBar>();
+                    Storyboard Story = new Storyboard();
+                    DoubleAnimation Animation = new DoubleAnimation()
+                    {
+                        To = (args.Item as HardDeviceInfo).Percent,
+                        From = 0,
+                        EnableDependentAnimation = true,
+                        EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut },
+                        Duration = new TimeSpan(0, 0, 0, 0, 800)
+                    };
+                    Storyboard.SetTarget(Animation, ProBar);
+                    Storyboard.SetTargetProperty(Animation, "Value");
+                    Story.Children.Add(Animation);
+                    Story.Begin();
+                }
+            }
+        }
+
+        private void LibraryGrid_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+        {
+            if (args.InRecycleQueue)
+            {
+                args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
+                args.ItemContainer.PointerExited -= ItemContainer_PointerExited;
+            }
+            else
+            {
+                args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
+                args.ItemContainer.PointerExited += ItemContainer_PointerExited;
+            }
+        }
+
+        private void ItemContainer_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (!SettingControl.IsDoubleClickEnable)
+            {
+                HoverTimer.Stop();
+            }
+        }
+
+        private void ItemContainer_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (!SettingControl.IsDoubleClickEnable)
+            {
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is object Item)
+                {
+                    StayInItem = Item;
+
+                    HoverTimer.Start();
+                }
             }
         }
 
@@ -281,17 +352,25 @@ namespace RX_Explorer
 
         private void DeviceGrid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (!((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo))
+            if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
             {
                 DeviceGrid.SelectedIndex = -1;
+            }
+            else
+            {
+                LibraryGrid.SelectedIndex = -1;
             }
         }
 
         private void LibraryGrid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (!((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder))
+            if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
             {
                 LibraryGrid.SelectedIndex = -1;
+            }
+            else
+            {
+                DeviceGrid.SelectedIndex = -1;
             }
         }
 
@@ -357,47 +436,61 @@ namespace RX_Explorer
             }
         }
 
-        private async void Refresh_Click(object sender, RoutedEventArgs e)
+        public async void Refresh_Click(object sender, RoutedEventArgs e)
         {
-            TabViewContainer.ThisPage.HardDeviceList.Clear();
-
-            Dictionary<string, bool> VisibilityMap = await SQLite.Current.GetDeviceVisibilityMapAsync().ConfigureAwait(true);
-
-            foreach (string DriveRootPath in DriveInfo.GetDrives()
-                                                      .Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
-                                                      .Select((Drive) => Drive.RootDirectory.FullName))
-            {
-                if (VisibilityMap.ContainsKey(DriveRootPath))
-                {
-                    if (!VisibilityMap[DriveRootPath])
-                    {
-                        continue;
-                    }
-                }
-
-                StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
-                if (TabViewContainer.ThisPage.HardDeviceList.All((Drive) => Drive.Folder.Path != Device.Path))
-                {
-                    BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-                    TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve));
-                }
-            }
-
-            foreach (string AdditionalDrivePath in VisibilityMap.Where((Item) => Item.Value && TabViewContainer.ThisPage.HardDeviceList.All((Device) => Item.Key != Device.Folder.Path)).Select((Result) => Result.Key))
+            if (Interlocked.Exchange(ref LockResource, 1) == 0)
             {
                 try
                 {
-                    StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(AdditionalDrivePath);
+                    TabViewContainer.ThisPage.HardDeviceList.Clear();
 
-                    BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+                    Dictionary<string, bool> VisibilityMap = await SQLite.Current.GetDeviceVisibilityMapAsync().ConfigureAwait(true);
 
-                    TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve));
+                    foreach (string DriveRootPath in DriveInfo.GetDrives()
+                                                              .Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                                                              .Select((Drive) => Drive.RootDirectory.FullName))
+                    {
+                        try
+                        {
+                            if (VisibilityMap.ContainsKey(DriveRootPath) && !VisibilityMap[DriveRootPath])
+                            {
+                                continue;
+                            }
+
+                            StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
+                            if (TabViewContainer.ThisPage.HardDeviceList.All((Drive) => Drive.Folder.Path != Device.Path))
+                            {
+                                BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                                IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+                                TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve));
+                            }
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+
+                    foreach (string AdditionalDrivePath in VisibilityMap.Where((Item) => Item.Value && TabViewContainer.ThisPage.HardDeviceList.All((Device) => Item.Key != Device.Folder.Path)).Select((Result) => Result.Key))
+                    {
+                        try
+                        {
+                            StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(AdditionalDrivePath);
+
+                            BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                            IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+
+                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve));
+                        }
+                        catch
+                        {
+                            await SQLite.Current.SetDeviceVisibilityAsync(AdditionalDrivePath, false).ConfigureAwait(true);
+                        }
+                    }
                 }
-                catch (Exception)
+                finally
                 {
-                    await SQLite.Current.SetDeviceVisibilityAsync(AdditionalDrivePath, false).ConfigureAwait(true);
+                    _ = Interlocked.Exchange(ref LockResource, 0);
                 }
             }
         }
@@ -406,6 +499,8 @@ namespace RX_Explorer
         {
             try
             {
+                LibraryGrid.SelectedIndex = -1;
+
                 if (!SettingControl.IsDoubleClickEnable)
                 {
                     if (e.ClickedItem is HardDeviceInfo Device)
@@ -431,6 +526,8 @@ namespace RX_Explorer
         {
             try
             {
+                DeviceGrid.SelectedIndex = -1;
+
                 if (!SettingControl.IsDoubleClickEnable)
                 {
                     if (e.ClickedItem is LibraryFolder Library)

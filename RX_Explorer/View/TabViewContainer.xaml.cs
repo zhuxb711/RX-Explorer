@@ -29,7 +29,7 @@ namespace RX_Explorer
     {
         private int LockResource = 0;
 
-        public static Frame CurrentPageNav { get; private set; }
+        public static Frame CurrentTabNavigation { get; private set; }
 
         public ObservableCollection<HardDeviceInfo> HardDeviceList { get; private set; } = new ObservableCollection<HardDeviceInfo>();
         public ObservableCollection<LibraryFolder> LibraryFolderList { get; private set; } = new ObservableCollection<LibraryFolder>();
@@ -107,7 +107,7 @@ namespace RX_Explorer
             }
         }
 
-        public bool LibraryExpanderIsExpand
+        public static bool LibraryExpanderIsExpand
         {
             get
             {
@@ -127,7 +127,7 @@ namespace RX_Explorer
             }
         }
 
-        public bool DeviceExpanderIsExpand
+        public static bool DeviceExpanderIsExpand
         {
             get
             {
@@ -159,6 +159,57 @@ namespace RX_Explorer
             Application.Current.Resuming += Current_Resuming;
             Application.Current.Suspending += Current_Suspending;
             CoreWindow.GetForCurrentThread().PointerPressed += TabViewContainer_PointerPressed;
+            CoreWindow.GetForCurrentThread().KeyUp += TabViewContainer_KeyUp;
+            CoreWindow.GetForCurrentThread().KeyDown += TabViewContainer_KeyDown;
+        }
+
+        private async void TabViewContainer_KeyDown(CoreWindow sender, KeyEventArgs args)
+        {
+            if (!QueueContentDialog.IsRunningOrWaiting && CurrentTabNavigation.Content is ThisPC PC)
+            {
+                args.Handled = true;
+
+                switch (args.VirtualKey)
+                {
+                    case VirtualKey.Space when SettingControl.IsQuicklookAvailable && SettingControl.IsQuicklookEnable:
+                        {
+                            if (PC.DeviceGrid.SelectedItem is HardDeviceInfo Device)
+                            {
+                                await FullTrustExcutorController.ViewWithQuicklook(Device.Folder.Path).ConfigureAwait(false);
+                            }
+                            else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library)
+                            {
+                                await FullTrustExcutorController.ViewWithQuicklook(Library.Folder.Path).ConfigureAwait(false);
+                            }
+                            break;
+                        }
+                    case VirtualKey.F5:
+                        {
+                            PC.Refresh_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.Enter:
+                        {
+                            if (PC.DeviceGrid.SelectedItem is HardDeviceInfo Device)
+                            {
+                                await FullTrustExcutorController.ViewWithQuicklook(Device.Folder.Path).ConfigureAwait(false);
+                            }
+                            else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library)
+                            {
+                                await FullTrustExcutorController.ViewWithQuicklook(Library.Folder.Path).ConfigureAwait(false);
+                            }
+                            break;
+                        }
+                }
+            }
+        }
+
+        private void TabViewContainer_KeyUp(CoreWindow sender, KeyEventArgs args)
+        {
+            if (args.VirtualKey == VirtualKey.Space)
+            {
+                args.Handled = true;
+            }
         }
 
         private void TabViewContainer_PointerPressed(CoreWindow sender, PointerEventArgs args)
@@ -166,7 +217,7 @@ namespace RX_Explorer
             bool BackButtonPressed = args.CurrentPoint.Properties.IsXButton1Pressed;
             bool ForwardButtonPressed = args.CurrentPoint.Properties.IsXButton2Pressed;
 
-            if (CurrentPageNav.Content is FileControl Control)
+            if (CurrentTabNavigation.Content is FileControl Control)
             {
                 if (BackButtonPressed)
                 {
@@ -200,7 +251,7 @@ namespace RX_Explorer
                     SettingControl.IsInputFromPrimaryButton = true;
                 }
             }
-            else if (CurrentPageNav.Content is ThisPC PC)
+            else if (CurrentTabNavigation.Content is ThisPC PC)
             {
                 if (BackButtonPressed)
                 {
@@ -266,20 +317,20 @@ namespace RX_Explorer
 
         public static void GoBack()
         {
-            if (CurrentPageNav.Content is FileControl Control)
+            if (CurrentTabNavigation.Content is FileControl Control)
             {
                 if (Control.Nav.CanGoBack)
                 {
                     Control.Nav.GoBack();
                 }
-                else if (CurrentPageNav.CanGoBack)
+                else if (CurrentTabNavigation.CanGoBack)
                 {
-                    CurrentPageNav.GoBack();
+                    CurrentTabNavigation.GoBack();
                 }
             }
-            else if (CurrentPageNav.CanGoBack)
+            else if (CurrentTabNavigation.CanGoBack)
             {
-                CurrentPageNav.GoBack();
+                CurrentTabNavigation.GoBack();
             }
         }
 
@@ -300,9 +351,9 @@ namespace RX_Explorer
                          {
                              if (TabViewControl.TabItems.Count == 1)
                              {
-                                 while (CurrentPageNav.CanGoBack)
+                                 while (CurrentTabNavigation.CanGoBack)
                                  {
-                                     CurrentPageNav.GoBack();
+                                     CurrentTabNavigation.GoBack();
                                  }
                              }
                              else
@@ -678,11 +729,11 @@ namespace RX_Explorer
 
                         if (AnimationController.Current.IsEnableAnimation)
                         {
-                            CurrentPageNav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabViewControl.TabItems.FirstOrDefault() as TabViewItem, HardDevice.Folder, CurrentPageNav.Content as ThisPC), new DrillInNavigationTransitionInfo());
+                            CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabViewControl.TabItems.FirstOrDefault() as TabViewItem, HardDevice.Folder, CurrentTabNavigation.Content as ThisPC), new DrillInNavigationTransitionInfo());
                         }
                         else
                         {
-                            CurrentPageNav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabViewControl.TabItems.FirstOrDefault() as TabViewItem, HardDevice.Folder, CurrentPageNav.Content as ThisPC), new SuppressNavigationTransitionInfo());
+                            CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabViewControl.TabItems.FirstOrDefault() as TabViewItem, HardDevice.Folder, CurrentTabNavigation.Content as ThisPC), new SuppressNavigationTransitionInfo());
                         }
                     }
                 }
@@ -793,15 +844,15 @@ namespace RX_Explorer
 
             if (TabViewControl.SelectedItem is TabViewItem Item)
             {
-                CurrentPageNav = Item.Content as Frame;
-                CurrentPageNav.Navigated += Nav_Navigated;
-                MainPage.ThisPage.NavView.IsBackEnabled = CurrentPageNav.CanGoBack;
+                CurrentTabNavigation = Item.Content as Frame;
+                CurrentTabNavigation.Navigated += Nav_Navigated;
+                MainPage.ThisPage.NavView.IsBackEnabled = CurrentTabNavigation.CanGoBack;
             }
         }
 
         private void Nav_Navigated(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
         {
-            MainPage.ThisPage.NavView.IsBackEnabled = CurrentPageNav.CanGoBack;
+            MainPage.ThisPage.NavView.IsBackEnabled = CurrentTabNavigation.CanGoBack;
         }
     }
 }

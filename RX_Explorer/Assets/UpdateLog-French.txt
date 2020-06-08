@@ -5,6 +5,12 @@
 
 >>#####Vous pouvez maintenant supprimer les dossiers fournis avec "Bibliothèques"
 
+>>#####Quicklook peut maintenant être utilisé pour afficher le répertoire racine du disque
+
+>>#####Développez les raccourcis clavier vers l'interface principale
+
+>>#####La fonction de sélection au survol prend désormais en charge les «bibliothèques» et «périphérique et lecteur»
+
 >#####Correction d'un bug
 
 >>#####Correction d'un problème qui pouvait entraîner le déclenchement d'autres fonctions lors de l'appel de "Quicklook" à l'aide de la barre d'espace
