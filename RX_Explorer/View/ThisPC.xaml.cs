@@ -674,5 +674,15 @@ namespace RX_Explorer
                 }
             }
         }
+
+        private void LibraryExpander_Collapsed(object sender, EventArgs e)
+        {
+            LibraryGrid.SelectedIndex = -1;
+        }
+
+        private void DeviceExpander_Collapsed(object sender, EventArgs e)
+        {
+            DeviceGrid.SelectedIndex = -1;
+        }
     }
 }

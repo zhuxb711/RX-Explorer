@@ -119,6 +119,8 @@ namespace RX_Explorer
             {
                 IsOpened = false;
 
+                (TabViewContainer.CurrentTabNavigation.Content as Page).Focus(FocusState.Programmatic);
+
                 if (AnimationController.Current.IsEnableAnimation)
                 {
                     ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(600), TimeSpan.FromMilliseconds(200), 150, true);
@@ -183,8 +185,6 @@ namespace RX_Explorer
             LanguageComboBox.Items.Add("English (United States)");
             LanguageComboBox.Items.Add("Français");
             LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
-
-            LanguageComboBox.SelectionChanged += LanguageComboBox_SelectionChanged;
 
             if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is int ModeIndex)
             {
@@ -1126,23 +1126,42 @@ namespace RX_Explorer
 
         private void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            LanguageRestartButton.Visibility = Visibility.Visible;
-
             switch (LanguageComboBox.SelectedIndex)
             {
                 case 0:
                     {
-                        Globalization.SwitchTo(LanguageEnum.Chinese);
+                        if(Globalization.SwitchTo(LanguageEnum.Chinese))
+                        {
+                            LanguageRestartButton.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            LanguageRestartButton.Visibility = Visibility.Collapsed;
+                        }
                         break;
                     }
                 case 1:
                     {
-                        Globalization.SwitchTo(LanguageEnum.English);
+                        if(Globalization.SwitchTo(LanguageEnum.English))
+                        {
+                            LanguageRestartButton.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            LanguageRestartButton.Visibility = Visibility.Collapsed;
+                        }
                         break;
                     }
                 case 2:
                     {
-                        Globalization.SwitchTo(LanguageEnum.French);
+                        if(Globalization.SwitchTo(LanguageEnum.French))
+                        {
+                            LanguageRestartButton.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            LanguageRestartButton.Visibility = Visibility.Collapsed;
+                        }
                         break;
                     }
             }

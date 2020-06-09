@@ -20,8 +20,13 @@ namespace RX_Explorer.Class
         private static readonly ResourceLoader Loader;
         private static readonly Dictionary<string, string> ResourceCache;
 
-        public static void SwitchTo(LanguageEnum Language)
+        public static bool SwitchTo(LanguageEnum Language)
         {
+            if (Language == CurrentLanguage)
+            {
+                return false;
+            }
+
             switch (Language)
             {
                 case LanguageEnum.Chinese:
@@ -43,6 +48,8 @@ namespace RX_Explorer.Class
                         break;
                     }
             }
+
+            return true;
         }
 
         public static string GetString(string Key)

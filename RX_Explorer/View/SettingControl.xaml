@@ -195,6 +195,7 @@
                                   MinWidth="150"
                                   Name="LanguageComboBox"
                                   x:Uid="LanguageComboBox"
+                                  SelectionChanged="LanguageComboBox_SelectionChanged"
                                   Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
                         <Button VerticalAlignment="Bottom"
                                 Margin="10,0,0,0"

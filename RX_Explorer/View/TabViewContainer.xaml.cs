@@ -159,7 +159,6 @@ namespace RX_Explorer
             Application.Current.Resuming += Current_Resuming;
             Application.Current.Suspending += Current_Suspending;
             CoreWindow.GetForCurrentThread().PointerPressed += TabViewContainer_PointerPressed;
-            CoreWindow.GetForCurrentThread().KeyUp += TabViewContainer_KeyUp;
             CoreWindow.GetForCurrentThread().KeyDown += TabViewContainer_KeyDown;
         }
 
@@ -201,14 +200,6 @@ namespace RX_Explorer
                             break;
                         }
                 }
-            }
-        }
-
-        private void TabViewContainer_KeyUp(CoreWindow sender, KeyEventArgs args)
-        {
-            if (args.VirtualKey == VirtualKey.Space)
-            {
-                args.Handled = true;
             }
         }
 

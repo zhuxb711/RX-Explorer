@@ -303,6 +303,7 @@
                            CanDragItems="False"
                            IsHoldingEnabled="True"
                            Holding="FolderTree_Holding"
+                           AllowFocusOnInteraction="False"
                            Padding="0,0,5,0"
                            RightTapped="FolderTree_RightTapped">
                 <muxc:TreeView.ItemTemplate>

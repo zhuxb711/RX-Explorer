@@ -3407,6 +3407,7 @@ namespace RX_Explorer
             if (args.InRecycleQueue)
             {
                 args.ItemContainer.AllowDrop = false;
+                args.ItemContainer.AllowFocusOnInteraction = true;
                 args.ItemContainer.Drop -= Item_Drop;
                 args.ItemContainer.DragEnter -= ItemContainer_DragEnter;
                 args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
@@ -3427,6 +3428,8 @@ namespace RX_Explorer
                         args.ItemContainer.Drop += Item_Drop;
                         args.ItemContainer.DragEnter += ItemContainer_DragEnter;
                     }
+
+                    args.ItemContainer.AllowFocusOnInteraction = false;
 
                     args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
                     args.ItemContainer.PointerExited += ItemContainer_PointerExited;

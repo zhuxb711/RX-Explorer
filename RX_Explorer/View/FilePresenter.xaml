@@ -416,6 +416,7 @@
                 <Button HorizontalContentAlignment="Left"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
+                        AllowFocusOnInteraction="False"
                         Grid.Column="0"
                         x:Name="ListHeaderName"
                         Click="ListHeaderName_Click"
@@ -431,6 +432,7 @@
                 <Button HorizontalContentAlignment="Left"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
+                        AllowFocusOnInteraction="False"
                         Grid.Column="1"
                         Name="ListHeaderModifiedTime"
                         Click="ListHeaderModifiedTime_Click"
@@ -445,6 +447,7 @@
                 </Button>
                 <Button Grid.Column="2"
                         HorizontalContentAlignment="Left"
+                        AllowFocusOnInteraction="False"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         Name="ListHeaderType"
@@ -460,6 +463,7 @@
                 </Button>
                 <Button HorizontalContentAlignment="Left"
                         HorizontalAlignment="Stretch"
+                        AllowFocusOnInteraction="False"
                         VerticalAlignment="Stretch"
                         Name="ListHeaderSize"
                         Grid.Column="3"

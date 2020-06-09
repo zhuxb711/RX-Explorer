@@ -158,6 +158,7 @@
                       Stroke="Gray" />
             </StackPanel>
             <GridView Name="QuickStartGridView"
+                      AllowFocusOnInteraction="False"
                       SelectionMode="None"
                       IsItemClickEnabled="True"
                       IsDoubleTapEnabled="False"
@@ -200,6 +201,7 @@
                       IsDoubleTapEnabled="False"
                       IsRightTapEnabled="True"
                       IsHoldingEnabled="True"
+                      AllowFocusOnInteraction="False"
                       Holding="WebGridView_Holding"
                       ItemClick="WebGridView_ItemClick"
                       RightTapped="WebGridView_RightTapped"
@@ -225,8 +227,10 @@
             <StackPanel IsRightTapEnabled="True">
                 <controls:Expander x:Name="LibraryExpander"
                                    VerticalAlignment="Stretch"
+                                   AllowFocusOnInteraction="False"
                                    Background="Transparent"
                                    IsExpanded="{x:Bind local:TabViewContainer.LibraryExpanderIsExpand,Mode=TwoWay}"
+                                   Collapsed="LibraryExpander_Collapsed"
                                    ExpandDirection="Down"
                                    HorizontalContentAlignment="Stretch"
                                    VerticalContentAlignment="Top"
@@ -306,7 +310,9 @@
                                    HorizontalContentAlignment="Stretch"
                                    IsExpanded="{x:Bind local:TabViewContainer.DeviceExpanderIsExpand,Mode=TwoWay}"
                                    ExpandDirection="Down"
+                                   Collapsed="DeviceExpander_Collapsed"
                                    VerticalContentAlignment="Top"
+                                   AllowFocusOnInteraction="False"
                                    Margin="5"
                                    HeaderStyle="{StaticResource CustomExpanderHeaderStyle}">
                     <controls:Expander.HeaderTemplate>
