@@ -1,7 +1,8 @@
 ﻿using AnimationEffectProvider;
+using Microsoft.Toolkit.Uwp.Notifications;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
-using Microsoft.Toolkit.Uwp.Notifications;
+using RX_Explorer.View;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,7 +74,7 @@ namespace RX_Explorer
         private async void MainPage_Loaded1(object sender, RoutedEventArgs e)
         {
 #if !DEBUG
-            if(await FullTrustExcutorController.CheckQuicklookIsAvaliable().ConfigureAwait(false))
+            if(await FullTrustExcutorController.CheckQuicklookIsAvaliableAsync().ConfigureAwait(false))
             {
                 SettingControl.IsQuicklookAvailable = true;
             }
@@ -226,7 +227,8 @@ namespace RX_Explorer
                 {
                     {typeof(TabViewContainer),Globalization.GetString("MainPage_PageDictionary_ThisPC_Label") },
                     {typeof(FileControl),Globalization.GetString("MainPage_PageDictionary_ThisPC_Label") },
-                    {typeof(SecureArea),Globalization.GetString("MainPage_PageDictionary_SecureArea_Label") }
+                    {typeof(SecureArea),Globalization.GetString("MainPage_PageDictionary_SecureArea_Label") },
+                    {typeof(RecycleBin),Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label") }
                 };
 
                 if (Win10VersionChecker.Windows10_1903 && AnimationController.Current.IsEnableAnimation)
@@ -617,6 +619,11 @@ namespace RX_Explorer
                     {
                         NavView.IsBackEnabled = false;
                         Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+                    }
+                    else if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label"))
+                    {
+                        NavView.IsBackEnabled = false;
+                        Nav.Navigate(typeof(RecycleBin), null, new SlideNavigationTransitionInfo() { Effect = Nav.CurrentSourcePageType == typeof(SecureArea) ? SlideNavigationTransitionEffect.FromLeft : SlideNavigationTransitionEffect.FromRight });
                     }
                 }
             }

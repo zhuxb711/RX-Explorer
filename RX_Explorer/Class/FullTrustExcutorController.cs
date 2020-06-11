@@ -1,17 +1,20 @@
-﻿using System;
-using System.Threading;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
-using Windows.Storage;
+using Windows.ApplicationModel.AppService;
+using Windows.Foundation.Collections;
 
 namespace RX_Explorer.Class
 {
     /// <summary>
     /// 用于启动具备完全权限的附加程序的控制器
     /// </summary>
-    public sealed class FullTrustExcutorController
+    public sealed class FullTrustExcutorController : IDisposable
     {
-        private const string ExcuteType_Exe = "Excute_RunExe";
+        private const string ExcuteType_RunExe = "Excute_RunExe";
 
         private const string ExcuteType_Quicklook = "Excute_Quicklook";
 
@@ -19,18 +22,97 @@ namespace RX_Explorer.Class
 
         private const string ExcuteType_Get_Associate = "Excute_Get_Associate";
 
+        private const string ExcuteType_Get_RecycleBinItems = "Excute_Get_RecycleBinItems";
+
+        private const string ExcuteType_Exit = "Excute_Exit";
+
+        private const string ExcuteType_EmptyRecycleBin = "Excute_Empty_RecycleBin";
+
+        private const string ExcuteType_Copy = "Excute_Copy";
+
+        private const string ExcuteType_Move = "Excute_Move";
+
+        private const string ExcuteType_Delete = "Excute_Delete";
+
+        private const string ExcuteAuthority_Normal = "Normal";
+
+        private const string ExcuteAuthority_Administrator = "Administrator";
+
+        private volatile static FullTrustExcutorController Instance;
+
+        private static readonly object locker = new object();
+
+        private bool IsConnected = false;
+
+        private AppServiceConnection Connection;
+
+        public static FullTrustExcutorController Current
+        {
+            get
+            {
+                lock (locker)
+                {
+                    return Instance ??= new FullTrustExcutorController();
+                }
+            }
+        }
+
+        private FullTrustExcutorController()
+        {
+            Connection = new AppServiceConnection
+            {
+                AppServiceName = "CommunicateService",
+                PackageFamilyName = Package.Current.Id.FamilyName
+            };
+
+            Connection.ServiceClosed += Connection_ServiceClosed;
+        }
+
+        private void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
+        {
+            IsConnected = false;
+            Connection?.Dispose();
+            Connection = null;
+        }
+
+        private async Task<bool> TryConnectToFullTrustExutor()
+        {
+            if (IsConnected)
+            {
+                return true;
+            }
+
+            try
+            {
+                await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+
+                return (await Connection.OpenAsync()) == AppServiceConnectionStatus.Success ? (IsConnected = true) : (IsConnected = false);
+            }
+            catch
+            {
+                return IsConnected = false;
+            }
+        }
+
         /// <summary>
         /// 启动指定路径的程序
         /// </summary>
         /// <param name="Path">程序路径</param>
         /// <returns></returns>
-        public static async Task Run(string Path)
+        public async Task RunAsync(string Path)
         {
-            ApplicationData.Current.LocalSettings.Values["ExcuteType"] = ExcuteType_Exe;
-            ApplicationData.Current.LocalSettings.Values["ExcutePath"] = Path;
-            ApplicationData.Current.LocalSettings.Values["ExcuteParameter"] = string.Empty;
-            ApplicationData.Current.LocalSettings.Values["ExcuteAuthority"] = "Normal";
-            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+            if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+            {
+                ValueSet Value = new ValueSet
+                {
+                    {"ExcuteType", ExcuteType_RunExe},
+                    {"ExcutePath",Path },
+                    {"ExcuteParameter",string.Empty},
+                    {"ExcuteAuthority", ExcuteAuthority_Normal}
+                };
+
+                await Connection.SendMessageAsync(Value);
+            }
         }
 
         /// <summary>
@@ -39,13 +121,20 @@ namespace RX_Explorer.Class
         /// <param name="Path">程序路径</param>
         /// <param name="Parameter">传递的参数</param>
         /// <returns></returns>
-        public static async Task Run(string Path, string Parameter)
+        public async Task RunAsync(string Path, string Parameter)
         {
-            ApplicationData.Current.LocalSettings.Values["ExcuteType"] = ExcuteType_Exe;
-            ApplicationData.Current.LocalSettings.Values["ExcutePath"] = Path;
-            ApplicationData.Current.LocalSettings.Values["ExcuteParameter"] = Parameter;
-            ApplicationData.Current.LocalSettings.Values["ExcuteAuthority"] = "Normal";
-            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+            if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+            {
+                ValueSet Value = new ValueSet
+                {
+                    {"ExcuteType", ExcuteType_RunExe},
+                    {"ExcutePath",Path },
+                    {"ExcuteParameter",Parameter},
+                    {"ExcuteAuthority", ExcuteAuthority_Normal}
+                };
+
+                await Connection.SendMessageAsync(Value);
+            }
         }
 
         /// <summary>
@@ -53,13 +142,20 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Path">程序路径</param>
         /// <returns></returns>
-        public static async Task RunAsAdministrator(string Path)
+        public async Task RunAsAdministratorAsync(string Path)
         {
-            ApplicationData.Current.LocalSettings.Values["ExcuteType"] = ExcuteType_Exe;
-            ApplicationData.Current.LocalSettings.Values["ExcutePath"] = Path;
-            ApplicationData.Current.LocalSettings.Values["ExcuteParameter"] = string.Empty;
-            ApplicationData.Current.LocalSettings.Values["ExcuteAuthority"] = "Administrator";
-            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+            if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+            {
+                ValueSet Value = new ValueSet
+                {
+                    {"ExcuteType", ExcuteType_RunExe},
+                    {"ExcutePath",Path },
+                    {"ExcuteParameter",string.Empty},
+                    {"ExcuteAuthority", ExcuteAuthority_Administrator}
+                };
+
+                await Connection.SendMessageAsync(Value);
+            }
         }
 
         /// <summary>
@@ -68,37 +164,61 @@ namespace RX_Explorer.Class
         /// <param name="Path">程序路径</param>
         /// <param name="Parameter">传递的参数</param>
         /// <returns></returns>
-        public static async Task RunAsAdministrator(string Path, string Parameter)
+        public async Task RunAsAdministratorAsync(string Path, string Parameter)
         {
-            ApplicationData.Current.LocalSettings.Values["ExcuteType"] = ExcuteType_Exe;
-            ApplicationData.Current.LocalSettings.Values["ExcutePath"] = Path;
-            ApplicationData.Current.LocalSettings.Values["ExcuteParameter"] = Parameter;
-            ApplicationData.Current.LocalSettings.Values["ExcuteAuthority"] = "Administrator";
-            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+            if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+            {
+                ValueSet Value = new ValueSet
+                {
+                    {"ExcuteType", ExcuteType_RunExe},
+                    {"ExcutePath",Path },
+                    {"ExcuteParameter",Parameter},
+                    {"ExcuteAuthority", ExcuteAuthority_Administrator}
+                };
+
+                await Connection.SendMessageAsync(Value);
+            }
         }
 
-        public static async Task ViewWithQuicklook(string Path)
+        public async Task ViewWithQuicklookAsync(string Path)
         {
-            ApplicationData.Current.LocalSettings.Values["ExcuteType"] = ExcuteType_Quicklook;
-            ApplicationData.Current.LocalSettings.Values["ExcutePath"] = Path;
-            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+            if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+            {
+                ValueSet Value = new ValueSet
+                {
+                    {"ExcuteType", ExcuteType_Quicklook},
+                    {"ExcutePath",Path }
+                };
+
+                await Connection.SendMessageAsync(Value);
+            }
         }
 
-        public static async Task<bool> CheckQuicklookIsAvaliable()
+        public async Task<bool> CheckQuicklookIsAvaliableAsync()
         {
             try
             {
-                ApplicationData.Current.LocalSettings.Values["ExcuteType"] = ExcuteType_Check_Quicklook;
-                ApplicationData.Current.LocalSettings.Values.Remove("Check_QuicklookIsAvaliable_Result");
-
-                await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
-
-                await Task.Run(() =>
+                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
                 {
-                    SpinWait.SpinUntil(() => ApplicationData.Current.LocalSettings.Values.ContainsKey("Check_QuicklookIsAvaliable_Result"));
-                }).ConfigureAwait(false);
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExcuteType", ExcuteType_Check_Quicklook}
+                    };
 
-                return Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["Check_QuicklookIsAvaliable_Result"]);
+                    AppServiceResponse Reponse = await Connection.SendMessageAsync(Value);
+                    if (Reponse.Status == AppServiceResponseStatus.Success && !Reponse.Message.ContainsKey("Error"))
+                    {
+                        return Convert.ToBoolean(Reponse.Message["Check_QuicklookIsAvaliable_Result"]);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
             }
             catch
             {
@@ -106,22 +226,94 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<string> GetAssociateFromPath(string Path)
+        public async Task<string> GetAssociateFromPathAsync(string Path)
         {
-            ApplicationData.Current.LocalSettings.Values["ExcuteType"] = ExcuteType_Get_Associate;
-            ApplicationData.Current.LocalSettings.Values["ExcutePath"] = Path;
-            ApplicationData.Current.LocalSettings.Values.Remove("Get_Associate_Result");
-
-            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
-
-            await Task.Run(() =>
+            if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
             {
-                SpinWait.SpinUntil(() => ApplicationData.Current.LocalSettings.Values.ContainsKey("Get_Associate_Result"));
-            }).ConfigureAwait(false);
+                ValueSet Value = new ValueSet
+                {
+                    {"ExcuteType", ExcuteType_Get_Associate},
+                    {"ExcutePath", Path}
+                };
 
-            string Result = Convert.ToString(ApplicationData.Current.LocalSettings.Values["Get_Associate_Result"]);
+                AppServiceResponse Reponse = await Connection.SendMessageAsync(Value);
+                if (Reponse.Status == AppServiceResponseStatus.Success && !Reponse.Message.ContainsKey("Error"))
+                {
+                    return Convert.ToString(Reponse.Message["Associate_Result"]);
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
 
-            return Result == "<Empty>" ? string.Empty : Result;
+        public async Task EmptyRecycleBinAsync()
+        {
+            if (await TryConnectToFullTrustExutor().ConfigureAwait(true))
+            {
+                ValueSet Value = new ValueSet
+                {
+                    {"ExcuteType", ExcuteType_EmptyRecycleBin},
+                };
+
+                await Connection.SendMessageAsync(Value);
+            }
+        }
+
+        public async Task<List<FileSystemStorageItem>> GetRecycleBinItemsAsync()
+        {
+            if (await TryConnectToFullTrustExutor().ConfigureAwait(true))
+            {
+                ValueSet Value = new ValueSet
+                {
+                    {"ExcuteType", ExcuteType_Get_RecycleBinItems},
+                };
+
+                AppServiceResponse Reponse = await Connection.SendMessageAsync(Value);
+                if (Reponse.Status == AppServiceResponseStatus.Success && !Reponse.Message.ContainsKey("Error"))
+                {
+                    List<Dictionary<string, string>> Items = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(Convert.ToString(Reponse.Message["RecycleBinItems_Json_Result"]));
+                    List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>(Items.Count);
+
+                    foreach (Dictionary<string, string> PropertyDic in Items)
+                    {
+                        FileSystemStorageItem Item = WIN_Native_API.GetStorageItems(PropertyDic["ActualPath"]).FirstOrDefault();
+                        Item.SetAsRecycleItem(PropertyDic["OriginPath"], DateTime.FromBinary(Convert.ToInt64(PropertyDic["CreateTime"])));
+                        Result.Add(Item);
+                    }
+
+                    return Result;
+                }
+                else
+                {
+                    return new List<FileSystemStorageItem>(0);
+                }
+            }
+            else
+            {
+                return new List<FileSystemStorageItem>(0);
+            }
+        }
+
+        public void Dispose()
+        {
+            ValueSet Value = new ValueSet
+            {
+                {"ExcuteType", ExcuteType_Exit},
+            };
+
+            if (IsConnected)
+            {
+                Connection.SendMessageAsync(Value).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+            }
+
+            Connection?.Dispose();
+            Connection = null;
         }
     }
 }

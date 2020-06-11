@@ -2312,4 +2312,16 @@
   <data name="QueueDialog_EditErrorWhenOpen_Content" xml:space="preserve">
     <value>创建剪辑片段时失败,无法编辑此视频</value>
   </data>
+  <data name="MainPage_PageDictionary_RecycleBin_Label" xml:space="preserve">
+    <value>回收站</value>
+  </data>
+  <data name="RecycleBin.Content" xml:space="preserve">
+    <value>回收站</value>
+  </data>
+  <data name="RecycleOriginLocation.Text" xml:space="preserve">
+    <value>原位置</value>
+  </data>
+  <data name="RecycleTime.Text" xml:space="preserve">
+    <value>删除日期</value>
+  </data>
 </root>

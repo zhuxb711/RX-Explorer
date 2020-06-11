@@ -22,6 +22,10 @@ namespace RX_Explorer.Class
 
         private string TempNameString;
 
+        public bool IsRecycleItem { get; private set; } = false;
+
+        public string RecycleItemOriginPath { get; private set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
@@ -48,7 +52,6 @@ namespace RX_Explorer.Class
                         (Size / 1073741824f < 1024 ? Math.Round(Size / 1073741824f, 2).ToString("0.00") + " GB" :
                         Math.Round(Size / Convert.ToDouble(1099511627776), 2).ToString() + " TB")); ;
             this.Thumbnail = Thumbnail ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-            this.ModifiedTime = ModifiedTime.ToString("F");
         }
 
         public FileSystemStorageItem(StorageFolder Item, DateTimeOffset ModifiedTime)
@@ -57,10 +60,10 @@ namespace RX_Explorer.Class
             StorageType = StorageItemTypes.Folder;
 
             Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
-            this.ModifiedTime = ModifiedTime.ToString("F");
+            ModifiedTimeRaw = ModifiedTime;
         }
 
-        public FileSystemStorageItem(WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset ModifiedTime)
+        public FileSystemStorageItem(WIN_Native_API.WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset ModifiedTime)
         {
             long SizeBit = (Data.nFileSizeHigh << 32) + (long)Data.nFileSizeLow;
             SizeRaw = SizeBit;
@@ -73,7 +76,7 @@ namespace RX_Explorer.Class
             TempNameString = Data.cFileName;
             ModifiedTimeRaw = ModifiedTime;
             this.StorageType = StorageType;
-            this.ModifiedTime = ModifiedTime.ToString("F");
+
             if (StorageType == StorageItemTypes.Folder)
             {
                 Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
@@ -139,6 +142,13 @@ namespace RX_Explorer.Class
              });
         }
 
+        public void SetAsRecycleItem(string OriginPath,DateTimeOffset CreateTime)
+        {
+            IsRecycleItem = true;
+            RecycleItemOriginPath = OriginPath;
+            ModifiedTimeRaw = CreateTime;
+        }
+
         public async Task RenameAsync(string Name)
         {
             if (StorageItem is StorageFile File)
@@ -146,7 +156,7 @@ namespace RX_Explorer.Class
                 await File.RenameAsync(Name, NameCollisionOption.GenerateUniqueName);
                 File = await StorageFile.GetFileFromPathAsync(File.Path);
                 Thumbnail = await File.GetThumbnailBitmapAsync().ConfigureAwait(true);
-                ModifiedTime = (await File.GetModifiedTimeAsync().ConfigureAwait(true)).ToString("F");
+                ModifiedTimeRaw = await File.GetModifiedTimeAsync().ConfigureAwait(true);
                 OnPropertyChanged(nameof(DisplayName));
                 OnPropertyChanged(nameof(Thumbnail));
                 OnPropertyChanged(nameof(ModifiedTime));
@@ -156,33 +166,11 @@ namespace RX_Explorer.Class
             {
                 await Folder.RenameAsync(Name, NameCollisionOption.GenerateUniqueName);
                 Folder = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
-                ModifiedTime = (await Folder.GetModifiedTimeAsync().ConfigureAwait(true)).ToString("F");
+                ModifiedTimeRaw = await Folder.GetModifiedTimeAsync().ConfigureAwait(true);
                 OnPropertyChanged(nameof(DisplayName));
                 OnPropertyChanged(nameof(ModifiedTime));
                 OnPropertyChanged(nameof(DisplayType));
             }
-        }
-
-        /// <summary>
-        /// 更新文件大小，并通知UI界面
-        /// </summary>
-        public async Task SizeUpdateRequested()
-        {
-            if (StorageItem.IsOfType(StorageItemTypes.File))
-            {
-                BasicProperties Properties = await StorageItem.GetBasicPropertiesAsync();
-
-                Size = Properties.Size / 1024f < 1024 ? Math.Round(Properties.Size / 1024f, 2).ToString("0.00") + " KB" :
-                      (Properties.Size / 1048576f < 1024 ? Math.Round(Properties.Size / 1048576f, 2).ToString("0.00") + " MB" :
-                      (Properties.Size / 1073741824f < 1024 ? Math.Round(Properties.Size / 1073741824f, 2).ToString("0.00") + " GB" :
-                      Math.Round(Properties.Size / Convert.ToDouble(1099511627776), 2).ToString() + " TB"));
-            }
-            else
-            {
-                throw new ArgumentException("Could not update folder size", string.Empty);
-            }
-
-            OnPropertyChanged(nameof(Size));
         }
 
         /// <summary>
@@ -192,17 +180,24 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (StorageItem is StorageFolder Folder)
+                if(IsRecycleItem)
                 {
-                    return string.IsNullOrEmpty(Folder.DisplayName) ? Folder.Name : Folder.DisplayName;
-                }
-                else if (StorageItem is StorageFile File)
-                {
-                    return string.IsNullOrEmpty(File.DisplayName) ? File.Name : (File.DisplayName.EndsWith(File.FileType) ? System.IO.Path.GetFileNameWithoutExtension(File.DisplayName) : File.DisplayName);
+                    return System.IO.Path.GetFileName(RecycleItemOriginPath);
                 }
                 else
                 {
-                    return Name;
+                    if (StorageItem is StorageFolder Folder)
+                    {
+                        return string.IsNullOrEmpty(Folder.DisplayName) ? Folder.Name : Folder.DisplayName;
+                    }
+                    else if (StorageItem is StorageFile File)
+                    {
+                        return string.IsNullOrEmpty(File.DisplayName) ? File.Name : (File.DisplayName.EndsWith(File.FileType) ? System.IO.Path.GetFileNameWithoutExtension(File.DisplayName) : File.DisplayName);
+                    }
+                    else
+                    {
+                        return Name;
+                    }
                 }
             }
         }
@@ -210,7 +205,13 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取文件的修改时间
         /// </summary>
-        public string ModifiedTime { get; private set; }
+        public string ModifiedTime
+        {
+            get
+            {
+                return ModifiedTimeRaw.ToString("F");
+            }
+        }
 
         public DateTimeOffset ModifiedTimeRaw { get; private set; }
 

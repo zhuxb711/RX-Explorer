@@ -121,7 +121,7 @@ namespace RX_Explorer.Class
         public async Task DeleteProgramPickerRecordAsync(string FileType, string Path)
         {
             using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From ProgramPickerRecord Where FileType = @FileType And Path = @Path"))
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From ProgramPicker Where FileType = @FileType And Path = @Path"))
             {
                 _ = Command.Parameters.AddWithValue("@FileType", FileType);
                 _ = Command.Parameters.AddWithValue("@Path", Path);

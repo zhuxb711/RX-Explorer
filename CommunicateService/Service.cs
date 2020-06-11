@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
 using Windows.ApplicationModel.AppService;
 using Windows.ApplicationModel.Background;
 using Windows.Foundation.Collections;
-using Windows.Storage;
 
 namespace CommunicateService
 {
     public sealed class Service : IBackgroundTask
     {
         private BackgroundTaskDeferral Deferral;
-        private AppServiceConnection Connection;
+        private static readonly List<AppServiceConnection> Connections = new List<AppServiceConnection>();
 
         public void Run(IBackgroundTaskInstance taskInstance)
         {
@@ -17,67 +20,52 @@ namespace CommunicateService
 
             taskInstance.Canceled += TaskInstance_Canceled;
 
-            Connection = (taskInstance.TriggerDetails as AppServiceTriggerDetails).AppServiceConnection;
-            Connection.RequestReceived += Connection_RequestReceived;
+            AppServiceConnection IncomeConnection = (taskInstance.TriggerDetails as AppServiceTriggerDetails).AppServiceConnection;
+
+            if (Connections.Count >= 2)
+            {
+                Connections.Clear();
+            }
+
+            Connections.Add(IncomeConnection);
+            IncomeConnection.RequestReceived += Connection_RequestReceived;
         }
 
         private async void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
         {
             var Deferral = args.GetDeferral();
 
-            ValueSet Value = new ValueSet();
-
             try
             {
-                if (args.Request.Message.ContainsKey("ExcuteType"))
+                if (SpinWait.SpinUntil(() => Connections.Count == 2, 8000))
                 {
-                    switch (Convert.ToString(ApplicationData.Current.LocalSettings.Values["ExcuteType"]))
+                    AppServiceConnection AnotherConnection = Connections.FirstOrDefault((Con) => Con != sender);
+
+                    AppServiceResponse AnotherRespose = await AnotherConnection.SendMessageAsync(args.Request.Message);
+
+                    if (AnotherRespose.Status == AppServiceResponseStatus.Success)
                     {
-                        case "Excute_Quicklook":
-                            {
-                                Value.Add("ExcuteType", "Excute_Quicklook");
-                                Value.Add("ExcutePath", ApplicationData.Current.LocalSettings.Values["ExcutePath"]);
-                                break;
-                            }
-                        case "Excute_RunExe":
-                            {
-                                Value.Add("ExcuteType", "Excute_RunExe");
-                                Value.Add("ExcutePath", ApplicationData.Current.LocalSettings.Values["ExcutePath"]);
-                                Value.Add("ExcuteParameter", ApplicationData.Current.LocalSettings.Values["ExcuteParameter"]);
-                                Value.Add("ExcuteAuthority", ApplicationData.Current.LocalSettings.Values["ExcuteAuthority"]);
-                                break;
-                            }
-                        case "Excute_Get_Associate":
-                            {
-                                Value.Add("ExcuteType", "Excute_Get_Associate");
-                                Value.Add("AssociatePath", ApplicationData.Current.LocalSettings.Values["ExcutePath"]);
-                                break;
-                            }
-                        case "Excute_Check_QuicklookIsAvaliable":
-                            {
-                                Value.Add("ExcuteType", "Excute_Check_QuicklookIsAvaliable");
-                                break;
-                            }
+                        await args.Request.SendResponseAsync(AnotherRespose.Message);
                     }
-                }
-                else if (args.Request.Message.ContainsKey("Check_QuicklookIsAvaliable_Result"))
-                {
-                    ApplicationData.Current.LocalSettings.Values["Check_QuicklookIsAvaliable_Result"] = Convert.ToString(args.Request.Message["Check_QuicklookIsAvaliable_Result"]);
-                }
-                else if(args.Request.Message.ContainsKey("Get_Associate_Result"))
-                {
-                    ApplicationData.Current.LocalSettings.Values["Get_Associate_Result"] = Convert.ToString(args.Request.Message["Get_Associate_Result"]);
                 }
                 else
                 {
-                    Value.Add("Error", "This app service is designed only for RX Explorer");
-                }
+                    ValueSet Value = new ValueSet
+                    {
+                        { "Error", "Another device failed to make a peer-to-peer connection within the specified time" }
+                    };
 
-                await args.Request.SendResponseAsync(Value);
+                    await args.Request.SendResponseAsync(Value);
+                }
             }
             catch
             {
-                Value.Add("Error", "Unknown Error happened");
+                ValueSet Value = new ValueSet
+                {
+                    { "Error", "Some exceptions were thrown while transmitting the message" }
+                };
+
+                await args.Request.SendResponseAsync(Value);
             }
             finally
             {
@@ -87,7 +75,6 @@ namespace CommunicateService
 
         private void TaskInstance_Canceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
         {
-            Connection = null;
             Deferral.Complete();
         }
     }

@@ -1,0 +1,238 @@
+﻿<Page
+    x:Class="RX_Explorer.View.RecycleBin"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RX_Explorer.View"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:Cls="using:RX_Explorer.Class"
+    mc:Ignorable="d"
+    Background="Transparent">
+    
+    <Page.Resources>
+        <Cls:PropertyDisplayConverter x:Key="StateConverter" />
+
+        <CommandBarFlyout x:Name="SelectFlyout"
+                          Placement="RightEdgeAlignedTop">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Label="永久删除" 
+                              Icon="Delete"
+                              Name="PermanentDelete"
+                              Click="PermanentDelete_Click"/>
+                <AppBarButton Label="还原" 
+                              Icon="Redo"
+                              Name="RedoRecycle"
+                              Click="RedoRecycle_Click"/>
+                <AppBarSeparator />
+                <AppBarButton Label="清空回收站"
+                              Name="ClearRecycleBin"
+                              Click="ClearRecycleBin_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xED62;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarSeparator />
+                <AppBarButton Label="属性" 
+                              Icon="Tag"
+                              Name="PropertyButton"
+                              Click="PropertyButton_Click"/>
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
+    </Page.Resources>
+
+    <Grid>
+        <ListView Background="Transparent"
+                  x:Name="ListViewControl"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  PointerPressed="ListViewControl_PointerPressed"
+                  RightTapped="ListViewControl_RightTapped"
+                  SelectionChanged="ListViewControl_SelectionChanged"
+                  SelectionMode="Extended"
+                  ItemClick="ListViewControl_ItemClick"
+                  ContainerContentChanging="ListViewControl_ContainerContentChanging"
+                  IsHoldingEnabled="True"
+                  IsItemClickEnabled="True"
+                  IsDoubleTapEnabled="True"
+                  Holding="ListViewControl_Holding"
+                  DoubleTapped="ListViewControl_DoubleTapped"
+                  ItemsSource="{x:Bind FileCollection}"
+                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterListViewTransitions,Mode=OneWay}">
+            <ListView.Header>
+                <controls:ScrollHeader Mode="Sticky">
+                    <controls:ScrollHeader.ContentTemplate>
+                        <DataTemplate>
+                            <Grid Height="35">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="4*" />
+                                    <ColumnDefinition Width="3*" />
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="1.5*" />
+                                    <ColumnDefinition Width="1*"
+                                                      MinWidth="50" />
+                                </Grid.ColumnDefinitions>
+                                <Button HorizontalContentAlignment="Left"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        AllowFocusOnInteraction="False"
+                                        Grid.Column="0"
+                                        x:Name="ListHeaderName"
+                                        Click="ListHeaderName_Click"
+                                        Background="{StaticResource ElementAcrylicBrush}"
+                                        Style="{StaticResource ListHeaderButtonStyle}">
+                                    <TextBlock Text="名称"
+                                               FontSize="14"
+                                               x:Uid="SearchName"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                </Button>
+                                <Button HorizontalContentAlignment="Left"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        AllowFocusOnInteraction="False"
+                                        Grid.Column="1"
+                                        x:Name="ListHeaderOriginLocation"
+                                        Click="ListHeaderOriginLocation_Click"
+                                        Background="{StaticResource ElementAcrylicBrush}"
+                                        Style="{StaticResource ListHeaderButtonStyle}">
+                                    <TextBlock Text="原位置"
+                                               FontSize="14"
+                                               x:Uid="RecycleOriginLocation"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                </Button>
+                                <Button HorizontalContentAlignment="Left"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        AllowFocusOnInteraction="False"
+                                        Grid.Column="2"
+                                        Name="ListHeaderModifiedTime"
+                                        Click="ListHeaderModifiedTime_Click"
+                                        Background="{StaticResource ElementAcrylicBrush}"
+                                        Style="{StaticResource ListHeaderButtonStyle}">
+                                    <TextBlock Text="删除日期"
+                                               FontSize="14"
+                                               x:Uid="RecycleTime"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                </Button>
+                                <Button Grid.Column="3"
+                                        HorizontalContentAlignment="Left"
+                                        AllowFocusOnInteraction="False"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        Name="ListHeaderType"
+                                        Click="ListHeaderType_Click"
+                                        Background="{StaticResource ElementAcrylicBrush}"
+                                        Style="{StaticResource ListHeaderButtonStyle}">
+                                    <TextBlock Text="类型"
+                                               FontSize="14"
+                                               x:Uid="SearchType"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                </Button>
+                                <Button HorizontalContentAlignment="Left"
+                                        HorizontalAlignment="Stretch"
+                                        AllowFocusOnInteraction="False"
+                                        VerticalAlignment="Stretch"
+                                        Name="ListHeaderSize"
+                                        Grid.Column="4"
+                                        Click="ListHeaderSize_Click"
+                                        Background="{StaticResource ElementAcrylicBrush}"
+                                        Style="{StaticResource ListHeaderButtonStyle}">
+                                    <TextBlock Text="大小"
+                                               FontSize="14"
+                                               x:Uid="SearchSize"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" />
+                                </Button>
+                                <Button Background="{StaticResource ElementAcrylicBrush}"
+                                        Style="{StaticResource ListHeaderDisableButtonStyle}"
+                                        Grid.Column="5"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch" />
+                            </Grid>
+                        </DataTemplate>
+                    </controls:ScrollHeader.ContentTemplate>
+                </controls:ScrollHeader>
+            </ListView.Header>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment"
+                            Value="Stretch">
+                    </Setter>
+                    <Setter Property="Padding"
+                            Value="0" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="Cls:FileSystemStorageItem">
+                    <Grid HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="4*" />
+                            <ColumnDefinition Width="3*" />
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="1.5*" />
+                            <ColumnDefinition Width="1*"
+                                              MinWidth="50" />
+                        </Grid.ColumnDefinitions>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="44" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Image VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   Stretch="Uniform"
+                                   Source="{x:Bind Thumbnail,Mode=OneWay}"
+                                   Height="30"
+                                   Width="30" />
+                            <TextBlock VerticalAlignment="Center"
+                                       FontSize="14"
+                                       Grid.Column="1"
+                                       Text="{x:Bind DisplayName,Mode=OneWay}"
+                                       ToolTipService.ToolTip="{x:Bind DisplayName,Mode=OneWay}"
+                                       TextTrimming="CharacterEllipsis" />
+                        </Grid>
+                        <TextBlock VerticalAlignment="Center"
+                                   FontSize="14"
+                                   Text="{x:Bind RecycleItemOriginPath}"
+                                   ToolTipService.ToolTip="{x:Bind RecycleItemOriginPath}"
+                                   Grid.Column="1"
+                                   Padding="8,0,0,0"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock VerticalAlignment="Center"
+                                   FontSize="14"
+                                   Text="{x:Bind ModifiedTime,Mode=OneWay}"
+                                   ToolTipService.ToolTip="{x:Bind ModifiedTime,Mode=OneWay}"
+                                   Grid.Column="2"
+                                   Padding="8,0,0,0"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock VerticalAlignment="Center"
+                                   FontSize="14"
+                                   Text="{x:Bind DisplayType,Mode=OneWay}"
+                                   ToolTipService.ToolTip="{x:Bind DisplayType}"
+                                   Grid.Column="3"
+                                   Margin="8,0,0,0"
+                                   Visibility="{x:Bind StorageType,Converter={StaticResource StateConverter}}"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock VerticalAlignment="Center"
+                                   FontSize="14"
+                                   Padding="8,0,0,0"
+                                   Text="{x:Bind Size,Mode=OneWay}"
+                                   TextTrimming="CharacterEllipsis"
+                                   Visibility="{x:Bind StorageType,Converter={StaticResource StateConverter}}"
+                                   Grid.Column="4" />
+                        <TextBlock VerticalAlignment="Center"
+                                   Grid.Column="5"
+                                   Name="EmptyTextblock" />
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</Page>

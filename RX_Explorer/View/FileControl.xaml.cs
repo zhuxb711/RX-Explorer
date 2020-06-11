@@ -533,7 +533,7 @@ namespace RX_Explorer
 
                     Presenter.FileCollection.Clear();
 
-                    List<FileSystemStorageItem> ItemList = Presenter.SortList(WIN_Native_API.GetStorageItems(Folder, ItemFilters.File | ItemFilters.Folder), SortTarget.Name, SortDirection.Ascending);
+                    List<FileSystemStorageItem> ItemList = WIN_Native_API.GetStorageItems(Folder, ItemFilters.File | ItemFilters.Folder).SortList(SortTarget.Name, SortDirection.Ascending);
 
                     Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
@@ -599,7 +599,7 @@ namespace RX_Explorer
 
                 Presenter.FileCollection.Clear();
 
-                List<FileSystemStorageItem> ItemList = Presenter.SortList(WIN_Native_API.GetStorageItems(Folder, ItemFilters.File | ItemFilters.Folder), SortTarget.Name, SortDirection.Ascending);
+                List<FileSystemStorageItem> ItemList = WIN_Native_API.GetStorageItems(Folder, ItemFilters.File | ItemFilters.Folder).SortList(SortTarget.Name, SortDirection.Ascending);
 
                 Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
@@ -1077,14 +1077,14 @@ namespace RX_Explorer
             if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase))
             {
                 string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\WindowsPowerShell\\v1.0\\powershell.exe");
-                await FullTrustExcutorController.RunAsAdministrator(ExcutePath, $"-NoExit -Command \"Set-Location '{CurrentFolder.Path.Replace("\\", "/")}'\"").ConfigureAwait(false);
+                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, $"-NoExit -Command \"Set-Location '{CurrentFolder.Path.Replace("\\", "/")}'\"").ConfigureAwait(false);
                 return;
             }
 
             if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase))
             {
                 string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\cmd.exe");
-                await FullTrustExcutorController.RunAsAdministrator(ExcutePath, $"/k cd /d {CurrentFolder.Path}").ConfigureAwait(false);
+                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, $"/k cd /d {CurrentFolder.Path}").ConfigureAwait(false);
                 return;
             }
 
@@ -1158,7 +1158,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void AddressBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        private void AddressBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             AddressBoxTextBackup = sender.Text;
 
@@ -1172,25 +1172,9 @@ namespace RX_Explorer
                     {
                         try
                         {
-                            StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(DirectoryName);
                             if (args.CheckCurrent())
                             {
-                                QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
-                                {
-                                    FolderDepth = FolderDepth.Shallow,
-                                    IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-                                    ApplicationSearchFilter = $"System.FileName:{Path.GetFileName(sender.Text)}*"
-                                };
-                                IReadOnlyList<StorageFolder> SearchResult = await Folder.CreateFolderQueryWithOptions(Options).GetFoldersAsync(0, 10);
-
-                                if (args.CheckCurrent())
-                                {
-                                    sender.ItemsSource = SearchResult.Select((Item) => Item.Path);
-                                }
-                                else
-                                {
-                                    sender.ItemsSource = null;
-                                }
+                                sender.ItemsSource = WIN_Native_API.GetStorageItems(DirectoryName, ItemFilters.Folder).Where((Item) => Item.Name.StartsWith(Path.GetFileName(sender.Text), StringComparison.OrdinalIgnoreCase)).Select((It) => It.Path);
                             }
                             else
                             {

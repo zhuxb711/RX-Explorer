@@ -74,6 +74,12 @@
                                   Glyph="&#xE8CC;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem Content="回收站"
+                                    x:Uid="RecycleBin">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xED10;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem Content="安全域"
                                     x:Uid="SecureArea">
                     <NavigationViewItem.Icon>

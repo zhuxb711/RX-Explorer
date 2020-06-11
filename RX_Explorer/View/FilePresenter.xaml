@@ -1,7 +1,6 @@
 ﻿<Page x:Class="RX_Explorer.FilePresenter"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:local="using:RX_Explorer.Class"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
@@ -12,7 +11,7 @@
       Background="Transparent">
 
     <Page.Resources>
-        <local:PropertyDisplayConverter x:Key="StateConverter" />
+        <Cls:PropertyDisplayConverter x:Key="StateConverter" />
 
         <CommandBarFlyout x:Name="FileFlyout"
                           Placement="RightEdgeAlignedTop">
@@ -300,7 +299,7 @@
 
         <DataTemplate x:Name="TileDataTemplate"
                       x:FieldModifier="public"
-                      x:DataType="local:FileSystemStorageItem">
+                      x:DataType="Cls:FileSystemStorageItem">
             <StackPanel Orientation="Horizontal"
                         Width="215"
                         Padding="5">
@@ -338,7 +337,7 @@
 
         <DataTemplate x:Name="LargeImageDataTemplate"
                       x:FieldModifier="public"
-                      x:DataType="local:FileSystemStorageItem">
+                      x:DataType="Cls:FileSystemStorageItem">
             <StackPanel Padding="5"
                         Orientation="Vertical">
                 <Image IsHitTestVisible="False"
@@ -360,7 +359,7 @@
 
         <DataTemplate x:Name="MediumImageDataTemplate"
                       x:FieldModifier="public"
-                      x:DataType="local:FileSystemStorageItem">
+                      x:DataType="Cls:FileSystemStorageItem">
             <StackPanel Padding="5"
                         Orientation="Vertical">
                 <Image IsHitTestVisible="False"
@@ -382,7 +381,7 @@
 
         <DataTemplate x:Name="SmallImageDataTemplate"
                       x:FieldModifier="public"
-                      x:DataType="local:FileSystemStorageItem">
+                      x:DataType="Cls:FileSystemStorageItem">
             <StackPanel Padding="5"
                         Orientation="Vertical">
                 <Image IsHitTestVisible="False"
@@ -420,7 +419,6 @@
                         Grid.Column="0"
                         x:Name="ListHeaderName"
                         Click="ListHeaderName_Click"
-                        Margin="0,0,9,0"
                         Background="{StaticResource ElementAcrylicBrush}"
                         Style="{StaticResource ListHeaderButtonStyle}">
                     <TextBlock Text="名称"
@@ -436,7 +434,6 @@
                         Grid.Column="1"
                         Name="ListHeaderModifiedTime"
                         Click="ListHeaderModifiedTime_Click"
-                        Margin="-9,0,9,0"
                         Background="{StaticResource ElementAcrylicBrush}"
                         Style="{StaticResource ListHeaderButtonStyle}">
                     <TextBlock Text="修改日期"
@@ -452,7 +449,6 @@
                         VerticalAlignment="Stretch"
                         Name="ListHeaderType"
                         Click="ListHeaderType_Click"
-                        Margin="-9,0,9,0"
                         Background="{StaticResource ElementAcrylicBrush}"
                         Style="{StaticResource ListHeaderButtonStyle}">
                     <TextBlock Text="类型"
@@ -468,7 +464,6 @@
                         Name="ListHeaderSize"
                         Grid.Column="3"
                         Click="ListHeaderSize_Click"
-                        Margin="-9,0,0,0"
                         Background="{StaticResource ElementAcrylicBrush}"
                         Style="{StaticResource ListHeaderButtonStyle}">
                     <TextBlock Text="大小"
@@ -485,7 +480,7 @@
             </Grid>
         </DataTemplate>
 
-        <DataTemplate x:DataType="local:FileSystemStorageItem"
+        <DataTemplate x:DataType="Cls:FileSystemStorageItem"
                       x:Name="ListViewDetailDataTemplate"
                       x:FieldModifier="public">
             <Grid HorizontalAlignment="Stretch">
@@ -497,48 +492,54 @@
                     <ColumnDefinition Width="1*" 
                                       MinWidth="50"/>
                 </Grid.ColumnDefinitions>
-                <Image VerticalAlignment="Center"
-                       HorizontalAlignment="Left"
-                       Stretch="Uniform"
-                       Source="{x:Bind Thumbnail,Mode=OneWay}"
-                       Margin="0,0,5,0"
-                       Height="30"
-                       Width="30" />
-                <TextBlock Margin="35,0,10,0"
-                           VerticalAlignment="Center"
-                           FontSize="15"
-                           Text="{x:Bind DisplayName,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind DisplayName,Mode=OneWay}"
-                           TextTrimming="CharacterEllipsis" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="44" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Image VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
+                           Stretch="Uniform"
+                           Source="{x:Bind Thumbnail,Mode=OneWay}"
+                           Height="30"
+                           Width="30" />
+                    <TextBlock VerticalAlignment="Center"
+                               FontSize="14"
+                               Grid.Column="1"
+                               Text="{x:Bind DisplayName,Mode=OneWay}"
+                               ToolTipService.ToolTip="{x:Bind DisplayName,Mode=OneWay}"
+                               TextTrimming="CharacterEllipsis" />
+                </Grid>
                 <TextBlock VerticalAlignment="Center"
-                           FontSize="15"
+                           FontSize="14"
+                           Padding="8,0,0,0"
                            Text="{x:Bind ModifiedTime,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind ModifiedTime,Mode=OneWay}"
                            Grid.Column="1"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock VerticalAlignment="Center"
-                           FontSize="15"
-                           Margin="5,0,0,0"
+                           FontSize="14"
+                           Padding="8,0,0,0"
                            Text="{x:Bind DisplayType,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind DisplayType}"
                            Grid.Column="2"
                            Visibility="{x:Bind StorageType,Converter={StaticResource StateConverter}}"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock VerticalAlignment="Center"
-                           FontSize="15"
-                           Margin="8,0,0,0"
+                           FontSize="14"
+                           Padding="8,0,0,0"
                            Text="{x:Bind Size,Mode=OneWay}"
                            TextTrimming="CharacterEllipsis"
                            Visibility="{x:Bind StorageType,Converter={StaticResource StateConverter}}"
                            Grid.Column="3" />
                 <TextBlock VerticalAlignment="Center"
-                           Margin="8,0,0,0"
+                           Padding="8,0,0,0"
                            Grid.Column="4" 
                            Name="EmptyTextblock"/>
             </Grid>
         </DataTemplate>
 
-        <DataTemplate x:DataType="local:FileSystemStorageItem"
+        <DataTemplate x:DataType="Cls:FileSystemStorageItem"
                       x:Name="ListViewSimpleDataTemplate"
                       x:FieldModifier="public">
             <Grid>
@@ -570,7 +571,6 @@
     <Grid>
         <ListView Background="Transparent"
                   x:Name="ListViewControl"
-                  IsSwipeEnabled="True"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
                   PointerPressed="ViewControl_PointerPressed"
@@ -602,8 +602,9 @@
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment"
-                            Value="Stretch">
-                    </Setter>
+                            Value="Stretch" />
+                    <Setter Property="Padding"
+                            Value="0" />
                 </Style>
             </ListView.ItemContainerStyle>
         </ListView>
@@ -654,11 +655,11 @@
                 <SolidColorBrush Color="Black"
                                  Opacity="0.65" />
             </controls:Loading.Background>
-                <StackPanel>
-                    <TextBlock Name="ProgressInfo"
-                               FontSize="20"
-                               VerticalAlignment="Center"
-                               TextAlignment="Center" />
+            <StackPanel>
+                <TextBlock Name="ProgressInfo"
+                           FontSize="20"
+                           VerticalAlignment="Center"
+                           TextAlignment="Center" />
                 <controls1:ProgressBar IsIndeterminate="True"
                                        Width="180"
                                        Name="ProBar"

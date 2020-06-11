@@ -163,7 +163,7 @@
     <Compile Include="Class\Exception.cs" />
     <Compile Include="Class\SpecialTypeGenerator.cs" />
     <Compile Include="Class\ValueConverter.cs" />
-    <Compile Include="Class\WIN_API.cs" />
+    <Compile Include="Class\WIN_Native_API.cs" />
     <Compile Include="Class\CredentialProtector.cs" />
     <Compile Include="Dialog\FeedBackDialog.xaml.cs">
       <DependentUpon>FeedBackDialog.xaml</DependentUpon>
@@ -248,6 +248,9 @@
     </Compile>
     <Compile Include="View\ExtendedSplash.xaml.cs">
       <DependentUpon>ExtendedSplash.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\RecycleBin.xaml.cs">
+      <DependentUpon>RecycleBin.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\SecureArea.xaml.cs">
       <DependentUpon>SecureArea.xaml</DependentUpon>
@@ -346,6 +349,66 @@
     <Content Include="FullTrust\FullTrustProcess.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="FullTrust\Newtonsoft.Json.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\System.Buffers.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\System.Memory.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\System.Numerics.Vectors.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\System.Runtime.CompilerServices.Unsafe.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\System.Runtime.WindowsRuntime.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\System.ValueTuple.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\Vanara.Core.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\Vanara.PInvoke.ComCtl32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\Vanara.PInvoke.Cryptography.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\Vanara.PInvoke.Gdi32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\Vanara.PInvoke.Kernel32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\Vanara.PInvoke.Ole.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\Vanara.PInvoke.SearchApi.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\Vanara.PInvoke.Security.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\Vanara.PInvoke.Shared.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\Vanara.PInvoke.Shell32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\Vanara.PInvoke.ShlwApi.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\Vanara.PInvoke.User32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FullTrust\Vanara.Windows.Shell.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="HotWebImage\Bing.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -353,6 +416,9 @@
     <Content Include="HotWebImage\Instagram.png" />
     <Content Include="HotWebImage\Twitter.png" />
     <Content Include="SecureAccess\NetworkAccess.dll" />
+    <None Include="FullTrust\Windows.winmd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Package.StoreAssociation.xml" />
     <Content Include="QuickStartImage\Calculator.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -528,6 +594,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\RecycleBin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\SecureArea.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -609,7 +679,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.Sqlite.Core">
-      <Version>3.1.4</Version>
+      <Version>3.1.5</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset">
       <Version>3.6.0</Version>
@@ -632,10 +702,10 @@
       <Version>6.0.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.4.2</Version>
+      <Version>2.5.0-prerelease.200609001</Version>
     </PackageReference>
     <PackageReference Include="MySqlConnector">
-      <Version>0.68.1</Version>
+      <Version>0.69.1</Version>
     </PackageReference>
     <PackageReference Include="OpenCV.UWP.native.imgproc">
       <Version>0.0.2-alpha</Version>
@@ -703,6 +773,7 @@
       <Name>Windows Desktop Extensions for the UWP</Name>
     </SDKReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

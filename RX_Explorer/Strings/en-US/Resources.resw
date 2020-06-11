@@ -2417,4 +2417,16 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_EditErrorWhenOpen_Content" xml:space="preserve">
     <value>Failed to create clip, unable to edit this video</value>
   </data>
+  <data name="MainPage_PageDictionary_RecycleBin_Label" xml:space="preserve">
+    <value>Recycle bin</value>
+  </data>
+  <data name="RecycleBin.Content" xml:space="preserve">
+    <value>Recycle bin</value>
+  </data>
+  <data name="RecycleOriginLocation.Text" xml:space="preserve">
+    <value>Original location</value>
+  </data>
+  <data name="RecycleTime.Text" xml:space="preserve">
+    <value>Recycle date</value>
+  </data>
 </root>

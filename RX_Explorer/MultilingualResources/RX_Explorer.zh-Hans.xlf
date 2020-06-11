@@ -3056,6 +3056,22 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Failed to create clip, unable to edit this video</source>
           <target state="translated">创建剪辑片段时失败,无法编辑此视频</target>
         </trans-unit>
+        <trans-unit id="MainPage_PageDictionary_RecycleBin_Label" translate="yes" xml:space="preserve">
+          <source>Recycle bin</source>
+          <target state="translated">回收站</target>
+        </trans-unit>
+        <trans-unit id="RecycleBin.Content" translate="yes" xml:space="preserve">
+          <source>Recycle bin</source>
+          <target state="translated">回收站</target>
+        </trans-unit>
+        <trans-unit id="RecycleOriginLocation.Text" translate="yes" xml:space="preserve">
+          <source>Original location</source>
+          <target state="translated">原位置</target>
+        </trans-unit>
+        <trans-unit id="RecycleTime.Text" translate="yes" xml:space="preserve">
+          <source>Recycle date</source>
+          <target state="translated">删除日期</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -1,4 +1,5 @@
-﻿using RX_Explorer.Class;
+﻿using ColorCode.Compilation.Languages;
+using RX_Explorer.Class;
 using System;
 using System.Linq;
 using Windows.ApplicationModel;
@@ -189,6 +190,8 @@ namespace RX_Explorer
         {
             //TODO: 保存应用程序状态并停止任何后台活动
             MySQL.Current.Dispose();
+            SQLite.Current.Dispose();
+            FullTrustExcutorController.Current.Dispose();
         }
     }
 }

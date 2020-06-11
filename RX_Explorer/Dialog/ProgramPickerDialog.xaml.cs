@@ -83,7 +83,7 @@ namespace RX_Explorer.Dialog
 
             List<ProgramPickerItem> TempList = new List<ProgramPickerItem>();
 
-            string SystemAssociate = await FullTrustExcutorController.GetAssociateFromPath(OpenFile.Path).ConfigureAwait(true);
+            string SystemAssociate = await FullTrustExcutorController.Current.GetAssociateFromPathAsync(OpenFile.Path).ConfigureAwait(true);
             if (!string.IsNullOrEmpty(SystemAssociate))
             {
                 await SQLite.Current.SetProgramPickerRecordAsync(OpenFile.FileType, SystemAssociate).ConfigureAwait(true);
@@ -256,7 +256,7 @@ namespace RX_Explorer.Dialog
                 {
                     if (CurrentItem.IsCustomApp)
                     {
-                        await FullTrustExcutorController.Run(CurrentItem.Path, OpenFile.Path).ConfigureAwait(true);
+                        await FullTrustExcutorController.Current.RunAsync(CurrentItem.Path, OpenFile.Path).ConfigureAwait(true);
                     }
                     else
                     {
@@ -301,7 +301,7 @@ namespace RX_Explorer.Dialog
                 {
                     if (OtherItem.IsCustomApp)
                     {
-                        await FullTrustExcutorController.Run(OtherItem.Path, OpenFile.Path).ConfigureAwait(true);
+                        await FullTrustExcutorController.Current.RunAsync(OtherItem.Path, OpenFile.Path).ConfigureAwait(true);
                     }
                     else
                     {
