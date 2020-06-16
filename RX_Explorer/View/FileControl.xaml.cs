@@ -625,21 +625,6 @@ namespace RX_Explorer
                 return;
             }
 
-            if (!await CurrentNode.CheckExist().ConfigureAwait(true))
-            {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
-
-                await DisplayItemsInFolder(CurrentNode, true).ConfigureAwait(false);
-
-                return;
-            }
-
             QueueContentDialog QueueContenDialog = new QueueContentDialog
             {
                 Title = Globalization.GetString("Common_Dialog_WarningTitle"),
@@ -652,8 +637,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    await CurrentFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
-                    await CurrentFolder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    await FullTrustExcutorController.Current.DeleteAsync(CurrentFolder).ConfigureAwait(true);
 
                     TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Where((Item) => Item.Path == CurrentFolder.Path).FirstOrDefault());
 
@@ -661,27 +645,35 @@ namespace RX_Explorer
 
                     await FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
                 }
-                catch (UnauthorizedAccessException)
+                catch (FileCaputureException)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_UnauthorizedDeleteFolder_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                        Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                }
+                catch (FileNotFoundException)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        _ = await Launcher.LaunchFolderAsync(CurrentFolder);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
+                    await DisplayItemsInFolder(CurrentNode, true).ConfigureAwait(false);
                 }
                 catch (Exception)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_DeleteFolderError_Content"),
+                        Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
@@ -1074,17 +1066,51 @@ namespace RX_Explorer
                 return;
             }
 
-            if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Powershell.exe", StringComparison.OrdinalIgnoreCase))
             {
-                string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\WindowsPowerShell\\v1.0\\powershell.exe");
-                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, $"-NoExit -Command \"Set-Location '{CurrentFolder.Path.Replace("\\", "/")}'\"").ConfigureAwait(false);
+                string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe");
+                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, $"-NoExit -Command \"Set-Location '{CurrentFolder.Path}'\"").ConfigureAwait(false);
                 return;
             }
 
-            if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Cmd.exe", StringComparison.OrdinalIgnoreCase))
             {
-                string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\cmd.exe");
+                string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
                 await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, $"/k cd /d {CurrentFolder.Path}").ConfigureAwait(false);
+                return;
+            }
+
+            if (string.Equals(QueryText, "Wt", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Wt.exe", StringComparison.OrdinalIgnoreCase))
+            {
+                LaunchQuerySupportStatus CheckResult = await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe");
+                switch (CheckResult)
+                {
+                    case LaunchQuerySupportStatus.Available:
+                    case LaunchQuerySupportStatus.NotSupported:
+                        {
+                            await FullTrustExcutorController.Current.RunAsync("explorer.exe", @"shell:AppsFolder\Microsoft.WindowsTerminal_8wekyb3d8bbwe!App").ConfigureAwait(false);
+                            return;
+                        }
+                }
+            }
+
+            string ProtentialPath1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), QueryText.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? QueryText.ToLower() : $"{QueryText.ToLower()}.exe");
+            string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? QueryText.ToLower() : $"{QueryText.ToLower()}.exe");
+            string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? QueryText.ToLower() : $"{QueryText.ToLower()}.exe");
+
+            if (WIN_Native_API.CheckExist(ProtentialPath1))
+            {
+                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ProtentialPath1, string.Empty).ConfigureAwait(false);
+                return;
+            }
+            else if (WIN_Native_API.CheckExist(ProtentialPath2))
+            {
+                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ProtentialPath2, string.Empty).ConfigureAwait(false);
+                return;
+            }
+            else if (WIN_Native_API.CheckExist(ProtentialPath3))
+            {
+                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ProtentialPath3, string.Empty).ConfigureAwait(false);
                 return;
             }
 
@@ -1671,7 +1697,6 @@ namespace RX_Explorer
 
                                 bool IsItemNotFound = false;
                                 bool IsUnauthorized = false;
-                                bool IsSpaceError = false;
 
                                 foreach (IStorageItem Item in DragItemList)
                                 {
@@ -1679,28 +1704,15 @@ namespace RX_Explorer
                                     {
                                         if (Item is StorageFile File)
                                         {
-                                            if (!await File.CheckExist().ConfigureAwait(true))
-                                            {
-                                                IsItemNotFound = true;
-                                                continue;
-                                            }
-
                                             FilePresenter.CopyAndMoveRecord.Add($"{File.Path}||Copy||File||{Path.Combine(TargetFolder.Path, File.Name)}");
 
-                                            _ = await File.CopyAsync(TargetFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
+                                            await FullTrustExcutorController.Current.CopyAsync(File, TargetFolder).ConfigureAwait(true);
                                         }
                                         else if (Item is StorageFolder Folder)
                                         {
-                                            if (!await Folder.CheckExist().ConfigureAwait(true))
-                                            {
-                                                IsItemNotFound = true;
-                                                continue;
-                                            }
-
                                             FilePresenter.CopyAndMoveRecord.Add($"{Folder.Path}||Copy||Folder||{Path.Combine(TargetFolder.Path, Folder.Name)}");
 
-                                            StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Item.Name, CreationCollisionOption.GenerateUniqueName);
-                                            await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
+                                            await FullTrustExcutorController.Current.CopyAsync(Folder, TargetFolder).ConfigureAwait(true);
 
                                             if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as StorageFolder).Path))
                                             {
@@ -1708,14 +1720,13 @@ namespace RX_Explorer
                                             }
                                         }
                                     }
-                                    catch (UnauthorizedAccessException)
+                                    catch (FileNotFoundException)
+                                    {
+                                        IsItemNotFound = true;
+                                    }
+                                    catch (Exception)
                                     {
                                         IsUnauthorized = true;
-                                        break;
-                                    }
-                                    catch (System.Runtime.InteropServices.COMException)
-                                    {
-                                        IsSpaceError = true;
                                         break;
                                     }
                                 }
@@ -1745,16 +1756,6 @@ namespace RX_Explorer
                                         _ = await Launcher.LaunchFolderAsync(CurrentFolder);
                                     }
                                 }
-                                else if (IsSpaceError)
-                                {
-                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_CopyFail_FreeSpaceCritical_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                }
 
                                 break;
                             }
@@ -1764,7 +1765,6 @@ namespace RX_Explorer
 
                                 bool IsItemNotFound = false;
                                 bool IsUnauthorized = false;
-                                bool IsSpaceError = false;
                                 bool IsCaptured = false;
 
                                 foreach (IStorageItem Item in DragItemList)
@@ -1773,30 +1773,16 @@ namespace RX_Explorer
                                     {
                                         if (Item is StorageFile File)
                                         {
-                                            if (!await File.CheckExist().ConfigureAwait(true))
-                                            {
-                                                IsItemNotFound = true;
-                                                continue;
-                                            }
-
                                             FilePresenter.CopyAndMoveRecord.Add($"{File.Path}||Move||File||{Path.Combine(TargetFolder.Path, File.Name)}");
-
-                                            await File.MoveAsync(TargetFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
+                                            await FullTrustExcutorController.Current.MoveAsync(File, TargetFolder).ConfigureAwait(true);
                                             TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.FirstOrDefault((It) => It.Path == Item.Path));
                                         }
                                         else if (Item is StorageFolder Folder)
                                         {
-                                            if (!await Folder.CheckExist().ConfigureAwait(true))
-                                            {
-                                                IsItemNotFound = true;
-                                                continue;
-                                            }
-
                                             FilePresenter.CopyAndMoveRecord.Add($"{Folder.Path}||Move||Folder||{Path.Combine(TargetFolder.Path, Folder.Name)}");
 
-                                            StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Item.Name, CreationCollisionOption.OpenIfExists);
-                                            await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
-                                            await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                                            await FullTrustExcutorController.Current.MoveAsync(Folder, TargetFolder).ConfigureAwait(true);
+
                                             TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.FirstOrDefault((It) => It.Path == Item.Path));
 
                                             if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as StorageFolder).Path))
@@ -1805,17 +1791,17 @@ namespace RX_Explorer
                                             }
                                         }
                                     }
-                                    catch (UnauthorizedAccessException)
+                                    catch (FileNotFoundException)
                                     {
-                                        IsUnauthorized = true;
+                                        IsItemNotFound = true;
                                     }
-                                    catch (System.Runtime.InteropServices.COMException)
+                                    catch (FileCaputureException)
                                     {
-                                        IsSpaceError = true;
+                                        IsCaptured = true;
                                     }
                                     catch (Exception)
                                     {
-                                        IsCaptured = true;
+                                        IsUnauthorized = true;
                                     }
                                 }
 
@@ -1845,22 +1831,12 @@ namespace RX_Explorer
                                         _ = await Launcher.LaunchFolderAsync(CurrentFolder);
                                     }
                                 }
-                                else if (IsSpaceError)
-                                {
-                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_MoveFail_FreeSpaceCritical_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                }
                                 else if (IsCaptured)
                                 {
                                     QueueContentDialog dialog = new QueueContentDialog
                                     {
                                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_MoveFail_Captured_Content"),
+                                        Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                     };
 

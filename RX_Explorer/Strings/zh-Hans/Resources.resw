@@ -2003,15 +2003,8 @@
   <data name="QueueDialog_CopyFailForNotExist_Content" xml:space="preserve">
     <value>部分文件不存在，无法复制到指定位置</value>
   </data>
-  <data name="QueueDialog_CopyFail_FreeSpaceCritical_Content" xml:space="preserve">
-    <value>因设备剩余空间大小不足，部分文件无法复制</value>
-  </data>
-  <data name="QueueDialog_DeleteFolderError_Content" xml:space="preserve">
-    <value>删除文件夹时出现错误</value>
-  </data>
   <data name="QueueDialog_DeleteFolder_Content" xml:space="preserve">
-    <value>此操作将永久删除该文件夹内的所有内容\r\r是否继续?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>此操作将永久删除该文件夹内的所有内容，是否继续?</value>
   </data>
   <data name="QueueDialog_EmptyFolderName_Content" xml:space="preserve">
     <value>文件夹名不能为空，重命名失败</value>
@@ -2022,12 +2015,6 @@
   <data name="QueueDialog_MoveFailForNotExist_Content" xml:space="preserve">
     <value>部分文件不存在，无法移动到指定位置</value>
   </data>
-  <data name="QueueDialog_MoveFail_Captured_Content" xml:space="preserve">
-    <value>部分文件正在被其他应用程序使用，因此无法移动</value>
-  </data>
-  <data name="QueueDialog_MoveFail_FreeSpaceCritical_Content" xml:space="preserve">
-    <value>因设备剩余空间大小不足，部分文件无法移动</value>
-  </data>
   <data name="QueueDialog_RepeatAddToHomePage_Content" xml:space="preserve">
     <value>此文件夹已经添加到主界面了，不能重复添加哦</value>
   </data>
@@ -2036,10 +2023,6 @@
   </data>
   <data name="QueueDialog_UnauthorizedCreateFolder_Content" xml:space="preserve">
     <value>RX无权在此创建文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_UnauthorizedDeleteFolder_Content" xml:space="preserve">
-    <value>RX无权删除此文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
@@ -2117,12 +2100,10 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_DeleteFiles_Content" xml:space="preserve">
-    <value>此操作将永久删除这些文件\r\r是否继续？</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>此操作将永久删除这些文件，是否继续？</value>
   </data>
   <data name="QueueDialog_DeleteFile_Content" xml:space="preserve">
-    <value>此操作将永久删除该文件\r\r是否继续?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>此操作将永久删除该文件，是否继续?</value>
   </data>
   <data name="QueueDialog_DeleteItemError_Content" xml:space="preserve">
     <value>无法删除部分文件/文件夹，该文件/文件夹可能已被移动或删除</value>
@@ -2323,5 +2304,12 @@
   </data>
   <data name="RecycleTime.Text" xml:space="preserve">
     <value>删除日期</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
+    <value>RX无权限删除此对象，是否进入系统文件管理器？</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_Item_Captured_Content" xml:space="preserve">
+    <value>该对象已被其他应用程序占用，无法进行此操作</value>
   </data>
 </root>

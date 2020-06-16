@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -142,7 +141,7 @@ namespace RX_Explorer.Class
              });
         }
 
-        public void SetAsRecycleItem(string OriginPath,DateTimeOffset CreateTime)
+        public void SetAsRecycleItem(string OriginPath, DateTimeOffset CreateTime)
         {
             IsRecycleItem = true;
             RecycleItemOriginPath = OriginPath;
@@ -180,7 +179,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if(IsRecycleItem)
+                if (IsRecycleItem)
                 {
                     return System.IO.Path.GetFileName(RecycleItemOriginPath);
                 }
@@ -261,7 +260,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return StorageType == StorageItemTypes.File ? System.IO.Path.GetExtension(Name).ToUpper() : string.Empty;
+                    return StorageType == StorageItemTypes.File ? System.IO.Path.GetExtension(Name).ToUpper() : Globalization.GetString("Folder_Admin_DisplayType");
                 }
             }
         }
@@ -283,7 +282,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return StorageType == StorageItemTypes.File ? System.IO.Path.GetExtension(Name).ToUpper() : string.Empty;
+                    return StorageType == StorageItemTypes.File ? System.IO.Path.GetExtension(Name).ToUpper() : Globalization.GetString("Folder_Admin_DisplayType");
                 }
             }
         }

@@ -6,9 +6,11 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:Cls="using:RX_Explorer.Class"
     mc:Ignorable="d"
-    Background="Transparent">
+    Background="Transparent"
+    NavigationCacheMode="Required">
     
     <Page.Resources>
         <Cls:PropertyDisplayConverter x:Key="StateConverter" />
@@ -25,6 +27,22 @@
                               Name="RedoRecycle"
                               Click="RedoRecycle_Click"/>
                 <AppBarSeparator />
+                <AppBarButton Label="属性" 
+                              Icon="Tag"
+                              Name="PropertyButton"
+                              Click="PropertyButton_Click"/>
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
+
+        <CommandBarFlyout x:Name="EmptyFlyout"
+                          Placement="RightEdgeAlignedTop">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Refresh"
+                              Label="刷新"
+                              x:Uid="RefreshView" 
+                              x:Name="Refresh"
+                              Click="Refresh_Click"/>
+                <AppBarSeparator />
                 <AppBarButton Label="清空回收站"
                               Name="ClearRecycleBin"
                               Click="ClearRecycleBin_Click">
@@ -33,11 +51,6 @@
                                   Glyph="&#xED62;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
-                <AppBarSeparator />
-                <AppBarButton Label="属性" 
-                              Icon="Tag"
-                              Name="PropertyButton"
-                              Click="PropertyButton_Click"/>
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
     </Page.Resources>
@@ -49,9 +62,7 @@
                   VerticalAlignment="Stretch"
                   PointerPressed="ListViewControl_PointerPressed"
                   RightTapped="ListViewControl_RightTapped"
-                  SelectionChanged="ListViewControl_SelectionChanged"
                   SelectionMode="Extended"
-                  ItemClick="ListViewControl_ItemClick"
                   ContainerContentChanging="ListViewControl_ContainerContentChanging"
                   IsHoldingEnabled="True"
                   IsItemClickEnabled="True"
@@ -234,5 +245,29 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+        <TextBlock Name="HasFile"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   x:Uid="HasFile"
+                   Text="无文件"
+                   FontSize="18"
+                   Visibility="Collapsed" />
+        <controls:Loading x:Name="LoadingControl"
+                          IsLoading="False">
+            <controls:Loading.Background>
+                <SolidColorBrush Color="Black"
+                                 Opacity="0.65" />
+            </controls:Loading.Background>
+            <StackPanel>
+                <TextBlock Name="ProgressInfo"
+                           FontSize="18"
+                           VerticalAlignment="Center"
+                           TextAlignment="Center" />
+                <muxc:ProgressBar IsIndeterminate="True"
+                                  Width="180"
+                                  Name="ProBar"
+                                  Margin="0,10,0,0" />
+            </StackPanel>
+        </controls:Loading>
     </Grid>
 </Page>

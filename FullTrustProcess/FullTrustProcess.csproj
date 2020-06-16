@@ -99,44 +99,44 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="Vanara.Core, Version=3.2.9.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vanara.Core.3.2.9\lib\net45\Vanara.Core.dll</HintPath>
+    <Reference Include="Vanara.Core, Version=3.2.10.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\Vanara.Core.3.2.10\lib\net45\Vanara.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Vanara.PInvoke.ComCtl32, Version=3.2.9.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vanara.PInvoke.ComCtl32.3.2.9\lib\net45\Vanara.PInvoke.ComCtl32.dll</HintPath>
+    <Reference Include="Vanara.PInvoke.ComCtl32, Version=3.2.10.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\Vanara.PInvoke.ComCtl32.3.2.10\lib\net45\Vanara.PInvoke.ComCtl32.dll</HintPath>
     </Reference>
-    <Reference Include="Vanara.PInvoke.Cryptography, Version=3.2.9.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vanara.PInvoke.Cryptography.3.2.9\lib\net45\Vanara.PInvoke.Cryptography.dll</HintPath>
+    <Reference Include="Vanara.PInvoke.Cryptography, Version=3.2.10.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\Vanara.PInvoke.Cryptography.3.2.10\lib\net45\Vanara.PInvoke.Cryptography.dll</HintPath>
     </Reference>
-    <Reference Include="Vanara.PInvoke.Gdi32, Version=3.2.9.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vanara.PInvoke.Gdi32.3.2.9\lib\net45\Vanara.PInvoke.Gdi32.dll</HintPath>
+    <Reference Include="Vanara.PInvoke.Gdi32, Version=3.2.10.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\Vanara.PInvoke.Gdi32.3.2.10\lib\net45\Vanara.PInvoke.Gdi32.dll</HintPath>
     </Reference>
-    <Reference Include="Vanara.PInvoke.Kernel32, Version=3.2.9.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vanara.PInvoke.Kernel32.3.2.9\lib\net45\Vanara.PInvoke.Kernel32.dll</HintPath>
+    <Reference Include="Vanara.PInvoke.Kernel32, Version=3.2.10.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\Vanara.PInvoke.Kernel32.3.2.10\lib\net45\Vanara.PInvoke.Kernel32.dll</HintPath>
     </Reference>
-    <Reference Include="Vanara.PInvoke.Ole, Version=3.2.9.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vanara.PInvoke.Ole.3.2.9\lib\net45\Vanara.PInvoke.Ole.dll</HintPath>
+    <Reference Include="Vanara.PInvoke.Ole, Version=3.2.10.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\Vanara.PInvoke.Ole.3.2.10\lib\net45\Vanara.PInvoke.Ole.dll</HintPath>
     </Reference>
-    <Reference Include="Vanara.PInvoke.SearchApi, Version=3.2.9.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vanara.PInvoke.SearchApi.3.2.9\lib\net45\Vanara.PInvoke.SearchApi.dll</HintPath>
+    <Reference Include="Vanara.PInvoke.SearchApi, Version=3.2.10.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\Vanara.PInvoke.SearchApi.3.2.10\lib\net45\Vanara.PInvoke.SearchApi.dll</HintPath>
     </Reference>
-    <Reference Include="Vanara.PInvoke.Security, Version=3.2.9.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vanara.PInvoke.Security.3.2.9\lib\net45\Vanara.PInvoke.Security.dll</HintPath>
+    <Reference Include="Vanara.PInvoke.Security, Version=3.2.10.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\Vanara.PInvoke.Security.3.2.10\lib\net45\Vanara.PInvoke.Security.dll</HintPath>
     </Reference>
-    <Reference Include="Vanara.PInvoke.Shared, Version=3.2.9.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vanara.PInvoke.Shared.3.2.9\lib\net45\Vanara.PInvoke.Shared.dll</HintPath>
+    <Reference Include="Vanara.PInvoke.Shared, Version=3.2.10.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\Vanara.PInvoke.Shared.3.2.10\lib\net45\Vanara.PInvoke.Shared.dll</HintPath>
     </Reference>
-    <Reference Include="Vanara.PInvoke.Shell32, Version=3.2.9.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vanara.PInvoke.Shell32.3.2.9\lib\net45\Vanara.PInvoke.Shell32.dll</HintPath>
+    <Reference Include="Vanara.PInvoke.Shell32, Version=3.2.10.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\Vanara.PInvoke.Shell32.3.2.10\lib\net45\Vanara.PInvoke.Shell32.dll</HintPath>
     </Reference>
-    <Reference Include="Vanara.PInvoke.ShlwApi, Version=3.2.9.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vanara.PInvoke.ShlwApi.3.2.9\lib\net45\Vanara.PInvoke.ShlwApi.dll</HintPath>
+    <Reference Include="Vanara.PInvoke.ShlwApi, Version=3.2.10.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\Vanara.PInvoke.ShlwApi.3.2.10\lib\net45\Vanara.PInvoke.ShlwApi.dll</HintPath>
     </Reference>
-    <Reference Include="Vanara.PInvoke.User32, Version=3.2.9.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vanara.PInvoke.User32.3.2.9\lib\net45\Vanara.PInvoke.User32.dll</HintPath>
+    <Reference Include="Vanara.PInvoke.User32, Version=3.2.10.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\Vanara.PInvoke.User32.3.2.10\lib\net45\Vanara.PInvoke.User32.dll</HintPath>
     </Reference>
-    <Reference Include="Vanara.Windows.Shell, Version=3.2.9.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
-      <HintPath>..\packages\Vanara.Windows.Shell.3.2.9\lib\net45\Vanara.Windows.Shell.dll</HintPath>
+    <Reference Include="Vanara.Windows.Shell, Version=3.2.10.0, Culture=neutral, PublicKeyToken=c37e4080322237fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\Vanara.Windows.Shell.3.2.10\lib\net45\Vanara.Windows.Shell.dll</HintPath>
     </Reference>
     <Reference Include="Windows">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.18362.0\Windows.winmd</HintPath>
@@ -169,7 +169,30 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /y /s /i "$(TargetDir)" "$(SolutionDir)RX_Explorer\FullTrust\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /y /s "$(TargetDir)FullTrustProcess.exe" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)Newtonsoft.Json.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)System.Buffers.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)System.Memory.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)System.Numerics.Vectors.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)System.Runtime.CompilerServices.Unsafe.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)System.Runtime.WindowsRuntime.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)System.ValueTuple.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)Vanara.Core.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)Vanara.PInvoke.ComCtl32.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)Vanara.PInvoke.Cryptography.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)Vanara.PInvoke.Gdi32.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)Vanara.PInvoke.Kernel32.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)Vanara.PInvoke.Ole.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)Vanara.PInvoke.SearchApi.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)Vanara.PInvoke.Security.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)Vanara.PInvoke.Shared.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)Vanara.PInvoke.Shell32.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)Vanara.PInvoke.ShlwApi.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)Vanara.PInvoke.User32.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)Vanara.Windows.Shell.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
+xcopy /y /s "$(TargetDir)Windows.winmd" "$(SolutionDir)RX_Explorer\FullTrust\"
+
+</PostBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

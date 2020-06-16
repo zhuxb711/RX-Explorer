@@ -320,7 +320,7 @@ namespace RX_Explorer
             if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
                 PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
-                await (await Item.PhotoFile.GetStorageItem().ConfigureAwait(true)).DeleteAsync(StorageDeleteOption.PermanentDelete);
+                await FullTrustExcutorController.Current.DeleteAsync(Item.PhotoFile.Path).ConfigureAwait(true);
                 PhotoCollection.Remove(Item);
                 Behavior.InitAnimation(InitOption.Full);
             }

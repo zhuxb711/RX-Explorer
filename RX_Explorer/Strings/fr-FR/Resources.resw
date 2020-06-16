@@ -2003,15 +2003,8 @@
   <data name="QueueDialog_CopyFailForNotExist_Content" xml:space="preserve">
     <value>Certains fichiers n'existent pas et ne peuvent pas être copiés à l'emplacement spécifié</value>
   </data>
-  <data name="QueueDialog_CopyFail_FreeSpaceCritical_Content" xml:space="preserve">
-    <value>Certains fichiers ne peuvent pas être copiés à cause d'un manque d'espace libre sur l'appareil</value>
-  </data>
-  <data name="QueueDialog_DeleteFolderError_Content" xml:space="preserve">
-    <value>Une erreur a été rencontrée pendant la suppression du dossier</value>
-  </data>
   <data name="QueueDialog_DeleteFolder_Content" xml:space="preserve">
-    <value>Cette opération va supprimer le dossier et tout son contenu\r\rVoulez-vous continuer ?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>Cette opération va supprimer le dossier et tout son contenu. Voulez-vous continuer ?</value>
   </data>
   <data name="QueueDialog_EmptyFolderName_Content" xml:space="preserve">
     <value>Le nom du dossier ne peut pas être vide, le renommage a échoué</value>
@@ -2022,12 +2015,6 @@
   <data name="QueueDialog_MoveFailForNotExist_Content" xml:space="preserve">
     <value>Certains fichiers n'existent pas et ne peuvent pas être déplacés à l'emplacement spécifié</value>
   </data>
-  <data name="QueueDialog_MoveFail_Captured_Content" xml:space="preserve">
-    <value>Certains fichiers sont utilisés par d'autres processus et ne peuvent pas être déplacés</value>
-  </data>
-  <data name="QueueDialog_MoveFail_FreeSpaceCritical_Content" xml:space="preserve">
-    <value>Certains fichiers ne peuvent pas être déplacés à cause d'un manque d'espace libre sur l'appareil</value>
-  </data>
   <data name="QueueDialog_RepeatAddToHomePage_Content" xml:space="preserve">
     <value>Ce dossier a été ajouté à l'écran d'accueil, il ne peut pas être ajouté de nouveau</value>
   </data>
@@ -2036,10 +2023,6 @@
   </data>
   <data name="QueueDialog_UnauthorizedCreateFolder_Content" xml:space="preserve">
     <value>RX n'a pas la permission pour créer un dossier, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_UnauthorizedDeleteFolder_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour supprimer ce dossier, il se peut que vous n'ayez pas accès à ce dossier\r\rEntrer dans l'explorateur système immédiatement ?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
@@ -2117,12 +2100,10 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_DeleteFiles_Content" xml:space="preserve">
-    <value>Cette opération va supprimer de manière permanente les fichiers\r\rVoulez-vous continuer ?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>Cette opération va supprimer de manière permanente les fichiers. Voulez-vous continuer?</value>
   </data>
   <data name="QueueDialog_DeleteFile_Content" xml:space="preserve">
-    <value>Cette opération va supprimer de manière permanente le fichier\r\rVoulez-vous continuer ?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>Cette opération va supprimer de manière permanente le fichier. Voulez-vous continuer ?</value>
   </data>
   <data name="QueueDialog_DeleteItemError_Content" xml:space="preserve">
     <value>Impossible de supprimer certains fichiers/dossiers, les fichiers/dossiers peuvent avoir été déplacés ou supprimés</value>
@@ -2311,5 +2292,24 @@
   </data>
   <data name="QueueDialog_EditErrorWhenOpen_Content" xml:space="preserve">
     <value>Impossible de créer le clip, impossible de modifier cette vidéo</value>
+  </data>
+  <data name="MainPage_PageDictionary_RecycleBin_Label" xml:space="preserve">
+    <value>Corbeille</value>
+  </data>
+  <data name="RecycleBin.Content" xml:space="preserve">
+    <value>Corbeille</value>
+  </data>
+  <data name="RecycleOriginLocation.Text" xml:space="preserve">
+    <value>Emplacement d'origine</value>
+  </data>
+  <data name="RecycleTime.Text" xml:space="preserve">
+    <value>Date de recyclage</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
+    <value>RX n'est pas autorisé à supprimer cet élément, entrez dans l'explorateur système immédiatement?</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_Item_Captured_Content" xml:space="preserve">
+    <value>L'élément est déjà occupé par une autre application, cette opération ne peut pas être effectuée</value>
   </data>
 </root>

@@ -2652,18 +2652,9 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Some files do not exist and cannot be copyed to the specified location</source>
           <target state="translated">部分文件不存在，无法复制到指定位置</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_CopyFail_FreeSpaceCritical_Content" translate="yes" xml:space="preserve">
-          <source>Some files cannot be copyed due to insufficient free space on the device</source>
-          <target state="translated">因设备剩余空间大小不足，部分文件无法复制</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_DeleteFolderError_Content" translate="yes" xml:space="preserve">
-          <source>An error occurred while deleting the folder</source>
-          <target state="translated">删除文件夹时出现错误</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_DeleteFolder_Content" translate="yes" xml:space="preserve">
-          <source>This will permanently delete everything in the folder\r\rWhether to continue?</source>
-          <target state="translated">此操作将永久删除该文件夹内的所有内容\r\r是否继续?</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>This will permanently delete everything in the folder. Whether to continue?</source>
+          <target state="translated">此操作将永久删除该文件夹内的所有内容，是否继续?</target>
         </trans-unit>
         <trans-unit id="QueueDialog_EmptyFolderName_Content" translate="yes" xml:space="preserve">
           <source>Folder name cannot be empty, rename failed</source>
@@ -2677,14 +2668,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Some files do not exist and cannot be moved to the specified location</source>
           <target state="translated">部分文件不存在，无法移动到指定位置</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_MoveFail_Captured_Content" translate="yes" xml:space="preserve">
-          <source>Some files are in use by other applications and cannot be moved</source>
-          <target state="translated">部分文件正在被其他应用程序使用，因此无法移动</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_MoveFail_FreeSpaceCritical_Content" translate="yes" xml:space="preserve">
-          <source>Some files cannot be moved due to insufficient free space on the device</source>
-          <target state="translated">因设备剩余空间大小不足，部分文件无法移动</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_RepeatAddToHomePage_Content" translate="yes" xml:space="preserve">
           <source>This folder has been added to the home page, can not be added repeatedly</source>
           <target state="translated">此文件夹已经添加到主界面了，不能重复添加哦</target>
@@ -2696,11 +2679,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="QueueDialog_UnauthorizedCreateFolder_Content" translate="yes" xml:space="preserve">
           <source>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</source>
           <target state="translated">RX无权在此创建文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
-        <trans-unit id="QueueDialog_UnauthorizedDeleteFolder_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to delete this folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</source>
-          <target state="translated">RX无权删除此文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedPaste_Content" translate="yes" xml:space="preserve">
@@ -2800,14 +2778,12 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_DeleteFiles_Content" translate="yes" xml:space="preserve">
-          <source>This operation will permanently delete these files\r\rWhether to continue?</source>
-          <target state="translated">此操作将永久删除这些文件\r\r是否继续？</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>This operation will permanently delete these files. Whether to continue?</source>
+          <target state="translated">此操作将永久删除这些文件，是否继续？</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DeleteFile_Content" translate="yes" xml:space="preserve">
-          <source>This operation will permanently delete the file\r\rWhether to continue?</source>
-          <target state="translated">此操作将永久删除该文件\r\r是否继续?</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>This operation will permanently delete the file. Whether to continue?</source>
+          <target state="translated">此操作将永久删除该文件，是否继续?</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DeleteItemError_Content" translate="yes" xml:space="preserve">
           <source>Unable to delete some files/folders, the file/folders may have been moved or deleted</source>
@@ -3071,6 +3047,15 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="RecycleTime.Text" translate="yes" xml:space="preserve">
           <source>Recycle date</source>
           <target state="translated">删除日期</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedDelete_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to delete this item, Enter the system explorer immediately?</source>
+          <target state="translated">RX无权限删除此对象，是否进入系统文件管理器？</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Item_Captured_Content" translate="yes" xml:space="preserve">
+          <source>The item is already occupied by another application, this operation cannot be performed</source>
+          <target state="translated">该对象已被其他应用程序占用，无法进行此操作</target>
         </trans-unit>
       </group>
     </body>

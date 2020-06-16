@@ -22,18 +22,14 @@ namespace CommunicateService
 
             AppServiceConnection IncomeConnection = (taskInstance.TriggerDetails as AppServiceTriggerDetails).AppServiceConnection;
 
-            if (Connections.Count >= 2)
-            {
-                Connections.Clear();
-            }
-
             Connections.Add(IncomeConnection);
+
             IncomeConnection.RequestReceived += Connection_RequestReceived;
         }
 
         private async void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
         {
-            var Deferral = args.GetDeferral();
+            AppServiceDeferral Deferral = args.GetDeferral();
 
             try
             {
@@ -75,6 +71,14 @@ namespace CommunicateService
 
         private void TaskInstance_Canceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
         {
+            AppServiceConnection DisConnection = (sender.TriggerDetails as AppServiceTriggerDetails).AppServiceConnection;
+
+            if(Connections.FirstOrDefault((Connection)=>Connection==DisConnection) is AppServiceConnection Target)
+            {
+                Target.Dispose();
+                Connections.Remove(Target);
+            }
+
             Deferral.Complete();
         }
     }

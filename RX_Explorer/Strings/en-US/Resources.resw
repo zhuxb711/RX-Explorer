@@ -2127,15 +2127,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_CopyFailForNotExist_Content" xml:space="preserve">
     <value>Some files do not exist and cannot be copyed to the specified location</value>
   </data>
-  <data name="QueueDialog_CopyFail_FreeSpaceCritical_Content" xml:space="preserve">
-    <value>Some files cannot be copyed due to insufficient free space on the device</value>
-  </data>
-  <data name="QueueDialog_DeleteFolderError_Content" xml:space="preserve">
-    <value>An error occurred while deleting the folder</value>
-  </data>
   <data name="QueueDialog_DeleteFolder_Content" xml:space="preserve">
-    <value>This will permanently delete everything in the folder\r\rWhether to continue?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>This will permanently delete everything in the folder. Whether to continue?</value>
   </data>
   <data name="QueueDialog_EmptyFolderName_Content" xml:space="preserve">
     <value>Folder name cannot be empty, rename failed</value>
@@ -2145,12 +2138,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_MoveFailForNotExist_Content" xml:space="preserve">
     <value>Some files do not exist and cannot be moved to the specified location</value>
-  </data>
-  <data name="QueueDialog_MoveFail_Captured_Content" xml:space="preserve">
-    <value>Some files are in use by other applications and cannot be moved</value>
-  </data>
-  <data name="QueueDialog_MoveFail_FreeSpaceCritical_Content" xml:space="preserve">
-    <value>Some files cannot be moved due to insufficient free space on the device</value>
   </data>
   <data name="QueueDialog_RepeatAddToHomePage_Content" xml:space="preserve">
     <value>This folder has been added to the home page, can not be added repeatedly</value>
@@ -2162,8 +2149,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_UnauthorizedDeleteFolder_Content" xml:space="preserve">
-    <value>RX does not have permission to delete this folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</value>
+  <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
+    <value>RX does not have permission to delete this item, Enter the system explorer immediately?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
@@ -2241,12 +2228,10 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_DeleteFiles_Content" xml:space="preserve">
-    <value>This operation will permanently delete these files\r\rWhether to continue?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>This operation will permanently delete these files. Whether to continue?</value>
   </data>
   <data name="QueueDialog_DeleteFile_Content" xml:space="preserve">
-    <value>This operation will permanently delete the file\r\rWhether to continue?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>This operation will permanently delete the file. Whether to continue?</value>
   </data>
   <data name="QueueDialog_DeleteItemError_Content" xml:space="preserve">
     <value>Unable to delete some files/folders, the file/folders may have been moved or deleted</value>
@@ -2428,5 +2413,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="RecycleTime.Text" xml:space="preserve">
     <value>Recycle date</value>
+  </data>
+  <data name="QueueDialog_Item_Captured_Content" xml:space="preserve">
+    <value>The item is already occupied by another application, this operation cannot be performed</value>
   </data>
 </root>

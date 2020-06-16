@@ -1,11 +1,14 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
+using Windows.Storage;
+using Windows.UI.Xaml.Controls;
 
 namespace RX_Explorer.Class
 {
@@ -27,6 +30,8 @@ namespace RX_Explorer.Class
         private const string ExcuteType_Exit = "Excute_Exit";
 
         private const string ExcuteType_EmptyRecycleBin = "Excute_Empty_RecycleBin";
+
+        private const string ExcuteType_UnlockOccupy = "Excute_Unlock_Occupy";
 
         private const string ExcuteType_Copy = "Excute_Copy";
 
@@ -205,10 +210,10 @@ namespace RX_Explorer.Class
                         {"ExcuteType", ExcuteType_Check_Quicklook}
                     };
 
-                    AppServiceResponse Reponse = await Connection.SendMessageAsync(Value);
-                    if (Reponse.Status == AppServiceResponseStatus.Success && !Reponse.Message.ContainsKey("Error"))
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+                    if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error"))
                     {
-                        return Convert.ToBoolean(Reponse.Message["Check_QuicklookIsAvaliable_Result"]);
+                        return Convert.ToBoolean(Response.Message["Check_QuicklookIsAvaliable_Result"]);
                     }
                     else
                     {
@@ -236,10 +241,10 @@ namespace RX_Explorer.Class
                     {"ExcutePath", Path}
                 };
 
-                AppServiceResponse Reponse = await Connection.SendMessageAsync(Value);
-                if (Reponse.Status == AppServiceResponseStatus.Success && !Reponse.Message.ContainsKey("Error"))
+                AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+                if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error"))
                 {
-                    return Convert.ToString(Reponse.Message["Associate_Result"]);
+                    return Convert.ToString(Response.Message["Associate_Result"]);
                 }
                 else
                 {
@@ -252,16 +257,28 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task EmptyRecycleBinAsync()
+        public async Task<bool> EmptyRecycleBinAsync()
         {
-            if (await TryConnectToFullTrustExutor().ConfigureAwait(true))
+            if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
             {
                 ValueSet Value = new ValueSet
                 {
-                    {"ExcuteType", ExcuteType_EmptyRecycleBin},
+                    {"ExcuteType", ExcuteType_EmptyRecycleBin}
                 };
 
-                await Connection.SendMessageAsync(Value);
+                AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+                if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error"))
+                {
+                    return Convert.ToBoolean(Response.Message["RecycleBinItems_Clear_Result"]);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -271,13 +288,13 @@ namespace RX_Explorer.Class
             {
                 ValueSet Value = new ValueSet
                 {
-                    {"ExcuteType", ExcuteType_Get_RecycleBinItems},
+                    {"ExcuteType", ExcuteType_Get_RecycleBinItems}
                 };
 
-                AppServiceResponse Reponse = await Connection.SendMessageAsync(Value);
-                if (Reponse.Status == AppServiceResponseStatus.Success && !Reponse.Message.ContainsKey("Error"))
+                AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+                if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error"))
                 {
-                    List<Dictionary<string, string>> Items = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(Convert.ToString(Reponse.Message["RecycleBinItems_Json_Result"]));
+                    List<Dictionary<string, string>> Items = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(Convert.ToString(Response.Message["RecycleBinItems_Json_Result"]));
                     List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>(Items.Count);
 
                     foreach (Dictionary<string, string> PropertyDic in Items)
@@ -300,8 +317,333 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task<bool> TryUnlockFileOccupy(string Path)
+        {
+            if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+            {
+                ValueSet Value = new ValueSet
+                {
+                    {"ExcuteType", ExcuteType_UnlockOccupy},
+                    {"ExcutePath", Path }
+                };
+
+                AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+                if (Response.Status == AppServiceResponseStatus.Success)
+                {
+                    if (Response.Message.ContainsKey("Error_Failure"))
+                    {
+                        return false;
+                    }
+                    else if (Response.Message.ContainsKey("Error_NotOccupy"))
+                    {
+                        throw new UnlockException("The file is not occupied");
+                    }
+                    else if (Response.Message.ContainsKey("Error_NotFoundOrNotFile"))
+                    {
+                        throw new FileNotFoundException();
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    throw new NoResponseException();
+                }
+            }
+            else
+            {
+                throw new NoResponseException();
+            }
+        }
+
+        public async Task DeleteAsync(string TargetPath)
+        {
+            if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+            {
+                ValueSet Value = new ValueSet
+                {
+                    {"ExcuteType", ExcuteType_Delete},
+                    {"ExcutePath", TargetPath}
+                };
+
+                AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                if (Response.Status == AppServiceResponseStatus.Success)
+                {
+                    if (Response.Message.ContainsKey("Success"))
+                    {
+                        return;
+                    }
+                    else if (Response.Message.ContainsKey("Error_NotFound"))
+                    {
+                        throw new FileNotFoundException();
+                    }
+                    else if (Response.Message.ContainsKey("Error_Failure"))
+                    {
+                        throw new InvalidOperationException("Fail to delete item");
+                    }
+                    else if (Response.Message.ContainsKey("Error_Capture"))
+                    {
+                        throw new FileCaputureException();
+                    }
+                    else
+                    {
+                        throw new Exception("Unknown reason");
+                    }
+                }
+                else
+                {
+                    throw new NoResponseException();
+                }
+            }
+            else
+            {
+                throw new NoResponseException();
+            }
+        }
+
+        public Task DeleteAsync(StorageFile Item)
+        {
+            if (Item == null)
+            {
+                throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
+            }
+
+            return DeleteAsync(Item.Path);
+        }
+
+        public Task DeleteAsync(StorageFolder Item)
+        {
+            if (Item == null)
+            {
+                throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
+            }
+
+            return DeleteAsync(Item.Path);
+        }
+
+        public async Task<string> MoveAsync(string SourcePath, string DestinationPath)
+        {
+            if (await TryConnectToFullTrustExutor().ConfigureAwait(true))
+            {
+                ValueSet Value = new ValueSet
+                {
+                    {"ExcuteType", ExcuteType_Move},
+                    {"SourcePath", SourcePath},
+                    {"DestinationPath", DestinationPath}
+                };
+
+                try
+                {
+                    _ = await StorageFile.GetFileFromPathAsync(SourcePath);
+                }
+                catch
+                {
+                    try
+                    {
+                        StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(DestinationPath);
+
+                        if (await TargetFolder.TryGetItemAsync(Path.GetFileName(SourcePath)) is StorageFolder ExistFolder)
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = "警告",
+                                Content = "目标文件夹已存在相同名称的文件夹",
+                                PrimaryButtonText = "合并文件夹",
+                                CloseButtonText = "保留副本"
+                            };
+
+                            if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
+                            {
+                                StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Path.GetFileName(SourcePath), CreationCollisionOption.GenerateUniqueName);
+                                Value.Add("NewName", NewFolder.Name);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        throw new FileNotFoundException();
+                    }
+                }
+
+                AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                if (Response.Status == AppServiceResponseStatus.Success)
+                {
+                    if (Response.Message.ContainsKey("Success"))
+                    {
+                        return Value.ContainsKey("NewName") ? Convert.ToString(Value["NewName"]) : Path.GetFileName(SourcePath);
+                    }
+                    else if (Response.Message.ContainsKey("Error_NotFound"))
+                    {
+                        throw new FileNotFoundException();
+                    }
+                    else if (Response.Message.ContainsKey("Error_Failure"))
+                    {
+                        throw new InvalidOperationException("Fail to move item");
+                    }
+                    else if (Response.Message.ContainsKey("Error_Capture"))
+                    {
+                        throw new FileCaputureException();
+                    }
+                    else
+                    {
+                        throw new Exception("Unknown reason");
+                    }
+                }
+                else
+                {
+                    throw new NoResponseException();
+                }
+            }
+            else
+            {
+                throw new NoResponseException();
+            }
+        }
+
+        public async Task MoveAsync(StorageFile Source, StorageFolder Destination)
+        {
+            if (Source == null)
+            {
+                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
+            }
+
+            if (Destination == null)
+            {
+                throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
+            }
+
+            await MoveAsync(Source.Path, Destination.Path).ConfigureAwait(false);
+        }
+
+        public Task<string> MoveAsync(StorageFolder Source, StorageFolder Destination)
+        {
+            if (Source == null)
+            {
+                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
+            }
+
+            if (Destination == null)
+            {
+                throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
+            }
+
+            return MoveAsync(Source.Path, Destination.Path);
+        }
+
+        public async Task<string> CopyAsync(string SourcePath, string DestinationPath)
+        {
+            if (await TryConnectToFullTrustExutor().ConfigureAwait(true))
+            {
+                ValueSet Value = new ValueSet
+                {
+                    {"ExcuteType", ExcuteType_Copy},
+                    {"SourcePath", SourcePath},
+                    {"DestinationPath", DestinationPath}
+                };
+
+                try
+                {
+                    _ = await StorageFile.GetFileFromPathAsync(SourcePath);
+                }
+                catch
+                {
+                    try
+                    {
+                        StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(DestinationPath);
+
+                        if (await TargetFolder.TryGetItemAsync(Path.GetFileName(SourcePath)) is StorageFolder ExistFolder)
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = "警告",
+                                Content = "目标文件夹已存在相同名称的文件夹",
+                                PrimaryButtonText = "合并文件夹",
+                                CloseButtonText = "保留副本"
+                            };
+
+                            if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
+                            {
+                                StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Path.GetFileName(SourcePath), CreationCollisionOption.GenerateUniqueName);
+                                Value.Add("NewName", NewFolder.Name);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        throw new FileNotFoundException();
+                    }
+                }
+
+                AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                if (Response.Status == AppServiceResponseStatus.Success)
+                {
+                    if (Response.Message.ContainsKey("Success"))
+                    {
+                        return Value.ContainsKey("NewName") ? Convert.ToString(Value["NewName"]) : Path.GetFileName(SourcePath);
+                    }
+                    else if (Response.Message.ContainsKey("Error_NotFound"))
+                    {
+                        throw new FileNotFoundException();
+                    }
+                    else if (Response.Message.ContainsKey("Error_Failure"))
+                    {
+                        throw new InvalidOperationException("Fail to copy item");
+                    }
+                    else
+                    {
+                        throw new Exception("Unknown reason");
+                    }
+                }
+                else
+                {
+                    throw new NoResponseException();
+                }
+            }
+            else
+            {
+                throw new NoResponseException();
+            }
+        }
+
+        public async Task CopyAsync(StorageFile Source, StorageFolder Destination)
+        {
+            if (Source == null)
+            {
+                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
+            }
+
+            if (Destination == null)
+            {
+                throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
+            }
+
+            await CopyAsync(Source.Path, Destination.Path).ConfigureAwait(false);
+        }
+
+        public Task<string> CopyAsync(StorageFolder Source, StorageFolder Destination)
+        {
+            if (Source == null)
+            {
+                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
+            }
+
+            if (Destination == null)
+            {
+                throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
+            }
+
+            return CopyAsync(Source.Path, Destination.Path);
+        }
+
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
+
             ValueSet Value = new ValueSet
             {
                 {"ExcuteType", ExcuteType_Exit},
@@ -314,6 +656,11 @@ namespace RX_Explorer.Class
 
             Connection?.Dispose();
             Connection = null;
+        }
+
+        ~FullTrustExcutorController()
+        {
+            Dispose();
         }
     }
 }

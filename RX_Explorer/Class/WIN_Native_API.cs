@@ -125,6 +125,44 @@ namespace RX_Explorer.Class
             return false;
         }
 
+        public static bool CheckExist(string Path)
+        {
+            IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            if (Ptr.ToInt64() != -1)
+            {
+                try
+                {
+                    do
+                    {
+                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                        {
+                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
+                            {
+                                if (Data.cFileName != "." && Data.cFileName != "..")
+                                {
+                                    return true;
+                                }
+                            }
+                            else
+                            {
+                                if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    while (FindNextFile(Ptr, out Data));
+                }
+                finally
+                {
+                    FindClose(Ptr);
+                }
+            }
+
+            return false;
+        }
+
         public static long CalculateSize(string Path)
         {
             long TotalSize = 0;

@@ -4,9 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 
@@ -33,19 +35,30 @@ namespace RX_Explorer.View
         public RecycleBin()
         {
             InitializeComponent();
+            FileCollection.CollectionChanged += FileCollection_CollectionChanged;
+        }
+
+        private void FileCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+            {
+                HasFile.Visibility = FileCollection.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            }
         }
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
+            FileCollection.Clear();
+
             foreach (FileSystemStorageItem Item in (await FullTrustExcutorController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true)).SortList(SortTarget.Name, SortDirection.Ascending))
             {
                 FileCollection.Add(Item);
             }
-        }
 
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
-        {
-            FileCollection.Clear();
+            if (FileCollection.Count == 0)
+            {
+                HasFile.Visibility = Visibility.Visible;
+            }
         }
 
         private void ListViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -54,16 +67,6 @@ namespace RX_Explorer.View
             {
                 ListViewControl.SelectedItem = null;
             }
-        }
-
-        private void ListViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
-        private void ListViewControl_ItemClick(object sender, ItemClickEventArgs e)
-        {
-
         }
 
         private void ListViewControl_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
@@ -116,15 +119,23 @@ namespace RX_Explorer.View
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
+                if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource as FrameworkElement).Name == "EmptyTextblock")
                 {
-                    ListViewControl.ContextFlyout = SelectFlyout;
-                    ListViewControl.SelectedItem = Item;
+                    ListViewControl.SelectedItem = null;
+                    //ListViewControl.ContextFlyout = EmptyFlyout;
                 }
                 else
                 {
-                    ListViewControl.ContextFlyout = null;
-                    ListViewControl.SelectedItem = null;
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
+                    {
+                        ListViewControl.ContextFlyout = SelectFlyout;
+                        ListViewControl.SelectedItem = Item;
+                    }
+                    else
+                    {
+                        ListViewControl.ContextFlyout = null;
+                        ListViewControl.SelectedItem = null;
+                    }
                 }
             }
         }
@@ -338,15 +349,66 @@ namespace RX_Explorer.View
                 PrimaryButtonText = "确定",
                 CloseButtonText = "取消"
             };
-            if (await Dialog.ShowAsync().ConfigureAwait(false) == ContentDialogResult.Primary)
+
+            if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
             {
-                await FullTrustExcutorController.Current.EmptyRecycleBinAsync().ConfigureAwait(false);
+                await ActivateLoading(true, "正在清空回收站").ConfigureAwait(true);
+
+                if (await FullTrustExcutorController.Current.EmptyRecycleBinAsync().ConfigureAwait(true))
+                {
+                    FileCollection.Clear();
+                    HasFile.Visibility = Visibility.Visible;
+                }
+                else
+                {
+
+                }
+
+                await ActivateLoading(false).ConfigureAwait(true);
             }
         }
 
-        private void RedoRecycle_Click(object sender, RoutedEventArgs e)
+        private async void RedoRecycle_Click(object sender, RoutedEventArgs e)
         {
+            if (ListViewControl.SelectedItem is FileSystemStorageItem Item)
+            {
+                await ActivateLoading(true, "正在还原").ConfigureAwait(true);
 
+                await FullTrustExcutorController.Current.MoveAsync(Item.Path, Path.GetDirectoryName(Item.RecycleItemOriginPath)).ConfigureAwait(true);
+
+                FileCollection.Remove(Item);
+
+                await ActivateLoading(false).ConfigureAwait(true);
+            }
+        }
+
+        private async Task ActivateLoading(bool IsLoading, string Message = null)
+        {
+            if (IsLoading)
+            {
+                ProgressInfo.Text = $"{Message}...";
+                LoadingControl.IsLoading = true;
+            }
+            else
+            {
+                await Task.Delay(700).ConfigureAwait(true);
+                LoadingControl.IsLoading = false;
+            }
+        }
+
+        private async void Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            FileCollection.Clear();
+
+            foreach (FileSystemStorageItem Item in (await FullTrustExcutorController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true)).SortList(SortTarget.Name, SortDirection.Ascending))
+            {
+                FileCollection.Add(Item);
+            }
+
+            if (FileCollection.Count == 0)
+            {
+                HasFile.Visibility = Visibility.Visible;
+            }
         }
     }
 }

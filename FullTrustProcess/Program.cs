@@ -2,42 +2,69 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
+using System.Linq;
 
 namespace FullTrustProcess
 {
     class Program
     {
-        private static readonly AppServiceConnection Connection = new AppServiceConnection
-        {
-            AppServiceName = "CommunicateService",
-            PackageFamilyName = Package.Current.Id.FamilyName
-        };
+        private static AppServiceConnection Connection;
 
         private static readonly HashSet<string> SpecialStringMap = new HashSet<string>(2)
         {
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\WindowsPowerShell\\v1.0\\powershell.exe"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\cmd.exe")
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), "cmd.exe")
         };
 
         private readonly static ManualResetEvent ExitLocker = new ManualResetEvent(false);
 
         static async Task Main(string[] args)
         {
-            if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
+            ExitExistInstance();
+
+            try
             {
-                Connection.RequestReceived += Connection_RequestReceived;
-                ExitLocker.WaitOne();
+                Connection = new AppServiceConnection
+                {
+                    AppServiceName = "CommunicateService",
+                    PackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t"
+                };
+
+                if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
+                {
+                    Connection.RequestReceived += Connection_RequestReceived;
+                    ExitLocker.WaitOne();
+                }
             }
+            catch
+            {
 
-            Connection.Dispose();
-            ExitLocker.Dispose();
+            }
+            finally
+            {
+                Connection.Dispose();
+                ExitLocker.Dispose();
 
-            Environment.Exit(0);
+                Environment.Exit(0);
+            }
+        }
+
+        public static void ExitExistInstance()
+        {
+            Process Current = Process.GetCurrentProcess();
+
+            Process[] AllProcess = Process.GetProcessesByName(Current.ProcessName);
+            
+            foreach (Process ExistProcess in AllProcess.Where(Process => Process.Id != Current.Id && Assembly.GetExecutingAssembly().Location.Replace("/", @"\") == Current.MainModule.FileName))
+            {
+                ExistProcess.Kill();
+            }
         }
 
         private async static void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
@@ -90,7 +117,51 @@ namespace FullTrustProcess
                         }
                     case "Excute_Empty_RecycleBin":
                         {
-                            RecycleBinController.EmptyRecycleBin();
+                            ValueSet Result = new ValueSet();
+
+                            try
+                            {
+                                Result.Add("RecycleBinItems_Clear_Result", RecycleBinController.EmptyRecycleBin());
+                            }
+                            catch (Exception e)
+                            {
+                                Result.Add("Error", e.Message);
+                            }
+
+                            await args.Request.SendResponseAsync(Result);
+                            break;
+                        }
+                    case "Excute_Unlock_Occupy":
+                        {
+                            ValueSet Value = new ValueSet();
+
+                            string Path = Convert.ToString(args.Request.Message["ExcutePath"]);
+
+                            if (File.Exists(Path))
+                            {
+                                if (StorageItemOperator.CheckOccupied(Path))
+                                {
+                                    if (StorageItemOperator.TryUnoccupied(Path))
+                                    {
+                                        Value.Add("Success", string.Empty);
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error_Failure", "Unoccupied failed");
+                                    }
+                                }
+                                else
+                                {
+                                    Value.Add("Error_NotOccupy", "The file is not occupied");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error_NotFoundOrNotFile", "Path is not a file");
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
                             break;
                         }
                     case "Excute_Copy":
@@ -102,7 +173,7 @@ namespace FullTrustProcess
 
                             if (Directory.Exists(SourcePath))
                             {
-                                if (StorageItemOperator.CopyFolder(SourcePath, DestinationPath))
+                                if (StorageItemOperator.Copy(SourcePath, DestinationPath, args.Request.Message.ContainsKey("NewName") ? Convert.ToString(args.Request.Message["NewName"]) : null))
                                 {
                                     Value.Add("Success", string.Empty);
                                 }
@@ -111,9 +182,9 @@ namespace FullTrustProcess
                                     Value.Add("Error_Failure", "An error occurred while copying the folder");
                                 }
                             }
-                            else if(File.Exists(SourcePath))
+                            else if (File.Exists(SourcePath))
                             {
-                                if (StorageItemOperator.CopyFile(SourcePath, DestinationPath))
+                                if (StorageItemOperator.Copy(SourcePath, DestinationPath))
                                 {
                                     Value.Add("Success", string.Empty);
                                 }
@@ -124,7 +195,7 @@ namespace FullTrustProcess
                             }
                             else
                             {
-                                Value.Add("Error_NoExist", "SourcePath is not a file or directory");
+                                Value.Add("Error_NotFound", "SourcePath is not a file or directory");
                             }
 
                             await args.Request.SendResponseAsync(Value);
@@ -140,7 +211,7 @@ namespace FullTrustProcess
 
                             if (Directory.Exists(SourcePath))
                             {
-                                if (StorageItemOperator.MoveFolder(SourcePath, DestinationPath))
+                                if (StorageItemOperator.Move(SourcePath, DestinationPath, args.Request.Message.ContainsKey("NewName") ? Convert.ToString(args.Request.Message["NewName"]) : null))
                                 {
                                     Value.Add("Success", string.Empty);
                                 }
@@ -151,18 +222,25 @@ namespace FullTrustProcess
                             }
                             else if (File.Exists(SourcePath))
                             {
-                                if (StorageItemOperator.MoveFile(SourcePath, DestinationPath))
+                                if (StorageItemOperator.CheckOccupied(SourcePath))
                                 {
-                                    Value.Add("Success", string.Empty);
+                                    Value.Add("Error_Capture", "An error occurred while moving the folder");
                                 }
                                 else
                                 {
-                                    Value.Add("Error_Failure", "An error occurred while moving the file");
+                                    if (StorageItemOperator.Move(SourcePath, DestinationPath))
+                                    {
+                                        Value.Add("Success", string.Empty);
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error_Failure", "An error occurred while moving the file");
+                                    }
                                 }
                             }
                             else
                             {
-                                Value.Add("Error_NoExist", "SourcePath is not a file or directory");
+                                Value.Add("Error_NotFound", "SourcePath is not a file or directory");
                             }
 
                             await args.Request.SendResponseAsync(Value);
@@ -179,17 +257,22 @@ namespace FullTrustProcess
                             {
                                 if (File.Exists(ExcutePath))
                                 {
-                                    File.SetAttributes(ExcutePath, FileAttributes.Normal);
-
-                                    if (StorageItemOperator.TryUnoccupied(ExcutePath))
+                                    if (StorageItemOperator.CheckOccupied(ExcutePath))
                                     {
-                                        File.Delete(ExcutePath);
-
-                                        Value.Add("Success", string.Empty);
+                                        Value.Add("Error_Capture", "The specified file is captured");
                                     }
                                     else
                                     {
-                                        Value.Add("Error_Failure", "The specified file or folder could not be deleted");
+                                        File.SetAttributes(ExcutePath, FileAttributes.Normal);
+
+                                        if (StorageItemOperator.Delete(ExcutePath))
+                                        {
+                                            Value.Add("Success", string.Empty);
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Error_Failure", "The specified file could not be deleted");
+                                        }
                                     }
                                 }
                                 else if (Directory.Exists(ExcutePath))
@@ -199,13 +282,18 @@ namespace FullTrustProcess
                                         Attributes = FileAttributes.Normal & FileAttributes.Directory
                                     };
 
-                                    Info.Delete(true);
-
-                                    Value.Add("Success", string.Empty);
+                                    if (StorageItemOperator.Delete(ExcutePath))
+                                    {
+                                        Value.Add("Success", string.Empty);
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error_Failure", "The specified folder could not be deleted");
+                                    }
                                 }
                                 else
                                 {
-                                    Value.Add("Error_NoExist", "ExcutePath is not a file or directory");
+                                    Value.Add("Error_NotFound", "ExcutePath is not a file or directory");
                                 }
                             }
                             catch
@@ -229,8 +317,8 @@ namespace FullTrustProcess
                                 {
                                     if (ExcuteAuthority == "Administrator")
                                     {
-                                        ProcessStartInfo Info = new ProcessStartInfo(ExcutePath) { Verb = "runAs" };
-                                        Process.Start(Info).Dispose();
+                                        ProcessStartInfo Info = new ProcessStartInfo(ExcutePath) { Verb = "runAs", RedirectStandardOutput = true };
+                                        Process.Start(ExcutePath).Dispose();
                                     }
                                     else
                                     {

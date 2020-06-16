@@ -62,6 +62,14 @@
                     </AppBarButton.Flyout>
                 </AppBarButton>
                 <AppBarSeparator />
+                <AppBarButton Label="尝试解除占用"
+                              Name="TryUnlock"
+                              Click="TryUnlock_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xE785;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
                 <AppBarButton Icon="Edit"
                               Label="编辑"
                               x:Uid="FileEdit">
@@ -646,7 +654,7 @@
                    VerticalAlignment="Center"
                    x:Uid="HasFile"
                    Text="无文件"
-                   FontSize="20"
+                   FontSize="18"
                    Visibility="Collapsed" />
         <controls:Loading x:Name="LoadingControl"
                           IsLoading="False"
@@ -657,7 +665,7 @@
             </controls:Loading.Background>
             <StackPanel>
                 <TextBlock Name="ProgressInfo"
-                           FontSize="20"
+                           FontSize="18"
                            VerticalAlignment="Center"
                            TextAlignment="Center" />
                 <controls1:ProgressBar IsIndeterminate="True"

@@ -38,6 +38,51 @@ namespace RX_Explorer.Class
         }
     }
 
+    public sealed class NoResponseException : Exception
+    {
+        public NoResponseException(string ErrorMessage) : base(ErrorMessage)
+        {
+        }
+
+        public NoResponseException() : base()
+        {
+        }
+
+        public NoResponseException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
+
+    public sealed class UnlockException : Exception
+    {
+        public UnlockException(string ErrorMessage) : base(ErrorMessage)
+        {
+        }
+
+        public UnlockException() : base()
+        {
+        }
+
+        public UnlockException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
+
+    public sealed class FileCaputureException : Exception
+    {
+        public FileCaputureException(string ErrorMessage) : base(ErrorMessage)
+        {
+        }
+
+        public FileCaputureException() : base()
+        {
+        }
+
+        public FileCaputureException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
+
     /// <summary>
     /// 网络错误
     /// </summary>
