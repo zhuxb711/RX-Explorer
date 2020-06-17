@@ -2128,7 +2128,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Some files do not exist and cannot be copyed to the specified location</value>
   </data>
   <data name="QueueDialog_DeleteFolder_Content" xml:space="preserve">
-    <value>This will permanently delete everything in the folder. Whether to continue?</value>
+    <value>This will delete everything in the folder. Whether to continue?</value>
   </data>
   <data name="QueueDialog_EmptyFolderName_Content" xml:space="preserve">
     <value>Folder name cannot be empty, rename failed</value>
@@ -2228,10 +2228,10 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_DeleteFiles_Content" xml:space="preserve">
-    <value>This operation will permanently delete these files. Whether to continue?</value>
+    <value>This operation will delete these files. Whether to continue?</value>
   </data>
   <data name="QueueDialog_DeleteFile_Content" xml:space="preserve">
-    <value>This operation will permanently delete the file. Whether to continue?</value>
+    <value>This operation will delete the file. Whether to continue?</value>
   </data>
   <data name="QueueDialog_DeleteItemError_Content" xml:space="preserve">
     <value>Unable to delete some files/folders, the file/folders may have been moved or deleted</value>
@@ -2416,5 +2416,68 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_Item_Captured_Content" xml:space="preserve">
     <value>The item is already occupied by another application, this operation cannot be performed</value>
+  </data>
+  <data name="QueueDialog_EmptyRecycleBin_Content" xml:space="preserve">
+    <value>This operation will empty the recycle bin and cannot be recovered. Do you want to continue?</value>
+  </data>
+  <data name="RecycleBinEmptyingText" xml:space="preserve">
+    <value>Emptying</value>
+  </data>
+  <data name="RecycleBinRestoreText" xml:space="preserve">
+    <value>Restoring</value>
+  </data>
+  <data name="QueueDialog_RecycleBinEmptyError_Content" xml:space="preserve">
+    <value>An unexpected error occurred and the recycle bin could not be emptied</value>
+  </data>
+  <data name="PermanentDelete.Content" xml:space="preserve">
+    <value>Skip the recycle bin and delete directly</value>
+  </data>
+  <data name="ComputeHash.Text" xml:space="preserve">
+    <value>Compute hash</value>
+  </data>
+  <data name="Operate_Text_ComputeHash" xml:space="preserve">
+    <value>Compute hash</value>
+  </data>
+  <data name="Operate_Text_Tool" xml:space="preserve">
+    <value>Tool</value>
+  </data>
+  <data name="Operate_Text_Unlock" xml:space="preserve">
+    <value>Unlock occupancy</value>
+  </data>
+  <data name="Tool.Label" xml:space="preserve">
+    <value>Tool</value>
+  </data>
+  <data name="TryUnlock.Text" xml:space="preserve">
+    <value>Unlock occupancy</value>
+  </data>
+  <data name="ClearRecycleBin.Label" xml:space="preserve">
+    <value>Empty recycle bin</value>
+  </data>
+  <data name="HashTeachTip.Title" xml:space="preserve">
+    <value>Compute hash</value>
+  </data>
+  <data name="Progress_Tip_Unlock" xml:space="preserve">
+    <value>Unoccupying</value>
+  </data>
+  <data name="QueueDialog_Unlock_Failure_Content" xml:space="preserve">
+    <value>Unoccupied failed</value>
+  </data>
+  <data name="QueueDialog_Unlock_FileNotFound_Content" xml:space="preserve">
+    <value>Unable to find the corresponding file</value>
+  </data>
+  <data name="QueueDialog_Unlock_NoLock_Content" xml:space="preserve">
+    <value>The file is not occupied, no need to remove the occupation</value>
+  </data>
+  <data name="QueueDialog_Unlock_Success_Content" xml:space="preserve">
+    <value>Unoccupied successfully</value>
+  </data>
+  <data name="QueueDialog_Unlock_UnexpectedError_Content" xml:space="preserve">
+    <value>An unexpected error occurred</value>
+  </data>
+  <data name="RecyclePermanentDelete.Label" xml:space="preserve">
+    <value>Permanent delete</value>
+  </data>
+  <data name="RestoreRecycle.Label" xml:space="preserve">
+    <value>Restore</value>
   </data>
 </root>

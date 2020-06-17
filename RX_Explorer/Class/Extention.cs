@@ -1,4 +1,5 @@
-﻿using Google.Cloud.Translation.V2;
+﻿using Force.Crc32;
+using Google.Cloud.Translation.V2;
 using Microsoft.Toolkit.Uwp.Notifications;
 using NetworkAccess;
 using System;
@@ -106,7 +107,7 @@ namespace RX_Explorer.Class
                     }
                 case SortTarget.OriginPath:
                     {
-                        if(Direction==SortDirection.Ascending)
+                        if (Direction == SortDirection.Ascending)
                         {
                             List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.RecycleItemOriginPath).ToList();
                             List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.RecycleItemOriginPath).ToList();
@@ -1181,6 +1182,150 @@ namespace RX_Explorer.Class
                     _ = builder.Append(hash[i].ToString("x2"));
                 }
                 return builder.ToString();
+            }
+        }
+
+        public async static Task<string> ComputeMD5Hash(this StorageFile File, CancellationToken Token)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                Token.Register((s) =>
+                {
+                    MD5 Para = s as MD5;
+                    Para.Dispose();
+                }, md5, false);
+
+                using (Stream stream = await File.OpenStreamForReadAsync().ConfigureAwait(false))
+                {
+                    return await Task.Run(() =>
+                    {
+                        try
+                        {
+                            byte[] hash = md5.ComputeHash(stream);
+
+                            StringBuilder builder = new StringBuilder();
+
+                            for (int i = 0; i < hash.Length; i++)
+                            {
+                                _ = builder.Append(hash[i].ToString("x2"));
+                            }
+
+                            return builder.ToString();
+                        }
+                        catch
+                        {
+                            return string.Empty;
+                        }
+                    }).ConfigureAwait(false);
+                }
+            }
+        }
+
+        public async static Task<string> ComputeSHA1Hash(this StorageFile File, CancellationToken Token)
+        {
+            using (SHA1 SHA = SHA1.Create())
+            {
+                Token.Register((s) =>
+                {
+                    SHA1 Para = s as SHA1;
+                    Para.Dispose();
+                }, SHA, false);
+
+                using (Stream stream = await File.OpenStreamForReadAsync().ConfigureAwait(false))
+                {
+                    return await Task.Run(() =>
+                    {
+                        try
+                        {
+                            byte[] Hash = SHA.ComputeHash(stream);
+
+                            StringBuilder builder = new StringBuilder();
+
+                            for (int i = 0; i < Hash.Length; i++)
+                            {
+                                _ = builder.Append(Hash[i].ToString("x2"));
+                            }
+
+                            return builder.ToString();
+                        }
+                        catch
+                        {
+                            return string.Empty;
+                        }
+                    }).ConfigureAwait(false);
+                }
+            }
+        }
+
+        public async static Task<string> ComputeSHA256Hash(this StorageFile File, CancellationToken Token)
+        {
+            using (SHA256 SHA = SHA256.Create())
+            {
+                Token.Register((s) =>
+                {
+                    SHA256 Para = s as SHA256;
+                    Para.Dispose();
+                }, SHA, false);
+
+                using (Stream stream = await File.OpenStreamForReadAsync().ConfigureAwait(false))
+                {
+                    return await Task.Run(() =>
+                    {
+                        try
+                        {
+                            byte[] Hash = SHA.ComputeHash(stream);
+
+                            StringBuilder builder = new StringBuilder();
+
+                            for (int i = 0; i < Hash.Length; i++)
+                            {
+                                _ = builder.Append(Hash[i].ToString("x2"));
+                            }
+
+                            return builder.ToString();
+                        }
+                        catch
+                        {
+                            return string.Empty;
+                        }
+                    }).ConfigureAwait(false);
+                }
+            }
+        }
+
+        public async static Task<string> ComputeCrc32Hash(this StorageFile File, CancellationToken Token)
+        {
+            using (Crc32CAlgorithm Crc = new Crc32CAlgorithm(false))
+            {
+                Token.Register((s) =>
+                {
+                    Crc32CAlgorithm Para = s as Crc32CAlgorithm;
+                    Para.Dispose();
+                }, Crc, false);
+
+                using (Stream stream = await File.OpenStreamForReadAsync().ConfigureAwait(false))
+                {
+                    return await Task.Run(() =>
+                    {
+                        try
+                        {
+                            byte[] Hash = Crc.ComputeHash(stream);
+
+                            StringBuilder builder = new StringBuilder();
+
+                            for (int i = 0; i < Hash.Length; i++)
+                            {
+                                _ = builder.Append(Hash[i].ToString("x2"));
+                            }
+
+                            return builder.ToString();
+                        }
+                        catch
+                        {
+                            return string.Empty;
+                        }
+                    }).ConfigureAwait(false);
+                }
             }
         }
     }

@@ -2004,7 +2004,7 @@
     <value>部分文件不存在，无法复制到指定位置</value>
   </data>
   <data name="QueueDialog_DeleteFolder_Content" xml:space="preserve">
-    <value>此操作将永久删除该文件夹内的所有内容，是否继续?</value>
+    <value>此操作将删除该文件夹内的所有内容，是否继续?</value>
   </data>
   <data name="QueueDialog_EmptyFolderName_Content" xml:space="preserve">
     <value>文件夹名不能为空，重命名失败</value>
@@ -2100,10 +2100,10 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_DeleteFiles_Content" xml:space="preserve">
-    <value>此操作将永久删除这些文件，是否继续？</value>
+    <value>此操作将删除这些文件，是否继续？</value>
   </data>
   <data name="QueueDialog_DeleteFile_Content" xml:space="preserve">
-    <value>此操作将永久删除该文件，是否继续?</value>
+    <value>此操作将删除该文件，是否继续?</value>
   </data>
   <data name="QueueDialog_DeleteItemError_Content" xml:space="preserve">
     <value>无法删除部分文件/文件夹，该文件/文件夹可能已被移动或删除</value>
@@ -2311,5 +2311,68 @@
   </data>
   <data name="QueueDialog_Item_Captured_Content" xml:space="preserve">
     <value>该对象已被其他应用程序占用，无法进行此操作</value>
+  </data>
+  <data name="QueueDialog_EmptyRecycleBin_Content" xml:space="preserve">
+    <value>此操作将清空回收站且无法恢复，是否继续?</value>
+  </data>
+  <data name="RecycleBinEmptyingText" xml:space="preserve">
+    <value>正在清空</value>
+  </data>
+  <data name="RecycleBinRestoreText" xml:space="preserve">
+    <value>正在还原</value>
+  </data>
+  <data name="QueueDialog_RecycleBinEmptyError_Content" xml:space="preserve">
+    <value>出现意外错误，无法清空回收站</value>
+  </data>
+  <data name="PermanentDelete.Content" xml:space="preserve">
+    <value>跳过回收站，直接删除</value>
+  </data>
+  <data name="ComputeHash.Text" xml:space="preserve">
+    <value>计算哈希值</value>
+  </data>
+  <data name="Operate_Text_ComputeHash" xml:space="preserve">
+    <value>计算哈希值</value>
+  </data>
+  <data name="Operate_Text_Tool" xml:space="preserve">
+    <value>工具</value>
+  </data>
+  <data name="Operate_Text_Unlock" xml:space="preserve">
+    <value>解除文件占用</value>
+  </data>
+  <data name="Tool.Label" xml:space="preserve">
+    <value>工具</value>
+  </data>
+  <data name="TryUnlock.Text" xml:space="preserve">
+    <value>解除文件占用</value>
+  </data>
+  <data name="Progress_Tip_Unlock" xml:space="preserve">
+    <value>正在解除占用</value>
+  </data>
+  <data name="QueueDialog_Unlock_Failure_Content" xml:space="preserve">
+    <value>无法解除文件占用</value>
+  </data>
+  <data name="QueueDialog_Unlock_FileNotFound_Content" xml:space="preserve">
+    <value>无法找到对应的文件</value>
+  </data>
+  <data name="QueueDialog_Unlock_NoLock_Content" xml:space="preserve">
+    <value>该文件未被占用，无需解除占用</value>
+  </data>
+  <data name="QueueDialog_Unlock_Success_Content" xml:space="preserve">
+    <value>解除占用成功</value>
+  </data>
+  <data name="QueueDialog_Unlock_UnexpectedError_Content" xml:space="preserve">
+    <value>出现未知错误</value>
+  </data>
+  <data name="ClearRecycleBin.Label" xml:space="preserve">
+    <value>清空回收站</value>
+  </data>
+  <data name="HashTeachTip.Title" xml:space="preserve">
+    <value>计算哈希值</value>
+  </data>
+  <data name="RestoreRecycle.Label" xml:space="preserve">
+    <value>还原</value>
+  </data>
+  <data name="RecyclePermanentDelete.Label" xml:space="preserve">
+    <value>永久删除</value>
   </data>
 </root>

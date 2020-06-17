@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Windows.ApplicationModel.AppService;
@@ -13,6 +12,7 @@ namespace CommunicateService
     {
         private BackgroundTaskDeferral Deferral;
         private static readonly List<AppServiceConnection> Connections = new List<AppServiceConnection>();
+        private static readonly object Locker = new object();
 
         public void Run(IBackgroundTaskInstance taskInstance)
         {
@@ -71,15 +71,18 @@ namespace CommunicateService
 
         private void TaskInstance_Canceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
         {
-            AppServiceConnection DisConnection = (sender.TriggerDetails as AppServiceTriggerDetails).AppServiceConnection;
-
-            if(Connections.FirstOrDefault((Connection)=>Connection==DisConnection) is AppServiceConnection Target)
+            lock (Locker)
             {
-                Target.Dispose();
-                Connections.Remove(Target);
-            }
+                AppServiceConnection DisConnection = (sender.TriggerDetails as AppServiceTriggerDetails).AppServiceConnection;
 
-            Deferral.Complete();
+                if (Connections.Contains(DisConnection))
+                {
+                    Connections.Remove(DisConnection);
+                    DisConnection.Dispose();
+                }
+
+                Deferral.Complete();
+            }
         }
     }
 }

@@ -21,6 +21,11 @@ namespace FullTrustProcess
         {
             if (File.Exists(Path))
             {
+                if(Path.Contains("$Recycle.Bin"))
+                {
+                    return false;
+                }
+                
                 IntPtr Handle = IntPtr.Zero;
 
                 try
@@ -108,13 +113,31 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Delete(string Path)
+        public static bool Delete(string Path, bool PermanentDelete)
         {
             try
             {
-                using (ShellItem Item = new ShellItem(Path))
+                if (PermanentDelete)
                 {
-                    ShellFileOperations.Delete(Item, ShellFileOperations.OperationFlags.AllowUndo | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
+                    if (Directory.Exists(Path))
+                    {
+                        Directory.Delete(Path, true);
+                    }
+                    else if (File.Exists(Path))
+                    {
+                        File.Delete(Path);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    using (ShellItem Item = new ShellItem(Path))
+                    {
+                        ShellFileOperations.Delete(Item, ShellFileOperations.OperationFlags.AllowUndo | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
+                    }
                 }
 
                 return true;

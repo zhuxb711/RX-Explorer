@@ -2653,8 +2653,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">部分文件不存在，无法复制到指定位置</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DeleteFolder_Content" translate="yes" xml:space="preserve">
-          <source>This will permanently delete everything in the folder. Whether to continue?</source>
-          <target state="translated">此操作将永久删除该文件夹内的所有内容，是否继续?</target>
+          <source>This will delete everything in the folder. Whether to continue?</source>
+          <target state="translated">此操作将删除该文件夹内的所有内容，是否继续?</target>
         </trans-unit>
         <trans-unit id="QueueDialog_EmptyFolderName_Content" translate="yes" xml:space="preserve">
           <source>Folder name cannot be empty, rename failed</source>
@@ -2778,12 +2778,12 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_DeleteFiles_Content" translate="yes" xml:space="preserve">
-          <source>This operation will permanently delete these files. Whether to continue?</source>
-          <target state="translated">此操作将永久删除这些文件，是否继续？</target>
+          <source>This operation will delete these files. Whether to continue?</source>
+          <target state="translated">此操作将删除这些文件，是否继续？</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DeleteFile_Content" translate="yes" xml:space="preserve">
-          <source>This operation will permanently delete the file. Whether to continue?</source>
-          <target state="translated">此操作将永久删除该文件，是否继续?</target>
+          <source>This operation will delete the file. Whether to continue?</source>
+          <target state="translated">此操作将删除该文件，是否继续?</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DeleteItemError_Content" translate="yes" xml:space="preserve">
           <source>Unable to delete some files/folders, the file/folders may have been moved or deleted</source>
@@ -3056,6 +3056,90 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="QueueDialog_Item_Captured_Content" translate="yes" xml:space="preserve">
           <source>The item is already occupied by another application, this operation cannot be performed</source>
           <target state="translated">该对象已被其他应用程序占用，无法进行此操作</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_EmptyRecycleBin_Content" translate="yes" xml:space="preserve">
+          <source>This operation will empty the recycle bin and cannot be recovered. Do you want to continue?</source>
+          <target state="translated">此操作将清空回收站且无法恢复，是否继续?</target>
+        </trans-unit>
+        <trans-unit id="RecycleBinEmptyingText" translate="yes" xml:space="preserve">
+          <source>Emptying</source>
+          <target state="translated">正在清空</target>
+        </trans-unit>
+        <trans-unit id="RecycleBinRestoreText" translate="yes" xml:space="preserve">
+          <source>Restoring</source>
+          <target state="translated">正在还原</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RecycleBinEmptyError_Content" translate="yes" xml:space="preserve">
+          <source>An unexpected error occurred and the recycle bin could not be emptied</source>
+          <target state="translated">出现意外错误，无法清空回收站</target>
+        </trans-unit>
+        <trans-unit id="PermanentDelete.Content" translate="yes" xml:space="preserve">
+          <source>Skip the recycle bin and delete directly</source>
+          <target state="translated">跳过回收站，直接删除</target>
+        </trans-unit>
+        <trans-unit id="ComputeHash.Text" translate="yes" xml:space="preserve">
+          <source>Compute hash</source>
+          <target state="translated">计算哈希值</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_ComputeHash" translate="yes" xml:space="preserve">
+          <source>Compute hash</source>
+          <target state="translated">计算哈希值</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Tool" translate="yes" xml:space="preserve">
+          <source>Tool</source>
+          <target state="translated">工具</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Unlock" translate="yes" xml:space="preserve">
+          <source>Unlock occupancy</source>
+          <target state="translated">解除文件占用</target>
+        </trans-unit>
+        <trans-unit id="Tool.Label" translate="yes" xml:space="preserve">
+          <source>Tool</source>
+          <target state="translated">工具</target>
+        </trans-unit>
+        <trans-unit id="TryUnlock.Text" translate="yes" xml:space="preserve">
+          <source>Unlock occupancy</source>
+          <target state="translated">解除文件占用</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Unlock" translate="yes" xml:space="preserve">
+          <source>Unoccupying</source>
+          <target state="translated">正在解除占用</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Unlock_Failure_Content" translate="yes" xml:space="preserve">
+          <source>Unoccupied failed</source>
+          <target state="translated">无法解除文件占用</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Unlock_FileNotFound_Content" translate="yes" xml:space="preserve">
+          <source>Unable to find the corresponding file</source>
+          <target state="translated">无法找到对应的文件</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Unlock_NoLock_Content" translate="yes" xml:space="preserve">
+          <source>The file is not occupied, no need to remove the occupation</source>
+          <target state="translated">该文件未被占用，无需解除占用</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Unlock_Success_Content" translate="yes" xml:space="preserve">
+          <source>Unoccupied successfully</source>
+          <target state="translated">解除占用成功</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Unlock_UnexpectedError_Content" translate="yes" xml:space="preserve">
+          <source>An unexpected error occurred</source>
+          <target state="translated">出现未知错误</target>
+        </trans-unit>
+        <trans-unit id="ClearRecycleBin.Label" translate="yes" xml:space="preserve">
+          <source>Empty recycle bin</source>
+          <target state="translated">清空回收站</target>
+        </trans-unit>
+        <trans-unit id="HashTeachTip.Title" translate="yes" xml:space="preserve">
+          <source>Compute hash</source>
+          <target state="translated">计算哈希值</target>
+        </trans-unit>
+        <trans-unit id="RestoreRecycle.Label" translate="yes" xml:space="preserve">
+          <source>Restore</source>
+          <target state="translated">还原</target>
+        </trans-unit>
+        <trans-unit id="RecyclePermanentDelete.Label" translate="yes" xml:space="preserve">
+          <source>Permanent delete</source>
+          <target state="translated">永久删除</target>
         </trans-unit>
       </group>
     </body>

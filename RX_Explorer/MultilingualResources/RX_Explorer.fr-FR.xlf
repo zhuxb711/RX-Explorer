@@ -2653,7 +2653,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Certains fichiers n'existent pas et ne peuvent pas être copiés à l'emplacement spécifié</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DeleteFolder_Content" translate="yes" xml:space="preserve">
-          <source>This will permanently delete everything in the folder. Whether to continue?</source>
+          <source>This will delete everything in the folder. Whether to continue?</source>
           <target state="translated">Cette opération va supprimer le dossier et tout son contenu. Voulez-vous continuer ?</target>
         </trans-unit>
         <trans-unit id="QueueDialog_EmptyFolderName_Content" translate="yes" xml:space="preserve">
@@ -2778,12 +2778,12 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_DeleteFiles_Content" translate="yes" xml:space="preserve">
-          <source>This operation will permanently delete these files. Whether to continue?</source>
-          <target state="translated">Cette opération va supprimer de manière permanente les fichiers. Voulez-vous continuer?</target>
+          <source>This operation will delete these files. Whether to continue?</source>
+          <target state="translated">Cette opération va supprimer de manière les fichiers. Voulez-vous continuer?</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DeleteFile_Content" translate="yes" xml:space="preserve">
-          <source>This operation will permanently delete the file. Whether to continue?</source>
-          <target state="translated">Cette opération va supprimer de manière permanente le fichier. Voulez-vous continuer ?</target>
+          <source>This operation will delete the file. Whether to continue?</source>
+          <target state="translated">Cette opération va supprimer de manière le fichier. Voulez-vous continuer ?</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DeleteItemError_Content" translate="yes" xml:space="preserve">
           <source>Unable to delete some files/folders, the file/folders may have been moved or deleted</source>
@@ -3056,6 +3056,90 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="QueueDialog_Item_Captured_Content" translate="yes" xml:space="preserve">
           <source>The item is already occupied by another application, this operation cannot be performed</source>
           <target state="translated">L'élément est déjà occupé par une autre application, cette opération ne peut pas être effectuée</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_EmptyRecycleBin_Content" translate="yes" xml:space="preserve">
+          <source>This operation will empty the recycle bin and cannot be recovered. Do you want to continue?</source>
+          <target state="translated">Cette opération videra la corbeille et ne pourra pas être récupérée. Voulez-vous continuer?</target>
+        </trans-unit>
+        <trans-unit id="RecycleBinEmptyingText" translate="yes" xml:space="preserve">
+          <source>Emptying</source>
+          <target state="translated">Vidange</target>
+        </trans-unit>
+        <trans-unit id="RecycleBinRestoreText" translate="yes" xml:space="preserve">
+          <source>Restoring</source>
+          <target state="translated">Restauration</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RecycleBinEmptyError_Content" translate="yes" xml:space="preserve">
+          <source>An unexpected error occurred and the recycle bin could not be emptied</source>
+          <target state="translated">Une erreur inattendue s'est produite et la corbeille n'a pas pu être vidée</target>
+        </trans-unit>
+        <trans-unit id="PermanentDelete.Content" translate="yes" xml:space="preserve">
+          <source>Skip the recycle bin and delete directly</source>
+          <target state="translated">Sautez la corbeille et supprimez directement</target>
+        </trans-unit>
+        <trans-unit id="ComputeHash.Text" translate="yes" xml:space="preserve">
+          <source>Compute hash</source>
+          <target state="translated">Calculer le hachage</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_ComputeHash" translate="yes" xml:space="preserve">
+          <source>Compute hash</source>
+          <target state="translated">Calculer le hachage</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Tool" translate="yes" xml:space="preserve">
+          <source>Tool</source>
+          <target state="translated">Outil</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Unlock" translate="yes" xml:space="preserve">
+          <source>Unlock occupancy</source>
+          <target state="translated">Débloquer l'occupation</target>
+        </trans-unit>
+        <trans-unit id="Tool.Label" translate="yes" xml:space="preserve">
+          <source>Tool</source>
+          <target state="translated">Outil</target>
+        </trans-unit>
+        <trans-unit id="TryUnlock.Text" translate="yes" xml:space="preserve">
+          <source>Unlock occupancy</source>
+          <target state="translated">Débloquer l'occupation</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Unlock" translate="yes" xml:space="preserve">
+          <source>Unoccupying</source>
+          <target state="translated">Inoccupant</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Unlock_Failure_Content" translate="yes" xml:space="preserve">
+          <source>Unoccupied failed</source>
+          <target state="translated">Échec inoccupé</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Unlock_FileNotFound_Content" translate="yes" xml:space="preserve">
+          <source>Unable to find the corresponding file</source>
+          <target state="translated">Impossible de trouver le fichier correspondant</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Unlock_NoLock_Content" translate="yes" xml:space="preserve">
+          <source>The file is not occupied, no need to remove the occupation</source>
+          <target state="translated">Le fichier n'est pas occupé, pas besoin de supprimer l'occupation</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Unlock_Success_Content" translate="yes" xml:space="preserve">
+          <source>Unoccupied successfully</source>
+          <target state="translated">Inoccupé avec succès</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_Unlock_UnexpectedError_Content" translate="yes" xml:space="preserve">
+          <source>An unexpected error occurred</source>
+          <target state="translated">Une erreur inattendue est apparue</target>
+        </trans-unit>
+        <trans-unit id="ClearRecycleBin.Label" translate="yes" xml:space="preserve">
+          <source>Empty recycle bin</source>
+          <target state="translated">Poubelle de recyclage vide</target>
+        </trans-unit>
+        <trans-unit id="HashTeachTip.Title" translate="yes" xml:space="preserve">
+          <source>Compute hash</source>
+          <target state="translated">Calculer le hachage</target>
+        </trans-unit>
+        <trans-unit id="RestoreRecycle.Label" translate="yes" xml:space="preserve">
+          <source>Restore</source>
+          <target state="translated">Restaurer</target>
+        </trans-unit>
+        <trans-unit id="RecyclePermanentDelete.Label" translate="yes" xml:space="preserve">
+          <source>Permanent delete</source>
+          <target state="translated">Suppression définitive</target>
         </trans-unit>
       </group>
     </body>

@@ -174,21 +174,18 @@ namespace RX_Explorer.Class
                 {
                     do
                     {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                        if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
                         {
-                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
+                            if (Data.cFileName != "." && Data.cFileName != "..")
                             {
-                                if (Data.cFileName != "." && Data.cFileName != "..")
-                                {
-                                    TotalSize += CalculateSize(System.IO.Path.Combine(Path, Data.cFileName));
-                                }
+                                TotalSize += CalculateSize(System.IO.Path.Combine(Path, Data.cFileName));
                             }
-                            else
+                        }
+                        else
+                        {
+                            if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
                             {
-                                if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
-                                {
-                                    TotalSize += (Data.nFileSizeHigh << 32) + (long)Data.nFileSizeLow;
-                                }
+                                TotalSize += (Data.nFileSizeHigh << 32) + (long)Data.nFileSizeLow;
                             }
                         }
                     }
@@ -215,21 +212,18 @@ namespace RX_Explorer.Class
                 {
                     do
                     {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                        if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
                         {
-                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
+                            if (Data.cFileName != "." && Data.cFileName != "..")
                             {
-                                if (Data.cFileName != "." && Data.cFileName != "..")
-                                {
-                                    (uint SubFolderCount, uint SubFileCount) = CalculateFolderAndFileCount(System.IO.Path.Combine(Path, Data.cFileName));
-                                    FolderCount += ++SubFolderCount;
-                                    FileCount += SubFileCount;
-                                }
+                                (uint SubFolderCount, uint SubFileCount) = CalculateFolderAndFileCount(System.IO.Path.Combine(Path, Data.cFileName));
+                                FolderCount += ++SubFolderCount;
+                                FileCount += SubFileCount;
                             }
-                            else
-                            {
-                                FileCount++;
-                            }
+                        }
+                        else
+                        {
+                            FileCount++;
                         }
                     }
                     while (FindNextFile(Ptr, out Data));

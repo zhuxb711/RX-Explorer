@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
-using System.Linq;
 
 namespace FullTrustProcess
 {
@@ -60,7 +59,7 @@ namespace FullTrustProcess
             Process Current = Process.GetCurrentProcess();
 
             Process[] AllProcess = Process.GetProcessesByName(Current.ProcessName);
-            
+
             foreach (Process ExistProcess in AllProcess.Where(Process => Process.Id != Current.Id && Assembly.GetExecutingAssembly().Location.Replace("/", @"\") == Current.MainModule.FileName))
             {
                 ExistProcess.Kill();
@@ -252,6 +251,7 @@ namespace FullTrustProcess
                             ValueSet Value = new ValueSet();
 
                             string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            bool PermanentDelete = Convert.ToBoolean(args.Request.Message["PermanentDelete"]);
 
                             try
                             {
@@ -265,7 +265,7 @@ namespace FullTrustProcess
                                     {
                                         File.SetAttributes(ExcutePath, FileAttributes.Normal);
 
-                                        if (StorageItemOperator.Delete(ExcutePath))
+                                        if (StorageItemOperator.Delete(ExcutePath, PermanentDelete))
                                         {
                                             Value.Add("Success", string.Empty);
                                         }
@@ -282,7 +282,7 @@ namespace FullTrustProcess
                                         Attributes = FileAttributes.Normal & FileAttributes.Directory
                                     };
 
-                                    if (StorageItemOperator.Delete(ExcutePath))
+                                    if (StorageItemOperator.Delete(ExcutePath, PermanentDelete))
                                     {
                                         Value.Add("Success", string.Empty);
                                     }

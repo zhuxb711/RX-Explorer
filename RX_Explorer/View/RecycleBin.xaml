@@ -21,11 +21,13 @@
                 <AppBarButton Label="永久删除" 
                               Icon="Delete"
                               Name="PermanentDelete"
+                              x:Uid="RecyclePermanentDelete"
                               Click="PermanentDelete_Click"/>
                 <AppBarButton Label="还原" 
                               Icon="Redo"
-                              Name="RedoRecycle"
-                              Click="RedoRecycle_Click"/>
+                              Name="RestoreRecycle"
+                              x:Uid="RestoreRecycle"
+                              Click="RestoreRecycle_Click"/>
                 <AppBarSeparator />
                 <AppBarButton Label="属性" 
                               Icon="Tag"
@@ -44,6 +46,7 @@
                               Click="Refresh_Click"/>
                 <AppBarSeparator />
                 <AppBarButton Label="清空回收站"
+                              x:Uid="ClearRecycleBin"
                               Name="ClearRecycleBin"
                               Click="ClearRecycleBin_Click">
                     <AppBarButton.Icon>
@@ -67,6 +70,7 @@
                   IsHoldingEnabled="True"
                   IsItemClickEnabled="True"
                   IsDoubleTapEnabled="True"
+                  SelectionChanged="ListViewControl_SelectionChanged"
                   Holding="ListViewControl_Holding"
                   DoubleTapped="ListViewControl_DoubleTapped"
                   ItemsSource="{x:Bind FileCollection}"

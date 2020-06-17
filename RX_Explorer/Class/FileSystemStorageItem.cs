@@ -19,8 +19,6 @@ namespace RX_Explorer.Class
 
         private string TempPathString;
 
-        private string TempNameString;
-
         public bool IsRecycleItem { get; private set; } = false;
 
         public string RecycleItemOriginPath { get; private set; }
@@ -72,7 +70,6 @@ namespace RX_Explorer.Class
                     Math.Round(SizeBit / Convert.ToDouble(1099511627776), 2).ToString() + " TB"));
 
             TempPathString = Path;
-            TempNameString = Data.cFileName;
             ModifiedTimeRaw = ModifiedTime;
             this.StorageType = StorageType;
 
@@ -239,7 +236,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return StorageItem == null ? TempNameString : StorageItem.Name;
+                return StorageItem == null ? System.IO.Path.GetFileName(TempPathString) : StorageItem.Name;
             }
         }
 

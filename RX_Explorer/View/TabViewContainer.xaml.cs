@@ -46,6 +46,8 @@ namespace RX_Explorer
 
         public static TabViewContainer ThisPage { get; private set; }
 
+        public static List<string> CopyAndMoveRecord { get; private set; } = new List<string>();
+
         public GridLength LeftSideLength
         {
             get
@@ -740,6 +742,7 @@ namespace RX_Explorer
             if ((args.Tab.Content as Frame).Content is ThisPC PC && TFInstanceContainer.ContainsKey(PC))
             {
                 TFInstanceContainer[PC].Dispose();
+                FFInstanceContainer[TFInstanceContainer[PC]].Dispose();
                 FFInstanceContainer.Remove(TFInstanceContainer[PC]);
                 FSInstanceContainer.Remove(TFInstanceContainer[PC]);
                 TFInstanceContainer.Remove(PC);
@@ -747,6 +750,7 @@ namespace RX_Explorer
             else if ((args.Tab.Content as Frame).Content is FileControl Control && TFInstanceContainer.ContainsValue(Control))
             {
                 Control.Dispose();
+                FFInstanceContainer[Control].Dispose();
                 FFInstanceContainer.Remove(Control);
                 FSInstanceContainer.Remove(Control);
                 TFInstanceContainer.Remove(TFInstanceContainer.First((Item) => Item.Value == Control).Key);

@@ -358,14 +358,15 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task DeleteAsync(string TargetPath)
+        public async Task DeleteAsync(string TargetPath, bool PermanentDelete)
         {
             if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
             {
                 ValueSet Value = new ValueSet
                 {
                     {"ExcuteType", ExcuteType_Delete},
-                    {"ExcutePath", TargetPath}
+                    {"ExcutePath", TargetPath},
+                    {"PermanentDelete", PermanentDelete}
                 };
 
                 AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -404,24 +405,24 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task DeleteAsync(StorageFile Item)
+        public Task DeleteAsync(StorageFile Item, bool PermanentDelete)
         {
             if (Item == null)
             {
                 throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
             }
 
-            return DeleteAsync(Item.Path);
+            return DeleteAsync(Item.Path, PermanentDelete);
         }
 
-        public Task DeleteAsync(StorageFolder Item)
+        public Task DeleteAsync(StorageFolder Item, bool PermanentDelete)
         {
             if (Item == null)
             {
                 throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
             }
 
-            return DeleteAsync(Item.Path);
+            return DeleteAsync(Item.Path, PermanentDelete);
         }
 
         public async Task<string> MoveAsync(string SourcePath, string DestinationPath)

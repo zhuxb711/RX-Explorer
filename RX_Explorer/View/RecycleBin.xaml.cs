@@ -12,13 +12,8 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 
-// https://go.microsoft.com/fwlink/?LinkId=234238 上介绍了“空白页”项模板
-
 namespace RX_Explorer.View
 {
-    /// <summary>
-    /// 可用于自身或导航至 Frame 内部的空白页。
-    /// </summary>
     public sealed partial class RecycleBin : Page
     {
         private readonly Dictionary<SortTarget, SortDirection> SortMap = new Dictionary<SortTarget, SortDirection>
@@ -93,15 +88,23 @@ namespace RX_Explorer.View
         {
             if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
+                if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource as FrameworkElement)?.Name == "EmptyTextblock")
                 {
-                    ListViewControl.ContextFlyout = SelectFlyout;
-                    ListViewControl.SelectedItem = Item;
+                    ListViewControl.SelectedItem = null;
+                    ListViewControl.ContextFlyout = EmptyFlyout;
                 }
                 else
                 {
-                    ListViewControl.ContextFlyout = null;
-                    ListViewControl.SelectedItem = null;
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
+                    {
+                        ListViewControl.ContextFlyout = SelectFlyout;
+                        ListViewControl.SelectedItem = Item;
+                    }
+                    else
+                    {
+                        ListViewControl.SelectedItem = null;
+                        ListViewControl.ContextFlyout = EmptyFlyout;
+                    }
                 }
             }
         }
@@ -119,10 +122,10 @@ namespace RX_Explorer.View
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource as FrameworkElement).Name == "EmptyTextblock")
+                if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource as FrameworkElement)?.Name == "EmptyTextblock")
                 {
                     ListViewControl.SelectedItem = null;
-                    //ListViewControl.ContextFlyout = EmptyFlyout;
+                    ListViewControl.ContextFlyout = EmptyFlyout;
                 }
                 else
                 {
@@ -133,8 +136,8 @@ namespace RX_Explorer.View
                     }
                     else
                     {
-                        ListViewControl.ContextFlyout = null;
                         ListViewControl.SelectedItem = null;
+                        ListViewControl.ContextFlyout = EmptyFlyout;
                     }
                 }
             }
@@ -333,26 +336,41 @@ namespace RX_Explorer.View
 
         private async void PermanentDelete_Click(object sender, RoutedEventArgs e)
         {
-            if (ListViewControl.SelectedItem is FileSystemStorageItem Item)
+            await ActivateLoading(true, Globalization.GetString("RecycleBinRestoreText")).ConfigureAwait(true);
+
+            QueueContentDialog QueueContenDialog = new QueueContentDialog
             {
-                FileCollection.Remove(Item);
-                await (await Item.GetStorageItem().ConfigureAwait(false))?.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                Content = Globalization.GetString("QueueDialog_DeleteFile_Content"),
+                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+            };
+
+            if ((await QueueContenDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+            {
+                foreach (FileSystemStorageItem Item in ListViewControl.SelectedItems)
+                {
+                    FileCollection.Remove(Item);
+                    await FullTrustExcutorController.Current.DeleteAsync(Item.Path, true).ConfigureAwait(true);
+                }
             }
+
+            await ActivateLoading(false).ConfigureAwait(true);
         }
 
         private async void ClearRecycleBin_Click(object sender, RoutedEventArgs e)
         {
             QueueContentDialog Dialog = new QueueContentDialog
             {
-                Title = "警告",
-                Content = "此操作将清空回收站且无法恢复，是否继续?",
-                PrimaryButtonText = "确定",
-                CloseButtonText = "取消"
+                Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                Content = Globalization.GetString("QueueDialog_EmptyRecycleBin_Content"),
+                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
             };
 
             if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
             {
-                await ActivateLoading(true, "正在清空回收站").ConfigureAwait(true);
+                await ActivateLoading(true, Globalization.GetString("RecycleBinEmptyingText")).ConfigureAwait(true);
 
                 if (await FullTrustExcutorController.Current.EmptyRecycleBinAsync().ConfigureAwait(true))
                 {
@@ -361,25 +379,32 @@ namespace RX_Explorer.View
                 }
                 else
                 {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_RecycleBinEmptyError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
 
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
 
                 await ActivateLoading(false).ConfigureAwait(true);
             }
         }
 
-        private async void RedoRecycle_Click(object sender, RoutedEventArgs e)
+        private async void RestoreRecycle_Click(object sender, RoutedEventArgs e)
         {
-            if (ListViewControl.SelectedItem is FileSystemStorageItem Item)
-            {
-                await ActivateLoading(true, "正在还原").ConfigureAwait(true);
+            await ActivateLoading(true, Globalization.GetString("RecycleBinRestoreText")).ConfigureAwait(true);
 
+            foreach (FileSystemStorageItem Item in ListViewControl.SelectedItems)
+            {
                 await FullTrustExcutorController.Current.MoveAsync(Item.Path, Path.GetDirectoryName(Item.RecycleItemOriginPath)).ConfigureAwait(true);
 
                 FileCollection.Remove(Item);
-
-                await ActivateLoading(false).ConfigureAwait(true);
             }
+
+            await ActivateLoading(false).ConfigureAwait(true);
         }
 
         private async Task ActivateLoading(bool IsLoading, string Message = null)
@@ -391,7 +416,7 @@ namespace RX_Explorer.View
             }
             else
             {
-                await Task.Delay(700).ConfigureAwait(true);
+                await Task.Delay(1000).ConfigureAwait(true);
                 LoadingControl.IsLoading = false;
             }
         }
@@ -408,6 +433,18 @@ namespace RX_Explorer.View
             if (FileCollection.Count == 0)
             {
                 HasFile.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void ListViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ListViewControl.SelectedItems.Count > 1)
+            {
+                PropertyButton.IsEnabled = false;
+            }
+            else
+            {
+                PropertyButton.IsEnabled = true;
             }
         }
     }

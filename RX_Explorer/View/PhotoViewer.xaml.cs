@@ -1,7 +1,7 @@
 ﻿using AnimationEffectProvider;
+using Microsoft.Toolkit.Uwp.UI.Animations;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
-using Microsoft.Toolkit.Uwp.UI.Animations;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -309,18 +309,12 @@ namespace RX_Explorer
 
         private async void Delete_Click(object sender, RoutedEventArgs e)
         {
-            QueueContentDialog Dialog = new QueueContentDialog
-            {
-                Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                Content = Globalization.GetString("QueueDialog_DeleteFile_Content"),
-                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-            };
+            DeleteDialog Dialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFile_Content"));
 
             if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
                 PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
-                await FullTrustExcutorController.Current.DeleteAsync(Item.PhotoFile.Path).ConfigureAwait(true);
+                await FullTrustExcutorController.Current.DeleteAsync(Item.PhotoFile.Path, Dialog.IsPermanentDelete).ConfigureAwait(true);
                 PhotoCollection.Remove(Item);
                 Behavior.InitAnimation(InitOption.Full);
             }
