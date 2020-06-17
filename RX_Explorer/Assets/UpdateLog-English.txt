@@ -1,4 +1,31 @@
 ﻿*****
+###What's new in Ver.4.9.0.0
+
+>#####Feature update
+
+>>#####New "Recycle Bin" module, you can query the contents of the Recycle Bin folder and perform operations such as Restore, Emptying, Permanent delete, etc.
+
+>>#####Add two right-click menu options of "Unlock occupancy" and "Compute hash"
+
+>>#####The default deletion behavior has been changed, and a new deletion menu option "Skip the recycle bin, delete directly" has been added
+
+>>#####If there is a name conflict when copying or moving a folder, a prompt will appear as to whether to merge or rename
+
+>>#####Added support for Windows Terminal and common system tools (eg enter wt/regedit in the address bar, etc.)
+
+>#####Bug fix
+
+>>#####Solved the problem of inconsistency caused by SQL statements
+
+>>#####Fixed the problem of unhiding the left folder directory in the settings after hiding the left folder directory to view the file, and then unable to enter the folder
+
+>>#####Fixed the problem of incorrect calculation of folder size, subdirectories and subfiles in folder properties
+
+>>#####Fixed the problem that the cancelled files still displayed when using Ctrl+Z to cancel the operation
+
+>>#####Fixed the problem that when renaming a folder, the folder name cannot be selected correctly
+
+*****
 ###What's new in Ver.4.8.2.0
 
 >#####Feature update

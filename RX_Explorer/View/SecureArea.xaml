@@ -121,7 +121,7 @@
                                     VerticalAlignment="Top"
                                     Margin="5,0,0,0">
                             <TextBlock IsHitTestVisible="False"
-                                       Text="{x:Bind DisplayName,Mode=OneWay}"
+                                       Text="{x:Bind Name,Mode=OneWay}"
                                        FontSize="16"
                                        Width="140"
                                        TextTrimming="CharacterEllipsis" />
@@ -129,7 +129,7 @@
                                        Text="{x:Bind DisplayType}"
                                        FontSize="13" />
                             <TextBlock IsHitTestVisible="False"
-                                       Text="{x:Bind Size,Mode=OneWay}"
+                                       Text="{x:Bind Size}"
                                        FontSize="13" />
                         </StackPanel>
                     </StackPanel>

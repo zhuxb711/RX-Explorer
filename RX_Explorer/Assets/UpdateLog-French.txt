@@ -1,4 +1,31 @@
 ﻿*****
+###Quoi de neuf dans la version 4.9.0.0
+
+>#####Mise à jour des fonctionnalités
+
+>>#####Nouveau module "Corbeille", vous pouvez interroger le contenu du dossier Corbeille et effectuer des opérations telles que la restauration, la vidange, la suppression permanente, etc.
+
+>>#####Ajoutez deux options du menu contextuel "Déverrouiller l'occupation" et "Calculer le hachage"
+
+>>#####Le comportement de suppression par défaut a été modifié et une nouvelle option de menu de suppression "Ignorer la corbeille, supprimer directement" a été ajoutée
+
+>>#####En cas de conflit de nom lors de la copie ou du déplacement d'un dossier, une invite apparaîtra pour savoir si fusionner ou renommer
+
+>>#####Ajout de la prise en charge de Windows Terminal et des outils système courants (par exemple, entrez wt / regedit dans la barre d'adresse, etc.)
+
+>#####Correction d'un bug
+
+>>#####Correction du problème d'incohérence causé par les instructions SQL
+
+>>#####Correction du problème de dévoilement du répertoire du dossier gauche dans les paramètres après avoir masqué le répertoire du dossier gauche pour afficher le fichier, puis impossible d'accéder au dossier
+
+>>#####Correction du problème de calcul incorrect de la taille du dossier, des sous-répertoires et des sous-fichiers dans les propriétés du dossier
+
+>>#####Correction du problème selon lequel les fichiers annulés s'affichaient toujours lors de l'utilisation de Ctrl + Z pour annuler l'opération
+
+>>#####Correction du problème selon lequel lors du changement de nom d'un dossier, le nom du dossier ne peut pas être sélectionné correctement
+
+*****
 ###Quoi de neuf dans la version 4.8.2.0
 
 >#####Mise à jour des fonctionnalités

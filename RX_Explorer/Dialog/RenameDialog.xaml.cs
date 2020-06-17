@@ -1,30 +1,38 @@
 ﻿using RX_Explorer.Class;
 using System.IO;
 using System.Linq;
+using Windows.Storage;
 using Windows.UI.Xaml.Controls;
 
 namespace RX_Explorer.Dialog
 {
     public sealed partial class RenameDialog : QueueContentDialog
     {
-        private readonly string OriginName;
-
         public string DesireName { get; private set; }
 
-        public RenameDialog(string Name)
+        private IStorageItem Item;
+
+        public RenameDialog(IStorageItem Item)
         {
             InitializeComponent();
-            RenameText.Text = Name;
-            OriginName = Name;
-            Preview.Text = $"{OriginName}\r⋙⋙   ⋙⋙   ⋙⋙\r{OriginName}";
+            this.Item = Item;
+            RenameText.Text = Item.Name;
+            Preview.Text = $"{Item.Name}\r⋙⋙   ⋙⋙   ⋙⋙\r{Item.Name}";
             Loaded += RenameDialog_Loaded;
         }
 
         private void RenameDialog_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            if (OriginName != Path.GetExtension(OriginName))
+            if (Item.IsOfType(StorageItemTypes.File))
             {
-                RenameText.Select(0, OriginName.Length - Path.GetExtension(OriginName).Length);
+                if (Item.Name != Path.GetExtension(Item.Name))
+                {
+                    RenameText.Select(0, Item.Name.Length - Path.GetExtension(Item.Name).Length);
+                }
+            }
+            else
+            {
+                RenameText.SelectAll();
             }
         }
 
@@ -48,7 +56,7 @@ namespace RX_Explorer.Dialog
 
         private void RenameText_TextChanged(object sender, TextChangedEventArgs e)
         {
-            Preview.Text = $"{OriginName}\r⋙⋙   ⋙⋙   ⋙⋙\r{RenameText.Text}";
+            Preview.Text = $"{Item.Name}\r⋙⋙   ⋙⋙   ⋙⋙\r{RenameText.Text}";
         }
     }
 }

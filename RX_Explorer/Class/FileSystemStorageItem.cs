@@ -13,14 +13,29 @@ namespace RX_Explorer.Class
     /// </summary>
     public sealed class FileSystemStorageItem : INotifyPropertyChanged, IComparable
     {
+        /// <summary>
+        /// 指示所包含的存储对象类型
+        /// </summary>
         public StorageItemTypes StorageType { get; private set; }
 
+        /// <summary>
+        /// 存储对象
+        /// </summary>
         private IStorageItem StorageItem;
 
-        private string TempPathString;
+        /// <summary>
+        /// 用于兼容WIN_Native_API所提供的路径
+        /// </summary>
+        private readonly string InternalPathString;
 
+        /// <summary>
+        /// 指示是否是回收站对象，此值为true时将改变一些呈现内容
+        /// </summary>
         public bool IsRecycleItem { get; private set; } = false;
 
+        /// <summary>
+        /// 当IsRecycleItem=true时提供回收站对象的原始路径
+        /// </summary>
         public string RecycleItemOriginPath { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -33,7 +48,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 初始化FileSystemStorageItem对象
         /// </summary>
-        /// <param name="Item">文件或文件夹</param>
+        /// <param name="Item">文件</param>
         /// <param name="Size">大小</param>
         /// <param name="Thumbnail">缩略图</param>
         /// <param name="ModifiedTime">修改时间</param>
@@ -44,13 +59,14 @@ namespace RX_Explorer.Class
 
             SizeRaw = Size;
             ModifiedTimeRaw = ModifiedTime;
-            this.Size = Size / 1024f < 1024 ? Math.Round(Size / 1024f, 2).ToString("0.00") + " KB" :
-                        (Size / 1048576f < 1024 ? Math.Round(Size / 1048576f, 2).ToString("0.00") + " MB" :
-                        (Size / 1073741824f < 1024 ? Math.Round(Size / 1073741824f, 2).ToString("0.00") + " GB" :
-                        Math.Round(Size / Convert.ToDouble(1099511627776), 2).ToString() + " TB")); ;
             this.Thumbnail = Thumbnail ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
         }
 
+        /// <summary>
+        /// 初始化FileSystemStorageItem对象
+        /// </summary>
+        /// <param name="Item">文件夹</param>
+        /// <param name="ModifiedTime">修改时间</param>
         public FileSystemStorageItem(StorageFolder Item, DateTimeOffset ModifiedTime)
         {
             StorageItem = Item;
@@ -60,22 +76,26 @@ namespace RX_Explorer.Class
             ModifiedTimeRaw = ModifiedTime;
         }
 
+        /// <summary>
+        /// 初始化FileSystemStorageItem对象
+        /// </summary>
+        /// <param name="Data">WIN_Native_API所提供的数据</param>
+        /// <param name="StorageType">指示存储类型</param>
+        /// <param name="Path">路径</param>
+        /// <param name="ModifiedTime">修改时间</param>
         public FileSystemStorageItem(WIN_Native_API.WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset ModifiedTime)
         {
-            long SizeBit = (Data.nFileSizeHigh << 32) + (long)Data.nFileSizeLow;
-            SizeRaw = SizeBit;
-            Size = SizeBit / 1024f < 1024 ? Math.Round(SizeBit / 1024f, 2).ToString("0.00") + " KB" :
-                    (SizeBit / 1048576f < 1024 ? Math.Round(SizeBit / 1048576f, 2).ToString("0.00") + " MB" :
-                    (SizeBit / 1073741824f < 1024 ? Math.Round(SizeBit / 1073741824f, 2).ToString("0.00") + " GB" :
-                    Math.Round(SizeBit / Convert.ToDouble(1099511627776), 2).ToString() + " TB"));
-
-            TempPathString = Path;
+            InternalPathString = Path;
             ModifiedTimeRaw = ModifiedTime;
             this.StorageType = StorageType;
 
             if (StorageType == StorageItemTypes.Folder)
             {
                 Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
+            }
+            else
+            {
+                SizeRaw = (Data.nFileSizeHigh << 32) + (long)Data.nFileSizeLow;
             }
         }
 
@@ -92,10 +112,14 @@ namespace RX_Explorer.Class
             }
             else
             {
-                throw new ArgumentNullException(nameof(obj), "obj could not be null");
+                throw new ArgumentNullException(nameof(obj), "obj must be FileSystemStorageItem");
             }
         }
 
+        /// <summary>
+        /// 调用此方法以获得存储对象
+        /// </summary>
+        /// <returns></returns>
         public async Task<IStorageItem> GetStorageItem()
         {
             try
@@ -104,11 +128,11 @@ namespace RX_Explorer.Class
                 {
                     if (StorageType == StorageItemTypes.File)
                     {
-                        return StorageItem = await StorageFile.GetFileFromPathAsync(TempPathString);
+                        return StorageItem = await StorageFile.GetFileFromPathAsync(InternalPathString);
                     }
                     else
                     {
-                        return StorageItem = await StorageFolder.GetFolderFromPathAsync(TempPathString);
+                        return StorageItem = await StorageFolder.GetFolderFromPathAsync(InternalPathString);
                     }
                 }
                 else
@@ -122,6 +146,10 @@ namespace RX_Explorer.Class
             }
         }
 
+        /// <summary>
+        /// 加载并获取更多属性，例如缩略图，显示名称等
+        /// </summary>
+        /// <returns></returns>
         public async Task LoadMoreProperty()
         {
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
@@ -138,6 +166,11 @@ namespace RX_Explorer.Class
              });
         }
 
+        /// <summary>
+        /// 调用此方法以将该对象标记为回收站对象
+        /// </summary>
+        /// <param name="OriginPath">原始路径</param>
+        /// <param name="CreateTime">修改时间</param>
         public void SetAsRecycleItem(string OriginPath, DateTimeOffset CreateTime)
         {
             IsRecycleItem = true;
@@ -145,61 +178,35 @@ namespace RX_Explorer.Class
             ModifiedTimeRaw = CreateTime;
         }
 
+        /// <summary>
+        /// 调用此方法以重命名存储对象，并更新界面显示
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <returns></returns>
         public async Task RenameAsync(string Name)
         {
+            _ = await GetStorageItem().ConfigureAwait(true);
+
             if (StorageItem is StorageFile File)
             {
                 await File.RenameAsync(Name, NameCollisionOption.GenerateUniqueName);
-                File = await StorageFile.GetFileFromPathAsync(File.Path);
-                Thumbnail = await File.GetThumbnailBitmapAsync().ConfigureAwait(true);
                 ModifiedTimeRaw = await File.GetModifiedTimeAsync().ConfigureAwait(true);
-                OnPropertyChanged(nameof(DisplayName));
-                OnPropertyChanged(nameof(Thumbnail));
+                OnPropertyChanged(nameof(this.Name));
                 OnPropertyChanged(nameof(ModifiedTime));
                 OnPropertyChanged(nameof(DisplayType));
             }
             else if (StorageItem is StorageFolder Folder)
             {
                 await Folder.RenameAsync(Name, NameCollisionOption.GenerateUniqueName);
-                Folder = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
                 ModifiedTimeRaw = await Folder.GetModifiedTimeAsync().ConfigureAwait(true);
-                OnPropertyChanged(nameof(DisplayName));
+                OnPropertyChanged(nameof(this.Name));
                 OnPropertyChanged(nameof(ModifiedTime));
                 OnPropertyChanged(nameof(DisplayType));
             }
         }
 
         /// <summary>
-        /// 获取文件的文件名(不包含后缀)
-        /// </summary>
-        public string DisplayName
-        {
-            get
-            {
-                if (IsRecycleItem)
-                {
-                    return System.IO.Path.GetFileName(RecycleItemOriginPath);
-                }
-                else
-                {
-                    if (StorageItem is StorageFolder Folder)
-                    {
-                        return string.IsNullOrEmpty(Folder.DisplayName) ? Folder.Name : Folder.DisplayName;
-                    }
-                    else if (StorageItem is StorageFile File)
-                    {
-                        return string.IsNullOrEmpty(File.DisplayName) ? File.Name : (File.DisplayName.EndsWith(File.FileType) ? System.IO.Path.GetFileNameWithoutExtension(File.DisplayName) : File.DisplayName);
-                    }
-                    else
-                    {
-                        return Name;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// 获取文件的修改时间
+        /// 获取文件的修改时间描述
         /// </summary>
         public string ModifiedTime
         {
@@ -209,6 +216,9 @@ namespace RX_Explorer.Class
             }
         }
 
+        /// <summary>
+        /// 获取原始的修改时间
+        /// </summary>
         public DateTimeOffset ModifiedTimeRaw { get; private set; }
 
         /// <summary>
@@ -218,16 +228,35 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return StorageItem == null ? TempPathString : StorageItem.Path;
+                return StorageItem == null ? InternalPathString : StorageItem.Path;
             }
         }
 
         /// <summary>
-        /// 获取文件大小
+        /// 获取文件大小描述
         /// </summary>
-        public string Size { get; private set; }
+        public string Size
+        {
+            get
+            {
+                if (StorageType == StorageItemTypes.File)
+                {
+                    return SizeRaw / 1024f < 1024 ? Math.Round(SizeRaw / 1024f, 2).ToString("0.00") + " KB" :
+                    (SizeRaw / 1048576f < 1024 ? Math.Round(SizeRaw / 1048576f, 2).ToString("0.00") + " MB" :
+                    (SizeRaw / 1073741824f < 1024 ? Math.Round(SizeRaw / 1073741824f, 2).ToString("0.00") + " GB" :
+                    Math.Round(SizeRaw / Convert.ToDouble(1099511627776), 2).ToString() + " TB"));
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+        }
 
-        public long SizeRaw { get; private set; }
+        /// <summary>
+        /// 获取原始大小数据
+        /// </summary>
+        public long SizeRaw { get; private set; } = 0;
 
         /// <summary>
         /// 获取文件的完整文件名(包括后缀)
@@ -236,7 +265,14 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return StorageItem == null ? System.IO.Path.GetFileName(TempPathString) : StorageItem.Name;
+                if (IsRecycleItem)
+                {
+                    return System.IO.Path.GetFileName(RecycleItemOriginPath);
+                }
+                else
+                {
+                    return StorageItem == null ? System.IO.Path.GetFileName(InternalPathString) : StorageItem.Name;
+                }
             }
         }
 

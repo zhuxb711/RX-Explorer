@@ -11,10 +11,8 @@
     mc:Ignorable="d"
     Background="Transparent"
     NavigationCacheMode="Required">
-    
-    <Page.Resources>
-        <Cls:PropertyDisplayConverter x:Key="StateConverter" />
 
+    <Page.Resources>
         <CommandBarFlyout x:Name="SelectFlyout"
                           Placement="RightEdgeAlignedTop">
             <CommandBarFlyout.SecondaryCommands>
@@ -209,8 +207,8 @@
                             <TextBlock VerticalAlignment="Center"
                                        FontSize="14"
                                        Grid.Column="1"
-                                       Text="{x:Bind DisplayName,Mode=OneWay}"
-                                       ToolTipService.ToolTip="{x:Bind DisplayName,Mode=OneWay}"
+                                       Text="{x:Bind Name}"
+                                       ToolTipService.ToolTip="{x:Bind Name}"
                                        TextTrimming="CharacterEllipsis" />
                         </Grid>
                         <TextBlock VerticalAlignment="Center"
@@ -233,14 +231,13 @@
                                    ToolTipService.ToolTip="{x:Bind DisplayType}"
                                    Grid.Column="3"
                                    Margin="8,0,0,0"
-                                   Visibility="{x:Bind StorageType,Converter={StaticResource StateConverter}}"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
                                    FontSize="14"
                                    Padding="8,0,0,0"
-                                   Text="{x:Bind Size,Mode=OneWay}"
+                                   Text="{x:Bind Size}"
+                                   ToolTipService.ToolTip="{x:Bind Size}"
                                    TextTrimming="CharacterEllipsis"
-                                   Visibility="{x:Bind StorageType,Converter={StaticResource StateConverter}}"
                                    Grid.Column="4" />
                         <TextBlock VerticalAlignment="Center"
                                    Grid.Column="5"

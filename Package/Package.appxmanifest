@@ -12,7 +12,7 @@
   <Identity
     Name="36186RuoFan.USB"
     Publisher="CN=4FF1CB23-04BD-4F9C-A86A-B4A43196FE02"
-    Version="4.8.2.0" />
+    Version="4.9.0.0" />
 
   <Properties>
     <DisplayName>ms-resource:App_Display_Name</DisplayName>
@@ -82,8 +82,5 @@
     <uap:Capability Name="removableStorage"/>
     <uap:Capability Name="userAccountInformation"/>
     <DeviceCapability Name="bluetooth"/>
-    <DeviceCapability Name="microphone"/>
-    <DeviceCapability Name="webcam"/>
-    <DeviceCapability Name="location"/>
   </Capabilities>
 </Package>

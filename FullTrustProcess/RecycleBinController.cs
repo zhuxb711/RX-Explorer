@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using Vanara.Extensions;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
@@ -18,14 +19,17 @@ namespace FullTrustProcess
             {
                 foreach (ShellItem Item in RecycleBin)
                 {
-                    Dictionary<string, string> PropertyDic = new Dictionary<string, string>
+                    if (!Path.GetExtension(Item.FileSystemPath).Equals(".lnk", StringComparison.OrdinalIgnoreCase))
                     {
-                        { "OriginPath", Item.Name },
-                        { "ActualPath", Item.FileSystemPath },
-                        { "CreateTime", Convert.ToString(((System.Runtime.InteropServices.ComTypes.FILETIME)Item.Properties[Ole32.PROPERTYKEY.System.DateCreated]).ToDateTime().ToBinary())}
-                    };
+                        Dictionary<string, string> PropertyDic = new Dictionary<string, string>
+                        {
+                            { "OriginPath", Item.Name },
+                            { "ActualPath", Item.FileSystemPath },
+                            { "CreateTime", Convert.ToString(((System.Runtime.InteropServices.ComTypes.FILETIME)Item.Properties[Ole32.PROPERTYKEY.System.DateCreated]).ToDateTime().ToBinary())}
+                        };
 
-                    RecycleItemList.Add(PropertyDic);
+                        RecycleItemList.Add(PropertyDic);
+                    }
                 }
             }
 

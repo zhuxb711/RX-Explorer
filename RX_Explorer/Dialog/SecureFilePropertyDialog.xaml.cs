@@ -40,7 +40,7 @@ namespace RX_Explorer.Dialog
         {
             StorageFile Item = (await StorageItem.GetStorageItem().ConfigureAwait(true)) as StorageFile;
             FileSize = StorageItem.Size;
-            FileName = StorageItem.DisplayName;
+            FileName = StorageItem.Name;
             FileType = StorageItem.DisplayType;
 
             using (Stream EncryptFileStream = await Item.OpenStreamForReadAsync().ConfigureAwait(true))

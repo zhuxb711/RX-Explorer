@@ -11,8 +11,6 @@
       Background="Transparent">
 
     <Page.Resources>
-        <Cls:PropertyDisplayConverter x:Key="StateConverter" />
-
         <CommandBarFlyout x:Name="FileFlyout"
                           Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Copy"
@@ -418,7 +416,7 @@
                             VerticalAlignment="Top"
                             Margin="5,0,0,0">
                     <TextBlock IsHitTestVisible="False"
-                               Text="{x:Bind DisplayName,Mode=OneWay}"
+                               Text="{x:Bind Name,Mode=OneWay}"
                                FontSize="16"
                                Width="140"
                                HorizontalTextAlignment="Left"
@@ -430,8 +428,7 @@
                                TextTrimming="CharacterEllipsis"
                                Width="140" />
                     <TextBlock IsHitTestVisible="False"
-                               Text="{x:Bind Size,Mode=OneWay}"
-                               Visibility="{x:Bind StorageType,Converter={StaticResource StateConverter}}"
+                               Text="{x:Bind Size}"
                                FontSize="13"
                                HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
@@ -452,7 +449,7 @@
                        Height="95"
                        Width="120" />
                 <TextBlock IsHitTestVisible="False"
-                           Text="{x:Bind DisplayName,Mode=OneWay}"
+                           Text="{x:Bind Name,Mode=OneWay}"
                            FontSize="15"
                            Width="120"
                            Margin="0,3,0,0"
@@ -474,7 +471,7 @@
                        Height="70"
                        Width="90" />
                 <TextBlock IsHitTestVisible="False"
-                           Text="{x:Bind DisplayName,Mode=OneWay}"
+                           Text="{x:Bind Name,Mode=OneWay}"
                            FontSize="13"
                            Width="90"
                            Margin="0,3,0,0"
@@ -496,7 +493,7 @@
                        Height="40"
                        Width="60"/>
                 <TextBlock IsHitTestVisible="False"
-                           Text="{x:Bind DisplayName,Mode=OneWay}"
+                           Text="{x:Bind Name,Mode=OneWay}"
                            FontSize="11"
                            Width="60"
                            Margin="0,3,0,0"
@@ -611,8 +608,8 @@
                     <TextBlock VerticalAlignment="Center"
                                FontSize="14"
                                Grid.Column="1"
-                               Text="{x:Bind DisplayName,Mode=OneWay}"
-                               ToolTipService.ToolTip="{x:Bind DisplayName,Mode=OneWay}"
+                               Text="{x:Bind Name,Mode=OneWay}"
+                               ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay}"
                                TextTrimming="CharacterEllipsis" />
                 </Grid>
                 <TextBlock VerticalAlignment="Center"
@@ -626,16 +623,15 @@
                            FontSize="14"
                            Padding="8,0,0,0"
                            Text="{x:Bind DisplayType,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind DisplayType}"
+                           ToolTipService.ToolTip="{x:Bind DisplayType,Mode=OneWay}"
                            Grid.Column="2"
-                           Visibility="{x:Bind StorageType,Converter={StaticResource StateConverter}}"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock VerticalAlignment="Center"
                            FontSize="14"
                            Padding="8,0,0,0"
-                           Text="{x:Bind Size,Mode=OneWay}"
+                           Text="{x:Bind Size}"
+                           ToolTipService.ToolTip="{x:Bind Size}"
                            TextTrimming="CharacterEllipsis"
-                           Visibility="{x:Bind StorageType,Converter={StaticResource StateConverter}}"
                            Grid.Column="3" />
                 <TextBlock VerticalAlignment="Center"
                            Padding="8,0,0,0"
@@ -661,8 +657,8 @@
                        Width="30"/>
                 <TextBlock VerticalAlignment="Center"
                            FontSize="15"
-                           Text="{x:Bind DisplayName,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind DisplayName,Mode=OneWay}"
+                           Text="{x:Bind Name,Mode=OneWay}"
+                           ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay}"
                            TextTrimming="CharacterEllipsis"
                            Grid.Column="1"/>
                 <TextBlock VerticalAlignment="Center"

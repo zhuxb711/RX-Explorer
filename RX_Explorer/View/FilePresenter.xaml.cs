@@ -907,7 +907,7 @@ namespace RX_Explorer
                         return;
                     }
 
-                    RenameDialog dialog = new RenameDialog(RenameItem.Name);
+                    RenameDialog dialog = new RenameDialog(File);
                     if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         if (dialog.DesireName == RenameItem.Type)
@@ -966,7 +966,7 @@ namespace RX_Explorer
                         return;
                     }
 
-                    RenameDialog dialog = new RenameDialog(RenameItem.Name);
+                    RenameDialog dialog = new RenameDialog(Folder);
                     if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         if (string.IsNullOrWhiteSpace(dialog.DesireName))
@@ -3224,12 +3224,12 @@ namespace RX_Explorer
                     if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                     {
                         e.AcceptedOperation = DataPackageOperation.Copy;
-                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Item.DisplayName}";
+                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Item.Name}";
                     }
                     else
                     {
                         e.AcceptedOperation = DataPackageOperation.Move;
-                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Item.DisplayName}";
+                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Item.Name}";
                     }
 
                     e.DragUIOverride.IsContentVisible = true;

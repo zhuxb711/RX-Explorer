@@ -717,7 +717,7 @@ namespace RX_Explorer
         {
             if (SecureGridView.SelectedItem is FileSystemStorageItem RenameItem)
             {
-                RenameDialog dialog = new RenameDialog(RenameItem.Name);
+                RenameDialog dialog = new RenameDialog(await RenameItem.GetStorageItem().ConfigureAwait(true));
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
                     if (dialog.DesireName == RenameItem.Type)

@@ -735,7 +735,7 @@ namespace RX_Explorer
                 return;
             }
 
-            RenameDialog renameDialog = new RenameDialog(CurrentFolder.Name);
+            RenameDialog renameDialog = new RenameDialog(CurrentFolder);
             if (await renameDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
             {
                 if (string.IsNullOrEmpty(renameDialog.DesireName))

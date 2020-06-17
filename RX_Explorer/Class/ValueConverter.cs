@@ -54,26 +54,6 @@ namespace RX_Explorer.Class
         }
     }
 
-    public sealed class PropertyDisplayConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            if (value is StorageItemTypes Type && Type == StorageItemTypes.Folder)
-            {
-                return Visibility.Collapsed;
-            }
-            else
-            {
-                return Visibility.Visible;
-            }
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     public sealed class FolderStateConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
