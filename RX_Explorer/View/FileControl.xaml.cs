@@ -1082,7 +1082,7 @@ namespace RX_Explorer
                     case LaunchQuerySupportStatus.Available:
                     case LaunchQuerySupportStatus.NotSupported:
                         {
-                            await FullTrustExcutorController.Current.RunAsync("explorer.exe", @"shell:AppsFolder\Microsoft.WindowsTerminal_8wekyb3d8bbwe!App").ConfigureAwait(false);
+                            await FullTrustExcutorController.Current.RunAsync("wt.exe", $"/d {CurrentFolder.Path}").ConfigureAwait(false);
                             return;
                         }
                 }
@@ -2227,6 +2227,14 @@ namespace RX_Explorer
                     };
                     WinExButton.Click += Instance.UseSystemFileMananger_Click;
                     BottomCommandBar.PrimaryCommands.Add(WinExButton);
+
+                    AppBarButton TerminalButton = new AppBarButton
+                    {
+                        Icon = new FontIcon { Glyph= "\uE756" },
+                        Label = Globalization.GetString("Operate_Text_OpenInTerminal")
+                    };
+                    TerminalButton.Click += Instance.OpenInTerminal_Click;
+                    BottomCommandBar.PrimaryCommands.Add(TerminalButton);
 
                     MenuFlyout NewFlyout = new MenuFlyout();
                     MenuFlyoutItem CreateFileItem = new MenuFlyoutItem

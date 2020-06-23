@@ -375,9 +375,12 @@ namespace RX_Explorer
 
         private async void PortalDeviceWatcher_Added(DeviceWatcher sender, DeviceInformation args)
         {
+            Dictionary<string, bool> VisibilityMap = await SQLite.Current.GetDeviceVisibilityMapAsync().ConfigureAwait(true);
+
             IEnumerable<string> NewDriveAddedList = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
                                                                          .Select((Item) => Item.RootDirectory.FullName)
-                                                                         .Where((NewItem) => HardDeviceList.All((Item) => Item.Folder.Path != NewItem));
+                                                                         .Where((NewItem) => HardDeviceList.All((Item) => Item.Folder.Path != NewItem))
+                                                                         .Where((Path) => !VisibilityMap.ContainsKey(Path) || VisibilityMap[Path]);
             try
             {
                 foreach (string DriveRootPath in NewDriveAddedList)
@@ -388,7 +391,7 @@ namespace RX_Explorer
 
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
-                        HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve));
+                        HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
                     });
                 }
             }
@@ -635,24 +638,21 @@ namespace RX_Explorer
                 Dictionary<string, bool> VisibilityMap = await SQLite.Current.GetDeviceVisibilityMapAsync().ConfigureAwait(true);
 
                 bool AccessError = false;
-                foreach (string DriveRootPath in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
-                                                                      .Select((Item) => Item.RootDirectory.FullName)
-                                                                      .Where((NewItem) => HardDeviceList.All((Item) => Item.Folder.Path != NewItem)))
+                foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                                                                 .Where((NewItem) => HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName))
+                                                                 .Where((Drive) => !VisibilityMap.ContainsKey(Drive.RootDirectory.FullName) || VisibilityMap[Drive.RootDirectory.FullName]))
                 {
-                    if (!VisibilityMap.ContainsKey(DriveRootPath) || VisibilityMap[DriveRootPath])
+                    try
                     {
-                        try
-                        {
-                            StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
+                        StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName);
 
-                            BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                            IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-                            HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve));
-                        }
-                        catch (Exception)
-                        {
-                            AccessError = true;
-                        }
+                        BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+                        HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType == DriveType.Removable));
+                    }
+                    catch
+                    {
+                        AccessError = true;
                     }
                 }
 
@@ -665,23 +665,6 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
-
-                foreach (string AdditionalDrivePath in VisibilityMap.Where((Item) => Item.Value && HardDeviceList.All((Device) => Item.Key != Device.Folder.Path)).Select((Result) => Result.Key))
-                {
-                    try
-                    {
-                        StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(AdditionalDrivePath);
-
-                        BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-
-                        HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve));
-                    }
-                    catch (Exception)
-                    {
-                        await SQLite.Current.SetDeviceVisibilityAsync(AdditionalDrivePath, false).ConfigureAwait(true);
-                    }
                 }
 
                 switch (PortalDeviceWatcher.Status)
@@ -742,7 +725,6 @@ namespace RX_Explorer
             if ((args.Tab.Content as Frame).Content is ThisPC PC && TFInstanceContainer.ContainsKey(PC))
             {
                 TFInstanceContainer[PC].Dispose();
-                FFInstanceContainer[TFInstanceContainer[PC]].Dispose();
                 FFInstanceContainer.Remove(TFInstanceContainer[PC]);
                 FSInstanceContainer.Remove(TFInstanceContainer[PC]);
                 TFInstanceContainer.Remove(PC);
@@ -750,7 +732,6 @@ namespace RX_Explorer
             else if ((args.Tab.Content as Frame).Content is FileControl Control && TFInstanceContainer.ContainsValue(Control))
             {
                 Control.Dispose();
-                FFInstanceContainer[Control].Dispose();
                 FFInstanceContainer.Remove(Control);
                 FSInstanceContainer.Remove(Control);
                 TFInstanceContainer.Remove(TFInstanceContainer.First((Item) => Item.Value == Control).Key);

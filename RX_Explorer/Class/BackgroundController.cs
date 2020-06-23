@@ -280,17 +280,15 @@ namespace RX_Explorer.Class
                         {
                             if (Ur != uri.ToString())
                             {
-                                BitmapImage Bitmap = new BitmapImage();
+                                BitmapImage Bitmap = new BitmapImage(uri);
                                 PictureBackgroundBrush.ImageSource = Bitmap;
-                                Bitmap.UriSource = uri;
                                 ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = uri.ToString();
                             }
                         }
                         else
                         {
-                            BitmapImage Bitmap = new BitmapImage();
+                            BitmapImage Bitmap = new BitmapImage(uri);
                             PictureBackgroundBrush.ImageSource = Bitmap;
-                            Bitmap.UriSource = uri;
                             ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = uri.ToString();
                         }
 

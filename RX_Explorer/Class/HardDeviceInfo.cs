@@ -89,13 +89,15 @@ namespace RX_Explorer.Class
             }
         }
 
+        public bool IsPortableDevice { get; private set; }
+
         /// <summary>
         /// 初始化HardDeviceInfo对象
         /// </summary>
         /// <param name="Device">驱动器文件夹</param>
         /// <param name="Thumbnail">缩略图</param>
         /// <param name="PropertiesRetrieve">额外信息</param>
-        public HardDeviceInfo(StorageFolder Device, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve)
+        public HardDeviceInfo(StorageFolder Device, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve, bool IsPortableDevice)
         {
             Folder = Device ?? throw new FileNotFoundException();
 
@@ -105,6 +107,7 @@ namespace RX_Explorer.Class
             }
 
             this.Thumbnail = Thumbnail;
+            this.IsPortableDevice = IsPortableDevice;
 
             if (PropertiesRetrieve["System.Capacity"] is ulong TotalByte && PropertiesRetrieve["System.FreeSpace"] is ulong FreeByte)
             {

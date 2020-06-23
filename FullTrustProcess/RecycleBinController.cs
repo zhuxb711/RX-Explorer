@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using Vanara.Extensions;
 using Vanara.PInvoke;
@@ -13,11 +12,12 @@ namespace FullTrustProcess
     {
         public static string GenerateRecycleItemsByJson()
         {
-            List<Dictionary<string, string>> RecycleItemList = new List<Dictionary<string, string>>();
-
-            using (ShellFolder RecycleBin = new ShellFolder(Shell32.KNOWNFOLDERID.FOLDERID_RecycleBinFolder))
+            try
             {
-                foreach (ShellItem Item in RecycleBin)
+
+                List<Dictionary<string, string>> RecycleItemList = new List<Dictionary<string, string>>();
+
+                foreach (ShellItem Item in RecycleBin.GetItems())
                 {
                     if (!Path.GetExtension(Item.FileSystemPath).Equals(".lnk", StringComparison.OrdinalIgnoreCase))
                     {
@@ -31,15 +31,55 @@ namespace FullTrustProcess
                         RecycleItemList.Add(PropertyDic);
                     }
                 }
-            }
 
-            return JsonConvert.SerializeObject(RecycleItemList);
+                return JsonConvert.SerializeObject(RecycleItemList);
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        public static bool Restore(string Path)
+        {
+            try
+            {
+                using (ShellItem Item = new ShellItem(Path))
+                {
+                    RecycleBin.Restore(Item);
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool Delete(string Path)
+        {
+            try
+            {
+                RecycleBin.DeleteToRecycleBin(Path);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static bool EmptyRecycleBin()
         {
-            HRESULT Result = Shell32.SHEmptyRecycleBin(IntPtr.Zero, null, Shell32.SHERB.SHERB_NOSOUND | Shell32.SHERB.SHERB_NOPROGRESSUI | Shell32.SHERB.SHERB_NOCONFIRMATION);
-            return Result == HRESULT.S_OK || Result == HRESULT.E_UNEXPECTED;
+            try
+            {
+                RecycleBin.Empty();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

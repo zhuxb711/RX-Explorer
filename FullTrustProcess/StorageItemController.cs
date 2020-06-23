@@ -7,7 +7,7 @@ using Vanara.Windows.Shell;
 
 namespace FullTrustProcess
 {
-    public static class StorageItemOperator
+    public static class StorageItemController
     {
         [DllImport("kernel32.dll")]
         private static extern IntPtr _lopen(string lpPathName, int iReadWrite);
@@ -134,10 +134,7 @@ namespace FullTrustProcess
                 }
                 else
                 {
-                    using (ShellItem Item = new ShellItem(Path))
-                    {
-                        ShellFileOperations.Delete(Item, ShellFileOperations.OperationFlags.AllowUndo | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
-                    }
+                    return RecycleBinController.Delete(Path);
                 }
 
                 return true;

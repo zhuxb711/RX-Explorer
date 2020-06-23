@@ -15,14 +15,16 @@ namespace FullTrustProcess
     {
         private static AppServiceConnection Connection;
 
-        private static readonly HashSet<string> SpecialStringMap = new HashSet<string>(2)
+        private static readonly HashSet<string> SpecialStringMap = new HashSet<string>()
         {
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), "cmd.exe")
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), "cmd.exe"),
+            "wt.exe"
         };
 
         private readonly static ManualResetEvent ExitLocker = new ManualResetEvent(false);
 
+        [STAThread]
         static async Task Main(string[] args)
         {
             ExitExistInstance();
@@ -107,10 +109,18 @@ namespace FullTrustProcess
                         }
                     case "Excute_Get_RecycleBinItems":
                         {
-                            ValueSet Result = new ValueSet
+                            ValueSet Result = new ValueSet();
+
+                            string RecycleItemResult = RecycleBinController.GenerateRecycleItemsByJson();
+                            if (string.IsNullOrEmpty(RecycleItemResult))
                             {
-                                {"RecycleBinItems_Json_Result" , RecycleBinController.GenerateRecycleItemsByJson()}
-                            };
+                                Result.Add("Error", "Unknown reason");
+                            }
+                            else
+                            {
+                                Result.Add("RecycleBinItems_Json_Result", RecycleItemResult);
+                            }
+
                             await args.Request.SendResponseAsync(Result);
                             break;
                         }
@@ -130,6 +140,39 @@ namespace FullTrustProcess
                             await args.Request.SendResponseAsync(Result);
                             break;
                         }
+                    case "Excute_Restore_RecycleItem":
+                        {
+                            Debugger.Launch();
+
+                            string Path = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            
+                            ValueSet Result = new ValueSet
+                            {
+                                {"Restore_Result", RecycleBinController.Restore(Path) }
+                            };
+
+                            await args.Request.SendResponseAsync(Result);
+                            break;
+                        }
+                    case "Excute_EjectUSB":
+                        {
+                            ValueSet Value = new ValueSet();
+
+                            string Path = Convert.ToString(args.Request.Message["ExcutePath"]);
+
+                            if (string.IsNullOrEmpty(Path))
+                            {
+                                Value.Add("EjectResult", false);
+                            }
+                            else
+                            {
+                                Value.Add("EjectResult", USBController.EjectDevice(Path));
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Excute_Unlock_Occupy":
                         {
                             ValueSet Value = new ValueSet();
@@ -138,9 +181,9 @@ namespace FullTrustProcess
 
                             if (File.Exists(Path))
                             {
-                                if (StorageItemOperator.CheckOccupied(Path))
+                                if (StorageItemController.CheckOccupied(Path))
                                 {
-                                    if (StorageItemOperator.TryUnoccupied(Path))
+                                    if (StorageItemController.TryUnoccupied(Path))
                                     {
                                         Value.Add("Success", string.Empty);
                                     }
@@ -172,7 +215,7 @@ namespace FullTrustProcess
 
                             if (Directory.Exists(SourcePath))
                             {
-                                if (StorageItemOperator.Copy(SourcePath, DestinationPath, args.Request.Message.ContainsKey("NewName") ? Convert.ToString(args.Request.Message["NewName"]) : null))
+                                if (StorageItemController.Copy(SourcePath, DestinationPath, args.Request.Message.ContainsKey("NewName") ? Convert.ToString(args.Request.Message["NewName"]) : null))
                                 {
                                     Value.Add("Success", string.Empty);
                                 }
@@ -183,7 +226,7 @@ namespace FullTrustProcess
                             }
                             else if (File.Exists(SourcePath))
                             {
-                                if (StorageItemOperator.Copy(SourcePath, DestinationPath))
+                                if (StorageItemController.Copy(SourcePath, DestinationPath))
                                 {
                                     Value.Add("Success", string.Empty);
                                 }
@@ -210,7 +253,7 @@ namespace FullTrustProcess
 
                             if (Directory.Exists(SourcePath))
                             {
-                                if (StorageItemOperator.Move(SourcePath, DestinationPath, args.Request.Message.ContainsKey("NewName") ? Convert.ToString(args.Request.Message["NewName"]) : null))
+                                if (StorageItemController.Move(SourcePath, DestinationPath, args.Request.Message.ContainsKey("NewName") ? Convert.ToString(args.Request.Message["NewName"]) : null))
                                 {
                                     Value.Add("Success", string.Empty);
                                 }
@@ -221,13 +264,13 @@ namespace FullTrustProcess
                             }
                             else if (File.Exists(SourcePath))
                             {
-                                if (StorageItemOperator.CheckOccupied(SourcePath))
+                                if (StorageItemController.CheckOccupied(SourcePath))
                                 {
                                     Value.Add("Error_Capture", "An error occurred while moving the folder");
                                 }
                                 else
                                 {
-                                    if (StorageItemOperator.Move(SourcePath, DestinationPath))
+                                    if (StorageItemController.Move(SourcePath, DestinationPath))
                                     {
                                         Value.Add("Success", string.Empty);
                                     }
@@ -257,7 +300,7 @@ namespace FullTrustProcess
                             {
                                 if (File.Exists(ExcutePath))
                                 {
-                                    if (StorageItemOperator.CheckOccupied(ExcutePath))
+                                    if (StorageItemController.CheckOccupied(ExcutePath))
                                     {
                                         Value.Add("Error_Capture", "The specified file is captured");
                                     }
@@ -265,7 +308,7 @@ namespace FullTrustProcess
                                     {
                                         File.SetAttributes(ExcutePath, FileAttributes.Normal);
 
-                                        if (StorageItemOperator.Delete(ExcutePath, PermanentDelete))
+                                        if (StorageItemController.Delete(ExcutePath, PermanentDelete))
                                         {
                                             Value.Add("Success", string.Empty);
                                         }
@@ -282,7 +325,7 @@ namespace FullTrustProcess
                                         Attributes = FileAttributes.Normal & FileAttributes.Directory
                                     };
 
-                                    if (StorageItemOperator.Delete(ExcutePath, PermanentDelete))
+                                    if (StorageItemController.Delete(ExcutePath, PermanentDelete))
                                     {
                                         Value.Add("Success", string.Empty);
                                     }
@@ -317,12 +360,19 @@ namespace FullTrustProcess
                                 {
                                     if (ExcuteAuthority == "Administrator")
                                     {
-                                        ProcessStartInfo Info = new ProcessStartInfo(ExcutePath) { Verb = "runAs", RedirectStandardOutput = true };
-                                        Process.Start(ExcutePath).Dispose();
+                                        using (Process Process = new Process())
+                                        {
+                                            Process.StartInfo.Verb = "runAs";
+                                            Process.Start();
+                                        }
                                     }
                                     else
                                     {
-                                        Process.Start(ExcutePath).Dispose();
+                                        using (Process Process = new Process())
+                                        {
+                                            Process.StartInfo.FileName = ExcutePath;
+                                            Process.Start();
+                                        }
                                     }
                                 }
                                 else
@@ -331,24 +381,44 @@ namespace FullTrustProcess
                                     {
                                         if (ExcuteAuthority == "Administrator")
                                         {
-                                            ProcessStartInfo Info = new ProcessStartInfo(ExcutePath, ExcuteParameter) { Verb = "runAs" };
-                                            Process.Start(Info).Dispose();
+                                            using (Process Process = new Process())
+                                            {
+                                                Process.StartInfo.FileName = ExcutePath;
+                                                Process.StartInfo.Arguments = ExcuteParameter;
+                                                Process.StartInfo.Verb = "runAs";
+                                                Process.Start();
+                                            }
                                         }
                                         else
                                         {
-                                            Process.Start(ExcutePath, ExcuteParameter).Dispose();
+                                            using (Process Process = new Process())
+                                            {
+                                                Process.StartInfo.FileName = ExcutePath;
+                                                Process.StartInfo.Arguments = ExcuteParameter;
+                                                Process.Start();
+                                            }
                                         }
                                     }
                                     else
                                     {
                                         if (ExcuteAuthority == "Administrator")
                                         {
-                                            ProcessStartInfo Info = new ProcessStartInfo(ExcutePath, $"\"{ExcuteParameter}\"") { Verb = "runAs" };
-                                            Process.Start(Info).Dispose();
+                                            using (Process Process = new Process())
+                                            {
+                                                Process.StartInfo.FileName = ExcutePath;
+                                                Process.StartInfo.Arguments = $"\"{ExcuteParameter}\"";
+                                                Process.StartInfo.Verb = "runAs";
+                                                Process.Start();
+                                            }
                                         }
                                         else
                                         {
-                                            Process.Start(ExcutePath, $"\"{ExcuteParameter}\"").Dispose();
+                                            using (Process Process = new Process())
+                                            {
+                                                Process.StartInfo.FileName = ExcutePath;
+                                                Process.StartInfo.Arguments = $"\"{ExcuteParameter}\"";
+                                                Process.Start();
+                                            }
                                         }
                                     }
                                 }

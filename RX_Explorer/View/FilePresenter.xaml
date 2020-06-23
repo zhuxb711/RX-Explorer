@@ -272,6 +272,15 @@
                               x:Uid="RefreshView"
                               x:Name="Refresh"
                               Click="Refresh_Click"/>
+                <AppBarSeparator />
+                <AppBarButton Label="在终端中打开..."
+                              Name="OpenInTerminal"
+                              x:Uid="OpenInTerminal"
+                              Click="OpenInTerminal_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE756;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
                 <AppBarButton Icon="BackToWindow"
                               Label="使用系统管理器打开"
                               x:Uid="SystemManagerOpen"

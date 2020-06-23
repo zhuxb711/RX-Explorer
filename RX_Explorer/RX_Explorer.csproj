@@ -335,6 +335,7 @@
     <Content Include="Assets\UpdateLog-English.txt" />
     <Content Include="Assets\UpdateLog-French.txt" />
     <Content Include="Assets\Viewer.png" />
+    <Content Include="CustomImage\Picture15.jpg" />
     <Content Include="CustomImage\Picture14.jpg" />
     <Content Include="CustomImage\Picture10.jpg" />
     <Content Include="CustomImage\Picture7.jpg" />

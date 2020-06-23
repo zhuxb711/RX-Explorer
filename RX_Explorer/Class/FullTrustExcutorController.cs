@@ -33,6 +33,8 @@ namespace RX_Explorer.Class
 
         private const string ExcuteType_UnlockOccupy = "Excute_Unlock_Occupy";
 
+        private const string ExcuteType_EjectUSB = "Excute_EjectUSB";
+
         private const string ExcuteType_Copy = "Excute_Copy";
 
         private const string ExcuteType_Move = "Excute_Move";
@@ -42,6 +44,8 @@ namespace RX_Explorer.Class
         private const string ExcuteAuthority_Normal = "Normal";
 
         private const string ExcuteAuthority_Administrator = "Administrator";
+
+        private const string ExcuteType_Restore_RecycleItem = "Excute_Restore_RecycleItem";
 
         private volatile static FullTrustExcutorController Instance;
 
@@ -233,25 +237,32 @@ namespace RX_Explorer.Class
 
         public async Task<string> GetAssociateFromPathAsync(string Path)
         {
-            if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+            try
             {
-                ValueSet Value = new ValueSet
+                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
                 {
-                    {"ExcuteType", ExcuteType_Get_Associate},
-                    {"ExcutePath", Path}
-                };
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExcuteType", ExcuteType_Get_Associate},
+                        {"ExcutePath", Path}
+                    };
 
-                AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-                if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error"))
-                {
-                    return Convert.ToString(Response.Message["Associate_Result"]);
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+                    if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error"))
+                    {
+                        return Convert.ToString(Response.Message["Associate_Result"]);
+                    }
+                    else
+                    {
+                        return string.Empty;
+                    }
                 }
                 else
                 {
                     return string.Empty;
                 }
             }
-            else
+            catch
             {
                 return string.Empty;
             }
@@ -259,24 +270,31 @@ namespace RX_Explorer.Class
 
         public async Task<bool> EmptyRecycleBinAsync()
         {
-            if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+            try
             {
-                ValueSet Value = new ValueSet
+                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
                 {
-                    {"ExcuteType", ExcuteType_EmptyRecycleBin}
-                };
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExcuteType", ExcuteType_EmptyRecycleBin}
+                    };
 
-                AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-                if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error"))
-                {
-                    return Convert.ToBoolean(Response.Message["RecycleBinItems_Clear_Result"]);
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+                    if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error"))
+                    {
+                        return Convert.ToBoolean(Response.Message["RecycleBinItems_Clear_Result"]);
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
                     return false;
                 }
             }
-            else
+            catch
             {
                 return false;
             }
@@ -284,34 +302,41 @@ namespace RX_Explorer.Class
 
         public async Task<List<FileSystemStorageItem>> GetRecycleBinItemsAsync()
         {
-            if (await TryConnectToFullTrustExutor().ConfigureAwait(true))
+            try
             {
-                ValueSet Value = new ValueSet
+                if (await TryConnectToFullTrustExutor().ConfigureAwait(true))
                 {
-                    {"ExcuteType", ExcuteType_Get_RecycleBinItems}
-                };
-
-                AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-                if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error"))
-                {
-                    List<Dictionary<string, string>> Items = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(Convert.ToString(Response.Message["RecycleBinItems_Json_Result"]));
-                    List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>(Items.Count);
-
-                    foreach (Dictionary<string, string> PropertyDic in Items)
+                    ValueSet Value = new ValueSet
                     {
-                        FileSystemStorageItem Item = WIN_Native_API.GetStorageItems(PropertyDic["ActualPath"]).FirstOrDefault();
-                        Item.SetAsRecycleItem(PropertyDic["OriginPath"], DateTime.FromBinary(Convert.ToInt64(PropertyDic["CreateTime"])));
-                        Result.Add(Item);
-                    }
+                        {"ExcuteType", ExcuteType_Get_RecycleBinItems}
+                    };
 
-                    return Result;
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+                    if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error") && !string.IsNullOrEmpty(Convert.ToString(Response.Message["RecycleBinItems_Json_Result"])))
+                    {
+                        List<Dictionary<string, string>> Items = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(Convert.ToString(Response.Message["RecycleBinItems_Json_Result"]));
+                        List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>(Items.Count);
+
+                        foreach (Dictionary<string, string> PropertyDic in Items)
+                        {
+                            FileSystemStorageItem Item = WIN_Native_API.GetStorageItems(PropertyDic["ActualPath"]).FirstOrDefault();
+                            Item.SetAsRecycleItem(PropertyDic["OriginPath"], DateTime.FromBinary(Convert.ToInt64(PropertyDic["CreateTime"])));
+                            Result.Add(Item);
+                        }
+
+                        return Result;
+                    }
+                    else
+                    {
+                        return new List<FileSystemStorageItem>(0);
+                    }
                 }
                 else
                 {
                     return new List<FileSystemStorageItem>(0);
                 }
             }
-            else
+            catch
             {
                 return new List<FileSystemStorageItem>(0);
             }
@@ -639,6 +664,83 @@ namespace RX_Explorer.Class
             }
 
             return CopyAsync(Source.Path, Destination.Path);
+        }
+
+        public async Task<bool> RestoreAsync(string Path)
+        {
+            if (string.IsNullOrWhiteSpace(Path))
+            {
+                throw new ArgumentNullException(nameof(Path), "Parameter could not be null or empty");
+            }
+
+            try
+            {
+                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExcuteType", ExcuteType_Restore_RecycleItem},
+                        {"ExcutePath", Path},
+                    };
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        return Convert.ToBoolean(Response.Message["Restore_Result"]);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> EjectPortableDevice(string Path)
+        {
+            if (string.IsNullOrWhiteSpace(Path))
+            {
+                throw new ArgumentNullException(nameof(Path), "Parameter could not be null or empty");
+            }
+
+            try
+            {
+                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExcuteType", ExcuteType_EjectUSB},
+                        {"ExcutePath", Path},
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        return Convert.ToBoolean(Response.Message["EjectResult"]);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public void Dispose()

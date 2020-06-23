@@ -78,11 +78,13 @@
                               x:Uid="LibraryOpenButton"
                               Click="OpenLibrary_Click"
                               x:Name="OpenLibrary" />
+                <AppBarSeparator/>
                 <AppBarButton Icon="Cancel"
                               Name="RemovePin"
                               x:Uid="LibraryCancelButton"
                               Label="取消固定"
                               Click="RemovePin_Click" />
+                <AppBarSeparator/>
                 <AppBarButton Icon="Tag"
                               Label="属性"
                               x:Uid="FolderAttribute"
@@ -115,15 +117,45 @@
                               x:Uid="OpenDevice"
                               x:Name="OpenDevice"
                               Click="OpenDevice_Click" />
+                <AppBarSeparator/>
                 <AppBarButton Icon="UnPin"
                               Label="隐藏驱动器"
                               x:Uid="HideDevice"
                               x:Name="HideDevice"
                               Click="HideDevice_Click"/>
+                <AppBarSeparator/>
                 <AppBarButton Icon="Tag"
                               Label="属性"
                               x:Uid="DeviceAttribute"
                               x:Name="Attribute"
+                              Click="Attribute_Click" />
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
+
+        <CommandBarFlyout x:Name="PortableDeviceFlyout" 
+                          Placement="RightEdgeAlignedTop">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="BackToWindow"
+                              Label="打开"
+                              x:Uid="OpenDevice"
+                              Click="OpenDevice_Click" />
+                <AppBarSeparator/>
+                <AppBarButton Label="弹出"
+                              x:Uid="EjectUSB"
+                              Name="EjectButton"
+                              Click="EjectButton_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF847;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Icon="UnPin"
+                              Label="隐藏驱动器"
+                              x:Uid="HideDevice"
+                              Click="HideDevice_Click"/>
+                <AppBarSeparator/>
+                <AppBarButton Icon="Tag"
+                              Label="属性"
+                              x:Uid="DeviceAttribute"
                               Click="Attribute_Click" />
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
@@ -241,8 +273,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="文件夹和库"
                                            x:Uid="LibraryExpander" />
-                                <Line Grid.Column="1"
-                                      Stroke="Gray"
+                                <Line Stroke="Gray"
                                       StrokeThickness="2"
                                       X1="0"
                                       X2="2500"
@@ -320,8 +351,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="设备和驱动器"
                                            x:Uid="DeviceExpander" />
-                                <Line Grid.Column="1"
-                                      Stroke="Gray"
+                                <Line Stroke="Gray"
                                       StrokeThickness="2"
                                       X1="0"
                                       X2="2500"
@@ -332,44 +362,41 @@
                             </StackPanel>
                         </DataTemplate>
                     </controls:Expander.HeaderTemplate>
-                    <Grid ContextFlyout="{StaticResource EmptyFlyout}"
-                          x:Name="DeviceBackground">
-                        <GridView Margin="0,20,0,0"
-                                  Name="DeviceGrid"
-                                  x:FieldModifier="public"
-                                  IsItemClickEnabled="True"
-                                  IsDoubleTapEnabled="True"
-                                  IsRightTapEnabled="True"
-                                  IsHoldingEnabled="True"
-                                  Holding="DeviceGrid_Holding"
-                                  MinHeight="250"
-                                  ItemClick="DeviceGrid_ItemClick"
-                                  ContainerContentChanging="DeviceGrid_ContainerContentChanging"
-                                  PointerPressed="DeviceGrid_PointerPressed"
-                                  RightTapped="DeviceGrid_RightTapped"
-                                  SelectionChanged="DeviceGrid_SelectionChanged"
-                                  DoubleTapped="DeviceGrid_DoubleTapped"
-                                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
-                            <GridView.ItemTemplate>
-                                <DataTemplate x:DataType="Cls:HardDeviceInfo">
-                                    <StackPanel Orientation="Horizontal"
+                    <GridView Margin="0,20,0,0"
+                              Name="DeviceGrid"
+                              x:FieldModifier="public"
+                              IsItemClickEnabled="True"
+                              IsDoubleTapEnabled="True"
+                              IsRightTapEnabled="True"
+                              IsHoldingEnabled="True"
+                              Holding="DeviceGrid_Holding"
+                              MinHeight="300"
+                              ItemClick="DeviceGrid_ItemClick"
+                              ContainerContentChanging="DeviceGrid_ContainerContentChanging"
+                              PointerPressed="DeviceGrid_PointerPressed"
+                              RightTapped="DeviceGrid_RightTapped"
+                              DoubleTapped="DeviceGrid_DoubleTapped"
+                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
+                        <GridView.ItemTemplate>
+                            <DataTemplate x:DataType="Cls:HardDeviceInfo">
+                                <StackPanel Orientation="Horizontal"
                                                 HorizontalAlignment="Center"
                                                 Padding="5">
-                                        <Image VerticalAlignment="Center"
+                                    <Image VerticalAlignment="Center"
                                                IsHitTestVisible="False"
                                                Height="55"
                                                Width="55"
                                                Source="{x:Bind Thumbnail}"
                                                Stretch="Uniform" />
-                                        <StackPanel VerticalAlignment="Center"
+                                    <StackPanel VerticalAlignment="Center"
                                                     Orientation="Vertical"
                                                     Margin="10,0,0,0">
-                                            <TextBlock IsHitTestVisible="False"
+                                        <TextBlock IsHitTestVisible="False"
                                                        FontSize="15"
                                                        Width="200"
                                                        TextTrimming="CharacterEllipsis"
                                                        Text="{x:Bind Name}" />
-                                            <ProgressBar x:Name="Pro"
+                                        <ProgressBar x:Name="Pro"
                                                          Width="200"
                                                          Height="13"
                                                          Foreground="{x:Bind ProgressBarForeground}"
@@ -377,23 +404,22 @@
                                                          Maximum="1"
                                                          Minimum="0"
                                                          Value="{x:Bind Percent}" />
-                                            <TextBlock IsHitTestVisible="False"
+                                        <TextBlock IsHitTestVisible="False"
                                                        Width="200"
                                                        FontSize="14"
                                                        TextTrimming="CharacterEllipsis"
                                                        Text="{x:Bind StorageSpaceDescription}" />
-                                        </StackPanel>
                                     </StackPanel>
-                                </DataTemplate>
-                            </GridView.ItemTemplate>
-                            <GridView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <ItemsWrapGrid Orientation="Horizontal"
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridView.ItemTemplate>
+                        <GridView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid Orientation="Horizontal"
                                                    HorizontalAlignment="Stretch" />
-                                </ItemsPanelTemplate>
-                            </GridView.ItemsPanel>
-                        </GridView>
-                    </Grid>
+                            </ItemsPanelTemplate>
+                        </GridView.ItemsPanel>
+                    </GridView>
                 </controls:Expander>
             </StackPanel>
         </ScrollViewer>

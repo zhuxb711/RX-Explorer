@@ -2480,4 +2480,16 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="RestoreRecycle.Label" xml:space="preserve">
     <value>Restore</value>
   </data>
+  <data name="QueueContentDialog_UnableToEject_Content" xml:space="preserve">
+    <value>Could not eject this USB device</value>
+  </data>
+  <data name="EjectUSB.Label" xml:space="preserve">
+    <value>Eject</value>
+  </data>
+  <data name="OpenInTerminal.Label" xml:space="preserve">
+    <value>Open in terminal...</value>
+  </data>
+  <data name="Operate_Text_OpenInTerminal" xml:space="preserve">
+    <value>Open in terminal...</value>
+  </data>
 </root>

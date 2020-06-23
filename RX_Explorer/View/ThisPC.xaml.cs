@@ -314,18 +314,15 @@ namespace RX_Explorer
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Context)
                 {
-                    DeviceGrid.SelectedIndex = TabViewContainer.ThisPage.HardDeviceList.IndexOf(Context);
+                    DeviceGrid.SelectedItem = Context;
+                    DeviceGrid.ContextFlyout = Context.IsPortableDevice ? PortableDeviceFlyout : DeviceFlyout;
                 }
                 else
                 {
                     DeviceGrid.SelectedIndex = -1;
+                    DeviceGrid.ContextFlyout = EmptyFlyout;
                 }
             }
-        }
-
-        private void DeviceGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            DeviceBackground.ContextFlyout = DeviceGrid.SelectedItem != null ? DeviceFlyout : EmptyFlyout;
         }
 
         private void OpenDevice_Click(object sender, RoutedEventArgs e)
@@ -446,45 +443,21 @@ namespace RX_Explorer
 
                     Dictionary<string, bool> VisibilityMap = await SQLite.Current.GetDeviceVisibilityMapAsync().ConfigureAwait(true);
 
-                    foreach (string DriveRootPath in DriveInfo.GetDrives()
-                                                              .Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
-                                                              .Select((Drive) => Drive.RootDirectory.FullName))
+                    foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                                                 .Where((NewItem) => TabViewContainer.ThisPage.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName))
+                                                 .Where((Drive) => !VisibilityMap.ContainsKey(Drive.RootDirectory.FullName) || VisibilityMap[Drive.RootDirectory.FullName]))
                     {
                         try
                         {
-                            if (VisibilityMap.ContainsKey(DriveRootPath) && !VisibilityMap[DriveRootPath])
-                            {
-                                continue;
-                            }
-
-                            StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(DriveRootPath);
-                            if (TabViewContainer.ThisPage.HardDeviceList.All((Drive) => Drive.Folder.Path != Device.Path))
-                            {
-                                BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                                IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-                                TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve));
-                            }
-                        }
-                        catch
-                        {
-
-                        }
-                    }
-
-                    foreach (string AdditionalDrivePath in VisibilityMap.Where((Item) => Item.Value && TabViewContainer.ThisPage.HardDeviceList.All((Device) => Item.Key != Device.Folder.Path)).Select((Result) => Result.Key))
-                    {
-                        try
-                        {
-                            StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(AdditionalDrivePath);
+                            StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName);
 
                             BasicProperties Properties = await Device.GetBasicPropertiesAsync();
                             IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-
-                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve));
+                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType == DriveType.Removable));
                         }
                         catch
                         {
-                            await SQLite.Current.SetDeviceVisibilityAsync(AdditionalDrivePath, false).ConfigureAwait(true);
+
                         }
                     }
                 }
@@ -568,7 +541,7 @@ namespace RX_Explorer
                     {
                         BasicProperties Properties = await Device.GetBasicPropertiesAsync();
                         IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-                        TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve));
+                        TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, new DriveInfo(Device.Path).DriveType == DriveType.Removable));
                         await SQLite.Current.SetDeviceVisibilityAsync(Device.Path, true).ConfigureAwait(false);
                     }
                     else
@@ -666,11 +639,13 @@ namespace RX_Explorer
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Context)
                 {
-                    DeviceGrid.SelectedIndex = TabViewContainer.ThisPage.HardDeviceList.IndexOf(Context);
+                    DeviceGrid.SelectedItem = Context;
+                    DeviceGrid.ContextFlyout = Context.IsPortableDevice ? PortableDeviceFlyout : DeviceFlyout;
                 }
                 else
                 {
                     DeviceGrid.SelectedIndex = -1;
+                    DeviceGrid.ContextFlyout = EmptyFlyout;
                 }
             }
         }
@@ -683,6 +658,27 @@ namespace RX_Explorer
         private void DeviceExpander_Collapsed(object sender, EventArgs e)
         {
             DeviceGrid.SelectedIndex = -1;
+        }
+
+        private async void EjectButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (DeviceGrid.SelectedItem is HardDeviceInfo Item)
+            {
+                if (await FullTrustExcutorController.Current.EjectPortableDevice(Item.Folder.Path).ConfigureAwait(true))
+                {
+                    TabViewContainer.ThisPage.HardDeviceList.Remove(Item);
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueContentDialog_UnableToEject_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                }
+            }
         }
     }
 }

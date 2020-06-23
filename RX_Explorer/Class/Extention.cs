@@ -1188,16 +1188,22 @@ namespace RX_Explorer.Class
         public async static Task<string> ComputeMD5Hash(this StorageFile File, CancellationToken Token)
         {
             using (MD5 md5 = MD5.Create())
+            using (Stream stream = await File.OpenStreamForReadAsync().ConfigureAwait(false))
             {
                 Token.Register((s) =>
                 {
-                    MD5 Para = s as MD5;
-                    Para.Dispose();
-                }, md5, false);
+                    try
+                    {
+                        Stream Para = s as Stream;
+                        Para.Dispose();
+                    }
+                    catch
+                    {
 
-                using (Stream stream = await File.OpenStreamForReadAsync().ConfigureAwait(false))
-                {
-                    return await Task.Run(() =>
+                    }
+                }, stream, false);
+
+                return await Task.Run(() =>
                     {
                         try
                         {
@@ -1217,23 +1223,28 @@ namespace RX_Explorer.Class
                             return string.Empty;
                         }
                     }).ConfigureAwait(false);
-                }
             }
         }
 
         public async static Task<string> ComputeSHA1Hash(this StorageFile File, CancellationToken Token)
         {
             using (SHA1 SHA = SHA1.Create())
+            using (Stream stream = await File.OpenStreamForReadAsync().ConfigureAwait(false))
             {
                 Token.Register((s) =>
                 {
-                    SHA1 Para = s as SHA1;
-                    Para.Dispose();
-                }, SHA, false);
+                    try
+                    {
+                        Stream Para = s as Stream;
+                        Para.Dispose();
+                    }
+                    catch
+                    {
 
-                using (Stream stream = await File.OpenStreamForReadAsync().ConfigureAwait(false))
-                {
-                    return await Task.Run(() =>
+                    }
+                }, stream, false);
+
+                return await Task.Run(() =>
                     {
                         try
                         {
@@ -1253,79 +1264,88 @@ namespace RX_Explorer.Class
                             return string.Empty;
                         }
                     }).ConfigureAwait(false);
-                }
             }
         }
 
         public async static Task<string> ComputeSHA256Hash(this StorageFile File, CancellationToken Token)
         {
             using (SHA256 SHA = SHA256.Create())
+            using (Stream stream = await File.OpenStreamForReadAsync().ConfigureAwait(false))
             {
                 Token.Register((s) =>
                 {
-                    SHA256 Para = s as SHA256;
-                    Para.Dispose();
-                }, SHA, false);
-
-                using (Stream stream = await File.OpenStreamForReadAsync().ConfigureAwait(false))
-                {
-                    return await Task.Run(() =>
+                    try
                     {
-                        try
+                        Stream Para = s as Stream;
+                        Para.Dispose();
+                    }
+                    catch
+                    {
+
+                    }
+                }, stream, false);
+
+                return await Task.Run(() =>
+                {
+                    try
+                    {
+                        byte[] Hash = SHA.ComputeHash(stream);
+
+                        StringBuilder builder = new StringBuilder();
+
+                        for (int i = 0; i < Hash.Length; i++)
                         {
-                            byte[] Hash = SHA.ComputeHash(stream);
-
-                            StringBuilder builder = new StringBuilder();
-
-                            for (int i = 0; i < Hash.Length; i++)
-                            {
-                                _ = builder.Append(Hash[i].ToString("x2"));
-                            }
-
-                            return builder.ToString();
+                            _ = builder.Append(Hash[i].ToString("x2"));
                         }
-                        catch
-                        {
-                            return string.Empty;
-                        }
-                    }).ConfigureAwait(false);
-                }
+
+                        return builder.ToString();
+                    }
+                    catch
+                    {
+                        return string.Empty;
+                    }
+                }).ConfigureAwait(false);
             }
         }
 
         public async static Task<string> ComputeCrc32Hash(this StorageFile File, CancellationToken Token)
         {
             using (Crc32CAlgorithm Crc = new Crc32CAlgorithm(false))
+            using (Stream stream = await File.OpenStreamForReadAsync().ConfigureAwait(false))
             {
                 Token.Register((s) =>
                 {
-                    Crc32CAlgorithm Para = s as Crc32CAlgorithm;
-                    Para.Dispose();
-                }, Crc, false);
-
-                using (Stream stream = await File.OpenStreamForReadAsync().ConfigureAwait(false))
-                {
-                    return await Task.Run(() =>
+                    try
                     {
-                        try
+                        Stream Para = s as Stream;
+                        Para.Dispose();
+                    }
+                    catch
+                    {
+
+                    }
+                }, stream, false);
+
+                return await Task.Run(() =>
+                {
+                    try
+                    {
+                        byte[] Hash = Crc.ComputeHash(stream);
+
+                        StringBuilder builder = new StringBuilder();
+
+                        for (int i = 0; i < Hash.Length; i++)
                         {
-                            byte[] Hash = Crc.ComputeHash(stream);
-
-                            StringBuilder builder = new StringBuilder();
-
-                            for (int i = 0; i < Hash.Length; i++)
-                            {
-                                _ = builder.Append(Hash[i].ToString("x2"));
-                            }
-
-                            return builder.ToString();
+                            _ = builder.Append(Hash[i].ToString("x2"));
                         }
-                        catch
-                        {
-                            return string.Empty;
-                        }
-                    }).ConfigureAwait(false);
-                }
+
+                        return builder.ToString();
+                    }
+                    catch
+                    {
+                        return string.Empty;
+                    }
+                }).ConfigureAwait(false);
             }
         }
     }

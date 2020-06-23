@@ -33,7 +33,7 @@ using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer
 {
-    public sealed partial class FilePresenter : Page, IDisposable
+    public sealed partial class FilePresenter : Page
     {
         public ObservableCollection<FileSystemStorageItem> FileCollection { get; private set; }
 
@@ -56,8 +56,6 @@ namespace RX_Explorer
         private readonly DispatcherTimer PointerHoverTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
 
         private CancellationTokenSource HashCancellation;
-
-        private AutoResetEvent HashLocker = new AutoResetEvent(true);
 
         private ListViewBase itemPresenter;
         public ListViewBase ItemPresenter
@@ -1941,9 +1939,58 @@ namespace RX_Explorer
         {
             Restore();
 
-            StorageFile Item = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFile;
+            if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile Item)
+            {
+                if (QRTeachTip.IsOpen)
+                {
+                    QRTeachTip.IsOpen = false;
+                }
 
-            if (!await Item.CheckExist().ConfigureAwait(true))
+                await Task.Run(() =>
+                {
+                    SpinWait.SpinUntil(() => WiFiProvider == null);
+                }).ConfigureAwait(true);
+
+                WiFiProvider = new WiFiShareProvider();
+                WiFiProvider.ThreadExitedUnexpectly += WiFiProvider_ThreadExitedUnexpectly;
+
+                string Hash = Item.Path.ComputeMD5Hash();
+                QRText.Text = WiFiProvider.CurrentUri + Hash;
+                WiFiProvider.FilePathMap = new KeyValuePair<string, string>(Hash, Item.Path);
+
+                QrCodeEncodingOptions options = new QrCodeEncodingOptions()
+                {
+                    DisableECI = true,
+                    CharacterSet = "UTF-8",
+                    Width = 250,
+                    Height = 250,
+                    ErrorCorrection = ErrorCorrectionLevel.Q
+                };
+
+                BarcodeWriter Writer = new BarcodeWriter
+                {
+                    Format = BarcodeFormat.QR_CODE,
+                    Options = options
+                };
+
+                WriteableBitmap Bitmap = Writer.Write(QRText.Text);
+                using (SoftwareBitmap PreTransImage = SoftwareBitmap.CreateCopyFromBuffer(Bitmap.PixelBuffer, BitmapPixelFormat.Bgra8, 250, 250))
+                using (SoftwareBitmap TransferImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 400, 250, BitmapAlphaMode.Premultiplied))
+                {
+                    OpenCVLibrary.ExtendImageBorder(PreTransImage, TransferImage, Colors.White, 0, 75, 75, 0);
+                    SoftwareBitmapSource Source = new SoftwareBitmapSource();
+                    QRImage.Source = Source;
+                    await Source.SetBitmapAsync(TransferImage);
+                }
+
+                await Task.Delay(500).ConfigureAwait(true);
+
+                QRTeachTip.Target = ItemPresenter.ContainerFromItem(SelectedItem) as FrameworkElement;
+                QRTeachTip.IsOpen = true;
+
+                await WiFiProvider.StartToListenRequest().ConfigureAwait(false);
+            }
+            else
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -1961,56 +2008,7 @@ namespace RX_Explorer
                 {
                     await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
                 }
-                return;
             }
-
-            if (QRTeachTip.IsOpen)
-            {
-                QRTeachTip.IsOpen = false;
-            }
-
-            while (WiFiProvider != null)
-            {
-                await Task.Delay(300).ConfigureAwait(true);
-            }
-
-            WiFiProvider = new WiFiShareProvider();
-            WiFiProvider.ThreadExitedUnexpectly += WiFiProvider_ThreadExitedUnexpectly;
-
-            string Hash = Item.Path.ComputeMD5Hash();
-            QRText.Text = WiFiProvider.CurrentUri + Hash;
-            WiFiProvider.FilePathMap = new KeyValuePair<string, string>(Hash, Item.Path);
-
-            QrCodeEncodingOptions options = new QrCodeEncodingOptions()
-            {
-                DisableECI = true,
-                CharacterSet = "UTF-8",
-                Width = 250,
-                Height = 250,
-                ErrorCorrection = ErrorCorrectionLevel.Q
-            };
-
-            BarcodeWriter Writer = new BarcodeWriter
-            {
-                Format = BarcodeFormat.QR_CODE,
-                Options = options
-            };
-
-            WriteableBitmap Bitmap = Writer.Write(QRText.Text);
-            using (SoftwareBitmap PreTransImage = SoftwareBitmap.CreateCopyFromBuffer(Bitmap.PixelBuffer, BitmapPixelFormat.Bgra8, 250, 250))
-            using (SoftwareBitmap TransferImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 400, 250, BitmapAlphaMode.Premultiplied))
-            {
-                OpenCVLibrary.ExtendImageBorder(PreTransImage, TransferImage, Colors.White, 0, 75, 75, 0);
-                SoftwareBitmapSource Source = new SoftwareBitmapSource();
-                QRImage.Source = Source;
-                await Source.SetBitmapAsync(TransferImage);
-            }
-
-            QRTeachTip.Target = ItemPresenter.ContainerFromItem(SelectedItem) as FrameworkElement;
-
-            QRTeachTip.IsOpen = true;
-
-            await WiFiProvider.StartToListenRequest().ConfigureAwait(false);
         }
 
         private async void WiFiProvider_ThreadExitedUnexpectly(object sender, Exception e)
@@ -2336,7 +2334,7 @@ namespace RX_Explorer
                                             {
                                                 QueueContentDialog dialog = new QueueContentDialog
                                                 {
-                                                    Title = Globalization.GetString("Commom_Dialog_TipTitle"),
+                                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                                     Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
                                                     PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
                                                     CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
@@ -2366,7 +2364,7 @@ namespace RX_Explorer
                                         {
                                             QueueContentDialog dialog = new QueueContentDialog
                                             {
-                                                Title = Globalization.GetString("Commom_Dialog_TipTitle"),
+                                                Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                                 Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
                                                 PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
                                                 CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
@@ -2471,7 +2469,7 @@ namespace RX_Explorer
                                             {
                                                 QueueContentDialog dialog = new QueueContentDialog
                                                 {
-                                                    Title = Globalization.GetString("Commom_Dialog_TipTitle"),
+                                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                                     Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
                                                     PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
                                                     CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
@@ -2633,7 +2631,7 @@ namespace RX_Explorer
                     {
                         QueueContentDialog dialog = new QueueContentDialog
                         {
-                            Title = Globalization.GetString("Commom_Dialog_TipTitle"),
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
                             Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
                             PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
@@ -3759,29 +3757,6 @@ namespace RX_Explorer
         {
             Restore();
 
-            StorageFile Item = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFile;
-
-            if (!await Item.CheckExist().ConfigureAwait(true))
-            {
-                QueueContentDialog Dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
-                };
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-
-                if (SettingControl.IsDetachTreeViewAndPresenter)
-                {
-                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
-                }
-                else
-                {
-                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
-                }
-                return;
-            }
-
             try
             {
                 if (HashTeachTip.IsOpen)
@@ -3791,41 +3766,63 @@ namespace RX_Explorer
 
                 await Task.Run(() =>
                 {
-                    HashLocker.WaitOne();
+                    SpinWait.SpinUntil(() => HashCancellation == null);
                 }).ConfigureAwait(true);
 
-                HashTeachTip.Target = ItemPresenter.ContainerFromItem(SelectedItem) as FrameworkElement;
-
-                Hash_Crc32.IsEnabled = false;
-                Hash_SHA1.IsEnabled = false;
-                Hash_SHA256.IsEnabled = false;
-                Hash_MD5.IsEnabled = false;
-
-                Hash_Crc32.Text = string.Empty;
-                Hash_SHA1.Text = string.Empty;
-                Hash_SHA256.Text = string.Empty;
-                Hash_MD5.Text = string.Empty;
-
-                HashTeachTip.IsOpen = true;
-
-                using (HashCancellation = new CancellationTokenSource())
+                if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile Item)
                 {
-                    var task1 = Item.ComputeSHA256Hash(HashCancellation.Token);
-                    Hash_SHA256.IsEnabled = true;
+                    Hash_Crc32.IsEnabled = false;
+                    Hash_SHA1.IsEnabled = false;
+                    Hash_SHA256.IsEnabled = false;
+                    Hash_MD5.IsEnabled = false;
 
-                    var task2 = Item.ComputeCrc32Hash(HashCancellation.Token);
-                    Hash_Crc32.IsEnabled = true;
+                    Hash_Crc32.Text = string.Empty;
+                    Hash_SHA1.Text = string.Empty;
+                    Hash_SHA256.Text = string.Empty;
+                    Hash_MD5.Text = string.Empty;
 
-                    var task4 = Item.ComputeMD5Hash(HashCancellation.Token);
-                    Hash_MD5.IsEnabled = true;
+                    await Task.Delay(500).ConfigureAwait(true);
+                    HashTeachTip.Target = ItemPresenter.ContainerFromItem(SelectedItem) as FrameworkElement;
+                    HashTeachTip.IsOpen = true;
 
-                    var task3 = Item.ComputeSHA1Hash(HashCancellation.Token);
-                    Hash_SHA1.IsEnabled = true;
+                    using (HashCancellation = new CancellationTokenSource())
+                    {
+                        var task1 = Item.ComputeSHA256Hash(HashCancellation.Token);
+                        Hash_SHA256.IsEnabled = true;
 
-                    Hash_MD5.Text = await task4.ConfigureAwait(true);
-                    Hash_Crc32.Text = await task2.ConfigureAwait(true);
-                    Hash_SHA1.Text = await task3.ConfigureAwait(true);
-                    Hash_SHA256.Text = await task1.ConfigureAwait(true);
+                        var task2 = Item.ComputeCrc32Hash(HashCancellation.Token);
+                        Hash_Crc32.IsEnabled = true;
+
+                        var task4 = Item.ComputeMD5Hash(HashCancellation.Token);
+                        Hash_MD5.IsEnabled = true;
+
+                        var task3 = Item.ComputeSHA1Hash(HashCancellation.Token);
+                        Hash_SHA1.IsEnabled = true;
+
+                        Hash_MD5.Text = await task4.ConfigureAwait(true);
+                        Hash_Crc32.Text = await task2.ConfigureAwait(true);
+                        Hash_SHA1.Text = await task3.ConfigureAwait(true);
+                        Hash_SHA256.Text = await task1.ConfigureAwait(true);
+                    }
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
+                    if (SettingControl.IsDetachTreeViewAndPresenter)
+                    {
+                        await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentNode, true).ConfigureAwait(false);
+                    }
                 }
             }
             catch
@@ -3835,8 +3832,6 @@ namespace RX_Explorer
             finally
             {
                 HashCancellation = null;
-
-                HashLocker.Set();
             }
         }
 
@@ -3873,12 +3868,23 @@ namespace RX_Explorer
             HashCancellation?.Cancel();
         }
 
-        public void Dispose()
+        public async void OpenInTerminal_Click(object sender, RoutedEventArgs e)
         {
-            HashCancellation?.Dispose();
-            HashCancellation = null;
-            HashLocker.Dispose();
-            HashLocker = null;
+            switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
+            {
+                case LaunchQuerySupportStatus.Available:
+                case LaunchQuerySupportStatus.NotSupported:
+                    {
+                        await FullTrustExcutorController.Current.RunAsync("wt.exe", $"/d {FileControlInstance.CurrentFolder.Path}").ConfigureAwait(false);
+                        break;
+                    }
+                default:
+                    {
+                        string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe");
+                        await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, $"-NoExit -Command \"Set-Location '{FileControlInstance.CurrentFolder.Path}'\"").ConfigureAwait(false);
+                        break;
+                    }
+            }
         }
     }
 }

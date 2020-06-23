@@ -911,14 +911,13 @@ namespace RX_Explorer
 
                 StorageFile CopyedFile = await File.CopyAsync(ImageFolder, $"BackgroundPicture_{Guid.NewGuid():N}{File.FileType}", NameCollisionOption.GenerateUniqueName);
 
-                BitmapImage Bitmap = new BitmapImage
+                BitmapImage Bitmap = new BitmapImage(new Uri($"ms-appdata:///local/CustomImageFolder/{CopyedFile.Name}"))
                 {
                     DecodePixelWidth = 160,
                     DecodePixelHeight = 90
                 };
-                BackgroundPicture Picture = new BackgroundPicture(Bitmap, new Uri($"ms-appdata:///local/CustomImageFolder/{CopyedFile.Name}"));
+                BackgroundPicture Picture = new BackgroundPicture(Bitmap, Bitmap.UriSource);
                 PictureList.Add(Picture);
-                Bitmap.UriSource = Picture.PictureUri;
 
                 PictureGirdView.ScrollIntoViewSmoothly(Picture);
                 PictureGirdView.SelectedItem = Picture;

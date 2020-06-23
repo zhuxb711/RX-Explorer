@@ -3141,6 +3141,22 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Permanent delete</source>
           <target state="translated">Suppression définitive</target>
         </trans-unit>
+        <trans-unit id="QueueContentDialog_UnableToEject_Content" translate="yes" xml:space="preserve">
+          <source>Could not eject this USB device</source>
+          <target state="translated">Impossible d'éjecter ce périphérique USB</target>
+        </trans-unit>
+        <trans-unit id="EjectUSB.Label" translate="yes" xml:space="preserve">
+          <source>Eject</source>
+          <target state="translated">Éjecter</target>
+        </trans-unit>
+        <trans-unit id="OpenInTerminal.Label" translate="yes" xml:space="preserve">
+          <source>Open in terminal...</source>
+          <target state="translated">Ouvrir dans le terminal ...</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_OpenInTerminal" translate="yes" xml:space="preserve">
+          <source>Open in terminal...</source>
+          <target state="translated">Ouvrir dans le terminal ...</target>
+        </trans-unit>
       </group>
     </body>
   </file>

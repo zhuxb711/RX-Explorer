@@ -399,7 +399,7 @@ namespace RX_Explorer.View
 
             foreach (FileSystemStorageItem Item in ListViewControl.SelectedItems)
             {
-                await FullTrustExcutorController.Current.MoveAsync(Item.Path, Path.GetDirectoryName(Item.RecycleItemOriginPath)).ConfigureAwait(true);
+                await FullTrustExcutorController.Current.RestoreAsync(Item.Path).ConfigureAwait(true);
 
                 FileCollection.Remove(Item);
             }

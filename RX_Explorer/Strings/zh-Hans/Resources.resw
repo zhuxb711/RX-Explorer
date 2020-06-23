@@ -2375,4 +2375,16 @@
   <data name="RecyclePermanentDelete.Label" xml:space="preserve">
     <value>永久删除</value>
   </data>
+  <data name="QueueContentDialog_UnableToEject_Content" xml:space="preserve">
+    <value>无法弹出此USB设备</value>
+  </data>
+  <data name="EjectUSB.Label" xml:space="preserve">
+    <value>弹出</value>
+  </data>
+  <data name="OpenInTerminal.Label" xml:space="preserve">
+    <value>在终端中打开...</value>
+  </data>
+  <data name="Operate_Text_OpenInTerminal" xml:space="preserve">
+    <value>在终端中打开...</value>
+  </data>
 </root>

@@ -730,12 +730,6 @@
                                 </VisualState>
                                 <VisualState x:Name="PointerOver">
                                     <Storyboard>
-                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="HoverPanel"
-                                                                       Storyboard.TargetProperty="Fill">
-                                            <DiscreteObjectKeyFrame KeyTime="0"
-                                                                    Value="{ThemeResource ButtonPointerOverBackgroundThemeBrush}" />
-                                        </ObjectAnimationUsingKeyFrames>
-
                                         <PointerUpThemeAnimation Storyboard.TargetName="RootGrid" />
                                         <DoubleAnimation BeginTime="0:0:0"
                                                          Storyboard.TargetName="Arrow"
@@ -793,12 +787,6 @@
                                 </VisualState>
                                 <VisualState x:Name="CheckedPointerOver">
                                     <Storyboard>
-                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="HoverPanel"
-                                                                       Storyboard.TargetProperty="Fill">
-                                            <DiscreteObjectKeyFrame KeyTime="0"
-                                                                    Value="{ThemeResource ButtonPointerOverBackgroundThemeBrush}" />
-                                        </ObjectAnimationUsingKeyFrames>
-
                                         <PointerUpThemeAnimation Storyboard.TargetName="RootGrid" />
                                         <DoubleAnimation BeginTime="0:0:0"
                                                          Storyboard.TargetName="Arrow"

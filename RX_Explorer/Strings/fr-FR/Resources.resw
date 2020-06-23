@@ -2375,4 +2375,16 @@
   <data name="RecyclePermanentDelete.Label" xml:space="preserve">
     <value>Suppression définitive</value>
   </data>
+  <data name="QueueContentDialog_UnableToEject_Content" xml:space="preserve">
+    <value>Impossible d'éjecter ce périphérique USB</value>
+  </data>
+  <data name="EjectUSB.Label" xml:space="preserve">
+    <value>Éjecter</value>
+  </data>
+  <data name="OpenInTerminal.Label" xml:space="preserve">
+    <value>Ouvrir dans le terminal ...</value>
+  </data>
+  <data name="Operate_Text_OpenInTerminal" xml:space="preserve">
+    <value>Ouvrir dans le terminal ...</value>
+  </data>
 </root>
