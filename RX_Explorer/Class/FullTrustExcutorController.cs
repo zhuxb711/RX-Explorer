@@ -47,6 +47,8 @@ namespace RX_Explorer.Class
 
         private const string ExcuteType_Restore_RecycleItem = "Excute_Restore_RecycleItem";
 
+        private const string ExcuteType_Test_Connection = "Excute_Test_Connection";
+
         private volatile static FullTrustExcutorController Instance;
 
         private static readonly object locker = new object();
@@ -68,32 +70,50 @@ namespace RX_Explorer.Class
 
         private FullTrustExcutorController()
         {
-            Connection = new AppServiceConnection
-            {
-                AppServiceName = "CommunicateService",
-                PackageFamilyName = Package.Current.Id.FamilyName
-            };
-
-            Connection.ServiceClosed += Connection_ServiceClosed;
-        }
-
-        private void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
-        {
-            IsConnected = false;
-            Connection?.Dispose();
-            Connection = null;
         }
 
         private async Task<bool> TryConnectToFullTrustExutor()
         {
             if (IsConnected)
             {
-                return true;
+            ReCheck:
+                AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExcuteType", ExcuteType_Test_Connection } });
+                if (Response.Status == AppServiceResponseStatus.Success)
+                {
+                    if (Response.Message.ContainsKey(ExcuteType_Test_Connection))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+                        goto ReCheck;
+                    }
+                }
+                else
+                {
+                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+
+                    Connection?.Dispose();
+                    Connection = new AppServiceConnection
+                    {
+                        AppServiceName = "CommunicateService",
+                        PackageFamilyName = Package.Current.Id.FamilyName
+                    };
+
+                    return (await Connection.OpenAsync()) == AppServiceConnectionStatus.Success ? (IsConnected = true) : (IsConnected = false);
+                }
             }
 
             try
             {
                 await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+
+                Connection = new AppServiceConnection
+                {
+                    AppServiceName = "CommunicateService",
+                    PackageFamilyName = Package.Current.Id.FamilyName
+                };
 
                 return (await Connection.OpenAsync()) == AppServiceConnectionStatus.Success ? (IsConnected = true) : (IsConnected = false);
             }
@@ -755,6 +775,7 @@ namespace RX_Explorer.Class
             if (IsConnected)
             {
                 Connection.SendMessageAsync(Value).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+                IsConnected = false;
             }
 
             Connection?.Dispose();

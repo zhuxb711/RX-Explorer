@@ -33,7 +33,7 @@ namespace CommunicateService
 
             try
             {
-                if (SpinWait.SpinUntil(() => Connections.Count == 2, 8000))
+                if (SpinWait.SpinUntil(() => Connections.Count == 2, 5000))
                 {
                     AppServiceConnection AnotherConnection = Connections.FirstOrDefault((Con) => Con != sender);
 

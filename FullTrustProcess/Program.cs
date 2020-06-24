@@ -97,12 +97,12 @@ namespace FullTrustProcess
                         }
                     case "Excute_Get_Associate":
                         {
-                            string Path = Convert.ToString(args.Request.Message["AssociatePath"]);
+                            string Path = Convert.ToString(args.Request.Message["ExcutePath"]);
                             string Associate = ExtensionAssociate.GetAssociate(Path);
 
                             ValueSet Result = new ValueSet
                             {
-                                {"Associate_Result",string.IsNullOrEmpty(Associate)?"<Empty>":Associate }
+                                {"Associate_Result", string.IsNullOrEmpty(Associate) ? string.Empty : Associate }
                             };
                             await args.Request.SendResponseAsync(Result);
                             break;
@@ -145,7 +145,7 @@ namespace FullTrustProcess
                             Debugger.Launch();
 
                             string Path = Convert.ToString(args.Request.Message["ExcutePath"]);
-                            
+
                             ValueSet Result = new ValueSet
                             {
                                 {"Restore_Result", RecycleBinController.Restore(Path) }
@@ -423,6 +423,11 @@ namespace FullTrustProcess
                                     }
                                 }
                             }
+                            break;
+                        }
+                    case "Excute_Test_Connection":
+                        {
+                            await args.Request.SendResponseAsync(new ValueSet { { "Excute_Test_Connection", string.Empty } });
                             break;
                         }
                     case "Excute_Exit":
