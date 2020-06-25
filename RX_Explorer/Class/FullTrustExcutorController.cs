@@ -45,7 +45,7 @@ namespace RX_Explorer.Class
 
         private const string ExcuteAuthority_Administrator = "Administrator";
 
-        private const string ExcuteType_Restore_RecycleItem = "Excute_Restore_RecycleItem";
+        //private const string ExcuteType_Restore_RecycleItem = "Excute_Restore_RecycleItem";
 
         private const string ExcuteType_Test_Connection = "Excute_Test_Connection";
 
@@ -70,6 +70,11 @@ namespace RX_Explorer.Class
 
         private FullTrustExcutorController()
         {
+            Connection = new AppServiceConnection
+            {
+                AppServiceName = "CommunicateService",
+                PackageFamilyName = Package.Current.Id.FamilyName
+            };
         }
 
         private async Task<bool> TryConnectToFullTrustExutor()
@@ -92,28 +97,13 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
-
-                    Connection?.Dispose();
-                    Connection = new AppServiceConnection
-                    {
-                        AppServiceName = "CommunicateService",
-                        PackageFamilyName = Package.Current.Id.FamilyName
-                    };
-
-                    return (await Connection.OpenAsync()) == AppServiceConnectionStatus.Success ? (IsConnected = true) : (IsConnected = false);
+                    return false;
                 }
             }
 
             try
             {
                 await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
-
-                Connection = new AppServiceConnection
-                {
-                    AppServiceName = "CommunicateService",
-                    PackageFamilyName = Package.Current.Id.FamilyName
-                };
 
                 return (await Connection.OpenAsync()) == AppServiceConnectionStatus.Success ? (IsConnected = true) : (IsConnected = false);
             }
@@ -686,43 +676,43 @@ namespace RX_Explorer.Class
             return CopyAsync(Source.Path, Destination.Path);
         }
 
-        public async Task<bool> RestoreAsync(string Path)
-        {
-            if (string.IsNullOrWhiteSpace(Path))
-            {
-                throw new ArgumentNullException(nameof(Path), "Parameter could not be null or empty");
-            }
+        //public async Task<bool> RestoreAsync(string Path)
+        //{
+        //    if (string.IsNullOrWhiteSpace(Path))
+        //    {
+        //        throw new ArgumentNullException(nameof(Path), "Parameter could not be null or empty");
+        //    }
 
-            try
-            {
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExcuteType", ExcuteType_Restore_RecycleItem},
-                        {"ExcutePath", Path},
-                    };
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+        //    try
+        //    {
+        //        if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+        //        {
+        //            ValueSet Value = new ValueSet
+        //            {
+        //                {"ExcuteType", ExcuteType_Restore_RecycleItem},
+        //                {"ExcutePath", Path},
+        //            };
+        //            AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        return Convert.ToBoolean(Response.Message["Restore_Result"]);
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch
-            {
-                return false;
-            }
-        }
+        //            if (Response.Status == AppServiceResponseStatus.Success)
+        //            {
+        //                return Convert.ToBoolean(Response.Message["Restore_Result"]);
+        //            }
+        //            else
+        //            {
+        //                return false;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            return false;
+        //        }
+        //    }
+        //    catch
+        //    {
+        //        return false;
+        //    }
+        //}
 
         public async Task<bool> EjectPortableDevice(string Path)
         {
@@ -780,6 +770,8 @@ namespace RX_Explorer.Class
 
             Connection?.Dispose();
             Connection = null;
+
+            Instance = null;
         }
 
         ~FullTrustExcutorController()

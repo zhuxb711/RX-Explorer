@@ -134,7 +134,10 @@ namespace FullTrustProcess
                 }
                 else
                 {
-                    return RecycleBinController.Delete(Path);
+                    using (ShellItem Item = new ShellItem(Path))
+                    {
+                        ShellFileOperations.Delete(Item, ShellFileOperations.OperationFlags.AllowUndo | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
+                    }
                 }
 
                 return true;

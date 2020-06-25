@@ -140,20 +140,20 @@ namespace FullTrustProcess
                             await args.Request.SendResponseAsync(Result);
                             break;
                         }
-                    case "Excute_Restore_RecycleItem":
-                        {
-                            Debugger.Launch();
+                    //case "Excute_Restore_RecycleItem":
+                    //    {
+                    //        Debugger.Launch();
 
-                            string Path = Convert.ToString(args.Request.Message["ExcutePath"]);
+                    //        string Path = Convert.ToString(args.Request.Message["ExcutePath"]);
 
-                            ValueSet Result = new ValueSet
-                            {
-                                {"Restore_Result", RecycleBinController.Restore(Path) }
-                            };
+                    //        ValueSet Result = new ValueSet
+                    //        {
+                    //            {"Restore_Result", RecycleBinController.Restore(Path) }
+                    //        };
 
-                            await args.Request.SendResponseAsync(Result);
-                            break;
-                        }
+                    //        await args.Request.SendResponseAsync(Result);
+                    //        break;
+                    //    }
                     case "Excute_EjectUSB":
                         {
                             ValueSet Value = new ValueSet();
