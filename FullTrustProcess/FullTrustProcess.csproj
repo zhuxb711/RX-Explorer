@@ -53,9 +53,7 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-  </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
@@ -153,7 +151,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="app.manifest" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -192,7 +189,6 @@ xcopy /y /s "$(TargetDir)Vanara.PInvoke.ShlwApi.dll" "$(SolutionDir)RX_Explorer\
 xcopy /y /s "$(TargetDir)Vanara.PInvoke.User32.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
 xcopy /y /s "$(TargetDir)Vanara.Windows.Shell.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
 xcopy /y /s "$(TargetDir)Windows.winmd" "$(SolutionDir)RX_Explorer\FullTrust\"
-
 </PostBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

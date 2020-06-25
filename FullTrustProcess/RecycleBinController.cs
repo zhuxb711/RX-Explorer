@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Vanara.Extensions;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
@@ -61,8 +62,12 @@ namespace FullTrustProcess
         {
             try
             {
-                HRESULT Result = SHEmptyRecycleBin(IntPtr.Zero, null, RecycleFlags.SHERB_NOSOUND|RecycleFlags.SHERB_NOCONFIRMATION);
-                return Result == HRESULT.S_OK || Result == HRESULT.E_UNEXPECTED;
+                Shell32.SHEmptyRecycleBin(IntPtr.Zero, null, Shell32.SHERB.SHERB_NOCONFIRMATION | Shell32.SHERB.SHERB_NOPROGRESSUI); 
+                return true;
+            }
+            catch
+            {
+                return false;
             }
             finally
             {

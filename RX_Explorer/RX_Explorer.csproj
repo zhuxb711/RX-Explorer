@@ -421,9 +421,6 @@
     <Content Include="HotWebImage\Instagram.png" />
     <Content Include="HotWebImage\Twitter.png" />
     <Content Include="SecureAccess\NetworkAccess.dll" />
-    <None Include="FullTrust\Windows.winmd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Package.StoreAssociation.xml" />
     <Content Include="QuickStartImage\Calculator.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

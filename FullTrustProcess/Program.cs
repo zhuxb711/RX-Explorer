@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
+using Vanara.PInvoke;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
 
@@ -25,23 +25,13 @@ namespace FullTrustProcess
         private readonly static ManualResetEvent ExitLocker = new ManualResetEvent(false);
 
         [STAThread]
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
-            ExitExistInstance();
-
             try
             {
-                Connection = new AppServiceConnection
-                {
-                    AppServiceName = "CommunicateService",
-                    PackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t"
-                };
-
-                if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
-                {
-                    Connection.RequestReceived += Connection_RequestReceived;
-                    ExitLocker.WaitOne();
-                }
+                ExitExistInstance();
+                Initialize();
+                ExitLocker.WaitOne();
             }
             catch
             {
@@ -56,7 +46,29 @@ namespace FullTrustProcess
             }
         }
 
-        public static void ExitExistInstance()
+        private static async void Initialize()
+        {
+            try
+            {
+                Connection = new AppServiceConnection
+                {
+                    AppServiceName = "CommunicateService",
+                    PackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t"
+                };
+                Connection.RequestReceived += Connection_RequestReceived;
+
+                if (await Connection.OpenAsync() != AppServiceConnectionStatus.Success)
+                {
+                    ExitLocker.Set();
+                }
+            }
+            catch
+            {
+
+            }
+        }
+
+        private static void ExitExistInstance()
         {
             Process Current = Process.GetCurrentProcess();
 
