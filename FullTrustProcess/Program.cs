@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using Vanara.PInvoke;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
 
@@ -25,12 +25,24 @@ namespace FullTrustProcess
         private readonly static ManualResetEvent ExitLocker = new ManualResetEvent(false);
 
         [STAThread]
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             try
             {
                 ExitExistInstance();
-                Initialize();
+
+                Connection = new AppServiceConnection
+                {
+                    AppServiceName = "CommunicateService",
+                    PackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t"
+                };
+                Connection.RequestReceived += Connection_RequestReceived;
+
+                if (await Connection.OpenAsync() != AppServiceConnectionStatus.Success)
+                {
+                    ExitLocker.Set();
+                }
+
                 ExitLocker.WaitOne();
             }
             catch
@@ -46,37 +58,18 @@ namespace FullTrustProcess
             }
         }
 
-        private static async void Initialize()
-        {
-            try
-            {
-                Connection = new AppServiceConnection
-                {
-                    AppServiceName = "CommunicateService",
-                    PackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t"
-                };
-                Connection.RequestReceived += Connection_RequestReceived;
-
-                if (await Connection.OpenAsync() != AppServiceConnectionStatus.Success)
-                {
-                    ExitLocker.Set();
-                }
-            }
-            catch
-            {
-
-            }
-        }
-
         private static void ExitExistInstance()
         {
-            Process Current = Process.GetCurrentProcess();
-
-            Process[] AllProcess = Process.GetProcessesByName(Current.ProcessName);
-
-            foreach (Process ExistProcess in AllProcess.Where(Process => Process.Id != Current.Id && Assembly.GetExecutingAssembly().Location.Replace("/", @"\") == Current.MainModule.FileName))
+            using (Process Current = Process.GetCurrentProcess())
             {
-                ExistProcess.Kill();
+                List<Process> AllProcess = Process.GetProcessesByName(Current.ProcessName).ToList();
+
+                foreach (Process ExistProcess in AllProcess.Where(Process => Process.Id != Current.Id && Assembly.GetExecutingAssembly().Location.Replace("/", @"\") == Current.MainModule.FileName))
+                {
+                    ExistProcess.Kill();
+                }
+
+                AllProcess.ForEach((Item) => Item.Dispose());
             }
         }
 
@@ -114,7 +107,7 @@ namespace FullTrustProcess
 
                             ValueSet Result = new ValueSet
                             {
-                                {"Associate_Result", string.IsNullOrEmpty(Associate) ? string.Empty : Associate }
+                                {"Associate_Result", Associate }
                             };
                             await args.Request.SendResponseAsync(Result);
                             break;
@@ -152,20 +145,30 @@ namespace FullTrustProcess
                             await args.Request.SendResponseAsync(Result);
                             break;
                         }
-                    //case "Excute_Restore_RecycleItem":
-                    //    {
-                    //        Debugger.Launch();
+                    case "Excute_Restore_RecycleItem":
+                        {
+                            string Path = Convert.ToString(args.Request.Message["ExcutePath"]);
 
-                    //        string Path = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            ValueSet Result = new ValueSet
+                            {
+                                {"Restore_Result", RecycleBinController.Restore(Path) }
+                            };
 
-                    //        ValueSet Result = new ValueSet
-                    //        {
-                    //            {"Restore_Result", RecycleBinController.Restore(Path) }
-                    //        };
+                            await args.Request.SendResponseAsync(Result);
+                            break;
+                        }
+                    case "Excute_Delete_RecycleItem":
+                        {
+                            string Path = Convert.ToString(args.Request.Message["ExcutePath"]);
 
-                    //        await args.Request.SendResponseAsync(Result);
-                    //        break;
-                    //    }
+                            ValueSet Result = new ValueSet
+                            {
+                                {"Delete_Result", RecycleBinController.Delete(Path) }
+                            };
+
+                            await args.Request.SendResponseAsync(Result);
+                            break;
+                        }
                     case "Excute_EjectUSB":
                         {
                             ValueSet Value = new ValueSet();

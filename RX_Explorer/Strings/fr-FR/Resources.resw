@@ -2387,4 +2387,13 @@
   <data name="Operate_Text_OpenInTerminal" xml:space="preserve">
     <value>Ouvrir dans le terminal ...</value>
   </data>
+  <data name="RecycleBinDeleteText" xml:space="preserve">
+    <value>Suppression</value>
+  </data>
+  <data name="QueueDialog_RecycleBinDeleteError_Content" xml:space="preserve">
+    <value>Une erreur s'est produite lors de la suppression des fichiers suivants:</value>
+  </data>
+  <data name="QueueDialog_RecycleBinRestoreError_Content" xml:space="preserve">
+    <value>Une erreur s'est produite lors de la restauration des fichiers suivants:</value>
+  </data>
 </root>

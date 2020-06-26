@@ -21,11 +21,6 @@ namespace FullTrustProcess
         {
             if (File.Exists(Path))
             {
-                if(Path.Contains("$Recycle.Bin"))
-                {
-                    return false;
-                }
-                
                 IntPtr Handle = IntPtr.Zero;
 
                 try
@@ -153,9 +148,16 @@ namespace FullTrustProcess
             try
             {
                 using (ShellItem SourceItem = new ShellItem(SourcePath))
-                using (ShellFolder DestItem = new ShellFolder(DestinationPath))
                 {
-                    ShellFileOperations.Copy(SourceItem, DestItem, NewName, ShellFileOperations.OperationFlags.AllowUndo | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
+                    if (!Directory.Exists(DestinationPath))
+                    {
+                        _ = Directory.CreateDirectory(DestinationPath);
+                    }
+
+                    using (ShellFolder DestItem = new ShellFolder(DestinationPath))
+                    {
+                        ShellFileOperations.Copy(SourceItem, DestItem, NewName, ShellFileOperations.OperationFlags.AllowUndo | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
+                    }
                 }
 
                 return true;
@@ -171,9 +173,16 @@ namespace FullTrustProcess
             try
             {
                 using (ShellItem SourceItem = new ShellItem(SourcePath))
-                using (ShellFolder DestItem = new ShellFolder(DestinationPath))
                 {
-                    ShellFileOperations.Move(SourceItem, DestItem, NewName, ShellFileOperations.OperationFlags.AllowUndo | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
+                    if (!Directory.Exists(DestinationPath))
+                    {
+                        _ = Directory.CreateDirectory(DestinationPath);
+                    }
+
+                    using (ShellFolder DestItem = new ShellFolder(DestinationPath))
+                    {
+                        ShellFileOperations.Move(SourceItem, DestItem, NewName, ShellFileOperations.OperationFlags.AllowUndo | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
+                    }
                 }
 
                 return true;

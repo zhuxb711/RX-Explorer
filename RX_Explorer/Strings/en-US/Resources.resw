@@ -2492,4 +2492,13 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Operate_Text_OpenInTerminal" xml:space="preserve">
     <value>Open in terminal...</value>
   </data>
+  <data name="RecycleBinDeleteText" xml:space="preserve">
+    <value>Deleting</value>
+  </data>
+  <data name="QueueDialog_RecycleBinDeleteError_Content" xml:space="preserve">
+    <value>An error occurred while deleting the following files:</value>
+  </data>
+  <data name="QueueDialog_RecycleBinRestoreError_Content" xml:space="preserve">
+    <value>An error occurred while restoring the following files:</value>
+  </data>
 </root>

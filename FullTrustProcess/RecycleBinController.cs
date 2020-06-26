@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 using Vanara.Extensions;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
@@ -16,16 +14,6 @@ namespace FullTrustProcess
         [DllImport("Shell32.dll", SetLastError = false, ExactSpelling = true)]
         private static extern HRESULT SHUpdateRecycleBinIcon();
 
-        [DllImport("Shell32.dll", CharSet = CharSet.Unicode)]
-        private static extern int SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, RecycleFlags dwFlags);
-
-        private enum RecycleFlags
-        {
-            SHERB_NOCONFIRMATION = 0x00000001,
-            SHERB_NOPROGRESSUI = 0x00000002,
-            SHERB_NOSOUND = 0x00000004
-        }
-
         public static string GenerateRecycleItemsByJson()
         {
             try
@@ -36,16 +24,23 @@ namespace FullTrustProcess
                 {
                     foreach (ShellItem Item in RecycleBin)
                     {
-                        if (!Path.GetExtension(Item.FileSystemPath).Equals(".lnk", StringComparison.OrdinalIgnoreCase))
+                        try
                         {
-                            Dictionary<string, string> PropertyDic = new Dictionary<string, string>
+                            if (!Path.GetExtension(Item.FileSystemPath).Equals(".lnk", StringComparison.OrdinalIgnoreCase))
                             {
-                                { "OriginPath", Item.Name },
-                                { "ActualPath", Item.FileSystemPath },
-                                { "CreateTime", Convert.ToString(((System.Runtime.InteropServices.ComTypes.FILETIME)Item.Properties[Ole32.PROPERTYKEY.System.DateCreated]).ToDateTime().ToBinary())}
-                            };
+                                Dictionary<string, string> PropertyDic = new Dictionary<string, string>
+                                {
+                                    { "OriginPath", Item.Name },
+                                    { "ActualPath", Item.FileSystemPath },
+                                    { "CreateTime", Convert.ToString(((System.Runtime.InteropServices.ComTypes.FILETIME)Item.Properties[Ole32.PROPERTYKEY.System.DateCreated]).ToDateTime().ToBinary())}
+                                };
 
-                            RecycleItemList.Add(PropertyDic);
+                                RecycleItemList.Add(PropertyDic);
+                            }
+                        }
+                        finally
+                        {
+                            Item.Dispose();
                         }
                     }
                 }
@@ -62,7 +57,58 @@ namespace FullTrustProcess
         {
             try
             {
-                Shell32.SHEmptyRecycleBin(IntPtr.Zero, null, Shell32.SHERB.SHERB_NOCONFIRMATION | Shell32.SHERB.SHERB_NOPROGRESSUI); 
+                HRESULT Result = Shell32.SHEmptyRecycleBin(IntPtr.Zero, null, Shell32.SHERB.SHERB_NOCONFIRMATION | Shell32.SHERB.SHERB_NOPROGRESSUI);
+                return Result == HRESULT.S_OK || Result == HRESULT.E_UNEXPECTED;
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                SHUpdateRecycleBinIcon();
+            }
+        }
+
+        public static bool Restore(string Path)
+        {
+            try
+            {
+                using (ShellItem SourceItem = new ShellItem(Path))
+                {
+                    string DirectoryName = System.IO.Path.GetDirectoryName(SourceItem.Name);
+
+                    if (!Directory.Exists(DirectoryName))
+                    {
+                        _ = Directory.CreateDirectory(DirectoryName);
+                    }
+
+                    using (ShellFolder DestItem = new ShellFolder(DirectoryName))
+                    {
+                        ShellFileOperations.Move(SourceItem, DestItem, null, ShellFileOperations.OperationFlags.AllowUndo | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
+                    }
+
+                    File.Delete(System.IO.Path.GetFileName(Path).Replace("$R", "$I"));
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                SHUpdateRecycleBinIcon();
+            }
+        }
+
+        public static bool Delete(string Path)
+        {
+            try
+            {
+                File.Delete(System.IO.Path.GetFileName(Path));
+                File.Delete(System.IO.Path.GetFileName(Path).Replace("$R", "$I"));
                 return true;
             }
             catch

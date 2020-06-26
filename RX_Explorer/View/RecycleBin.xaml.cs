@@ -336,22 +336,41 @@ namespace RX_Explorer.View
 
         private async void PermanentDelete_Click(object sender, RoutedEventArgs e)
         {
-            await ActivateLoading(true, Globalization.GetString("RecycleBinRestoreText")).ConfigureAwait(true);
+            await ActivateLoading(true, Globalization.GetString("RecycleBinDeleteText")).ConfigureAwait(true);
 
             QueueContentDialog QueueContenDialog = new QueueContentDialog
             {
                 Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
                 Content = Globalization.GetString("QueueDialog_DeleteFile_Content"),
+                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
                 CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
             };
 
             if ((await QueueContenDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
+                List<string> ErrorList = new List<string>();
+
                 foreach (FileSystemStorageItem Item in ListViewControl.SelectedItems)
                 {
-                    FileCollection.Remove(Item);
-                    await FullTrustExcutorController.Current.DeleteAsync(Item.Path, true).ConfigureAwait(true);
+                    if (await FullTrustExcutorController.Current.DeleteItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
+                    {
+                        FileCollection.Remove(Item);
+                    }
+                    else
+                    {
+                        ErrorList.Add(Item.Name);
+                    }
+                }
+
+                if (ErrorList.Count > 0)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = $"{Globalization.GetString("QueueDialog_RecycleBinDeleteError_Content")} {Environment.NewLine}{string.Join(Environment.NewLine, ErrorList)}",
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = Dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
 
@@ -397,11 +416,29 @@ namespace RX_Explorer.View
         {
             await ActivateLoading(true, Globalization.GetString("RecycleBinRestoreText")).ConfigureAwait(true);
 
+            List<string> ErrorList = new List<string>();
+
             foreach (FileSystemStorageItem Item in ListViewControl.SelectedItems)
             {
-                await FullTrustExcutorController.Current.MoveAsync(Item.Path, Path.GetDirectoryName(Item.RecycleItemOriginPath)).ConfigureAwait(true);
+                if (await FullTrustExcutorController.Current.RestoreItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
+                {
+                    FileCollection.Remove(Item);
+                }
+                else
+                {
+                    ErrorList.Add(Item.Name);
+                }
+            }
 
-                FileCollection.Remove(Item);
+            if (ErrorList.Count > 0)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = $"{Globalization.GetString("QueueDialog_RecycleBinRestoreError_Content")} {Environment.NewLine}{string.Join(Environment.NewLine, ErrorList)}",
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+                _ = Dialog.ShowAsync().ConfigureAwait(true);
             }
 
             await ActivateLoading(false).ConfigureAwait(true);

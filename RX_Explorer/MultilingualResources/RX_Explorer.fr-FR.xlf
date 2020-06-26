@@ -3157,6 +3157,18 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Open in terminal...</source>
           <target state="translated">Ouvrir dans le terminal ...</target>
         </trans-unit>
+        <trans-unit id="RecycleBinDeleteText" translate="yes" xml:space="preserve">
+          <source>Deleting</source>
+          <target state="translated">Suppression</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RecycleBinDeleteError_Content" translate="yes" xml:space="preserve">
+          <source>An error occurred while deleting the following files:</source>
+          <target state="translated">Une erreur s'est produite lors de la suppression des fichiers suivants:</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RecycleBinRestoreError_Content" translate="yes" xml:space="preserve">
+          <source>An error occurred while restoring the following files:</source>
+          <target state="translated">Une erreur s'est produite lors de la restauration des fichiers suivants:</target>
+        </trans-unit>
       </group>
     </body>
   </file>

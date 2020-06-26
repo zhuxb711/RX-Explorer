@@ -45,7 +45,9 @@ namespace RX_Explorer.Class
 
         private const string ExcuteAuthority_Administrator = "Administrator";
 
-        //private const string ExcuteType_Restore_RecycleItem = "Excute_Restore_RecycleItem";
+        private const string ExcuteType_Restore_RecycleItem = "Excute_Restore_RecycleItem";
+
+        private const string ExcuteType_Delete_RecycleItem = "Excute_Delete_RecycleItem";
 
         private const string ExcuteType_Test_Connection = "Excute_Test_Connection";
 
@@ -676,43 +678,81 @@ namespace RX_Explorer.Class
             return CopyAsync(Source.Path, Destination.Path);
         }
 
-        //public async Task<bool> RestoreAsync(string Path)
-        //{
-        //    if (string.IsNullOrWhiteSpace(Path))
-        //    {
-        //        throw new ArgumentNullException(nameof(Path), "Parameter could not be null or empty");
-        //    }
+        public async Task<bool> RestoreItemInRecycleBinAsync(string Path)
+        {
+            if (string.IsNullOrWhiteSpace(Path))
+            {
+                throw new ArgumentNullException(nameof(Path), "Parameter could not be null or empty");
+            }
 
-        //    try
-        //    {
-        //        if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
-        //        {
-        //            ValueSet Value = new ValueSet
-        //            {
-        //                {"ExcuteType", ExcuteType_Restore_RecycleItem},
-        //                {"ExcutePath", Path},
-        //            };
-        //            AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+            try
+            {
+                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExcuteType", ExcuteType_Restore_RecycleItem},
+                        {"ExcutePath", Path},
+                    };
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-        //            if (Response.Status == AppServiceResponseStatus.Success)
-        //            {
-        //                return Convert.ToBoolean(Response.Message["Restore_Result"]);
-        //            }
-        //            else
-        //            {
-        //                return false;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            return false;
-        //        }
-        //    }
-        //    catch
-        //    {
-        //        return false;
-        //    }
-        //}
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        return Convert.ToBoolean(Response.Message["Restore_Result"]);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteItemInRecycleBinAsync(string Path)
+        {
+            if (string.IsNullOrWhiteSpace(Path))
+            {
+                throw new ArgumentNullException(nameof(Path), "Parameter could not be null or empty");
+            }
+
+            try
+            {
+                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExcuteType", ExcuteType_Delete_RecycleItem},
+                        {"ExcutePath", Path},
+                    };
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        return Convert.ToBoolean(Response.Message["Delete_Result"]);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         public async Task<bool> EjectPortableDevice(string Path)
         {

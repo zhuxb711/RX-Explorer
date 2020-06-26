@@ -2387,4 +2387,13 @@
   <data name="Operate_Text_OpenInTerminal" xml:space="preserve">
     <value>在终端中打开...</value>
   </data>
+  <data name="RecycleBinDeleteText" xml:space="preserve">
+    <value>正在删除</value>
+  </data>
+  <data name="QueueDialog_RecycleBinDeleteError_Content" xml:space="preserve">
+    <value>在删除以下文件时出现错误:</value>
+  </data>
+  <data name="QueueDialog_RecycleBinRestoreError_Content" xml:space="preserve">
+    <value>在还原以下文件时出现错误:</value>
+  </data>
 </root>
