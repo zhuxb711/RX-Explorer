@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunicateService", "Commu
 EndProject
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "Package", "Package\Package.wapproj", "{168437FF-BB72-4770-9F57-252AC94D4FCE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComputerVision", "ComputerVision\ComputerVision.csproj", "{5BC5B5AA-53F4-4437-95B3-261F790AE373}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -227,6 +229,26 @@ Global
 		{168437FF-BB72-4770-9F57-252AC94D4FCE}.Release|x86.ActiveCfg = Release|x86
 		{168437FF-BB72-4770-9F57-252AC94D4FCE}.Release|x86.Build.0 = Release|x86
 		{168437FF-BB72-4770-9F57-252AC94D4FCE}.Release|x86.Deploy.0 = Release|x86
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Debug|ARM.ActiveCfg = Debug|ARM
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Debug|ARM.Build.0 = Debug|ARM
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Debug|ARM64.Build.0 = Debug|ARM64
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Debug|x64.ActiveCfg = Debug|x64
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Debug|x64.Build.0 = Debug|x64
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Debug|x86.ActiveCfg = Debug|x86
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Debug|x86.Build.0 = Debug|x86
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Release|ARM.ActiveCfg = Release|ARM
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Release|ARM.Build.0 = Release|ARM
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Release|ARM64.ActiveCfg = Release|ARM64
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Release|ARM64.Build.0 = Release|ARM64
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Release|x64.ActiveCfg = Release|x64
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Release|x64.Build.0 = Release|x64
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Release|x86.ActiveCfg = Release|x86
+		{5BC5B5AA-53F4-4437-95B3-261F790AE373}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
