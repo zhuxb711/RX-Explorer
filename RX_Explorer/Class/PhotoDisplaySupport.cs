@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ComputerVision;
+using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
@@ -160,26 +161,23 @@ namespace RX_Explorer.Class
                             }
                         case 90:
                             {
-                                using (var Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
                                 {
-                                    SoftwareBitmap Processed = new SoftwareBitmap(BitmapPixelFormat.Bgra8, Origin.PixelHeight, Origin.PixelWidth, BitmapAlphaMode.Premultiplied);
-                                    OpenCV.OpenCVLibrary.RotateEffect(Origin, Processed, 90);
-                                    return Processed;
+                                    return ComputerVisionProvider.RotateEffect(Origin, 90);
                                 }
                             }
                         case 180:
                             {
-                                var Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
-                                OpenCV.OpenCVLibrary.RotateEffect(Origin, Origin, 180);
-                                return Origin;
+                                using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                {
+                                    return ComputerVisionProvider.RotateEffect(Origin, 180);
+                                }
                             }
                         case 270:
                             {
-                                using (var Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
                                 {
-                                    SoftwareBitmap Processed = new SoftwareBitmap(BitmapPixelFormat.Bgra8, Origin.PixelHeight, Origin.PixelWidth, BitmapAlphaMode.Premultiplied);
-                                    OpenCV.OpenCVLibrary.RotateEffect(Origin, Processed, -90);
-                                    return Processed;
+                                    return ComputerVisionProvider.RotateEffect(Origin, -90);
                                 }
                             }
                         default:

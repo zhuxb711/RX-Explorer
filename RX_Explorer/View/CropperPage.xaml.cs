@@ -1,5 +1,6 @@
-﻿using RX_Explorer.Class;
+﻿using ComputerVision;
 using Microsoft.Toolkit.Uwp.UI.Controls;
+using RX_Explorer.Class;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -70,94 +71,74 @@ namespace RX_Explorer
 
         private async Task AddEffectsToPane()
         {
-            SoftwareBitmapSource Source1 = new SoftwareBitmapSource();
-            SoftwareBitmapSource Source2 = new SoftwareBitmapSource();
-            SoftwareBitmapSource Source3 = new SoftwareBitmapSource();
-            SoftwareBitmapSource Source4 = new SoftwareBitmapSource();
-            SoftwareBitmapSource Source5 = new SoftwareBitmapSource();
-            SoftwareBitmapSource Source6 = new SoftwareBitmapSource();
-            SoftwareBitmapSource Source7 = new SoftwareBitmapSource();
-            SoftwareBitmapSource Source8 = new SoftwareBitmapSource();
-            SoftwareBitmapSource Source9 = new SoftwareBitmapSource();
-
-            using (SoftwareBitmap Bitmap1 = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 100, 100, BitmapAlphaMode.Premultiplied))
+            using (SoftwareBitmap ResizedImage = ComputerVisionProvider.GenenateResizedThumbnail(OriginImage, 100, 100))
             {
-                OpenCV.OpenCVLibrary.GenenateResizedThumbnail(OriginImage, Bitmap1, 100, 100);
-                await Source1.SetBitmapAsync(Bitmap1);
+                SoftwareBitmapSource Source1 = new SoftwareBitmapSource();
+                await Source1.SetBitmapAsync(ResizedImage);
+                FilterCollection.Add(new FilterItem(Source1, Globalization.GetString("CropperPage_Filter_Type_1"), FilterType.Origin));
 
-                using (SoftwareBitmap Bitmap2 = SoftwareBitmap.Copy(Bitmap1))
+                using (SoftwareBitmap Bitmap2 = ComputerVisionProvider.InvertEffect(ResizedImage))
                 {
-                    OpenCV.OpenCVLibrary.InvertEffect(Bitmap2, Bitmap2);
+                    SoftwareBitmapSource Source2 = new SoftwareBitmapSource();
                     await Source2.SetBitmapAsync(Bitmap2);
+                    FilterCollection.Add(new FilterItem(Source2, Globalization.GetString("CropperPage_Filter_Type_2"), FilterType.Invert));
                 }
 
-                using (SoftwareBitmap Bitmap3 = SoftwareBitmap.Copy(Bitmap1))
+                using (SoftwareBitmap Bitmap3 = ComputerVisionProvider.GrayEffect(ResizedImage))
                 {
-                    WriteableBitmap WBitmap = new WriteableBitmap(Bitmap3.PixelWidth, Bitmap3.PixelHeight);
-                    Bitmap3.CopyToBuffer(WBitmap.PixelBuffer);
-                    Bitmap3.CopyFromBuffer(WBitmap.Gray().PixelBuffer);
+                    SoftwareBitmapSource Source3 = new SoftwareBitmapSource();
                     await Source3.SetBitmapAsync(Bitmap3);
+                    FilterCollection.Add(new FilterItem(Source3, Globalization.GetString("CropperPage_Filter_Type_3"), FilterType.Gray));
                 }
 
-                using (SoftwareBitmap Bitmap4 = SoftwareBitmap.Copy(Bitmap1))
+                using (SoftwareBitmap Bitmap4 = ComputerVisionProvider.ThresholdEffect(ResizedImage))
                 {
-                    WriteableBitmap WBitmap1 = new WriteableBitmap(Bitmap4.PixelWidth, Bitmap4.PixelHeight);
-                    Bitmap4.CopyToBuffer(WBitmap1.PixelBuffer);
-                    Bitmap4.CopyFromBuffer(WBitmap1.Gray().PixelBuffer);
-                    OpenCV.OpenCVLibrary.ThresholdEffect(Bitmap4, Bitmap4);
+                    SoftwareBitmapSource Source4 = new SoftwareBitmapSource();
                     await Source4.SetBitmapAsync(Bitmap4);
+                    FilterCollection.Add(new FilterItem(Source4, Globalization.GetString("CropperPage_Filter_Type_4"), FilterType.Threshold));
                 }
 
-                using (SoftwareBitmap Bitmap8 = SoftwareBitmap.Copy(Bitmap1))
+                using (SoftwareBitmap Bitmap5 = ComputerVisionProvider.SepiaEffect(ResizedImage))
                 {
-                    OpenCV.OpenCVLibrary.SepiaEffect(Bitmap8, Bitmap8);
-                    await Source8.SetBitmapAsync(Bitmap8);
-                }
-
-                using (SoftwareBitmap Bitmap9 = SoftwareBitmap.Copy(Bitmap1))
-                {
-                    OpenCV.OpenCVLibrary.MosaicEffect(Bitmap9, Bitmap9);
-                    await Source9.SetBitmapAsync(Bitmap9);
-                }
-
-                using (SoftwareBitmap Bitmap5 = SoftwareBitmap.Copy(Bitmap1))
-                {
-                    WriteableBitmap WBitmap2 = new WriteableBitmap(Bitmap5.PixelWidth, Bitmap5.PixelHeight);
-                    Bitmap5.CopyToBuffer(WBitmap2.PixelBuffer);
-                    Bitmap5.CopyFromBuffer(WBitmap2.Gray().PixelBuffer);
-                    OpenCV.OpenCVLibrary.SketchEffect(Bitmap5, Bitmap5);
+                    SoftwareBitmapSource Source5 = new SoftwareBitmapSource();
                     await Source5.SetBitmapAsync(Bitmap5);
+                    FilterCollection.Add(new FilterItem(Source5, Globalization.GetString("CropperPage_Filter_Type_5"), FilterType.Sepia));
                 }
 
-                using (SoftwareBitmap Bitmap6 = SoftwareBitmap.Copy(Bitmap1))
+                using (SoftwareBitmap Bitmap6 = ComputerVisionProvider.MosaicEffect(ResizedImage))
                 {
-                    OpenCV.OpenCVLibrary.GaussianBlurEffect(Bitmap6, Bitmap6);
+                    SoftwareBitmapSource Source6 = new SoftwareBitmapSource();
                     await Source6.SetBitmapAsync(Bitmap6);
+                    FilterCollection.Add(new FilterItem(Source6, Globalization.GetString("CropperPage_Filter_Type_6"), FilterType.Mosaic));
                 }
 
-                using (SoftwareBitmap Bitmap7 = SoftwareBitmap.Copy(Bitmap1))
+                using (SoftwareBitmap Bitmap7 = ComputerVisionProvider.SketchEffect(ResizedImage))
                 {
-                    OpenCV.OpenCVLibrary.OilPaintingEffect(Bitmap7, Bitmap7);
+                    SoftwareBitmapSource Source7 = new SoftwareBitmapSource();
                     await Source7.SetBitmapAsync(Bitmap7);
+                    FilterCollection.Add(new FilterItem(Source7, Globalization.GetString("CropperPage_Filter_Type_7"), FilterType.Sketch));
+                }
+
+                using (SoftwareBitmap Bitmap8 = ComputerVisionProvider.GaussianBlurEffect(ResizedImage))
+                {
+                    SoftwareBitmapSource Source8 = new SoftwareBitmapSource();
+                    await Source8.SetBitmapAsync(Bitmap8);
+                    FilterCollection.Add(new FilterItem(Source8, Globalization.GetString("CropperPage_Filter_Type_8"), FilterType.GaussianBlur));
+                }
+
+                using (SoftwareBitmap Bitmap9 = ComputerVisionProvider.OilPaintingEffect(ResizedImage))
+                {
+                    SoftwareBitmapSource Source9 = new SoftwareBitmapSource();
+                    await Source9.SetBitmapAsync(Bitmap9);
+                    FilterCollection.Add(new FilterItem(Source9, Globalization.GetString("CropperPage_Filter_Type_9"), FilterType.OilPainting));
                 }
             }
-
-            FilterCollection.Add(new FilterItem(Source1, Globalization.GetString("CropperPage_Filter_Type_1"), FilterType.Origin));
-            FilterCollection.Add(new FilterItem(Source2, Globalization.GetString("CropperPage_Filter_Type_2"), FilterType.Invert));
-            FilterCollection.Add(new FilterItem(Source3, Globalization.GetString("CropperPage_Filter_Type_3"), FilterType.Gray));
-            FilterCollection.Add(new FilterItem(Source4, Globalization.GetString("CropperPage_Filter_Type_4"), FilterType.Threshold));
-            FilterCollection.Add(new FilterItem(Source8, Globalization.GetString("CropperPage_Filter_Type_5"), FilterType.Sepia));
-            FilterCollection.Add(new FilterItem(Source9, Globalization.GetString("CropperPage_Filter_Type_6"), FilterType.Mosaic));
-            FilterCollection.Add(new FilterItem(Source5, Globalization.GetString("CropperPage_Filter_Type_7"), FilterType.Sketch));
-            FilterCollection.Add(new FilterItem(Source6, Globalization.GetString("CropperPage_Filter_Type_8"), FilterType.GaussianBlur));
-            FilterCollection.Add(new FilterItem(Source7, Globalization.GetString("CropperPage_Filter_Type_9"), FilterType.OilPainting));
 
             FilterGrid.SelectedIndex = 0;
             FilterGrid.SelectionChanged += FilterGrid_SelectionChanged;
 
-            using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+            using (SoftwareBitmap Histogram = ComputerVisionProvider.CalculateHistogram(OriginImage))
             {
-                OpenCV.OpenCVLibrary.CalculateHistogram(OriginImage, Histogram);
                 SoftwareBitmapSource Source = new SoftwareBitmapSource();
                 await Source.SetBitmapAsync(Histogram);
                 HistogramImage.Source = Source;
@@ -257,9 +238,8 @@ namespace RX_Explorer
             OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
             Cropper.Source = WBitmap;
 
-            using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+            using (SoftwareBitmap Histogram = ComputerVisionProvider.CalculateHistogram(OriginImage))
             {
-                OpenCV.OpenCVLibrary.CalculateHistogram(OriginImage, Histogram);
                 WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
                 Histogram.CopyToBuffer(HBitmap.PixelBuffer);
                 HistogramImage.Source = HBitmap;
@@ -373,8 +353,7 @@ namespace RX_Explorer
         {
             if (FilterImage == null)
             {
-                SoftwareBitmap RotatedImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, OriginImage.PixelHeight, OriginImage.PixelWidth, BitmapAlphaMode.Premultiplied);
-                OpenCV.OpenCVLibrary.RotateEffect(OriginImage, RotatedImage, 90);
+                SoftwareBitmap RotatedImage = ComputerVisionProvider.RotateEffect(OriginImage, 90);
                 WriteableBitmap WBitmap = new WriteableBitmap(RotatedImage.PixelWidth, RotatedImage.PixelHeight);
                 RotatedImage.CopyToBuffer(WBitmap.PixelBuffer);
                 Cropper.Source = WBitmap;
@@ -384,13 +363,11 @@ namespace RX_Explorer
             }
             else
             {
-                SoftwareBitmap OringinRotatedImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, OriginImage.PixelHeight, OriginImage.PixelWidth, BitmapAlphaMode.Premultiplied);
-                OpenCV.OpenCVLibrary.RotateEffect(OriginImage, OringinRotatedImage, 90);
+                SoftwareBitmap OringinRotatedImage = ComputerVisionProvider.RotateEffect(OriginImage, 90);
                 OriginImage.Dispose();
                 OriginImage = OringinRotatedImage;
 
-                SoftwareBitmap RotatedImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, FilterImage.PixelHeight, FilterImage.PixelWidth, BitmapAlphaMode.Premultiplied);
-                OpenCV.OpenCVLibrary.RotateEffect(FilterImage, RotatedImage, 90);
+                SoftwareBitmap RotatedImage = ComputerVisionProvider.RotateEffect(FilterImage, 90);
                 WriteableBitmap WBitmap = new WriteableBitmap(RotatedImage.PixelWidth, RotatedImage.PixelHeight);
                 RotatedImage.CopyToBuffer(WBitmap.PixelBuffer);
                 Cropper.Source = WBitmap;
@@ -406,16 +383,24 @@ namespace RX_Explorer
         {
             if (FilterImage == null)
             {
-                OpenCV.OpenCVLibrary.FlipEffect(OriginImage, OriginImage, false);
+                SoftwareBitmap FlipImage = ComputerVisionProvider.FlipEffect(OriginImage, false);
+                OriginImage.Dispose();
+                OriginImage = FlipImage;
+
                 WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
                 OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
                 Cropper.Source = WBitmap;
             }
             else
             {
-                OpenCV.OpenCVLibrary.FlipEffect(OriginImage, OriginImage, false);
+                SoftwareBitmap FlipImage = ComputerVisionProvider.FlipEffect(OriginImage, false);
+                OriginImage.Dispose();
+                OriginImage = FlipImage;
 
-                OpenCV.OpenCVLibrary.FlipEffect(FilterImage, FilterImage, false);
+                SoftwareBitmap FilterFlipImage = ComputerVisionProvider.FlipEffect(FilterImage, false);
+                FilterImage.Dispose();
+                FilterImage = FilterFlipImage;
+
                 WriteableBitmap WBitmap = new WriteableBitmap(FilterImage.PixelWidth, FilterImage.PixelHeight);
                 FilterImage.CopyToBuffer(WBitmap.PixelBuffer);
                 Cropper.Source = WBitmap;
@@ -431,14 +416,15 @@ namespace RX_Explorer
                 ResetButton.IsEnabled = true;
                 if (FilterImage == null)
                 {
-                    OpenCV.OpenCVLibrary.AdjustBrightnessContrast(OriginBackupImage, OriginImage, e.NewValue, BetaSlider.Value);
+                    OriginImage.Dispose();
+                    OriginImage = ComputerVisionProvider.AdjustBrightnessContrast(OriginBackupImage, e.NewValue, BetaSlider.Value);
+
                     WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
                     OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
                     Cropper.Source = WBitmap;
 
-                    using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+                    using (SoftwareBitmap Histogram = ComputerVisionProvider.CalculateHistogram(OriginImage))
                     {
-                        OpenCV.OpenCVLibrary.CalculateHistogram(OriginImage, Histogram);
                         WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
                         Histogram.CopyToBuffer(HBitmap.PixelBuffer);
                         HistogramImage.Source = HBitmap;
@@ -446,14 +432,15 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    OpenCV.OpenCVLibrary.AdjustBrightnessContrast(FilterBackupImage, FilterImage, e.NewValue, BetaSlider.Value);
+                    FilterImage.Dispose();
+                    FilterImage = ComputerVisionProvider.AdjustBrightnessContrast(FilterBackupImage, e.NewValue, BetaSlider.Value);
+
                     WriteableBitmap WBitmap = new WriteableBitmap(FilterImage.PixelWidth, FilterImage.PixelHeight);
                     FilterImage.CopyToBuffer(WBitmap.PixelBuffer);
                     Cropper.Source = WBitmap;
 
-                    using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+                    using (SoftwareBitmap Histogram = ComputerVisionProvider.CalculateHistogram(FilterImage))
                     {
-                        OpenCV.OpenCVLibrary.CalculateHistogram(FilterImage, Histogram);
                         WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
                         Histogram.CopyToBuffer(HBitmap.PixelBuffer);
                         HistogramImage.Source = HBitmap;
@@ -469,14 +456,15 @@ namespace RX_Explorer
                 ResetButton.IsEnabled = true;
                 if (FilterImage == null)
                 {
-                    OpenCV.OpenCVLibrary.AdjustBrightnessContrast(OriginBackupImage, OriginImage, AlphaSlider.Value, e.NewValue);
+                    OriginImage.Dispose();
+                    OriginImage = ComputerVisionProvider.AdjustBrightnessContrast(OriginBackupImage, AlphaSlider.Value, e.NewValue);
+
                     WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
                     OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
                     Cropper.Source = WBitmap;
 
-                    using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+                    using (SoftwareBitmap Histogram = ComputerVisionProvider.CalculateHistogram(OriginImage))
                     {
-                        OpenCV.OpenCVLibrary.CalculateHistogram(OriginImage, Histogram);
                         WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
                         Histogram.CopyToBuffer(HBitmap.PixelBuffer);
                         HistogramImage.Source = HBitmap;
@@ -484,14 +472,15 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    OpenCV.OpenCVLibrary.AdjustBrightnessContrast(FilterBackupImage, FilterImage, AlphaSlider.Value, e.NewValue);
+                    FilterImage.Dispose();
+                    FilterImage = ComputerVisionProvider.AdjustBrightnessContrast(FilterBackupImage, AlphaSlider.Value, e.NewValue);
+
                     WriteableBitmap WBitmap = new WriteableBitmap(FilterImage.PixelWidth, FilterImage.PixelHeight);
                     FilterImage.CopyToBuffer(WBitmap.PixelBuffer);
                     Cropper.Source = WBitmap;
 
-                    using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+                    using (SoftwareBitmap Histogram = ComputerVisionProvider.CalculateHistogram(FilterImage))
                     {
-                        OpenCV.OpenCVLibrary.CalculateHistogram(FilterImage, Histogram);
                         WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
                         Histogram.CopyToBuffer(HBitmap.PixelBuffer);
                         HistogramImage.Source = HBitmap;
@@ -517,19 +506,15 @@ namespace RX_Explorer
             AlphaSlider.ValueChanged += AlphaSlider_ValueChanged;
             BetaSlider.ValueChanged += BetaSlider_ValueChanged;
 
-            FilterImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, OriginImage.PixelWidth, OriginImage.PixelHeight, BitmapAlphaMode.Premultiplied);
-
-            OpenCV.OpenCVLibrary.AutoColorLevel(OriginImage, FilterImage);
-            OpenCV.OpenCVLibrary.AutoWhiteBalance(FilterImage, FilterImage);
+            FilterImage = ComputerVisionProvider.AutoColorEnhancement(OriginImage);
 
             FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
             WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
             FilterImage.CopyToBuffer(WBitmap.PixelBuffer);
             Cropper.Source = WBitmap;
 
-            using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+            using (SoftwareBitmap Histogram = ComputerVisionProvider.CalculateHistogram(FilterImage))
             {
-                OpenCV.OpenCVLibrary.CalculateHistogram(FilterImage, Histogram);
                 WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
                 Histogram.CopyToBuffer(HBitmap.PixelBuffer);
                 HistogramImage.Source = HBitmap;
@@ -565,119 +550,124 @@ namespace RX_Explorer
                             OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
 
                             Cropper.Source = WBitmap;
-
-                            using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
-                            {
-                                OpenCV.OpenCVLibrary.CalculateHistogram(OriginImage, Histogram);
-                                WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
-                                Histogram.CopyToBuffer(HBitmap.PixelBuffer);
-                                HistogramImage.Source = HBitmap;
-                            }
-
-                            ResetButton.IsEnabled = true;
-                            return;
+                            break;
                         }
                     case FilterType.Invert:
                         {
-                            WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
-                            OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
+                            using (SoftwareBitmap InvertImage = ComputerVisionProvider.InvertEffect(OriginImage))
+                            {
+                                FilterImage = SoftwareBitmap.Copy(InvertImage);
+                                FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
 
-                            var InvertBitmap = WBitmap.Invert();
+                                WriteableBitmap WBitmap = new WriteableBitmap(InvertImage.PixelWidth, InvertImage.PixelHeight);
+                                InvertImage.CopyToBuffer(WBitmap.PixelBuffer);
 
-                            FilterImage = SoftwareBitmap.CreateCopyFromBuffer(InvertBitmap.PixelBuffer, BitmapPixelFormat.Bgra8, InvertBitmap.PixelWidth, InvertBitmap.PixelHeight);
-                            FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
-                            Cropper.Source = InvertBitmap;
-
+                                Cropper.Source = WBitmap;
+                            }
                             break;
                         }
                     case FilterType.Gray:
                         {
-                            WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
-                            OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
+                            using (SoftwareBitmap GrayImage = ComputerVisionProvider.GrayEffect(OriginImage))
+                            {
+                                FilterImage = SoftwareBitmap.Copy(GrayImage);
+                                FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
 
-                            var InvertBitmap = WBitmap.Gray();
+                                WriteableBitmap WBitmap = new WriteableBitmap(GrayImage.PixelWidth, GrayImage.PixelHeight);
+                                GrayImage.CopyToBuffer(WBitmap.PixelBuffer);
 
-                            FilterImage = SoftwareBitmap.CreateCopyFromBuffer(InvertBitmap.PixelBuffer, BitmapPixelFormat.Bgra8, InvertBitmap.PixelWidth, InvertBitmap.PixelHeight);
-                            FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
-                            Cropper.Source = InvertBitmap;
-
+                                Cropper.Source = WBitmap;
+                            }
                             break;
                         }
                     case FilterType.Threshold:
                         {
-                            FilterImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, OriginImage.PixelWidth, OriginImage.PixelHeight, BitmapAlphaMode.Premultiplied);
-                            WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
-                            OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
-                            FilterImage.CopyFromBuffer(WBitmap.Gray().PixelBuffer);
-                            OpenCV.OpenCVLibrary.ThresholdEffect(FilterImage, FilterImage);
-                            FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
-                            FilterImage.CopyToBuffer(WBitmap.PixelBuffer);
-                            Cropper.Source = WBitmap;
+                            using (SoftwareBitmap ThresholdImage = ComputerVisionProvider.ThresholdEffect(OriginImage))
+                            {
+                                FilterImage = SoftwareBitmap.Copy(ThresholdImage);
+                                FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
 
+                                WriteableBitmap WBitmap = new WriteableBitmap(ThresholdImage.PixelWidth, ThresholdImage.PixelHeight);
+                                ThresholdImage.CopyToBuffer(WBitmap.PixelBuffer);
+
+                                Cropper.Source = WBitmap;
+                            }
                             break;
                         }
                     case FilterType.Sketch:
                         {
-                            FilterImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, OriginImage.PixelWidth, OriginImage.PixelHeight, BitmapAlphaMode.Premultiplied);
-                            WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
-                            OriginImage.CopyToBuffer(WBitmap.PixelBuffer);
-                            FilterImage.CopyFromBuffer(WBitmap.Gray().PixelBuffer);
-                            OpenCV.OpenCVLibrary.SketchEffect(FilterImage, FilterImage);
-                            FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
-                            FilterImage.CopyToBuffer(WBitmap.PixelBuffer);
-                            Cropper.Source = WBitmap;
+                            using (SoftwareBitmap SketchImage = ComputerVisionProvider.SketchEffect(OriginImage))
+                            {
+                                FilterImage = SoftwareBitmap.Copy(SketchImage);
+                                FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
 
+                                WriteableBitmap WBitmap = new WriteableBitmap(SketchImage.PixelWidth, SketchImage.PixelHeight);
+                                SketchImage.CopyToBuffer(WBitmap.PixelBuffer);
+
+                                Cropper.Source = WBitmap;
+                            }
                             break;
                         }
                     case FilterType.GaussianBlur:
                         {
-                            FilterImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, OriginImage.PixelWidth, OriginImage.PixelHeight, BitmapAlphaMode.Premultiplied);
-                            OpenCV.OpenCVLibrary.GaussianBlurEffect(OriginImage, FilterImage);
-                            FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
-                            WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
-                            FilterImage.CopyToBuffer(WBitmap.PixelBuffer);
-                            Cropper.Source = WBitmap;
+                            using (SoftwareBitmap GaussianBlurImage = ComputerVisionProvider.GaussianBlurEffect(OriginImage))
+                            {
+                                FilterImage = SoftwareBitmap.Copy(GaussianBlurImage);
+                                FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
 
+                                WriteableBitmap WBitmap = new WriteableBitmap(GaussianBlurImage.PixelWidth, GaussianBlurImage.PixelHeight);
+                                GaussianBlurImage.CopyToBuffer(WBitmap.PixelBuffer);
+
+                                Cropper.Source = WBitmap;
+                            }
                             break;
                         }
                     case FilterType.Sepia:
                         {
-                            FilterImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, OriginImage.PixelWidth, OriginImage.PixelHeight, BitmapAlphaMode.Premultiplied);
-                            OpenCV.OpenCVLibrary.SepiaEffect(OriginImage, FilterImage);
-                            FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
-                            WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
-                            FilterImage.CopyToBuffer(WBitmap.PixelBuffer);
-                            Cropper.Source = WBitmap;
+                            using (SoftwareBitmap SepiaImage = ComputerVisionProvider.SepiaEffect(OriginImage))
+                            {
+                                FilterImage = SoftwareBitmap.Copy(SepiaImage);
+                                FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
 
+                                WriteableBitmap WBitmap = new WriteableBitmap(SepiaImage.PixelWidth, SepiaImage.PixelHeight);
+                                SepiaImage.CopyToBuffer(WBitmap.PixelBuffer);
+
+                                Cropper.Source = WBitmap;
+                            }
                             break;
                         }
                     case FilterType.OilPainting:
                         {
-                            FilterImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, OriginImage.PixelWidth, OriginImage.PixelHeight, BitmapAlphaMode.Premultiplied);
-                            OpenCV.OpenCVLibrary.OilPaintingEffect(OriginImage, FilterImage);
-                            FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
-                            WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
-                            FilterImage.CopyToBuffer(WBitmap.PixelBuffer);
-                            Cropper.Source = WBitmap;
+                            using (SoftwareBitmap OilPaintingImage = ComputerVisionProvider.OilPaintingEffect(OriginImage))
+                            {
+                                FilterImage = SoftwareBitmap.Copy(OilPaintingImage);
+                                FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
 
+                                WriteableBitmap WBitmap = new WriteableBitmap(OilPaintingImage.PixelWidth, OilPaintingImage.PixelHeight);
+                                OilPaintingImage.CopyToBuffer(WBitmap.PixelBuffer);
+
+                                Cropper.Source = WBitmap;
+                            }
                             break;
                         }
                     case FilterType.Mosaic:
                         {
-                            FilterImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, OriginImage.PixelWidth, OriginImage.PixelHeight, BitmapAlphaMode.Premultiplied);
-                            OpenCV.OpenCVLibrary.MosaicEffect(OriginImage, FilterImage);
-                            FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
-                            WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
-                            FilterImage.CopyToBuffer(WBitmap.PixelBuffer);
-                            Cropper.Source = WBitmap;
+                            using (SoftwareBitmap MosaicImage = ComputerVisionProvider.MosaicEffect(OriginImage))
+                            {
+                                FilterImage = SoftwareBitmap.Copy(MosaicImage);
+                                FilterBackupImage = SoftwareBitmap.Copy(FilterImage);
 
+                                WriteableBitmap WBitmap = new WriteableBitmap(MosaicImage.PixelWidth, MosaicImage.PixelHeight);
+                                MosaicImage.CopyToBuffer(WBitmap.PixelBuffer);
+
+                                Cropper.Source = WBitmap;
+                            }
                             break;
                         }
                 }
 
-                using (SoftwareBitmap Histogram = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 512, 512, BitmapAlphaMode.Premultiplied))
+                using (SoftwareBitmap Histogram = ComputerVisionProvider.CalculateHistogram(Item.Type == FilterType.Origin ? OriginImage : FilterImage))
                 {
-                    OpenCV.OpenCVLibrary.CalculateHistogram(FilterImage, Histogram);
                     WriteableBitmap HBitmap = new WriteableBitmap(Histogram.PixelWidth, Histogram.PixelHeight);
                     Histogram.CopyToBuffer(HBitmap.PixelBuffer);
                     HistogramImage.Source = HBitmap;

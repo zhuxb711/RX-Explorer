@@ -26,7 +26,7 @@ namespace FullTrustProcess
                     {
                         try
                         {
-                            if (!Path.GetExtension(Item.FileSystemPath).Equals(".lnk", StringComparison.OrdinalIgnoreCase))
+                            if (!Item.IsLink)
                             {
                                 Dictionary<string, string> PropertyDic = new Dictionary<string, string>
                                 {

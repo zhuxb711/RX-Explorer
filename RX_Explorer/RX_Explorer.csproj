@@ -31,7 +31,6 @@
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-    <PackageCertificateThumbprint>B8261191E6D2053DB7905482E9153EDBCC1B12A9</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -714,7 +713,7 @@
       <Version>2.4.2</Version>
     </PackageReference>
     <PackageReference Include="MySqlConnector">
-      <Version>0.69.3</Version>
+      <Version>0.69.4</Version>
     </PackageReference>
     <PackageReference Include="OpenCV.UWP.native.imgproc">
       <Version>0.0.2-alpha</Version>
@@ -731,12 +730,6 @@
     <PackageReference Include="TagLib.Portable">
       <Version>1.0.4</Version>
     </PackageReference>
-    <PackageReference Include="TinyPinyin.Core.Standard">
-      <Version>1.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="WriteableBitmapEx">
-      <Version>1.6.5</Version>
-    </PackageReference>
     <PackageReference Include="ZXing.Net">
       <Version>0.16.5</Version>
     </PackageReference>
@@ -750,9 +743,9 @@
       <Project>{7d62af29-e32f-4402-88e5-d8feeb062728}</Project>
       <Name>CommunicateService</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OpenCV\OpenCV.vcxproj">
-      <Project>{f9be798f-758f-41d2-be7e-24614ffa696f}</Project>
-      <Name>OpenCV</Name>
+    <ProjectReference Include="..\ComputerVision\ComputerVision.csproj">
+      <Project>{5bc5b5aa-53f4-4437-95b3-261f790ae373}</Project>
+      <Name>ComputerVision</Name>
     </ProjectReference>
     <ProjectReference Include="..\SQLConnectionPoolProvider\SQLConnectionPoolProvider.csproj">
       <Project>{48d8d03d-e12c-433c-a9d9-a4311e12fb78}</Project>

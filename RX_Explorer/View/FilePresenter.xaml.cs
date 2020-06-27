@@ -1,5 +1,5 @@
-﻿using ICSharpCode.SharpZipLib.Zip;
-using OpenCV;
+﻿using ComputerVision;
+using ICSharpCode.SharpZipLib.Zip;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
@@ -1975,9 +1975,8 @@ namespace RX_Explorer
 
                 WriteableBitmap Bitmap = Writer.Write(QRText.Text);
                 using (SoftwareBitmap PreTransImage = SoftwareBitmap.CreateCopyFromBuffer(Bitmap.PixelBuffer, BitmapPixelFormat.Bgra8, 250, 250))
-                using (SoftwareBitmap TransferImage = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 400, 250, BitmapAlphaMode.Premultiplied))
+                using (SoftwareBitmap TransferImage = ComputerVisionProvider.ExtendImageBorder(PreTransImage, Colors.White, 0, 75, 75, 0))
                 {
-                    OpenCVLibrary.ExtendImageBorder(PreTransImage, TransferImage, Colors.White, 0, 75, 75, 0);
                     SoftwareBitmapSource Source = new SoftwareBitmapSource();
                     QRImage.Source = Source;
                     await Source.SetBitmapAsync(TransferImage);
