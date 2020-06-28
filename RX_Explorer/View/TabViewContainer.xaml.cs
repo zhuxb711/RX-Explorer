@@ -656,15 +656,20 @@ namespace RX_Explorer
                     }
                 }
 
-                if (AccessError)
+                if (AccessError && !ApplicationData.Current.LocalSettings.Values.ContainsKey("DisableAccessErrorTip"))
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                         Content = Globalization.GetString("QueueDialog_DeviceHideForError_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_DoNotTip"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        ApplicationData.Current.LocalSettings.Values["DisableAccessErrorTip"] = true;
+                    }
                 }
 
                 switch (PortalDeviceWatcher.Status)

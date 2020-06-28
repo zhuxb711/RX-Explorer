@@ -2396,4 +2396,10 @@
   <data name="QueueDialog_RecycleBinRestoreError_Content" xml:space="preserve">
     <value>在还原以下文件时出现错误:</value>
   </data>
+  <data name="FeedBackTranslateButton.Label" xml:space="preserve">
+    <value>翻译</value>
+  </data>
+  <data name="Common_Dialog_DoNotTip" xml:space="preserve">
+    <value>不再提示</value>
+  </data>
 </root>

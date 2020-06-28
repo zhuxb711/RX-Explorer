@@ -1,4 +1,39 @@
 ﻿*****
+###Quoi de neuf dans la version 4.9.5.0
+
+>#####Mise à jour des fonctionnalités
+
+>>#####Ajouter une option "Ejecter" pour les périphériques USB
+
+>>#####Nouvelle option "Ouvrir dans le terminal", préférable de démarrer Windows Terminal, sinon démarrer Powershell
+
+>>#####Ajouter un nouveau fond
+
+>#####Optimisation des performances
+
+>>#####Accélérez la suspension du calcul de la valeur de contrôle de hachage, maintenant il est préférable de suspendre le calcul avant la fin du calcul
+
+>>#####Accélérez la vitesse d'obtention des suggestions de commentaires. Maintenant, le contenu ne sera pas traduit par défaut, mais vous pouvez cliquer avec le bouton droit sur "Traduire"
+
+>>#####Amélioration de l'algorithme des filtres tels que "Auto Optimiser", "Esquisse", "Binaire" dans l'édition d'image
+
+>>#####Accélérez le traitement des filtres d'image
+
+>#####Correction d'un bug
+
+>>#####Correction de certains problèmes pouvant entraîner le blocage de la "Corbeille"
+
+>>#####Correction d'un problème qui pouvait provoquer un bourrage lors de l'utilisation de la corbeille
+
+>>#####Correction d'un problème où des ressources de traduction incorrectes pouvaient provoquer un crash
+
+>>#####Correction d'un problème où la fonction de lecteur caché a échoué dans certains cas
+
+>>#####Correction d'un problème empêchant le démarrage de Windows Terminal dans le répertoire actuel
+
+>>#####Correction d'un problème selon lequel la méthode d'ouverture par défaut du système de recherche n'était pas valide
+
+*****
 ###Quoi de neuf dans la version 4.9.0.0
 
 >#####Mise à jour des fonctionnalités

@@ -12,6 +12,17 @@
       mc:Ignorable="d"
       Background="Transparent">
 
+    <Page.Resources>
+        <Storyboard x:Name="EnterAnimation">
+            <DoubleAnimation EnableDependentAnimation="True"
+                             From="0"
+                             To="1"
+                             Duration="0:0:0.5"
+                             Storyboard.TargetProperty="Opacity"
+                             Storyboard.TargetName="Flip"/>
+        </Storyboard>
+    </Page.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
@@ -44,7 +55,7 @@
         </CommandBar>
         <FlipView x:Name="Flip"
                   Grid.Row="1"
-                  Background="Transparent">
+                  Opacity="0">
             <FlipView.ItemTemplate>
                 <DataTemplate x:DataType="local:PhotoDisplaySupport">
                     <ScrollViewer x:Name="ScrollViewerMain"

@@ -10,12 +10,10 @@ namespace SystemInformationProvider
 {
 	class InstructionSet
 	{
-		// forward declarations
 		class InstructionSet_Internal;
 
 	public:
-		// getters
-#ifndef _M_ARM
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 		static std::string Vendor(void) { return CPU_Rep.vendor_; }
 		static std::string Brand(void) { return CPU_Rep.brand_; }
 
@@ -76,70 +74,8 @@ namespace SystemInformationProvider
 		static bool RDTSCP(void) { return CPU_Rep.isIntel_ && CPU_Rep.f_81_EDX_[27]; }
 		static bool _3DNOWEXT(void) { return CPU_Rep.isAMD_ && CPU_Rep.f_81_EDX_[30]; }
 		static bool _3DNOW(void) { return CPU_Rep.isAMD_ && CPU_Rep.f_81_EDX_[31]; }
+
 #endif
-
-#ifdef _M_ARM
-		static std::string Vendor(void) { return std::string(); }
-		static std::string Brand(void) { return std::string(); }
-
-		static bool SSE3(void) { return false; }
-		static bool PCLMULQDQ(void) { return false; }
-		static bool MONITOR(void) { return false; }
-		static bool SSSE3(void) { return false; }
-		static bool FMA(void) { return false; }
-		static bool CMPXCHG16B(void) { return false; }
-		static bool SSE41(void) { return false; }
-		static bool SSE42(void) { return false; }
-		static bool MOVBE(void) { return false; }
-		static bool POPCNT(void) { return false; }
-		static bool AES(void) { return false; }
-		static bool XSAVE(void) { return false; }
-		static bool OSXSAVE(void) { return false; }
-		static bool AVX(void) { return false; }
-		static bool F16C(void) { return false; }
-		static bool RDRAND(void) { return false; }
-
-		static bool MSR(void) { return false; }
-		static bool CX8(void) { return false; }
-		static bool SEP(void) { return false; }
-		static bool CMOV(void) { return false; }
-		static bool CLFSH(void) { return false; }
-		static bool MMX(void) { return false; }
-		static bool FXSR(void) { return false; }
-		static bool SSE(void) { return false; }
-		static bool SSE2(void) { return false; }
-
-		static bool FSGSBASE(void) { return false; }
-		static bool BMI1(void) { return false; }
-		static bool HLE(void) { return false; }
-		static bool AVX2(void) { return false; }
-		static bool BMI2(void) { return false; }
-		static bool ERMS(void) { return false; }
-		static bool INVPCID(void) { return false; }
-		static bool RTM(void) { return false; }
-		static bool AVX512F(void) { return false; }
-		static bool RDSEED(void) { return false; }
-		static bool ADX(void) { return false; }
-		static bool AVX512PF(void) { return false; }
-		static bool AVX512ER(void) { return false; }
-		static bool AVX512CD(void) { return false; }
-		static bool SHA(void) { return false; }
-
-		static bool PREFETCHWT1(void) { return false; }
-
-		static bool LAHF(void) { return false; }
-		static bool LZCNT(void) { return false; }
-		static bool ABM(void) { return false; }
-		static bool SSE4a(void) { return false; }
-		static bool XOP(void) { return false; }
-		static bool TBM(void) { return false; }
-
-		static bool SYSCALL(void) { return false; }
-		static bool MMXEXT(void) { return false; }
-		static bool RDTSCP(void) { return false; }
-		static bool _3DNOWEXT(void) { return false; }
-		static bool _3DNOW(void) { return false; }
-#endif // _M_ARM
 
 	private:
 		static const InstructionSet_Internal CPU_Rep;
@@ -147,8 +83,7 @@ namespace SystemInformationProvider
 		class InstructionSet_Internal
 		{
 		public:
-#ifndef _M_ARM
-
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 			InstructionSet_Internal()
 				: nIds_{ 0 },
 				nExIds_{ 0 },

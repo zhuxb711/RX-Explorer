@@ -249,15 +249,6 @@ namespace RX_Explorer
             {
                 await foreach (FeedBackItem FeedBackItem in MySQL.Current.GetAllFeedBackAsync())
                 {
-                    if (FeedBackItem.Title.StartsWith("@"))
-                    {
-                        FeedBackItem.UpdateTitleAndSuggestion(FeedBackItem.Title, await FeedBackItem.Suggestion.TranslateAsync().ConfigureAwait(true));
-                    }
-                    else
-                    {
-                        FeedBackItem.UpdateTitleAndSuggestion(await FeedBackItem.Title.TranslateAsync().ConfigureAwait(true), await FeedBackItem.Suggestion.TranslateAsync().ConfigureAwait(true));
-                    }
-
                     FeedBackCollection.Add(FeedBackItem);
                 }
             }
@@ -737,7 +728,7 @@ namespace RX_Explorer
             if ((e.OriginalSource as FrameworkElement)?.DataContext is FeedBackItem Item)
             {
                 FeedBackList.SelectedItem = Item;
-                FeedBackList.ContextFlyout = UserID == "zrfcfgs@outlook.com" ? FeedBackDevelopFlyout : (Item.UserID == UserID ? FeedBackFlyout : null);
+                FeedBackList.ContextFlyout = UserID == "zrfcfgs@outlook.com" ? FeedBackDevelopFlyout : (Item.UserID == UserID ? FeedBackFlyout : TranslateFlyout);
             }
         }
 
@@ -1188,6 +1179,26 @@ namespace RX_Explorer
                         _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                         break;
                     }
+            }
+        }
+
+        private async void FeedBackTranslate_Click(object sender, RoutedEventArgs e)
+        {
+            if (FeedBackList.SelectedItem is FeedBackItem Item)
+            {
+                if (!Item.IsTranslated)
+                {
+                    if (Item.Title.StartsWith("@"))
+                    {
+                        Item.UpdateTitleAndSuggestion(Item.Title, await Item.Suggestion.TranslateAsync().ConfigureAwait(true));
+                    }
+                    else
+                    {
+                        Item.UpdateTitleAndSuggestion(await Item.Title.TranslateAsync().ConfigureAwait(true), await Item.Suggestion.TranslateAsync().ConfigureAwait(true));
+                    }
+
+                    Item.IsTranslated = true;
+                }
             }
         }
     }

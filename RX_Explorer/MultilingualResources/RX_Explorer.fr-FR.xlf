@@ -3169,6 +3169,14 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>An error occurred while restoring the following files:</source>
           <target state="translated">Une erreur s'est produite lors de la restauration des fichiers suivants:</target>
         </trans-unit>
+        <trans-unit id="FeedBackTranslateButton.Label" translate="yes" xml:space="preserve">
+          <source>Translate</source>
+          <target state="translated">Traduire</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_DoNotTip" translate="yes" xml:space="preserve">
+          <source>No prompt</source>
+          <target state="translated">Aucune invite</target>
+        </trans-unit>
       </group>
     </body>
   </file>

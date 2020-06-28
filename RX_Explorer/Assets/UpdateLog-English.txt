@@ -1,4 +1,39 @@
 ﻿*****
+###What's new in Ver.4.9.5.0
+
+>#####Feature update
+
+>>#####Add "Eject" option for USB devices
+
+>>#####New "Open in Terminal" option, preferred to start Windows Terminal, otherwise start Powershell
+
+>>#####Add a new own background
+
+>#####Performance optimization
+
+>>#####Accelerate the suspension of the calculation of the hash check value, now it is better to suspend the calculation before the calculation is completed
+
+>>#####Speed ​​up the speed of obtaining feedback suggestions. Now the content will not be translated by default, but you can right-click "Translate"
+
+>>#####Improved the algorithm of filters such as "Auto Optimize", "Sketch", "Binary" in picture editing
+
+>>#####Speed ​​up the processing of image filters
+
+>#####Bug fix
+
+>>#####Fixed some issues that may cause the "Recycle Bin" to crash
+
+>>#####Fixed an issue that could cause a jam when operating the recycle bin
+
+>>#####Fixed an issue where improper translation resources might cause a crash
+
+>>#####Fixed an issue that the hidden drive function failed in some cases
+
+>>#####Fixed an issue that Windows Terminal is not started in the current directory
+
+>>#####Fixed an issue that the search system default opening method is invalid
+
+*****
 ###What's new in Ver.4.9.0.0
 
 >#####Feature update

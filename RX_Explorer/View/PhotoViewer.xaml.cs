@@ -112,7 +112,7 @@ namespace RX_Explorer
                     Flip.SelectionChanged += Flip_SelectionChanged;
                     Flip.SelectionChanged += Flip_SelectionChanged1;
 
-                    await Task.Delay(1000).ConfigureAwait(true);
+                    await EnterAnimation.BeginAsync().ConfigureAwait(true);
                 }
             }
             catch (Exception ex)
@@ -174,6 +174,7 @@ namespace RX_Explorer
             SelectedPhotoName = string.Empty;
             Flip.SelectionChanged -= Flip_SelectionChanged;
             Flip.SelectionChanged -= Flip_SelectionChanged1;
+            Flip.Opacity = 0;
         }
 
         private async void Flip_SelectionChanged(object sender, SelectionChangedEventArgs e)

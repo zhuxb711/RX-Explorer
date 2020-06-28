@@ -2501,4 +2501,10 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_RecycleBinRestoreError_Content" xml:space="preserve">
     <value>An error occurred while restoring the following files:</value>
   </data>
+  <data name="FeedBackTranslateButton.Label" xml:space="preserve">
+    <value>Translate</value>
+  </data>
+  <data name="Common_Dialog_DoNotTip" xml:space="preserve">
+    <value>No prompt</value>
+  </data>
 </root>

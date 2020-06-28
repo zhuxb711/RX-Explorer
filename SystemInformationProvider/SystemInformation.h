@@ -25,10 +25,14 @@ namespace SystemInformationProvider
 		{
 			String^ get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				std::string CPUName = InstructionSet::Brand();
 				std::wstring w_str = std::wstring(CPUName.begin(), CPUName.end());
 				const wchar_t* w_chars = w_str.c_str();
 				return ref new Platform::String(w_chars);
+#else
+				return ref new Platform::String();
+#endif
 			}
 		}
 
@@ -36,7 +40,11 @@ namespace SystemInformationProvider
 		{
 			bool get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				return InstructionSet::SSE;
+#else
+				return false;
+#endif
 			}
 		}
 
@@ -44,7 +52,11 @@ namespace SystemInformationProvider
 		{
 			bool get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				return InstructionSet::SSE2;
+#else
+				return false;
+#endif
 			}
 		}
 
@@ -52,7 +64,11 @@ namespace SystemInformationProvider
 		{
 			bool get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				return InstructionSet::SSE3;
+#else
+				return false;
+#endif
 			}
 		}
 
@@ -60,7 +76,11 @@ namespace SystemInformationProvider
 		{
 			bool get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				return InstructionSet::SSSE3;
+#else
+				return false;
+#endif
 			}
 		}
 
@@ -68,7 +88,11 @@ namespace SystemInformationProvider
 		{
 			bool get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				return InstructionSet::SSE41;
+#else
+				return false;
+#endif
 			}
 		}
 
@@ -76,7 +100,11 @@ namespace SystemInformationProvider
 		{
 			bool get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				return InstructionSet::SSE42;
+#else
+				return false;
+#endif
 			}
 		}
 
@@ -84,7 +112,11 @@ namespace SystemInformationProvider
 		{
 			bool get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				return InstructionSet::AES;
+#else
+				return false;
+#endif
 			}
 		}
 
@@ -92,7 +124,11 @@ namespace SystemInformationProvider
 		{
 			bool get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				return InstructionSet::AVX;
+#else
+				return false;
+#endif
 			}
 		}
 
@@ -100,7 +136,11 @@ namespace SystemInformationProvider
 		{
 			bool get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				return InstructionSet::AVX2;
+#else
+				return false;
+#endif
 			}
 		}
 
@@ -108,7 +148,11 @@ namespace SystemInformationProvider
 		{
 			bool get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				return InstructionSet::AVX512CD || InstructionSet::AVX512ER || InstructionSet::AVX512F || InstructionSet::AVX512PF;
+#else
+				return false;
+#endif
 			}
 		}
 
@@ -116,7 +160,11 @@ namespace SystemInformationProvider
 		{
 			bool get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				return InstructionSet::MMX;
+#else
+				return false;
+#endif
 			}
 		}
 
@@ -124,7 +172,11 @@ namespace SystemInformationProvider
 		{
 			bool get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				return InstructionSet::FMA;
+#else
+				return false;
+#endif
 			}
 		}
 
@@ -132,7 +184,11 @@ namespace SystemInformationProvider
 		{
 			bool get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				return InstructionSet::SEP;
+#else
+				return false;
+#endif
 			}
 		}
 
@@ -140,7 +196,11 @@ namespace SystemInformationProvider
 		{
 			bool get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				return InstructionSet::SHA;
+#else
+				return false;
+#endif
 			}
 		}
 
@@ -148,6 +208,7 @@ namespace SystemInformationProvider
 		{
 			String^ get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				std::string memory_info;
 				MEMORYSTATUSEX statusex;
 				statusex.dwLength = sizeof(statusex);
@@ -178,10 +239,13 @@ namespace SystemInformationProvider
 					const wchar_t* w_chars = w_str.c_str();
 					return ref new Platform::String(w_chars);
 				}
-				else 
+				else
 				{
 					return ref new String();
 				}
+#else
+				return ref new String();
+#endif
 			}
 		}
 
@@ -189,6 +253,7 @@ namespace SystemInformationProvider
 		{
 			String^ get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				LPFN_GLPI glpi;
 				BOOL done = FALSE;
 				PSYSTEM_LOGICAL_PROCESSOR_INFORMATION buffer = NULL;
@@ -206,7 +271,7 @@ namespace SystemInformationProvider
 					auto kernelAddr = (HMODULE)info.AllocationBase;
 					glpi = (LPFN_GLPI)GetProcAddress(kernelAddr, "GetLogicalProcessorInformation");
 				}
-				else 
+				else
 				{
 					glpi = nullptr;
 				}
@@ -297,13 +362,17 @@ namespace SystemInformationProvider
 				processorCoreCount;
 				logicalProcessorCount;
 				return processorCoreCount.ToString() + "||" + logicalProcessorCount.ToString() + "||" + L1SIZE.ToString() + "||" + L2SIZE.ToString() + "||" + L3SIZE.ToString();
+#else
+return ref new String();
+#endif
 			}
 		}
 
-		property static Array<String^>^GraphicAdapterInfo
+		property static Array<String^>^ GraphicAdapterInfo
 		{
 			Array<String^>^ get()
 			{
+#if ((!defined _M_ARM) && (!defined _M_ARM64))
 				D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_9_1 };
 				ID3D11Device* pDevice = nullptr;
 				HRESULT hr = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_BGRA_SUPPORT, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &pDevice, nullptr, nullptr);
@@ -359,8 +428,12 @@ namespace SystemInformationProvider
 				{
 					return nullptr;
 				}
+#else
+				return nullptr;
+#endif
 			}
 		}
+
 	private:
 		SystemInformation();
     };

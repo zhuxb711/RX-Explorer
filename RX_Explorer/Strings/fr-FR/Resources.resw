@@ -2396,4 +2396,10 @@
   <data name="QueueDialog_RecycleBinRestoreError_Content" xml:space="preserve">
     <value>Une erreur s'est produite lors de la restauration des fichiers suivants:</value>
   </data>
+  <data name="FeedBackTranslateButton.Label" xml:space="preserve">
+    <value>Traduire</value>
+  </data>
+  <data name="Common_Dialog_DoNotTip" xml:space="preserve">
+    <value>Aucune invite</value>
+  </data>
 </root>
