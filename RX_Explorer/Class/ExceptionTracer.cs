@@ -34,21 +34,8 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Ex), "Exception could not be null");
             }
 
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                RenderTargetBitmap RenderBitmap = new RenderTargetBitmap();
-                await RenderBitmap.RenderAsync(Window.Current.Content);
-                IBuffer Buffer = await RenderBitmap.GetPixelsAsync();
-
-                StorageFile CaptureFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("ErrorCaptureFile.png", CreationCollisionOption.ReplaceExisting);
-                using (IRandomAccessStream Stream = await CaptureFile.OpenAsync(FileAccessMode.ReadWrite))
-                {
-                    BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
-                    Encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)RenderBitmap.PixelWidth, (uint)RenderBitmap.PixelHeight, DisplayInformation.GetForCurrentView().LogicalDpi, DisplayInformation.GetForCurrentView().LogicalDpi, Buffer.ToArray());
-                    await Encoder.FlushAsync();
-                }
-
-
                 string[] MessageSplit = Ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
                 for (int i = 0; i < MessageSplit.Length; i++)
                 {

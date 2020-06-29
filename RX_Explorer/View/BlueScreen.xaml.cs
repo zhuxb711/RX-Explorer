@@ -1,9 +1,5 @@
-﻿using RX_Explorer.Class;
-using System;
+﻿using System;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.Core;
-using Windows.Storage;
-using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -39,19 +35,6 @@ namespace RX_Explorer
 
         private async Task SendEmailAsync(string messageBody)
         {
-            if (await ApplicationData.Current.TemporaryFolder.TryGetItemAsync("ErrorCaptureFile.png") is StorageFile ErrorScreenShot)
-            {
-                FileSavePicker Picker = new FileSavePicker
-                {
-                    SuggestedStartLocation = PickerLocationId.Desktop,
-                    SuggestedFileName = $"{Globalization.GetString("Crash_Screenshot_Send_Text")}.png"
-                };
-                Picker.FileTypeChoices.Add("PNG", new string[] { ".png" });
-                if (await Picker.PickSaveFileAsync() is StorageFile SaveFile)
-                {
-                    await ErrorScreenShot.CopyAndReplaceAsync(SaveFile);
-                }
-            }
             _ = await Launcher.LaunchUriAsync(new Uri("mailto:zrfcfgs@outlook.com?subject=BugReport&body=" + Uri.EscapeDataString(messageBody)));
         }
 

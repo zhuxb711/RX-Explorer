@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -225,29 +226,20 @@ namespace FullTrustProcess
                         {
                             ValueSet Value = new ValueSet();
 
-                            string SourcePath = Convert.ToString(args.Request.Message["SourcePath"]);
+                            string SourcePathJson = Convert.ToString(args.Request.Message["SourcePath"]);
                             string DestinationPath = Convert.ToString(args.Request.Message["DestinationPath"]);
 
-                            if (Directory.Exists(SourcePath))
+                            List<KeyValuePair<string, string>> SourcePathList = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(SourcePathJson);
+
+                            if (SourcePathList.All((Item) => Directory.Exists(Item.Key) || File.Exists(Item.Key)))
                             {
-                                if (StorageItemController.Copy(SourcePath, DestinationPath, args.Request.Message.ContainsKey("NewName") ? Convert.ToString(args.Request.Message["NewName"]) : null))
+                                if (StorageItemController.Copy(SourcePathList, DestinationPath))
                                 {
                                     Value.Add("Success", string.Empty);
                                 }
                                 else
                                 {
                                     Value.Add("Error_Failure", "An error occurred while copying the folder");
-                                }
-                            }
-                            else if (File.Exists(SourcePath))
-                            {
-                                if (StorageItemController.Copy(SourcePath, DestinationPath))
-                                {
-                                    Value.Add("Success", string.Empty);
-                                }
-                                else
-                                {
-                                    Value.Add("Error_Failure", "An error occurred while copying the file");
                                 }
                             }
                             else

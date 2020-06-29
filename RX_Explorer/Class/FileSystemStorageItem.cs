@@ -104,18 +104,6 @@ namespace RX_Explorer.Class
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public int CompareTo(object obj)
-        {
-            if (obj is FileSystemStorageItem Item)
-            {
-                return Item.Path.CompareTo(Path);
-            }
-            else
-            {
-                throw new ArgumentNullException(nameof(obj), "obj must be FileSystemStorageItem");
-            }
-        }
-
         /// <summary>
         /// 调用此方法以获得存储对象
         /// </summary>
@@ -323,6 +311,80 @@ namespace RX_Explorer.Class
         public override string ToString()
         {
             return Name;
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj is FileSystemStorageItem Item)
+            {
+                return Item.Path.CompareTo(Path);
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(obj), "obj must be FileSystemStorageItem");
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            else
+            {
+                if (obj is FileSystemStorageItem Item)
+                {
+                    return Item.Path.Equals(Path);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return Path.GetHashCode();
+        }
+
+        public static bool operator ==(FileSystemStorageItem left, FileSystemStorageItem right)
+        {
+            if (left is null)
+            {
+                return right is null;
+            }
+            else
+            {
+                if(right is null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return left.Path == right.Path;
+                }
+            }
+        }
+
+        public static bool operator !=(FileSystemStorageItem left, FileSystemStorageItem right)
+        {
+            if (left is null)
+            {
+                return right is object;
+            }
+            else
+            {
+                if(right is null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return left.Path != right.Path;
+                }
+            }
         }
     }
 }

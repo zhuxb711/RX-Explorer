@@ -11,9 +11,6 @@ namespace FullTrustProcess
 {
     public static class RecycleBinController
     {
-        [DllImport("Shell32.dll", SetLastError = false, ExactSpelling = true)]
-        private static extern HRESULT SHUpdateRecycleBinIcon();
-
         public static string GenerateRecycleItemsByJson()
         {
             try
@@ -57,16 +54,12 @@ namespace FullTrustProcess
         {
             try
             {
-                HRESULT Result = Shell32.SHEmptyRecycleBin(IntPtr.Zero, null, Shell32.SHERB.SHERB_NOCONFIRMATION | Shell32.SHERB.SHERB_NOPROGRESSUI);
-                return Result == HRESULT.S_OK || Result == HRESULT.E_UNEXPECTED;
+                RecycleBin.Empty(noSound: false);
+                return true;
             }
             catch
             {
                 return false;
-            }
-            finally
-            {
-                SHUpdateRecycleBinIcon();
             }
         }
 
@@ -85,7 +78,7 @@ namespace FullTrustProcess
 
                     using (ShellFolder DestItem = new ShellFolder(DirectoryName))
                     {
-                        ShellFileOperations.Move(SourceItem, DestItem, null, ShellFileOperations.OperationFlags.AllowUndo | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
+                        ShellFileOperations.Move(SourceItem, DestItem, null, ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
                     }
 
                     File.Delete(System.IO.Path.GetFileName(Path).Replace("$R", "$I"));
@@ -96,10 +89,6 @@ namespace FullTrustProcess
             catch
             {
                 return false;
-            }
-            finally
-            {
-                SHUpdateRecycleBinIcon();
             }
         }
 
@@ -114,10 +103,6 @@ namespace FullTrustProcess
             catch
             {
                 return false;
-            }
-            finally
-            {
-                SHUpdateRecycleBinIcon();
             }
         }
     }

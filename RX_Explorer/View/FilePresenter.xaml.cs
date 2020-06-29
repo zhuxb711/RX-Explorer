@@ -3,6 +3,7 @@ using ICSharpCode.SharpZipLib.Zip;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -478,212 +479,221 @@ namespace RX_Explorer
 
             DataPackageView Package = Clipboard.GetContent();
 
-            IReadOnlyList<IStorageItem> ItemList = await Package.GetStorageItemsAsync();
-
-            if (Package.RequestedOperation.HasFlag(DataPackageOperation.Move))
+            if (Package.Contains(StandardDataFormats.StorageItems))
             {
-                await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
+                IReadOnlyList<IStorageItem> ItemList = await Package.GetStorageItemsAsync();
 
-                if (ItemList.Any((Item) => Path.GetDirectoryName(Item.Path) == FileControlInstance.CurrentFolder.Path))
+                if (Package.RequestedOperation.HasFlag(DataPackageOperation.Move))
                 {
-                    goto FLAG;
-                }
+                    await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
-                bool IsItemNotFound = false;
-                bool IsUnauthorized = false;
-                bool IsCaptured = false;
-
-                TabViewContainer.CopyAndMoveRecord.Clear();
-
-                foreach (IStorageItem StorageItem in ItemList)
-                {
-                    try
+                    if (ItemList.Any((Item) => Path.GetDirectoryName(Item.Path) == FileControlInstance.CurrentFolder.Path))
                     {
-                        if (StorageItem is StorageFile File)
+                        goto FLAG;
+                    }
+
+                    bool IsItemNotFound = false;
+                    bool IsUnauthorized = false;
+                    bool IsCaptured = false;
+
+                    TabViewContainer.CopyAndMoveRecord.Clear();
+
+                    foreach (IStorageItem StorageItem in ItemList)
+                    {
+                        try
                         {
-                            TabViewContainer.CopyAndMoveRecord.Add($"{StorageItem.Path}||Move||File||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
-
-                            await FullTrustExcutorController.Current.MoveAsync(File, FileControlInstance.CurrentFolder).ConfigureAwait(true);
-
-                            if (FileCollection.Count > 0)
+                            if (StorageItem is StorageFile File)
                             {
-                                int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.File));
-                                if (Index == -1)
+                                TabViewContainer.CopyAndMoveRecord.Add($"{StorageItem.Path}||Move||File||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
+
+                                await FullTrustExcutorController.Current.MoveAsync(File, FileControlInstance.CurrentFolder).ConfigureAwait(true);
+
+                                if (FileCollection.Count > 0)
+                                {
+                                    int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.File));
+                                    if (Index == -1)
+                                    {
+                                        FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                    }
+                                    else
+                                    {
+                                        FileCollection.Insert(Index, new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                    }
+                                }
+                                else
                                 {
                                     FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
                                 }
-                                else
+                            }
+                            else if (StorageItem is StorageFolder Folder)
+                            {
+                                TabViewContainer.CopyAndMoveRecord.Add($"{StorageItem.Path}||Move||Folder||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
+
+                                string NewName = await FullTrustExcutorController.Current.MoveAsync(Folder, FileControlInstance.CurrentFolder).ConfigureAwait(true);
+
+                                if (await FileControlInstance.CurrentFolder.TryGetItemAsync(NewName) is StorageFolder NewFolder)
                                 {
-                                    FileCollection.Insert(Index, new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                    if (FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).All((Item) => Item.Name != NewFolder.Name))
+                                    {
+                                        FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                    }
+
+                                    if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                    {
+                                        await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                                    }
                                 }
                             }
-                            else
-                            {
-                                FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
-                            }
                         }
-                        else if (StorageItem is StorageFolder Folder)
+                        catch (FileNotFoundException)
                         {
-                            TabViewContainer.CopyAndMoveRecord.Add($"{StorageItem.Path}||Move||Folder||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
-
-                            string NewName = await FullTrustExcutorController.Current.MoveAsync(Folder, FileControlInstance.CurrentFolder).ConfigureAwait(true);
-
-                            if (await FileControlInstance.CurrentFolder.TryGetItemAsync(NewName) is StorageFolder NewFolder)
-                            {
-                                if (FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).All((Item) => Item.Name != NewFolder.Name))
-                                {
-                                    FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
-                                }
-
-                                if (!SettingControl.IsDetachTreeViewAndPresenter)
-                                {
-                                    await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
-                                }
-                            }
+                            IsItemNotFound = true;
                         }
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        IsItemNotFound = true;
-                    }
-                    catch (FileCaputureException)
-                    {
-                        IsCaptured = true;
-                    }
-                    catch (Exception)
-                    {
-                        IsUnauthorized = true;
-                    }
-                }
-
-                if (IsItemNotFound)
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else if (IsUnauthorized)
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                    };
-
-                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                    {
-                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                    }
-                }
-                else if (IsCaptured)
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
-            }
-            else if (Package.RequestedOperation.HasFlag(DataPackageOperation.Copy))
-            {
-                await LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
-
-                bool IsItemNotFound = false;
-                bool IsUnauthorized = false;
-
-                TabViewContainer.CopyAndMoveRecord.Clear();
-
-                foreach (IStorageItem StorageItem in ItemList)
-                {
-                    try
-                    {
-                        if (StorageItem is StorageFile File)
+                        catch (FileCaputureException)
                         {
-                            TabViewContainer.CopyAndMoveRecord.Add($"{StorageItem.Path}||Copy||File||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
-
-                            await FullTrustExcutorController.Current.CopyAsync(File, FileControlInstance.CurrentFolder).ConfigureAwait(true);
-
-                            StorageFile NewFile = await StorageFile.GetFileFromPathAsync(Path.Combine(FileControlInstance.CurrentFolder.Path, File.Name));
-                            if (FileCollection.Count > 0)
-                            {
-                                int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.File));
-                                if (Index == -1)
-                                {
-                                    FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
-                                }
-                                else
-                                {
-                                    FileCollection.Insert(Index, new FileSystemStorageItem(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
-                                }
-                            }
-                            else
-                            {
-                                FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
-                            }
+                            IsCaptured = true;
                         }
-                        else if (StorageItem is StorageFolder Folder)
+                        catch (Exception)
                         {
-                            TabViewContainer.CopyAndMoveRecord.Add($"{StorageItem.Path}||Copy||Folder||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
+                            IsUnauthorized = true;
+                        }
+                    }
 
-                            string NewName = await FullTrustExcutorController.Current.CopyAsync(Folder, FileControlInstance.CurrentFolder).ConfigureAwait(true);
+                    if (IsItemNotFound)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    }
+                    else if (IsUnauthorized)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                        };
 
-                            if (await FileControlInstance.CurrentFolder.TryGetItemAsync(NewName) is StorageFolder NewFolder)
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                        }
+                    }
+                    else if (IsCaptured)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    }
+                }
+                else if (Package.RequestedOperation.HasFlag(DataPackageOperation.Copy))
+                {
+                    await LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
+
+                    bool IsItemNotFound = false;
+                    bool IsUnauthorized = false;
+
+                    TabViewContainer.CopyAndMoveRecord.Clear();
+
+                    foreach (IStorageItem StorageItem in ItemList)
+                    {
+                        try
+                        {
+                            if (StorageItem is StorageFile File)
                             {
-                                if (FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).All((Item) => Item.Name != NewFolder.Name))
-                                {
-                                    FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
-                                }
+                                TabViewContainer.CopyAndMoveRecord.Add($"{StorageItem.Path}||Copy||File||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
 
-                                if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                await FullTrustExcutorController.Current.CopyAsync(File, FileControlInstance.CurrentFolder).ConfigureAwait(true);
+
+                                List<FileSystemStorageItem> NewItems = WIN_Native_API.GetStorageItems(FileControlInstance.CurrentFolder, ItemFilters.File);
+
+                                if (NewItems.Where((Item) => Item.StorageType == StorageItemTypes.File).Except(FileCollection).FirstOrDefault((Item) => Item.Name.StartsWith(Path.GetFileNameWithoutExtension(File.Name))) is FileSystemStorageItem NewItem)
                                 {
-                                    await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                                    await NewItem.LoadMoreProperty().ConfigureAwait(true);
+
+                                    if (FileCollection.Count > 0)
+                                    {
+                                        int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.File));
+                                        if (Index == -1)
+                                        {
+                                            FileCollection.Add(NewItem);
+                                        }
+                                        else
+                                        {
+                                            FileCollection.Insert(Index, NewItem);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        FileCollection.Add(NewItem);
+                                    }
+                                }
+                            }
+                            else if (StorageItem is StorageFolder Folder)
+                            {
+                                TabViewContainer.CopyAndMoveRecord.Add($"{StorageItem.Path}||Copy||Folder||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
+
+                                string NewName = await FullTrustExcutorController.Current.CopyAsync(Folder, FileControlInstance.CurrentFolder).ConfigureAwait(true);
+
+                                if (await FileControlInstance.CurrentFolder.TryGetItemAsync(NewName) is StorageFolder NewFolder)
+                                {
+                                    if (FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).All((Item) => Item.Name != NewFolder.Name))
+                                    {
+                                        FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                    }
+
+                                    if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                    {
+                                        await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                                    }
                                 }
                             }
                         }
+                        catch (FileNotFoundException)
+                        {
+                            IsItemNotFound = true;
+                        }
+                        catch (Exception)
+                        {
+                            IsUnauthorized = true;
+                        }
                     }
-                    catch (FileNotFoundException)
+
+                    if (IsItemNotFound)
                     {
-                        IsItemNotFound = true;
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
-                    catch (Exception)
+                    else if (IsUnauthorized)
                     {
-                        IsUnauthorized = true;
-                    }
-                }
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                        };
 
-                if (IsItemNotFound)
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else if (IsUnauthorized)
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                    };
-
-                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                    {
-                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                        }
                     }
                 }
             }
@@ -2180,9 +2190,20 @@ namespace RX_Explorer
 
         private void EmptyFlyout_Opening(object sender, object e)
         {
-            if (Clipboard.GetContent().Contains(StandardDataFormats.StorageItems))
+            try
             {
-                Paste.IsEnabled = true;
+                if (Clipboard.GetContent().Contains(StandardDataFormats.StorageItems))
+                {
+                    Paste.IsEnabled = true;
+                }
+                else
+                {
+                    Paste.IsEnabled = false;
+                }
+            }
+            catch
+            {
+
             }
         }
 
@@ -3317,9 +3338,14 @@ namespace RX_Explorer
 
                                             await FullTrustExcutorController.Current.CopyAsync(File, TargetFolder).ConfigureAwait(true);
 
-                                            StorageFile NewFile = await StorageFile.GetFileFromPathAsync(Path.Combine(TargetFolder.Path, File.Name));
+                                            List<FileSystemStorageItem> NewItems = WIN_Native_API.GetStorageItems(FileControlInstance.CurrentFolder, ItemFilters.File);
 
-                                            FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                            if (NewItems.Where((Item) => Item.StorageType == StorageItemTypes.File).Except(FileCollection).FirstOrDefault((Item) => Item.Name.StartsWith(Path.GetFileNameWithoutExtension(File.Name))) is FileSystemStorageItem NewItem)
+                                            {
+                                                await NewItem.LoadMoreProperty().ConfigureAwait(true);
+
+                                                FileCollection.Add(NewItem);
+                                            }
                                         }
                                         else if (Item is StorageFolder Folder)
                                         {
@@ -3394,8 +3420,7 @@ namespace RX_Explorer
 
                                             await FullTrustExcutorController.Current.MoveAsync(File, TargetFolder).ConfigureAwait(true);
 
-                                            StorageFile NewFile = await StorageFile.GetFileFromPathAsync(File.Path);
-                                            FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                            FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
                                         }
                                         else if (Item is StorageFolder Folder)
                                         {

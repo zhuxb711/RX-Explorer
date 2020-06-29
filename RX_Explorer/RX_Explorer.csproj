@@ -162,6 +162,7 @@
     <Compile Include="Class\Enum.cs" />
     <Compile Include="Class\Exception.cs" />
     <Compile Include="Class\SpecialTypeGenerator.cs" />
+    <Compile Include="Class\StorageAreaWatcher.cs" />
     <Compile Include="Class\ValueConverter.cs" />
     <Compile Include="Class\WIN_Native_API.cs" />
     <Compile Include="Class\CredentialProtector.cs" />

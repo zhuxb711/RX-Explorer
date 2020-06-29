@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -112,27 +113,13 @@ namespace FullTrustProcess
         {
             try
             {
-                if (PermanentDelete)
+                ShellFileOperations.OperationFlags Flags = PermanentDelete
+                    ? ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.NoConfirmation
+                    : ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RecycleOnDelete | ShellFileOperations.OperationFlags.NoConfirmation;
+
+                using (ShellItem Item = new ShellItem(Path))
                 {
-                    if (Directory.Exists(Path))
-                    {
-                        Directory.Delete(Path, true);
-                    }
-                    else if (File.Exists(Path))
-                    {
-                        File.Delete(Path);
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    using (ShellItem Item = new ShellItem(Path))
-                    {
-                        ShellFileOperations.Delete(Item, ShellFileOperations.OperationFlags.AllowUndo | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
-                    }
+                    ShellFileOperations.Delete(Item, Flags);
                 }
 
                 return true;
@@ -143,21 +130,30 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Copy(string SourcePath, string DestinationPath, string NewName = null)
+        public static bool Copy(IEnumerable<KeyValuePair<string, string>> Source, string DestinationPath)
         {
             try
             {
-                using (ShellItem SourceItem = new ShellItem(SourcePath))
+                if (!Directory.Exists(DestinationPath))
                 {
-                    if (!Directory.Exists(DestinationPath))
+                    _ = Directory.CreateDirectory(DestinationPath);
+                }
+
+                using (ShellFileOperations Operation = new ShellFileOperations
+                {
+                    Options = ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent
+                })
+                {
+                    foreach (KeyValuePair<string, string> SourceInfo in Source)
                     {
-                        _ = Directory.CreateDirectory(DestinationPath);
+                        using (ShellItem SourceItem = new ShellItem(SourceInfo.Key))
+                        using (ShellFolder DestItem = new ShellFolder(DestinationPath))
+                        {
+                            Operation.QueueCopyOperation(SourceItem, DestItem, string.IsNullOrEmpty(SourceInfo.Value) ? null : SourceInfo.Value);
+                        }
                     }
 
-                    using (ShellFolder DestItem = new ShellFolder(DestinationPath))
-                    {
-                        ShellFileOperations.Copy(SourceItem, DestItem, NewName, ShellFileOperations.OperationFlags.AllowUndo | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
-                    }
+                    Operation.PerformOperations();
                 }
 
                 return true;
@@ -172,17 +168,15 @@ namespace FullTrustProcess
         {
             try
             {
-                using (ShellItem SourceItem = new ShellItem(SourcePath))
+                if (!Directory.Exists(DestinationPath))
                 {
-                    if (!Directory.Exists(DestinationPath))
-                    {
-                        _ = Directory.CreateDirectory(DestinationPath);
-                    }
+                    _ = Directory.CreateDirectory(DestinationPath);
+                }
 
-                    using (ShellFolder DestItem = new ShellFolder(DestinationPath))
-                    {
-                        ShellFileOperations.Move(SourceItem, DestItem, NewName, ShellFileOperations.OperationFlags.AllowUndo | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
-                    }
+                using (ShellItem SourceItem = new ShellItem(SourcePath))
+                using (ShellFolder DestItem = new ShellFolder(DestinationPath))
+                {
+                    ShellFileOperations.Move(SourceItem, DestItem, NewName, ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
                 }
 
                 return true;
