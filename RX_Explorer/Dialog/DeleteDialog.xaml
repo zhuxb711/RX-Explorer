@@ -14,7 +14,7 @@
     <Grid>
         <StackPanel VerticalAlignment="Center">
             <TextBlock x:Name="DisplayText"/>
-            <CheckBox Content="跳过回收站，直接删除"
+            <CheckBox Content="绕过回收站，直接删除"
                       Margin="0,15,0,0"
                       x:Uid="PermanentDelete"
                       Name="PermanentDelete"/>

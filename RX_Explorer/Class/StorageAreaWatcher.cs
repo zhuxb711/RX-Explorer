@@ -1,60 +1,152 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.UI.Xaml.Controls;
+using System;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.Storage;
-using Windows.Storage.Search;
+using Windows.UI.Core;
 
 namespace RX_Explorer.Class
 {
     public sealed class StorageAreaWatcher
     {
-        private StorageItemQueryResult ItemQuery;
+        private readonly ObservableCollection<FileSystemStorageItem> CurrentCollection;
 
-        public event EventHandler<List<FileSystemStorageItem>> AddContent;
+        private CancellationTokenSource Cancellation;
 
-        public event EventHandler<List<FileSystemStorageItem>> RemoveContent;
-
-        private IEnumerable<FileSystemStorageItem> CurrentCollection;
+        private Task CurrentWatchTask;
 
         public void SetCurrentLocation(StorageFolder Folder)
         {
-            if (Folder == null)
+            if (Folder != null)
             {
-                throw new ArgumentNullException(nameof(Folder), "Parameter could not be null");
+                Cancellation?.Cancel();
+
+                if (CurrentWatchTask != null)
+                {
+                    SpinWait.SpinUntil(() => CurrentWatchTask.IsCompleted);
+                }
+
+                Cancellation?.Dispose();
+                Cancellation = new CancellationTokenSource();
+
+                CurrentWatchTask = WIN_Native_API.CreateDirectoryWatcher(Folder.Path, Cancellation.Token, Added, Removed, Renamed);
             }
-
-            if (CurrentCollection == null)
+            else
             {
-                throw new InvalidOperationException("Excute Initialize() first");
+                Cancellation?.Cancel();
+
+                if (CurrentWatchTask != null)
+                {
+                    SpinWait.SpinUntil(() => CurrentWatchTask.IsCompleted);
+                }
+
+                Cancellation?.Dispose();
+                Cancellation = null;
             }
-
-            QueryOptions Options = new QueryOptions
-            {
-                FolderDepth = FolderDepth.Shallow
-            };
-
-            ItemQuery = Folder.CreateItemQueryWithOptions(Options);
-            ItemQuery.ContentsChanged += ItemQuery_ContentsChanged;
         }
 
-        private void ItemQuery_ContentsChanged(IStorageQueryResultBase sender, object args)
+        public void SetCurrentLocation(TreeViewNode Node)
         {
-            List<FileSystemStorageItem> NewItems = WIN_Native_API.GetStorageItems(ItemQuery.Folder, ItemFilters.File | ItemFilters.Folder);
+            SetCurrentLocation(Node?.Content as StorageFolder);
+        }
 
-            List<FileSystemStorageItem> AddItems = NewItems.Except(CurrentCollection).ToList();
-            if (AddItems.Count > 0)
+        private void Renamed(string OldPath, string NewPath)
+        {
+            if (CurrentCollection.FirstOrDefault((Item) => Item.Path == OldPath) is FileSystemStorageItem Item)
             {
-                AddContent?.Invoke(this, AddItems);
-            }
-
-            List<FileSystemStorageItem> RemoveItems = CurrentCollection.Except(NewItems).ToList();
-            if (RemoveItems.Count > 0)
-            {
-                RemoveContent?.Invoke(this, RemoveItems);
+                int Index = CurrentCollection.IndexOf(Item);
+                if (WIN_Native_API.GetStorageItems(NewPath).FirstOrDefault() is FileSystemStorageItem NewItem)
+                {
+                    NewItem.LoadMoreProperty().ConfigureAwait(false).GetAwaiter().GetResult();
+                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    {
+                        CurrentCollection.Remove(Item);
+                        CurrentCollection.Insert(Index, NewItem);
+                    }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+                }
             }
         }
 
-        public StorageAreaWatcher(IEnumerable<FileSystemStorageItem> InitList)
+        private void Removed(string Path)
+        {
+            if (CurrentCollection.FirstOrDefault((Item) => Item.Path == Path) is FileSystemStorageItem Item)
+            {
+                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    CurrentCollection.Remove(Item);
+                }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+            }
+        }
+
+        private void Added(string Path)
+        {
+            if (CurrentCollection.FirstOrDefault() is FileSystemStorageItem Item)
+            {
+                if (Item.StorageType == StorageItemTypes.File)
+                {
+                    int Index = CurrentCollection.IndexOf(CurrentCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.Folder));
+
+                    if (Index != -1)
+                    {
+                        if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItem NewItem)
+                        {
+                            NewItem.LoadMoreProperty().ConfigureAwait(false).GetAwaiter().GetResult();
+
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            {
+                                CurrentCollection.Insert(Index, NewItem);
+                            }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+                        }
+                    }
+                    else
+                    {
+                        if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItem NewItem)
+                        {
+                            NewItem.LoadMoreProperty().ConfigureAwait(false).GetAwaiter().GetResult();
+
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            {
+                                CurrentCollection.Add(NewItem);
+                            }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+                        }
+                    }
+                }
+                else
+                {
+                    int Index = CurrentCollection.IndexOf(CurrentCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.File));
+
+                    if (Index != -1)
+                    {
+                        if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItem NewItem)
+                        {
+                            NewItem.LoadMoreProperty().ConfigureAwait(false).GetAwaiter().GetResult();
+
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            {
+                                CurrentCollection.Insert(Index, NewItem);
+                            }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+                        }
+                    }
+                    else
+                    {
+                        if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItem NewItem)
+                        {
+                            NewItem.LoadMoreProperty().ConfigureAwait(false).GetAwaiter().GetResult();
+
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            {
+                                CurrentCollection.Add(NewItem);
+                            }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+                        }
+                    }
+                }
+            }
+        }
+
+        public StorageAreaWatcher(ObservableCollection<FileSystemStorageItem> InitList)
         {
             CurrentCollection = InitList ?? throw new ArgumentNullException(nameof(InitList), "Parameter could not be null");
         }

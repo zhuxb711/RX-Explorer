@@ -3075,7 +3075,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="PermanentDelete.Content" translate="yes" xml:space="preserve">
           <source>Skip the recycle bin and delete directly</source>
-          <target state="translated">跳过回收站，直接删除</target>
+          <target state="translated">绕过回收站，直接删除</target>
         </trans-unit>
         <trans-unit id="ComputeHash.Text" translate="yes" xml:space="preserve">
           <source>Compute hash</source>

@@ -2325,7 +2325,7 @@
     <value>出现意外错误，无法清空回收站</value>
   </data>
   <data name="PermanentDelete.Content" xml:space="preserve">
-    <value>跳过回收站，直接删除</value>
+    <value>绕过回收站，直接删除</value>
   </data>
   <data name="ComputeHash.Text" xml:space="preserve">
     <value>计算哈希值</value>

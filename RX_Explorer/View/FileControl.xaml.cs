@@ -43,6 +43,8 @@ namespace RX_Explorer
             {
                 FolderTree.SelectNode(value);
 
+                TabViewContainer.ThisPage.FFInstanceContainer[this].AreaWatcher.SetCurrentLocation(value);
+
                 if (value != null && value.Content is StorageFolder Folder)
                 {
                     UpdateAddressButton(Folder);
@@ -100,34 +102,31 @@ namespace RX_Explorer
             }
             set
             {
-                if (SettingControl.IsDetachTreeViewAndPresenter)
+                TabViewContainer.ThisPage.FFInstanceContainer[this].AreaWatcher.SetCurrentLocation(value);
+
+                if (value != null)
                 {
-                    if (value != null)
+                    UpdateAddressButton(value);
+
+                    string PlaceText;
+                    if (value.DisplayName.Length > 22)
                     {
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].AreaWatcher.SetCurrentLocation(value);
+                        PlaceText = value.DisplayName.Substring(0, 22) + "...";
+                    }
+                    else
+                    {
+                        PlaceText = value.DisplayName;
+                    }
 
-                        UpdateAddressButton(value);
+                    GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {PlaceText}";
 
-                        string PlaceText;
-                        if (value.DisplayName.Length > 22)
-                        {
-                            PlaceText = value.DisplayName.Substring(0, 22) + "...";
-                        }
-                        else
-                        {
-                            PlaceText = value.DisplayName;
-                        }
+                    GoParentFolder.IsEnabled = value.Path != Path.GetPathRoot(value.Path);
+                    GoBackRecord.IsEnabled = RecordIndex > 0;
+                    GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
 
-                        GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {PlaceText}";
-
-                        GoParentFolder.IsEnabled = value.Path != Path.GetPathRoot(value.Path);
-                        GoBackRecord.IsEnabled = RecordIndex > 0;
-                        GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
-
-                        if (TabItem != null)
-                        {
-                            TabItem.Header = value.DisplayName;
-                        }
+                    if (TabItem != null)
+                    {
+                        TabItem.Header = value.DisplayName;
                     }
                 }
 
@@ -635,11 +634,9 @@ namespace RX_Explorer
                 {
                     await FullTrustExcutorController.Current.DeleteAsync(CurrentFolder, QueueContenDialog.IsPermanentDelete).ConfigureAwait(true);
 
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Where((Item) => Item.Path == CurrentFolder.Path).FirstOrDefault());
-
                     await DisplayItemsInFolder(CurrentNode.Parent).ConfigureAwait(true);
 
-                    await FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                    await CurrentNode.Parent.UpdateAllSubNode().ConfigureAwait(true);
                 }
                 catch (FileCaputureException)
                 {
@@ -836,9 +833,7 @@ namespace RX_Explorer
             {
                 StorageFolder NewFolder = await CurrentFolder.CreateFolderAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), CreationCollisionOption.GenerateUniqueName);
 
-                TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
-
-                await FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                await CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
             }
             catch (UnauthorizedAccessException)
             {
@@ -1694,37 +1689,34 @@ namespace RX_Explorer
                                 bool IsItemNotFound = false;
                                 bool IsUnauthorized = false;
 
-                                foreach (IStorageItem Item in DragItemList)
+                                try
                                 {
-                                    try
+                                    await FullTrustExcutorController.Current.CopyAsync(DragItemList, TargetFolder).ConfigureAwait(true);
+
+                                    if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as StorageFolder).Path))
                                     {
-                                        if (Item is StorageFile File)
-                                        {
-                                            TabViewContainer.CopyAndMoveRecord.Add($"{File.Path}||Copy||File||{Path.Combine(TargetFolder.Path, File.Name)}");
+                                        await FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                                    }
 
-                                            await FullTrustExcutorController.Current.CopyAsync(File, TargetFolder).ConfigureAwait(true);
+                                    foreach (IStorageItem Item in DragItemList)
+                                    {
+                                        if (Item.IsOfType(StorageItemTypes.File))
+                                        {
+                                            TabViewContainer.CopyAndMoveRecord.Add($"{Item.Path}||Copy||File||{Path.Combine(TargetFolder.Path, Item.Name)}");
                                         }
-                                        else if (Item is StorageFolder Folder)
+                                        else
                                         {
-                                            TabViewContainer.CopyAndMoveRecord.Add($"{Folder.Path}||Copy||Folder||{Path.Combine(TargetFolder.Path, Folder.Name)}");
-
-                                            await FullTrustExcutorController.Current.CopyAsync(Folder, TargetFolder).ConfigureAwait(true);
-
-                                            if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as StorageFolder).Path))
-                                            {
-                                                await FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
-                                            }
+                                            TabViewContainer.CopyAndMoveRecord.Add($"{Item.Path}||Copy||Folder||{Path.Combine(TargetFolder.Path, Item.Name)}");
                                         }
                                     }
-                                    catch (FileNotFoundException)
-                                    {
-                                        IsItemNotFound = true;
-                                    }
-                                    catch (Exception)
-                                    {
-                                        IsUnauthorized = true;
-                                        break;
-                                    }
+                                }
+                                catch (FileNotFoundException)
+                                {
+                                    IsItemNotFound = true;
+                                }
+                                catch (Exception)
+                                {
+                                    IsUnauthorized = true;
                                 }
 
                                 if (IsItemNotFound)
@@ -1763,42 +1755,38 @@ namespace RX_Explorer
                                 bool IsUnauthorized = false;
                                 bool IsCaptured = false;
 
-                                foreach (IStorageItem Item in DragItemList)
+                                try
                                 {
-                                    try
+                                    await FullTrustExcutorController.Current.MoveAsync(DragItemList, TargetFolder).ConfigureAwait(true);
+
+                                    if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as StorageFolder).Path))
                                     {
-                                        if (Item is StorageFile File)
+                                        await FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                                    }
+
+                                    foreach (IStorageItem Item in DragItemList)
+                                    {
+                                        if (Item.IsOfType(StorageItemTypes.File))
                                         {
-                                            TabViewContainer.CopyAndMoveRecord.Add($"{File.Path}||Move||File||{Path.Combine(TargetFolder.Path, File.Name)}");
-                                            await FullTrustExcutorController.Current.MoveAsync(File, TargetFolder).ConfigureAwait(true);
-                                            TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.FirstOrDefault((It) => It.Path == Item.Path));
+                                            TabViewContainer.CopyAndMoveRecord.Add($"{Item.Path}||Move||File||{Path.Combine(TargetFolder.Path, Item.Name)}");
                                         }
-                                        else if (Item is StorageFolder Folder)
+                                        else
                                         {
-                                            TabViewContainer.CopyAndMoveRecord.Add($"{Folder.Path}||Move||Folder||{Path.Combine(TargetFolder.Path, Folder.Name)}");
-
-                                            await FullTrustExcutorController.Current.MoveAsync(Folder, TargetFolder).ConfigureAwait(true);
-
-                                            TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.FirstOrDefault((It) => It.Path == Item.Path));
-
-                                            if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as StorageFolder).Path))
-                                            {
-                                                await FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
-                                            }
+                                            TabViewContainer.CopyAndMoveRecord.Add($"{Item.Path}||Move||Folder||{Path.Combine(TargetFolder.Path, Item.Name)}");
                                         }
                                     }
-                                    catch (FileNotFoundException)
-                                    {
-                                        IsItemNotFound = true;
-                                    }
-                                    catch (FileCaputureException)
-                                    {
-                                        IsCaptured = true;
-                                    }
-                                    catch (Exception)
-                                    {
-                                        IsUnauthorized = true;
-                                    }
+                                }
+                                catch (FileNotFoundException)
+                                {
+                                    IsItemNotFound = true;
+                                }
+                                catch (FileCaputureException)
+                                {
+                                    IsCaptured = true;
+                                }
+                                catch (Exception)
+                                {
+                                    IsUnauthorized = true;
                                 }
 
                                 if (IsItemNotFound)
@@ -2232,7 +2220,7 @@ namespace RX_Explorer
 
                     AppBarButton TerminalButton = new AppBarButton
                     {
-                        Icon = new FontIcon { Glyph= "\uE756" },
+                        Icon = new FontIcon { Glyph = "\uE756" },
                         Label = Globalization.GetString("Operate_Text_OpenInTerminal")
                     };
                     TerminalButton.Click += Instance.OpenInTerminal_Click;

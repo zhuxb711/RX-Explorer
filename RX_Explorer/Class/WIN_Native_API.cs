@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Threading;
+using System.Threading.Tasks;
 using Windows.Storage;
 using FileAttributes = System.IO.FileAttributes;
 
@@ -87,231 +91,445 @@ namespace RX_Explorer.Class
         [DllImport("api-ms-win-core-timezone-l1-1-0.dll", SetLastError = true)]
         private static extern bool FileTimeToSystemTime(ref FILETIME lpFileTime, out SYSTEMTIME lpSystemTime);
 
+        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern IntPtr CreateFileFromApp(string lpFileName, uint dwDesiredAccess, uint dwShareMode, IntPtr SecurityAttributes, uint dwCreationDisposition, uint dwFlagsAndAttributes, IntPtr hTemplateFile);
+
+        [DllImport("api-ms-win-core-handle-l1-1-0.dll")]
+        private static extern bool CloseHandle(IntPtr hObject);
+
+        [DllImport("api-ms-win-core-file-l2-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        private static extern bool ReadDirectoryChangesW(IntPtr hDirectory, IntPtr lpBuffer, uint nBufferLength, bool bWatchSubtree, uint dwNotifyFilter, out uint lpBytesReturned, IntPtr lpOverlapped, IntPtr lpCompletionRoutine);
+
+        [DllImport("api-ms-win-core-io-l1-1-1.dll")]
+        private static extern bool CancelIoEx(IntPtr hFile, IntPtr lpOverlapped);
+
+        private static readonly object Locker = new object();
+
+
+        const uint FILE_LIST_DIRECTORY = 0x1;
+        const uint FILE_SHARE_READ = 0x1;
+        const uint FILE_SHARE_WRITE = 0x2;
+        const uint FILE_SHARE_DELETE = 0x4;
+        const uint OPEN_EXISTING = 3;
+        const uint FILE_FLAG_BACKUP_SEMANTICS = 0x2000000;
+        const uint FILE_NOTIFY_CHANGE_FILE_NAME = 0x1;
+        const uint FILE_NOTIFY_CHANGE_DIR_NAME = 0x2;
+        const uint FILE_NOTIFY_CHANGE_LAST_WRITE = 0x10;
+
+        private enum StateChangeType
+        {
+            Unknown_Action = 0,
+            Added_Action = 1,
+            Removed_Action = 2,
+            Modified_Action = 3,
+            Rename_Action_OldName = 4,
+            Rename_Action_NewName = 5
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2008:不要在未传递 TaskScheduler 的情况下创建任务", Justification = "<挂起>")]
+        public static Task CreateDirectoryWatcher(string Path, CancellationToken CancellationToken, Action<string> Added = null, Action<string> Removed = null, Action<string,string> Renamed = null)
+        {
+            return Task.Factory.StartNew((Token) =>
+            {
+                IntPtr hDir = CreateFileFromApp(Path, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero);
+
+                if (hDir == IntPtr.Zero)
+                {
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                }
+
+                CancellationToken CancelToken = (CancellationToken)Token;
+                CancelToken.Register((handle) =>
+                {
+                    CancelIoEx((IntPtr)handle, IntPtr.Zero);
+                    CloseHandle((IntPtr)handle);
+                }, hDir);
+
+                while (!CancelToken.IsCancellationRequested)
+                {
+                    IntPtr BufferPointer = Marshal.AllocHGlobal(4096);
+
+                    try
+                    {
+                        if (ReadDirectoryChangesW(hDir, BufferPointer, 4096, false, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME, out _, IntPtr.Zero, IntPtr.Zero))
+                        {
+                            IntPtr CurrentPointer = BufferPointer;
+                            int Offset = 0;
+                            string OldPath = null;
+                            
+                            do
+                            {
+                                CurrentPointer = (IntPtr)(Offset + CurrentPointer.ToInt64());
+
+                                // Read file length (in bytes) at offset 8
+                                int FileNameLength = Marshal.ReadInt32(CurrentPointer, 8);
+                                // Read file name (fileLen/2 characters) from offset 12
+                                string FileName = Marshal.PtrToStringUni((IntPtr)(12 + CurrentPointer.ToInt64()), FileNameLength / 2);
+                                // Read action at offset 4
+                                int ActionIndex = Marshal.ReadInt32(CurrentPointer, 4);
+
+                                if (ActionIndex < 1 || ActionIndex > 5)
+                                {
+                                    ActionIndex = 0;
+                                }
+
+                                switch ((StateChangeType)ActionIndex)
+                                {
+                                    case StateChangeType.Unknown_Action:
+                                        {
+                                            break;
+                                        }
+
+                                    case StateChangeType.Added_Action:
+                                        {
+                                            Added?.Invoke(System.IO.Path.Combine(Path, FileName));
+                                            break;
+                                        }
+                                    case StateChangeType.Removed_Action:
+                                        {
+                                            Removed?.Invoke(System.IO.Path.Combine(Path, FileName));
+                                            break;
+                                        }
+                                    case StateChangeType.Modified_Action:
+                                        {
+                                            break;
+                                        }
+                                    case StateChangeType.Rename_Action_OldName:
+                                        {
+                                            OldPath = System.IO.Path.Combine(Path, FileName);
+                                            break;
+                                        }
+                                    case StateChangeType.Rename_Action_NewName:
+                                        {
+                                            Renamed?.Invoke(OldPath, System.IO.Path.Combine(Path, FileName));
+                                            break;
+                                        }
+                                }
+
+                                // Read NextEntryOffset at offset 0 and move pointer to next structure if needed
+                                Offset = Marshal.ReadInt32(CurrentPointer);
+                            }
+                            while (Offset != 0);
+                        }
+                    }
+                    catch
+                    {
+                        break;
+                    }
+                    finally
+                    {
+                        if (BufferPointer != IntPtr.Zero)
+                        {
+                            Marshal.FreeHGlobal(BufferPointer);
+                        }
+                    }
+                }
+            }, CancellationToken, TaskCreationOptions.LongRunning);
+        }
+
         public static bool CheckContainsAnyItem(string Path, ItemFilters Filter)
         {
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
-            if (Ptr.ToInt64() != -1)
+            if (string.IsNullOrWhiteSpace(Path))
             {
+                throw new ArgumentException("Argument could not be empty", nameof(Path));
+            }
+
+            lock (Locker)
+            {
+                IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+
                 try
                 {
-                    do
+                    if (Ptr.ToInt64() != -1)
                     {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                        do
                         {
-                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
+                            if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
                             {
-                                if (Data.cFileName != "." && Data.cFileName != "..")
+                                if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                                 {
-                                    return true;
+                                    if (Data.cFileName != "." && Data.cFileName != "..")
+                                    {
+                                        return true;
+                                    }
                                 }
-                            }
-                            else if (Filter.HasFlag(ItemFilters.File))
-                            {
-                                if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
+                                else if (Filter.HasFlag(ItemFilters.File))
                                 {
-                                    return true;
+                                    if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
+                                    {
+                                        return true;
+                                    }
                                 }
                             }
                         }
+                        while (FindNextFile(Ptr, out Data));
+
+                        return false;
                     }
-                    while (FindNextFile(Ptr, out Data));
+                    else
+                    {
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+                    }
                 }
                 finally
                 {
                     FindClose(Ptr);
                 }
             }
-
-            return false;
         }
 
         public static bool CheckExist(string Path)
         {
-            IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
-            if (Ptr.ToInt64() != -1)
+            if (string.IsNullOrWhiteSpace(Path))
             {
+                throw new ArgumentException("Argument could not be empty", nameof(Path));
+            }
+
+            lock (Locker)
+            {
+                IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+
                 try
                 {
-                    do
+                    if (Ptr.ToInt64() != -1)
                     {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                        do
                         {
-                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
+                            if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
                             {
-                                if (Data.cFileName != "." && Data.cFileName != "..")
+                                if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
                                 {
-                                    return true;
+                                    if (Data.cFileName != "." && Data.cFileName != "..")
+                                    {
+                                        return true;
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
+                                else
                                 {
-                                    return true;
+                                    if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
+                                    {
+                                        return true;
+                                    }
                                 }
                             }
                         }
+                        while (FindNextFile(Ptr, out Data));
+
+                        return false;
                     }
-                    while (FindNextFile(Ptr, out Data));
+                    else
+                    {
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+                    }
                 }
                 finally
                 {
                     FindClose(Ptr);
                 }
             }
-
-            return false;
         }
 
         public static long CalculateSize(string Path)
         {
-            long TotalSize = 0;
-
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
-            if (Ptr.ToInt64() != -1)
+            if (string.IsNullOrWhiteSpace(Path))
             {
-                try
-                {
-                    do
-                    {
-                        if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
-                        {
-                            if (Data.cFileName != "." && Data.cFileName != "..")
-                            {
-                                TotalSize += CalculateSize(System.IO.Path.Combine(Path, Data.cFileName));
-                            }
-                        }
-                        else
-                        {
-                            if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
-                            {
-                                TotalSize += (Data.nFileSizeHigh << 32) + (long)Data.nFileSizeLow;
-                            }
-                        }
-                    }
-                    while (FindNextFile(Ptr, out Data));
-                }
-                finally
-                {
-                    FindClose(Ptr);
-                }
+                throw new ArgumentException("Argument could not be empty", nameof(Path));
             }
 
-            return TotalSize;
-        }
-
-        public static (uint, uint) CalculateFolderAndFileCount(string Path)
-        {
-            uint FolderCount = 0;
-            uint FileCount = 0;
-
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
-            if (Ptr.ToInt64() != -1)
+            lock (Locker)
             {
+                IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+
                 try
                 {
-                    do
+                    if (Ptr.ToInt64() != -1)
                     {
-                        if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
-                        {
-                            if (Data.cFileName != "." && Data.cFileName != "..")
-                            {
-                                (uint SubFolderCount, uint SubFileCount) = CalculateFolderAndFileCount(System.IO.Path.Combine(Path, Data.cFileName));
-                                FolderCount += ++SubFolderCount;
-                                FileCount += SubFileCount;
-                            }
-                        }
-                        else
-                        {
-                            FileCount++;
-                        }
-                    }
-                    while (FindNextFile(Ptr, out Data));
-                }
-                finally
-                {
-                    FindClose(Ptr);
-                }
-            }
+                        long TotalSize = 0;
 
-            return (FolderCount, FileCount);
-        }
-
-        public static List<FileSystemStorageItem> GetStorageItems(string Path, ItemFilters Filter)
-        {
-            List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>();
-
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
-            if (Ptr.ToInt64() != -1)
-            {
-                try
-                {
-                    do
-                    {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
-                        {
-                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
-                            {
-                                if (Data.cFileName != "." && Data.cFileName != "..")
-                                {
-                                    FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                    DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds);
-                                    Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
-                                }
-                            }
-                            else if (Filter.HasFlag(ItemFilters.File))
-                            {
-                                if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
-                                {
-                                    FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                    DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds);
-                                    Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
-                                }
-                            }
-                        }
-                    }
-                    while (FindNextFile(Ptr, out Data));
-                }
-                finally
-                {
-                    FindClose(Ptr);
-                }
-            }
-
-            return Result;
-        }
-
-        public static List<FileSystemStorageItem> GetStorageItems(params string[] PathArray)
-        {
-            List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>(PathArray.Length);
-
-            foreach (string Path in PathArray)
-            {
-                IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
-                if (Ptr.ToInt64() != -1)
-                {
-                    try
-                    {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                        do
                         {
                             if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
                             {
                                 if (Data.cFileName != "." && Data.cFileName != "..")
                                 {
-                                    FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                    DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds);
-                                    Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, Path, ModifiedTime));
+                                    TotalSize += CalculateSize(System.IO.Path.Combine(Path, Data.cFileName));
                                 }
                             }
                             else
                             {
                                 if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
                                 {
-                                    FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                    DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds);
-                                    Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, Path, ModifiedTime));
+                                    TotalSize += (Data.nFileSizeHigh << 32) + (long)Data.nFileSizeLow;
                                 }
                             }
+                        }
+                        while (FindNextFile(Ptr, out Data));
+
+                        return TotalSize;
+                    }
+                    else
+                    {
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+                    }
+                }
+                finally
+                {
+                    FindClose(Ptr);
+                }
+            }
+        }
+
+        public static (uint, uint) CalculateFolderAndFileCount(string Path)
+        {
+            if (string.IsNullOrWhiteSpace(Path))
+            {
+                throw new ArgumentException("Argument could not be empty", nameof(Path));
+            }
+
+            lock (Locker)
+            {
+                IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+
+                try
+                {
+                    if (Ptr.ToInt64() != -1)
+                    {
+                        uint FolderCount = 0;
+                        uint FileCount = 0;
+
+                        do
+                        {
+                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
+                            {
+                                if (Data.cFileName != "." && Data.cFileName != "..")
+                                {
+                                    (uint SubFolderCount, uint SubFileCount) = CalculateFolderAndFileCount(System.IO.Path.Combine(Path, Data.cFileName));
+                                    FolderCount += ++SubFolderCount;
+                                    FileCount += SubFileCount;
+                                }
+                            }
+                            else
+                            {
+                                FileCount++;
+                            }
+                        }
+                        while (FindNextFile(Ptr, out Data));
+
+                        return (FolderCount, FileCount);
+                    }
+                    else
+                    {
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+                    }
+                }
+                finally
+                {
+                    FindClose(Ptr);
+                }
+            }
+        }
+
+        public static List<FileSystemStorageItem> GetStorageItems(string Path, ItemFilters Filter)
+        {
+            if (string.IsNullOrWhiteSpace(Path))
+            {
+                throw new ArgumentException("Argument could not be empty", nameof(Path));
+            }
+
+            lock (Locker)
+            {
+                List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>();
+
+                IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+
+                try
+                {
+                    if (Ptr.ToInt64() != -1)
+                    {
+                        do
+                        {
+                            if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                            {
+                                if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
+                                {
+                                    if (Data.cFileName != "." && Data.cFileName != "..")
+                                    {
+                                        FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
+                                        DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds);
+                                        Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
+                                    }
+                                }
+                                else if (Filter.HasFlag(ItemFilters.File))
+                                {
+                                    if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
+                                    {
+                                        FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
+                                        DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds);
+                                        Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
+                                    }
+                                }
+                            }
+                        }
+                        while (FindNextFile(Ptr, out Data));
+                    }
+                    else
+                    {
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+                    }
+                }
+                finally
+                {
+                    FindClose(Ptr);
+                }
+
+                return Result;
+            }
+        }
+
+        public static List<FileSystemStorageItem> GetStorageItems(params string[] PathArray)
+        {
+            if (PathArray.Length == 0 || PathArray.Any((Item) => string.IsNullOrWhiteSpace(Item)))
+            {
+                throw new ArgumentException("Argument could not be empty", nameof(PathArray));
+            }
+
+            lock (Locker)
+            {
+                List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>(PathArray.Length);
+
+                foreach (string Path in PathArray)
+                {
+                    IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+
+                    try
+                    {
+                        if (Ptr.ToInt64() != -1)
+                        {
+                            if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                            {
+                                if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
+                                {
+                                    if (Data.cFileName != "." && Data.cFileName != "..")
+                                    {
+                                        FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
+                                        DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds);
+                                        Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, Path, ModifiedTime));
+                                    }
+                                }
+                                else
+                                {
+                                    if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
+                                    {
+                                        FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
+                                        DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds);
+                                        Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, Path, ModifiedTime));
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            throw new Win32Exception(Marshal.GetLastWin32Error());
                         }
                     }
                     finally
@@ -319,9 +537,9 @@ namespace RX_Explorer.Class
                         FindClose(Ptr);
                     }
                 }
-            }
 
-            return Result;
+                return Result;
+            }
         }
 
         public static List<FileSystemStorageItem> GetStorageItems(StorageFolder Folder, ItemFilters Filter)
@@ -331,41 +549,54 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Folder), "Argument could not be null");
             }
 
-            List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>();
-
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Folder.Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
-            if (Ptr.ToInt64() != -1)
+            lock (Locker)
             {
-                do
+                List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>();
+
+                IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Folder.Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+
+                try
                 {
-                    if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                    if (Ptr.ToInt64() != -1)
                     {
-                        if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
+                        do
                         {
-                            if (Data.cFileName != "." && Data.cFileName != "..")
+                            if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
                             {
-                                FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds);
-                                Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
+                                if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
+                                {
+                                    if (Data.cFileName != "." && Data.cFileName != "..")
+                                    {
+                                        FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
+                                        DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds);
+                                        Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
+                                    }
+                                }
+                                else if (Filter.HasFlag(ItemFilters.File))
+                                {
+                                    if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
+                                    {
+                                        FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
+                                        DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds);
+                                        Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
+                                    }
+                                }
                             }
                         }
-                        else if (Filter.HasFlag(ItemFilters.File))
-                        {
-                            if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
-                            {
-                                FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds);
-                                Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
-                            }
-                        }
+                        while (FindNextFile(Ptr, out Data));
+                    }
+                    else
+                    {
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
                     }
                 }
-                while (FindNextFile(Ptr, out Data));
+                finally
+                {
+                    FindClose(Ptr);
+                }
 
-                FindClose(Ptr);
+                return Result;
             }
-
-            return Result;
         }
 
         public async static IAsyncEnumerable<IStorageItem> GetStorageItemsWithInnerContent(StorageFolder Folder, ItemFilters Filter)
@@ -376,30 +607,40 @@ namespace RX_Explorer.Class
             }
 
             IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Folder.Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
-            if (Ptr.ToInt64() != -1)
+
+            try
             {
-                do
+                if (Ptr.ToInt64() != -1)
                 {
-                    if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                    do
                     {
-                        if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
+                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
                         {
-                            if (Data.cFileName != "." && Data.cFileName != "..")
+                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                             {
-                                yield return await StorageFolder.GetFolderFromPathAsync(System.IO.Path.Combine(Folder.Path, Data.cFileName));
+                                if (Data.cFileName != "." && Data.cFileName != "..")
+                                {
+                                    yield return await StorageFolder.GetFolderFromPathAsync(System.IO.Path.Combine(Folder.Path, Data.cFileName));
+                                }
                             }
-                        }
-                        else if (Filter.HasFlag(ItemFilters.File))
-                        {
-                            if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
+                            else if (Filter.HasFlag(ItemFilters.File))
                             {
-                                yield return await StorageFile.GetFileFromPathAsync(System.IO.Path.Combine(Folder.Path, Data.cFileName));
+                                if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
+                                {
+                                    yield return await StorageFile.GetFileFromPathAsync(System.IO.Path.Combine(Folder.Path, Data.cFileName));
+                                }
                             }
                         }
                     }
+                    while (FindNextFile(Ptr, out Data));
                 }
-                while (FindNextFile(Ptr, out Data));
-
+                else
+                {
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                }
+            }
+            finally
+            {
                 FindClose(Ptr);
             }
         }

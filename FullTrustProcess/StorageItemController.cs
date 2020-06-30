@@ -109,17 +109,26 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Delete(string Path, bool PermanentDelete)
+        public static bool Delete(IEnumerable<string> Source, bool PermanentDelete)
         {
             try
             {
-                ShellFileOperations.OperationFlags Flags = PermanentDelete
-                    ? ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.NoConfirmation
-                    : ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RecycleOnDelete | ShellFileOperations.OperationFlags.NoConfirmation;
-
-                using (ShellItem Item = new ShellItem(Path))
+                using(ShellFileOperations Operation=new ShellFileOperations
                 {
-                    ShellFileOperations.Delete(Item, Flags);
+                    Options= PermanentDelete
+                    ? ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.NoConfirmation
+                    : ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.RecycleOnDelete
+                })
+                {
+                    foreach (string Path in Source)
+                    {
+                        using (ShellItem Item = new ShellItem(Path))
+                        {
+                            Operation.QueueDeleteOperation(Item);
+                        }
+                    }
+
+                    Operation.PerformOperations();
                 }
 
                 return true;
@@ -164,7 +173,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Move(string SourcePath, string DestinationPath, string NewName = null)
+        public static bool Move(IEnumerable<KeyValuePair<string, string>> Source, string DestinationPath)
         {
             try
             {
@@ -173,10 +182,21 @@ namespace FullTrustProcess
                     _ = Directory.CreateDirectory(DestinationPath);
                 }
 
-                using (ShellItem SourceItem = new ShellItem(SourcePath))
-                using (ShellFolder DestItem = new ShellFolder(DestinationPath))
+                using (ShellFileOperations Operation = new ShellFileOperations
                 {
-                    ShellFileOperations.Move(SourceItem, DestItem, NewName, ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
+                    Options = ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent
+                })
+                {
+                    foreach (KeyValuePair<string, string> SourceInfo in Source)
+                    {
+                        using (ShellItem SourceItem = new ShellItem(SourceInfo.Key))
+                        using (ShellFolder DestItem = new ShellFolder(DestinationPath))
+                        {
+                            Operation.QueueMoveOperation(SourceItem, DestItem, string.IsNullOrEmpty(SourceInfo.Value) ? null : SourceInfo.Value);
+                        }
+                    }
+
+                    Operation.PerformOperations();
                 }
 
                 return true;

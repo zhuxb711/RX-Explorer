@@ -255,35 +255,26 @@ namespace FullTrustProcess
                         {
                             ValueSet Value = new ValueSet();
 
-                            string SourcePath = Convert.ToString(args.Request.Message["SourcePath"]);
+                            string SourcePathJson = Convert.ToString(args.Request.Message["SourcePath"]);
                             string DestinationPath = Convert.ToString(args.Request.Message["DestinationPath"]);
 
-                            if (Directory.Exists(SourcePath))
+                            List<KeyValuePair<string, string>> SourcePathList = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(SourcePathJson);
+
+                            if (SourcePathList.All((Item) => Directory.Exists(Item.Key) || File.Exists(Item.Key)))
                             {
-                                if (StorageItemController.Move(SourcePath, DestinationPath, args.Request.Message.ContainsKey("NewName") ? Convert.ToString(args.Request.Message["NewName"]) : null))
-                                {
-                                    Value.Add("Success", string.Empty);
-                                }
-                                else
-                                {
-                                    Value.Add("Error_Failure", "An error occurred while moving the folder");
-                                }
-                            }
-                            else if (File.Exists(SourcePath))
-                            {
-                                if (StorageItemController.CheckOccupied(SourcePath))
+                                if (SourcePathList.Where((Path) => File.Exists(Path.Key)).Any((Item) => StorageItemController.CheckOccupied(Item.Key)))
                                 {
                                     Value.Add("Error_Capture", "An error occurred while moving the folder");
                                 }
                                 else
                                 {
-                                    if (StorageItemController.Move(SourcePath, DestinationPath))
+                                    if (StorageItemController.Move(SourcePathList, DestinationPath))
                                     {
                                         Value.Add("Success", string.Empty);
                                     }
                                     else
                                     {
-                                        Value.Add("Error_Failure", "An error occurred while moving the file");
+                                        Value.Add("Error_Failure", "An error occurred while moving the folder");
                                     }
                                 }
                             }
@@ -300,22 +291,28 @@ namespace FullTrustProcess
                         {
                             ValueSet Value = new ValueSet();
 
-                            string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            string ExcutePathJson = Convert.ToString(args.Request.Message["ExcutePath"]);
                             bool PermanentDelete = Convert.ToBoolean(args.Request.Message["PermanentDelete"]);
+
+                            List<string> ExcutePathList = JsonConvert.DeserializeObject<List<string>>(ExcutePathJson);
 
                             try
                             {
-                                if (File.Exists(ExcutePath))
+                                if (ExcutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                 {
-                                    if (StorageItemController.CheckOccupied(ExcutePath))
+                                    if (ExcutePathList.Where((Path) => File.Exists(Path)).Any((Item) => StorageItemController.CheckOccupied(Item)))
                                     {
-                                        Value.Add("Error_Capture", "The specified file is captured");
+                                        Value.Add("Error_Capture", "An error occurred while moving the folder");
                                     }
                                     else
                                     {
-                                        File.SetAttributes(ExcutePath, FileAttributes.Normal);
+                                        ExcutePathList.Where((Path) => File.Exists(Path)).ToList().ForEach((Item) => File.SetAttributes(Item, FileAttributes.Normal));
+                                        ExcutePathList.Where((Path) => Directory.Exists(Path)).ToList().ForEach((Item) => _ = new DirectoryInfo(Item)
+                                        {
+                                            Attributes = FileAttributes.Normal & FileAttributes.Directory
+                                        });
 
-                                        if (StorageItemController.Delete(ExcutePath, PermanentDelete))
+                                        if (StorageItemController.Delete(ExcutePathList, PermanentDelete))
                                         {
                                             Value.Add("Success", string.Empty);
                                         }
@@ -323,22 +320,6 @@ namespace FullTrustProcess
                                         {
                                             Value.Add("Error_Failure", "The specified file could not be deleted");
                                         }
-                                    }
-                                }
-                                else if (Directory.Exists(ExcutePath))
-                                {
-                                    DirectoryInfo Info = new DirectoryInfo(ExcutePath)
-                                    {
-                                        Attributes = FileAttributes.Normal & FileAttributes.Directory
-                                    };
-
-                                    if (StorageItemController.Delete(ExcutePath, PermanentDelete))
-                                    {
-                                        Value.Add("Success", string.Empty);
-                                    }
-                                    else
-                                    {
-                                        Value.Add("Error_Failure", "The specified folder could not be deleted");
                                     }
                                 }
                                 else

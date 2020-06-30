@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using Vanara.Extensions;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
@@ -17,28 +16,25 @@ namespace FullTrustProcess
             {
                 List<Dictionary<string, string>> RecycleItemList = new List<Dictionary<string, string>>();
 
-                using (ShellFolder RecycleBin = new ShellFolder(Shell32.KNOWNFOLDERID.FOLDERID_RecycleBinFolder))
+                foreach (ShellItem Item in RecycleBin.GetItems())
                 {
-                    foreach (ShellItem Item in RecycleBin)
+                    try
                     {
-                        try
+                        if (!Item.IsLink)
                         {
-                            if (!Item.IsLink)
+                            Dictionary<string, string> PropertyDic = new Dictionary<string, string>
                             {
-                                Dictionary<string, string> PropertyDic = new Dictionary<string, string>
-                                {
-                                    { "OriginPath", Item.Name },
-                                    { "ActualPath", Item.FileSystemPath },
-                                    { "CreateTime", Convert.ToString(((System.Runtime.InteropServices.ComTypes.FILETIME)Item.Properties[Ole32.PROPERTYKEY.System.DateCreated]).ToDateTime().ToBinary())}
-                                };
+                                { "OriginPath", Item.Name },
+                                { "ActualPath", Item.FileSystemPath },
+                                { "CreateTime", Convert.ToString(((System.Runtime.InteropServices.ComTypes.FILETIME)Item.Properties[Ole32.PROPERTYKEY.System.DateCreated]).ToDateTime().ToBinary())}
+                            };
 
-                                RecycleItemList.Add(PropertyDic);
-                            }
+                            RecycleItemList.Add(PropertyDic);
                         }
-                        finally
-                        {
-                            Item.Dispose();
-                        }
+                    }
+                    finally
+                    {
+                        Item.Dispose();
                     }
                 }
 

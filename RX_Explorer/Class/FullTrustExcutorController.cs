@@ -395,14 +395,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task DeleteAsync(string TargetPath, bool PermanentDelete)
+        public async Task DeleteAsync(IEnumerable<string> Source, bool PermanentDelete)
         {
             if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
             {
                 ValueSet Value = new ValueSet
                 {
                     {"ExcuteType", ExcuteType_Delete},
-                    {"ExcutePath", TargetPath},
+                    {"ExcutePath", JsonConvert.SerializeObject(Source)},
                     {"PermanentDelete", PermanentDelete}
                 };
 
@@ -442,69 +442,93 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task DeleteAsync(StorageFile Item, bool PermanentDelete)
+        public Task DeleteAsync(IEnumerable<IStorageItem> Source, bool PermanentDelete)
         {
-            if (Item == null)
+            if (Source == null)
             {
-                throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
+                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
             }
 
-            return DeleteAsync(Item.Path, PermanentDelete);
+            return DeleteAsync(Source.Select((Item) => Item.Path), PermanentDelete);
         }
 
-        public Task DeleteAsync(StorageFolder Item, bool PermanentDelete)
+        public Task DeleteAsync(IStorageItem Source, bool PermanentDelete)
         {
-            if (Item == null)
+            if (Source == null)
             {
-                throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
+                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
             }
 
-            return DeleteAsync(Item.Path, PermanentDelete);
+            return DeleteAsync(new string[1] { Source.Path }, PermanentDelete);
         }
 
-        public async Task<string> MoveAsync(string SourcePath, string DestinationPath)
+        public Task DeleteAsync(string Source, bool PermanentDelete)
+        {
+            if (Source == null)
+            {
+                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
+            }
+
+            return DeleteAsync(new string[1] { Source }, PermanentDelete);
+        }
+
+        public async Task MoveAsync(IEnumerable<string> Source, string DestinationPath)
         {
             if (await TryConnectToFullTrustExutor().ConfigureAwait(true))
             {
-                ValueSet Value = new ValueSet
-                {
-                    {"ExcuteType", ExcuteType_Move},
-                    {"SourcePath", SourcePath},
-                    {"DestinationPath", DestinationPath}
-                };
+                List<KeyValuePair<string, string>> MessageList = new List<KeyValuePair<string, string>>();
 
-                try
-                {
-                    _ = await StorageFile.GetFileFromPathAsync(SourcePath);
-                }
-                catch
+                foreach (string SourcePath in Source)
                 {
                     try
                     {
-                        StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(DestinationPath);
-
-                        if (await TargetFolder.TryGetItemAsync(Path.GetFileName(SourcePath)) is StorageFolder ExistFolder)
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = "警告",
-                                Content = "目标文件夹已存在相同名称的文件夹",
-                                PrimaryButtonText = "合并文件夹",
-                                CloseButtonText = "保留副本"
-                            };
-
-                            if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
-                            {
-                                StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Path.GetFileName(SourcePath), CreationCollisionOption.GenerateUniqueName);
-                                Value.Add("NewName", NewFolder.Name);
-                            }
-                        }
+                        _ = await StorageFile.GetFileFromPathAsync(SourcePath);
+                        MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
                     }
                     catch
                     {
-                        throw new FileNotFoundException();
+                        try
+                        {
+                            StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(DestinationPath);
+
+                            if (await TargetFolder.TryGetItemAsync(Path.GetFileName(SourcePath)) is StorageFolder ExistFolder)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = "警告",
+                                    Content = $"目标文件夹已存在相同名称的文件夹: {ExistFolder.Name}",
+                                    PrimaryButtonText = "合并文件夹",
+                                    CloseButtonText = "保留副本"
+                                };
+
+                                if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
+                                {
+                                    StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Path.GetFileName(SourcePath), CreationCollisionOption.GenerateUniqueName);
+                                    MessageList.Add(new KeyValuePair<string, string>(SourcePath, NewFolder.Name));
+                                }
+                                else
+                                {
+                                    MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
+                                }
+                            }
+                            else
+                            {
+                                MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
+                            }
+                        }
+                        catch
+                        {
+                            throw new FileNotFoundException();
+                        }
                     }
                 }
+
+                ValueSet Value = new ValueSet
+                {
+                    {"ExcuteType", ExcuteType_Move},
+                    {"SourcePath", JsonConvert.SerializeObject(MessageList)},
+                    {"DestinationPath", DestinationPath}
+                };
 
                 AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
@@ -512,7 +536,7 @@ namespace RX_Explorer.Class
                 {
                     if (Response.Message.ContainsKey("Success"))
                     {
-                        return Value.ContainsKey("NewName") ? Convert.ToString(Value["NewName"]) : Path.GetFileName(SourcePath);
+                        return;
                     }
                     else if (Response.Message.ContainsKey("Error_NotFound"))
                     {
@@ -542,7 +566,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task MoveAsync(StorageFile Source, StorageFolder Destination)
+        public Task MoveAsync(IEnumerable<IStorageItem> Source, StorageFolder Destination)
         {
             if (Source == null)
             {
@@ -554,10 +578,10 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            await MoveAsync(Source.Path, Destination.Path).ConfigureAwait(false);
+            return MoveAsync(Source.Select((Item) => Item.Path), Destination.Path);
         }
 
-        public Task<string> MoveAsync(StorageFolder Source, StorageFolder Destination)
+        public Task MoveAsync(IStorageItem Source, StorageFolder Destination)
         {
             if (Source == null)
             {
@@ -569,7 +593,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return MoveAsync(Source.Path, Destination.Path);
+            return MoveAsync(new string[1] { Source.Path }, Destination.Path);
         }
 
         public async Task CopyAsync(IEnumerable<string> Source, string DestinationPath)
@@ -675,6 +699,21 @@ namespace RX_Explorer.Class
             }
 
             return CopyAsync(Source.Select((Item) => Item.Path), Destination.Path);
+        }
+
+        public Task CopyAsync(IStorageItem Source, StorageFolder Destination)
+        {
+            if (Source == null)
+            {
+                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
+            }
+
+            if (Destination == null)
+            {
+                throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
+            }
+
+            return CopyAsync(new string[1] { Source.Path }, Destination.Path);
         }
 
         public async Task<bool> RestoreItemInRecycleBinAsync(string Path)
