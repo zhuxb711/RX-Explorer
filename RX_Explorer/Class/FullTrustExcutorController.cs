@@ -662,22 +662,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task CopyAsync(IEnumerable<StorageFile> Source, StorageFolder Destination)
-        {
-            if (Source == null)
-            {
-                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
-            }
-
-            if (Destination == null)
-            {
-                throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
-            }
-
-            return CopyAsync(Source.Select((Item) => Item.Path), Destination.Path);
-        }
-
-        public Task CopyAsync(IEnumerable<StorageFolder> Source, StorageFolder Destination)
+        public Task CopyAsync(IEnumerable<IStorageItem> Source, StorageFolder Destination)
         {
             if (Source == null)
             {

@@ -3,7 +3,6 @@ using ICSharpCode.SharpZipLib.Zip;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -57,6 +56,8 @@ namespace RX_Explorer
         private readonly DispatcherTimer PointerHoverTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
 
         private CancellationTokenSource HashCancellation;
+
+        public StorageAreaWatcher AreaWatcher { get; private set; }
 
         private ListViewBase itemPresenter;
         public ListViewBase ItemPresenter
@@ -119,6 +120,10 @@ namespace RX_Explorer
             FileCollection = new ObservableCollection<FileSystemStorageItem>();
             FileCollection.CollectionChanged += FileCollection_CollectionChanged;
 
+            AreaWatcher = new StorageAreaWatcher(FileCollection);
+            AreaWatcher.AddContent += Current_AddContent;
+            AreaWatcher.RemoveContent += Current_RemoveContent;
+
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             ZipStrings.CodePage = 936;
 
@@ -127,6 +132,67 @@ namespace RX_Explorer
             Unloaded += FilePresenter_Unloaded;
 
             PointerHoverTimer.Tick += Timer_Tick;
+        }
+
+        private void Current_RemoveContent(object sender, List<FileSystemStorageItem> e)
+        {
+            foreach (FileSystemStorageItem RemoveItem in e)
+            {
+                FileCollection.Remove(RemoveItem);
+            }
+        }
+
+        private async void Current_AddContent(object sender, List<FileSystemStorageItem> e)
+        {
+            if (FileCollection.FirstOrDefault() is FileSystemStorageItem Item)
+            {
+                if (Item.StorageType == StorageItemTypes.File)
+                {
+                    int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.Folder));
+
+                    if (Index != -1)
+                    {
+                        foreach (FileSystemStorageItem AddItem in e.SortList(SortTarget.Name, SortDirection.Descending))
+                        {
+                            await AddItem.LoadMoreProperty().ConfigureAwait(true);
+
+                            FileCollection.Insert(Index, AddItem);
+                        }
+                    }
+                    else
+                    {
+                        foreach (FileSystemStorageItem AddItem in e.SortList(SortTarget.Name, SortDirection.Descending))
+                        {
+                            await AddItem.LoadMoreProperty().ConfigureAwait(true);
+
+                            FileCollection.Add(AddItem);
+                        }
+                    }
+                }
+                else
+                {
+                    int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.File));
+
+                    if (Index != -1)
+                    {
+                        foreach (FileSystemStorageItem AddItem in e.SortList(SortTarget.Name, SortDirection.Ascending))
+                        {
+                            await AddItem.LoadMoreProperty().ConfigureAwait(true);
+
+                            FileCollection.Insert(Index, AddItem);
+                        }
+                    }
+                    else
+                    {
+                        foreach (FileSystemStorageItem AddItem in e.SortList(SortTarget.Name, SortDirection.Ascending))
+                        {
+                            await AddItem.LoadMoreProperty().ConfigureAwait(true);
+
+                            FileCollection.Add(AddItem);
+                        }
+                    }
+                }
+            }
         }
 
         private void FilePresenter_Unloaded(object sender, RoutedEventArgs e)
@@ -605,68 +671,34 @@ namespace RX_Explorer
 
                     TabViewContainer.CopyAndMoveRecord.Clear();
 
-                    foreach (IStorageItem StorageItem in ItemList)
+                    try
                     {
-                        try
+                        await FullTrustExcutorController.Current.CopyAsync(ItemList.Where((Item) => Item.IsOfType(StorageItemTypes.File)), FileControlInstance.CurrentFolder).ConfigureAwait(true);
+
+                        if (!SettingControl.IsDetachTreeViewAndPresenter)
+                        {
+                            await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                        }
+
+                        foreach (IStorageItem StorageItem in ItemList)
                         {
                             if (StorageItem is StorageFile File)
                             {
                                 TabViewContainer.CopyAndMoveRecord.Add($"{StorageItem.Path}||Copy||File||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
-
-                                await FullTrustExcutorController.Current.CopyAsync(File, FileControlInstance.CurrentFolder).ConfigureAwait(true);
-
-                                List<FileSystemStorageItem> NewItems = WIN_Native_API.GetStorageItems(FileControlInstance.CurrentFolder, ItemFilters.File);
-
-                                if (NewItems.Where((Item) => Item.StorageType == StorageItemTypes.File).Except(FileCollection).FirstOrDefault((Item) => Item.Name.StartsWith(Path.GetFileNameWithoutExtension(File.Name))) is FileSystemStorageItem NewItem)
-                                {
-                                    await NewItem.LoadMoreProperty().ConfigureAwait(true);
-
-                                    if (FileCollection.Count > 0)
-                                    {
-                                        int Index = FileCollection.IndexOf(FileCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.File));
-                                        if (Index == -1)
-                                        {
-                                            FileCollection.Add(NewItem);
-                                        }
-                                        else
-                                        {
-                                            FileCollection.Insert(Index, NewItem);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        FileCollection.Add(NewItem);
-                                    }
-                                }
                             }
                             else if (StorageItem is StorageFolder Folder)
                             {
                                 TabViewContainer.CopyAndMoveRecord.Add($"{StorageItem.Path}||Copy||Folder||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
-
-                                string NewName = await FullTrustExcutorController.Current.CopyAsync(Folder, FileControlInstance.CurrentFolder).ConfigureAwait(true);
-
-                                if (await FileControlInstance.CurrentFolder.TryGetItemAsync(NewName) is StorageFolder NewFolder)
-                                {
-                                    if (FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).All((Item) => Item.Name != NewFolder.Name))
-                                    {
-                                        FileCollection.Insert(0, new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
-                                    }
-
-                                    if (!SettingControl.IsDetachTreeViewAndPresenter)
-                                    {
-                                        await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
-                                    }
-                                }
                             }
                         }
-                        catch (FileNotFoundException)
-                        {
-                            IsItemNotFound = true;
-                        }
-                        catch (Exception)
-                        {
-                            IsUnauthorized = true;
-                        }
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        IsItemNotFound = true;
+                    }
+                    catch (Exception)
+                    {
+                        IsUnauthorized = true;
                     }
 
                     if (IsItemNotFound)

@@ -104,6 +104,8 @@ namespace RX_Explorer
                 {
                     if (value != null)
                     {
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].AreaWatcher.SetCurrentLocation(value);
+
                         UpdateAddressButton(value);
 
                         string PlaceText;
