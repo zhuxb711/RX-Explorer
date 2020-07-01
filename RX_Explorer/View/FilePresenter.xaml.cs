@@ -823,7 +823,7 @@ namespace RX_Explorer
 
                         try
                         {
-                            await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
+                            await (await RenameItem.GetStorageItem().ConfigureAwait(true)).RenameAsync(dialog.DesireName);
                         }
                         catch (UnauthorizedAccessException)
                         {
@@ -885,7 +885,7 @@ namespace RX_Explorer
                         {
                             if (SettingControl.IsDetachTreeViewAndPresenter)
                             {
-                                await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
+                                await (await RenameItem.GetStorageItem().ConfigureAwait(true)).RenameAsync(dialog.DesireName);
                             }
                             else
                             {
@@ -895,7 +895,7 @@ namespace RX_Explorer
                                     TreeViewNode TargetNode = FileControlInstance.CurrentNode.Children.Where((Fold) => (Fold.Content as StorageFolder).Name == RenameItem.Name).FirstOrDefault();
                                     int index = FileControlInstance.CurrentNode.Children.IndexOf(TargetNode);
 
-                                    await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
+                                    await (await RenameItem.GetStorageItem().ConfigureAwait(true)).RenameAsync(dialog.DesireName);
 
                                     if (TargetNode.HasUnrealizedChildren)
                                     {
@@ -937,7 +937,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
+                                    await (await RenameItem.GetStorageItem().ConfigureAwait(true)).RenameAsync(dialog.DesireName);
                                 }
                             }
                         }

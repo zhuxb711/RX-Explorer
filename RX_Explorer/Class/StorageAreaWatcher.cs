@@ -2,8 +2,6 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -14,37 +12,25 @@ namespace RX_Explorer.Class
     {
         private readonly ObservableCollection<FileSystemStorageItem> CurrentCollection;
 
-        private CancellationTokenSource Cancellation;
-
-        private Task CurrentWatchTask;
+        private IntPtr WatchPtr = IntPtr.Zero;
 
         public void SetCurrentLocation(StorageFolder Folder)
         {
             if (Folder != null)
             {
-                Cancellation?.Cancel();
-
-                if (CurrentWatchTask != null)
+                if (WatchPtr != IntPtr.Zero)
                 {
-                    SpinWait.SpinUntil(() => CurrentWatchTask.IsCompleted);
+                    WIN_Native_API.StopDirectoryWatcher(WatchPtr);
                 }
 
-                Cancellation?.Dispose();
-                Cancellation = new CancellationTokenSource();
-
-                CurrentWatchTask = WIN_Native_API.CreateDirectoryWatcher(Folder.Path, Cancellation.Token, Added, Removed, Renamed);
+                WatchPtr = WIN_Native_API.CreateDirectoryWatcher(Folder.Path, Added, Removed, Renamed);
             }
             else
             {
-                Cancellation?.Cancel();
-
-                if (CurrentWatchTask != null)
+                if (WatchPtr != IntPtr.Zero)
                 {
-                    SpinWait.SpinUntil(() => CurrentWatchTask.IsCompleted);
+                    WIN_Native_API.StopDirectoryWatcher(WatchPtr);
                 }
-
-                Cancellation?.Dispose();
-                Cancellation = null;
             }
         }
 
@@ -57,16 +43,10 @@ namespace RX_Explorer.Class
         {
             if (CurrentCollection.FirstOrDefault((Item) => Item.Path == OldPath) is FileSystemStorageItem Item)
             {
-                int Index = CurrentCollection.IndexOf(Item);
-                if (WIN_Native_API.GetStorageItems(NewPath).FirstOrDefault() is FileSystemStorageItem NewItem)
+                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    NewItem.LoadMoreProperty().ConfigureAwait(false).GetAwaiter().GetResult();
-                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                    {
-                        CurrentCollection.Remove(Item);
-                        CurrentCollection.Insert(Index, NewItem);
-                    }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
-                }
+                    Item.Replace(NewPath).ConfigureAwait(false).GetAwaiter().GetResult();
+                }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
             }
         }
 

@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using FileAttributes = System.IO.FileAttributes;
@@ -126,10 +125,16 @@ namespace RX_Explorer.Class
             Rename_Action_NewName = 5
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2008:不要在未传递 TaskScheduler 的情况下创建任务", Justification = "<挂起>")]
-        public static Task CreateDirectoryWatcher(string Path, CancellationToken CancellationToken, Action<string> Added = null, Action<string> Removed = null, Action<string,string> Renamed = null)
+        public static void StopDirectoryWatcher(IntPtr hDir)
         {
-            return Task.Factory.StartNew((Token) =>
+            CancelIoEx(hDir, IntPtr.Zero);
+            CloseHandle(hDir);
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2008:不要在未传递 TaskScheduler 的情况下创建任务", Justification = "<挂起>")]
+        public static IntPtr CreateDirectoryWatcher(string Path, Action<string> Added = null, Action<string> Removed = null, Action<string, string> Renamed = null, Action<string> Modified = null)
+        {
+            try
             {
                 IntPtr hDir = CreateFileFromApp(Path, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero);
 
@@ -138,93 +143,102 @@ namespace RX_Explorer.Class
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
 
-                CancellationToken CancelToken = (CancellationToken)Token;
-                CancelToken.Register((handle) =>
+                Task.Factory.StartNew((Arguement) =>
                 {
-                    CancelIoEx((IntPtr)handle, IntPtr.Zero);
-                    CloseHandle((IntPtr)handle);
-                }, hDir);
+                    ValueTuple<IntPtr, Action<string>, Action<string>, Action<string, string>, Action<string>> Package = (ValueTuple<IntPtr, Action<string>, Action<string>, Action<string, string>, Action<string>>)Arguement;
 
-                while (!CancelToken.IsCancellationRequested)
-                {
-                    IntPtr BufferPointer = Marshal.AllocHGlobal(4096);
-
-                    try
+                    while (true)
                     {
-                        if (ReadDirectoryChangesW(hDir, BufferPointer, 4096, false, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME, out _, IntPtr.Zero, IntPtr.Zero))
+                        IntPtr BufferPointer = Marshal.AllocHGlobal(4096);
+
+                        try
                         {
-                            IntPtr CurrentPointer = BufferPointer;
-                            int Offset = 0;
-                            string OldPath = null;
-                            
-                            do
+                            if (ReadDirectoryChangesW(Package.Item1, BufferPointer, 4096, false, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME, out _, IntPtr.Zero, IntPtr.Zero))
                             {
-                                CurrentPointer = (IntPtr)(Offset + CurrentPointer.ToInt64());
+                                IntPtr CurrentPointer = BufferPointer;
+                                int Offset = 0;
+                                string OldPath = null;
 
-                                // Read file length (in bytes) at offset 8
-                                int FileNameLength = Marshal.ReadInt32(CurrentPointer, 8);
-                                // Read file name (fileLen/2 characters) from offset 12
-                                string FileName = Marshal.PtrToStringUni((IntPtr)(12 + CurrentPointer.ToInt64()), FileNameLength / 2);
-                                // Read action at offset 4
-                                int ActionIndex = Marshal.ReadInt32(CurrentPointer, 4);
-
-                                if (ActionIndex < 1 || ActionIndex > 5)
+                                do
                                 {
-                                    ActionIndex = 0;
+                                    CurrentPointer = (IntPtr)(Offset + CurrentPointer.ToInt64());
+
+                                    // Read file length (in bytes) at offset 8
+                                    int FileNameLength = Marshal.ReadInt32(CurrentPointer, 8);
+                                    // Read file name (fileLen/2 characters) from offset 12
+                                    string FileName = Marshal.PtrToStringUni((IntPtr)(12 + CurrentPointer.ToInt64()), FileNameLength / 2);
+                                    // Read action at offset 4
+                                    int ActionIndex = Marshal.ReadInt32(CurrentPointer, 4);
+
+                                    if (ActionIndex < 1 || ActionIndex > 5)
+                                    {
+                                        ActionIndex = 0;
+                                    }
+
+                                    switch ((StateChangeType)ActionIndex)
+                                    {
+                                        case StateChangeType.Unknown_Action:
+                                            {
+                                                break;
+                                            }
+
+                                        case StateChangeType.Added_Action:
+                                            {
+                                                Package.Item2?.Invoke(System.IO.Path.Combine(Path, FileName));
+                                                break;
+                                            }
+                                        case StateChangeType.Removed_Action:
+                                            {
+                                                Package.Item3?.Invoke(System.IO.Path.Combine(Path, FileName));
+                                                break;
+                                            }
+                                        case StateChangeType.Modified_Action:
+                                            {
+                                                Package.Item5?.Invoke(FileName);
+                                                break;
+                                            }
+                                        case StateChangeType.Rename_Action_OldName:
+                                            {
+                                                OldPath = System.IO.Path.Combine(Path, FileName);
+                                                break;
+                                            }
+                                        case StateChangeType.Rename_Action_NewName:
+                                            {
+                                                Package.Item4?.Invoke(OldPath, System.IO.Path.Combine(Path, FileName));
+                                                break;
+                                            }
+                                    }
+
+                                    // Read NextEntryOffset at offset 0 and move pointer to next structure if needed
+                                    Offset = Marshal.ReadInt32(CurrentPointer);
                                 }
-
-                                switch ((StateChangeType)ActionIndex)
-                                {
-                                    case StateChangeType.Unknown_Action:
-                                        {
-                                            break;
-                                        }
-
-                                    case StateChangeType.Added_Action:
-                                        {
-                                            Added?.Invoke(System.IO.Path.Combine(Path, FileName));
-                                            break;
-                                        }
-                                    case StateChangeType.Removed_Action:
-                                        {
-                                            Removed?.Invoke(System.IO.Path.Combine(Path, FileName));
-                                            break;
-                                        }
-                                    case StateChangeType.Modified_Action:
-                                        {
-                                            break;
-                                        }
-                                    case StateChangeType.Rename_Action_OldName:
-                                        {
-                                            OldPath = System.IO.Path.Combine(Path, FileName);
-                                            break;
-                                        }
-                                    case StateChangeType.Rename_Action_NewName:
-                                        {
-                                            Renamed?.Invoke(OldPath, System.IO.Path.Combine(Path, FileName));
-                                            break;
-                                        }
-                                }
-
-                                // Read NextEntryOffset at offset 0 and move pointer to next structure if needed
-                                Offset = Marshal.ReadInt32(CurrentPointer);
+                                while (Offset != 0);
                             }
-                            while (Offset != 0);
+                            else
+                            {
+                                break;
+                            }
                         }
-                    }
-                    catch
-                    {
-                        break;
-                    }
-                    finally
-                    {
-                        if (BufferPointer != IntPtr.Zero)
+                        catch
                         {
-                            Marshal.FreeHGlobal(BufferPointer);
+                            break;
+                        }
+                        finally
+                        {
+                            if (BufferPointer != IntPtr.Zero)
+                            {
+                                Marshal.FreeHGlobal(BufferPointer);
+                            }
                         }
                     }
-                }
-            }, CancellationToken, TaskCreationOptions.LongRunning);
+                }, (hDir, Added, Removed, Renamed, Modified));
+
+                return hDir;
+            }
+            catch
+            {
+                return IntPtr.Zero;
+            }
         }
 
         public static bool CheckContainsAnyItem(string Path, ItemFilters Filter)

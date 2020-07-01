@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -166,31 +167,32 @@ namespace RX_Explorer.Class
             ModifiedTimeRaw = CreateTime;
         }
 
-        /// <summary>
-        /// 调用此方法以重命名存储对象，并更新界面显示
-        /// </summary>
-        /// <param name="Name"></param>
-        /// <returns></returns>
-        public async Task RenameAsync(string Name)
-        {
-            _ = await GetStorageItem().ConfigureAwait(true);
 
-            if (StorageItem is StorageFile File)
+        public async Task Replace(string NewPath)
+        {
+            try
             {
-                await File.RenameAsync(Name, NameCollisionOption.GenerateUniqueName);
+                StorageFile File = await StorageFile.GetFileFromPathAsync(NewPath);
+                StorageItem = File;
+                StorageType = StorageItemTypes.File;
+
+                SizeRaw = await File.GetSizeRawDataAsync().ConfigureAwait(true);
                 ModifiedTimeRaw = await File.GetModifiedTimeAsync().ConfigureAwait(true);
-                OnPropertyChanged(nameof(this.Name));
-                OnPropertyChanged(nameof(ModifiedTime));
-                OnPropertyChanged(nameof(DisplayType));
+                Thumbnail = await File.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
             }
-            else if (StorageItem is StorageFolder Folder)
+            catch (FileNotFoundException)
             {
-                await Folder.RenameAsync(Name, NameCollisionOption.GenerateUniqueName);
+                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(NewPath);
+                StorageItem = Folder;
+                StorageType = StorageItemTypes.Folder;
+
+                Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
                 ModifiedTimeRaw = await Folder.GetModifiedTimeAsync().ConfigureAwait(true);
-                OnPropertyChanged(nameof(this.Name));
-                OnPropertyChanged(nameof(ModifiedTime));
-                OnPropertyChanged(nameof(DisplayType));
             }
+
+            OnPropertyChanged(nameof(this.Name));
+            OnPropertyChanged(nameof(ModifiedTime));
+            OnPropertyChanged(nameof(DisplayType));
         }
 
         /// <summary>
@@ -357,7 +359,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                if(right is null)
+                if (right is null)
                 {
                     return false;
                 }
@@ -376,7 +378,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                if(right is null)
+                if (right is null)
                 {
                     return true;
                 }

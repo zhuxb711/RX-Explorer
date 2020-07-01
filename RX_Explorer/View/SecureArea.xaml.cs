@@ -733,7 +733,7 @@ namespace RX_Explorer
                         return;
                     }
 
-                    await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
+                    await (await RenameItem.GetStorageItem().ConfigureAwait(true)).RenameAsync(dialog.DesireName);
                 }
             }
         }
