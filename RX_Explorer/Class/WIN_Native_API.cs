@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
@@ -125,10 +126,11 @@ namespace RX_Explorer.Class
             Rename_Action_NewName = 5
         }
 
-        public static void StopDirectoryWatcher(IntPtr hDir)
+        public static void StopDirectoryWatcher(ref IntPtr hDir)
         {
             CancelIoEx(hDir, IntPtr.Zero);
             CloseHandle(hDir);
+            hDir = IntPtr.Zero;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2008:不要在未传递 TaskScheduler 的情况下创建任务", Justification = "<挂起>")]
@@ -153,7 +155,7 @@ namespace RX_Explorer.Class
 
                         try
                         {
-                            if (ReadDirectoryChangesW(Package.Item1, BufferPointer, 4096, false, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME, out _, IntPtr.Zero, IntPtr.Zero))
+                            if (ReadDirectoryChangesW(Package.Item1, BufferPointer, 4096, false, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, out _, IntPtr.Zero, IntPtr.Zero))
                             {
                                 IntPtr CurrentPointer = BufferPointer;
                                 int Offset = 0;
@@ -194,7 +196,7 @@ namespace RX_Explorer.Class
                                             }
                                         case StateChangeType.Modified_Action:
                                             {
-                                                Package.Item5?.Invoke(FileName);
+                                                Package.Item5?.Invoke(System.IO.Path.Combine(Path, FileName));
                                                 break;
                                             }
                                         case StateChangeType.Rename_Action_OldName:
@@ -221,7 +223,7 @@ namespace RX_Explorer.Class
                         }
                         catch
                         {
-                            break;
+
                         }
                         finally
                         {
@@ -285,6 +287,11 @@ namespace RX_Explorer.Class
                         throw new Win32Exception(Marshal.GetLastWin32Error());
                     }
                 }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                    return false;
+                }
                 finally
                 {
                     FindClose(Ptr);
@@ -336,6 +343,11 @@ namespace RX_Explorer.Class
                         throw new Win32Exception(Marshal.GetLastWin32Error());
                     }
                 }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                    return false;
+                }
                 finally
                 {
                     FindClose(Ptr);
@@ -386,6 +398,11 @@ namespace RX_Explorer.Class
                         throw new Win32Exception(Marshal.GetLastWin32Error());
                     }
                 }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                    return 0;
+                }
                 finally
                 {
                     FindClose(Ptr);
@@ -435,6 +452,11 @@ namespace RX_Explorer.Class
                     {
                         throw new Win32Exception(Marshal.GetLastWin32Error());
                     }
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                    return (0, 0);
                 }
                 finally
                 {
@@ -491,6 +513,10 @@ namespace RX_Explorer.Class
                         throw new Win32Exception(Marshal.GetLastWin32Error());
                     }
                 }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
                 finally
                 {
                     FindClose(Ptr);
@@ -545,6 +571,10 @@ namespace RX_Explorer.Class
                         {
                             throw new Win32Exception(Marshal.GetLastWin32Error());
                         }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(e.Message);
                     }
                     finally
                     {
@@ -604,6 +634,10 @@ namespace RX_Explorer.Class
                         throw new Win32Exception(Marshal.GetLastWin32Error());
                     }
                 }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
                 finally
                 {
                     FindClose(Ptr);
@@ -650,7 +684,8 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                    Debug.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                    yield break;
                 }
             }
             finally

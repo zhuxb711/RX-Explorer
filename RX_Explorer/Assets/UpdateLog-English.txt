@@ -1,5 +1,5 @@
 ﻿*****
-###What's new in Ver.4.9.5.0
+###What's new in Ver.5.0.0.0
 
 >#####Feature update
 
@@ -8,6 +8,8 @@
 >>#####New "Open in Terminal" option, preferred to start Windows Terminal, otherwise start Powershell
 
 >>#####Add a new own background
+
+>>#####New file monitoring module, can now detect file changes
 
 >#####Performance optimization
 
@@ -18,6 +20,8 @@
 >>#####Improved the algorithm of filters such as "Auto Optimize", "Sketch", "Binary" in picture editing
 
 >>#####Speed ​​up the processing of image filters
+
+>>#####Improved the speed of batch operation files
 
 >#####Bug fix
 
@@ -32,6 +36,10 @@
 >>#####Fixed an issue that Windows Terminal is not started in the current directory
 
 >>#####Fixed an issue that the search system default opening method is invalid
+
+>>#####Fixed an issue that transcoding module failure
+
+>>#####Fixed an issue where the "Empty" button is still allowed to be clicked when the recycle bin has been emptied
 
 *****
 ###What's new in Ver.4.9.0.0

@@ -15,7 +15,7 @@ namespace RX_Explorer.Dialog
             {
                 string FormatText = Globalization.GetString("Transcode_Dialog_Format_Text");
 
-                return (Format.SelectedItem.ToString().Replace(FormatText, string.Empty)) switch
+                return (Format.SelectedItem.ToString().Replace(FormatText, string.Empty).Trim()) switch
                 {
                     "MKV(.mkv)" => "MKV",
                     "AVI(.avi)" => "AVI",

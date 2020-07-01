@@ -2507,4 +2507,13 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Common_Dialog_DoNotTip" xml:space="preserve">
     <value>No prompt</value>
   </data>
+  <data name="QueueDialog_FolderRepeat_CloseButton" xml:space="preserve">
+    <value>Save copy</value>
+  </data>
+  <data name="QueueDialog_FolderRepeat_Content" xml:space="preserve">
+    <value>A folder with the same name already exists in the target folder:</value>
+  </data>
+  <data name="QueueDialog_FolderRepeat_PrimaryButton" xml:space="preserve">
+    <value>Merge folder</value>
+  </data>
 </root>

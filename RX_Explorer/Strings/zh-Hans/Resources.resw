@@ -2402,4 +2402,13 @@
   <data name="Common_Dialog_DoNotTip" xml:space="preserve">
     <value>不再提示</value>
   </data>
+  <data name="QueueDialog_FolderRepeat_CloseButton" xml:space="preserve">
+    <value>保存副本</value>
+  </data>
+  <data name="QueueDialog_FolderRepeat_Content" xml:space="preserve">
+    <value>目标文件夹已存在相同名称的文件夹:</value>
+  </data>
+  <data name="QueueDialog_FolderRepeat_PrimaryButton" xml:space="preserve">
+    <value>合并文件夹</value>
+  </data>
 </root>

@@ -442,7 +442,7 @@ namespace RX_Explorer.Class
                         {
                             new AdaptiveText()
                             {
-                                Text = Globalization.GetString("Crop_Toast_Title")
+                                Text = $"{Globalization.GetString("Crop_Toast_Title")} {SourceFile.Name}"
                             },
 
                             new AdaptiveProgressBar()
@@ -552,7 +552,7 @@ namespace RX_Explorer.Class
                         {
                             new AdaptiveText()
                             {
-                                Text = Globalization.GetString("Transcode_Toast_Title")
+                                Text = $"{Globalization.GetString("Transcode_Toast_Title")} {SourceFile.Name}"
                             },
 
                             new AdaptiveProgressBar()

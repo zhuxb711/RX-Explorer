@@ -2402,4 +2402,13 @@
   <data name="Common_Dialog_DoNotTip" xml:space="preserve">
     <value>Aucune invite</value>
   </data>
+  <data name="QueueDialog_FolderRepeat_CloseButton" xml:space="preserve">
+    <value>Enregistrer la copie</value>
+  </data>
+  <data name="QueueDialog_FolderRepeat_Content" xml:space="preserve">
+    <value>Un dossier du même nom existe déjà dans le dossier cible:</value>
+  </data>
+  <data name="QueueDialog_FolderRepeat_PrimaryButton" xml:space="preserve">
+    <value>Dossier de fusion</value>
+  </data>
 </root>

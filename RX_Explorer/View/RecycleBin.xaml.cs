@@ -35,9 +35,15 @@ namespace RX_Explorer.View
 
         private void FileCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+            if (FileCollection.Count == 0)
             {
-                HasFile.Visibility = FileCollection.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                HasFile.Visibility = Visibility.Visible;
+                ClearRecycleBin.IsEnabled = false;
+            }
+            else
+            {
+                HasFile.Visibility = Visibility.Collapsed;
+                ClearRecycleBin.IsEnabled = true;
             }
         }
 
@@ -394,7 +400,6 @@ namespace RX_Explorer.View
                 if (await FullTrustExcutorController.Current.EmptyRecycleBinAsync().ConfigureAwait(true))
                 {
                     FileCollection.Clear();
-                    HasFile.Visibility = Visibility.Visible;
                 }
                 else
                 {

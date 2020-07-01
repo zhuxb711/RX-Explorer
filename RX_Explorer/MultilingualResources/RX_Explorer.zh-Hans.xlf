@@ -3177,6 +3177,18 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>No prompt</source>
           <target state="translated">不再提示</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_FolderRepeat_CloseButton" translate="yes" xml:space="preserve">
+          <source>Save copy</source>
+          <target state="translated">保存副本</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_FolderRepeat_Content" translate="yes" xml:space="preserve">
+          <source>A folder with the same name already exists in the target folder:</source>
+          <target state="translated">目标文件夹已存在相同名称的文件夹:</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_FolderRepeat_PrimaryButton" translate="yes" xml:space="preserve">
+          <source>Merge folder</source>
+          <target state="translated">合并文件夹</target>
+        </trans-unit>
       </group>
     </body>
   </file>

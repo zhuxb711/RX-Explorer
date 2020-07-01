@@ -437,7 +437,7 @@
                                TextTrimming="CharacterEllipsis"
                                Width="140" />
                     <TextBlock IsHitTestVisible="False"
-                               Text="{x:Bind Size}"
+                               Text="{x:Bind Size,Mode=OneWay}"
                                FontSize="13"
                                HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
@@ -638,8 +638,8 @@
                 <TextBlock VerticalAlignment="Center"
                            FontSize="14"
                            Padding="8,0,0,0"
-                           Text="{x:Bind Size}"
-                           ToolTipService.ToolTip="{x:Bind Size}"
+                           Text="{x:Bind Size,Mode=OneWay}"
+                           ToolTipService.ToolTip="{x:Bind Size,Mode=OneWay}"
                            TextTrimming="CharacterEllipsis"
                            Grid.Column="3" />
                 <TextBlock VerticalAlignment="Center"

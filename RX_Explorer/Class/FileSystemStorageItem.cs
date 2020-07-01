@@ -180,19 +180,41 @@ namespace RX_Explorer.Class
                 ModifiedTimeRaw = await File.GetModifiedTimeAsync().ConfigureAwait(true);
                 Thumbnail = await File.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
             }
-            catch (FileNotFoundException)
+            catch
             {
-                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(NewPath);
-                StorageItem = Folder;
-                StorageType = StorageItemTypes.Folder;
+                try
+                {
+                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(NewPath);
+                    StorageItem = Folder;
+                    StorageType = StorageItemTypes.Folder;
 
-                Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
-                ModifiedTimeRaw = await Folder.GetModifiedTimeAsync().ConfigureAwait(true);
+                    Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
+                    ModifiedTimeRaw = await Folder.GetModifiedTimeAsync().ConfigureAwait(true);
+                }
+                catch
+                {
+                    return;
+                }
             }
 
-            OnPropertyChanged(nameof(this.Name));
+            await Update(false).ConfigureAwait(false);
+        }
+
+        public async Task Update(bool ReGenerateThumbnailAndSizeAndModifiedTime)
+        {
+            if (ReGenerateThumbnailAndSizeAndModifiedTime)
+            {
+                _ = await GetStorageItem().ConfigureAwait(true);
+                Thumbnail = await StorageItem.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                ModifiedTimeRaw = await StorageItem.GetModifiedTimeAsync().ConfigureAwait(true);
+                SizeRaw = await StorageItem.GetSizeRawDataAsync().ConfigureAwait(true);
+            }
+
+            OnPropertyChanged(nameof(Thumbnail));
+            OnPropertyChanged(nameof(Name));
             OnPropertyChanged(nameof(ModifiedTime));
             OnPropertyChanged(nameof(DisplayType));
+            OnPropertyChanged(nameof(Size));
         }
 
         /// <summary>

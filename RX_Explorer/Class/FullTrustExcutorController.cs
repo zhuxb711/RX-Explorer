@@ -474,6 +474,11 @@ namespace RX_Explorer.Class
 
         public async Task MoveAsync(IEnumerable<string> Source, string DestinationPath)
         {
+            if (Source == null)
+            {
+                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
+            }
+
             if (await TryConnectToFullTrustExutor().ConfigureAwait(true))
             {
                 List<KeyValuePair<string, string>> MessageList = new List<KeyValuePair<string, string>>();
@@ -495,10 +500,10 @@ namespace RX_Explorer.Class
                             {
                                 QueueContentDialog Dialog = new QueueContentDialog
                                 {
-                                    Title = "警告",
-                                    Content = $"目标文件夹已存在相同名称的文件夹: {ExistFolder.Name}",
-                                    PrimaryButtonText = "合并文件夹",
-                                    CloseButtonText = "保留副本"
+                                    Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                    Content = $"{Globalization.GetString("QueueDialog_FolderRepeat_Content")} {ExistFolder.Name}",
+                                    PrimaryButtonText = Globalization.GetString("QueueDialog_FolderRepeat_PrimaryButton"),
+                                    CloseButtonText = Globalization.GetString("QueueDialog_FolderRepeat_CloseButton")
                                 };
 
                                 if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
@@ -598,6 +603,11 @@ namespace RX_Explorer.Class
 
         public async Task CopyAsync(IEnumerable<string> Source, string DestinationPath)
         {
+            if (Source == null)
+            {
+                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
+            }
+
             if (await TryConnectToFullTrustExutor().ConfigureAwait(true))
             {
                 List<KeyValuePair<string, string>> MessageList = new List<KeyValuePair<string, string>>();
@@ -619,10 +629,10 @@ namespace RX_Explorer.Class
                             {
                                 QueueContentDialog Dialog = new QueueContentDialog
                                 {
-                                    Title = "警告",
-                                    Content = $"目标文件夹已存在相同名称的文件夹: {ExistFolder.Name}",
-                                    PrimaryButtonText = "合并文件夹",
-                                    CloseButtonText = "保留副本"
+                                    Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                    Content = $"{Globalization.GetString("QueueDialog_FolderRepeat_Content")} {ExistFolder.Name}",
+                                    PrimaryButtonText = Globalization.GetString("QueueDialog_FolderRepeat_PrimaryButton"),
+                                    CloseButtonText = Globalization.GetString("QueueDialog_FolderRepeat_CloseButton")
                                 };
 
                                 if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
