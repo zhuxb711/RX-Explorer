@@ -58,18 +58,20 @@ namespace RX_Explorer.Class
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (!(value is bool))
+            if (value is bool IsExpanded)
             {
-                return null;
-            }
-
-            if ((bool)value)
-            {
-                return "\xE838";
+                if(IsExpanded)
+                {
+                    return "\xE838";
+                }
+                else
+                {
+                    return "\xED41";
+                }
             }
             else
             {
-                return "\xED41";
+                return null;
             }
         }
 

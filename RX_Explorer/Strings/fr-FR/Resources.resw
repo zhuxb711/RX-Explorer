@@ -520,10 +520,10 @@
     <value>Démarrage rapide</value>
   </data>
   <data name="RateTip.ActionButtonContent" xml:space="preserve">
-    <value>Evaluer</value>
+    <value>Évaluez maintenant</value>
   </data>
   <data name="RateTip.CloseButtonContent" xml:space="preserve">
-    <value>Plus tard</value>
+    <value>Aucune invite</value>
   </data>
   <data name="RateTip.Subtitle" xml:space="preserve">
     <value>Votre évaluation est très importante, s'il vous plaît prenez quelques minutes pour évaluer l'application.</value>
@@ -2410,5 +2410,29 @@
   </data>
   <data name="QueueDialog_FolderRepeat_PrimaryButton" xml:space="preserve">
     <value>Dossier de fusion</value>
+  </data>
+  <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
+    <value>Un fichier du même nom existe déjà, que ce soit pour le renommer automatiquement?</value>
+  </data>
+  <data name="Eject_Toast_Text_1" xml:space="preserve">
+    <value>Succès</value>
+  </data>
+  <data name="Eject_Toast_Text_2" xml:space="preserve">
+    <value>Le périphérique USB a été éjecté avec succès</value>
+  </data>
+  <data name="Eject_Toast_Text_3" xml:space="preserve">
+    <value>Il est maintenant sûr de retirer le périphérique USB</value>
+  </data>
+  <data name="OpenFolderInNewTab.Label" xml:space="preserve">
+    <value>Ouvrir dans un nouvel onglet</value>
+  </data>
+  <data name="OpenFolderInNewWindow.Label" xml:space="preserve">
+    <value>Ouvrir dans une nouvelle fenetre</value>
+  </data>
+  <data name="Operate_Text_NewTab" xml:space="preserve">
+    <value>Ouvrir dans un nouvel onglet</value>
+  </data>
+  <data name="Operate_Text_NewWindow" xml:space="preserve">
+    <value>Ouvrir dans une nouvelle fenetre</value>
   </data>
 </root>

@@ -114,7 +114,7 @@ namespace RX_Explorer
                 {
                     if (Item is StorageFile File)
                     {
-                        SearchResult.Add(new FileSystemStorageItem(File, await Item.GetSizeRawDataAsync().ConfigureAwait(true), await Item.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png")), await Item.GetModifiedTimeAsync().ConfigureAwait(true)));
+                        SearchResult.Add(new FileSystemStorageItem(File, await Item.GetSizeRawDataAsync().ConfigureAwait(true), await Item.GetThumbnailBitmapAsync().ConfigureAwait(true), await Item.GetModifiedTimeAsync().ConfigureAwait(true)));
                     }
                     else if (Item is StorageFolder Folder)
                     {
@@ -142,14 +142,14 @@ namespace RX_Explorer
                         {
                             StorageFolder Folder = (await Item.GetStorageItem().ConfigureAwait(true)) as StorageFolder;
 
-                            await FileControlInstance.DisplayItemsInFolder(Folder).ConfigureAwait(false);
+                            FileControlInstance.DisplayItemsInFolder(Folder);
                         }
                         else
                         {
-                            TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Item.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
+                            TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Item.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
                             if (TargetNode != null)
                             {
-                                await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
+                                await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
                             }
                             else
                             {
@@ -176,13 +176,13 @@ namespace RX_Explorer
 
                         if (SettingControl.IsDetachTreeViewAndPresenter)
                         {
-                            await FileControlInstance.DisplayItemsInFolder(await File.GetParentAsync()).ConfigureAwait(false);
+                            FileControlInstance.DisplayItemsInFolder(await File.GetParentAsync());
                         }
                         else
                         {
-                            TreeViewNode CurrentNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Path.GetDirectoryName(Item.Path), (FileControlInstance.FolderTree.RootNodes[0].Content as StorageFolder).Path)).ConfigureAwait(true);
+                            TreeViewNode CurrentNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Path.GetDirectoryName(Item.Path), (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
 
-                            await FileControlInstance.DisplayItemsInFolder(CurrentNode).ConfigureAwait(false);
+                            await FileControlInstance.DisplayItemsInFolder(CurrentNode).ConfigureAwait(true);
                         }
                     }
                     catch (FileNotFoundException)

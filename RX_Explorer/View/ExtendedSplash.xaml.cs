@@ -22,9 +22,9 @@ namespace RX_Explorer
 
         private readonly SplashScreen Splash;
 
-        private string USBActivateParameter = null;
+        private string ActivateParameter = null;
 
-        public ExtendedSplash(SplashScreen Screen, bool IsPreLaunch = false, string USBActivateParameter = null)
+        public ExtendedSplash(SplashScreen Screen, bool IsPreLaunch = false, string ActivateParameter = null)
         {
             InitializeComponent();
             Window.Current.SetTitleBar(TitleBar);
@@ -51,9 +51,9 @@ namespace RX_Explorer
             Loaded += ExtendedSplash_Loaded;
             Unloaded += ExtendedSplash_Unloaded;
 
-            if (!string.IsNullOrEmpty(USBActivateParameter))
+            if (!string.IsNullOrEmpty(ActivateParameter))
             {
-                this.USBActivateParameter = USBActivateParameter;
+                this.ActivateParameter = ActivateParameter;
             }
         }
 
@@ -93,13 +93,13 @@ namespace RX_Explorer
                     Frame rootFrame = new Frame();
                     Window.Current.Content = rootFrame;
 
-                    if (string.IsNullOrEmpty(USBActivateParameter))
+                    if (string.IsNullOrEmpty(ActivateParameter))
                     {
                         rootFrame.Navigate(typeof(MainPage), SplashImageRect);
                     }
                     else
                     {
-                        rootFrame.Navigate(typeof(MainPage), new Tuple<string, Rect>(USBActivateParameter, SplashImageRect));
+                        rootFrame.Navigate(typeof(MainPage), new Tuple<string, Rect>(ActivateParameter, SplashImageRect));
                     }
                 });
             }

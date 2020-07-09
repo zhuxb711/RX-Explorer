@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Windows.ApplicationModel.AppService;
 using Windows.ApplicationModel.Background;
@@ -11,10 +10,11 @@ namespace CommunicateService
     public sealed class Service : IBackgroundTask
     {
         private BackgroundTaskDeferral Deferral;
-        private static readonly List<AppServiceConnection> Connections = new List<AppServiceConnection>();
+        private static readonly List<AppServiceConnection> ClientConnections = new List<AppServiceConnection>();
+        private static AppServiceConnection ServerConnection;
         private static readonly object Locker = new object();
 
-        public void Run(IBackgroundTaskInstance taskInstance)
+        public async void Run(IBackgroundTaskInstance taskInstance)
         {
             Deferral = taskInstance.GetDeferral();
 
@@ -22,9 +22,40 @@ namespace CommunicateService
 
             AppServiceConnection IncomeConnection = (taskInstance.TriggerDetails as AppServiceTriggerDetails).AppServiceConnection;
 
-            Connections.Add(IncomeConnection);
-
             IncomeConnection.RequestReceived += Connection_RequestReceived;
+
+            AppServiceResponse Response = await IncomeConnection.SendMessageAsync(new ValueSet { { "ExcuteType", "Identity" } });
+
+            if (Response.Status == AppServiceResponseStatus.Success && Response.Message.ContainsKey("Identity"))
+            {
+                switch (Response.Message["Identity"])
+                {
+                    case "FullTrustProcess":
+                        {
+                            lock (Locker)
+                            {
+                                if (ServerConnection != null)
+                                {
+                                    ServerConnection.Dispose();
+                                    ServerConnection = null;
+                                }
+
+                                ServerConnection = IncomeConnection;
+                            }
+
+                            break;
+                        }
+                    case "UWP":
+                        {
+                            lock (Locker)
+                            {
+                                ClientConnections.Add(IncomeConnection);
+                            }
+
+                            break;
+                        }
+                }
+            }
         }
 
         private async void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
@@ -33,22 +64,24 @@ namespace CommunicateService
 
             try
             {
-                if (SpinWait.SpinUntil(() => Connections.Count == 2, 5000))
+                if (SpinWait.SpinUntil(() => ServerConnection != null, 5000))
                 {
-                    AppServiceConnection AnotherConnection = Connections.FirstOrDefault((Con) => Con != sender);
+                    AppServiceResponse ServerRespose = await ServerConnection.SendMessageAsync(args.Request.Message);
 
-                    AppServiceResponse AnotherRespose = await AnotherConnection.SendMessageAsync(args.Request.Message);
-
-                    if (AnotherRespose.Status == AppServiceResponseStatus.Success)
+                    if (ServerRespose.Status == AppServiceResponseStatus.Success)
                     {
-                        await args.Request.SendResponseAsync(AnotherRespose.Message);
+                        await args.Request.SendResponseAsync(ServerRespose.Message);
+                    }
+                    else
+                    {
+                        await args.Request.SendResponseAsync(new ValueSet { { "Error", "Can't not send message to server" } });
                     }
                 }
                 else
                 {
                     ValueSet Value = new ValueSet
                     {
-                        { "Error", "Another device failed to make a peer-to-peer connection within the specified time" }
+                        { "Error", "Failed to wait a server connection within the specified time" }
                     };
 
                     await args.Request.SendResponseAsync(Value);
@@ -74,15 +107,35 @@ namespace CommunicateService
             lock (Locker)
             {
                 AppServiceConnection DisConnection = (sender.TriggerDetails as AppServiceTriggerDetails).AppServiceConnection;
+                
+                DisConnection.RequestReceived -= Connection_RequestReceived;
 
-                if (Connections.Contains(DisConnection))
+                if (ClientConnections.Contains(DisConnection))
                 {
-                    Connections.Remove(DisConnection);
-                    DisConnection.Dispose();
-                }
+                    ClientConnections.Remove(DisConnection);
 
-                Deferral.Complete();
+                    DisConnection.Dispose();
+
+                    if (ClientConnections.Count == 0)
+                    {
+                        ServerConnection.SendMessageAsync(new ValueSet { { "ExcuteType", "Excute_Exit" } }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+                    }
+                }
+                else
+                {
+                    if (ReferenceEquals(DisConnection, ServerConnection))
+                    {
+                        ServerConnection.Dispose();
+                        ServerConnection = null;
+                    }
+                    else
+                    {
+                        DisConnection.Dispose();
+                    }
+                }
             }
+
+            Deferral.Complete();
         }
     }
 }

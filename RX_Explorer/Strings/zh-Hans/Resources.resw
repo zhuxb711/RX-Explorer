@@ -520,10 +520,10 @@
     <value>快速启动</value>
   </data>
   <data name="RateTip.ActionButtonContent" xml:space="preserve">
-    <value>评价</value>
+    <value>现在评价</value>
   </data>
   <data name="RateTip.CloseButtonContent" xml:space="preserve">
-    <value>稍后</value>
+    <value>不再提示</value>
   </data>
   <data name="RateTip.Subtitle" xml:space="preserve">
     <value>您的评价对我们十分重要，请花上一两分钟来评价此App吧</value>
@@ -547,7 +547,7 @@
     <value>预览</value>
   </data>
   <data name="RenameDialogInvalidCharTip.Title" xml:space="preserve">
-    <value>下载出错</value>
+    <value>错误</value>
   </data>
   <data name="RenameDialogInvalidCharTip.Subtitle" xml:space="preserve">
     <value>名称不能为空且不能包含非法字符
@@ -2410,5 +2410,29 @@
   </data>
   <data name="QueueDialog_FolderRepeat_PrimaryButton" xml:space="preserve">
     <value>合并文件夹</value>
+  </data>
+  <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
+    <value>已存在同名文件，是否自动重命名?</value>
+  </data>
+  <data name="Eject_Toast_Text_1" xml:space="preserve">
+    <value>成功</value>
+  </data>
+  <data name="Eject_Toast_Text_2" xml:space="preserve">
+    <value>USB设备已成功弹出</value>
+  </data>
+  <data name="Eject_Toast_Text_3" xml:space="preserve">
+    <value>现在可安全的移除USB设备</value>
+  </data>
+  <data name="OpenFolderInNewTab.Label" xml:space="preserve">
+    <value>在新标签页中打开</value>
+  </data>
+  <data name="OpenFolderInNewWindow.Label" xml:space="preserve">
+    <value>在新窗口中打开</value>
+  </data>
+  <data name="Operate_Text_NewTab" xml:space="preserve">
+    <value>在新标签页中打开</value>
+  </data>
+  <data name="Operate_Text_NewWindow" xml:space="preserve">
+    <value>在新窗口中打开</value>
   </data>
 </root>

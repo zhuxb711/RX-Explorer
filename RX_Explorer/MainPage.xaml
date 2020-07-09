@@ -27,8 +27,8 @@
                               PreferredPlacement="Bottom"
                               IsLightDismissEnabled="False"
                               Subtitle="您的评分很重要，请花一两分钟评价一下App吧！"
-                              ActionButtonContent="评分"
-                              CloseButtonContent="稍后">
+                              ActionButtonContent="现在评价"
+                              CloseButtonContent="不再提醒">
         </controls:TeachingTip>
         <controls:TeachingTip x:Name="PurchaseTip"
                               x:Uid="PurchaseTip"

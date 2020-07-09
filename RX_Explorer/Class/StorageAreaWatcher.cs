@@ -13,9 +13,11 @@ namespace RX_Explorer.Class
     {
         private readonly ObservableCollection<FileSystemStorageItem> CurrentCollection;
 
+        private readonly TreeView TreeView;
+
         private IntPtr WatchPtr = IntPtr.Zero;
 
-        public StorageFolder CurrentLocation { get; private set; }
+        public string CurrentLocation { get; private set; }
 
         private int ModifiedLock = 0;
 
@@ -25,18 +27,16 @@ namespace RX_Explorer.Class
 
         private int RemoveLock = 0;
 
-        public void SetCurrentLocation(StorageFolder Folder)
+        public void SetCurrentLocation(string Path)
         {
-            CurrentLocation = Folder;
+            CurrentLocation = Path;
 
-            if (Folder != null)
+            if (string.IsNullOrWhiteSpace(Path))
             {
                 if (WatchPtr != IntPtr.Zero)
                 {
                     WIN_Native_API.StopDirectoryWatcher(ref WatchPtr);
                 }
-
-                WatchPtr = WIN_Native_API.CreateDirectoryWatcher(Folder.Path, Added, Removed, Renamed, Modified);
             }
             else
             {
@@ -44,12 +44,9 @@ namespace RX_Explorer.Class
                 {
                     WIN_Native_API.StopDirectoryWatcher(ref WatchPtr);
                 }
-            }
-        }
 
-        public void SetCurrentLocation(TreeViewNode Node)
-        {
-            SetCurrentLocation(Node?.Content as StorageFolder);
+                WatchPtr = WIN_Native_API.CreateDirectoryWatcher(Path, Added, Removed, Renamed, Modified);
+            }
         }
 
         private async void Modified(string Path)
@@ -76,7 +73,7 @@ namespace RX_Explorer.Class
                 {
                     if (CurrentCollection.FirstOrDefault((Item) => Item.Path == OldPath) is FileSystemStorageItem Item)
                     {
-                        await Item.Replace(NewPath).ConfigureAwait(false);
+                        await Item.Replace(NewPath).ConfigureAwait(true);
                     }
                     else
                     {
@@ -85,10 +82,15 @@ namespace RX_Explorer.Class
                             await ItemToUpdate.Update(false).ConfigureAwait(true);
                         }
                     }
+
+                    if (!SettingControl.IsDetachTreeViewAndPresenter)
+                    {
+                        await TreeView.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                    }
+
                     _ = Interlocked.Exchange(ref RenameLock, 0);
                 }
             });
-
         }
 
         private async void Removed(string Path)
@@ -168,9 +170,10 @@ namespace RX_Explorer.Class
             });
         }
 
-        public StorageAreaWatcher(ObservableCollection<FileSystemStorageItem> InitList)
+        public StorageAreaWatcher(ObservableCollection<FileSystemStorageItem> InitList, TreeView TreeView)
         {
             CurrentCollection = InitList ?? throw new ArgumentNullException(nameof(InitList), "Parameter could not be null");
+            this.TreeView = TreeView ?? throw new ArgumentNullException(nameof(TreeView), "Parameter could not be null");
         }
     }
 }

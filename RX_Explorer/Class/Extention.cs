@@ -5,6 +5,7 @@ using NetworkAccess;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -14,8 +15,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.UI.Core;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -32,6 +35,36 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extention
     {
+        public static bool CanTraceToRootNode(this TreeViewNode Node, TreeViewNode RootNode)
+        {
+            if (Node == null)
+            {
+                throw new ArgumentNullException(nameof(Node), "Argument could not be null");
+            }
+
+            if (RootNode == null)
+            {
+                return false;
+            }
+
+            if (Node == RootNode)
+            {
+                return true;
+            }
+            else
+            {
+                if (Node.Parent != null && Node.Depth != 0)
+                {
+                    return Node.Parent.CanTraceToRootNode(RootNode);
+                }
+                else
+                {
+                    Debug.WriteLine($"已无法找到对应根节点，返回false");
+                    return false;
+                }
+            }
+        }
+
         public static List<FileSystemStorageItem> SortList(this IEnumerable<FileSystemStorageItem> FileCollection, SortTarget Target, SortDirection Direction)
         {
             switch (Target)
@@ -138,27 +171,33 @@ namespace RX_Explorer.Class
 
             if (Node.Children.Count > 0)
             {
-                List<string> FolderList = WIN_Native_API.GetStorageItems(Node.Content as StorageFolder, ItemFilters.Folder).Select((Item) => Item.Path).ToList();
-                List<string> PathList = Node.Children.Select((Item) => (Item.Content as StorageFolder).Path).ToList();
+                List<string> FolderList = WIN_Native_API.GetStorageItemsPath((Node.Content as TreeViewNodeContent).Path, ItemFilters.Folder);
+                List<string> PathList = Node.Children.Select((Item) => (Item.Content as TreeViewNodeContent).Path).ToList();
                 List<string> AddList = FolderList.Except(PathList).ToList();
                 List<string> RemoveList = PathList.Except(FolderList).ToList();
 
                 foreach (string AddPath in AddList)
                 {
-                    Node.Children.Add(new TreeViewNode
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                     {
-                        Content = await StorageFolder.GetFolderFromPathAsync(AddPath),
-                        HasUnrealizedChildren = WIN_Native_API.CheckContainsAnyItem(AddPath, ItemFilters.Folder),
-                        IsExpanded = false
+                        Node.Children.Add(new TreeViewNode
+                        {
+                            Content = new TreeViewNodeContent(AddPath),
+                            HasUnrealizedChildren = WIN_Native_API.CheckContainsAnyItem(AddPath, ItemFilters.Folder),
+                            IsExpanded = false
+                        });
                     });
                 }
 
                 foreach (string RemovePath in RemoveList)
                 {
-                    if (Node.Children.FirstOrDefault((Item) => (Item.Content as StorageFolder).Path == RemovePath) is TreeViewNode RemoveNode)
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                     {
-                        Node.Children.Remove(RemoveNode);
-                    }
+                        if (Node.Children.FirstOrDefault((Item) => (Item.Content as TreeViewNodeContent).Path == RemovePath) is TreeViewNode RemoveNode)
+                        {
+                            Node.Children.Remove(RemoveNode);
+                        }
+                    });
                 }
 
                 foreach (TreeViewNode SubNode in Node.Children)
@@ -168,7 +207,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                Node.HasUnrealizedChildren = WIN_Native_API.CheckContainsAnyItem((Node.Content as StorageFolder).Path, ItemFilters.Folder);
+                Node.HasUnrealizedChildren = WIN_Native_API.CheckContainsAnyItem((Node.Content as TreeViewNodeContent).Path, ItemFilters.Folder);
             }
         }
 
@@ -183,7 +222,7 @@ namespace RX_Explorer.Class
 
             if (NextPathLevel == Analysis.FullPath)
             {
-                if ((Node.Content as StorageFolder).Path == NextPathLevel)
+                if ((Node.Content as TreeViewNodeContent).Path == NextPathLevel)
                 {
                     return Node;
                 }
@@ -191,7 +230,7 @@ namespace RX_Explorer.Class
                 {
                     while (true)
                     {
-                        TreeViewNode TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
+                        TreeViewNode TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as TreeViewNodeContent).Path == NextPathLevel).FirstOrDefault();
                         if (TargetNode != null)
                         {
                             return TargetNode;
@@ -205,7 +244,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                if ((Node.Content as StorageFolder).Path == NextPathLevel)
+                if ((Node.Content as TreeViewNodeContent).Path == NextPathLevel)
                 {
                     return await FindFolderLocationInTree(Node, Analysis).ConfigureAwait(true);
                 }
@@ -213,7 +252,7 @@ namespace RX_Explorer.Class
                 {
                     while (true)
                     {
-                        TreeViewNode TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as StorageFolder).Path == NextPathLevel).FirstOrDefault();
+                        TreeViewNode TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as TreeViewNodeContent).Path == NextPathLevel).FirstOrDefault();
                         if (TargetNode != null)
                         {
                             return await FindFolderLocationInTree(TargetNode, Analysis).ConfigureAwait(true);
@@ -373,92 +412,6 @@ namespace RX_Explorer.Class
                 }
             }
             else if (Item is StorageFolder Folder)
-            {
-                try
-                {
-                    if ((await Folder.GetParentAsync()) is StorageFolder ParenetFolder)
-                    {
-                        return (await ParenetFolder.TryGetItemAsync(Folder.Name)) != null;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            _ = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
-                            return true;
-                        }
-                        catch (Exception)
-                        {
-                            return false;
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    try
-                    {
-                        _ = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
-                        return true;
-                    }
-                    catch (Exception)
-                    {
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// 检查TreeViewNode中包含的存储对象是否存在于物理驱动器上
-        /// </summary>
-        /// <param name="Node">TreeViewNode</param>
-        /// <returns></returns>
-        public static async Task<bool> CheckExist(this TreeViewNode Node)
-        {
-            if (Node == null)
-            {
-                throw new ArgumentNullException(nameof(Node), "Parameter could not be null");
-            }
-
-            if (Node.Content is StorageFile File)
-            {
-                try
-                {
-                    if ((await File.GetParentAsync()) is StorageFolder ParentFolder)
-                    {
-                        return (await ParentFolder.TryGetItemAsync(File.Name)) != null;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            _ = await StorageFile.GetFileFromPathAsync(File.Path);
-                            return true;
-                        }
-                        catch (Exception)
-                        {
-                            return false;
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    try
-                    {
-                        _ = await StorageFile.GetFileFromPathAsync(File.Path);
-                        return true;
-                    }
-                    catch (Exception)
-                    {
-                        return false;
-                    }
-                }
-            }
-            else if (Node.Content is StorageFolder Folder)
             {
                 try
                 {
@@ -986,16 +939,23 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<long> GetSizeRawDataAsync(this IStorageItem Item)
+        public static async Task<ulong> GetSizeRawDataAsync(this IStorageItem Item)
         {
             if (Item == null)
             {
                 throw new ArgumentNullException(nameof(Item), "Item could not be null");
             }
 
-            BasicProperties Properties = await Item.GetBasicPropertiesAsync();
+            try
+            {
+                BasicProperties Properties = await Item.GetBasicPropertiesAsync();
 
-            return Convert.ToInt64(Properties.Size);
+                return Convert.ToUInt64(Properties.Size);
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
         /// <summary>
@@ -1010,8 +970,16 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Item), "Item could not be null");
             }
 
-            BasicProperties Properties = await Item.GetBasicPropertiesAsync();
-            return Properties.DateModified;
+            try
+            {
+                BasicProperties Properties = await Item.GetBasicPropertiesAsync();
+
+                return Properties.DateModified;
+            }
+            catch
+            {
+                return DateTimeOffset.MinValue;
+            }
         }
 
         /// <summary>

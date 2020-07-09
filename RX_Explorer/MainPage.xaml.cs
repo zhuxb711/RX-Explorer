@@ -36,9 +36,9 @@ namespace RX_Explorer
 
         private Dictionary<Type, string> PageDictionary;
 
-        public bool IsUSBActivate { get; set; } = false;
+        public bool IsPathActivate { get; set; } = false;
 
-        public string ActivateUSBDevicePath { get; private set; }
+        public string ActivatePath { get; private set; }
 
         private EntranceAnimationEffect EntranceEffectProvider;
 
@@ -148,9 +148,8 @@ namespace RX_Explorer
         {
             Deferral Deferral = e.GetDeferral();
 
-            if (IsAnyTaskRunning || GeneralTransformer.IsAnyTransformTaskRunning)
+            if (IsAnyTaskRunning || GeneralTransformer.IsAnyTransformTaskRunning || FullTrustExcutorController.Current.IsNowHasAnyActionExcuting)
             {
-
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_WarningTitle"),
@@ -179,13 +178,17 @@ namespace RX_Explorer
             if (e.Parameter is Tuple<string, Rect> Parameter)
             {
                 string[] Paras = Parameter.Item1.Split("||");
-                if (Paras[0] == "USBActivate")
+                switch (Paras[0])
                 {
-                    IsUSBActivate = true;
-                    ActivateUSBDevicePath = Paras[1];
+                    case "PathActivate":
+                        {
+                            IsPathActivate = true;
+                            ActivatePath = Paras[1];
+                            break;
+                        }
                 }
 
-                if (Win10VersionChecker.Windows10_1903 && AnimationController.Current.IsEnableAnimation)
+                if (Win10VersionChecker.Windows10_1903 && AnimationController.Current.IsEnableAnimation && !IsPathActivate)
                 {
                     EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, Parameter.Item2);
                     EntranceEffectProvider.PrepareEntranceEffect();
@@ -193,7 +196,7 @@ namespace RX_Explorer
             }
             else if (e.Parameter is Rect SplashRect)
             {
-                if (Win10VersionChecker.Windows10_1903 && AnimationController.Current.IsEnableAnimation)
+                if (Win10VersionChecker.Windows10_1903 && AnimationController.Current.IsEnableAnimation && !IsPathActivate)
                 {
                     EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, SplashRect);
                     EntranceEffectProvider.PrepareEntranceEffect();
@@ -231,7 +234,7 @@ namespace RX_Explorer
                     {typeof(RecycleBin),Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label") }
                 };
 
-                if (Win10VersionChecker.Windows10_1903 && AnimationController.Current.IsEnableAnimation)
+                if (Win10VersionChecker.Windows10_1903 && AnimationController.Current.IsEnableAnimation && !IsPathActivate)
                 {
                     EntranceEffectProvider.StartEntranceEffect();
                 }
@@ -462,6 +465,13 @@ namespace RX_Explorer
                 await Launcher.LaunchUriAsync(new Uri("ms-windows-store://review/?productid=9N88QBQKF2RS"));
                 ApplicationData.Current.RoamingSettings.Values["IsRated"] = true;
             };
+
+            RateTip.CloseButtonClick += (s, e) =>
+            {
+                s.IsOpen = false;
+                ApplicationData.Current.RoamingSettings.Values["IsRated"] = true;
+            };
+
             RateTip.IsOpen = true;
         }
 

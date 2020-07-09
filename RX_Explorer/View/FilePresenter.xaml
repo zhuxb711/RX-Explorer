@@ -11,6 +11,12 @@
       Background="Transparent">
 
     <Page.Resources>
+        <controls1:TeachingTip x:Name="InvalidCharTip"
+                              IsLightDismissEnabled="True"
+                              x:Uid="RenameDialogInvalidCharTip"
+                              Title="错误"
+                              Subtitle="名称不能为空且不能包含非法字符&#x000A;非法字符包括 \ / : * ? &quot; &lt; &gt; |" />
+
         <CommandBarFlyout x:Name="FileFlyout"
                           Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Copy"
@@ -37,19 +43,26 @@
                               Label="打开"
                               x:Uid="FileOpen"
                               x:Name="FileOpen"
-                              Click="FileOpen_Click"/>
+                              Click="FileOpen_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="G"/>
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
                 <AppBarButton Label="打开方式..."
                               Name="OtherOpenMethod"
                               x:Uid="OtherOpenMethod"
-                              Icon="AllApps">
+                              Icon="OpenWith">
                     <AppBarButton.Flyout>
                         <MenuFlyout x:Name="FileOpenMethodFlyout">
                             <MenuFlyoutItem Text="以管理员权限打开"
-                                            Icon="Admin"
                                             x:FieldModifier="public"
                                             x:Uid="RunWithSystemAuthority"
                                             Name="RunWithSystemAuthority"
-                                            Click="RunWithSystemAuthority_Click" />
+                                            Click="RunWithSystemAuthority_Click" >
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEA0D;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
                             <MenuFlyoutItem Text="选择其他应用"
                                             Icon="SwitchApps"
                                             x:FieldModifier="public"
@@ -187,6 +200,7 @@
                           Click="Delete_Click" />
             <CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Bookmarks"
+                              Label="压缩"
                               x:Name="MixZip"
                               Click="MixZip_Click" />
             </CommandBarFlyout.SecondaryCommands>
@@ -216,7 +230,33 @@
                               Label="打开"
                               x:Uid="FolderOpen"
                               x:Name="FolderOpen"
-                              Click="FolderOpen_Click" />
+                              Click="FolderOpen_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="G"/>
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarButton Label="在新窗口中打开"
+                              x:Name="OpenFolderInNewWindow"
+                              x:Uid="OpenFolderInNewWindow"
+                              Click="OpenFolderInNewWindow_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE727;" />
+                    </AppBarButton.Icon>
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="W"/>
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarButton Label="在新标签页中打开"
+                              x:Name="OpenFolderInNewTab"
+                              x:Uid="OpenFolderInNewTab"
+                              Click="OpenFolderInNewTab_Click" >
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF7ED;" />
+                    </AppBarButton.Icon>
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="T"/>
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Label="压缩"
                               Icon="Bookmarks"
@@ -280,18 +320,27 @@
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE756;" />
                     </AppBarButton.Icon>
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Shift" Key="W"/>
+                    </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
-                <AppBarButton Icon="BackToWindow"
-                              Label="使用系统管理器打开"
+                <AppBarButton Label="使用系统管理器打开"
                               x:Uid="SystemManagerOpen"
                               x:Name="UseSystemFileMananger"
-                              Click="UseSystemFileMananger_Click" />
+                              Click="UseSystemFileMananger_Click" >
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEC50;" />
+                    </AppBarButton.Icon>
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Shift" Key="E"/>
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="属性"
                               x:Uid="FolderAttribute"
                               x:Name="ParentProperty"
-                              Click="ParentProperty_Click" />
+                              Click="ParentProperty_Click"/>
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
@@ -413,7 +462,6 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItem">
             <StackPanel Orientation="Horizontal"
-                        Width="215"
                         Padding="5">
                 <Image IsHitTestVisible="False"
                        VerticalAlignment="Center"
@@ -424,24 +472,32 @@
                 <StackPanel Orientation="Vertical"
                             VerticalAlignment="Top"
                             Margin="5,0,0,0">
-                    <TextBlock IsHitTestVisible="False"
-                               Text="{x:Bind Name,Mode=OneWay}"
-                               FontSize="16"
-                               Width="140"
-                               HorizontalTextAlignment="Left"
-                               TextTrimming="CharacterEllipsis" />
-                    <TextBlock IsHitTestVisible="False"
-                               Text="{x:Bind DisplayType,Mode=OneWay}"
-                               FontSize="13"
+                    <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                               FontSize="14"
+                               Width="150"
                                HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
-                               Width="140" />
-                    <TextBlock IsHitTestVisible="False"
-                               Text="{x:Bind Size,Mode=OneWay}"
-                               FontSize="13"
+                               x:Name="NameLabel"
+                               PointerPressed="NameLabel_PointerPressed"/>
+                    <TextBox HorizontalTextAlignment="Left"
+                             x:Name="NameEditBox"
+                             Width="150"
+                             FontSize="14"
+                             IsSpellCheckEnabled="False"
+                             Text="{x:Bind Name,Mode=OneWay}"
+                             Visibility="Collapsed"
+                             LostFocus="NameEditBox_LostFocus"
+                             x:DeferLoadStrategy="Lazy"/>
+                    <TextBlock Text="{x:Bind DisplayType,Mode=OneWay}"
+                               FontSize="12"
                                HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
-                               Width="140" />
+                               Width="150" />
+                    <TextBlock Text="{x:Bind Size,Mode=OneWay}"
+                               FontSize="12"
+                               HorizontalTextAlignment="Left"
+                               TextTrimming="CharacterEllipsis"
+                               Width="150" />
                 </StackPanel>
             </StackPanel>
         </DataTemplate>
@@ -459,7 +515,7 @@
                        Width="120" />
                 <TextBlock IsHitTestVisible="False"
                            Text="{x:Bind Name,Mode=OneWay}"
-                           FontSize="15"
+                           FontSize="14"
                            Width="120"
                            Margin="0,3,0,0"
                            TextAlignment="Center"
@@ -503,7 +559,7 @@
                        Width="60"/>
                 <TextBlock IsHitTestVisible="False"
                            Text="{x:Bind Name,Mode=OneWay}"
-                           FontSize="11"
+                           FontSize="12"
                            Width="60"
                            Margin="0,3,0,0"
                            TextAlignment="Center"
@@ -613,13 +669,25 @@
                            Stretch="Uniform"
                            Source="{x:Bind Thumbnail,Mode=OneWay}"
                            Height="30"
-                           Width="30" />
+                           Width="30" 
+                           PointerPressed="GetFocus_PointerPressed"/>
                     <TextBlock VerticalAlignment="Center"
                                FontSize="14"
                                Grid.Column="1"
                                Text="{x:Bind Name,Mode=OneWay}"
                                ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay}"
-                               TextTrimming="CharacterEllipsis" />
+                               TextTrimming="CharacterEllipsis" 
+                               PointerPressed="NameLabel_PointerPressed"
+                               x:Name="NameLabel"/>
+                    <TextBox VerticalAlignment="Center"
+                             x:Name="NameEditBox"
+                             FontSize="14"
+                             Grid.Column="1"
+                             IsSpellCheckEnabled="False"
+                             Text="{x:Bind Name,Mode=OneWay}"
+                             Visibility="Collapsed"
+                             LostFocus="NameEditBox_LostFocus"
+                             x:DeferLoadStrategy="Lazy"/>
                 </Grid>
                 <TextBlock VerticalAlignment="Center"
                            FontSize="14"
@@ -627,25 +695,29 @@
                            Text="{x:Bind ModifiedTime,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind ModifiedTime,Mode=OneWay}"
                            Grid.Column="1"
-                           TextTrimming="CharacterEllipsis" />
+                           TextTrimming="CharacterEllipsis" 
+                           PointerPressed="GetFocus_PointerPressed"/>
                 <TextBlock VerticalAlignment="Center"
                            FontSize="14"
                            Padding="8,0,0,0"
                            Text="{x:Bind DisplayType,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind DisplayType,Mode=OneWay}"
                            Grid.Column="2"
-                           TextTrimming="CharacterEllipsis" />
+                           TextTrimming="CharacterEllipsis" 
+                           PointerPressed="GetFocus_PointerPressed"/>
                 <TextBlock VerticalAlignment="Center"
                            FontSize="14"
                            Padding="8,0,0,0"
                            Text="{x:Bind Size,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Size,Mode=OneWay}"
                            TextTrimming="CharacterEllipsis"
-                           Grid.Column="3" />
+                           Grid.Column="3" 
+                           PointerPressed="GetFocus_PointerPressed"/>
                 <TextBlock VerticalAlignment="Center"
                            Padding="8,0,0,0"
                            Grid.Column="4" 
-                           Name="EmptyTextblock"/>
+                           Name="EmptyTextblock"
+                           PointerPressed="GetFocus_PointerPressed"/>
             </Grid>
         </DataTemplate>
 
@@ -663,17 +735,30 @@
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Height="30"
-                       Width="30"/>
+                       Width="30"
+                       PointerPressed="GetFocus_PointerPressed"/>
                 <TextBlock VerticalAlignment="Center"
-                           FontSize="15"
+                           FontSize="14"
                            Text="{x:Bind Name,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay}"
                            TextTrimming="CharacterEllipsis"
-                           Grid.Column="1"/>
+                           Grid.Column="1"
+                           PointerPressed="NameLabel_PointerPressed"
+                           x:Name="NameLabel"/>
+                <TextBox VerticalAlignment="Center"
+                         x:Name="NameEditBox"
+                         FontSize="14"
+                         Grid.Column="1"
+                         IsSpellCheckEnabled="False"
+                         Text="{x:Bind Name,Mode=OneWay}"
+                         Visibility="Collapsed"
+                         LostFocus="NameEditBox_LostFocus"
+                         x:DeferLoadStrategy="Lazy"/>
                 <TextBlock VerticalAlignment="Center"
                            Margin="8,0,0,0"
                            Grid.Column="2"
-                           Name="EmptyTextblock" />
+                           Name="EmptyTextblock" 
+                           PointerPressed="GetFocus_PointerPressed"/>
             </Grid>
         </DataTemplate>
     </Page.Resources>

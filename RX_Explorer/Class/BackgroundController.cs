@@ -58,7 +58,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static BackgroundController Instance;
+        private volatile static BackgroundController Instance;
+
+        private static readonly object Locker = new object();
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -69,7 +71,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                lock (SyncRootProvider.SyncRoot)
+                lock (Locker)
                 {
                     return Instance ??= new BackgroundController();
                 }

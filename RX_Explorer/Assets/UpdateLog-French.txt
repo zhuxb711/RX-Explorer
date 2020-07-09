@@ -1,4 +1,41 @@
 ﻿*****
+###Quoi de neuf dans la version 5.0.3.0
+
+>#####Mise à jour des fonctionnalités
+
+>>#####Amélioration de la conception du service d'arrière-plan et permet désormais à plusieurs gestionnaires de fichiers RX de s'exécuter simultanément
+
+>>#####Ajouter un menu contextuel "Ouvrir dans une nouvelle fenêtre" et "Ouvrir dans un nouvel onglet"
+
+>>#####Ajoutez la fonction de renommage en cliquant sur le fichier. Renommer sera activé lorsque la différence entre deux clics est supérieure à 700 ms
+
+>>#####Ajouter une notification Toast après l'éjection du périphérique USB
+
+>#####Mise à jour de l'interface utilisateur
+
+>>#####Remplacement de certaines icônes dans le menu contextuel
+
+>>#####Modification de l'icône alternative affichée lorsque la miniature du fichier ne peut pas être chargée
+
+>>#####L'effet acrylique acrylique couvre désormais des domaines tels que la barre d'adresse, la barre de recherche et la page à onglet
+
+>>#####Taille du texte et de l'interface ajustée
+
+>#####Optimisation des performances
+
+>>#####Amélioration de la vitesse d'expansion du répertoire des dossiers sur la gauche
+
+>>#####Espace mémoire réduit occupé par les vignettes de fichiers et de dossiers
+
+>#####Correction d'un bug
+
+>>#####Correction d'un problème selon lequel si le fichier est supérieur à 4 Go, sa taille ne peut pas s'afficher correctement
+
+>>#####Correction d'un problème qui pouvait provoquer un crash lors du changement et de l'expansion rapides des dossiers
+
+>>#####Correction d'un problème selon lequel le dossier de gauche ne serait pas mis à jour lorsqu'un dossier renommé était détecté
+
+*****
 ###Quoi de neuf dans la version 5.0.0.0
 
 >#####Mise à jour des fonctionnalités

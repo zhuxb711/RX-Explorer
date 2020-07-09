@@ -128,10 +128,10 @@ namespace RX_Explorer.Dialog
 
                 BasicProperties Properties = await file.GetBasicPropertiesAsync();
 
-                FileSize = (Properties.Size / 1024f < 1024 ? Math.Round(Properties.Size / 1024f, 2).ToString("0.00") + " KB" :
-                            (Properties.Size / 1048576f < 1024 ? Math.Round(Properties.Size / 1048576f, 2).ToString("0.00") + " MB" :
-                            (Properties.Size / 1073741824f < 1024 ? Math.Round(Properties.Size / 1073741824f, 2).ToString("0.00") + " GB" :
-                            Math.Round(Properties.Size / Convert.ToDouble(1099511627776), 2).ToString() + " TB"))) + " (" + Properties.Size.ToString("N0") + $" {Globalization.GetString("Device_Capacity_Unit")})";
+                FileSize = (Properties.Size / 1024d < 1024 ? Math.Round(Properties.Size / 1024d, 2).ToString("0.00") + " KB" :
+                            (Properties.Size / 1048576d < 1024 ? Math.Round(Properties.Size / 1048576d, 2).ToString("0.00") + " MB" :
+                            (Properties.Size / 1073741824d < 1024 ? Math.Round(Properties.Size / 1073741824d, 2).ToString("0.00") + " GB" :
+                            Math.Round(Properties.Size / 1099511627776d, 2).ToString() + " TB"))) + " (" + Properties.Size.ToString("N0") + $" {Globalization.GetString("Device_Capacity_Unit")})";
 
                 ChangeTime = Properties.DateModified.ToString("F");
 
@@ -192,10 +192,10 @@ namespace RX_Explorer.Dialog
         {
             long TotalSize = WIN_Native_API.CalculateSize(Folder.Path);
 
-            FileSize = TotalSize / 1024f < 1024 ? Math.Round(TotalSize / 1024f, 2).ToString("0.00") + " KB" :
-            (TotalSize / 1048576f < 1024 ? Math.Round(TotalSize / 1048576f, 2).ToString("0.00") + " MB" :
-            (TotalSize / 1073741824f < 1024 ? Math.Round(TotalSize / 1073741824f, 2).ToString("0.00") + " GB" :
-            Math.Round(TotalSize / Convert.ToDouble(1099511627776), 2).ToString() + " TB")) + " (" + TotalSize.ToString("N0") + $" {Globalization.GetString("Device_Capacity_Unit")})";
+            FileSize = TotalSize / 1024d < 1024 ? Math.Round(TotalSize / 1024d, 2).ToString("0.00") + " KB" :
+            (TotalSize / 1048576d < 1024 ? Math.Round(TotalSize / 1048576d, 2).ToString("0.00") + " MB" :
+            (TotalSize / 1073741824d < 1024 ? Math.Round(TotalSize / 1073741824d, 2).ToString("0.00") + " GB" :
+            Math.Round(TotalSize / 1099511627776d, 2).ToString() + " TB")) + " (" + TotalSize.ToString("N0") + $" {Globalization.GetString("Device_Capacity_Unit")})";
         }
 
         private void CalculateFolderAndFileCount(StorageFolder Folder)

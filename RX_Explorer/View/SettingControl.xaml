@@ -496,9 +496,9 @@
                                FontSize="24" />
                     <HyperlinkButton Margin="0,20,0,0"
                                      x:Uid="SettingPrivacyPolicyLink"
-                                     ToolTipService.ToolTip="https://github.com/zhuxb711/RX_Explorer/blob/master/README.md"
+                                     ToolTipService.ToolTip="https://github.com/zhuxb711/RX-Explorer/blob/master/README.md"
                                      FontSize="16"
-                                     NavigateUri="https://github.com/zhuxb711/RX_Explorer/blob/master/README.md"
+                                     NavigateUri="https://github.com/zhuxb711/RX-Explorer/blob/master/README.md"
                                      Content="用户隐私声明"
                                      Name="PrivacyPolicy" />
                     <TextBlock Margin="0,30,0,0"
@@ -551,7 +551,7 @@
                     <HyperlinkButton Content="Github"
                                      Margin="0,15,0,0"
                                      FontSize="16"
-                                     NavigateUri="https://github.com/zhuxb711/RX_Explorer" />
+                                     NavigateUri="https://github.com/zhuxb711/RX-Explorer" />
                     <HyperlinkButton Content="联系开发者"
                                      Margin="0,10,0,0"
                                      FontSize="16"

@@ -1,4 +1,41 @@
 ﻿*****
+###What's new in Ver.5.0.3.0
+
+>#####Feature update
+
+>>#####Improved the design of the background service and now allows multiple RX file managers to run simultaneously
+
+>>#####Add right-click menu "Open in new window" and "Open in new tab"
+
+>>#####Add the function of renaming by clicking the file. Rename will be activated when the difference between two clicks is more than 700ms
+
+>>#####Add Toast notification after ejecting USB device
+
+>#####UI update
+
+>>#####Replaced some icons in the right-click menu
+
+>>#####Changed the alternate icon displayed when the file thumbnail cannot be loaded
+
+>>#####Acrylic acrylic effect now covers areas such as address bar, search bar and tab page
+
+>>#####Adjusted text and interface size
+
+>#####Performance optimization
+
+>>#####Improved the expansion speed of the folder directory on the left
+
+>>#####Reduced memory space occupied by file and folder thumbnails
+
+>#####Bug fix
+
+>>#####Fixed an issue that if the file is larger than 4GB, its size cannot be displayed correctly
+
+>>#####Fixed an issue that might cause a crash when quickly switching and expanding folders
+
+>>#####Fixed an issue that the folder on the left will not be updated when a folder rename is detected
+
+*****
 ###What's new in Ver.5.0.0.0
 
 >#####Feature update

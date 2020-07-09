@@ -20,18 +20,13 @@
                       TabCloseRequested="TabViewControl_TabCloseRequested"
                       AddTabButtonClick="TabViewControl_AddTabButtonClick">
             <muxc:TabView.Resources>
-                <ResourceDictionary>
-                    <ResourceDictionary.ThemeDictionaries>
-                        <ResourceDictionary x:Key="Light">
-                            <SolidColorBrush x:Key="TabViewBackground"
-                                             Color="Transparent" />
-                        </ResourceDictionary>
-                        <ResourceDictionary x:Key="Dark">
-                            <SolidColorBrush x:Key="TabViewBackground"
-                                             Color="Transparent" />
-                        </ResourceDictionary>
-                    </ResourceDictionary.ThemeDictionaries>
-                </ResourceDictionary>
+                <SolidColorBrush x:Key="TabViewBackground"
+                                 Color="Transparent" />
+                <AcrylicBrush x:Key="TabViewItemHeaderBackgroundSelected"
+                              BackgroundSource="Backdrop" 
+                              TintColor="{StaticResource SystemChromeAltHighColor}" 
+                              TintOpacity="0.6" 
+                              FallbackColor="{StaticResource SystemChromeMediumColor}" />
             </muxc:TabView.Resources>
         </muxc:TabView>
         <controls:InAppNotification StackMode="Replace"

@@ -156,7 +156,7 @@
                     <SymbolIcon Symbol="Up" />
                 </Viewbox>
             </Button>
-            <AutoSuggestBox Grid.Column="3"
+            <AutoSuggestBox Style="{ThemeResource CustomAutoSuggestBoxStyle}" Grid.Column="3"
                             Grid.ColumnSpan="2"
                             Margin="5,0,0,0"
                             VerticalAlignment="Center" 
@@ -220,6 +220,7 @@
                       VerticalAlignment="Center"
                       SelectionChanged="ItemDisplayMode_SelectionChanged" />
             <AutoSuggestBox QueryIcon="Find"
+                            Style="{ThemeResource CustomAutoSuggestBoxStyle}"
                             PlaceholderText="搜索..."
                             Name="GlobeSearch"
                             x:FieldModifier="public"
@@ -308,20 +309,21 @@
                            RightTapped="FolderTree_RightTapped">
                 <muxc:TreeView.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Height="40"
-                                    Orientation="Horizontal">
-                            <Viewbox Height="30"
+                        <StackPanel Orientation="Horizontal"
+                                    Height="35">
+                            <Viewbox Height="24"
+                                     Margin="0,4,0,0"
                                      VerticalAlignment="Center">
                                 <FontIcon FontFamily="Segoe MDL2 Assets"
-                                          Glyph="{Binding IsExpanded,Mode=OneWay,Converter={StaticResource StateConverter}}"
-                                          Margin="0,5,5,0"
+                                          Glyph="{Binding IsExpanded,Converter={StaticResource StateConverter},Mode=OneWay}"
                                           Name="Icon" />
                             </Viewbox>
-                            <TextBlock Text="{Binding Content.DisplayName}"
-                                       HorizontalAlignment="Left"
+                            <TextBlock Text="{Binding Content.DisplayName,Mode=OneTime}"
+                                       HorizontalTextAlignment="Left"
                                        VerticalAlignment="Center"
+                                       Margin="5,0,0,0"
                                        Style="{ThemeResource BodyTextBlockStyle}"
-                                       FontSize="16" />
+                                       FontSize="15" />
                         </StackPanel>
                     </DataTemplate>
                 </muxc:TreeView.ItemTemplate>

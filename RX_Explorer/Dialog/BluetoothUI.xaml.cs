@@ -26,6 +26,7 @@ namespace RX_Explorer.Dialog
         private bool IsPinConfirm = false;
         private bool IsAdding = false;
         private Queue<DeviceInformation> AddQueue;
+        private static readonly object Locker = new object();
 
         public BluetoothUI()
         {
@@ -157,52 +158,57 @@ namespace RX_Explorer.Dialog
             });
         }
 
-        private void BluetoothWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
+        private async void BluetoothWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
         {
-            _ = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-             {
-                 lock (SyncRootProvider.SyncRoot)
-                 {
-                     try
-                     {
-                         if (BluetoothDeviceCollection != null)
-                         {
-                             for (int i = 0; i < BluetoothDeviceCollection.Count; i++)
-                             {
-                                 if (BluetoothDeviceCollection[i].Id == args.Id)
-                                 {
-                                     BluetoothDeviceCollection.RemoveAt(i);
-                                     i--;
-                                 }
-                             }
-                         }
-                     }
-                     catch (Exception) { }
-                 }
-             });
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                lock (Locker)
+                {
+                    try
+                    {
+                        if (BluetoothDeviceCollection != null)
+                        {
+                            for (int i = 0; i < BluetoothDeviceCollection.Count; i++)
+                            {
+                                if (BluetoothDeviceCollection[i].Id == args.Id)
+                                {
+                                    BluetoothDeviceCollection.RemoveAt(i);
+                                    i--;
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception) 
+                    {
+
+                    }
+                }
+            });
         }
 
-        private void BluetoothWatcher_Updated(DeviceWatcher sender, DeviceInformationUpdate args)
+        private async void BluetoothWatcher_Updated(DeviceWatcher sender, DeviceInformationUpdate args)
         {
-            _ = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-             {
-                 lock (SyncRootProvider.SyncRoot)
-                 {
-                     try
-                     {
-                         if (BluetoothDeviceCollection != null)
-                         {
-                             foreach (var Bluetooth in from BluetoothList Bluetooth in BluetoothDeviceCollection
-                                                       where Bluetooth.Id == args.Id
-                                                       select Bluetooth)
-                             {
-                                 Bluetooth.Update(args);
-                             }
-                         }
-                     }
-                     catch (Exception) { }
-                 }
-             });
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                lock (Locker)
+                {
+                    try
+                    {
+                        if (BluetoothDeviceCollection != null)
+                        {
+                            foreach (var Bluetooth in from BluetoothList Bluetooth in BluetoothDeviceCollection
+                                                      where Bluetooth.Id == args.Id
+                                                      select Bluetooth)
+                            {
+                                Bluetooth.Update(args);
+                            }
+                        }
+                    }
+                    catch (Exception) 
+                    {
+                    }
+                }
+            });
         }
 
         private async void BluetoothWatcher_Added(DeviceWatcher sender, DeviceInformation args)
@@ -211,7 +217,7 @@ namespace RX_Explorer.Dialog
             {
                 if (BluetoothDeviceCollection != null)
                 {
-                    lock (SyncRootProvider.SyncRoot)
+                    lock (Locker)
                     {
                         AddQueue.Enqueue(args);
 
@@ -219,6 +225,7 @@ namespace RX_Explorer.Dialog
                         {
                             return;
                         }
+
                         IsAdding = true;
                     }
 

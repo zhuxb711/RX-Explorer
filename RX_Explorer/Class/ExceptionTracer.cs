@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
-using Windows.Graphics.Display;
-using Windows.Graphics.Imaging;
 using Windows.Storage;
-using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
@@ -36,24 +30,46 @@ namespace RX_Explorer.Class
 
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                string[] MessageSplit = Ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-                for (int i = 0; i < MessageSplit.Length; i++)
+                string[] MessageSplit;
+                try
                 {
-                    MessageSplit[i] = "        " + MessageSplit[i];
+                    if (string.IsNullOrEmpty(Ex.Message))
+                    {
+                        MessageSplit = Array.Empty<string>();
+                    }
+                    else
+                    {
+                        MessageSplit = Ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+                        for (int i = 0; i < MessageSplit.Length; i++)
+                        {
+                            MessageSplit[i] = "        " + MessageSplit[i];
+                        }
+                    }
+                }
+                catch
+                {
+                    MessageSplit = Array.Empty<string>();
                 }
 
                 string[] StackTraceSplit;
-                if (string.IsNullOrEmpty(Ex.StackTrace))
+                try
+                {
+                    if (string.IsNullOrEmpty(Ex.StackTrace))
+                    {
+                        StackTraceSplit = Array.Empty<string>();
+                    }
+                    else
+                    {
+                        StackTraceSplit = Ex.StackTrace.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+                        for (int i = 0; i < StackTraceSplit.Length; i++)
+                        {
+                            StackTraceSplit[i] = "        " + StackTraceSplit[i].TrimStart();
+                        }
+                    }
+                }
+                catch
                 {
                     StackTraceSplit = Array.Empty<string>();
-                }
-                else
-                {
-                    StackTraceSplit = Ex.StackTrace.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-                    for (int i = 0; i < StackTraceSplit.Length; i++)
-                    {
-                        StackTraceSplit[i] = "        " + StackTraceSplit[i].TrimStart();
-                    }
                 }
 
                 if (Window.Current.Content is Frame rootFrame)
@@ -64,7 +80,7 @@ namespace RX_Explorer.Class
                         {Environment.NewLine}------------------------------------
                         {Environment.NewLine}Exception: {Ex.GetType().Name}
                         {Environment.NewLine}Message:
-                        {Environment.NewLine}{string.Join(Environment.NewLine, MessageSplit)}
+                        {Environment.NewLine}{(MessageSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, MessageSplit))}
                         {Environment.NewLine}Source：{(string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source)}
                         {Environment.NewLine}StackTrace：{Environment.NewLine}{(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))}
                         {Environment.NewLine}------------------------------------{Environment.NewLine}";
@@ -83,7 +99,7 @@ namespace RX_Explorer.Class
                         {Environment.NewLine}------------------------------------
                         {Environment.NewLine}Exception: {Ex.GetType().Name}
                         {Environment.NewLine}Message:
-                        {Environment.NewLine}{string.Join(Environment.NewLine, MessageSplit)}
+                        {Environment.NewLine}{(MessageSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, MessageSplit))}
                         {Environment.NewLine}Source：{(string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source)}
                         {Environment.NewLine}StackTrace：{Environment.NewLine}{(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))}
                         {Environment.NewLine}------------------------------------{Environment.NewLine}";

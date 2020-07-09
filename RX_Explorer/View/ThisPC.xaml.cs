@@ -1,4 +1,5 @@
-﻿using RX_Explorer.Class;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
+using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI.Input;
+using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -23,10 +25,9 @@ namespace RX_Explorer
         private Frame Nav;
         private TabViewItem TabItem;
         private QuickStartItem CurrentSelectedItem;
-        private StorageFolder OpenTargetFolder;
         private int LockResource = 0;
         private object StayInItem;
-        private DispatcherTimer HoverTimer = new DispatcherTimer
+        private readonly DispatcherTimer HoverTimer = new DispatcherTimer
         {
             Interval = TimeSpan.FromMilliseconds(700)
         };
@@ -38,7 +39,6 @@ namespace RX_Explorer
             DeviceGrid.ItemsSource = TabViewContainer.ThisPage.HardDeviceList;
             QuickStartGridView.ItemsSource = TabViewContainer.ThisPage.QuickStartList;
             WebGridView.ItemsSource = TabViewContainer.ThisPage.HotWebList;
-            Loaded += ThisPC_Loaded;
             HoverTimer.Tick += HoverTimer_Tick;
         }
 
@@ -58,33 +58,13 @@ namespace RX_Explorer
             }
         }
 
-        private void ThisPC_Loaded(object sender, RoutedEventArgs e)
-        {
-            Loaded -= ThisPC_Loaded;
-
-            if (OpenTargetFolder != null)
-            {
-                if (AnimationController.Current.IsEnableAnimation)
-                {
-                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, OpenTargetFolder, this), new DrillInNavigationTransitionInfo());
-                }
-                else
-                {
-                    Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, OpenTargetFolder, this), new SuppressNavigationTransitionInfo());
-                }
-
-                OpenTargetFolder = null;
-            }
-        }
-
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is Tuple<TabViewItem, StorageFolder> Parameters)
+            if (e.Parameter is Tuple<TabViewItem, Frame> Parameters)
             {
-                Nav = Parameters.Item1.Content as Frame;
+                Nav = Parameters.Item2;
                 TabItem = Parameters.Item1;
                 TabItem.Header = Globalization.GetString("MainPage_PageDictionary_ThisPC_Label");
-                OpenTargetFolder = Parameters.Item2;
             }
         }
 
@@ -667,6 +647,7 @@ namespace RX_Explorer
                 if (await FullTrustExcutorController.Current.EjectPortableDevice(Item.Folder.Path).ConfigureAwait(true))
                 {
                     TabViewContainer.ThisPage.HardDeviceList.Remove(Item);
+                    ShowEjectNotification();
                 }
                 else
                 {
@@ -680,5 +661,42 @@ namespace RX_Explorer
                 }
             }
         }
+
+        private void ShowEjectNotification()
+        {
+            ToastNotificationManager.History.Remove("MergeVideoNotification");
+
+            ToastContent Content = new ToastContent()
+            {
+                Scenario = ToastScenario.Default,
+                Launch = "Transcode",
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = Globalization.GetString("Eject_Toast_Text_1")
+                                },
+
+                                new AdaptiveText()
+                                {
+                                   Text = Globalization.GetString("Eject_Toast_Text_2")
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = Globalization.GetString("Eject_Toast_Text_3")
+                                }
+                            }
+                    }
+                }
+            };
+
+            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+        }
+
     }
 }

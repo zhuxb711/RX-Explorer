@@ -19,13 +19,15 @@ namespace RX_Explorer.Class
     /// </summary>
     public sealed class MySQL : IDisposable
     {
-        private static MySQL Instance;
+        private volatile static MySQL Instance;
 
         private bool IsDisposed = false;
 
         private AutoResetEvent ConnectionLocker;
 
         private SQLConnectionPool<MySqlConnection> ConnectionPool;
+
+        private static readonly object Locker = new object();
 
         /// <summary>
         /// 提供对MySQL实例的访问
@@ -34,7 +36,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                lock (SyncRootProvider.SyncRoot)
+                lock (Locker)
                 {
                     return Instance ??= new MySQL();
                 }

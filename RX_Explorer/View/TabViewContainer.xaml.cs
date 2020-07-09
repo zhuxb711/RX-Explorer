@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -36,7 +37,7 @@ namespace RX_Explorer
         public ObservableCollection<QuickStartItem> QuickStartList { get; private set; } = new ObservableCollection<QuickStartItem>();
         public ObservableCollection<QuickStartItem> HotWebList { get; private set; } = new ObservableCollection<QuickStartItem>();
 
-        private DeviceWatcher PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
+        private readonly DeviceWatcher PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
 
         public Dictionary<FileControl, FilePresenter> FFInstanceContainer { get; private set; } = new Dictionary<FileControl, FilePresenter>();
 
@@ -353,6 +354,7 @@ namespace RX_Explorer
                              {
                                  if (TFInstanceContainer.ContainsValue(Control))
                                  {
+                                     Control.Dispose();
                                      FFInstanceContainer.Remove(Control);
                                      FSInstanceContainer.Remove(Control);
                                      TFInstanceContainer.Remove(TFInstanceContainer.First((Item) => Item.Value == Control).Key);
@@ -414,9 +416,28 @@ namespace RX_Explorer
         {
             Loaded -= TabViewContainer_Loaded;
 
-            if (CreateNewTab() is TabViewItem TabItem)
+
+            if (MainPage.ThisPage.IsPathActivate)
             {
-                TabViewControl.TabItems.Add(TabItem);
+                try
+                {
+                    await CreateNewTabAndOpenTargetFolder(MainPage.ThisPage.ActivatePath).ConfigureAwait(true);
+                }
+                catch
+                {
+                    Debug.WriteLine("ActivatePath is not exist, activate action stop");
+                }
+                finally
+                {
+                    MainPage.ThisPage.IsPathActivate = false;
+                }
+            }
+            else
+            {
+                if (CreateNewTab() is TabViewItem TabItem)
+                {
+                    TabViewControl.TabItems.Add(TabItem);
+                }
             }
 
             try
@@ -700,24 +721,6 @@ namespace RX_Explorer
                     };
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
-
-                if (MainPage.ThisPage.IsUSBActivate && !string.IsNullOrWhiteSpace(MainPage.ThisPage.ActivateUSBDevicePath))
-                {
-                    MainPage.ThisPage.IsUSBActivate = false;
-                    if (HardDeviceList.FirstOrDefault((Device) => Device.Folder.Path == MainPage.ThisPage.ActivateUSBDevicePath) is HardDeviceInfo HardDevice)
-                    {
-                        await Task.Delay(1000).ConfigureAwait(true);
-
-                        if (AnimationController.Current.IsEnableAnimation)
-                        {
-                            CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabViewControl.TabItems.FirstOrDefault() as TabViewItem, HardDevice.Folder, CurrentTabNavigation.Content as ThisPC), new DrillInNavigationTransitionInfo());
-                        }
-                        else
-                        {
-                            CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabViewControl.TabItems.FirstOrDefault() as TabViewItem, HardDevice.Folder, CurrentTabNavigation.Content as ThisPC), new SuppressNavigationTransitionInfo());
-                        }
-                    }
-                }
             }
             catch (Exception ex)
             {
@@ -787,13 +790,30 @@ namespace RX_Explorer
                     TabViewItem Item = new TabViewItem
                     {
                         IconSource = new SymbolIconSource { Symbol = Symbol.Document },
-                        Content = frame,
                         AllowDrop = true,
                         IsClosable = false
                     };
                     Item.DragEnter += Item_DragEnter;
 
-                    frame.Navigate(typeof(ThisPC), new Tuple<TabViewItem, StorageFolder>(Item, StorageFolderForNewTab));
+                    if (StorageFolderForNewTab != null)
+                    {
+                        frame.Navigate(typeof(ThisPC), new Tuple<TabViewItem, Frame>(Item, frame), new SuppressNavigationTransitionInfo());
+
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(Item, StorageFolderForNewTab, frame.Content as ThisPC), new DrillInNavigationTransitionInfo());
+                        }
+                        else
+                        {
+                            frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(Item, StorageFolderForNewTab, frame.Content as ThisPC), new SuppressNavigationTransitionInfo());
+                        }
+                    }
+                    else
+                    {
+                        frame.Navigate(typeof(ThisPC), new Tuple<TabViewItem, Frame>(Item, frame), new SuppressNavigationTransitionInfo());
+                    }
+
+                    Item.Content = frame;
 
                     return Item;
                 }

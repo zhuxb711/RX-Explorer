@@ -20,17 +20,17 @@ namespace RX_Explorer.Class
 {
     public sealed class SpecialTypeGenerator
     {
-        private static SpecialTypeGenerator instance;
+        private volatile static SpecialTypeGenerator instance;
 
-        private static readonly object Lock = new object();
+        private static readonly object Locker = new object();
 
         public static SpecialTypeGenerator Current
         {
             get
             {
-                lock (Lock)
+                lock (Locker)
                 {
-                    return instance ?? (instance = new SpecialTypeGenerator());
+                    return instance ??= new SpecialTypeGenerator();
                 }
             }
         }

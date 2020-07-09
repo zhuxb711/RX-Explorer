@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
+using Windows.System;
 
 namespace FullTrustProcess
 {
@@ -30,47 +31,38 @@ namespace FullTrustProcess
         {
             try
             {
-                ExitExistInstance();
-
-                Connection = new AppServiceConnection
+                using (Mutex LaunchLocker = new Mutex(true, "RX_Explorer_FullTrustProcess", out bool IsNotExist))
                 {
-                    AppServiceName = "CommunicateService",
-                    PackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t"
-                };
-                Connection.RequestReceived += Connection_RequestReceived;
+                    if(!IsNotExist)
+                    {
+                        return;
+                    }
 
-                if (await Connection.OpenAsync() != AppServiceConnectionStatus.Success)
-                {
-                    ExitLocker.Set();
+                    Connection = new AppServiceConnection
+                    {
+                        AppServiceName = "CommunicateService",
+                        PackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t"
+                    };
+                    Connection.RequestReceived += Connection_RequestReceived;
+
+                    if (await Connection.OpenAsync() != AppServiceConnectionStatus.Success)
+                    {
+                        ExitLocker.Set();
+                    }
+
+                    ExitLocker.WaitOne();
                 }
-
-                ExitLocker.WaitOne();
             }
-            catch
+            catch(Exception e)
             {
-
+                Debug.WriteLine($"FullTrustProcess出现异常，错误信息{e.Message}");
             }
             finally
             {
-                Connection.Dispose();
-                ExitLocker.Dispose();
+                Connection?.Dispose();
+                ExitLocker?.Dispose();
 
                 Environment.Exit(0);
-            }
-        }
-
-        private static void ExitExistInstance()
-        {
-            using (Process Current = Process.GetCurrentProcess())
-            {
-                List<Process> AllProcess = Process.GetProcessesByName(Current.ProcessName).ToList();
-
-                foreach (Process ExistProcess in AllProcess.Where(Process => Process.Id != Current.Id && Assembly.GetExecutingAssembly().Location.Replace("/", @"\") == Current.MainModule.FileName))
-                {
-                    ExistProcess.Kill();
-                }
-
-                AllProcess.ForEach((Item) => Item.Dispose());
             }
         }
 
@@ -82,6 +74,11 @@ namespace FullTrustProcess
             {
                 switch (args.Request.Message["ExcuteType"])
                 {
+                    case "Identity":
+                        {
+                            await args.Request.SendResponseAsync(new ValueSet { { "Identity", "FullTrustProcess" } });
+                            break;
+                        }
                     case "Excute_Quicklook":
                         {
                             string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
@@ -89,6 +86,7 @@ namespace FullTrustProcess
                             {
                                 await QuicklookConnector.SendMessageToQuicklook(ExcutePath);
                             }
+
                             break;
                         }
                     case "Excute_Check_QuicklookIsAvaliable":
@@ -98,6 +96,7 @@ namespace FullTrustProcess
                             {
                                 {"Check_QuicklookIsAvaliable_Result",IsSuccess }
                             };
+
                             await args.Request.SendResponseAsync(Result);
                             break;
                         }
@@ -110,6 +109,7 @@ namespace FullTrustProcess
                             {
                                 {"Associate_Result", Associate }
                             };
+
                             await args.Request.SendResponseAsync(Result);
                             break;
                         }
@@ -186,7 +186,6 @@ namespace FullTrustProcess
                             }
 
                             await args.Request.SendResponseAsync(Value);
-
                             break;
                         }
                     case "Excute_Unlock_Occupy":
@@ -219,7 +218,6 @@ namespace FullTrustProcess
                             }
 
                             await args.Request.SendResponseAsync(Value);
-
                             break;
                         }
                     case "Excute_Copy":
@@ -248,7 +246,6 @@ namespace FullTrustProcess
                             }
 
                             await args.Request.SendResponseAsync(Value);
-
                             break;
                         }
                     case "Excute_Move":
@@ -284,7 +281,6 @@ namespace FullTrustProcess
                             }
 
                             await args.Request.SendResponseAsync(Value);
-
                             break;
                         }
                     case "Excute_Delete":
@@ -333,7 +329,6 @@ namespace FullTrustProcess
                             }
 
                             await args.Request.SendResponseAsync(Value);
-
                             break;
                         }
                     case "Excute_RunExe":
@@ -411,16 +406,19 @@ namespace FullTrustProcess
                                     }
                                 }
                             }
+
                             break;
                         }
                     case "Excute_Test_Connection":
                         {
                             await args.Request.SendResponseAsync(new ValueSet { { "Excute_Test_Connection", string.Empty } });
+                            
                             break;
                         }
                     case "Excute_Exit":
                         {
                             ExitLocker.Set();
+                            
                             break;
                         }
                 }

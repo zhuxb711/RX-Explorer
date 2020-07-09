@@ -16,7 +16,8 @@ namespace RX_Explorer.Class
     public sealed class SQLite : IDisposable
     {
         private bool IsDisposed = false;
-        private static SQLite SQL = null;
+        private static readonly object Locker = new object();
+        private volatile static SQLite SQL;
         private SQLConnectionPool<SqliteConnection> ConnectionPool;
 
         /// <summary>
@@ -40,7 +41,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                lock (SyncRootProvider.SyncRoot)
+                lock (Locker)
                 {
                     return SQL ??= new SQLite();
                 }

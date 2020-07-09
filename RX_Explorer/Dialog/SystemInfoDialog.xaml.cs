@@ -143,8 +143,8 @@ namespace RX_Explorer.Dialog
         {
             get
             {
-                return $"{Globalization.GetString("SystemInfo_Dialog_Memory_Usage_Text")}: " + (MemoryManager.AppMemoryUsage / 1048576f < 1024 ? Math.Round(MemoryManager.AppMemoryUsage / 1048576f, 2).ToString("0.00") + " MB"
-                                                                                               : Math.Round(MemoryManager.AppMemoryUsage / 1073741824f, 2).ToString("0.00") + " GB");
+                return $"{Globalization.GetString("SystemInfo_Dialog_Memory_Usage_Text")}: " + (MemoryManager.AppMemoryUsage / 1048576d < 1024 ? Math.Round(MemoryManager.AppMemoryUsage / 1048576d, 2).ToString("0.00") + " MB"
+                                                                                               : Math.Round(MemoryManager.AppMemoryUsage / 1073741824d, 2).ToString("0.00") + " GB");
             }
         }
 
@@ -274,9 +274,9 @@ namespace RX_Explorer.Dialog
                 if (GPUMemory != 0)
                 {
                     string GPUName = GPUInfo[0];
-                    string GPUVideoMemory = GPUMemory / 1024f < 1024 ? Math.Round(GPUMemory / 1024f, 2).ToString("0.00") + " KB"
-                                                              : (GPUMemory / 1048576f < 1024 ? Math.Round(GPUMemory / 1048576f, 2).ToString("0.00") + " MB"
-                                                              : Math.Round(GPUMemory / 1073741824f, 2).ToString("0.00") + " GB");
+                    string GPUVideoMemory = GPUMemory / 1024f < 1024 ? Math.Round(GPUMemory / 1024d, 2).ToString("0.00") + " KB"
+                                                              : (GPUMemory / 1048576d < 1024 ? Math.Round(GPUMemory / 1048576d, 2).ToString("0.00") + " MB"
+                                                              : Math.Round(GPUMemory / 1073741824d, 2).ToString("0.00") + " GB");
                     if (GPUGrid.RowDefinitions.Count == 0)
                     {
                         GPUGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(35) });

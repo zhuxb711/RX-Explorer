@@ -634,10 +634,10 @@
     <value>Quick Start</value>
   </data>
   <data name="RateTip.ActionButtonContent" xml:space="preserve">
-    <value>Rate</value>
+    <value>Rate now</value>
   </data>
   <data name="RateTip.CloseButtonContent" xml:space="preserve">
-    <value>Later</value>
+    <value>No prompt</value>
   </data>
   <data name="RateTip.Subtitle" xml:space="preserve">
     <value>Your rating is very important, please take a minute or two to rate the app.</value>
@@ -2515,5 +2515,29 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_FolderRepeat_PrimaryButton" xml:space="preserve">
     <value>Merge folder</value>
+  </data>
+  <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
+    <value>A file with the same name already exists, whether to rename it automatically?</value>
+  </data>
+  <data name="Eject_Toast_Text_1" xml:space="preserve">
+    <value>Success</value>
+  </data>
+  <data name="Eject_Toast_Text_2" xml:space="preserve">
+    <value>The USB device has been ejected successfully</value>
+  </data>
+  <data name="Eject_Toast_Text_3" xml:space="preserve">
+    <value>It is now safe to remove the USB device</value>
+  </data>
+  <data name="OpenFolderInNewTab.Label" xml:space="preserve">
+    <value>Open in new tab</value>
+  </data>
+  <data name="OpenFolderInNewWindow.Label" xml:space="preserve">
+    <value>Open in new window</value>
+  </data>
+  <data name="Operate_Text_NewTab" xml:space="preserve">
+    <value>Open in new tab</value>
+  </data>
+  <data name="Operate_Text_NewWindow" xml:space="preserve">
+    <value>Open in new window</value>
   </data>
 </root>

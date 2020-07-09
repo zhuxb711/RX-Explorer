@@ -683,12 +683,12 @@
           <target state="translated">快速启动</target>
         </trans-unit>
         <trans-unit id="RateTip.ActionButtonContent" translate="yes" xml:space="preserve">
-          <source>Rate</source>
-          <target state="translated">评价</target>
+          <source>Rate now</source>
+          <target state="translated">现在评价</target>
         </trans-unit>
         <trans-unit id="RateTip.CloseButtonContent" translate="yes" xml:space="preserve">
-          <source>Later</source>
-          <target state="translated">稍后</target>
+          <source>No prompt</source>
+          <target state="translated">不再提示</target>
         </trans-unit>
         <trans-unit id="RateTip.Subtitle" translate="yes" xml:space="preserve">
           <source>Your rating is very important, please take a minute or two to rate the app.</source>
@@ -720,7 +720,7 @@
         </trans-unit>
         <trans-unit id="RenameDialogInvalidCharTip.Title" translate="yes" xml:space="preserve">
           <source>Error</source>
-          <target state="translated">下载出错</target>
+          <target state="translated">错误</target>
         </trans-unit>
         <trans-unit id="RenameDialogInvalidCharTip.Subtitle" translate="yes" xml:space="preserve">
           <source>Name cannot be empty and cannot contain illegal characters 
@@ -3188,6 +3188,38 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="QueueDialog_FolderRepeat_PrimaryButton" translate="yes" xml:space="preserve">
           <source>Merge folder</source>
           <target state="translated">合并文件夹</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RenameExist_Content" translate="yes" xml:space="preserve">
+          <source>A file with the same name already exists, whether to rename it automatically?</source>
+          <target state="translated">已存在同名文件，是否自动重命名?</target>
+        </trans-unit>
+        <trans-unit id="Eject_Toast_Text_1" translate="yes" xml:space="preserve">
+          <source>Success</source>
+          <target state="translated">成功</target>
+        </trans-unit>
+        <trans-unit id="Eject_Toast_Text_2" translate="yes" xml:space="preserve">
+          <source>The USB device has been ejected successfully</source>
+          <target state="translated">USB设备已成功弹出</target>
+        </trans-unit>
+        <trans-unit id="Eject_Toast_Text_3" translate="yes" xml:space="preserve">
+          <source>It is now safe to remove the USB device</source>
+          <target state="translated">现在可安全的移除USB设备</target>
+        </trans-unit>
+        <trans-unit id="OpenFolderInNewTab.Label" translate="yes" xml:space="preserve">
+          <source>Open in new tab</source>
+          <target state="translated">在新标签页中打开</target>
+        </trans-unit>
+        <trans-unit id="OpenFolderInNewWindow.Label" translate="yes" xml:space="preserve">
+          <source>Open in new window</source>
+          <target state="translated">在新窗口中打开</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_NewTab" translate="yes" xml:space="preserve">
+          <source>Open in new tab</source>
+          <target state="translated">在新标签页中打开</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_NewWindow" translate="yes" xml:space="preserve">
+          <source>Open in new window</source>
+          <target state="translated">在新窗口中打开</target>
         </trans-unit>
       </group>
     </body>

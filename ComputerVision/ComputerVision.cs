@@ -513,42 +513,54 @@ namespace ComputerVision
 
         private static unsafe Mat SoftwareBitmapToMat(this SoftwareBitmap softwareBitmap)
         {
-            using (BitmapBuffer buffer = softwareBitmap.LockBuffer(BitmapBufferAccessMode.Write))
-            using (var reference = buffer.CreateReference())
+            try
             {
-                ((IMemoryBufferByteAccess)reference).GetBuffer(out var dataInBytes, out var capacity);
+                using (BitmapBuffer Buffer = softwareBitmap.LockBuffer(BitmapBufferAccessMode.Write))
+                using (Windows.Foundation.IMemoryBufferReference Reference = Buffer.CreateReference())
+                {
+                    ((IMemoryBufferByteAccess)Reference).GetBuffer(out byte* dataInBytes, out uint capacity);
 
-                return new Mat(softwareBitmap.PixelHeight, softwareBitmap.PixelWidth, MatType.CV_8UC4, (IntPtr)dataInBytes);
+                    return new Mat(softwareBitmap.PixelHeight, softwareBitmap.PixelWidth, MatType.CV_8UC4, (IntPtr)dataInBytes);
+                }
+            }
+            catch
+            {
+                return new Mat(softwareBitmap.PixelHeight, softwareBitmap.PixelWidth, MatType.CV_8UC4);
             }
         }
 
         private static unsafe SoftwareBitmap MatToSoftwareBitmap(this Mat input)
         {
-            SoftwareBitmap output = new SoftwareBitmap(BitmapPixelFormat.Bgra8, input.Width, input.Height, BitmapAlphaMode.Premultiplied);
-
-            using (BitmapBuffer buffer = output.LockBuffer(BitmapBufferAccessMode.ReadWrite))
-            using (var reference = buffer.CreateReference())
+            try
             {
-                ((IMemoryBufferByteAccess)reference).GetBuffer(out var dataInBytes, out var capacity);
-                BitmapPlaneDescription bufferLayout = buffer.GetPlaneDescription(0);
+                SoftwareBitmap output = new SoftwareBitmap(BitmapPixelFormat.Bgra8, input.Width, input.Height, BitmapAlphaMode.Premultiplied);
 
-                for (int i = 0; i < bufferLayout.Height; i++)
+                using (BitmapBuffer Buffer = output.LockBuffer(BitmapBufferAccessMode.ReadWrite))
+                using (Windows.Foundation.IMemoryBufferReference Reference = Buffer.CreateReference())
                 {
-                    for (int j = 0; j < bufferLayout.Width; j++)
+                    ((IMemoryBufferByteAccess)Reference).GetBuffer(out byte* DataInBytes, out uint capacity);
+                    BitmapPlaneDescription BufferLayout = Buffer.GetPlaneDescription(0);
+
+                    for (int i = 0; i < BufferLayout.Height; i++)
                     {
-                        dataInBytes[bufferLayout.StartIndex + bufferLayout.Stride * i + 4 * j + 0] =
-                            input.DataPointer[bufferLayout.StartIndex + bufferLayout.Stride * i + 4 * j + 0];
-                        dataInBytes[bufferLayout.StartIndex + bufferLayout.Stride * i + 4 * j + 1] =
-                            input.DataPointer[bufferLayout.StartIndex + bufferLayout.Stride * i + 4 * j + 1];
-                        dataInBytes[bufferLayout.StartIndex + bufferLayout.Stride * i + 4 * j + 2] =
-                            input.DataPointer[bufferLayout.StartIndex + bufferLayout.Stride * i + 4 * j + 2];
-                        dataInBytes[bufferLayout.StartIndex + bufferLayout.Stride * i + 4 * j + 3] =
-                            input.DataPointer[bufferLayout.StartIndex + bufferLayout.Stride * i + 4 * j + 3];
+                        for (int j = 0; j < BufferLayout.Width; j++)
+                        {
+                            int Index = BufferLayout.StartIndex + (BufferLayout.Stride * i) + (4 * j);
+                            
+                            DataInBytes[Index] = input.DataPointer[Index];
+                            DataInBytes[Index + 1] = input.DataPointer[Index + 1];
+                            DataInBytes[Index + 2] = input.DataPointer[Index + 2];
+                            DataInBytes[Index + 3] = input.DataPointer[Index + 3];
+                        }
                     }
                 }
-            }
 
-            return output;
+                return output;
+            }
+            catch
+            {
+                return new SoftwareBitmap(BitmapPixelFormat.Bgra8, input.Width, input.Height, BitmapAlphaMode.Premultiplied);
+            }
         }
     }
 }

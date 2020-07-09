@@ -17,13 +17,15 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private static AppThemeController Instance;
+        private volatile static AppThemeController Instance;
+
+        private static readonly object Locker = new object();
 
         public static AppThemeController Current
         {
             get
             {
-                lock (SyncRootProvider.SyncRoot)
+                lock (Locker)
                 {
                     return Instance ??= new AppThemeController();
                 }

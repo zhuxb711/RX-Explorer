@@ -73,10 +73,10 @@ namespace RX_Explorer.Dialog
 
         private string GetSizeDescription(ulong Size)
         {
-            return Size / 1024f < 1024 ? Math.Round(Size / 1024f, 2).ToString("0.00") + " KB" :
-            (Size / 1048576f < 1024 ? Math.Round(Size / 1048576f, 2).ToString("0.00") + " MB" :
-            (Size / 1073741824f < 1024 ? Math.Round(Size / 1073741824f, 2).ToString("0.00") + " GB" :
-            Math.Round(Size / Convert.ToDouble(1099511627776), 2).ToString("0.00") + " TB"));
+            return Size / 1024d < 1024 ? Math.Round(Size / 1024d, 2).ToString("0.00") + " KB" :
+            (Size / 1048576d < 1024 ? Math.Round(Size / 1048576d, 2).ToString("0.00") + " MB" :
+            (Size / 1073741824d < 1024 ? Math.Round(Size / 1073741824d, 2).ToString("0.00") + " GB" :
+            Math.Round(Size / 1099511627776d, 2).ToString("0.00") + " TB"));
         }
     }
 }

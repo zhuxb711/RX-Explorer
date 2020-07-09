@@ -1,10 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
-using System.IO;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -44,7 +45,38 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取此文件的缩略图
         /// </summary>
-        public BitmapImage Thumbnail { get; private set; }
+        public BitmapImage Thumbnail
+        {
+            get
+            {
+                if (Inner_Thumbnail != null)
+                {
+                    return Inner_Thumbnail;
+                }
+                else
+                {
+                    if (StorageType == StorageItemTypes.File)
+                    {
+                        return AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image : Const_File_Black_Image;
+                    }
+                    else
+                    {
+                        return Const_Folder_Image;
+                    }
+                }
+            }
+            set
+            {
+                Inner_Thumbnail = value;
+            }
+        }
+        private BitmapImage Inner_Thumbnail;
+
+        private readonly static BitmapImage Const_Folder_Image = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
+
+        private readonly static BitmapImage Const_File_White_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_White.png"));
+
+        private readonly static BitmapImage Const_File_Black_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
 
         /// <summary>
         /// 初始化FileSystemStorageItem对象
@@ -53,14 +85,14 @@ namespace RX_Explorer.Class
         /// <param name="Size">大小</param>
         /// <param name="Thumbnail">缩略图</param>
         /// <param name="ModifiedTime">修改时间</param>
-        public FileSystemStorageItem(StorageFile Item, long Size, BitmapImage Thumbnail, DateTimeOffset ModifiedTime)
+        public FileSystemStorageItem(StorageFile Item, ulong Size, BitmapImage Thumbnail, DateTimeOffset ModifiedTime)
         {
             StorageItem = Item;
             StorageType = StorageItemTypes.File;
 
             SizeRaw = Size;
             ModifiedTimeRaw = ModifiedTime;
-            this.Thumbnail = Thumbnail ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+            this.Thumbnail = Thumbnail;
         }
 
         /// <summary>
@@ -73,7 +105,6 @@ namespace RX_Explorer.Class
             StorageItem = Item;
             StorageType = StorageItemTypes.Folder;
 
-            Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
             ModifiedTimeRaw = ModifiedTime;
         }
 
@@ -90,13 +121,9 @@ namespace RX_Explorer.Class
             ModifiedTimeRaw = ModifiedTime;
             this.StorageType = StorageType;
 
-            if (StorageType == StorageItemTypes.Folder)
+            if (StorageType != StorageItemTypes.Folder)
             {
-                Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
-            }
-            else
-            {
-                SizeRaw = (Data.nFileSizeHigh << 32) + (long)Data.nFileSizeLow;
+                SizeRaw = ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
             }
         }
 
@@ -141,18 +168,15 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task LoadMoreProperty()
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
-             {
-                 if (await GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
-                 {
-                     if (Item.IsOfType(StorageItemTypes.File) && Thumbnail == null)
-                     {
-                         Thumbnail = (await Item.GetThumbnailBitmapAsync().ConfigureAwait(true)) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
-                         OnPropertyChanged(nameof(Thumbnail));
-                         OnPropertyChanged(nameof(DisplayType));
-                     }
-                 }
-             });
+            if (StorageType == StorageItemTypes.File && Inner_Thumbnail == null && await GetStorageItem().ConfigureAwait(false) is IStorageItem Item)
+            {
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                {
+                    Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                    OnPropertyChanged(nameof(Thumbnail));
+                    OnPropertyChanged(nameof(DisplayType));
+                });
+            }
         }
 
         /// <summary>
@@ -178,7 +202,7 @@ namespace RX_Explorer.Class
 
                 SizeRaw = await File.GetSizeRawDataAsync().ConfigureAwait(true);
                 ModifiedTimeRaw = await File.GetModifiedTimeAsync().ConfigureAwait(true);
-                Thumbnail = await File.GetThumbnailBitmapAsync().ConfigureAwait(true) ?? new BitmapImage(new Uri("ms-appx:///Assets/DocIcon.png"));
+                Thumbnail = await File.GetThumbnailBitmapAsync().ConfigureAwait(true);
             }
             catch
             {
@@ -188,7 +212,6 @@ namespace RX_Explorer.Class
                     StorageItem = Folder;
                     StorageType = StorageItemTypes.Folder;
 
-                    Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
                     ModifiedTimeRaw = await Folder.GetModifiedTimeAsync().ConfigureAwait(true);
                 }
                 catch
@@ -197,20 +220,28 @@ namespace RX_Explorer.Class
                 }
             }
 
-            await Update(false).ConfigureAwait(false);
+            OnPropertyChanged(nameof(Thumbnail));
+            OnPropertyChanged(nameof(Name));
+            OnPropertyChanged(nameof(ModifiedTime));
+            OnPropertyChanged(nameof(DisplayType));
+            OnPropertyChanged(nameof(Size));
         }
 
-        public async Task Update(bool ReGenerateThumbnailAndSizeAndModifiedTime)
+        public async Task Update(bool ReGenerateSizeAndModifiedTime)
         {
-            if (ReGenerateThumbnailAndSizeAndModifiedTime)
+            if (ReGenerateSizeAndModifiedTime)
             {
-                _ = await GetStorageItem().ConfigureAwait(true);
-                Thumbnail = await StorageItem.GetThumbnailBitmapAsync().ConfigureAwait(true);
-                ModifiedTimeRaw = await StorageItem.GetModifiedTimeAsync().ConfigureAwait(true);
-                SizeRaw = await StorageItem.GetSizeRawDataAsync().ConfigureAwait(true);
+                if (await GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+                {
+                    if (Item.IsOfType(StorageItemTypes.File))
+                    {
+                        SizeRaw = await Item.GetSizeRawDataAsync().ConfigureAwait(true);
+                    }
+
+                    ModifiedTimeRaw = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
+                }
             }
 
-            OnPropertyChanged(nameof(Thumbnail));
             OnPropertyChanged(nameof(Name));
             OnPropertyChanged(nameof(ModifiedTime));
             OnPropertyChanged(nameof(DisplayType));
@@ -253,10 +284,10 @@ namespace RX_Explorer.Class
             {
                 if (StorageType == StorageItemTypes.File)
                 {
-                    return SizeRaw / 1024f < 1024 ? Math.Round(SizeRaw / 1024f, 2).ToString("0.00") + " KB" :
-                    (SizeRaw / 1048576f < 1024 ? Math.Round(SizeRaw / 1048576f, 2).ToString("0.00") + " MB" :
-                    (SizeRaw / 1073741824f < 1024 ? Math.Round(SizeRaw / 1073741824f, 2).ToString("0.00") + " GB" :
-                    Math.Round(SizeRaw / Convert.ToDouble(1099511627776), 2).ToString() + " TB"));
+                    return SizeRaw / 1024d < 1024 ? Math.Round(SizeRaw / 1024d, 2).ToString("0.00") + " KB" :
+                    (SizeRaw / 1048576d < 1024 ? Math.Round(SizeRaw / 1048576d, 2).ToString("0.00") + " MB" :
+                    (SizeRaw / 1073741824d < 1024 ? Math.Round(SizeRaw / 1073741824d, 2).ToString("0.00") + " GB" :
+                    Math.Round(SizeRaw / 1099511627776d, 2).ToString() + " TB"));
                 }
                 else
                 {
@@ -268,7 +299,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取原始大小数据
         /// </summary>
-        public long SizeRaw { get; private set; } = 0;
+        public ulong SizeRaw { get; private set; } = 0;
 
         /// <summary>
         /// 获取文件的完整文件名(包括后缀)

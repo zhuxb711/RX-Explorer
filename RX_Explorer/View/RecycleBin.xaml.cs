@@ -49,8 +49,6 @@ namespace RX_Explorer.View
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            FileCollection.Clear();
-
             foreach (FileSystemStorageItem Item in (await FullTrustExcutorController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true)).SortList(SortTarget.Name, SortDirection.Ascending))
             {
                 FileCollection.Add(Item);
@@ -60,6 +58,11 @@ namespace RX_Explorer.View
             {
                 HasFile.Visibility = Visibility.Visible;
             }
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            FileCollection.Clear();
         }
 
         private void ListViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -80,7 +83,7 @@ namespace RX_Explorer.View
             {
                 if (args.Item is FileSystemStorageItem Item)
                 {
-                    if (Item.StorageType == StorageItemTypes.File && Item.Thumbnail == null)
+                    if (Item.StorageType == StorageItemTypes.File)
                     {
                         _ = Item.LoadMoreProperty();
                     }
@@ -455,11 +458,13 @@ namespace RX_Explorer.View
             {
                 ProgressInfo.Text = $"{Message}...";
                 LoadingControl.IsLoading = true;
+                MainPage.ThisPage.IsAnyTaskRunning = true;
             }
             else
             {
                 await Task.Delay(1000).ConfigureAwait(true);
                 LoadingControl.IsLoading = false;
+                MainPage.ThisPage.IsAnyTaskRunning = false;
             }
         }
 
