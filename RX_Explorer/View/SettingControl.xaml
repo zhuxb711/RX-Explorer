@@ -680,7 +680,7 @@
             <StackPanel Padding="12"
                         Width="230">
                 <TextBlock Name="LoadingText"
-                           FontSize="22"
+                           FontSize="16"
                            TextAlignment="Center" />
                 <controls:ProgressBar IsIndeterminate="True"
                                       Margin="0,10,0,0" />

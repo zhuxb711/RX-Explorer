@@ -3221,6 +3221,22 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Open in new window</source>
           <target state="translated">Ouvrir dans une nouvelle fenetre</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_CopyFailUnexpectError_Content" translate="yes" xml:space="preserve">
+          <source>An error occurred while copying the file, the copy operation failed</source>
+          <target state="translated">Une erreur s'est produite lors de la copie du fichier, l'opération de copie a échoué</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_MoveFailUnexpectError_Content" translate="yes" xml:space="preserve">
+          <source>An error occurred while moving the file, the move operation failed</source>
+          <target state="translated">Une erreur s'est produite lors du déplacement du fichier, l'opération de déplacement a échoué</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteFailUnexpectError_Content" translate="yes" xml:space="preserve">
+          <source>An error occurred while deleting the file, the delete operation failed</source>
+          <target state="translated">Une erreur s'est produite lors de la suppression du fichier, l'opération de suppression a échoué</target>
+        </trans-unit>
+        <trans-unit id="Undo.Label" translate="yes" xml:space="preserve">
+          <source>Undo</source>
+          <target state="translated">Annuler</target>
+        </trans-unit>
       </group>
     </body>
   </file>

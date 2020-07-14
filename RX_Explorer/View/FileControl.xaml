@@ -12,7 +12,7 @@
       Background="Transparent">
 
     <Page.Resources>
-        <Cls:SpliterConverter x:Key="Converter"/>
+        <Cls:SpliterConverter x:Key="Converter" />
 
         <Flyout x:Name="AddressExtentionFlyout"
                 Placement="BottomEdgeAlignedLeft"
@@ -44,7 +44,7 @@
                                        FontSize="14"
                                        TextWrapping="NoWrap"
                                        TextTrimming="CharacterEllipsis"
-                                       ToolTipService.ToolTip="{Binding}"/>
+                                       ToolTipService.ToolTip="{Binding}" />
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -71,11 +71,11 @@
                               x:Uid="FileControlRenameFolder"
                               Name="FolderRename"
                               Click="FolderRename_Click" />
-                <AppBarButton Icon="Add" 
+                <AppBarButton Icon="Add"
                               x:Name="FolderAdd"
                               Label="固定至主界面"
                               x:Uid="PinToLibrary"
-                              Click="FolderAdd_Click"/>
+                              Click="FolderAdd_Click" />
                 <AppBarButton Icon="Tag"
                               Label="属性"
                               x:Uid="FileControlAttribute"
@@ -85,14 +85,14 @@
         </CommandBarFlyout>
 
         <muxc:TeachingTip x:Name="SearchTip"
-                              x:Uid="SearchTip"
-                              Grid.Row="1"
-                              Title="Tips"
-                              Target="{x:Bind GlobeSearch}"
-                              PreferredPlacement="BottomRight"
-                              IsLightDismissEnabled="True"
-                              Subtitle="清空这个搜索框或点击任意文件夹即可退出搜索状态哦！"
-                              CloseButtonContent="知道啦">
+                          x:Uid="SearchTip"
+                          Grid.Row="1"
+                          Title="Tips"
+                          Target="{x:Bind GlobeSearch}"
+                          PreferredPlacement="BottomRight"
+                          IsLightDismissEnabled="True"
+                          Subtitle="清空这个搜索框或点击任意文件夹即可退出搜索状态哦！"
+                          CloseButtonContent="知道啦">
         </muxc:TeachingTip>
     </Page.Resources>
     <Grid>
@@ -106,8 +106,8 @@
                 <ColumnDefinition Width="35" />
                 <ColumnDefinition Width="35" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="80"/>
-                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="80" />
+                <ColumnDefinition Width="150" />
                 <ColumnDefinition Width="220" />
             </Grid.ColumnDefinitions>
             <Button HorizontalAlignment="Stretch"
@@ -156,10 +156,11 @@
                     <SymbolIcon Symbol="Up" />
                 </Viewbox>
             </Button>
-            <AutoSuggestBox Style="{ThemeResource CustomAutoSuggestBoxStyle}" Grid.Column="3"
+            <AutoSuggestBox Style="{ThemeResource CustomAutoSuggestBoxStyle}"
+                            Grid.Column="3"
                             Grid.ColumnSpan="2"
                             Margin="5,0,0,0"
-                            VerticalAlignment="Center" 
+                            VerticalAlignment="Center"
                             Name="AddressBox"
                             UpdateTextOnSelect="False"
                             KeyDown="AddressBox_KeyDown"
@@ -168,7 +169,7 @@
                             GotFocus="AddressBox_GotFocus"
                             LostFocus="AddressBox_LostFocus"
                             QuerySubmitted="AddressBox_QuerySubmitted"
-                            TextChanged="AddressBox_TextChanged"/>
+                            TextChanged="AddressBox_TextChanged" />
             <ScrollViewer HorizontalScrollBarVisibility="Hidden"
                           HorizontalScrollMode="Enabled"
                           VerticalScrollMode="Disabled"
@@ -203,7 +204,7 @@
                                     <Button.Content>
                                         <TextBlock Text="›"
                                                    FontSize="16"
-                                                   TextAlignment="Center"/>
+                                                   TextAlignment="Center" />
                                     </Button.Content>
                                 </Button>
                             </StackPanel>
@@ -332,7 +333,29 @@
                                    HorizontalAlignment="Center"
                                    ResizeBehavior="BasedOnAlignment"
                                    ResizeDirection="Auto"
-                                   Grid.Column="1"/>
+                                   Grid.Column="1" />
         </Grid>
+        <controls:Loading x:Name="LoadingControl"
+                          IsLoading="False"
+                          x:FieldModifier="public"
+                          Grid.RowSpan="2">
+            <controls:Loading.Background>
+                <SolidColorBrush Color="Black"
+                                 Opacity="0.65" />
+            </controls:Loading.Background>
+            <StackPanel>
+                <TextBlock Name="ProgressInfo"
+                           FontSize="16"
+                           VerticalAlignment="Center"
+                           TextAlignment="Center" />
+                <muxc:ProgressBar IsIndeterminate="True"
+                                  Width="180"
+                                  Name="ProBar"
+                                  x:FieldModifier="public"
+                                  Minimum="0"
+                                  Maximum="100"
+                                  Margin="0,10,0,0" />
+            </StackPanel>
+        </controls:Loading>
     </Grid>
 </Page>

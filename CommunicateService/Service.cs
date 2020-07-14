@@ -10,7 +10,7 @@ namespace CommunicateService
     public sealed class Service : IBackgroundTask
     {
         private BackgroundTaskDeferral Deferral;
-        private static readonly List<AppServiceConnection> ClientConnections = new List<AppServiceConnection>();
+        private static readonly Dictionary<AppServiceConnection, string> ClientConnections = new Dictionary<AppServiceConnection, string>();
         private static AppServiceConnection ServerConnection;
         private static readonly object Locker = new object();
 
@@ -49,7 +49,8 @@ namespace CommunicateService
                         {
                             lock (Locker)
                             {
-                                ClientConnections.Add(IncomeConnection);
+                                string Guid = Convert.ToString(Response.Message["Guid"]);
+                                ClientConnections.Add(IncomeConnection, Guid);
                             }
 
                             break;
@@ -107,11 +108,13 @@ namespace CommunicateService
             lock (Locker)
             {
                 AppServiceConnection DisConnection = (sender.TriggerDetails as AppServiceTriggerDetails).AppServiceConnection;
-                
+
                 DisConnection.RequestReceived -= Connection_RequestReceived;
 
-                if (ClientConnections.Contains(DisConnection))
+                if (ClientConnections.ContainsKey(DisConnection))
                 {
+                    ServerConnection.SendMessageAsync(new ValueSet { { "ExcuteType", "Excute_RequestClosePipe" }, { "Guid", ClientConnections[DisConnection] } }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+
                     ClientConnections.Remove(DisConnection);
 
                     DisConnection.Dispose();

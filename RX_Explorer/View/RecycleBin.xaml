@@ -261,7 +261,7 @@
             </controls:Loading.Background>
             <StackPanel>
                 <TextBlock Name="ProgressInfo"
-                           FontSize="18"
+                           FontSize="16"
                            VerticalAlignment="Center"
                            TextAlignment="Center" />
                 <muxc:ProgressBar IsIndeterminate="True"

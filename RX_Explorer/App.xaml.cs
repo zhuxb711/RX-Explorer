@@ -1,5 +1,6 @@
 ﻿using RX_Explorer.Class;
 using System;
+using System.Diagnostics;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
@@ -49,6 +50,7 @@ namespace RX_Explorer
 
         private void App_Suspending(object sender, SuspendingEventArgs e)
         {
+            PipeLineController.Current.Dispose();
             FullTrustExcutorController.Current.Dispose();
         }
 
@@ -91,6 +93,7 @@ namespace RX_Explorer
 
             if(!FullTrustExcutorController.Current.IsNowHasAnyActionExcuting)
             {
+                PipeLineController.Current.Dispose();
                 FullTrustExcutorController.Current.Dispose();
             }
 

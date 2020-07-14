@@ -5,6 +5,7 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -315,9 +316,54 @@ namespace RX_Explorer
             if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
                 PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
-                await FullTrustExcutorController.Current.DeleteAsync(Item.PhotoFile.Path, Dialog.IsPermanentDelete).ConfigureAwait(true);
-                PhotoCollection.Remove(Item);
-                Behavior.InitAnimation(InitOption.Full);
+
+                try
+                {
+                    await FullTrustExcutorController.Current.DeleteAsync(Item.PhotoFile.Path, Dialog.IsPermanentDelete).ConfigureAwait(true);
+                    PhotoCollection.Remove(Item);
+                    Behavior.InitAnimation(InitOption.Full);
+                }
+                catch (FileCaputureException)
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                }
+                catch (FileNotFoundException)
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                    };
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                }
+                catch (InvalidOperationException)
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                }
+                catch (Exception)
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                }
             }
         }
 

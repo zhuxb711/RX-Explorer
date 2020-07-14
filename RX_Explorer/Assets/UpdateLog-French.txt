@@ -1,4 +1,27 @@
 ﻿*****
+###Quoi de neuf dans la version 5.0.6.0
+
+>#####Mise à jour des fonctionnalités
+
+>>#####Suivi supplémentaire de la progression de l'opération de copie, de déplacement et de suppression de trois fichiers
+
+>>#####Ajout du mode d'affichage "Tile", survol de la souris pour afficher la fonction de nom de fichier
+
+>>#####Ajouter un espace vide clic droit bouton de menu "Annuler"
+
+>>#####La fonction "Annuler" peut maintenant annuler l'opération de suppression
+
+>#####Correction d'un bug
+
+>>#####Correction du problème selon lequel l'opération "Annuler" ne peut annuler que l'opération la plus récente, et maintenant toutes les opérations peuvent être annulées
+
+>>#####Correction du problème de plantage en cas d'échec de l'opération "Annuler"
+
+>>#####Correction du problème selon lequel "Copie ..." et d'autres invites ne couvraient pas l'arborescence de dossiers de gauche
+
+>>#####Correction du problème de fournir des informations incorrectes après une erreur lors de la copie, le déplacement, la suppression des opérations
+
+*****
 ###Quoi de neuf dans la version 5.0.3.0
 
 >#####Mise à jour des fonctionnalités

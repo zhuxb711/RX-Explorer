@@ -47,7 +47,7 @@ namespace RX_Explorer
 
         public static TabViewContainer ThisPage { get; private set; }
 
-        public static List<string> CopyAndMoveRecord { get; private set; } = new List<string>();
+        public static Stack<string> StorageItemOperationRecord { get; private set; } = new Stack<string>();
 
         public GridLength LeftSideLength
         {

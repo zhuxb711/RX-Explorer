@@ -3221,6 +3221,22 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Open in new window</source>
           <target state="translated">在新窗口中打开</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_CopyFailUnexpectError_Content" translate="yes" xml:space="preserve">
+          <source>An error occurred while copying the file, the copy operation failed</source>
+          <target state="translated">复制文件时出现错误，复制操作已失败</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_MoveFailUnexpectError_Content" translate="yes" xml:space="preserve">
+          <source>An error occurred while moving the file, the move operation failed</source>
+          <target state="translated">移动文件时出现错误，移动操作已失败</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DeleteFailUnexpectError_Content" translate="yes" xml:space="preserve">
+          <source>An error occurred while deleting the file, the delete operation failed</source>
+          <target state="translated">删除文件时出现错误，删除操作已失败</target>
+        </trans-unit>
+        <trans-unit id="Undo.Label" translate="yes" xml:space="preserve">
+          <source>Undo</source>
+          <target state="translated">撤销</target>
+        </trans-unit>
       </group>
     </body>
   </file>

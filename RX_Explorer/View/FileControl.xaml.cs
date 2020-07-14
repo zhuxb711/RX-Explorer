@@ -4,7 +4,6 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -199,6 +198,34 @@ namespace RX_Explorer
             {
                 ExceptionTracer.RequestBlueScreen(ex);
             }
+        }
+
+        /// <summary>
+        /// 激活或关闭正在加载提示
+        /// </summary>
+        /// <param name="IsLoading">激活或关闭</param>
+        /// <param name="Info">提示内容</param>
+        public async Task LoadingActivation(bool IsLoading, string Info = null)
+        {
+            if (IsLoading)
+            {
+                if (TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility == Visibility.Visible)
+                {
+                    TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = Visibility.Collapsed;
+                }
+
+                ProBar.IsIndeterminate = true;
+                ProgressInfo.Text = Info + "...";
+
+                MainPage.ThisPage.IsAnyTaskRunning = true;
+            }
+            else
+            {
+                await Task.Delay(1000).ConfigureAwait(true);
+                MainPage.ThisPage.IsAnyTaskRunning = false;
+            }
+
+            LoadingControl.IsLoading = IsLoading;
         }
 
         private async void UpdateAddressButton(string Path)
@@ -614,6 +641,8 @@ namespace RX_Explorer
 
             if (await QueueContenDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
             {
+                await LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
+
                 try
                 {
                     await FullTrustExcutorController.Current.DeleteAsync(CurrentFolder, QueueContenDialog.IsPermanentDelete).ConfigureAwait(true);
@@ -645,6 +674,16 @@ namespace RX_Explorer
 
                     await DisplayItemsInFolder(CurrentNode, true).ConfigureAwait(true);
                 }
+                catch (InvalidOperationException)
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                }
                 catch (Exception)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
@@ -655,6 +694,8 @@ namespace RX_Explorer
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
+
+                await LoadingActivation(false).ConfigureAwait(true);
             }
         }
 
@@ -993,7 +1034,7 @@ namespace RX_Explorer
 
         private async void AddressBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            TabViewContainer.ThisPage.FFInstanceContainer[this].LoadingControl.Focus(FocusState.Programmatic);
+            LoadingControl.Focus(FocusState.Programmatic);
 
             string QueryText = string.Empty;
             if (args.ChosenSuggestion == null)
@@ -1538,7 +1579,7 @@ namespace RX_Explorer
 
         private async void AddressExtensionSubFolderList_ItemClick(object sender, ItemClickEventArgs e)
         {
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 AddressExtentionFlyout.Hide();
             });
@@ -1634,7 +1675,7 @@ namespace RX_Explorer
                         return;
                     }
 
-                    TabViewContainer.CopyAndMoveRecord.Clear();
+                    TabViewContainer.StorageItemOperationRecord.Clear();
 
                     if (e.DataView.Contains(StandardDataFormats.StorageItems))
                     {
@@ -1646,14 +1687,19 @@ namespace RX_Explorer
                         {
                             case DataPackageOperation.Copy:
                                 {
-                                    await TabViewContainer.ThisPage.FFInstanceContainer[this].LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
+                                    await LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
                                     bool IsItemNotFound = false;
                                     bool IsUnauthorized = false;
+                                    bool IsOperateFailed = false;
 
                                     try
                                     {
-                                        await FullTrustExcutorController.Current.CopyAsync(DragItemList, TargetFolder).ConfigureAwait(true);
+                                        await FullTrustExcutorController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
+                                        {
+                                            ProBar.IsIndeterminate = false;
+                                            ProBar.Value = arg.ProgressPercentage;
+                                        }).ConfigureAwait(true);
 
                                         if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                                         {
@@ -1664,17 +1710,21 @@ namespace RX_Explorer
                                         {
                                             if (Item.IsOfType(StorageItemTypes.File))
                                             {
-                                                TabViewContainer.CopyAndMoveRecord.Add($"{Item.Path}||Copy||File||{Path.Combine(TargetFolder.Path, Item.Name)}");
+                                                TabViewContainer.StorageItemOperationRecord.Push($"{Item.Path}||Copy||File||{Path.Combine(TargetFolder.Path, Item.Name)}");
                                             }
                                             else
                                             {
-                                                TabViewContainer.CopyAndMoveRecord.Add($"{Item.Path}||Copy||Folder||{Path.Combine(TargetFolder.Path, Item.Name)}");
+                                                TabViewContainer.StorageItemOperationRecord.Push($"{Item.Path}||Copy||Folder||{Path.Combine(TargetFolder.Path, Item.Name)}");
                                             }
                                         }
                                     }
                                     catch (FileNotFoundException)
                                     {
                                         IsItemNotFound = true;
+                                    }
+                                    catch (InvalidOperationException)
+                                    {
+                                        IsOperateFailed = true;
                                     }
                                     catch (Exception)
                                     {
@@ -1706,20 +1756,35 @@ namespace RX_Explorer
                                             _ = await Launcher.LaunchFolderAsync(CurrentFolder);
                                         }
                                     }
+                                    else if (IsOperateFailed)
+                                    {
+                                        QueueContentDialog dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                    }
 
                                     break;
                                 }
                             case DataPackageOperation.Move:
                                 {
-                                    await TabViewContainer.ThisPage.FFInstanceContainer[this].LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
+                                    await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
                                     bool IsItemNotFound = false;
                                     bool IsUnauthorized = false;
                                     bool IsCaptured = false;
+                                    bool IsOperateFailed = false;
 
                                     try
                                     {
-                                        await FullTrustExcutorController.Current.MoveAsync(DragItemList, TargetFolder).ConfigureAwait(true);
+                                        await FullTrustExcutorController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
+                                        {
+                                            ProBar.IsIndeterminate = false;
+                                            ProBar.Value = arg.ProgressPercentage;
+                                        }).ConfigureAwait(true);
 
                                         if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                                         {
@@ -1730,11 +1795,11 @@ namespace RX_Explorer
                                         {
                                             if (Item.IsOfType(StorageItemTypes.File))
                                             {
-                                                TabViewContainer.CopyAndMoveRecord.Add($"{Item.Path}||Move||File||{Path.Combine(TargetFolder.Path, Item.Name)}");
+                                                TabViewContainer.StorageItemOperationRecord.Push($"{Item.Path}||Move||File||{Path.Combine(TargetFolder.Path, Item.Name)}");
                                             }
                                             else
                                             {
-                                                TabViewContainer.CopyAndMoveRecord.Add($"{Item.Path}||Move||Folder||{Path.Combine(TargetFolder.Path, Item.Name)}");
+                                                TabViewContainer.StorageItemOperationRecord.Push($"{Item.Path}||Move||Folder||{Path.Combine(TargetFolder.Path, Item.Name)}");
                                             }
                                         }
                                     }
@@ -1745,6 +1810,10 @@ namespace RX_Explorer
                                     catch (FileCaputureException)
                                     {
                                         IsCaptured = true;
+                                    }
+                                    catch (InvalidOperationException)
+                                    {
+                                        IsOperateFailed = true;
                                     }
                                     catch (Exception)
                                     {
@@ -1788,6 +1857,16 @@ namespace RX_Explorer
 
                                         _ = await dialog.ShowAsync().ConfigureAwait(true);
                                     }
+                                    else if (IsOperateFailed)
+                                    {
+                                        QueueContentDialog dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                    }
 
                                     break;
                                 }
@@ -1796,7 +1875,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    await TabViewContainer.ThisPage.FFInstanceContainer[this].LoadingActivation(false).ConfigureAwait(true);
+                    await LoadingActivation(false).ConfigureAwait(true);
                     e.Handled = true;
                     _ = Interlocked.Exchange(ref DropLockResource, 0);
                 }

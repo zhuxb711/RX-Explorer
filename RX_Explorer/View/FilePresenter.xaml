@@ -12,10 +12,12 @@
 
     <Page.Resources>
         <controls1:TeachingTip x:Name="InvalidCharTip"
-                              IsLightDismissEnabled="True"
-                              x:Uid="RenameDialogInvalidCharTip"
-                              Title="错误"
-                              Subtitle="名称不能为空且不能包含非法字符&#x000A;非法字符包括 \ / : * ? &quot; &lt; &gt; |" />
+                               IsLightDismissEnabled="True"
+                               x:Uid="RenameDialogInvalidCharTip"
+                               Title="错误"
+                               Subtitle="名称不能为空且不能包含非法字符&#x000A;非法字符包括 \ / : * ? &quot; &lt; &gt; |" />
+
+        <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
 
         <CommandBarFlyout x:Name="FileFlyout"
                           Placement="RightEdgeAlignedTop">
@@ -45,7 +47,8 @@
                               x:Name="FileOpen"
                               Click="FileOpen_Click">
                     <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control" Key="G"/>
+                        <KeyboardAccelerator Modifiers="Control"
+                                             Key="G" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="打开方式..."
@@ -58,9 +61,10 @@
                                             x:FieldModifier="public"
                                             x:Uid="RunWithSystemAuthority"
                                             Name="RunWithSystemAuthority"
-                                            Click="RunWithSystemAuthority_Click" >
+                                            Click="RunWithSystemAuthority_Click">
                                 <MenuFlyoutItem.Icon>
-                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEA0D;" />
+                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                              Glyph="&#xEA0D;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
                             <MenuFlyoutItem Text="选择其他应用"
@@ -122,7 +126,7 @@
                                             x:FieldModifier="public"
                                             x:Uid="VideoMerge">
                                 <MenuFlyoutItem.Icon>
-                                    <FontIcon Glyph="&#xE11E;"/>
+                                    <FontIcon Glyph="&#xE11E;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
                             <MenuFlyoutItem Text="转码"
@@ -193,7 +197,7 @@
             <AppBarButton Icon="Cut"
                           ToolTipService.ToolTip="剪切"
                           x:Uid="FileCut"
-                          Click="Cut_Click"/>
+                          Click="Cut_Click" />
             <AppBarButton Icon="Delete"
                           ToolTipService.ToolTip="删除"
                           x:Uid="FileDelete"
@@ -232,7 +236,8 @@
                               x:Name="FolderOpen"
                               Click="FolderOpen_Click">
                     <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control" Key="G"/>
+                        <KeyboardAccelerator Modifiers="Control"
+                                             Key="G" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="在新窗口中打开"
@@ -240,21 +245,25 @@
                               x:Uid="OpenFolderInNewWindow"
                               Click="OpenFolderInNewWindow_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE727;" />
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xE727;" />
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control" Key="W"/>
+                        <KeyboardAccelerator Modifiers="Control"
+                                             Key="W" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="在新标签页中打开"
                               x:Name="OpenFolderInNewTab"
                               x:Uid="OpenFolderInNewTab"
-                              Click="OpenFolderInNewTab_Click" >
+                              Click="OpenFolderInNewTab_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF7ED;" />
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xF7ED;" />
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control" Key="T"/>
+                        <KeyboardAccelerator Modifiers="Control"
+                                             Key="T" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarSeparator />
@@ -262,12 +271,12 @@
                               Icon="Bookmarks"
                               x:Uid="Zip"
                               Name="CompressFolder"
-                              Click="CompressFolder_Click"/>
-                <AppBarButton Icon="Add" 
+                              Click="CompressFolder_Click" />
+                <AppBarButton Icon="Add"
                               Label="固定至主界面"
                               x:Uid="PinToLibrary"
                               x:Name="AddToLibray"
-                              Click="AddToLibray_Click"/>
+                              Click="AddToLibray_Click" />
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="属性"
@@ -287,6 +296,13 @@
                           IsEnabled="False"
                           Click="Paste_Click"
                           Name="Paste" />
+            <AppBarButton Icon="Undo"
+                          ToolTipService.ToolTip="{x:Bind Paste.Label}"
+                          Label="撤销"
+                          Name="Undo"
+                          x:Uid="Undo"
+                          Click="Undo_Click"
+                          IsEnabled="False"/>
             <CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
                               Label="新建"
@@ -298,7 +314,7 @@
                                             Text="新建文件"
                                             x:Uid="EmptyFlyoutNewFile"
                                             Name="CreateFile"
-                                            Click="CreateFile_Click"/>
+                                            Click="CreateFile_Click" />
                             <MenuFlyoutItem Icon="NewFolder"
                                             Text="新建文件夹"
                                             MinWidth="150"
@@ -307,32 +323,36 @@
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
-                <AppBarButton Icon="Refresh" 
+                <AppBarButton Icon="Refresh"
                               Label="刷新"
                               x:Uid="RefreshView"
                               x:Name="Refresh"
-                              Click="Refresh_Click"/>
+                              Click="Refresh_Click" />
                 <AppBarSeparator />
                 <AppBarButton Label="在终端中打开..."
                               Name="OpenInTerminal"
                               x:Uid="OpenInTerminal"
                               Click="OpenInTerminal_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE756;" />
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xE756;" />
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Shift" Key="W"/>
+                        <KeyboardAccelerator Modifiers="Shift"
+                                             Key="W" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="使用系统管理器打开"
                               x:Uid="SystemManagerOpen"
                               x:Name="UseSystemFileMananger"
-                              Click="UseSystemFileMananger_Click" >
+                              Click="UseSystemFileMananger_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEC50;" />
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xEC50;" />
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Shift" Key="E"/>
+                        <KeyboardAccelerator Modifiers="Shift"
+                                             Key="E" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarSeparator />
@@ -340,7 +360,7 @@
                               Label="属性"
                               x:Uid="FolderAttribute"
                               x:Name="ParentProperty"
-                              Click="ParentProperty_Click"/>
+                              Click="ParentProperty_Click" />
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
@@ -395,8 +415,8 @@
                                  x:Name="Hash_Crc32"
                                  Header="Crc32"
                                  PlaceholderText="计算中..."
-                                 Width="245" 
-                                 ToolTipService.ToolTip="{x:Bind Hash_Crc32.Text,Mode=OneWay}"/>
+                                 Width="245"
+                                 ToolTipService.ToolTip="{x:Bind Hash_Crc32.Text,Mode=OneWay}" />
                         <Button Margin="5,0,0,0"
                                 x:Name="Hash_Crc32_Copy"
                                 VerticalAlignment="Bottom"
@@ -418,8 +438,8 @@
                                 x:Name="Hash_MD5_Copy"
                                 Click="Hash_MD5_Copy_Click">
                             <FontIcon FontFamily="Segoe MDL2 Assets"
-                                      Glyph="&#xE8C8;" 
-                                      VerticalAlignment="Center"/>
+                                      Glyph="&#xE8C8;"
+                                      VerticalAlignment="Center" />
                         </Button>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
@@ -463,8 +483,7 @@
                       x:DataType="Cls:FileSystemStorageItem">
             <StackPanel Orientation="Horizontal"
                         Padding="5">
-                <Image IsHitTestVisible="False"
-                       VerticalAlignment="Center"
+                <Image VerticalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Height="60"
@@ -473,12 +492,13 @@
                             VerticalAlignment="Top"
                             Margin="5,0,0,0">
                     <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                               ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                FontSize="14"
                                Width="150"
                                HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
                                x:Name="NameLabel"
-                               PointerPressed="NameLabel_PointerPressed"/>
+                               PointerPressed="NameLabel_PointerPressed" />
                     <TextBox HorizontalTextAlignment="Left"
                              x:Name="NameEditBox"
                              Width="150"
@@ -487,7 +507,7 @@
                              Text="{x:Bind Name,Mode=OneWay}"
                              Visibility="Collapsed"
                              LostFocus="NameEditBox_LostFocus"
-                             x:DeferLoadStrategy="Lazy"/>
+                             x:DeferLoadStrategy="Lazy" />
                     <TextBlock Text="{x:Bind DisplayType,Mode=OneWay}"
                                FontSize="12"
                                HorizontalTextAlignment="Left"
@@ -507,14 +527,13 @@
                       x:DataType="Cls:FileSystemStorageItem">
             <StackPanel Padding="5"
                         Orientation="Vertical">
-                <Image IsHitTestVisible="False"
-                       HorizontalAlignment="Center"
+                <Image HorizontalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Height="95"
                        Width="120" />
-                <TextBlock IsHitTestVisible="False"
-                           Text="{x:Bind Name,Mode=OneWay}"
+                <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                           ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            FontSize="14"
                            Width="120"
                            Margin="0,3,0,0"
@@ -529,14 +548,13 @@
                       x:DataType="Cls:FileSystemStorageItem">
             <StackPanel Padding="5"
                         Orientation="Vertical">
-                <Image IsHitTestVisible="False"
-                       HorizontalAlignment="Center"
+                <Image HorizontalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Height="70"
                        Width="90" />
-                <TextBlock IsHitTestVisible="False"
-                           Text="{x:Bind Name,Mode=OneWay}"
+                <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                           ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            FontSize="13"
                            Width="90"
                            Margin="0,3,0,0"
@@ -551,15 +569,14 @@
                       x:DataType="Cls:FileSystemStorageItem">
             <StackPanel Padding="5"
                         Orientation="Vertical">
-                <Image IsHitTestVisible="False"
-                       HorizontalAlignment="Center"
+                <Image HorizontalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Height="40"
-                       Width="60"/>
-                <TextBlock IsHitTestVisible="False"
-                           Text="{x:Bind Name,Mode=OneWay}"
+                       Width="60" />
+                <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                            FontSize="12"
+                           ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            Width="60"
                            Margin="0,3,0,0"
                            TextAlignment="Center"
@@ -572,10 +589,10 @@
                       x:FieldModifier="public">
             <Grid Height="35">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="5*"/>
-                    <ColumnDefinition Width="3*"/>
-                    <ColumnDefinition Width="1.5*"/>
-                    <ColumnDefinition Width="1.5*"/>
+                    <ColumnDefinition Width="5*" />
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="1.5*" />
+                    <ColumnDefinition Width="1.5*" />
                     <ColumnDefinition Width="1*"
                                       MinWidth="50" />
                 </Grid.ColumnDefinitions>
@@ -607,7 +624,7 @@
                                FontSize="14"
                                x:Uid="SearchModified"
                                VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis"/>
+                               TextTrimming="CharacterEllipsis" />
                 </Button>
                 <Button Grid.Column="2"
                         HorizontalContentAlignment="Left"
@@ -637,13 +654,13 @@
                                FontSize="14"
                                x:Uid="SearchSize"
                                VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis"/>
+                               TextTrimming="CharacterEllipsis" />
                 </Button>
                 <Button Background="{StaticResource ElementAcrylicBrush}"
                         Style="{StaticResource ListHeaderDisableButtonStyle}"
                         Grid.Column="4"
                         HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"/>
+                        VerticalAlignment="Stretch" />
             </Grid>
         </DataTemplate>
 
@@ -652,12 +669,12 @@
                       x:FieldModifier="public">
             <Grid HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="5*"/>
-                    <ColumnDefinition Width="3*"/>
-                    <ColumnDefinition Width="1.5*"/>
-                    <ColumnDefinition Width="1.5*"/>
-                    <ColumnDefinition Width="1*" 
-                                      MinWidth="50"/>
+                    <ColumnDefinition Width="5*" />
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="1.5*" />
+                    <ColumnDefinition Width="1.5*" />
+                    <ColumnDefinition Width="1*"
+                                      MinWidth="50" />
                 </Grid.ColumnDefinitions>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -669,16 +686,16 @@
                            Stretch="Uniform"
                            Source="{x:Bind Thumbnail,Mode=OneWay}"
                            Height="30"
-                           Width="30" 
-                           PointerPressed="GetFocus_PointerPressed"/>
+                           Width="30"
+                           PointerPressed="GetFocus_PointerPressed" />
                     <TextBlock VerticalAlignment="Center"
                                FontSize="14"
                                Grid.Column="1"
                                Text="{x:Bind Name,Mode=OneWay}"
-                               ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay}"
-                               TextTrimming="CharacterEllipsis" 
+                               ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
+                               TextTrimming="CharacterEllipsis"
                                PointerPressed="NameLabel_PointerPressed"
-                               x:Name="NameLabel"/>
+                               x:Name="NameLabel" />
                     <TextBox VerticalAlignment="Center"
                              x:Name="NameEditBox"
                              FontSize="14"
@@ -687,37 +704,37 @@
                              Text="{x:Bind Name,Mode=OneWay}"
                              Visibility="Collapsed"
                              LostFocus="NameEditBox_LostFocus"
-                             x:DeferLoadStrategy="Lazy"/>
+                             x:DeferLoadStrategy="Lazy" />
                 </Grid>
                 <TextBlock VerticalAlignment="Center"
                            FontSize="14"
                            Padding="8,0,0,0"
                            Text="{x:Bind ModifiedTime,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind ModifiedTime,Mode=OneWay}"
+                           ToolTipService.ToolTip="{x:Bind ModifiedTime,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            Grid.Column="1"
-                           TextTrimming="CharacterEllipsis" 
-                           PointerPressed="GetFocus_PointerPressed"/>
+                           TextTrimming="CharacterEllipsis"
+                           PointerPressed="GetFocus_PointerPressed" />
                 <TextBlock VerticalAlignment="Center"
                            FontSize="14"
                            Padding="8,0,0,0"
                            Text="{x:Bind DisplayType,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind DisplayType,Mode=OneWay}"
+                           ToolTipService.ToolTip="{x:Bind DisplayType,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            Grid.Column="2"
-                           TextTrimming="CharacterEllipsis" 
-                           PointerPressed="GetFocus_PointerPressed"/>
+                           TextTrimming="CharacterEllipsis"
+                           PointerPressed="GetFocus_PointerPressed" />
                 <TextBlock VerticalAlignment="Center"
                            FontSize="14"
                            Padding="8,0,0,0"
                            Text="{x:Bind Size,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind Size,Mode=OneWay}"
+                           ToolTipService.ToolTip="{x:Bind Size,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            TextTrimming="CharacterEllipsis"
-                           Grid.Column="3" 
-                           PointerPressed="GetFocus_PointerPressed"/>
+                           Grid.Column="3"
+                           PointerPressed="GetFocus_PointerPressed" />
                 <TextBlock VerticalAlignment="Center"
                            Padding="8,0,0,0"
-                           Grid.Column="4" 
+                           Grid.Column="4"
                            Name="EmptyTextblock"
-                           PointerPressed="GetFocus_PointerPressed"/>
+                           PointerPressed="GetFocus_PointerPressed" />
             </Grid>
         </DataTemplate>
 
@@ -726,25 +743,25 @@
                       x:FieldModifier="public">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="5*"/>
+                    <ColumnDefinition Width="40" />
+                    <ColumnDefinition Width="5*" />
                     <ColumnDefinition Width="*"
-                                      MinWidth="50"/>
+                                      MinWidth="50" />
                 </Grid.ColumnDefinitions>
                 <Image VerticalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Height="30"
                        Width="30"
-                       PointerPressed="GetFocus_PointerPressed"/>
+                       PointerPressed="GetFocus_PointerPressed" />
                 <TextBlock VerticalAlignment="Center"
                            FontSize="14"
                            Text="{x:Bind Name,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay}"
+                           ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            TextTrimming="CharacterEllipsis"
                            Grid.Column="1"
                            PointerPressed="NameLabel_PointerPressed"
-                           x:Name="NameLabel"/>
+                           x:Name="NameLabel" />
                 <TextBox VerticalAlignment="Center"
                          x:Name="NameEditBox"
                          FontSize="14"
@@ -753,12 +770,12 @@
                          Text="{x:Bind Name,Mode=OneWay}"
                          Visibility="Collapsed"
                          LostFocus="NameEditBox_LostFocus"
-                         x:DeferLoadStrategy="Lazy"/>
+                         x:DeferLoadStrategy="Lazy" />
                 <TextBlock VerticalAlignment="Center"
                            Margin="8,0,0,0"
                            Grid.Column="2"
-                           Name="EmptyTextblock" 
-                           PointerPressed="GetFocus_PointerPressed"/>
+                           Name="EmptyTextblock"
+                           PointerPressed="GetFocus_PointerPressed" />
             </Grid>
         </DataTemplate>
     </Page.Resources>
@@ -792,7 +809,7 @@
             <ListView.Header>
                 <controls:ScrollHeader Mode="Sticky"
                                        Name="ListHeader"
-                                       x:FieldModifier="public"/>
+                                       x:FieldModifier="public" />
             </ListView.Header>
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
@@ -843,23 +860,5 @@
                    Text="无文件"
                    FontSize="18"
                    Visibility="Collapsed" />
-        <controls:Loading x:Name="LoadingControl"
-                          IsLoading="False"
-                          x:FieldModifier="public">
-            <controls:Loading.Background>
-                <SolidColorBrush Color="Black"
-                                 Opacity="0.65" />
-            </controls:Loading.Background>
-            <StackPanel>
-                <TextBlock Name="ProgressInfo"
-                           FontSize="18"
-                           VerticalAlignment="Center"
-                           TextAlignment="Center" />
-                <controls1:ProgressBar IsIndeterminate="True"
-                                       Width="180"
-                                       Name="ProBar"
-                                       Margin="0,10,0,0" />
-            </StackPanel>
-        </controls:Loading>
     </Grid>
 </Page>

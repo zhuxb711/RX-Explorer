@@ -304,7 +304,7 @@
                 <TextBlock Text="正在保存..."
                            x:Uid="CropperPageSavingTips"
                            Margin="10,0,0,0"
-                           FontSize="22"
+                           FontSize="16"
                            VerticalAlignment="Center"
                            TextAlignment="Center" />
             </StackPanel>

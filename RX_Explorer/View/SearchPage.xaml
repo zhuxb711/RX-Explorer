@@ -174,7 +174,7 @@
                                  Opacity="0.65" />
             </controls:Loading.Background>
             <StackPanel>
-                <TextBlock FontSize="22"
+                <TextBlock FontSize="16"
                            x:Uid="SearchingText"
                            Text="正在搜索..."
                            VerticalAlignment="Center"

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -28,7 +29,7 @@ namespace RX_Explorer.Class
 
         private const string ExcuteType_Get_RecycleBinItems = "Excute_Get_RecycleBinItems";
 
-        private const string ExcuteType_Exit = "Excute_Exit";
+        private const string ExcuteType_RequestCreateNewPipe = "Excute_RequestCreateNewPipe";
 
         private const string ExcuteType_EmptyRecycleBin = "Excute_Empty_RecycleBin";
 
@@ -87,11 +88,11 @@ namespace RX_Explorer.Class
         {
             var Deferral = args.GetDeferral();
 
-            switch(args.Request.Message["ExcuteType"])
+            switch (args.Request.Message["ExcuteType"])
             {
                 case "Identity":
                     {
-                        await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" } });
+                        await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" }, { "Guid", PipeLineController.Current.GUID.ToString() } });
                         break;
                     }
             }
@@ -132,6 +133,33 @@ namespace RX_Explorer.Class
             catch
             {
                 return IsConnected = false;
+            }
+        }
+
+        public async Task RequestCreateNewPipeLine(Guid CurrentProcessID)
+        {
+            try
+            {
+                IsNowHasAnyActionExcuting = true;
+
+                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExcuteType", ExcuteType_RequestCreateNewPipe},
+                        {"Guid",CurrentProcessID.ToString() },
+                    };
+
+                    await Connection.SendMessageAsync(Value);
+                }
+            }
+            catch
+            {
+                Debug.WriteLine("Warning: RequestCreateNewPipeLine() excute error");
+            }
+            finally
+            {
+                IsNowHasAnyActionExcuting = false;
             }
         }
 
@@ -513,7 +541,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task DeleteAsync(IEnumerable<string> Source, bool PermanentDelete)
+        public async Task DeleteAsync(IEnumerable<string> Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
         {
             try
             {
@@ -521,30 +549,44 @@ namespace RX_Explorer.Class
 
                 if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
                 {
+                    Task ProgressTask;
+
+                    if (await PipeLineController.Current.CreateNewNamedPipe().ConfigureAwait(true))
+                    {
+                        ProgressTask = PipeLineController.Current.ListenPipeMessage(ProgressHandler);
+                    }
+                    else
+                    {
+                        ProgressTask = Task.CompletedTask;
+                    }
+
                     ValueSet Value = new ValueSet
                     {
                         {"ExcuteType", ExcuteType_Delete},
                         {"ExcutePath", JsonConvert.SerializeObject(Source)},
-                        {"PermanentDelete", PermanentDelete}
+                        {"PermanentDelete", PermanentDelete},
+                        {"Guid", PipeLineController.Current.GUID.ToString() }
                     };
 
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+                    Task<AppServiceResponse> MessageTask = Connection.SendMessageAsync(Value).AsTask();
 
-                    if (Response.Status == AppServiceResponseStatus.Success)
+                    await Task.WhenAll(MessageTask, ProgressTask).ConfigureAwait(true);
+
+                    if (MessageTask.Result.Status == AppServiceResponseStatus.Success)
                     {
-                        if (Response.Message.ContainsKey("Success"))
+                        if (MessageTask.Result.Message.ContainsKey("Success"))
                         {
                             return;
                         }
-                        else if (Response.Message.ContainsKey("Error_NotFound"))
+                        else if (MessageTask.Result.Message.ContainsKey("Error_NotFound"))
                         {
                             throw new FileNotFoundException();
                         }
-                        else if (Response.Message.ContainsKey("Error_Failure"))
+                        else if (MessageTask.Result.Message.ContainsKey("Error_Failure"))
                         {
                             throw new InvalidOperationException("Fail to delete item");
                         }
-                        else if (Response.Message.ContainsKey("Error_Capture"))
+                        else if (MessageTask.Result.Message.ContainsKey("Error_Capture"))
                         {
                             throw new FileCaputureException();
                         }
@@ -569,37 +611,37 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task DeleteAsync(IEnumerable<IStorageItem> Source, bool PermanentDelete)
+        public Task DeleteAsync(IEnumerable<IStorageItem> Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
                 throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
             }
 
-            return DeleteAsync(Source.Select((Item) => Item.Path), PermanentDelete);
+            return DeleteAsync(Source.Select((Item) => Item.Path), PermanentDelete, ProgressHandler);
         }
 
-        public Task DeleteAsync(IStorageItem Source, bool PermanentDelete)
+        public Task DeleteAsync(IStorageItem Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
                 throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
             }
 
-            return DeleteAsync(new string[1] { Source.Path }, PermanentDelete);
+            return DeleteAsync(new string[1] { Source.Path }, PermanentDelete, ProgressHandler);
         }
 
-        public Task DeleteAsync(string Source, bool PermanentDelete)
+        public Task DeleteAsync(string Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
                 throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
             }
 
-            return DeleteAsync(new string[1] { Source }, PermanentDelete);
+            return DeleteAsync(new string[1] { Source }, PermanentDelete, ProgressHandler);
         }
 
-        public async Task MoveAsync(IEnumerable<string> Source, string DestinationPath)
+        public async Task MoveAsync(IEnumerable<string> Source, string DestinationPath, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
@@ -657,32 +699,46 @@ namespace RX_Explorer.Class
                                 throw new FileNotFoundException();
                             }
                         }
+                    }
+
+                    Task ProgressTask;
+
+                    if (await PipeLineController.Current.CreateNewNamedPipe().ConfigureAwait(true))
+                    {
+                        ProgressTask = PipeLineController.Current.ListenPipeMessage(ProgressHandler);
+                    }
+                    else
+                    {
+                        ProgressTask = Task.CompletedTask;
                     }
 
                     ValueSet Value = new ValueSet
                     {
                         {"ExcuteType", ExcuteType_Move},
                         {"SourcePath", JsonConvert.SerializeObject(MessageList)},
-                        {"DestinationPath", DestinationPath}
+                        {"DestinationPath", DestinationPath},
+                        {"Guid", PipeLineController.Current.GUID.ToString() }
                     };
 
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+                    Task<AppServiceResponse> MessageTask = Connection.SendMessageAsync(Value).AsTask();
 
-                    if (Response.Status == AppServiceResponseStatus.Success)
+                    await Task.WhenAll(MessageTask, ProgressTask).ConfigureAwait(true);
+
+                    if (MessageTask.Result.Status == AppServiceResponseStatus.Success)
                     {
-                        if (Response.Message.ContainsKey("Success"))
+                        if (MessageTask.Result.Message.ContainsKey("Success"))
                         {
                             return;
                         }
-                        else if (Response.Message.ContainsKey("Error_NotFound"))
+                        else if (MessageTask.Result.Message.ContainsKey("Error_NotFound"))
                         {
                             throw new FileNotFoundException();
                         }
-                        else if (Response.Message.ContainsKey("Error_Failure"))
+                        else if (MessageTask.Result.Message.ContainsKey("Error_Failure"))
                         {
                             throw new InvalidOperationException("Fail to move item");
                         }
-                        else if (Response.Message.ContainsKey("Error_Capture"))
+                        else if (MessageTask.Result.Message.ContainsKey("Error_Capture"))
                         {
                             throw new FileCaputureException();
                         }
@@ -707,7 +763,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task MoveAsync(IEnumerable<IStorageItem> Source, StorageFolder Destination)
+        public Task MoveAsync(IEnumerable<IStorageItem> Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
@@ -719,10 +775,10 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return MoveAsync(Source.Select((Item) => Item.Path), Destination.Path);
+            return MoveAsync(Source.Select((Item) => Item.Path), Destination.Path, ProgressHandler);
         }
 
-        public Task MoveAsync(IStorageItem Source, StorageFolder Destination)
+        public Task MoveAsync(IStorageItem Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
@@ -734,10 +790,10 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return MoveAsync(new string[1] { Source.Path }, Destination.Path);
+            return MoveAsync(new string[1] { Source.Path }, Destination.Path, ProgressHandler);
         }
 
-        public async Task CopyAsync(IEnumerable<string> Source, string DestinationPath)
+        public async Task CopyAsync(IEnumerable<string> Source, string DestinationPath, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
@@ -797,26 +853,40 @@ namespace RX_Explorer.Class
                         }
                     }
 
+                    Task ProgressTask;
+
+                    if (await PipeLineController.Current.CreateNewNamedPipe().ConfigureAwait(true))
+                    {
+                        ProgressTask = PipeLineController.Current.ListenPipeMessage(ProgressHandler);
+                    }
+                    else
+                    {
+                        ProgressTask = Task.CompletedTask;
+                    }
+
                     ValueSet Value = new ValueSet
                     {
                         {"ExcuteType", ExcuteType_Copy},
                         {"SourcePath", JsonConvert.SerializeObject(MessageList)},
-                        {"DestinationPath", DestinationPath}
+                        {"DestinationPath", DestinationPath},
+                        {"Guid", PipeLineController.Current.GUID.ToString() }
                     };
 
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+                    Task<AppServiceResponse> MessageTask = Connection.SendMessageAsync(Value).AsTask();
 
-                    if (Response.Status == AppServiceResponseStatus.Success)
+                    await Task.WhenAll(MessageTask, ProgressTask).ConfigureAwait(true);
+
+                    if (MessageTask.Result.Status == AppServiceResponseStatus.Success)
                     {
-                        if (Response.Message.ContainsKey("Success"))
+                        if (MessageTask.Result.Message.ContainsKey("Success"))
                         {
                             return;
                         }
-                        else if (Response.Message.ContainsKey("Error_NotFound"))
+                        else if (MessageTask.Result.Message.ContainsKey("Error_NotFound"))
                         {
                             throw new FileNotFoundException();
                         }
-                        else if (Response.Message.ContainsKey("Error_Failure"))
+                        else if (MessageTask.Result.Message.ContainsKey("Error_Failure"))
                         {
                             throw new InvalidOperationException("Fail to copy item");
                         }
@@ -841,7 +911,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task CopyAsync(IEnumerable<IStorageItem> Source, StorageFolder Destination)
+        public Task CopyAsync(IEnumerable<IStorageItem> Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
@@ -853,10 +923,10 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return CopyAsync(Source.Select((Item) => Item.Path), Destination.Path);
+            return CopyAsync(Source.Select((Item) => Item.Path), Destination.Path, ProgressHandler);
         }
 
-        public Task CopyAsync(IStorageItem Source, StorageFolder Destination)
+        public Task CopyAsync(IStorageItem Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
@@ -868,7 +938,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return CopyAsync(new string[1] { Source.Path }, Destination.Path);
+            return CopyAsync(new string[1] { Source.Path }, Destination.Path, ProgressHandler);
         }
 
         public async Task<bool> RestoreItemInRecycleBinAsync(string Path)
@@ -1013,6 +1083,7 @@ namespace RX_Explorer.Class
                 IsConnected = false;
             }
 
+            Connection.RequestReceived -= Connection_RequestReceived;
             Connection?.Dispose();
             Connection = null;
 

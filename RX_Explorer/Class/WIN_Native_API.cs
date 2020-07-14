@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -103,7 +104,10 @@ namespace RX_Explorer.Class
         [DllImport("api-ms-win-core-io-l1-1-1.dll")]
         private static extern bool CancelIoEx(IntPtr hFile, IntPtr lpOverlapped);
 
+        const uint GENERIC_READ = 0x80000000;
+        const uint GENERIC_WRITE = 0x40000000;
         const uint FILE_LIST_DIRECTORY = 0x1;
+        const uint FILE_NO_SHARE = 0x0;
         const uint FILE_SHARE_READ = 0x1;
         const uint FILE_SHARE_WRITE = 0x2;
         const uint FILE_SHARE_DELETE = 0x4;
@@ -782,6 +786,22 @@ namespace RX_Explorer.Class
             finally
             {
                 FindClose(Ptr);
+            }
+        }
+
+        public static SafePipeHandle GetHandleFromNamedPipe(string PipeName)
+        {
+            IntPtr Handle = CreateFileFromApp(@$"\\.\pipe\{PipeName}", GENERIC_READ | GENERIC_WRITE, FILE_NO_SHARE, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
+
+            SafePipeHandle SPipeHandle = new SafePipeHandle(Handle, true);
+
+            if (SPipeHandle.IsInvalid)
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+            else
+            {
+                return SPipeHandle;
             }
         }
     }

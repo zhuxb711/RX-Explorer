@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -110,17 +111,19 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Delete(IEnumerable<string> Source, bool PermanentDelete)
+        public static bool Delete(IEnumerable<string> Source, bool PermanentDelete, ProgressChangedEventHandler Progress)
         {
             try
             {
-                using(ShellFileOperations Operation=new ShellFileOperations
+                using (ShellFileOperations Operation = new ShellFileOperations
                 {
-                    Options= PermanentDelete
+                    Options = PermanentDelete
                     ? ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.NoConfirmation
                     : ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.RecycleOnDelete
                 })
                 {
+                    Operation.UpdateProgress += Progress;
+
                     foreach (string Path in Source)
                     {
                         using (ShellItem Item = new ShellItem(Path))
@@ -130,6 +133,8 @@ namespace FullTrustProcess
                     }
 
                     Operation.PerformOperations();
+
+                    Operation.UpdateProgress -= Progress;
                 }
 
                 return true;
@@ -140,7 +145,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Copy(IEnumerable<KeyValuePair<string, string>> Source, string DestinationPath)
+        public static bool Copy(IEnumerable<KeyValuePair<string, string>> Source, string DestinationPath, ProgressChangedEventHandler Progress)
         {
             try
             {
@@ -154,6 +159,8 @@ namespace FullTrustProcess
                     Options = ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent
                 })
                 {
+                    Operation.UpdateProgress += Progress;
+
                     foreach (KeyValuePair<string, string> SourceInfo in Source)
                     {
                         using (ShellItem SourceItem = new ShellItem(SourceInfo.Key))
@@ -164,6 +171,8 @@ namespace FullTrustProcess
                     }
 
                     Operation.PerformOperations();
+
+                    Operation.UpdateProgress -= Progress;
                 }
 
                 return true;
@@ -174,7 +183,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Move(IEnumerable<KeyValuePair<string, string>> Source, string DestinationPath)
+        public static bool Move(IEnumerable<KeyValuePair<string, string>> Source, string DestinationPath, ProgressChangedEventHandler Progress)
         {
             try
             {
@@ -188,6 +197,8 @@ namespace FullTrustProcess
                     Options = ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent
                 })
                 {
+                    Operation.UpdateProgress += Progress;
+
                     foreach (KeyValuePair<string, string> SourceInfo in Source)
                     {
                         using (ShellItem SourceItem = new ShellItem(SourceInfo.Key))
@@ -198,6 +209,8 @@ namespace FullTrustProcess
                     }
 
                     Operation.PerformOperations();
+
+                    Operation.UpdateProgress -= Progress;
                 }
 
                 return true;

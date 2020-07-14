@@ -91,7 +91,7 @@
                 <TextBlock Text="正在保存..."
                            x:Uid="PhotoViewerSaveTips"
                            Margin="10,0,0,0"
-                           FontSize="18"
+                           FontSize="16"
                            VerticalAlignment="Center"
                            TextAlignment="Center" />
                 <muxc:ProgressBar Width="150"

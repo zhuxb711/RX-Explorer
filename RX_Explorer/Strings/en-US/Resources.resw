@@ -2540,4 +2540,16 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Operate_Text_NewWindow" xml:space="preserve">
     <value>Open in new window</value>
   </data>
+  <data name="QueueDialog_CopyFailUnexpectError_Content" xml:space="preserve">
+    <value>An error occurred while copying the file, the copy operation failed</value>
+  </data>
+  <data name="QueueDialog_DeleteFailUnexpectError_Content" xml:space="preserve">
+    <value>An error occurred while deleting the file, the delete operation failed</value>
+  </data>
+  <data name="QueueDialog_MoveFailUnexpectError_Content" xml:space="preserve">
+    <value>An error occurred while moving the file, the move operation failed</value>
+  </data>
+  <data name="Undo.Label" xml:space="preserve">
+    <value>Undo</value>
+  </data>
 </root>

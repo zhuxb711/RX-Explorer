@@ -3,19 +3,23 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Pipes;
 using System.Linq;
-using System.Reflection;
+using System.Security.AccessControl;
+using System.Security.Principal;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
-using Windows.System;
 
 namespace FullTrustProcess
 {
     class Program
     {
         private static AppServiceConnection Connection;
+
+        private static readonly Dictionary<string, NamedPipeServerStream> PipeServers = new Dictionary<string, NamedPipeServerStream>();
 
         private static readonly HashSet<string> SpecialStringMap = new HashSet<string>()
         {
@@ -26,6 +30,8 @@ namespace FullTrustProcess
 
         private readonly static ManualResetEvent ExitLocker = new ManualResetEvent(false);
 
+        private static readonly object Locker = new object();
+
         [STAThread]
         static async Task Main(string[] args)
         {
@@ -33,7 +39,7 @@ namespace FullTrustProcess
             {
                 using (Mutex LaunchLocker = new Mutex(true, "RX_Explorer_FullTrustProcess", out bool IsNotExist))
                 {
-                    if(!IsNotExist)
+                    if (!IsNotExist)
                     {
                         return;
                     }
@@ -53,7 +59,7 @@ namespace FullTrustProcess
                     ExitLocker.WaitOne();
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Debug.WriteLine($"FullTrustProcess出现异常，错误信息{e.Message}");
             }
@@ -62,18 +68,62 @@ namespace FullTrustProcess
                 Connection?.Dispose();
                 ExitLocker?.Dispose();
 
+                PipeServers.Values.ToList().ForEach((Item) =>
+                {
+                    Item.Disconnect();
+                    Item.Dispose();
+                });
+
+                PipeServers.Clear();
+
                 Environment.Exit(0);
             }
         }
 
+        private static void InitializeNewNamedPipe(string ID)
+        {
+            NamedPipeServerStream NewPipeServer = new NamedPipeServerStream($@"Explorer_And_FullTrustProcess_NamedPipe-{ID}", PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, PipeOptions.None, 2048, 2048, null, HandleInheritability.None, PipeAccessRights.ChangePermissions);
+            PipeSecurity Security = NewPipeServer.GetAccessControl();
+            PipeAccessRule ClientRule = new PipeAccessRule(new SecurityIdentifier("S-1-15-2-1"), PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow);
+            PipeAccessRule OwnerRule = new PipeAccessRule(WindowsIdentity.GetCurrent().Owner, PipeAccessRights.FullControl, AccessControlType.Allow);
+            Security.AddAccessRule(ClientRule);
+            Security.AddAccessRule(OwnerRule);
+            NewPipeServer.SetAccessControl(Security);
+
+            PipeServers.Add(ID, NewPipeServer);
+        }
+
         private async static void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
         {
-            var Deferral = args.GetDeferral();
+            AppServiceDeferral Deferral = args.GetDeferral();
 
             try
             {
                 switch (args.Request.Message["ExcuteType"])
                 {
+                    case "Excute_RequestClosePipe":
+                        {
+                            string Guid = Convert.ToString(args.Request.Message["Guid"]);
+
+                            if (PipeServers.ContainsKey(Guid))
+                            {
+                                PipeServers[Guid].Disconnect();
+                                PipeServers[Guid].Dispose();
+                                PipeServers.Remove(Guid);
+                            }
+                            break;
+                        }
+                    case "Excute_RequestCreateNewPipe":
+                        {
+                            string Guid = Convert.ToString(args.Request.Message["Guid"]);
+
+                            if (!PipeServers.ContainsKey(Guid))
+                            {
+                                InitializeNewNamedPipe(Guid);
+                            }
+
+                            break;
+                        }
                     case "Identity":
                         {
                             await args.Request.SendResponseAsync(new ValueSet { { "Identity", "FullTrustProcess" } });
@@ -226,12 +276,29 @@ namespace FullTrustProcess
 
                             string SourcePathJson = Convert.ToString(args.Request.Message["SourcePath"]);
                             string DestinationPath = Convert.ToString(args.Request.Message["DestinationPath"]);
+                            string Guid = Convert.ToString(args.Request.Message["Guid"]);
 
                             List<KeyValuePair<string, string>> SourcePathList = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(SourcePathJson);
 
                             if (SourcePathList.All((Item) => Directory.Exists(Item.Key) || File.Exists(Item.Key)))
                             {
-                                if (StorageItemController.Copy(SourcePathList, DestinationPath))
+                                if (StorageItemController.Copy(SourcePathList, DestinationPath, (s, e) =>
+                                {
+                                    lock (Locker)
+                                    {
+                                        NamedPipeServerStream Server = PipeServers[Guid];
+
+                                        if (!Server.IsConnected)
+                                        {
+                                            Server.WaitForConnection();
+                                        }
+
+                                        using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                        {
+                                            Writer.WriteLine(e.ProgressPercentage);
+                                        }
+                                    }
+                                }))
                                 {
                                     Value.Add("Success", string.Empty);
                                 }
@@ -245,6 +312,24 @@ namespace FullTrustProcess
                                 Value.Add("Error_NotFound", "SourcePath is not a file or directory");
                             }
 
+                            if (!Value.ContainsKey("Success"))
+                            {
+                                lock (Locker)
+                                {
+                                    NamedPipeServerStream Server = PipeServers[Guid];
+
+                                    if (!Server.IsConnected)
+                                    {
+                                        Server.WaitForConnection();
+                                    }
+
+                                    using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                    {
+                                        Writer.WriteLine("Error_Stop_Signal");
+                                    }
+                                }
+                            }
+
                             await args.Request.SendResponseAsync(Value);
                             break;
                         }
@@ -254,6 +339,7 @@ namespace FullTrustProcess
 
                             string SourcePathJson = Convert.ToString(args.Request.Message["SourcePath"]);
                             string DestinationPath = Convert.ToString(args.Request.Message["DestinationPath"]);
+                            string Guid = Convert.ToString(args.Request.Message["Guid"]);
 
                             List<KeyValuePair<string, string>> SourcePathList = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(SourcePathJson);
 
@@ -265,7 +351,23 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (StorageItemController.Move(SourcePathList, DestinationPath))
+                                    if (StorageItemController.Move(SourcePathList, DestinationPath, (s, e) =>
+                                    {
+                                        lock (Locker)
+                                        {
+                                            NamedPipeServerStream Server = PipeServers[Guid];
+
+                                            if (!Server.IsConnected)
+                                            {
+                                                Server.WaitForConnection();
+                                            }
+
+                                            using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                            {
+                                                Writer.WriteLine(e.ProgressPercentage);
+                                            }
+                                        }
+                                    }))
                                     {
                                         Value.Add("Success", string.Empty);
                                     }
@@ -280,6 +382,24 @@ namespace FullTrustProcess
                                 Value.Add("Error_NotFound", "SourcePath is not a file or directory");
                             }
 
+                            if(!Value.ContainsKey("Success"))
+                            {
+                                lock (Locker)
+                                {
+                                    NamedPipeServerStream Server = PipeServers[Guid];
+
+                                    if (!Server.IsConnected)
+                                    {
+                                        Server.WaitForConnection();
+                                    }
+
+                                    using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                    {
+                                        Writer.WriteLine("Error_Stop_Signal");
+                                    }
+                                }
+                            }
+
                             await args.Request.SendResponseAsync(Value);
                             break;
                         }
@@ -288,6 +408,7 @@ namespace FullTrustProcess
                             ValueSet Value = new ValueSet();
 
                             string ExcutePathJson = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            string Guid = Convert.ToString(args.Request.Message["Guid"]);
                             bool PermanentDelete = Convert.ToBoolean(args.Request.Message["PermanentDelete"]);
 
                             List<string> ExcutePathList = JsonConvert.DeserializeObject<List<string>>(ExcutePathJson);
@@ -308,7 +429,23 @@ namespace FullTrustProcess
                                             Attributes = FileAttributes.Normal & FileAttributes.Directory
                                         });
 
-                                        if (StorageItemController.Delete(ExcutePathList, PermanentDelete))
+                                        if (StorageItemController.Delete(ExcutePathList, PermanentDelete, (s, e) =>
+                                        {
+                                            lock (Locker)
+                                            {
+                                                NamedPipeServerStream Server = PipeServers[Guid];
+
+                                                if (!Server.IsConnected)
+                                                {
+                                                    Server.WaitForConnection();
+                                                }
+
+                                                using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                                {
+                                                    Writer.WriteLine(e.ProgressPercentage);
+                                                }
+                                            }
+                                        }))
                                         {
                                             Value.Add("Success", string.Empty);
                                         }
@@ -326,6 +463,24 @@ namespace FullTrustProcess
                             catch
                             {
                                 Value.Add("Error_Failure", "The specified file or folder could not be deleted");
+                            }
+
+                            if (!Value.ContainsKey("Success"))
+                            {
+                                lock (Locker)
+                                {
+                                    NamedPipeServerStream Server = PipeServers[Guid];
+
+                                    if (!Server.IsConnected)
+                                    {
+                                        Server.WaitForConnection();
+                                    }
+
+                                    using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                    {
+                                        Writer.WriteLine("Error_Stop_Signal");
+                                    }
+                                }
                             }
 
                             await args.Request.SendResponseAsync(Value);
@@ -412,13 +567,13 @@ namespace FullTrustProcess
                     case "Excute_Test_Connection":
                         {
                             await args.Request.SendResponseAsync(new ValueSet { { "Excute_Test_Connection", string.Empty } });
-                            
+
                             break;
                         }
                     case "Excute_Exit":
                         {
                             ExitLocker.Set();
-                            
+
                             break;
                         }
                 }

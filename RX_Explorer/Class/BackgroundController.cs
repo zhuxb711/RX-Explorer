@@ -141,8 +141,8 @@ namespace RX_Explorer.Class
                                 {
                                     BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
                                     TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? GetColorFromHexString(Color) : Colors.LightSlateGray,
-                                    TintOpacity = 1 - Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]),
-                                    TintLuminosityOpacity = 1 - Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]),
+                                    TintOpacity = 1 - Convert.ToDouble(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]),
+                                    TintLuminosityOpacity = 1 - Convert.ToDouble(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]),
                                     FallbackColor = Colors.DimGray
                                 };
                             }
@@ -152,7 +152,7 @@ namespace RX_Explorer.Class
                                 {
                                     BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
                                     TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? GetColorFromHexString(Color) : Colors.LightSlateGray,
-                                    TintOpacity = 1 - Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]),
+                                    TintOpacity = 1 - Convert.ToDouble(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]),
                                     FallbackColor = Colors.DimGray
                                 };
                             }
@@ -208,7 +208,7 @@ namespace RX_Explorer.Class
             set
             {
                 AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintOpacityProperty, 1 - value);
-                ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] = value.ToString("0.0");
+                ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] = value.ToString();
             }
         }
 
@@ -239,7 +239,7 @@ namespace RX_Explorer.Class
                     else
                     {
                         AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, 1 - value);
-                        ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] = value.ToString("0.0");
+                        ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] = value.ToString();
                     }
                 }
             }

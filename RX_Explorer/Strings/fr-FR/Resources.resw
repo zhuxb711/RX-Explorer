@@ -2435,4 +2435,16 @@
   <data name="Operate_Text_NewWindow" xml:space="preserve">
     <value>Ouvrir dans une nouvelle fenetre</value>
   </data>
+  <data name="QueueDialog_CopyFailUnexpectError_Content" xml:space="preserve">
+    <value>Une erreur s'est produite lors de la copie du fichier, l'opération de copie a échoué</value>
+  </data>
+  <data name="QueueDialog_MoveFailUnexpectError_Content" xml:space="preserve">
+    <value>Une erreur s'est produite lors du déplacement du fichier, l'opération de déplacement a échoué</value>
+  </data>
+  <data name="QueueDialog_DeleteFailUnexpectError_Content" xml:space="preserve">
+    <value>Une erreur s'est produite lors de la suppression du fichier, l'opération de suppression a échoué</value>
+  </data>
+  <data name="Undo.Label" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
 </root>

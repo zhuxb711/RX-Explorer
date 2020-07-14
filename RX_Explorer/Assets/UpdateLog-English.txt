@@ -1,4 +1,27 @@
 ﻿*****
+###What's new in Ver.5.0.6.0
+
+>#####Feature update
+
+>>#####Additional progress tracking of the operation of copying, moving and deleting three files
+
+>>#####Added "Tile" display mode, mouse hover to display file name function
+
+>>#####Add a blank space right-click menu button "Cancel"
+
+>>#####The "Undo" function can now undo the delete operation
+
+>#####Bug fix
+
+>>#####Fixed the problem that the "Undo" operation can only undo the most recent operation, and now all operations can be undo
+
+>>#####Fixed the problem of crash if "Undo" operation fails
+
+>>#####Fixed the problem that the "Copying..." and other prompts did not cover the left folder tree
+
+>>#####Fixed the problem of providing incorrect information after an error occurs during copy, move, delete operations
+
+*****
 ###What's new in Ver.5.0.3.0
 
 >#####Feature update

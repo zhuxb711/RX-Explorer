@@ -2435,4 +2435,16 @@
   <data name="Operate_Text_NewWindow" xml:space="preserve">
     <value>在新窗口中打开</value>
   </data>
+  <data name="QueueDialog_CopyFailUnexpectError_Content" xml:space="preserve">
+    <value>复制文件时出现错误，复制操作已失败</value>
+  </data>
+  <data name="QueueDialog_MoveFailUnexpectError_Content" xml:space="preserve">
+    <value>移动文件时出现错误，移动操作已失败</value>
+  </data>
+  <data name="QueueDialog_DeleteFailUnexpectError_Content" xml:space="preserve">
+    <value>删除文件时出现错误，删除操作已失败</value>
+  </data>
+  <data name="Undo.Label" xml:space="preserve">
+    <value>撤销</value>
+  </data>
 </root>

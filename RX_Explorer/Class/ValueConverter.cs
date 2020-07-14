@@ -1,5 +1,4 @@
 ﻿using System;
-using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 
@@ -54,13 +53,40 @@ namespace RX_Explorer.Class
         }
     }
 
+    public sealed class EmptyTextFiliterConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is string v)
+            {
+                return string.IsNullOrEmpty(v) ? null : v;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            if (value is string v)
+            {
+                return string.IsNullOrEmpty(v) ? null : v;
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+
     public sealed class FolderStateConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             if (value is bool IsExpanded)
             {
-                if(IsExpanded)
+                if (IsExpanded)
                 {
                     return "\xE838";
                 }
