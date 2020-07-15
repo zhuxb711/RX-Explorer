@@ -694,7 +694,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.Sqlite.Core">
-      <Version>3.1.5</Version>
+      <Version>3.1.6</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset">
       <Version>3.6.0</Version>

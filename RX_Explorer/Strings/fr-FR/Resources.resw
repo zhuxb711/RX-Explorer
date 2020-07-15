@@ -1318,9 +1318,6 @@
   <data name="LanguageComboBox.Header" xml:space="preserve">
     <value>Langue</value>
   </data>
-  <data name="LanguageRestartButton.Content" xml:space="preserve">
-    <value>Redémarrer maintenant</value>
-  </data>
   <data name="NewFileDialogTypeTip.Subtitle" xml:space="preserve">
     <value>Vous pouvez saisir manuellement le type de fichier que vous devez créer, ou vous pouvez sélectionner le type prédéfini par RX Explorateur. Toutefois, RX Explorateur ne peut garantir la création correcte que des types prédéfinis. Il ne peut pas garantir que les types que vous saisissez manuellement peuvent être créés correctement.</value>
   </data>
@@ -2446,5 +2443,8 @@
   </data>
   <data name="Undo.Label" xml:space="preserve">
     <value>Annuler</value>
+  </data>
+  <data name="LanguageRestartTip.Text" xml:space="preserve">
+    <value>(Veuillez redémarrer cette application pour que les paramètres prennent effet)</value>
   </data>
 </root>

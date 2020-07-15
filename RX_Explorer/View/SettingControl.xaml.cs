@@ -1122,11 +1122,11 @@ namespace RX_Explorer
                     {
                         if(Globalization.SwitchTo(LanguageEnum.Chinese))
                         {
-                            LanguageRestartButton.Visibility = Visibility.Visible;
+                            LanguageRestartTip.Visibility = Visibility.Visible;
                         }
                         else
                         {
-                            LanguageRestartButton.Visibility = Visibility.Collapsed;
+                            LanguageRestartTip.Visibility = Visibility.Collapsed;
                         }
                         break;
                     }
@@ -1134,11 +1134,11 @@ namespace RX_Explorer
                     {
                         if(Globalization.SwitchTo(LanguageEnum.English))
                         {
-                            LanguageRestartButton.Visibility = Visibility.Visible;
+                            LanguageRestartTip.Visibility = Visibility.Visible;
                         }
                         else
                         {
-                            LanguageRestartButton.Visibility = Visibility.Collapsed;
+                            LanguageRestartTip.Visibility = Visibility.Collapsed;
                         }
                         break;
                     }
@@ -1146,37 +1146,12 @@ namespace RX_Explorer
                     {
                         if(Globalization.SwitchTo(LanguageEnum.French))
                         {
-                            LanguageRestartButton.Visibility = Visibility.Visible;
+                            LanguageRestartTip.Visibility = Visibility.Visible;
                         }
                         else
                         {
-                            LanguageRestartButton.Visibility = Visibility.Collapsed;
+                            LanguageRestartTip.Visibility = Visibility.Collapsed;
                         }
-                        break;
-                    }
-            }
-        }
-
-        private async void LanguageRestartButton_Click(object sender, RoutedEventArgs e)
-        {
-            SQLite.Current.Dispose();
-            MySQL.Current.Dispose();
-
-            Window.Current.Activate();
-
-            switch (await CoreApplication.RequestRestartAsync(string.Empty))
-            {
-                case AppRestartFailureReason.InvalidUser:
-                case AppRestartFailureReason.NotInForeground:
-                case AppRestartFailureReason.Other:
-                    {
-                        QueueContentDialog Dialog1 = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_RestartFail_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                         break;
                     }
             }

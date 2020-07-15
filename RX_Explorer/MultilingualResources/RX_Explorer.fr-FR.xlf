@@ -1748,10 +1748,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Language</source>
           <target state="translated">Langue</target>
         </trans-unit>
-        <trans-unit id="LanguageRestartButton.Content" translate="yes" xml:space="preserve">
-          <source>Restart now</source>
-          <target state="translated">Redémarrer maintenant</target>
-        </trans-unit>
         <trans-unit id="NewFileDialogTypeTip.Subtitle" translate="yes" xml:space="preserve">
           <source>You can manually enter the file type you need to create, or you can select the type predefined by the RX Explorer. However, the RX Explorer can only guarantee the correct creation of pre-defined types. It cannot guarantee that the types you enter manually can be created correctly.</source>
           <target state="translated">Vous pouvez saisir manuellement le type de fichier que vous devez créer, ou vous pouvez sélectionner le type prédéfini par RX Explorateur. Toutefois, RX Explorateur ne peut garantir la création correcte que des types prédéfinis. Il ne peut pas garantir que les types que vous saisissez manuellement peuvent être créés correctement.</target>
@@ -3236,6 +3232,10 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="Undo.Label" translate="yes" xml:space="preserve">
           <source>Undo</source>
           <target state="translated">Annuler</target>
+        </trans-unit>
+        <trans-unit id="LanguageRestartTip.Text" translate="yes" xml:space="preserve">
+          <source>(Please restart the app for the settings to take effect)</source>
+          <target state="translated">(Veuillez redémarrer cette application pour que les paramètres prennent effet)</target>
         </trans-unit>
       </group>
     </body>

@@ -1748,10 +1748,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Language</source>
           <target state="translated">语言</target>
         </trans-unit>
-        <trans-unit id="LanguageRestartButton.Content" translate="yes" xml:space="preserve">
-          <source>Restart now</source>
-          <target state="translated">立即重启</target>
-        </trans-unit>
         <trans-unit id="NewFileDialogTypeTip.Subtitle" translate="yes" xml:space="preserve">
           <source>You can manually enter the file type you need to create, or you can select the type predefined by the RX Explorer. However, the RX Explorer can only guarantee the correct creation of pre-defined types. It cannot guarantee that the types you enter manually can be created correctly.</source>
           <target state="translated">您可以手动输入您需要创建的文件类型，亦可以选择由RX文件管理器预定义的类型。但RX文件管理器仅能够保证预定义类型的正确创建，不能保证您手动输入的类型能够正确创建。</target>
@@ -3236,6 +3232,10 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="Undo.Label" translate="yes" xml:space="preserve">
           <source>Undo</source>
           <target state="translated">撤销</target>
+        </trans-unit>
+        <trans-unit id="LanguageRestartTip.Text" translate="yes" xml:space="preserve">
+          <source>(Please restart the app for the settings to take effect)</source>
+          <target state="translated">(请重启本应用以使设置生效)</target>
         </trans-unit>
       </group>
     </body>

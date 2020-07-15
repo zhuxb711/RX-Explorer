@@ -1318,9 +1318,6 @@
   <data name="LanguageComboBox.Header" xml:space="preserve">
     <value>语言</value>
   </data>
-  <data name="LanguageRestartButton.Content" xml:space="preserve">
-    <value>立即重启</value>
-  </data>
   <data name="NewFileDialogTypeTip.Subtitle" xml:space="preserve">
     <value>您可以手动输入您需要创建的文件类型，亦可以选择由RX文件管理器预定义的类型。但RX文件管理器仅能够保证预定义类型的正确创建，不能保证您手动输入的类型能够正确创建。</value>
   </data>
@@ -2446,5 +2443,8 @@
   </data>
   <data name="Undo.Label" xml:space="preserve">
     <value>撤销</value>
+  </data>
+  <data name="LanguageRestartTip.Text" xml:space="preserve">
+    <value>(请重启本应用以使设置生效)</value>
   </data>
 </root>

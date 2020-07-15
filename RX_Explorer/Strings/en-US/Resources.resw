@@ -1435,9 +1435,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="LanguageComboBox.Header" xml:space="preserve">
     <value>Language</value>
   </data>
-  <data name="LanguageRestartButton.Content" xml:space="preserve">
-    <value>Restart now</value>
-  </data>
   <data name="NewFileDialogTypeTip.Subtitle" xml:space="preserve">
     <value>You can manually enter the file type you need to create, or you can select the type predefined by the RX Explorer. However, the RX Explorer can only guarantee the correct creation of pre-defined types. It cannot guarantee that the types you enter manually can be created correctly.</value>
   </data>
@@ -2551,5 +2548,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="Undo.Label" xml:space="preserve">
     <value>Undo</value>
+  </data>
+  <data name="LanguageRestartTip.Text" xml:space="preserve">
+    <value>(Please restart the app for the settings to take effect)</value>
   </data>
 </root>
