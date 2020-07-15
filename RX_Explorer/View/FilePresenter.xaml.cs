@@ -4046,6 +4046,8 @@ namespace RX_Explorer
 
         private async void Undo_Click(object sender, RoutedEventArgs e)
         {
+            Restore();
+
             await Ctrl_Z_Click().ConfigureAwait(false);
         }
     }
