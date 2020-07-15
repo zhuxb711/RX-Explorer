@@ -22,13 +22,9 @@ Supported file types for viewing: PDF, TXT, mainstream picture format, mainstrea
 
 Microsoft Store download link: https://www.microsoft.com/store/productId/9N88QBQKF2RS
 
-*****
+![image](https://github.com/zhuxb711/RX-Explorer/blob/master/RX_Explorer/Assets/Github-Intro1.png)
 
-## 开发者提示
-#### 如果您对RX文件管理器的相关实现细节不甚明了，或者您是第一次开发UWP的开发者并希望与我交流相关UWP开发问题，您可以邮件至zrfcfgs@outlook.com与我交流。
-
-## Developer Tips
-#### If you are not clear about the implementation details of the RX Explorer, or you are the first developer to develop UWP and want to communicate with me about UWP development issues, you can email to zrfcfgs@outlook.com to communicate with me.
+![image](https://github.com/zhuxb711/RX-Explorer/blob/master/RX_Explorer/Assets/Github-Intro2.png)
 
 *****
 
