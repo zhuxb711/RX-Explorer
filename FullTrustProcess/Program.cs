@@ -286,16 +286,23 @@ namespace FullTrustProcess
                                 {
                                     lock (Locker)
                                     {
-                                        NamedPipeServerStream Server = PipeServers[Guid];
-
-                                        if (!Server.IsConnected)
+                                        try
                                         {
-                                            Server.WaitForConnection();
+                                            NamedPipeServerStream Server = PipeServers[Guid];
+
+                                            if (!Server.IsConnected)
+                                            {
+                                                Server.WaitForConnection();
+                                            }
+
+                                            using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                            {
+                                                Writer.WriteLine(e.ProgressPercentage);
+                                            }
                                         }
-
-                                        using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                        catch
                                         {
-                                            Writer.WriteLine(e.ProgressPercentage);
+                                            Debug.WriteLine("无法传输进度数据");
                                         }
                                     }
                                 }))
@@ -316,16 +323,23 @@ namespace FullTrustProcess
                             {
                                 lock (Locker)
                                 {
-                                    NamedPipeServerStream Server = PipeServers[Guid];
-
-                                    if (!Server.IsConnected)
+                                    try
                                     {
-                                        Server.WaitForConnection();
+                                        NamedPipeServerStream Server = PipeServers[Guid];
+
+                                        if (!Server.IsConnected)
+                                        {
+                                            Server.WaitForConnection();
+                                        }
+
+                                        using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                        {
+                                            Writer.WriteLine("Error_Stop_Signal");
+                                        }
                                     }
-
-                                    using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                    catch
                                     {
-                                        Writer.WriteLine("Error_Stop_Signal");
+                                        Debug.WriteLine("无法传输进度数据");
                                     }
                                 }
                             }
@@ -355,16 +369,23 @@ namespace FullTrustProcess
                                     {
                                         lock (Locker)
                                         {
-                                            NamedPipeServerStream Server = PipeServers[Guid];
-
-                                            if (!Server.IsConnected)
+                                            try
                                             {
-                                                Server.WaitForConnection();
+                                                NamedPipeServerStream Server = PipeServers[Guid];
+
+                                                if (!Server.IsConnected)
+                                                {
+                                                    Server.WaitForConnection();
+                                                }
+
+                                                using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                                {
+                                                    Writer.WriteLine(e.ProgressPercentage);
+                                                }
                                             }
-
-                                            using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                            catch
                                             {
-                                                Writer.WriteLine(e.ProgressPercentage);
+                                                Debug.WriteLine("无法传输进度数据");
                                             }
                                         }
                                     }))
@@ -386,16 +407,23 @@ namespace FullTrustProcess
                             {
                                 lock (Locker)
                                 {
-                                    NamedPipeServerStream Server = PipeServers[Guid];
-
-                                    if (!Server.IsConnected)
+                                    try
                                     {
-                                        Server.WaitForConnection();
+                                        NamedPipeServerStream Server = PipeServers[Guid];
+
+                                        if (!Server.IsConnected)
+                                        {
+                                            Server.WaitForConnection();
+                                        }
+
+                                        using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                        {
+                                            Writer.WriteLine("Error_Stop_Signal");
+                                        }
                                     }
-
-                                    using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                    catch
                                     {
-                                        Writer.WriteLine("Error_Stop_Signal");
+                                        Debug.WriteLine("无法传输进度数据");
                                     }
                                 }
                             }
@@ -433,16 +461,23 @@ namespace FullTrustProcess
                                         {
                                             lock (Locker)
                                             {
-                                                NamedPipeServerStream Server = PipeServers[Guid];
-
-                                                if (!Server.IsConnected)
+                                                try
                                                 {
-                                                    Server.WaitForConnection();
+                                                    NamedPipeServerStream Server = PipeServers[Guid];
+
+                                                    if (!Server.IsConnected)
+                                                    {
+                                                        Server.WaitForConnection();
+                                                    }
+
+                                                    using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                                    {
+                                                        Writer.WriteLine(e.ProgressPercentage);
+                                                    }
                                                 }
-
-                                                using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                                catch
                                                 {
-                                                    Writer.WriteLine(e.ProgressPercentage);
+                                                    Debug.WriteLine("无法传输进度数据");
                                                 }
                                             }
                                         }))
@@ -469,16 +504,23 @@ namespace FullTrustProcess
                             {
                                 lock (Locker)
                                 {
-                                    NamedPipeServerStream Server = PipeServers[Guid];
-
-                                    if (!Server.IsConnected)
+                                    try
                                     {
-                                        Server.WaitForConnection();
+                                        NamedPipeServerStream Server = PipeServers[Guid];
+
+                                        if (!Server.IsConnected)
+                                        {
+                                            Server.WaitForConnection();
+                                        }
+
+                                        using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                        {
+                                            Writer.WriteLine("Error_Stop_Signal");
+                                        }
                                     }
-
-                                    using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                    catch
                                     {
-                                        Writer.WriteLine("Error_Stop_Signal");
+                                        Debug.WriteLine("无法传输进度终止数据");
                                     }
                                 }
                             }

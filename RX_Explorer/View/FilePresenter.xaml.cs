@@ -125,13 +125,8 @@ namespace RX_Explorer
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             ZipStrings.CodePage = 936;
 
-            Application.Current.Suspending += Current_Suspending;
-            Application.Current.Resuming += Current_Resuming;
-
             Loaded += FilePresenter_Loaded;
             Unloaded += FilePresenter_Unloaded;
-
-            PointerHoverTimer.Tick += Timer_Tick;
         }
 
         private void Current_Resuming(object sender, object e)
@@ -141,18 +136,23 @@ namespace RX_Explorer
 
         private void Current_Suspending(object sender, SuspendingEventArgs e)
         {
-            WiFiProvider?.Dispose();
             AreaWatcher.SetCurrentLocation(null);
         }
 
         private void FilePresenter_Unloaded(object sender, RoutedEventArgs e)
         {
+            Application.Current.Suspending -= Current_Suspending;
+            Application.Current.Resuming -= Current_Resuming;
             CoreWindow.GetForCurrentThread().KeyDown -= Window_KeyDown;
+            PointerHoverTimer.Tick -= Timer_Tick;
         }
 
         private void FilePresenter_Loaded(object sender, RoutedEventArgs e)
         {
+            Application.Current.Suspending += Current_Suspending;
+            Application.Current.Resuming += Current_Resuming;
             CoreWindow.GetForCurrentThread().KeyDown += Window_KeyDown;
+            PointerHoverTimer.Tick += Timer_Tick;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

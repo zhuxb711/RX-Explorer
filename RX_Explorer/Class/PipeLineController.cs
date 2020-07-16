@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -30,6 +31,8 @@ namespace RX_Explorer.Class
         public Guid GUID { get; private set; }
 
         private NamedPipeClientStream ClientStream;
+
+        private SafePipeHandle PipeHandle;
 
         public async Task ListenPipeMessage(ProgressChangedEventHandler Handler)
         {
@@ -87,7 +90,8 @@ namespace RX_Explorer.Class
 
                 await FullTrustExcutorController.Current.RequestCreateNewPipeLine(GUID).ConfigureAwait(true);
 
-                ClientStream = new NamedPipeClientStream(PipeDirection.InOut, false, true, WIN_Native_API.GetHandleFromNamedPipe($"Explorer_And_FullTrustProcess_NamedPipe-{GUID}"));
+                PipeHandle = WIN_Native_API.GetHandleFromNamedPipe($"Explorer_And_FullTrustProcess_NamedPipe-{GUID}");
+                ClientStream = new NamedPipeClientStream(PipeDirection.InOut, false, true, PipeHandle);
 
                 return true;
             }
@@ -109,6 +113,9 @@ namespace RX_Explorer.Class
 
             ClientStream?.Dispose();
             ClientStream = null;
+
+            PipeHandle?.Dispose();
+            PipeHandle = null;
 
             Instance = null;
         }
