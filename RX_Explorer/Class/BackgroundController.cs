@@ -135,7 +135,7 @@ namespace RX_Explorer.Class
                         }
                     default:
                         {
-                            if (Win10VersionChecker.Windows10_1903)
+                            if (WindowsVersionChecker.Windows10_1903)
                             {
                                 AcrylicBackgroundBrush = new AcrylicBrush
                                 {
@@ -219,7 +219,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (Win10VersionChecker.Windows10_1903)
+                if (WindowsVersionChecker.Windows10_1903)
                 {
                     return 1 - Convert.ToDouble(AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty));
                 }
@@ -230,7 +230,7 @@ namespace RX_Explorer.Class
             }
             set
             {
-                if (Win10VersionChecker.Windows10_1903)
+                if (WindowsVersionChecker.Windows10_1903)
                 {
                     if (value == -1)
                     {

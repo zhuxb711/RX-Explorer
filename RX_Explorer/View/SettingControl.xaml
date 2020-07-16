@@ -430,7 +430,7 @@
                                             Maximum="1"
                                             Minimum="0"
                                             Width="220"
-                                            IsEnabled="{x:Bind local:Win10VersionChecker.Windows10_1903}"
+                                            IsEnabled="{x:Bind local:WindowsVersionChecker.Windows10_1903}"
                                             HorizontalAlignment="Left" />
                                 </StackPanel>
                                 <TextBlock Text="{x:Bind sys:String.Format('{0:0%}',TintLuminositySlider.Value),Mode=OneWay}"

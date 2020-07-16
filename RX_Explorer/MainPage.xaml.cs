@@ -188,7 +188,7 @@ namespace RX_Explorer
                         }
                 }
 
-                if (Win10VersionChecker.Windows10_1903 && AnimationController.Current.IsEnableAnimation && !IsPathActivate)
+                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && AnimationController.Current.IsEnableAnimation && !IsPathActivate)
                 {
                     EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, Parameter.Item2);
                     EntranceEffectProvider.PrepareEntranceEffect();
@@ -196,7 +196,7 @@ namespace RX_Explorer
             }
             else if (e.Parameter is Rect SplashRect)
             {
-                if (Win10VersionChecker.Windows10_1903 && AnimationController.Current.IsEnableAnimation && !IsPathActivate)
+                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && AnimationController.Current.IsEnableAnimation && !IsPathActivate)
                 {
                     EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, SplashRect);
                     EntranceEffectProvider.PrepareEntranceEffect();
@@ -234,7 +234,7 @@ namespace RX_Explorer
                     {typeof(RecycleBin),Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label") }
                 };
 
-                if (Win10VersionChecker.Windows10_1903 && AnimationController.Current.IsEnableAnimation && !IsPathActivate)
+                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && AnimationController.Current.IsEnableAnimation && !IsPathActivate)
                 {
                     EntranceEffectProvider.StartEntranceEffect();
                 }

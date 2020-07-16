@@ -1,4 +1,13 @@
 ﻿*****
+###What's new in Ver.5.0.7.0
+
+>#####Bug fix
+
+>>#####Fixed an issue that could cause a crash after being in the background for a long time
+
+>>#####Fixed the issue that the copy, move and delete functions are invalid in Win10 2004 and below. To track the progress of related operations, please update to Win10 2004 version.
+
+*****
 ###What's new in Ver.5.0.6.0
 
 >#####Feature update

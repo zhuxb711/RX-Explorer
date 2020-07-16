@@ -1,4 +1,13 @@
 ﻿*****
+###Quoi de neuf dans la version 5.0.7.0
+
+>#####Correction d'un bug
+
+>>#####Correction d'un problème qui pouvait provoquer un crash après avoir été en arrière-plan pendant une longue période
+
+>>#####Correction du problème selon lequel les fonctions de copie, de déplacement et de suppression ne sont pas valides dans Win10 2004 et versions antérieures. Pour suivre la progression des opérations connexes, veuillez mettre à jour vers la version Win10 2004.
+
+*****
 ###Quoi de neuf dans la version 5.0.6.0
 
 >#####Mise à jour des fonctionnalités

@@ -88,12 +88,19 @@ namespace RX_Explorer.Class
                     return true;
                 }
 
-                await FullTrustExcutorController.Current.RequestCreateNewPipeLine(GUID).ConfigureAwait(true);
+                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_2004))
+                {
+                    await FullTrustExcutorController.Current.RequestCreateNewPipeLine(GUID).ConfigureAwait(true);
 
-                PipeHandle = WIN_Native_API.GetHandleFromNamedPipe($"Explorer_And_FullTrustProcess_NamedPipe-{GUID}");
-                ClientStream = new NamedPipeClientStream(PipeDirection.InOut, false, true, PipeHandle);
+                    PipeHandle = WIN_Native_API.GetHandleFromNamedPipe($"Explorer_And_FullTrustProcess_NamedPipe-{GUID}");
+                    ClientStream = new NamedPipeClientStream(PipeDirection.InOut, false, true, PipeHandle);
 
-                return true;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             catch (Exception e)
             {
