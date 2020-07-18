@@ -1,6 +1,7 @@
 ﻿using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Windows.ApplicationModel.Core;
@@ -9,7 +10,7 @@ using Windows.UI.Core;
 
 namespace RX_Explorer.Class
 {
-    public sealed class StorageAreaWatcher
+    public sealed class StorageAreaWatcher : IDisposable
     {
         private readonly ObservableCollection<FileSystemStorageItem> CurrentCollection;
 
@@ -19,13 +20,9 @@ namespace RX_Explorer.Class
 
         public string CurrentLocation { get; private set; }
 
-        private int ModifiedLock = 0;
+        private readonly SemaphoreSlim Locker1 = new SemaphoreSlim(1, 1);
 
-        private int AddLock = 0;
-
-        private int RenameLock = 0;
-
-        private int RemoveLock = 0;
+        private readonly SemaphoreSlim Locker2 = new SemaphoreSlim(1, 1);
 
         public void SetCurrentLocation(string Path)
         {
@@ -51,25 +48,35 @@ namespace RX_Explorer.Class
 
         private async void Modified(string Path)
         {
+            await Locker1.WaitAsync().ConfigureAwait(false);
+
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
-                if (Interlocked.Exchange(ref ModifiedLock, 1) == 0)
+                try
                 {
                     if (CurrentCollection.FirstOrDefault((Item) => Item.Path == Path) is FileSystemStorageItem Item)
                     {
                         await Item.Update(true).ConfigureAwait(false);
                     }
-
-                    _ = Interlocked.Exchange(ref ModifiedLock, 0);
+                }
+                catch
+                {
+                    Debug.WriteLine("StorageAreaWatcher: Modify item to collection failed");
+                }
+                finally
+                {
+                    Locker1.Release();
                 }
             });
         }
 
         private async void Renamed(string OldPath, string NewPath)
         {
+            await Locker1.WaitAsync().ConfigureAwait(false);
+
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
-                if (Interlocked.Exchange(ref RenameLock, 1) == 0)
+                try
                 {
                     if (CurrentCollection.FirstOrDefault((Item) => Item.Path == OldPath) is FileSystemStorageItem Item)
                     {
@@ -87,33 +94,49 @@ namespace RX_Explorer.Class
                     {
                         await TreeView.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
                     }
-
-                    _ = Interlocked.Exchange(ref RenameLock, 0);
+                }
+                catch
+                {
+                    Debug.WriteLine("StorageAreaWatcher: Rename item to collection failed");
+                }
+                finally
+                {
+                    Locker1.Release();
                 }
             });
         }
 
         private async void Removed(string Path)
         {
+            await Locker2.WaitAsync().ConfigureAwait(false);
+
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (Interlocked.Exchange(ref RemoveLock, 1) == 0)
+                try
                 {
                     if (CurrentCollection.FirstOrDefault((Item) => Item.Path == Path) is FileSystemStorageItem Item)
                     {
                         CurrentCollection.Remove(Item);
                     }
-
-                    _ = Interlocked.Exchange(ref RemoveLock, 0);
+                }
+                catch
+                {
+                    Debug.WriteLine("StorageAreaWatcher: Remove item to collection failed");
+                }
+                finally
+                {
+                    Locker2.Release();
                 }
             });
         }
 
         private async void Added(string Path)
         {
+            await Locker2.WaitAsync().ConfigureAwait(false);
+
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
-                if (Interlocked.Exchange(ref AddLock, 1) == 0)
+                try
                 {
                     if (CurrentCollection.FirstOrDefault() is FileSystemStorageItem Item)
                     {
@@ -164,16 +187,40 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
-
-                    _ = Interlocked.Exchange(ref AddLock, 0);
+                }
+                catch
+                {
+                    Debug.WriteLine("StorageAreaWatcher: Add item to collection failed");
+                }
+                finally
+                {
+                    Locker2.Release();
                 }
             });
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+
+            if (WatchPtr != IntPtr.Zero)
+            {
+                WIN_Native_API.StopDirectoryWatcher(ref WatchPtr);
+            }
+
+            Locker1.Dispose(); 
+            Locker2.Dispose();
         }
 
         public StorageAreaWatcher(ObservableCollection<FileSystemStorageItem> InitList, TreeView TreeView)
         {
             CurrentCollection = InitList ?? throw new ArgumentNullException(nameof(InitList), "Parameter could not be null");
             this.TreeView = TreeView ?? throw new ArgumentNullException(nameof(TreeView), "Parameter could not be null");
+        }
+
+        ~StorageAreaWatcher()
+        {
+            Dispose();
         }
     }
 }

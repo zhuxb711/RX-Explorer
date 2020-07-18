@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Vanara.Windows.Shell;
@@ -145,7 +146,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Copy(IEnumerable<KeyValuePair<string, string>> Source, string DestinationPath, ProgressChangedEventHandler Progress)
+        public static bool Copy(IEnumerable<KeyValuePair<string, string>> Source, string DestinationPath, ProgressChangedEventHandler Progress, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostCopyEvent)
         {
             try
             {
@@ -154,12 +155,17 @@ namespace FullTrustProcess
                     _ = Directory.CreateDirectory(DestinationPath);
                 }
 
+                ShellFileOperations.OperationFlags Options = Source.All((Item) => Path.GetDirectoryName(Item.Key) == DestinationPath)
+                                                             ? ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RenameOnCollision
+                                                             : ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent;
+
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
-                    Options = ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent
+                    Options = Options
                 })
                 {
                     Operation.UpdateProgress += Progress;
+                    Operation.PostCopyItem += PostCopyEvent;
 
                     foreach (KeyValuePair<string, string> SourceInfo in Source)
                     {
@@ -172,6 +178,7 @@ namespace FullTrustProcess
 
                     Operation.PerformOperations();
 
+                    Operation.PostCopyItem -= PostCopyEvent;
                     Operation.UpdateProgress -= Progress;
                 }
 

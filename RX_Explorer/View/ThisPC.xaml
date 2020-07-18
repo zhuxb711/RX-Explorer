@@ -398,7 +398,8 @@
                                                      Foreground="{x:Bind ProgressBarForeground}"
                                                      Maximum="1"
                                                      Minimum="0"
-                                                     Value="{x:Bind Percent}" />
+                                                     Value="{x:Bind Percent}" 
+                                                     Margin="0,2,0,0"/>
                                         <TextBlock Width="200"
                                                    FontSize="13"
                                                    TextTrimming="CharacterEllipsis"

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.XPath;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
@@ -648,6 +649,11 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
             }
 
+            if (Source.All((Item) => Path.GetDirectoryName(Item) == DestinationPath))
+            {
+                return;
+            }
+
             try
             {
                 IsNowHasAnyActionExcuting = true;
@@ -819,22 +825,29 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
-                                StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(DestinationPath);
-
-                                if (await TargetFolder.TryGetItemAsync(Path.GetFileName(SourcePath)) is StorageFolder ExistFolder)
+                                if (Path.GetDirectoryName(SourcePath) != DestinationPath)
                                 {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                                        Content = $"{Globalization.GetString("QueueDialog_FolderRepeat_Content")} {ExistFolder.Name}",
-                                        PrimaryButtonText = Globalization.GetString("QueueDialog_FolderRepeat_PrimaryButton"),
-                                        CloseButtonText = Globalization.GetString("QueueDialog_FolderRepeat_CloseButton")
-                                    };
+                                    StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(DestinationPath);
 
-                                    if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
+                                    if (await TargetFolder.TryGetItemAsync(Path.GetFileName(SourcePath)) is StorageFolder ExistFolder)
                                     {
-                                        StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Path.GetFileName(SourcePath), CreationCollisionOption.GenerateUniqueName);
-                                        MessageList.Add(new KeyValuePair<string, string>(SourcePath, NewFolder.Name));
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                            Content = $"{Globalization.GetString("QueueDialog_FolderRepeat_Content")} {ExistFolder.Name}",
+                                            PrimaryButtonText = Globalization.GetString("QueueDialog_FolderRepeat_PrimaryButton"),
+                                            CloseButtonText = Globalization.GetString("QueueDialog_FolderRepeat_CloseButton")
+                                        };
+
+                                        if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
+                                        {
+                                            StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Path.GetFileName(SourcePath), CreationCollisionOption.GenerateUniqueName);
+                                            MessageList.Add(new KeyValuePair<string, string>(SourcePath, NewFolder.Name));
+                                        }
+                                        else
+                                        {
+                                            MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
+                                        }
                                     }
                                     else
                                     {

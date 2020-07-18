@@ -1675,8 +1675,6 @@ namespace RX_Explorer
                         return;
                     }
 
-                    TabViewContainer.StorageItemOperationRecord.Clear();
-
                     if (e.DataView.Contains(StandardDataFormats.StorageItems))
                     {
                         List<IStorageItem> DragItemList = (await e.DataView.GetStorageItemsAsync()).ToList();
@@ -1704,18 +1702,6 @@ namespace RX_Explorer
                                         if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                                         {
                                             await FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
-                                        }
-
-                                        foreach (IStorageItem Item in DragItemList)
-                                        {
-                                            if (Item.IsOfType(StorageItemTypes.File))
-                                            {
-                                                TabViewContainer.StorageItemOperationRecord.Push($"{Item.Path}||Copy||File||{Path.Combine(TargetFolder.Path, Item.Name)}");
-                                            }
-                                            else
-                                            {
-                                                TabViewContainer.StorageItemOperationRecord.Push($"{Item.Path}||Copy||Folder||{Path.Combine(TargetFolder.Path, Item.Name)}");
-                                            }
                                         }
                                     }
                                     catch (FileNotFoundException)
@@ -1789,18 +1775,6 @@ namespace RX_Explorer
                                         if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                                         {
                                             await FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
-                                        }
-
-                                        foreach (IStorageItem Item in DragItemList)
-                                        {
-                                            if (Item.IsOfType(StorageItemTypes.File))
-                                            {
-                                                TabViewContainer.StorageItemOperationRecord.Push($"{Item.Path}||Move||File||{Path.Combine(TargetFolder.Path, Item.Name)}");
-                                            }
-                                            else
-                                            {
-                                                TabViewContainer.StorageItemOperationRecord.Push($"{Item.Path}||Move||Folder||{Path.Combine(TargetFolder.Path, Item.Name)}");
-                                            }
                                         }
                                     }
                                     catch (FileNotFoundException)
@@ -2325,7 +2299,7 @@ namespace RX_Explorer
 
         public void Dispose()
         {
-            TabViewContainer.ThisPage.FFInstanceContainer[this].AreaWatcher.SetCurrentLocation(null);
+            TabViewContainer.ThisPage.FFInstanceContainer[this].AreaWatcher.Dispose();
         }
     }
 

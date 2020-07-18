@@ -778,21 +778,6 @@
   <data name="SettingCleanup.Content" xml:space="preserve">
     <value>Réinitialiser</value>
   </data>
-  <data name="SettingClearHistory.Content" xml:space="preserve">
-    <value>Effacer l'historique des recherches</value>
-  </data>
-  <data name="SettingClearHistoryFlyoutCancelButton.Content" xml:space="preserve">
-    <value>Annuler</value>
-  </data>
-  <data name="SettingClearHistoryFlyoutContent.Text" xml:space="preserve">
-    <value>L'historique des recherches va être effacé, voulez-vous continuer ?</value>
-  </data>
-  <data name="SettingClearHistoryFlyoutContinueButton.Content" xml:space="preserve">
-    <value>Continuer</value>
-  </data>
-  <data name="SettingContactDeveloper.Content" xml:space="preserve">
-    <value>Contacter le développeur</value>
-  </data>
   <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
     <value>Méthode d'ouverture de dossier</value>
   </data>
@@ -2078,9 +2063,6 @@
     <value>RX ne peut pas être démarré automatiquement car le démarrage est désactivé par le système\rVous pouvez aller à cette page [System Settings] pour modifier ceci</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_ClearHistory_Content" xml:space="preserve">
-    <value>Historique de recherche bien complété</value>
-  </data>
   <data name="QueueDialog_CompressionError_Content" xml:space="preserve">
     <value>Une exception a été rencontré lors de la compression du fichier\r\rMessage d'Erreur：\r\r</value>
     <comment>Please keep all \r in this sentence after translate</comment>
@@ -2446,5 +2428,11 @@
   </data>
   <data name="LanguageRestartTip.Text" xml:space="preserve">
     <value>(Veuillez redémarrer cette application pour que les paramètres prennent effet)</value>
+  </data>
+  <data name="SettingSubmitIssueOnGithub.Content" xml:space="preserve">
+    <value>Soumettre un problème sur Github</value>
+  </data>
+  <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
+    <value>Impossible d'obtenir le contenu du presse-papiers</value>
   </data>
 </root>

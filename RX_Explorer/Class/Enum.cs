@@ -2,6 +2,12 @@
 
 namespace RX_Explorer.Class
 {
+    public enum ThumbnailStatus
+    {
+        Normal = 0,
+        ReduceOpacity = 1
+    }
+
     public enum SortDirection
     {
         Ascending = 0,

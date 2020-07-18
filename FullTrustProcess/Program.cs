@@ -305,6 +305,10 @@ namespace FullTrustProcess
                                             Debug.WriteLine("无法传输进度数据");
                                         }
                                     }
+                                },
+                                (se, arg) =>
+                                {
+                                    //OperationRecorder.Current.Value.Push($"{arg.SourceItem.FileSystemPath}||Copy||{(arg.SourceItem.IsFolder ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
                                 }))
                                 {
                                     Value.Add("Success", string.Empty);
@@ -403,7 +407,7 @@ namespace FullTrustProcess
                                 Value.Add("Error_NotFound", "SourcePath is not a file or directory");
                             }
 
-                            if(!Value.ContainsKey("Success"))
+                            if (!Value.ContainsKey("Success"))
                             {
                                 lock (Locker)
                                 {

@@ -252,7 +252,7 @@ namespace RX_Explorer
                             CreateFolder_Click(null, null);
                             break;
                         }
-                    case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && TabViewContainer.StorageItemOperationRecord.Count > 0:
+                    case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && OperationRecorder.Current.Value.Count > 0:
                         {
                             await Ctrl_Z_Click().ConfigureAwait(false);
                             break;
@@ -282,11 +282,11 @@ namespace RX_Explorer
 
         private async Task Ctrl_Z_Click()
         {
-            if (TabViewContainer.StorageItemOperationRecord.Count > 0)
+            if (OperationRecorder.Current.Value.Count > 0)
             {
                 await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Undoing")).ConfigureAwait(true);
 
-                string[] SplitGroup = TabViewContainer.StorageItemOperationRecord.Pop().Split("||", StringSplitOptions.RemoveEmptyEntries);
+                string[] SplitGroup = OperationRecorder.Current.Value.Pop().Split("||", StringSplitOptions.RemoveEmptyEntries);
 
                 try
                 {
@@ -532,208 +532,196 @@ namespace RX_Explorer
             Package.SetStorageItems(TempList, false);
 
             Clipboard.SetContent(Package);
+
+            SelectedItems.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
         }
 
         public async void Paste_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            DataPackageView Package = Clipboard.GetContent();
-
-            if (Package.Contains(StandardDataFormats.StorageItems))
+            try
             {
-                IReadOnlyList<IStorageItem> ItemList = await Package.GetStorageItemsAsync();
+                DataPackageView Package = Clipboard.GetContent();
 
-                if (Package.RequestedOperation.HasFlag(DataPackageOperation.Move))
+                if (Package.Contains(StandardDataFormats.StorageItems))
                 {
-                    await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
+                    IReadOnlyList<IStorageItem> ItemList = await Package.GetStorageItemsAsync();
 
-                    if (ItemList.Any((Item) => Path.GetDirectoryName(Item.Path) == FileControlInstance.CurrentFolder.Path))
+                    if (Package.RequestedOperation.HasFlag(DataPackageOperation.Move))
                     {
-                        goto FLAG;
-                    }
+                        await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
-                    bool IsItemNotFound = false;
-                    bool IsUnauthorized = false;
-                    bool IsCaptured = false;
-                    bool IsOperateFailed = false;
+                        bool IsItemNotFound = false;
+                        bool IsUnauthorized = false;
+                        bool IsCaptured = false;
+                        bool IsOperateFailed = false;
 
-                    try
-                    {
-                        await FullTrustExcutorController.Current.MoveAsync(ItemList, FileControlInstance.CurrentFolder, (s, arg) =>
+                        try
                         {
-                            FileControlInstance.ProBar.IsIndeterminate = false;
-                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                        }).ConfigureAwait(true);
-
-                        if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
-                        {
-                            await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
-                        }
-
-                        foreach (IStorageItem StorageItem in ItemList)
-                        {
-                            if (StorageItem is StorageFile File)
+                            await FullTrustExcutorController.Current.MoveAsync(ItemList, FileControlInstance.CurrentFolder, (s, arg) =>
                             {
-                                TabViewContainer.StorageItemOperationRecord.Push($"{StorageItem.Path}||Move||File||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
-                            }
-                            else if (StorageItem is StorageFolder Folder)
+                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                            }).ConfigureAwait(true);
+
+                            if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
                             {
-                                TabViewContainer.StorageItemOperationRecord.Push($"{StorageItem.Path}||Move||Folder||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
+                                await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
                             }
                         }
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        IsItemNotFound = true;
-                    }
-                    catch (FileCaputureException)
-                    {
-                        IsCaptured = true;
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        IsOperateFailed = true;
-                    }
-                    catch (Exception)
-                    {
-                        IsUnauthorized = true;
-                    }
-
-                    if (IsItemNotFound)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
+                        catch (FileNotFoundException)
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else if (IsUnauthorized)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                        };
-
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                            IsItemNotFound = true;
                         }
-                    }
-                    else if (IsCaptured)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
+                        catch (FileCaputureException)
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else if (IsOperateFailed)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
+                            IsCaptured = true;
+                        }
+                        catch (InvalidOperationException)
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                }
-                else if (Package.RequestedOperation.HasFlag(DataPackageOperation.Copy))
-                {
-                    await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
-
-                    bool IsItemNotFound = false;
-                    bool IsUnauthorized = false;
-                    bool IsOperateFailed = false;
-
-                    try
-                    {
-                        await FullTrustExcutorController.Current.CopyAsync(ItemList, FileControlInstance.CurrentFolder, (s, arg) =>
+                            IsOperateFailed = true;
+                        }
+                        catch (Exception)
                         {
-                            FileControlInstance.ProBar.IsIndeterminate = false;
-                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                        }).ConfigureAwait(true);
-
-                        if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
-                        {
-                            await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
+                            IsUnauthorized = true;
                         }
 
-                        foreach (IStorageItem StorageItem in ItemList)
+                        if (IsItemNotFound)
                         {
-                            if (StorageItem is StorageFile File)
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
-                                TabViewContainer.StorageItemOperationRecord.Push($"{StorageItem.Path}||Copy||File||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
-                            }
-                            else if (StorageItem is StorageFolder Folder)
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        }
+                        else if (IsUnauthorized)
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
-                                TabViewContainer.StorageItemOperationRecord.Push($"{StorageItem.Path}||Copy||Folder||{Path.Combine(FileControlInstance.CurrentFolder.Path, StorageItem.Name)}");
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                            };
+
+                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                            {
+                                _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                             }
                         }
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        IsItemNotFound = true;
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        IsOperateFailed = true;
-                    }
-                    catch (Exception)
-                    {
-                        IsUnauthorized = true;
-                    }
-
-                    if (IsItemNotFound)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        else if (IsCaptured)
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
 
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    else if (IsUnauthorized)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        }
+                        else if (IsOperateFailed)
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                        };
-
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
                         }
                     }
-                    else if (IsOperateFailed)
+                    else if (Package.RequestedOperation.HasFlag(DataPackageOperation.Copy))
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
+                        await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
+
+                        bool IsItemNotFound = false;
+                        bool IsUnauthorized = false;
+                        bool IsOperateFailed = false;
+
+                        try
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            await FullTrustExcutorController.Current.CopyAsync(ItemList, FileControlInstance.CurrentFolder, (s, arg) =>
+                            {
+                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                            }).ConfigureAwait(true);
+
+                            if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
+                            {
+                                await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
+                            }
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            IsItemNotFound = true;
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            IsOperateFailed = true;
+                        }
+                        catch (Exception)
+                        {
+                            IsUnauthorized = true;
+                        }
+
+                        if (IsItemNotFound)
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        }
+                        else if (IsUnauthorized)
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                            };
+
+                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                            {
+                                _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                            }
+                        }
+                        else if (IsOperateFailed)
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        }
                     }
                 }
             }
-
-        FLAG:
-            await FileControlInstance.LoadingActivation(false).ConfigureAwait(false);
+            catch
+            {
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_FailToGetClipboardError_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
+            }
+            finally
+            {
+                await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
+                FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
+            }
         }
 
         public async void Cut_Click(object sender, RoutedEventArgs e)
@@ -755,6 +743,8 @@ namespace RX_Explorer
             Package.SetStorageItems(TempList, false);
 
             Clipboard.SetContent(Package);
+
+            SelectedItems.ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.ReduceOpacity));
         }
 
         public async void Delete_Click(object sender, RoutedEventArgs e)
@@ -787,13 +777,13 @@ namespace RX_Explorer
                         await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
                     }
 
-                    if (!QueueContenDialog.IsPermanentDelete)
-                    {
-                        foreach (string Path in PathList)
-                        {
-                            TabViewContainer.StorageItemOperationRecord.Push($"{Path}||Delete");
-                        }
-                    }
+                    //if (!QueueContenDialog.IsPermanentDelete)
+                    //{
+                    //    foreach (string Path in PathList)
+                    //    {
+                    //        OperationRecorder.Current.Value.Push($"{Path}||Delete");
+                    //    }
+                    //}
                 }
                 catch (FileNotFoundException)
                 {
@@ -2191,7 +2181,7 @@ namespace RX_Explorer
                 Paste.IsEnabled = false;
             }
 
-            if (TabViewContainer.StorageItemOperationRecord.Count > 0)
+            if (OperationRecorder.Current.Value.Count > 0)
             {
                 Undo.IsEnabled = true;
             }
@@ -3011,18 +3001,6 @@ namespace RX_Explorer
                                         {
                                             await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
                                         }
-
-                                        foreach (IStorageItem Item in DragItemList)
-                                        {
-                                            if (Item is StorageFile File)
-                                            {
-                                                TabViewContainer.StorageItemOperationRecord.Push($"{File.Path}||Copy||File||{Path.Combine(TargetFolder.Path, File.Name)}");
-                                            }
-                                            else if (Item is StorageFolder Folder)
-                                            {
-                                                TabViewContainer.StorageItemOperationRecord.Push($"{Folder.Path}||Copy||Folder||{Path.Combine(TargetFolder.Path, Folder.Name)}");
-                                            }
-                                        }
                                     }
                                     catch (FileNotFoundException)
                                     {
@@ -3095,18 +3073,6 @@ namespace RX_Explorer
                                         if (!SettingControl.IsDetachTreeViewAndPresenter)
                                         {
                                             await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
-                                        }
-
-                                        foreach (IStorageItem Item in DragItemList)
-                                        {
-                                            if (Item.IsOfType(StorageItemTypes.File))
-                                            {
-                                                TabViewContainer.StorageItemOperationRecord.Push($"{Item.Path}||Move||File||{Path.Combine(TargetFolder.Path, Item.Name)}");
-                                            }
-                                            else
-                                            {
-                                                TabViewContainer.StorageItemOperationRecord.Push($"{Item.Path}||Move||Folder||{Path.Combine(TargetFolder.Path, Item.Name)}");
-                                            }
                                         }
                                     }
                                     catch (FileNotFoundException)
@@ -3308,11 +3274,6 @@ namespace RX_Explorer
                     {
                         StorageFolder TargetFolder = FileControlInstance.CurrentFolder;
 
-                        if (TargetFolder.Path == Path.GetDirectoryName(DragItemList[0].Path))
-                        {
-                            return;
-                        }
-
                         if (DragItemList.Contains(TargetFolder))
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
@@ -3347,18 +3308,6 @@ namespace RX_Explorer
                                         if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
                                         {
                                             await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
-                                        }
-
-                                        foreach (IStorageItem Item in DragItemList)
-                                        {
-                                            if (Item.IsOfType(StorageItemTypes.File))
-                                            {
-                                                TabViewContainer.StorageItemOperationRecord.Push($"{Item.Path}||Copy||File||{Path.Combine(TargetFolder.Path, Item.Name)}");
-                                            }
-                                            else
-                                            {
-                                                TabViewContainer.StorageItemOperationRecord.Push($"{Item.Path}||Copy||Folder||{Path.Combine(TargetFolder.Path, Item.Name)}");
-                                            }
                                         }
                                     }
                                     catch (FileNotFoundException)
@@ -3432,18 +3381,6 @@ namespace RX_Explorer
                                         if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
                                         {
                                             await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
-                                        }
-
-                                        foreach (IStorageItem Item in DragItemList)
-                                        {
-                                            if (Item.IsOfType(StorageItemTypes.File))
-                                            {
-                                                TabViewContainer.StorageItemOperationRecord.Push($"{Item.Path}||Move||File||{Path.Combine(TargetFolder.Path, Item.Name)}");
-                                            }
-                                            else
-                                            {
-                                                TabViewContainer.StorageItemOperationRecord.Push($"{Item.Path}||Move||Folder||{Path.Combine(TargetFolder.Path, Item.Name)}");
-                                            }
                                         }
                                     }
                                     catch (FileCaputureException)

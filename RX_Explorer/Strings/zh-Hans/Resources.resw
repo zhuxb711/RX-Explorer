@@ -778,21 +778,6 @@
   <data name="SettingCleanup.Content" xml:space="preserve">
     <value>重置并初始化</value>
   </data>
-  <data name="SettingClearHistory.Content" xml:space="preserve">
-    <value>清除搜索历史</value>
-  </data>
-  <data name="SettingClearHistoryFlyoutCancelButton.Content" xml:space="preserve">
-    <value>取消</value>
-  </data>
-  <data name="SettingClearHistoryFlyoutContent.Text" xml:space="preserve">
-    <value>搜索历史记录将被清除，是否继续？</value>
-  </data>
-  <data name="SettingClearHistoryFlyoutContinueButton.Content" xml:space="preserve">
-    <value>继续</value>
-  </data>
-  <data name="SettingContactDeveloper.Content" xml:space="preserve">
-    <value>联系开发者</value>
-  </data>
   <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
     <value>文件夹打开方式</value>
   </data>
@@ -2078,9 +2063,6 @@
     <value>由于自动启动被系统禁用，RX无法自动开启此功能\r您可以前往[系统设置]页面管理</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_ClearHistory_Content" xml:space="preserve">
-    <value>搜索历史记录清理完成</value>
-  </data>
   <data name="QueueDialog_CompressionError_Content" xml:space="preserve">
     <value>压缩文件时发生异常\r\r错误信息：\r\r</value>
     <comment>Please keep all \r in this sentence after translate</comment>
@@ -2446,5 +2428,11 @@
   </data>
   <data name="LanguageRestartTip.Text" xml:space="preserve">
     <value>(请重启本应用以使设置生效)</value>
+  </data>
+  <data name="SettingSubmitIssueOnGithub.Content" xml:space="preserve">
+    <value>在Github上提交Issue</value>
+  </data>
+  <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
+    <value>无法获取剪贴板的内容</value>
   </data>
 </root>

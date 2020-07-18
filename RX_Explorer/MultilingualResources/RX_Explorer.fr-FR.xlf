@@ -1028,26 +1028,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Restore and initialize</source>
           <target state="translated">Réinitialiser</target>
         </trans-unit>
-        <trans-unit id="SettingClearHistory.Content" translate="yes" xml:space="preserve">
-          <source>Clear search history</source>
-          <target state="translated">Effacer l'historique des recherches</target>
-        </trans-unit>
-        <trans-unit id="SettingClearHistoryFlyoutCancelButton.Content" translate="yes" xml:space="preserve">
-          <source>Cancel</source>
-          <target state="translated">Annuler</target>
-        </trans-unit>
-        <trans-unit id="SettingClearHistoryFlyoutContent.Text" translate="yes" xml:space="preserve">
-          <source>Search history will be cleared, continue or not?</source>
-          <target state="translated">L'historique des recherches va être effacé, voulez-vous continuer ?</target>
-        </trans-unit>
-        <trans-unit id="SettingClearHistoryFlyoutContinueButton.Content" translate="yes" xml:space="preserve">
-          <source>Continue</source>
-          <target state="translated">Continuer</target>
-        </trans-unit>
-        <trans-unit id="SettingContactDeveloper.Content" translate="yes" xml:space="preserve">
-          <source>Contact the developer</source>
-          <target state="translated">Contacter le développeur</target>
-        </trans-unit>
         <trans-unit id="SettingFolderOpenMethod.Header" translate="yes" xml:space="preserve">
           <source>Folder open method</source>
           <target state="translated">Méthode d'ouverture de dossier</target>
@@ -2750,10 +2730,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">RX ne peut pas être démarré automatiquement car le démarrage est désactivé par le système\rVous pouvez aller à cette page [System Settings] pour modifier ceci</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
-        <trans-unit id="QueueDialog_ClearHistory_Content" translate="yes" xml:space="preserve">
-          <source>Search history cleanup completed</source>
-          <target state="translated">Historique de recherche bien complété</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_CompressionError_Content" translate="yes" xml:space="preserve">
           <source>An exception occurred while compressing the file\r\rError Message：\r\r</source>
           <target state="translated">Une exception a été rencontré lors de la compression du fichier\r\rMessage d'Erreur：\r\r</target>
@@ -3236,6 +3212,14 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="LanguageRestartTip.Text" translate="yes" xml:space="preserve">
           <source>(Please restart the app for the settings to take effect)</source>
           <target state="translated">(Veuillez redémarrer cette application pour que les paramètres prennent effet)</target>
+        </trans-unit>
+        <trans-unit id="SettingSubmitIssueOnGithub.Content" translate="yes" xml:space="preserve">
+          <source>Submit issue on Github</source>
+          <target state="translated">Soumettre un problème sur Github</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_FailToGetClipboardError_Content" translate="yes" xml:space="preserve">
+          <source>Failed to get the contents of the clipboard</source>
+          <target state="translated">Impossible d'obtenir le contenu du presse-papiers</target>
         </trans-unit>
       </group>
     </body>

@@ -289,25 +289,6 @@ namespace RX_Explorer
             ApplicationData.Current.RoamingSettings.Values["IsRated"] = true;
         }
 
-        private async void FlyoutContinue_Click(object sender, RoutedEventArgs e)
-        {
-            ConfirmFly.Hide();
-            await SQLite.Current.ClearSearchHistoryRecord().ConfigureAwait(true);
-
-            QueueContentDialog dialog = new QueueContentDialog
-            {
-                Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                Content = Globalization.GetString("QueueDialog_ClearHistory_Content"),
-                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-            };
-            _ = await dialog.ShowAsync().ConfigureAwait(true);
-        }
-
-        private void FlyoutCancel_Click(object sender, RoutedEventArgs e)
-        {
-            ConfirmFly.Hide();
-        }
-
         private async void ClearUp_Click(object sender, RoutedEventArgs e)
         {
             ResetDialog Dialog = new ResetDialog();

@@ -892,21 +892,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SettingCleanup.Content" xml:space="preserve">
     <value>Restore and initialize</value>
   </data>
-  <data name="SettingClearHistory.Content" xml:space="preserve">
-    <value>Clear search history</value>
-  </data>
-  <data name="SettingClearHistoryFlyoutCancelButton.Content" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="SettingClearHistoryFlyoutContent.Text" xml:space="preserve">
-    <value>Search history will be cleared, continue or not?</value>
-  </data>
-  <data name="SettingClearHistoryFlyoutContinueButton.Content" xml:space="preserve">
-    <value>Continue</value>
-  </data>
-  <data name="SettingContactDeveloper.Content" xml:space="preserve">
-    <value>Contact the developer</value>
-  </data>
   <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
     <value>Folder open method</value>
   </data>
@@ -2206,9 +2191,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>RX cannot be turned on automatically because startup is disabled by the system\rYou can go to the [System Settings] page to manage</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_ClearHistory_Content" xml:space="preserve">
-    <value>Search history cleanup completed</value>
-  </data>
   <data name="QueueDialog_CompressionError_Content" xml:space="preserve">
     <value>An exception occurred while compressing the file\r\rError Message：\r\r</value>
     <comment>Please keep all \r in this sentence after translate</comment>
@@ -2551,5 +2533,11 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="LanguageRestartTip.Text" xml:space="preserve">
     <value>(Please restart the app for the settings to take effect)</value>
+  </data>
+  <data name="SettingSubmitIssueOnGithub.Content" xml:space="preserve">
+    <value>Submit issue on Github</value>
+  </data>
+  <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
+    <value>Failed to get the contents of the clipboard</value>
   </data>
 </root>

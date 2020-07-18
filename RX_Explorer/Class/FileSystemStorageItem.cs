@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -191,6 +192,31 @@ namespace RX_Explorer.Class
             ModifiedTimeRaw = CreateTime;
         }
 
+        public void SetThumbnailOpacity(ThumbnailStatus Status)
+        {
+            switch(Status)
+            {
+                case ThumbnailStatus.Normal:
+                    {
+                        if (ThumbnailOpacity != 1d)
+                        {
+                            ThumbnailOpacity = 1d;
+                        }
+                        break;
+                    }
+                case ThumbnailStatus.ReduceOpacity:
+                    {
+                        if (ThumbnailOpacity != 0.6)
+                        {
+                            ThumbnailOpacity = 0.6;
+                        }
+                        break;
+                    }
+            }
+
+            OnPropertyChanged(nameof(ThumbnailOpacity));
+        }
+
 
         public async Task Replace(string NewPath)
         {
@@ -258,6 +284,8 @@ namespace RX_Explorer.Class
                 return ModifiedTimeRaw.ToString("F");
             }
         }
+
+        public double ThumbnailOpacity { get; private set; } = 1d;
 
         /// <summary>
         /// 获取原始的修改时间

@@ -444,38 +444,8 @@
                                x:Uid="SettingRecovery"
                                FontSize="22"
                                Margin="0,30,0,0" />
-
                     <Button Margin="0,20,0,0"
-                            x:Uid="SettingClearHistory"
-                            Content="清除搜索历史记录"
-                            Style="{ThemeResource ButtonRevealStyle}">
-                        <Button.Flyout>
-                            <Flyout x:Name="ConfirmFly">
-                                <StackPanel>
-                                    <TextBlock Style="{ThemeResource BaseTextBlockStyle}"
-                                               Text="搜索历史记录将被清除，是否继续?"
-                                               x:Uid="SettingClearHistoryFlyoutContent"
-                                               Margin="0,0,0,12" />
-                                    <StackPanel HorizontalAlignment="Right"
-                                                Orientation="Horizontal">
-                                        <Button Content="继续"
-                                                x:Uid="SettingClearHistoryFlyoutContinueButton"
-                                                Name="FlyoutContinue"
-                                                Click="FlyoutContinue_Click"
-                                                Width="100" />
-                                        <Button Margin="10,0,0,0"
-                                                Content="取消"
-                                                x:Uid="SettingClearHistoryFlyoutCancelButton"
-                                                Name="FlyoutCancel"
-                                                Click="FlyoutCancel_Click"
-                                                Width="100" />
-                                    </StackPanel>
-                                </StackPanel>
-                            </Flyout>
-                        </Button.Flyout>
-                    </Button>
-                    <Button Margin="0,20,0,0"
-                            Content="还原并初始化App"
+                            Content="重置并初始化"
                             x:Uid="SettingCleanup"
                             Style="{ThemeResource ButtonRevealStyle}"
                             Name="ClearUp"
@@ -493,6 +463,11 @@
                                      Margin="0,20,0,0"
                                      x:Uid="SettingUpdateLogButton"
                                      Click="UpdateLogLink_Click" />
+                    <HyperlinkButton Content="在Github上提交Issue"
+                                     x:Uid="SettingSubmitIssueOnGithub"
+                                     Margin="0,15,0,0"
+                                     FontSize="16"
+                                     NavigateUri="https://github.com/zhuxb711/RX-Explorer/issues" />
                     <TextBlock Margin="0,30,0,0"
                                x:Uid="SettingSettingPrivacyPolicyTitle"
                                Text="隐私"
@@ -551,15 +526,6 @@
                     <TextBlock Text="• Yann Lacroix"
                                FontSize="15"
                                Margin="0,3,0,0" />
-                    <HyperlinkButton Content="Github"
-                                     Margin="0,15,0,0"
-                                     FontSize="16"
-                                     NavigateUri="https://github.com/zhuxb711/RX-Explorer" />
-                    <HyperlinkButton Content="联系开发者"
-                                     Margin="0,10,0,0"
-                                     FontSize="16"
-                                     x:Uid="SettingContactDeveloper"
-                                     NavigateUri="mailto:zrfcfgs@outlook.com" />
                 </StackPanel>
                 <StackPanel Grid.Column="2"
                             Name="RightPanel">

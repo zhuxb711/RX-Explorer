@@ -685,6 +685,7 @@
                            HorizontalAlignment="Center"
                            Stretch="Uniform"
                            Source="{x:Bind Thumbnail,Mode=OneWay}"
+                           Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                            Height="30"
                            Width="30"
                            PointerPressed="GetFocus_PointerPressed" />

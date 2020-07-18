@@ -161,6 +161,7 @@
     <Compile Include="Class\DataTemplateSelector.cs" />
     <Compile Include="Class\Enum.cs" />
     <Compile Include="Class\Exception.cs" />
+    <Compile Include="Class\OperationRecorder.cs" />
     <Compile Include="Class\PipeLineController.cs" />
     <Compile Include="Class\SpecialTypeGenerator.cs" />
     <Compile Include="Class\StorageAreaWatcher.cs" />
