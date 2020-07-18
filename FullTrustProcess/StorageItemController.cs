@@ -112,7 +112,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Delete(IEnumerable<string> Source, bool PermanentDelete, ProgressChangedEventHandler Progress)
+        public static bool Delete(IEnumerable<string> Source, bool PermanentDelete, ProgressChangedEventHandler Progress, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostDeleteEvent)
         {
             try
             {
@@ -124,6 +124,7 @@ namespace FullTrustProcess
                 })
                 {
                     Operation.UpdateProgress += Progress;
+                    Operation.PostDeleteItem += PostDeleteEvent;
 
                     foreach (string Path in Source)
                     {
@@ -135,6 +136,7 @@ namespace FullTrustProcess
 
                     Operation.PerformOperations();
 
+                    Operation.PostDeleteItem -= PostDeleteEvent;
                     Operation.UpdateProgress -= Progress;
                 }
 
@@ -190,7 +192,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Move(IEnumerable<KeyValuePair<string, string>> Source, string DestinationPath, ProgressChangedEventHandler Progress)
+        public static bool Move(IEnumerable<KeyValuePair<string, string>> Source, string DestinationPath, ProgressChangedEventHandler Progress, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostMoveEvent)
         {
             try
             {
@@ -205,6 +207,7 @@ namespace FullTrustProcess
                 })
                 {
                     Operation.UpdateProgress += Progress;
+                    Operation.PostMoveItem += PostMoveEvent;
 
                     foreach (KeyValuePair<string, string> SourceInfo in Source)
                     {
@@ -217,6 +220,7 @@ namespace FullTrustProcess
 
                     Operation.PerformOperations();
 
+                    Operation.PostMoveItem -= PostMoveEvent;
                     Operation.UpdateProgress -= Progress;
                 }
 

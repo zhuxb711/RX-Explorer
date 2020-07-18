@@ -10,6 +10,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Vanara.PInvoke;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
 
@@ -277,8 +278,10 @@ namespace FullTrustProcess
                             string SourcePathJson = Convert.ToString(args.Request.Message["SourcePath"]);
                             string DestinationPath = Convert.ToString(args.Request.Message["DestinationPath"]);
                             string Guid = Convert.ToString(args.Request.Message["Guid"]);
+                            bool IsUndo = Convert.ToBoolean(args.Request.Message["Undo"]);
 
                             List<KeyValuePair<string, string>> SourcePathList = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(SourcePathJson);
+                            List<string> OperationRecordList = new List<string>();
 
                             if (SourcePathList.All((Item) => Directory.Exists(Item.Key) || File.Exists(Item.Key)))
                             {
@@ -308,10 +311,25 @@ namespace FullTrustProcess
                                 },
                                 (se, arg) =>
                                 {
-                                    //OperationRecorder.Current.Value.Push($"{arg.SourceItem.FileSystemPath}||Copy||{(arg.SourceItem.IsFolder ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                    if (arg.Result == HRESULT.S_OK && !IsUndo)
+                                    {
+                                        if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                        {
+                                            OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{(Directory.Exists(arg.SourceItem.FileSystemPath) ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                        }
+                                        else
+                                        {
+                                            OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{(Directory.Exists(arg.SourceItem.FileSystemPath) ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                        }
+                                    }
                                 }))
                                 {
                                     Value.Add("Success", string.Empty);
+
+                                    if (OperationRecordList.Count > 0)
+                                    {
+                                        Value.Add("OperationRecord", JsonConvert.SerializeObject(OperationRecordList));
+                                    }
                                 }
                                 else
                                 {
@@ -358,8 +376,10 @@ namespace FullTrustProcess
                             string SourcePathJson = Convert.ToString(args.Request.Message["SourcePath"]);
                             string DestinationPath = Convert.ToString(args.Request.Message["DestinationPath"]);
                             string Guid = Convert.ToString(args.Request.Message["Guid"]);
+                            bool IsUndo = Convert.ToBoolean(args.Request.Message["Undo"]);
 
                             List<KeyValuePair<string, string>> SourcePathList = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(SourcePathJson);
+                            List<string> OperationRecordList = new List<string>();
 
                             if (SourcePathList.All((Item) => Directory.Exists(Item.Key) || File.Exists(Item.Key)))
                             {
@@ -392,9 +412,27 @@ namespace FullTrustProcess
                                                 Debug.WriteLine("无法传输进度数据");
                                             }
                                         }
+                                    },
+                                    (se, arg) =>
+                                    {
+                                        if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN && !IsUndo)
+                                        {
+                                            if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                            {
+                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{(Directory.Exists(arg.SourceItem.FileSystemPath) ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                            }
+                                            else
+                                            {
+                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{(Directory.Exists(arg.SourceItem.FileSystemPath) ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                            }
+                                        }
                                     }))
                                     {
                                         Value.Add("Success", string.Empty);
+                                        if (OperationRecordList.Count > 0)
+                                        {
+                                            Value.Add("OperationRecord", JsonConvert.SerializeObject(OperationRecordList));
+                                        }
                                     }
                                     else
                                     {
@@ -442,8 +480,10 @@ namespace FullTrustProcess
                             string ExcutePathJson = Convert.ToString(args.Request.Message["ExcutePath"]);
                             string Guid = Convert.ToString(args.Request.Message["Guid"]);
                             bool PermanentDelete = Convert.ToBoolean(args.Request.Message["PermanentDelete"]);
+                            bool IsUndo = Convert.ToBoolean(args.Request.Message["Undo"]);
 
                             List<string> ExcutePathList = JsonConvert.DeserializeObject<List<string>>(ExcutePathJson);
+                            List<string> OperationRecordList = new List<string>();
 
                             try
                             {
@@ -451,7 +491,7 @@ namespace FullTrustProcess
                                 {
                                     if (ExcutePathList.Where((Path) => File.Exists(Path)).Any((Item) => StorageItemController.CheckOccupied(Item)))
                                     {
-                                        Value.Add("Error_Capture", "An error occurred while moving the folder");
+                                        Value.Add("Error_Capture", "An error occurred while deleting the folder");
                                     }
                                     else
                                     {
@@ -484,9 +524,20 @@ namespace FullTrustProcess
                                                     Debug.WriteLine("无法传输进度数据");
                                                 }
                                             }
+                                        },
+                                        (se, arg) =>
+                                        {
+                                            if (!PermanentDelete && !IsUndo)
+                                            {
+                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
+                                            }
                                         }))
                                         {
                                             Value.Add("Success", string.Empty);
+                                            if (OperationRecordList.Count > 0)
+                                            {
+                                                Value.Add("OperationRecord", JsonConvert.SerializeObject(OperationRecordList));
+                                            }
                                         }
                                         else
                                         {

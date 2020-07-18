@@ -206,9 +206,9 @@ namespace RX_Explorer.Class
                     }
                 case ThumbnailStatus.ReduceOpacity:
                     {
-                        if (ThumbnailOpacity != 0.6)
+                        if (ThumbnailOpacity != 0.5)
                         {
-                            ThumbnailOpacity = 0.6;
+                            ThumbnailOpacity = 0.5;
                         }
                         break;
                     }

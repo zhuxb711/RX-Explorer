@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.XPath;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
@@ -542,7 +541,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task DeleteAsync(IEnumerable<string> Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
+        public async Task DeleteAsync(IEnumerable<string> Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
             try
             {
@@ -566,7 +565,8 @@ namespace RX_Explorer.Class
                         {"ExcuteType", ExcuteType_Delete},
                         {"ExcutePath", JsonConvert.SerializeObject(Source)},
                         {"PermanentDelete", PermanentDelete},
-                        {"Guid", PipeLineController.Current.GUID.ToString() }
+                        {"Guid", PipeLineController.Current.GUID.ToString() },
+                        {"Undo", IsUndoOperation }
                     };
 
                     Task<AppServiceResponse> MessageTask = Connection.SendMessageAsync(Value).AsTask();
@@ -577,7 +577,10 @@ namespace RX_Explorer.Class
                     {
                         if (MessageTask.Result.Message.ContainsKey("Success"))
                         {
-                            return;
+                            if (MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
+                            {
+                                OperationRecorder.Current.Value.Push(JsonConvert.DeserializeObject<List<string>>(Convert.ToString(value)));
+                            }
                         }
                         else if (MessageTask.Result.Message.ContainsKey("Error_NotFound"))
                         {
@@ -612,37 +615,37 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task DeleteAsync(IEnumerable<IStorageItem> Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
+        public Task DeleteAsync(IEnumerable<IStorageItem> Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
             if (Source == null)
             {
                 throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
             }
 
-            return DeleteAsync(Source.Select((Item) => Item.Path), PermanentDelete, ProgressHandler);
+            return DeleteAsync(Source.Select((Item) => Item.Path), PermanentDelete, ProgressHandler, IsUndoOperation);
         }
 
-        public Task DeleteAsync(IStorageItem Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
+        public Task DeleteAsync(IStorageItem Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
             if (Source == null)
             {
                 throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
             }
 
-            return DeleteAsync(new string[1] { Source.Path }, PermanentDelete, ProgressHandler);
+            return DeleteAsync(new string[1] { Source.Path }, PermanentDelete, ProgressHandler, IsUndoOperation);
         }
 
-        public Task DeleteAsync(string Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
+        public Task DeleteAsync(string Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
             if (Source == null)
             {
                 throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
             }
 
-            return DeleteAsync(new string[1] { Source }, PermanentDelete, ProgressHandler);
+            return DeleteAsync(new string[1] { Source }, PermanentDelete, ProgressHandler, IsUndoOperation);
         }
 
-        public async Task MoveAsync(IEnumerable<string> Source, string DestinationPath, ProgressChangedEventHandler ProgressHandler = null)
+        public async Task MoveAsync(IEnumerable<string> Source, string DestinationPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
             if (Source == null)
             {
@@ -723,7 +726,8 @@ namespace RX_Explorer.Class
                         {"ExcuteType", ExcuteType_Move},
                         {"SourcePath", JsonConvert.SerializeObject(MessageList)},
                         {"DestinationPath", DestinationPath},
-                        {"Guid", PipeLineController.Current.GUID.ToString() }
+                        {"Guid", PipeLineController.Current.GUID.ToString() },
+                        {"Undo", IsUndoOperation }
                     };
 
                     Task<AppServiceResponse> MessageTask = Connection.SendMessageAsync(Value).AsTask();
@@ -734,7 +738,10 @@ namespace RX_Explorer.Class
                     {
                         if (MessageTask.Result.Message.ContainsKey("Success"))
                         {
-                            return;
+                            if (MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
+                            {
+                                OperationRecorder.Current.Value.Push(JsonConvert.DeserializeObject<List<string>>(Convert.ToString(value)));
+                            }
                         }
                         else if (MessageTask.Result.Message.ContainsKey("Error_NotFound"))
                         {
@@ -769,7 +776,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task MoveAsync(IEnumerable<IStorageItem> Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null)
+        public Task MoveAsync(IEnumerable<IStorageItem> Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
             if (Source == null)
             {
@@ -781,10 +788,10 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return MoveAsync(Source.Select((Item) => Item.Path), Destination.Path, ProgressHandler);
+            return MoveAsync(Source.Select((Item) => Item.Path), Destination.Path, ProgressHandler, IsUndoOperation);
         }
 
-        public Task MoveAsync(IStorageItem Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null)
+        public Task MoveAsync(IStorageItem Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
             if (Source == null)
             {
@@ -796,10 +803,10 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return MoveAsync(new string[1] { Source.Path }, Destination.Path, ProgressHandler);
+            return MoveAsync(new string[1] { Source.Path }, Destination.Path, ProgressHandler, IsUndoOperation);
         }
 
-        public async Task CopyAsync(IEnumerable<string> Source, string DestinationPath, ProgressChangedEventHandler ProgressHandler = null)
+        public async Task CopyAsync(IEnumerable<string> Source, string DestinationPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
             if (Source == null)
             {
@@ -882,7 +889,8 @@ namespace RX_Explorer.Class
                         {"ExcuteType", ExcuteType_Copy},
                         {"SourcePath", JsonConvert.SerializeObject(MessageList)},
                         {"DestinationPath", DestinationPath},
-                        {"Guid", PipeLineController.Current.GUID.ToString() }
+                        {"Guid", PipeLineController.Current.GUID.ToString() },
+                        {"Undo", IsUndoOperation }
                     };
 
                     Task<AppServiceResponse> MessageTask = Connection.SendMessageAsync(Value).AsTask();
@@ -893,7 +901,10 @@ namespace RX_Explorer.Class
                     {
                         if (MessageTask.Result.Message.ContainsKey("Success"))
                         {
-                            return;
+                            if (MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
+                            {
+                                OperationRecorder.Current.Value.Push(JsonConvert.DeserializeObject<List<string>>(Convert.ToString(value)));
+                            }
                         }
                         else if (MessageTask.Result.Message.ContainsKey("Error_NotFound"))
                         {
@@ -924,7 +935,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task CopyAsync(IEnumerable<IStorageItem> Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null)
+        public Task CopyAsync(IEnumerable<IStorageItem> Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
             if (Source == null)
             {
@@ -936,10 +947,10 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return CopyAsync(Source.Select((Item) => Item.Path), Destination.Path, ProgressHandler);
+            return CopyAsync(Source.Select((Item) => Item.Path), Destination.Path, ProgressHandler, IsUndoOperation);
         }
 
-        public Task CopyAsync(IStorageItem Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null)
+        public Task CopyAsync(IStorageItem Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
             if (Source == null)
             {
@@ -951,7 +962,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return CopyAsync(new string[1] { Source.Path }, Destination.Path, ProgressHandler);
+            return CopyAsync(new string[1] { Source.Path }, Destination.Path, ProgressHandler, IsUndoOperation);
         }
 
         public async Task<bool> RestoreItemInRecycleBinAsync(string Path)

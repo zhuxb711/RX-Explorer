@@ -859,7 +859,7 @@
                    VerticalAlignment="Center"
                    x:Uid="HasFile"
                    Text="无文件"
-                   FontSize="18"
+                   FontSize="16"
                    Visibility="Collapsed" />
     </Grid>
 </Page>

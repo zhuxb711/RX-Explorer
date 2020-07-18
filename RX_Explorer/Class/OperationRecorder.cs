@@ -4,7 +4,7 @@ namespace RX_Explorer.Class
 {
     public sealed class OperationRecorder
     {
-        public Stack<string> Value { get; private set; }
+        public Stack<List<string>> Value { get; private set; }
 
         private static readonly object Locker = new object();
 
@@ -23,7 +23,7 @@ namespace RX_Explorer.Class
 
         private OperationRecorder()
         {
-            Value = new Stack<string>();
+            Value = new Stack<List<string>>();
         }
     }
 }

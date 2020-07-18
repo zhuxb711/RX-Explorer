@@ -26,7 +26,7 @@ namespace RX_Explorer
             LoadingControl.IsLoading = true;
             MainPage.ThisPage.IsAnyTaskRunning = true;
 
-            IStorageItem Item = await SFile.GetStorageItem();
+            IStorageItem Item = await SFile.GetStorageItem().ConfigureAwait(true);
 
             try
             {

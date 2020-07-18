@@ -252,7 +252,7 @@ namespace RX_Explorer
                             CreateFolder_Click(null, null);
                             break;
                         }
-                    case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && OperationRecorder.Current.Value.Count > 0:
+                    case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !MainPage.ThisPage.IsAnyTaskRunning && OperationRecorder.Current.Value.Count > 0:
                         {
                             await Ctrl_Z_Click().ConfigureAwait(false);
                             break;
@@ -286,216 +286,219 @@ namespace RX_Explorer
             {
                 await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Undoing")).ConfigureAwait(true);
 
-                string[] SplitGroup = OperationRecorder.Current.Value.Pop().Split("||", StringSplitOptions.RemoveEmptyEntries);
-
                 try
                 {
-                    switch (SplitGroup[1])
+                    foreach (string Action in OperationRecorder.Current.Value.Pop())
                     {
-                        case "Move":
-                            {
-                                if (FileControlInstance.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[3]))
+                        string[] SplitGroup = Action.Split("||", StringSplitOptions.RemoveEmptyEntries);
+
+                        switch (SplitGroup[1])
+                        {
+                            case "Move":
                                 {
-                                    StorageFolder OriginFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(SplitGroup[0]));
-
-                                    switch (SplitGroup[2])
+                                    if (FileControlInstance.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[3]))
                                     {
-                                        case "File":
-                                            {
-                                                if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
-                                                {
-                                                    await FullTrustExcutorController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
-                                                    {
-                                                        FileControlInstance.ProBar.IsIndeterminate = false;
-                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                    }).ConfigureAwait(true);
-                                                }
-                                                else
-                                                {
-                                                    throw new FileNotFoundException();
-                                                }
+                                        StorageFolder OriginFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(SplitGroup[0]));
 
-                                                break;
-                                            }
-                                        case "Folder":
-                                            {
-                                                if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFolder Folder)
+                                        switch (SplitGroup[2])
+                                        {
+                                            case "File":
                                                 {
-                                                    await FullTrustExcutorController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
+                                                    if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
+                                                    {
+                                                        await FullTrustExcutorController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
+                                                        {
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        },true).ConfigureAwait(true);
+                                                    }
+                                                    else
+                                                    {
+                                                        throw new FileNotFoundException();
+                                                    }
+
+                                                    break;
+                                                }
+                                            case "Folder":
+                                                {
+                                                    if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFolder Folder)
+                                                    {
+                                                        await FullTrustExcutorController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
+                                                        {
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }, true).ConfigureAwait(true);
+
+                                                        if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
+                                                        {
+                                                            await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        throw new FileNotFoundException();
+                                                    }
+
+                                                    break;
+                                                }
+                                        }
+                                    }
+                                    else if (FileControlInstance.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[0]))
+                                    {
+                                        switch (SplitGroup[2])
+                                        {
+                                            case "File":
+                                                {
+                                                    StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(SplitGroup[3]));
+
+                                                    if ((await TargetFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
+                                                    {
+                                                        await FullTrustExcutorController.Current.MoveAsync(File, FileControlInstance.CurrentFolder, (s, arg) =>
+                                                        {
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }, true).ConfigureAwait(true);
+                                                    }
+                                                    else
+                                                    {
+                                                        throw new FileNotFoundException();
+                                                    }
+
+                                                    break;
+                                                }
+                                            case "Folder":
+                                                {
+                                                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
+
+                                                    await FullTrustExcutorController.Current.MoveAsync(Folder, FileControlInstance.CurrentFolder, (s, arg) =>
                                                     {
                                                         FileControlInstance.ProBar.IsIndeterminate = false;
                                                         FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                    }).ConfigureAwait(true);
+                                                    }, true).ConfigureAwait(true);
 
                                                     if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
                                                     {
                                                         await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
                                                     }
-                                                }
-                                                else
-                                                {
-                                                    throw new FileNotFoundException();
-                                                }
 
-                                                break;
-                                            }
+                                                    break;
+                                                }
+                                        }
                                     }
-                                }
-                                else if (FileControlInstance.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[0]))
-                                {
-                                    switch (SplitGroup[2])
+                                    else
                                     {
-                                        case "File":
-                                            {
-                                                StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(SplitGroup[3]));
+                                        StorageFolder OriginFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(SplitGroup[0]));
 
-                                                if ((await TargetFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
+                                        switch (SplitGroup[2])
+                                        {
+                                            case "File":
                                                 {
-                                                    await FullTrustExcutorController.Current.MoveAsync(File, FileControlInstance.CurrentFolder, (s, arg) =>
+                                                    StorageFile File = await StorageFile.GetFileFromPathAsync(SplitGroup[3]);
+
+                                                    await FullTrustExcutorController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
                                                     {
                                                         FileControlInstance.ProBar.IsIndeterminate = false;
                                                         FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                    }).ConfigureAwait(true);
+                                                    }, true).ConfigureAwait(true);
+
+                                                    break;
                                                 }
-                                                else
+                                            case "Folder":
                                                 {
-                                                    throw new FileNotFoundException();
-                                                }
+                                                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
 
-                                                break;
-                                            }
-                                        case "Folder":
-                                            {
-                                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
-
-                                                await FullTrustExcutorController.Current.MoveAsync(Folder, FileControlInstance.CurrentFolder, (s, arg) =>
-                                                {
-                                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                }).ConfigureAwait(true);
-
-                                                if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
-                                                {
-                                                    await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
-                                                }
-
-                                                break;
-                                            }
-                                    }
-                                }
-                                else
-                                {
-                                    StorageFolder OriginFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(SplitGroup[0]));
-
-                                    switch (SplitGroup[2])
-                                    {
-                                        case "File":
-                                            {
-                                                StorageFile File = await StorageFile.GetFileFromPathAsync(SplitGroup[3]);
-
-                                                await FullTrustExcutorController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
-                                                {
-                                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                }).ConfigureAwait(true);
-
-                                                break;
-                                            }
-                                        case "Folder":
-                                            {
-                                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
-
-                                                await FullTrustExcutorController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
-                                                {
-                                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                }).ConfigureAwait(true);
-
-                                                if (!SettingControl.IsDetachTreeViewAndPresenter)
-                                                {
-                                                    await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
-                                                }
-
-                                                break;
-                                            }
-                                    }
-                                }
-
-                                break;
-                            }
-                        case "Copy":
-                            {
-                                if (FileControlInstance.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[3]))
-                                {
-                                    switch (SplitGroup[2])
-                                    {
-                                        case "File":
-                                            {
-                                                if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
-                                                {
-                                                    await FullTrustExcutorController.Current.DeleteAsync(File, true, (s, arg) =>
+                                                    await FullTrustExcutorController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
                                                     {
                                                         FileControlInstance.ProBar.IsIndeterminate = false;
                                                         FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                    }).ConfigureAwait(true);
+                                                    }, true).ConfigureAwait(true);
+
+                                                    if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                    {
+                                                        await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                                                    }
+
+                                                    break;
                                                 }
-
-                                                break;
-                                            }
-                                        case "Folder":
-                                            {
-                                                await FullTrustExcutorController.Current.DeleteAsync(SplitGroup[3], true, (s, arg) =>
-                                                {
-                                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                }).ConfigureAwait(true);
-
-                                                if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
-                                                {
-                                                    await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
-                                                }
-
-                                                break;
-                                            }
+                                        }
                                     }
+
+                                    break;
                                 }
-                                else
+                            case "Copy":
                                 {
-                                    await FullTrustExcutorController.Current.DeleteAsync(SplitGroup[3], true, (s, arg) =>
+                                    if (FileControlInstance.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[3]))
                                     {
-                                        FileControlInstance.ProBar.IsIndeterminate = false;
-                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                    }).ConfigureAwait(true);
+                                        switch (SplitGroup[2])
+                                        {
+                                            case "File":
+                                                {
+                                                    if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
+                                                    {
+                                                        await FullTrustExcutorController.Current.DeleteAsync(File, true, (s, arg) =>
+                                                        {
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }, true).ConfigureAwait(true);
+                                                    }
+
+                                                    break;
+                                                }
+                                            case "Folder":
+                                                {
+                                                    await FullTrustExcutorController.Current.DeleteAsync(SplitGroup[3], true, (s, arg) =>
+                                                    {
+                                                        FileControlInstance.ProBar.IsIndeterminate = false;
+                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                    }, true).ConfigureAwait(true);
+
+                                                    if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
+                                                    {
+                                                        await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
+                                                    }
+
+                                                    break;
+                                                }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        await FullTrustExcutorController.Current.DeleteAsync(SplitGroup[3], true, (s, arg) =>
+                                        {
+                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                        }, true).ConfigureAwait(true);
+                                    }
+                                    break;
                                 }
-                                break;
-                            }
-                        case "Delete":
-                            {
-                                if ((await FullTrustExcutorController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true)).FirstOrDefault((Item) => Item.RecycleItemOriginPath == SplitGroup[0]) is FileSystemStorageItem Item)
+                            case "Delete":
                                 {
-                                    if (!await FullTrustExcutorController.Current.RestoreItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
+                                    if ((await FullTrustExcutorController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true)).FirstOrDefault((Item) => Item.RecycleItemOriginPath == SplitGroup[0]) is FileSystemStorageItem Item)
+                                    {
+                                        if (!await FullTrustExcutorController.Current.RestoreItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
+                                        {
+                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = $"{Globalization.GetString("QueueDialog_RecycleBinRestoreError_Content")} {Environment.NewLine}{Item.Name}",
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+                                            _ = Dialog.ShowAsync().ConfigureAwait(true);
+                                        }
+                                    }
+                                    else
                                     {
                                         QueueContentDialog Dialog = new QueueContentDialog
                                         {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = $"{Globalization.GetString("QueueDialog_RecycleBinRestoreError_Content")} {Environment.NewLine}{Item.Name}",
+                                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                            Content = Globalization.GetString("QueueDialog_UndoFailure_Content"),
                                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                         };
-                                        _ = Dialog.ShowAsync().ConfigureAwait(true);
+                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                                     }
+                                    break;
                                 }
-                                else
-                                {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                                        Content = Globalization.GetString("QueueDialog_UndoFailure_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                }
-                                break;
-                            }
+                        }
                     }
                 }
                 catch
@@ -776,14 +779,6 @@ namespace RX_Explorer
                     {
                         await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
                     }
-
-                    //if (!QueueContenDialog.IsPermanentDelete)
-                    //{
-                    //    foreach (string Path in PathList)
-                    //    {
-                    //        OperationRecorder.Current.Value.Push($"{Path}||Delete");
-                    //    }
-                    //}
                 }
                 catch (FileNotFoundException)
                 {
