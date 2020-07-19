@@ -121,7 +121,6 @@ namespace RX_Explorer.Class
 
                             CurrentType = BackgroundBrushType.SolidColor;
 
-
                             if (SolidColorBackgroundBrush.Color == Colors.White && AppThemeController.Current.Theme == ElementTheme.Dark)
                             {
                                 AppThemeController.Current.ChangeThemeTo(ElementTheme.Light);
@@ -135,26 +134,65 @@ namespace RX_Explorer.Class
                         }
                     default:
                         {
-                            if (WindowsVersionChecker.Windows10_1903)
+                            if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903))
                             {
-                                AcrylicBackgroundBrush = new AcrylicBrush
+                                if (double.TryParse(Convert.ToString(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]), out double TintOpacity))
                                 {
-                                    BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                    TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? GetColorFromHexString(Color) : Colors.LightSlateGray,
-                                    TintOpacity = 1 - Convert.ToDouble(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]),
-                                    TintLuminosityOpacity = 1 - Convert.ToDouble(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]),
-                                    FallbackColor = Colors.DimGray
-                                };
+                                    if(double.TryParse(Convert.ToString(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]), out double TintLuminosity))
+                                    {
+                                        AcrylicBackgroundBrush = new AcrylicBrush
+                                        {
+                                            BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                                            TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? GetColorFromHexString(Color) : Colors.LightSlateGray,
+                                            TintOpacity = 1 - TintOpacity,
+                                            TintLuminosityOpacity = 1 - TintLuminosity,
+                                            FallbackColor = Colors.DimGray
+                                        };
+                                    }
+                                    else
+                                    {
+                                        AcrylicBackgroundBrush = new AcrylicBrush
+                                        {
+                                            BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                                            TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? GetColorFromHexString(Color) : Colors.LightSlateGray,
+                                            TintOpacity = 1 - TintOpacity,
+                                            FallbackColor = Colors.DimGray
+                                        };
+                                    }
+                                }
+                                else
+                                {
+                                    AcrylicBackgroundBrush = new AcrylicBrush
+                                    {
+                                        BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                                        TintColor = Colors.LightSlateGray,
+                                        TintOpacity = 0.4,
+                                        FallbackColor = Colors.DimGray
+                                    };
+                                }
                             }
                             else
                             {
-                                AcrylicBackgroundBrush = new AcrylicBrush
+                                if (double.TryParse(Convert.ToString(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]), out double TintOpacity))
                                 {
-                                    BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                    TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? GetColorFromHexString(Color) : Colors.LightSlateGray,
-                                    TintOpacity = 1 - Convert.ToDouble(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]),
-                                    FallbackColor = Colors.DimGray
-                                };
+                                    AcrylicBackgroundBrush = new AcrylicBrush
+                                    {
+                                        BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? GetColorFromHexString(Color) : Colors.LightSlateGray,
+                                        TintOpacity = 1 - TintOpacity,
+                                        FallbackColor = Colors.DimGray
+                                    };
+                                }
+                                else
+                                {
+                                    AcrylicBackgroundBrush = new AcrylicBrush
+                                    {
+                                        BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
+                                        TintColor = Colors.LightSlateGray,
+                                        TintOpacity = 0.4,
+                                        FallbackColor = Colors.DimGray
+                                    };
+                                }
                             }
 
                             if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string SubMode)
@@ -208,7 +246,7 @@ namespace RX_Explorer.Class
             set
             {
                 AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintOpacityProperty, 1 - value);
-                ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] = value.ToString();
+                ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] = Convert.ToString(value);
             }
         }
 
@@ -219,7 +257,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (WindowsVersionChecker.Windows10_1903)
+                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903))
                 {
                     return 1 - Convert.ToDouble(AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty));
                 }
@@ -230,7 +268,7 @@ namespace RX_Explorer.Class
             }
             set
             {
-                if (WindowsVersionChecker.Windows10_1903)
+                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903))
                 {
                     if (value == -1)
                     {
@@ -239,7 +277,7 @@ namespace RX_Explorer.Class
                     else
                     {
                         AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, 1 - value);
-                        ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] = value.ToString();
+                        ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] = Convert.ToString(value);
                     }
                 }
             }

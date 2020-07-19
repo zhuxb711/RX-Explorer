@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Background;
 using Windows.ApplicationModel.Core;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
@@ -73,7 +74,7 @@ namespace RX_Explorer
 
         private async void MainPage_Loaded1(object sender, RoutedEventArgs e)
         {
-            if(await FullTrustExcutorController.Current.CheckQuicklookIsAvaliableAsync().ConfigureAwait(false))
+            if (await FullTrustExcutorController.Current.CheckQuicklookIsAvaliableAsync().ConfigureAwait(false))
             {
                 SettingControl.IsQuicklookAvailable = true;
             }
@@ -166,6 +167,18 @@ namespace RX_Explorer
                     GeneralTransformer.IsAnyTransformTaskRunning = false;
                     ToastNotificationManager.History.Clear();
                 }
+            }
+
+            try
+            {
+                if (!e.Handled && Clipboard.GetContent().Contains(StandardDataFormats.StorageItems))
+                {
+                    Clipboard.Flush();
+                }
+            }
+            catch
+            {
+
             }
 
             Deferral.Complete();

@@ -1316,7 +1316,7 @@
     <value>Soumettre un problème sur Github</value>
   </data>
   <data name="DelayLoadNotification_Content_1" xml:space="preserve">
-    <value>Impossible d'obtenir les vignettes de certains fichiers, le chargement du contenu peut donc être lent</value>
+    <value>Impossible d'obtenir les vignettes de certains fichiers</value>
   </data>
   <data name="DelayLoadNotification_Content_2" xml:space="preserve">
     <value>Veuillez attendre patiemment</value>
@@ -2267,7 +2267,7 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="SettingPurchase.Content" xml:space="preserve">
-    <value>Achetez cette application</value>
+    <value>Achetez cette application (Parrainer)</value>
   </data>
   <data name="QueueDialog_EditErrorWhenOpen_Content" xml:space="preserve">
     <value>Impossible de créer le clip, impossible de modifier cette vidéo</value>

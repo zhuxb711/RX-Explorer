@@ -179,7 +179,7 @@
                       x:Name="Scroll">
             <Grid Padding="0,0,0,20">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="400" />
+                    <ColumnDefinition MinWidth="400" />
                     <ColumnDefinition />
                     <ColumnDefinition Width="350" />
                 </Grid.ColumnDefinitions>
@@ -511,7 +511,7 @@
                     <Button Style="{ThemeResource ButtonRevealStyle}"
                             x:Name="Purchase"
                             Margin="0,20,0,0"
-                            Content="购买本应用"
+                            Content="购买本应用(赞助)"
                             x:Uid="SettingPurchase"
                             Click="Purchase_Click" />
                     <TextBlock Margin="0,30,0,0"

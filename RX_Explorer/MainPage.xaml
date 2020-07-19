@@ -16,7 +16,7 @@
                               Grid.Row="1"
                               Title="更快捷的启动"
                               PreferredPlacement="Bottom"
-                              IsLightDismissEnabled="False"
+                              IsLightDismissEnabled="True"
                               ActionButtonContent="一键固定"
                               CloseButtonContent="关闭提示">
         </controls:TeachingTip>
@@ -25,7 +25,7 @@
                               Grid.Row="1"
                               Title="请为此App评分"
                               PreferredPlacement="Bottom"
-                              IsLightDismissEnabled="False"
+                              IsLightDismissEnabled="True"
                               Subtitle="您的评分很重要，请花一两分钟评价一下App吧！"
                               ActionButtonContent="现在评价"
                               CloseButtonContent="不再提醒">

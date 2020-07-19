@@ -494,7 +494,7 @@ namespace RX_Explorer
 
                             if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] is string Luminosity)
                             {
-                                float Value = Convert.ToSingle(Luminosity);
+                                double Value = Convert.ToDouble(Luminosity);
                                 TintLuminositySlider.Value = Value;
                                 BackgroundController.Current.TintLuminosityOpacity = Value;
                             }
@@ -506,7 +506,7 @@ namespace RX_Explorer
 
                             if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] is string Opacity)
                             {
-                                float Value = Convert.ToSingle(Opacity);
+                                double Value = Convert.ToDouble(Opacity);
                                 TintOpacitySlider.Value = Value;
                                 BackgroundController.Current.TintOpacity = Value;
                             }
@@ -793,7 +793,7 @@ namespace RX_Explorer
 
             if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] is string Luminosity)
             {
-                float Value = Convert.ToSingle(Luminosity);
+                double Value = Convert.ToDouble(Luminosity);
                 TintLuminositySlider.Value = Value;
                 BackgroundController.Current.TintLuminosityOpacity = Value;
             }
@@ -805,7 +805,7 @@ namespace RX_Explorer
 
             if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] is string Opacity)
             {
-                float Value = Convert.ToSingle(Opacity);
+                double Value = Convert.ToDouble(Opacity);
                 TintOpacitySlider.Value = Value;
                 BackgroundController.Current.TintOpacity = Value;
             }

@@ -486,6 +486,7 @@
                 <Image VerticalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
+                       Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                        Height="60"
                        Width="60" />
                 <StackPanel Orientation="Vertical"
@@ -530,6 +531,7 @@
                 <Image HorizontalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
+                       Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                        Height="95"
                        Width="120" />
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
@@ -551,6 +553,7 @@
                 <Image HorizontalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
+                       Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                        Height="70"
                        Width="90" />
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
@@ -572,6 +575,7 @@
                 <Image HorizontalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
+                       Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                        Height="40"
                        Width="60" />
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
@@ -752,6 +756,7 @@
                 <Image VerticalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
+                       Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                        Height="30"
                        Width="30"
                        PointerPressed="GetFocus_PointerPressed" />

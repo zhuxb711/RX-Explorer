@@ -959,7 +959,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Privacy</value>
   </data>
   <data name="SettingPurchase.Content" xml:space="preserve">
-    <value>Purchase this app</value>
+    <value>Purchase this app (Sponsor)</value>
   </data>
   <data name="SettingSystemInfo.Content" xml:space="preserve">
     <value>System Information</value>
@@ -1433,7 +1433,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Submit an issue on Github</value>
   </data>
   <data name="DelayLoadNotification_Content_1" xml:space="preserve">
-    <value>Unable to get thumbnails of some files, so content loading may be slow</value>
+    <value>Unable to get thumbnails of some files</value>
   </data>
   <data name="DelayLoadNotification_Content_2" xml:space="preserve">
     <value>Please wait patiently</value>

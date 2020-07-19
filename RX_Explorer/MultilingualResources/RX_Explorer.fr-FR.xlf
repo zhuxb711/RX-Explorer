@@ -1745,8 +1745,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Soumettre un problème sur Github</target>
         </trans-unit>
         <trans-unit id="DelayLoadNotification_Content_1" translate="yes" xml:space="preserve">
-          <source>Unable to get thumbnails of some files, so content loading may be slow</source>
-          <target state="translated">Impossible d'obtenir les vignettes de certains fichiers, le chargement du contenu peut donc être lent</target>
+          <source>Unable to get thumbnails of some files</source>
+          <target state="translated">Impossible d'obtenir les vignettes de certains fichiers</target>
         </trans-unit>
         <trans-unit id="DelayLoadNotification_Content_2" translate="yes" xml:space="preserve">
           <source>Please wait patiently</source>
@@ -2997,8 +2997,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="SettingPurchase.Content" translate="yes" xml:space="preserve">
-          <source>Purchase this app</source>
-          <target state="translated">Achetez cette application</target>
+          <source>Purchase this app (Sponsor)</source>
+          <target state="translated">Achetez cette application (Parrainer)</target>
         </trans-unit>
         <trans-unit id="QueueDialog_EditErrorWhenOpen_Content" translate="yes" xml:space="preserve">
           <source>Failed to create clip, unable to edit this video</source>

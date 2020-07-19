@@ -1,4 +1,29 @@
 ﻿*****
+###Quoi de neuf dans la version 5.1.0.0
+
+>#####Mise à jour des fonctionnalités
+
+>>#####Ajout de la prise en charge de l'ouverture des fichiers .bat
+
+>>#####L'icône du fichier à déplacer sera grisée
+
+>>#####Ajouter la fonction de copie de glisser dans le même dossier, qui générera automatiquement des copies de fichiers
+
+>>#####Même si l'application est fermée, le contenu copié et coupé continuera d'être valide
+
+>#####Correction de bogue
+
+>>#####Résolution du problème selon lequel "Ouvrir en tant qu'administrateur" n'est pas valide
+
+>>#####Amélioration du contrôleur d'arrière-plan et ajout d'une vérification défensive pour résoudre les erreurs possibles
+
+>>#####Résoudre le problème de permettre l'exécution simultanée de plusieurs opérations d'annulation
+
+>>#####Résolvez le problème suivant: si un conflit de nom se produit lors de la copie ou du déplacement d'un fichier et que le fichier est finalement renommé, l'enregistrement d'annulation sera erroné et le problème finira par conduire à l'irréversibilité.
+
+>>#####Résolvez le problème selon lequel certains fichiers peuvent être manqués si un grand nombre de modifications, d'ajouts et de suppressions sont apportés au dossier actuel en peu de temps
+
+*****
 ###Quoi de neuf dans la version 5.0.7.0
 
 >#####Correction d'un bug

@@ -593,11 +593,32 @@ namespace FullTrustProcess
                             {
                                 if (string.IsNullOrEmpty(ExcuteParameter))
                                 {
-                                    if (ExcuteAuthority == "Administrator")
+                                    using (Process Process = new Process())
+                                    {
+                                        Process.StartInfo.FileName = ExcutePath;
+
+                                        if (ExcuteAuthority == "Administrator")
+                                        {
+                                            Process.StartInfo.Verb = "runAs";
+                                        }
+
+                                        Process.Start();
+                                    }
+                                }
+                                else
+                                {
+                                    if (SpecialStringMap.Contains(ExcutePath))
                                     {
                                         using (Process Process = new Process())
                                         {
-                                            Process.StartInfo.Verb = "runAs";
+                                            Process.StartInfo.FileName = ExcutePath;
+                                            Process.StartInfo.Arguments = ExcuteParameter;
+
+                                            if (ExcuteAuthority == "Administrator")
+                                            {
+                                                Process.StartInfo.Verb = "runAs";
+                                            }
+
                                             Process.Start();
                                         }
                                     }
@@ -606,54 +627,14 @@ namespace FullTrustProcess
                                         using (Process Process = new Process())
                                         {
                                             Process.StartInfo.FileName = ExcutePath;
+                                            Process.StartInfo.Arguments = $"\"{ExcuteParameter}\"";
+
+                                            if (ExcuteAuthority == "Administrator")
+                                            {
+                                                Process.StartInfo.Verb = "runAs";
+                                            }
+
                                             Process.Start();
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    if (SpecialStringMap.Contains(ExcutePath))
-                                    {
-                                        if (ExcuteAuthority == "Administrator")
-                                        {
-                                            using (Process Process = new Process())
-                                            {
-                                                Process.StartInfo.FileName = ExcutePath;
-                                                Process.StartInfo.Arguments = ExcuteParameter;
-                                                Process.StartInfo.Verb = "runAs";
-                                                Process.Start();
-                                            }
-                                        }
-                                        else
-                                        {
-                                            using (Process Process = new Process())
-                                            {
-                                                Process.StartInfo.FileName = ExcutePath;
-                                                Process.StartInfo.Arguments = ExcuteParameter;
-                                                Process.Start();
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (ExcuteAuthority == "Administrator")
-                                        {
-                                            using (Process Process = new Process())
-                                            {
-                                                Process.StartInfo.FileName = ExcutePath;
-                                                Process.StartInfo.Arguments = $"\"{ExcuteParameter}\"";
-                                                Process.StartInfo.Verb = "runAs";
-                                                Process.Start();
-                                            }
-                                        }
-                                        else
-                                        {
-                                            using (Process Process = new Process())
-                                            {
-                                                Process.StartInfo.FileName = ExcutePath;
-                                                Process.StartInfo.Arguments = $"\"{ExcuteParameter}\"";
-                                                Process.Start();
-                                            }
                                         }
                                     }
                                 }

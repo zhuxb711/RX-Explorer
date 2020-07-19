@@ -536,7 +536,7 @@ namespace RX_Explorer
 
             Clipboard.SetContent(Package);
 
-            SelectedItems.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
+            FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
         }
 
         public async void Paste_Click(object sender, RoutedEventArgs e)
@@ -747,6 +747,7 @@ namespace RX_Explorer
 
             Clipboard.SetContent(Package);
 
+            FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
             SelectedItems.ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.ReduceOpacity));
         }
 
@@ -1207,6 +1208,7 @@ namespace RX_Explorer
                                 break;
                             }
                         case ".exe":
+                        case ".bat":
                             {
                                 ChooseOtherApp.IsEnabled = false;
                                 RunWithSystemAuthority.IsEnabled = true;
@@ -2448,6 +2450,7 @@ namespace RX_Explorer
                                         break;
                                     }
                                 case ".exe":
+                                case ".bat":
                                     {
                                         if (RunAsAdministrator)
                                         {

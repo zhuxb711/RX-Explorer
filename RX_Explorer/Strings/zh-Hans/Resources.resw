@@ -1316,7 +1316,7 @@
     <value>在Github提交issue</value>
   </data>
   <data name="DelayLoadNotification_Content_1" xml:space="preserve">
-    <value>无法获取部分文件的缩略图，因此内容加载可能变慢</value>
+    <value>无法获取部分文件的缩略图</value>
   </data>
   <data name="DelayLoadNotification_Content_2" xml:space="preserve">
     <value>请耐心等待</value>
@@ -2267,7 +2267,7 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="SettingPurchase.Content" xml:space="preserve">
-    <value>购买本应用</value>
+    <value>购买本应用 (赞助)</value>
   </data>
   <data name="QueueDialog_EditErrorWhenOpen_Content" xml:space="preserve">
     <value>创建剪辑片段时失败,无法编辑此视频</value>

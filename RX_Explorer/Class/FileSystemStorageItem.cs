@@ -71,6 +71,7 @@ namespace RX_Explorer.Class
                 Inner_Thumbnail = value;
             }
         }
+
         private BitmapImage Inner_Thumbnail;
 
         private readonly static BitmapImage Const_Folder_Image = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
@@ -192,6 +193,10 @@ namespace RX_Explorer.Class
             ModifiedTimeRaw = CreateTime;
         }
 
+        /// <summary>
+        /// 设置缩略图的透明度，用于表示文件的是否处于待移动状态
+        /// </summary>
+        /// <param name="Status">状态</param>
         public void SetThumbnailOpacity(ThumbnailStatus Status)
         {
             switch(Status)
@@ -217,7 +222,11 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(ThumbnailOpacity));
         }
 
-
+        /// <summary>
+        /// 用新路径的存储对象替代当前的FileSystemStorageItem的内容
+        /// </summary>
+        /// <param name="NewPath">新的路径</param>
+        /// <returns></returns>
         public async Task Replace(string NewPath)
         {
             try
@@ -253,6 +262,11 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(Size));
         }
 
+        /// <summary>
+        /// 手动更新界面显示
+        /// </summary>
+        /// <param name="ReGenerateSizeAndModifiedTime"><是否重新计算大小和修改时间/param>
+        /// <returns></returns>
         public async Task Update(bool ReGenerateSizeAndModifiedTime)
         {
             if (ReGenerateSizeAndModifiedTime)

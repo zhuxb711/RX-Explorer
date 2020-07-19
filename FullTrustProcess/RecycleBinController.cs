@@ -74,7 +74,7 @@ namespace FullTrustProcess
 
                     using (ShellFolder DestItem = new ShellFolder(DirectoryName))
                     {
-                        ShellFileOperations.Move(SourceItem, DestItem, null, ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent);
+                        ShellFileOperations.Move(SourceItem, DestItem, null, ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RenameOnCollision);
                     }
 
                     File.Delete(System.IO.Path.GetFileName(Path).Replace("$R", "$I"));
