@@ -207,7 +207,7 @@ namespace RX_Explorer
                             await EnterSelectedItem(Item).ConfigureAwait(false);
                             break;
                         }
-                    case VirtualKey.Back when FileControlInstance.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && !QueueContentDialog.IsRunningOrWaiting && FileControlInstance.GoBackRecord.IsEnabled:
+                    case VirtualKey.Back when FileControlInstance.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && FileControlInstance.GoBackRecord.IsEnabled:
                         {
                             FileControlInstance.GoBackRecord_Click(null, null);
                             break;
@@ -252,7 +252,7 @@ namespace RX_Explorer
                             CreateFolder_Click(null, null);
                             break;
                         }
-                    case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !MainPage.ThisPage.IsAnyTaskRunning && OperationRecorder.Current.Value.Count > 0:
+                    case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && OperationRecorder.Current.Value.Count > 0:
                         {
                             await Ctrl_Z_Click().ConfigureAwait(false);
                             break;
@@ -310,7 +310,7 @@ namespace RX_Explorer
                                                         {
                                                             FileControlInstance.ProBar.IsIndeterminate = false;
                                                             FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                        },true).ConfigureAwait(true);
+                                                        }, true).ConfigureAwait(true);
                                                     }
                                                     else
                                                     {
@@ -441,6 +441,10 @@ namespace RX_Explorer
                                                             FileControlInstance.ProBar.Value = arg.ProgressPercentage;
                                                         }, true).ConfigureAwait(true);
                                                     }
+                                                    else
+                                                    {
+                                                        throw new FileNotFoundException();
+                                                    }
 
                                                     break;
                                                 }
@@ -553,6 +557,11 @@ namespace RX_Explorer
 
                     if (Package.RequestedOperation.HasFlag(DataPackageOperation.Move))
                     {
+                        if (ItemList.Select((Item) => Item.Path).All((Item) => Path.GetDirectoryName(Item) == FileControlInstance.CurrentFolder.Path))
+                        {
+                            return;
+                        }
+
                         await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
                         bool IsItemNotFound = false;
@@ -3157,17 +3166,17 @@ namespace RX_Explorer
 
         private async void ListViewControl_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
         {
-            if (e.Items.Count == 0)
+            if (e.Items.Count != 0)
             {
-                return;
-            }
+                List<IStorageItem> TempList = new List<IStorageItem>(e.Items.Count);
+                
+                foreach (object obj in e.Items)
+                {
+                    TempList.Add(await (obj as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true));
+                }
 
-            List<IStorageItem> TempList = new List<IStorageItem>(e.Items.Count);
-            foreach (object obj in e.Items)
-            {
-                TempList.Add(await (obj as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true));
+                e.Data.SetStorageItems(TempList, false);
             }
-            e.Data.SetStorageItems(TempList, false);
         }
 
         private void ViewControl_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)

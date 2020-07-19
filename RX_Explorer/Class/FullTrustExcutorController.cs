@@ -652,11 +652,6 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
             }
 
-            if (Source.All((Item) => Path.GetDirectoryName(Item) == DestinationPath))
-            {
-                return;
-            }
-
             try
             {
                 IsNowHasAnyActionExcuting = true;

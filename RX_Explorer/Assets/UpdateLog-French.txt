@@ -11,6 +11,8 @@
 
 >>#####Même si l'application est fermée, le contenu copié et coupé continuera d'être valide
 
+>>#####A partir de cette version, le mode d'affichage par défaut passe de "Tile" à "Detail"
+
 >#####Correction de bogue
 
 >>#####Résolution du problème selon lequel "Ouvrir en tant qu'administrateur" n'est pas valide

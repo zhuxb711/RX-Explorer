@@ -190,8 +190,8 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] = 0;
-                    ItemDisplayMode.SelectedIndex = 0;
+                    ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] = 1;
+                    ItemDisplayMode.SelectedIndex = 1;
                 }
             }
             catch (Exception ex)
@@ -221,7 +221,7 @@ namespace RX_Explorer
             }
             else
             {
-                await Task.Delay(1000).ConfigureAwait(true);
+                await Task.Delay(500).ConfigureAwait(true);
                 MainPage.ThisPage.IsAnyTaskRunning = false;
             }
 

@@ -11,6 +11,8 @@
 
 >>#####Even if the application is closed, the copied and cut content will continue to be valid
 
+>>#####From this version, the default display mode is changed from "Tile" to "Detail"
+
 >#####Bug fix
 
 >>#####Solved the problem that "Open as administrator" is invalid
