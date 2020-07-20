@@ -32,7 +32,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    return InnerFolder = await StorageFolder.GetFolderFromPathAsync(Path);
+                    return InnerFolder = await StorageFolder.GetFolderFromPathAsync(Path).AsTask().ConfigureAwait(false);
                 }
                 catch
                 {

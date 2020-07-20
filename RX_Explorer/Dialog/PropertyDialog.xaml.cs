@@ -190,7 +190,7 @@ namespace RX_Explorer.Dialog
 
         private void CalculateFolderSize(StorageFolder Folder)
         {
-            long TotalSize = WIN_Native_API.CalculateSize(Folder.Path);
+            ulong TotalSize = WIN_Native_API.CalculateSize(Folder.Path);
 
             FileSize = TotalSize / 1024d < 1024 ? Math.Round(TotalSize / 1024d, 2).ToString("0.00") + " KB" :
             (TotalSize / 1048576d < 1024 ? Math.Round(TotalSize / 1048576d, 2).ToString("0.00") + " MB" :

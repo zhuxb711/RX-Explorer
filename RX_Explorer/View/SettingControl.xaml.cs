@@ -45,6 +45,8 @@ namespace RX_Explorer
 
         public static bool IsInputFromPrimaryButton { get; set; } = true;
 
+        public static bool IsDisplayHiddenItem { get; set; } = false;
+
         private int EnterAndExitLock = 0;
 
         public bool IsOpened { get; private set; } = false;
@@ -223,6 +225,12 @@ namespace RX_Explorer
             {
                 this.EnableQuicklook.IsOn = EnableQuicklook;
                 IsQuicklookEnable = EnableQuicklook;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] is bool IsHidden)
+            {
+                DisplayHiddenItem.IsOn = IsHidden;
+                IsDisplayHiddenItem = IsHidden;
             }
         }
 
@@ -1101,7 +1109,7 @@ namespace RX_Explorer
             {
                 case 0:
                     {
-                        if(Globalization.SwitchTo(LanguageEnum.Chinese))
+                        if (Globalization.SwitchTo(LanguageEnum.Chinese))
                         {
                             LanguageRestartTip.Visibility = Visibility.Visible;
                         }
@@ -1113,7 +1121,7 @@ namespace RX_Explorer
                     }
                 case 1:
                     {
-                        if(Globalization.SwitchTo(LanguageEnum.English))
+                        if (Globalization.SwitchTo(LanguageEnum.English))
                         {
                             LanguageRestartTip.Visibility = Visibility.Visible;
                         }
@@ -1125,7 +1133,7 @@ namespace RX_Explorer
                     }
                 case 2:
                     {
-                        if(Globalization.SwitchTo(LanguageEnum.French))
+                        if (Globalization.SwitchTo(LanguageEnum.French))
                         {
                             LanguageRestartTip.Visibility = Visibility.Visible;
                         }
@@ -1155,6 +1163,18 @@ namespace RX_Explorer
 
                     Item.IsTranslated = true;
                 }
+            }
+        }
+
+        private async void DisplayHiddenItem_Toggled(object sender, RoutedEventArgs e)
+        {
+            IsDisplayHiddenItem = DisplayHiddenItem.IsOn;
+            ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] = IsDisplayHiddenItem;
+
+            if (TabViewContainer.CurrentTabNavigation?.Content is FileControl Control)
+            {
+                Control.DisplayItemsInFolder(Control.CurrentFolder, true);
+                await Control.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(false);
             }
         }
     }

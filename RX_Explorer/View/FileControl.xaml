@@ -193,7 +193,7 @@
                                         Click="AddressButton_Click"
                                         AllowDrop="True"
                                         Drop="AddressButton_Drop"
-                                        DragEnter="AddressButton_DragEnter"
+                                        DragOver="AddressButton_DragOver"
                                         Background="{ThemeResource ButtonDisabledBackgroundThemeBrush}" />
                                 <Button Background="{ThemeResource ButtonDisabledBackgroundThemeBrush}"
                                         VerticalAlignment="Center"

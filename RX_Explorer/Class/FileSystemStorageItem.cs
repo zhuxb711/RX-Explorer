@@ -1,9 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
-using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -35,6 +33,8 @@ namespace RX_Explorer.Class
         /// 指示是否是回收站对象，此值为true时将改变一些呈现内容
         /// </summary>
         public bool IsRecycleItem { get; private set; } = false;
+
+        public bool IsHidenItem { get; private set; } = false;
 
         /// <summary>
         /// 当IsRecycleItem=true时提供回收站对象的原始路径
@@ -123,6 +123,12 @@ namespace RX_Explorer.Class
             ModifiedTimeRaw = ModifiedTime;
             this.StorageType = StorageType;
 
+            if (((System.IO.FileAttributes)Data.dwFileAttributes).HasFlag(System.IO.FileAttributes.Hidden))
+            {
+                IsHidenItem = true;
+                SetThumbnailOpacity(ThumbnailStatus.ReduceOpacity);
+            }
+
             if (StorageType != StorageItemTypes.Folder)
             {
                 SizeRaw = ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
@@ -144,6 +150,11 @@ namespace RX_Explorer.Class
             {
                 if (StorageItem == null)
                 {
+                    if (IsHidenItem)
+                    {
+                        return null;
+                    }
+
                     if (StorageType == StorageItemTypes.File)
                     {
                         return StorageItem = await StorageFile.GetFileFromPathAsync(InternalPathString);
@@ -194,12 +205,12 @@ namespace RX_Explorer.Class
         }
 
         /// <summary>
-        /// 设置缩略图的透明度，用于表示文件的是否处于待移动状态
+        /// 设置缩略图的透明度，用于表示文件的是否处于待移动或隐藏状态
         /// </summary>
         /// <param name="Status">状态</param>
         public void SetThumbnailOpacity(ThumbnailStatus Status)
         {
-            switch(Status)
+            switch (Status)
             {
                 case ThumbnailStatus.Normal:
                     {
@@ -220,6 +231,20 @@ namespace RX_Explorer.Class
             }
 
             OnPropertyChanged(nameof(ThumbnailOpacity));
+        }
+
+        public void SetHiddenProperty(bool IsHidden)
+        {
+            IsHidenItem = IsHidden;
+
+            if(IsHidden)
+            {
+                SetThumbnailOpacity(ThumbnailStatus.ReduceOpacity);
+            }
+            else
+            {
+                SetThumbnailOpacity(ThumbnailStatus.Normal);
+            }
         }
 
         /// <summary>

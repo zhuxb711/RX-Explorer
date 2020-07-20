@@ -212,6 +212,14 @@
                                   Name="FolderOpenMethod"
                                   Toggled="FolderOpenMethod_Toggled" />
 
+                    <ToggleSwitch Margin="0,20,0,0"
+                                  Header="显示隐藏文件/文件夹"
+                                  x:Uid="SettingDisplayHiddenItem"
+                                  OnContent="启用"
+                                  OffContent="禁用"
+                                  Name="DisplayHiddenItem"
+                                  Toggled="DisplayHiddenItem_Toggled"/>
+
                     <StackPanel>
                         <ComboBox Margin="0,20,0,0"
                                   Header="语言"

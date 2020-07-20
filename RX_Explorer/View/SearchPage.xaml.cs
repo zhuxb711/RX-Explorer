@@ -149,7 +149,7 @@ namespace RX_Explorer
                             TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Item.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
                             if (TargetNode != null)
                             {
-                                await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
+                                FileControlInstance.DisplayItemsInFolder(TargetNode);
                             }
                             else
                             {
@@ -182,7 +182,7 @@ namespace RX_Explorer
                         {
                             TreeViewNode CurrentNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Path.GetDirectoryName(Item.Path), (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
 
-                            await FileControlInstance.DisplayItemsInFolder(CurrentNode).ConfigureAwait(true);
+                            FileControlInstance.DisplayItemsInFolder(CurrentNode);
                         }
                     }
                     catch (FileNotFoundException)

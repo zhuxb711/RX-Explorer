@@ -2648,10 +2648,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>This folder has been added to the home page, can not be added repeatedly</source>
           <target state="translated">此文件夹已经添加到主界面了，不能重复添加哦</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_SameFolder_Content" translate="yes" xml:space="preserve">
-          <source>The target folder is the same as the source folder</source>
-          <target state="translated">目标文件夹和源文件夹相同</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCreateFolder_Content" translate="yes" xml:space="preserve">
           <source>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</source>
           <target state="translated">RX无权在此创建文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？</target>
@@ -3220,6 +3216,30 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="QueueDialog_FailToGetClipboardError_Content" translate="yes" xml:space="preserve">
           <source>Failed to get the contents of the clipboard</source>
           <target state="translated">无法获取剪贴板的内容</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ItemHidden_Content" translate="yes" xml:space="preserve">
+          <source>Unable to access hidden files or folders, please unhide them and try to access again</source>
+          <target state="translated">无法访问隐藏的文件或文件夹，请取消隐藏后再尝试访问</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RemoveHiddenError_Content" translate="yes" xml:space="preserve">
+          <source>Cannot remove hidden attributes</source>
+          <target state="translated">无法移除隐藏属性</target>
+        </trans-unit>
+        <trans-unit id="RemoveHiddenProperty.Label" translate="yes" xml:space="preserve">
+          <source>Remove hidden attributes</source>
+          <target state="translated">尝试移除隐藏属性</target>
+        </trans-unit>
+        <trans-unit id="SettingDisplayHiddenItem.Header" translate="yes" xml:space="preserve">
+          <source>Show hidden files/folders</source>
+          <target state="translated">显示隐藏文件/文件夹</target>
+        </trans-unit>
+        <trans-unit id="SettingDisplayHiddenItem.OffContent" translate="yes" xml:space="preserve">
+          <source>Disable</source>
+          <target state="translated">禁用</target>
+        </trans-unit>
+        <trans-unit id="SettingDisplayHiddenItem.OnContent" translate="yes" xml:space="preserve">
+          <source>Enable</source>
+          <target state="translated">启用</target>
         </trans-unit>
       </group>
     </body>

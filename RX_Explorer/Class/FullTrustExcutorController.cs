@@ -31,6 +31,8 @@ namespace RX_Explorer.Class
 
         private const string ExcuteType_RequestCreateNewPipe = "Excute_RequestCreateNewPipe";
 
+        private const string ExcuteType_RemoveHiddenAttribute = "Excute_RemoveHiddenAttribute";
+
         private const string ExcuteType_EmptyRecycleBin = "Excute_Empty_RecycleBin";
 
         private const string ExcuteType_UnlockOccupy = "Excute_Unlock_Occupy";
@@ -133,6 +135,47 @@ namespace RX_Explorer.Class
             catch
             {
                 return IsConnected = false;
+            }
+        }
+
+        public async Task<bool> RemoveHiddenAttribute(string Path)
+        {
+            try
+            {
+                IsNowHasAnyActionExcuting = true;
+
+                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExcuteType", ExcuteType_RemoveHiddenAttribute},
+                        {"ExcutePath", Path},
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if(Response.Message.ContainsKey("Success"))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                Debug.WriteLine("Warning: RequestCreateNewPipeLine() excute error");
+                return false;
+            }
+            finally
+            {
+                IsNowHasAnyActionExcuting = false;
             }
         }
 

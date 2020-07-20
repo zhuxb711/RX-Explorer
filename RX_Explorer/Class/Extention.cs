@@ -171,7 +171,7 @@ namespace RX_Explorer.Class
 
             if (Node.Children.Count > 0)
             {
-                List<string> FolderList = WIN_Native_API.GetStorageItemsPath((Node.Content as TreeViewNodeContent).Path, ItemFilters.Folder);
+                List<string> FolderList = WIN_Native_API.GetStorageItemsPath((Node.Content as TreeViewNodeContent).Path, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder);
                 List<string> PathList = Node.Children.Select((Item) => (Item.Content as TreeViewNodeContent).Path).ToList();
                 List<string> AddList = FolderList.Except(PathList).ToList();
                 List<string> RemoveList = PathList.Except(FolderList).ToList();

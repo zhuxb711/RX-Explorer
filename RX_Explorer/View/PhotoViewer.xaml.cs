@@ -16,7 +16,6 @@ using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 namespace RX_Explorer
@@ -72,7 +71,7 @@ namespace RX_Explorer
 
                 Behavior.Attach(Flip);
 
-                List<FileSystemStorageItem> FileList = WIN_Native_API.GetStorageItems(FileControlInstance.CurrentFolder, ItemFilters.File).Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToList();
+                List<FileSystemStorageItem> FileList = WIN_Native_API.GetStorageItems(FileControlInstance.CurrentFolder, false, ItemFilters.File).Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToList();
 
                 int LastSelectIndex = FileList.FindIndex((Photo) => Photo.Name == SelectedPhotoName);
                 if (LastSelectIndex < 0 || LastSelectIndex >= FileList.Count)

@@ -2124,9 +2124,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_RepeatAddToHomePage_Content" xml:space="preserve">
     <value>This folder has been added to the home page, can not be added repeatedly</value>
   </data>
-  <data name="QueueDialog_SameFolder_Content" xml:space="preserve">
-    <value>The target folder is the same as the source folder</value>
-  </data>
   <data name="QueueDialog_UnauthorizedCreateFolder_Content" xml:space="preserve">
     <value>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
@@ -2539,5 +2536,23 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
     <value>Failed to get the contents of the clipboard</value>
+  </data>
+  <data name="QueueDialog_ItemHidden_Content" xml:space="preserve">
+    <value>Unable to access hidden files or folders, please unhide them and try to access again</value>
+  </data>
+  <data name="QueueDialog_RemoveHiddenError_Content" xml:space="preserve">
+    <value>Cannot remove hidden attributes</value>
+  </data>
+  <data name="RemoveHiddenProperty.Label" xml:space="preserve">
+    <value>Remove hidden attributes</value>
+  </data>
+  <data name="SettingDisplayHiddenItem.Header" xml:space="preserve">
+    <value>Show hidden files/folders</value>
+  </data>
+  <data name="SettingDisplayHiddenItem.OffContent" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="SettingDisplayHiddenItem.OnContent" xml:space="preserve">
+    <value>Enable</value>
   </data>
 </root>

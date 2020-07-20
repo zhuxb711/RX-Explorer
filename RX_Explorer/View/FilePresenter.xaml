@@ -19,6 +19,38 @@
 
         <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
 
+        <CommandBarFlyout x:Name="HiddenItemFlyout"
+                          Placement="RightEdgeAlignedTop">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Label="使用系统管理器打开"
+                              x:Uid="SystemManagerOpen"
+                              x:Name="OpenHiddenItemExplorer"
+                              Click="OpenHiddenItemExplorer_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xEC50;" />
+                    </AppBarButton.Icon>
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Shift"
+                                             Key="E" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarButton Label="尝试移除隐藏属性"
+                              Name="RemoveHidden"
+                              x:Uid="RemoveHiddenProperty"
+                              Click="RemoveHidden_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control"
+                                             Key="H" />
+                    </AppBarButton.KeyboardAccelerators>
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xF5EF;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
+        
         <CommandBarFlyout x:Name="FileFlyout"
                           Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Copy"
@@ -800,7 +832,7 @@
                   CanDrag="False"
                   CanReorderItems="False"
                   CanDragItems="True"
-                  DragItemsStarting="ListViewControl_DragItemsStarting"
+                  DragItemsStarting="ViewControl_DragItemsStarting"
                   AllowDrop="True"
                   DragOver="ViewControl_DragOver"
                   Drop="ViewControl_Drop"
@@ -845,7 +877,7 @@
                   DragOver="ViewControl_DragOver"
                   Drop="ViewControl_Drop"
                   ItemsSource="{x:Bind FileCollection}"
-                  DragItemsStarting="GridViewControl_DragItemsStarting"
+                  DragItemsStarting="ViewControl_DragItemsStarting"
                   IsItemClickEnabled="True"
                   IsDoubleTapEnabled="True"
                   DoubleTapped="ViewControl_DoubleTapped"

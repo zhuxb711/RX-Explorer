@@ -102,6 +102,35 @@ namespace FullTrustProcess
             {
                 switch (args.Request.Message["ExcuteType"])
                 {
+                    case "Excute_RemoveHiddenAttribute":
+                        {
+                            ValueSet Value = new ValueSet();
+
+                            string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
+
+                            try
+                            {
+                                if (File.Exists(ExcutePath))
+                                {
+                                    File.SetAttributes(ExcutePath, File.GetAttributes(ExcutePath) & ~FileAttributes.Hidden);
+                                }
+                                else if(Directory.Exists(ExcutePath))
+                                {
+                                    DirectoryInfo Info = new DirectoryInfo(ExcutePath);
+                                    Info.Attributes &= ~FileAttributes.Hidden;
+                                }
+
+                                Value.Add("Success", string.Empty);
+                            }
+                            catch(Exception e)
+                            {
+                                Value.Add("Error_RemoveAttributeFailure", e.Message);
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Excute_RequestClosePipe":
                         {
                             string Guid = Convert.ToString(args.Request.Message["Guid"]);
@@ -133,6 +162,7 @@ namespace FullTrustProcess
                     case "Excute_Quicklook":
                         {
                             string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            
                             if (!string.IsNullOrEmpty(ExcutePath))
                             {
                                 await QuicklookConnector.SendMessageToQuicklook(ExcutePath);
@@ -495,10 +525,15 @@ namespace FullTrustProcess
                                     }
                                     else
                                     {
-                                        ExcutePathList.Where((Path) => File.Exists(Path)).ToList().ForEach((Item) => File.SetAttributes(Item, FileAttributes.Normal));
-                                        ExcutePathList.Where((Path) => Directory.Exists(Path)).ToList().ForEach((Item) => _ = new DirectoryInfo(Item)
+                                        ExcutePathList.Where((Path) => File.Exists(Path)).ToList().ForEach((Item) => 
                                         {
-                                            Attributes = FileAttributes.Normal & FileAttributes.Directory
+                                            File.SetAttributes(Item, FileAttributes.Normal);
+                                        });
+
+                                        ExcutePathList.Where((Path) => Directory.Exists(Path)).ToList().ForEach((Item) => 
+                                        {
+                                            DirectoryInfo Info = new DirectoryInfo(Item);
+                                            Info.Attributes &= ~FileAttributes.ReadOnly;
                                         });
 
                                         if (StorageItemController.Delete(ExcutePathList, PermanentDelete, (s, e) =>

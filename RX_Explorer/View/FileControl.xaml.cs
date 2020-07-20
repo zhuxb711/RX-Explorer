@@ -42,12 +42,12 @@ namespace RX_Explorer
             }
             set
             {
-                FolderTree.SelectNode(value);
-
                 TabViewContainer.ThisPage.FFInstanceContainer[this].AreaWatcher.SetCurrentLocation((value?.Content as TreeViewNodeContent)?.Path);
 
                 if (value != null && value.Content is TreeViewNodeContent Content)
                 {
+                    FolderTree.SelectNode(value);
+
                     UpdateAddressButton(Content.Path);
 
                     TabViewContainer.ThisPage.FFInstanceContainer[this].ItemPresenter.Focus(FocusState.Programmatic);
@@ -98,7 +98,7 @@ namespace RX_Explorer
             {
                 if (SettingControl.IsDetachTreeViewAndPresenter)
                 {
-                    return currentFolder ?? (CurrentNode?.Content as TreeViewNodeContent)?.GetStorageFolderAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                    return currentFolder ??= (CurrentNode?.Content as TreeViewNodeContent)?.GetStorageFolderAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                 }
                 else
                 {
@@ -155,7 +155,7 @@ namespace RX_Explorer
 
         public bool IsSearchOrPathBoxFocused { get; set; } = false;
 
-        private List<StorageFolder> GoAndBackRecord = new List<StorageFolder>();
+        private List<string> GoAndBackRecord = new List<string>();
         private ObservableCollection<AddressBlock> AddressButtonList = new ObservableCollection<AddressBlock>();
         private ObservableCollection<string> AddressExtentionList = new ObservableCollection<string>();
         private volatile int recordIndex = 0;
@@ -362,12 +362,12 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
+                    DisplayItemsInFolder(TargetNode);
                 }
             }
         }
 
-        protected async override void OnNavigatedTo(NavigationEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             if (e.Parameter is Tuple<Microsoft.UI.Xaml.Controls.TabViewItem, StorageFolder, ThisPC> Parameters)
             {
@@ -385,7 +385,7 @@ namespace RX_Explorer
                     TabViewContainer.ThisPage.TFInstanceContainer.Add(Parameters.Item3, this);
                 }
 
-                await Initialize(Parameters.Item2).ConfigureAwait(false);
+                Initialize(Parameters.Item2);
             }
         }
 
@@ -419,7 +419,7 @@ namespace RX_Explorer
         /// <summary>
         /// 执行文件目录的初始化
         /// </summary>
-        private async Task Initialize(StorageFolder InitFolder)
+        private void Initialize(StorageFolder InitFolder)
         {
             if (InitFolder != null)
             {
@@ -435,11 +435,11 @@ namespace RX_Explorer
 
                 if (SettingControl.IsDetachTreeViewAndPresenter)
                 {
-                    DisplayItemsInFolder(InitFolder, true);
+                    DisplayItemsInFolder(InitFolder);
                 }
                 else
                 {
-                    await DisplayItemsInFolder(RootNode, true).ConfigureAwait(false);
+                    DisplayItemsInFolder(RootNode);
                 }
             }
         }
@@ -462,7 +462,7 @@ namespace RX_Explorer
                 {
                     if (WIN_Native_API.CheckContainsAnyItem(Content.Path, ItemFilters.Folder))
                     {
-                        List<string> StorageItemPath = WIN_Native_API.GetStorageItemsPath(Content.Path, ItemFilters.Folder);
+                        List<string> StorageItemPath = WIN_Native_API.GetStorageItemsPath(Content.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder);
 
                         for (int i = 0; i < StorageItemPath.Count && Node.IsExpanded && Node.CanTraceToRootNode(FolderTree.RootNodes.FirstOrDefault()); i++)
                         {
@@ -500,10 +500,27 @@ namespace RX_Explorer
 
         private async void FolderTree_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
         {
-            await DisplayItemsInFolder(args.InvokedItem as TreeViewNode).ConfigureAwait(false);
+            if (args.InvokedItem is TreeViewNode Node)
+            {
+                if (WIN_Native_API.CheckIfHidden((Node.Content as TreeViewNodeContent).Path))
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                }
+                else
+                {
+                    DisplayItemsInFolder(Node);
+                }
+            }
         }
 
-        public async Task DisplayItemsInFolder(TreeViewNode Node, bool ForceRefresh = false)
+        public void DisplayItemsInFolder(TreeViewNode Node, bool ForceRefresh = false)
         {
             if (Node == null)
             {
@@ -512,7 +529,7 @@ namespace RX_Explorer
 
             try
             {
-                if (await (Node.Content as TreeViewNodeContent).GetStorageFolderAsync().ConfigureAwait(true) is StorageFolder Folder)
+                if (Node.Content is TreeViewNodeContent Content)
                 {
                     lock (Locker)
                     {
@@ -523,7 +540,7 @@ namespace RX_Explorer
 
                         if (!ForceRefresh)
                         {
-                            if (Folder.Path == CurrentFolder?.Path)
+                            if (Content.Path == CurrentFolder?.Path)
                             {
                                 return;
                             }
@@ -533,14 +550,14 @@ namespace RX_Explorer
                         {
                             IsBackOrForwardAction = false;
                         }
-                        else
+                        else if (!ForceRefresh)
                         {
                             if (RecordIndex != GoAndBackRecord.Count - 1 && GoAndBackRecord.Count != 0)
                             {
                                 GoAndBackRecord.RemoveRange(RecordIndex + 1, GoAndBackRecord.Count - RecordIndex - 1);
                             }
 
-                            GoAndBackRecord.Add(Folder);
+                            GoAndBackRecord.Add(Content.Path);
 
                             RecordIndex = GoAndBackRecord.Count - 1;
                         }
@@ -551,7 +568,7 @@ namespace RX_Explorer
 
                         Presenter.FileCollection.Clear();
 
-                        List<FileSystemStorageItem> ItemList = WIN_Native_API.GetStorageItems(Folder, ItemFilters.File | ItemFilters.Folder).SortList(SortTarget.Name, SortDirection.Ascending);
+                        List<FileSystemStorageItem> ItemList = WIN_Native_API.GetStorageItems(Content.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder).SortList(SortTarget.Name, SortDirection.Ascending);
 
                         Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
@@ -596,14 +613,14 @@ namespace RX_Explorer
                     {
                         IsBackOrForwardAction = false;
                     }
-                    else
+                    else if (!ForceRefresh)
                     {
                         if (RecordIndex != GoAndBackRecord.Count - 1 && GoAndBackRecord.Count != 0)
                         {
                             GoAndBackRecord.RemoveRange(RecordIndex + 1, GoAndBackRecord.Count - RecordIndex - 1);
                         }
 
-                        GoAndBackRecord.Add(Folder);
+                        GoAndBackRecord.Add(Folder.Path);
 
                         RecordIndex = GoAndBackRecord.Count - 1;
                     }
@@ -614,7 +631,7 @@ namespace RX_Explorer
 
                     Presenter.FileCollection.Clear();
 
-                    List<FileSystemStorageItem> ItemList = WIN_Native_API.GetStorageItems(Folder, ItemFilters.File | ItemFilters.Folder).SortList(SortTarget.Name, SortDirection.Ascending);
+                    List<FileSystemStorageItem> ItemList = WIN_Native_API.GetStorageItems(Folder, SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder).SortList(SortTarget.Name, SortDirection.Ascending);
 
                     Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
@@ -647,9 +664,7 @@ namespace RX_Explorer
                 {
                     await FullTrustExcutorController.Current.DeleteAsync(CurrentFolder, QueueContenDialog.IsPermanentDelete).ConfigureAwait(true);
 
-                    await DisplayItemsInFolder(CurrentNode.Parent).ConfigureAwait(true);
-
-                    await CurrentNode.Parent.UpdateAllSubNode().ConfigureAwait(true);
+                    DisplayItemsInFolder(CurrentNode.Parent);
                 }
                 catch (FileCaputureException)
                 {
@@ -670,9 +685,10 @@ namespace RX_Explorer
                         Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
                     };
+
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                    await DisplayItemsInFolder(CurrentNode, true).ConfigureAwait(true);
+                    DisplayItemsInFolder(CurrentNode.Parent);
                 }
                 catch (InvalidOperationException)
                 {
@@ -682,6 +698,7 @@ namespace RX_Explorer
                         Content = Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
+
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
                 catch (Exception)
@@ -694,6 +711,10 @@ namespace RX_Explorer
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
+                finally
+                {
+                    await CurrentNode.Parent.UpdateAllSubNode().ConfigureAwait(true);
+                }
 
                 await LoadingActivation(false).ConfigureAwait(true);
             }
@@ -704,7 +725,7 @@ namespace RX_Explorer
             args.Node.Children.Clear();
         }
 
-        private async void FolderTree_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        private void FolderTree_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
@@ -712,7 +733,7 @@ namespace RX_Explorer
                 {
                     FolderTree.ContextFlyout = RightTabFlyout;
 
-                    await DisplayItemsInFolder(Node).ConfigureAwait(true);
+                    DisplayItemsInFolder(Node);
 
                     if (FolderTree.RootNodes.Contains(CurrentNode))
                     {
@@ -751,7 +772,9 @@ namespace RX_Explorer
                 };
                 _ = await dialog.ShowAsync().ConfigureAwait(true);
 
-                await DisplayItemsInFolder(CurrentNode, true).ConfigureAwait(false);
+                DisplayItemsInFolder(CurrentNode.Parent, true);
+
+                await CurrentNode.Parent.UpdateAllSubNode().ConfigureAwait(false);
 
                 return;
             }
@@ -865,7 +888,10 @@ namespace RX_Explorer
                 };
                 _ = await dialog.ShowAsync().ConfigureAwait(true);
 
-                await DisplayItemsInFolder(CurrentNode, true).ConfigureAwait(false);
+                DisplayItemsInFolder(CurrentNode.Parent, true);
+
+                await CurrentNode.Parent.UpdateAllSubNode().ConfigureAwait(false);
+
                 return;
             }
 
@@ -903,7 +929,7 @@ namespace RX_Explorer
                 };
                 _ = await dialog.ShowAsync().ConfigureAwait(true);
 
-                await DisplayItemsInFolder(CurrentNode, true).ConfigureAwait(false);
+                DisplayItemsInFolder(CurrentFolder, true);
                 return;
             }
 
@@ -1108,6 +1134,20 @@ namespace RX_Explorer
 
             try
             {
+                if (WIN_Native_API.CheckIfHidden(QueryText))
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+
+                    return;
+                }
+
                 if (Path.IsPathRooted(QueryText) && TabViewContainer.ThisPage.HardDeviceList.Any((Drive) => Drive.Folder.Path == Path.GetPathRoot(QueryText)))
                 {
                     StorageFile File = await StorageFile.GetFileFromPathAsync(QueryText);
@@ -1150,7 +1190,7 @@ namespace RX_Explorer
                             TreeViewNode TargetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
                             if (TargetNode != null)
                             {
-                                await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
+                                DisplayItemsInFolder(TargetNode);
 
                                 await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(false);
                             }
@@ -1192,7 +1232,7 @@ namespace RX_Explorer
                         {
                             if (args.CheckCurrent())
                             {
-                                sender.ItemsSource = WIN_Native_API.GetStorageItems(DirectoryName, ItemFilters.Folder).Where((Item) => Item.Name.StartsWith(Path.GetFileName(sender.Text), StringComparison.OrdinalIgnoreCase)).Select((It) => It.Path);
+                                sender.ItemsSource = WIN_Native_API.GetStorageItems(DirectoryName, false, ItemFilters.Folder).Where((Item) => Item.Name.StartsWith(Path.GetFileName(sender.Text), StringComparison.OrdinalIgnoreCase)).Select((It) => It.Path);
                             }
                             else
                             {
@@ -1218,6 +1258,20 @@ namespace RX_Explorer
             {
                 try
                 {
+                    if (WIN_Native_API.CheckIfHidden(Path.GetDirectoryName(CurrentFolder.Path)))
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
+
+                        return;
+                    }
+
                     if (SettingControl.IsDetachTreeViewAndPresenter)
                     {
                         if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
@@ -1230,7 +1284,7 @@ namespace RX_Explorer
                         if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
                         {
                             TreeViewNode ParenetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
-                            await DisplayItemsInFolder(ParenetNode).ConfigureAwait(false);
+                            DisplayItemsInFolder(ParenetNode);
                         }
                     }
                 }
@@ -1251,7 +1305,22 @@ namespace RX_Explorer
                     return;
                 }
 
-                string Path = GoAndBackRecord[--RecordIndex].Path;
+                string Path = GoAndBackRecord[--RecordIndex];
+
+                if (WIN_Native_API.CheckIfHidden(Path))
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+
+                    _ = Interlocked.Exchange(ref NavigateLockResource, 0);
+                    return;
+                }
 
                 try
                 {
@@ -1282,7 +1351,7 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
+                                DisplayItemsInFolder(TargetNode);
 
                                 await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(false);
                             }
@@ -1318,7 +1387,23 @@ namespace RX_Explorer
         {
             if (Interlocked.Exchange(ref NavigateLockResource, 1) == 0)
             {
-                string Path = GoAndBackRecord[++RecordIndex].Path;
+                string Path = GoAndBackRecord[++RecordIndex];
+
+                if (WIN_Native_API.CheckIfHidden(Path))
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+
+                    _ = Interlocked.Exchange(ref NavigateLockResource, 0);
+
+                    return;
+                }
 
                 try
                 {
@@ -1349,7 +1434,7 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
+                                DisplayItemsInFolder(TargetNode);
 
                                 await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(false);
                             }
@@ -1479,6 +1564,20 @@ namespace RX_Explorer
                 return;
             }
 
+            if (WIN_Native_API.CheckIfHidden(ActualString))
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                _ = await Dialog.ShowAsync().ConfigureAwait(false);
+
+                return;
+            }
+
             if (SettingControl.IsDetachTreeViewAndPresenter)
             {
                 try
@@ -1504,7 +1603,7 @@ namespace RX_Explorer
                 {
                     if ((await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(ActualString, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true)) is TreeViewNode TargetNode)
                     {
-                        await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
+                        DisplayItemsInFolder(TargetNode);
 
                         await SQLite.Current.SetPathHistoryAsync(ActualString).ConfigureAwait(false);
                     }
@@ -1553,7 +1652,7 @@ namespace RX_Explorer
             string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(Btn.DataContext as AddressBlock) + 1).Skip(1));
             string ActualString = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
 
-            List<FileSystemStorageItem> ItemList = WIN_Native_API.GetStorageItems(ActualString, ItemFilters.Folder);
+            List<FileSystemStorageItem> ItemList = WIN_Native_API.GetStorageItems(ActualString, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder);
 
             foreach (string SubFolderName in ItemList.Where((It) => It.StorageType == StorageItemTypes.Folder).Select((Item) => Item.Name))
             {
@@ -1591,6 +1690,19 @@ namespace RX_Explorer
 
                 string TargetPath = Path.Combine(ActualString, e.ClickedItem.ToString());
 
+                if (WIN_Native_API.CheckIfHidden(TargetPath))
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    return;
+                }
+
                 if (SettingControl.IsDetachTreeViewAndPresenter)
                 {
                     try
@@ -1617,7 +1729,7 @@ namespace RX_Explorer
                         TreeViewNode TargetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(TargetPath, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
                         if (TargetNode != null)
                         {
-                            await DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
+                            DisplayItemsInFolder(TargetNode);
                         }
                         else
                         {
@@ -1658,23 +1770,29 @@ namespace RX_Explorer
             string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(((Button)sender).DataContext as AddressBlock) + 1).Skip(1));
             string ActualPath = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
 
+            bool IsHiddenTarget = false;
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                IsHiddenTarget = WIN_Native_API.CheckIfHidden(ActualPath);
+            });
+
+            if (IsHiddenTarget)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                return;
+            }
+
             if (Interlocked.Exchange(ref DropLockResource, 1) == 0)
             {
                 try
                 {
-                    if (ActualPath == CurrentFolder.Path)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_SameFolder_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-
-                        return;
-                    }
-
                     if (e.DataView.Contains(StandardDataFormats.StorageItems))
                     {
                         List<IStorageItem> DragItemList = (await e.DataView.GetStorageItemsAsync()).ToList();
@@ -1757,6 +1875,11 @@ namespace RX_Explorer
                                 }
                             case DataPackageOperation.Move:
                                 {
+                                    if (DragItemList.Select((Item) => Item.Path).All((Item) => Path.GetDirectoryName(Item) == CurrentFolder.Path))
+                                    {
+                                        return;
+                                    }
+
                                     await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
                                     bool IsItemNotFound = false;
@@ -1856,7 +1979,7 @@ namespace RX_Explorer
             }
         }
 
-        private void AddressButton_DragEnter(object sender, DragEventArgs e)
+        private void AddressButton_DragOver(object sender, DragEventArgs e)
         {
             if (e.DataView.Contains(StandardDataFormats.StorageItems))
             {
@@ -1888,7 +2011,7 @@ namespace RX_Explorer
                 {
                     FolderTree.ContextFlyout = RightTabFlyout;
 
-                    await DisplayItemsInFolder(Node).ConfigureAwait(true);
+                    DisplayItemsInFolder(Node);
 
                     if (FolderTree.RootNodes.Contains(CurrentNode))
                     {

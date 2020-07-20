@@ -259,7 +259,7 @@ namespace RX_Explorer.Class
                 {
                     do
                     {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
                         {
                             if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                             {
@@ -310,29 +310,14 @@ namespace RX_Explorer.Class
             {
                 if (Ptr.ToInt64() != -1)
                 {
-                    do
+                    if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
                     {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
-                        {
-                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
-                            {
-                                if (Data.cFileName != "." && Data.cFileName != "..")
-                                {
-                                    return true;
-                                }
-                            }
-                            else
-                            {
-                                if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
-                                {
-                                    return true;
-                                }
-                            }
-                        }
+                        return true;
                     }
-                    while (FindNextFile(Ptr, out Data));
-
-                    return false;
+                    else
+                    {
+                        return true;
+                    }
                 }
                 else
                 {
@@ -350,7 +335,45 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static long CalculateSize(string Path)
+        public static bool CheckIfHidden(string Path)
+        {
+            if (string.IsNullOrWhiteSpace(Path))
+            {
+                throw new ArgumentException("Argument could not be empty", nameof(Path));
+            }
+
+            IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+
+            try
+            {
+                if (Ptr.ToInt64() != -1)
+                {
+                    if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                FindClose(Ptr);
+            }
+        }
+
+        public static ulong CalculateSize(string Path)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {
@@ -363,7 +386,7 @@ namespace RX_Explorer.Class
             {
                 if (Ptr.ToInt64() != -1)
                 {
-                    long TotalSize = 0;
+                    ulong TotalSize = 0;
 
                     do
                     {
@@ -378,7 +401,7 @@ namespace RX_Explorer.Class
                         {
                             if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
                             {
-                                TotalSize += (Data.nFileSizeHigh << 32) + (long)Data.nFileSizeLow;
+                                TotalSize += ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
                             }
                         }
                     }
@@ -454,7 +477,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static List<FileSystemStorageItem> GetStorageItems(string Path, ItemFilters Filter)
+        public static List<FileSystemStorageItem> GetStorageItems(string Path, bool IncludeHiddenItem, ItemFilters Filter)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {
@@ -471,7 +494,7 @@ namespace RX_Explorer.Class
 
                     do
                     {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System) && (IncludeHiddenItem || !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden)))
                         {
                             if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                             {
@@ -532,7 +555,7 @@ namespace RX_Explorer.Class
                     {
                         if (Ptr.ToInt64() != -1)
                         {
-                            if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                            if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
                             {
                                 if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
                                 {
@@ -573,7 +596,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static List<FileSystemStorageItem> GetStorageItems(StorageFolder Folder, ItemFilters Filter)
+        public static List<FileSystemStorageItem> GetStorageItems(StorageFolder Folder, bool IncludeHiddenItem, ItemFilters Filter)
         {
             if (Folder == null)
             {
@@ -590,7 +613,7 @@ namespace RX_Explorer.Class
 
                     do
                     {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System) && (IncludeHiddenItem || !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden)))
                         {
                             if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                             {
@@ -632,109 +655,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async static IAsyncEnumerable<IStorageItem> GetStorageItemsWithInnerContent(StorageFolder Folder, ItemFilters Filter)
-        {
-            if (Folder == null)
-            {
-                throw new ArgumentNullException(nameof(Folder), "Argument could not be null");
-            }
-
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Folder.Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
-
-            try
-            {
-                if (Ptr.ToInt64() != -1)
-                {
-                    do
-                    {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
-                        {
-                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
-                            {
-                                if (Data.cFileName != "." && Data.cFileName != "..")
-                                {
-                                    yield return await StorageFolder.GetFolderFromPathAsync(System.IO.Path.Combine(Folder.Path, Data.cFileName));
-                                }
-                            }
-                            else if (Filter.HasFlag(ItemFilters.File))
-                            {
-                                if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
-                                {
-                                    yield return await StorageFile.GetFileFromPathAsync(System.IO.Path.Combine(Folder.Path, Data.cFileName));
-                                }
-                            }
-                        }
-                    }
-                    while (FindNextFile(Ptr, out Data));
-                }
-                else
-                {
-                    Debug.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
-                    yield break;
-                }
-            }
-            finally
-            {
-                FindClose(Ptr);
-            }
-        }
-
-        public static List<string> GetStorageItemsPath(StorageFolder Folder, ItemFilters Filter)
-        {
-            if (Folder == null)
-            {
-                throw new ArgumentNullException(nameof(Folder), "Argument could not be null");
-            }
-
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Folder.Path, "*.*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
-
-            try
-            {
-                if (Ptr.ToInt64() != -1)
-                {
-                    List<string> Result = new List<string>();
-
-                    do
-                    {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
-                        {
-                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
-                            {
-                                if (Data.cFileName != "." && Data.cFileName != "..")
-                                {
-                                    Result.Add(System.IO.Path.Combine(Folder.Path, Data.cFileName));
-                                }
-                            }
-                            else if (Filter.HasFlag(ItemFilters.File))
-                            {
-                                if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
-                                {
-                                    Result.Add(System.IO.Path.Combine(Folder.Path, Data.cFileName));
-                                }
-                            }
-                        }
-                    }
-                    while (FindNextFile(Ptr, out Data));
-
-                    return Result;
-                }
-                else
-                {
-                    Debug.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
-                    return new List<string>();
-                }
-            }
-            catch
-            {
-                return new List<string>();
-            }
-            finally
-            {
-                FindClose(Ptr);
-            }
-        }
-
-        public static List<string> GetStorageItemsPath(string Path, ItemFilters Filter)
+        public static List<string> GetStorageItemsPath(string Path, bool IncludeHiddenItem, ItemFilters Filter)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {
@@ -751,7 +672,7 @@ namespace RX_Explorer.Class
 
                     do
                     {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden) && !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System) && (IncludeHiddenItem || !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden)))
                         {
                             if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                             {

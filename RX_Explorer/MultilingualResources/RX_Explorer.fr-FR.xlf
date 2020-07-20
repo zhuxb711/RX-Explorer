@@ -2648,10 +2648,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>This folder has been added to the home page, can not be added repeatedly</source>
           <target state="translated">Ce dossier a été ajouté à l'écran d'accueil, il ne peut pas être ajouté de nouveau</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_SameFolder_Content" translate="yes" xml:space="preserve">
-          <source>The target folder is the same as the source folder</source>
-          <target state="translated">Le dossier cible est le même que le dossier source</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCreateFolder_Content" translate="yes" xml:space="preserve">
           <source>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</source>
           <target state="translated">RX n'a pas la permission pour créer un dossier, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</target>
@@ -3220,6 +3216,30 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="QueueDialog_FailToGetClipboardError_Content" translate="yes" xml:space="preserve">
           <source>Failed to get the contents of the clipboard</source>
           <target state="translated">Impossible d'obtenir le contenu du presse-papiers</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ItemHidden_Content" translate="yes" xml:space="preserve">
+          <source>Unable to access hidden files or folders, please unhide them and try to access again</source>
+          <target state="translated">Impossible d'accéder aux fichiers ou dossiers cachés, veuillez les afficher et réessayer d'y accéder</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RemoveHiddenError_Content" translate="yes" xml:space="preserve">
+          <source>Cannot remove hidden attributes</source>
+          <target state="translated">Impossible de supprimer les attributs masqués</target>
+        </trans-unit>
+        <trans-unit id="RemoveHiddenProperty.Label" translate="yes" xml:space="preserve">
+          <source>Remove hidden attributes</source>
+          <target state="translated">Supprimer les attributs masqués</target>
+        </trans-unit>
+        <trans-unit id="SettingDisplayHiddenItem.Header" translate="yes" xml:space="preserve">
+          <source>Show hidden files/folders</source>
+          <target state="translated">Afficher les fichiers/dossiers</target>
+        </trans-unit>
+        <trans-unit id="SettingDisplayHiddenItem.OffContent" translate="yes" xml:space="preserve">
+          <source>Disable</source>
+          <target state="translated">Désactiver</target>
+        </trans-unit>
+        <trans-unit id="SettingDisplayHiddenItem.OnContent" translate="yes" xml:space="preserve">
+          <source>Enable</source>
+          <target state="translated">Activer</target>
         </trans-unit>
       </group>
     </body>

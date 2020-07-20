@@ -2000,9 +2000,6 @@
   <data name="QueueDialog_RepeatAddToHomePage_Content" xml:space="preserve">
     <value>Ce dossier a été ajouté à l'écran d'accueil, il ne peut pas être ajouté de nouveau</value>
   </data>
-  <data name="QueueDialog_SameFolder_Content" xml:space="preserve">
-    <value>Le dossier cible est le même que le dossier source</value>
-  </data>
   <data name="QueueDialog_UnauthorizedCreateFolder_Content" xml:space="preserve">
     <value>RX n'a pas la permission pour créer un dossier, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
@@ -2434,5 +2431,23 @@
   </data>
   <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
     <value>Impossible d'obtenir le contenu du presse-papiers</value>
+  </data>
+  <data name="QueueDialog_ItemHidden_Content" xml:space="preserve">
+    <value>Impossible d'accéder aux fichiers ou dossiers cachés, veuillez les afficher et réessayer d'y accéder</value>
+  </data>
+  <data name="QueueDialog_RemoveHiddenError_Content" xml:space="preserve">
+    <value>Impossible de supprimer les attributs masqués</value>
+  </data>
+  <data name="RemoveHiddenProperty.Label" xml:space="preserve">
+    <value>Supprimer les attributs masqués</value>
+  </data>
+  <data name="SettingDisplayHiddenItem.Header" xml:space="preserve">
+    <value>Afficher les fichiers/dossiers</value>
+  </data>
+  <data name="SettingDisplayHiddenItem.OffContent" xml:space="preserve">
+    <value>Désactiver</value>
+  </data>
+  <data name="SettingDisplayHiddenItem.OnContent" xml:space="preserve">
+    <value>Activer</value>
   </data>
 </root>

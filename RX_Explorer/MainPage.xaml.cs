@@ -92,6 +92,16 @@ namespace RX_Explorer
                 ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] = true;
                 SettingControl.IsQuicklookEnable = true;
             }
+
+            if (ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] is bool Display)
+            {
+                SettingControl.IsDisplayHiddenItem = Display;
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] = false;
+                SettingControl.IsDisplayHiddenItem = false;
+            }
         }
 
         private void MainPage_BackRequested(object sender, BackRequestedEventArgs e)
