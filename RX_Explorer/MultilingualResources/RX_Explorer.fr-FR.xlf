@@ -3241,6 +3241,18 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Enable</source>
           <target state="translated">Activer</target>
         </trans-unit>
+        <trans-unit id="Operate_Text_Undo" translate="yes" xml:space="preserve">
+          <source>Undo</source>
+          <target state="translated">Annuler</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_RemoveHidden" translate="yes" xml:space="preserve">
+          <source>Remove hidden attributes</source>
+          <target state="translated">Supprimer les attributs masqués</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_EnableHiddenItemDisplayWarning_Content" translate="yes" xml:space="preserve">
+          <source>Enable the hidden file display function, improper use may damage your computer.\r\rWhether to continue to enable it?</source>
+          <target state="translated">Activez la fonction d'affichage des fichiers cachés, une mauvaise utilisation peut endommager votre ordinateur. \r\rPour continuer à l'activer?</target>
+        </trans-unit>
       </group>
     </body>
   </file>

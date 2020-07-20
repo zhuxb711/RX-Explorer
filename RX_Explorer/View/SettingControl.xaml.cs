@@ -1168,6 +1168,23 @@ namespace RX_Explorer
 
         private async void DisplayHiddenItem_Toggled(object sender, RoutedEventArgs e)
         {
+            if(DisplayHiddenItem.IsOn)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                    Content = Globalization.GetString("QueueDialog_EnableHiddenItemDisplayWarning_Content"),
+                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                };
+
+                if(await Dialog.ShowAsync().ConfigureAwait(true)!=ContentDialogResult.Primary)
+                {
+                    DisplayHiddenItem.IsOn = false;
+                    return;
+                }
+            }
+
             IsDisplayHiddenItem = DisplayHiddenItem.IsOn;
             ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] = IsDisplayHiddenItem;
 

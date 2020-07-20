@@ -2450,4 +2450,13 @@
   <data name="SettingDisplayHiddenItem.OnContent" xml:space="preserve">
     <value>启用</value>
   </data>
+  <data name="Operate_Text_Undo" xml:space="preserve">
+    <value>撤销</value>
+  </data>
+  <data name="Operate_Text_RemoveHidden" xml:space="preserve">
+    <value>尝试移除隐藏属性</value>
+  </data>
+  <data name="QueueDialog_EnableHiddenItemDisplayWarning_Content" xml:space="preserve">
+    <value>启用隐藏文件显示功能，使用不当可能会损坏您的计算机\r\r是否继续启用?</value>
+  </data>
 </root>

@@ -1,7 +1,9 @@
 ﻿*****
-###What's new in Ver.5.1.0.0
+###What's new in Ver.5.1.2.0
 
 >#####Feature Update
+
+>>#####Added display of hidden files and folders
 
 >>#####Added support for opening .bat files
 
@@ -24,6 +26,8 @@
 >>#####Solve the problem that if a name conflict occurs when copying or moving a file and the file is finally renamed, the undo record will be wrong, and the problem will eventually lead to irreversibility.
 
 >>#####Solve the problem that some files may be missed if a large number of modifications, additions, and deletions are made to the current folder in a short time
+
+>>#####Solved the problem that the state of the forward and backward keys will be changed incorrectly when refreshing. This problem will cause the array to cross the boundary and cause the RX to crash
 
 *****
 ###What's new in Ver.5.0.7.0

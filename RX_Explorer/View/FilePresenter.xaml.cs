@@ -3495,12 +3495,27 @@ namespace RX_Explorer
                     {
                         if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
                         {
-                            ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                            if (Context.IsHidenItem)
+                            {
+                                ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                            }
+                            else
+                            {
+                                ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                            }
+
                             SelectedItem = Context;
                         }
                         else
                         {
-                            ItemPresenter.ContextFlyout = MixedFlyout;
+                            if (SelectedItems.All((Item) => !Item.IsHidenItem))
+                            {
+                                ItemPresenter.ContextFlyout = MixedFlyout;
+                            }
+                            else
+                            {
+                                ItemPresenter.ContextFlyout = null;
+                            }
                         }
                     }
                     else
@@ -3522,12 +3537,27 @@ namespace RX_Explorer
                         {
                             if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
                             {
-                                ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                if (Context.IsHidenItem)
+                                {
+                                    ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                }
+                                else
+                                {
+                                    ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                }
+
                                 SelectedItem = Context;
                             }
                             else
                             {
-                                ItemPresenter.ContextFlyout = MixedFlyout;
+                                if (SelectedItems.All((Item) => !Item.IsHidenItem))
+                                {
+                                    ItemPresenter.ContextFlyout = MixedFlyout;
+                                }
+                                else
+                                {
+                                    ItemPresenter.ContextFlyout = null;
+                                }
                             }
                         }
                         else
@@ -3976,15 +4006,17 @@ namespace RX_Explorer
             }
         }
 
-        private async void Undo_Click(object sender, RoutedEventArgs e)
+        public async void Undo_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
             await Ctrl_Z_Click().ConfigureAwait(false);
         }
 
-        private async void RemoveHidden_Click(object sender, RoutedEventArgs e)
+        public async void RemoveHidden_Click(object sender, RoutedEventArgs e)
         {
+            Restore();
+
             if (await FullTrustExcutorController.Current.RemoveHiddenAttribute(SelectedItem.Path).ConfigureAwait(true))
             {
                 SelectedItem.SetHiddenProperty(false);
@@ -4002,7 +4034,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void OpenHiddenItemExplorer_Click(object sender, RoutedEventArgs e)
+        public async void OpenHiddenItemExplorer_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 

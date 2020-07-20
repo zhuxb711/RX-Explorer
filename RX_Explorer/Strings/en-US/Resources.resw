@@ -2555,4 +2555,13 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SettingDisplayHiddenItem.OnContent" xml:space="preserve">
     <value>Enable</value>
   </data>
+  <data name="Operate_Text_Undo" xml:space="preserve">
+    <value>Undo</value>
+  </data>
+  <data name="Operate_Text_RemoveHidden" xml:space="preserve">
+    <value>Remove hidden attributes</value>
+  </data>
+  <data name="QueueDialog_EnableHiddenItemDisplayWarning_Content" xml:space="preserve">
+    <value>Enable the hidden file display function, improper use may damage your computer.\r\rWhether to continue to enable it?</value>
+  </data>
 </root>

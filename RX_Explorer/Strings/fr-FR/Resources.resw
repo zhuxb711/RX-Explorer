@@ -2450,4 +2450,13 @@
   <data name="SettingDisplayHiddenItem.OnContent" xml:space="preserve">
     <value>Activer</value>
   </data>
+  <data name="Operate_Text_Undo" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="Operate_Text_RemoveHidden" xml:space="preserve">
+    <value>Supprimer les attributs masqués</value>
+  </data>
+  <data name="QueueDialog_EnableHiddenItemDisplayWarning_Content" xml:space="preserve">
+    <value>Activez la fonction d'affichage des fichiers cachés, une mauvaise utilisation peut endommager votre ordinateur. \r\rPour continuer à l'activer?</value>
+  </data>
 </root>
