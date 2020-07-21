@@ -226,14 +226,6 @@
           <source>Custom font color</source>
           <target state="translated">自定义字体颜色</target>
         </trans-unit>
-        <trans-unit id="CustomFontColor.OffContent" translate="yes" xml:space="preserve">
-          <source>White</source>
-          <target state="translated">白色</target>
-        </trans-unit>
-        <trans-unit id="CustomFontColor.OnContent" translate="yes" xml:space="preserve">
-          <source>Black</source>
-          <target state="translated">黑色</target>
-        </trans-unit>
         <trans-unit id="CustomUISubtype1.Content" translate="yes" xml:space="preserve">
           <source>Acrylic background</source>
           <target state="translated">Acrylic背景</target>
@@ -1031,14 +1023,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="SettingFolderOpenMethod.Header" translate="yes" xml:space="preserve">
           <source>Folder open method</source>
           <target state="translated">文件夹打开方式</target>
-        </trans-unit>
-        <trans-unit id="SettingFolderOpenMethod.OffContent" translate="yes" xml:space="preserve">
-          <source>Click</source>
-          <target state="translated">单击</target>
-        </trans-unit>
-        <trans-unit id="SettingFolderOpenMethod.OnContent" translate="yes" xml:space="preserve">
-          <source>Double click</source>
-          <target state="translated">双击</target>
         </trans-unit>
         <trans-unit id="SettingLike.Text" translate="yes" xml:space="preserve">
           <source>Rate the app</source>
@@ -3252,6 +3236,46 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="QueueDialog_EnableHiddenItemDisplayWarning_Content" translate="yes" xml:space="preserve">
           <source>Enable the hidden file display function, improper use may damage your computer.\r\rWhether to continue to enable it?</source>
           <target state="translated">启用隐藏文件显示功能，使用不当可能会损坏您的计算机\r\r是否继续启用?</target>
+        </trans-unit>
+        <trans-unit id="Folder_Open_Method_1" translate="yes" xml:space="preserve">
+          <source>Double click</source>
+          <target state="translated">双击</target>
+        </trans-unit>
+        <trans-unit id="Folder_Open_Method_2" translate="yes" xml:space="preserve">
+          <source>Click</source>
+          <target state="translated">单击</target>
+        </trans-unit>
+        <trans-unit id="Font_Color_Black" translate="yes" xml:space="preserve">
+          <source>Black</source>
+          <target state="translated">黑色</target>
+        </trans-unit>
+        <trans-unit id="Font_Color_White" translate="yes" xml:space="preserve">
+          <source>White</source>
+          <target state="translated">白色</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_BeforeInterceptWindowsETip_Content" translate="yes" xml:space="preserve">
+          <source>This operation will try to redirect Win+E to activate the RX-Explorer, and you need to turn off this switch before uninstalling the RX-Explorer, otherwise the Win+E key cannot be reset to the initial state. You will see the UAC permission prompt later, please allow it to perform necessary operations. Whether to continue?</source>
+          <target state="translated">此操作将尝试将Win+E重定向为激活RX文件管理器，并且您需要在卸载RX文件管理器之前关闭此开关，否则Win+E键无法重置为初始状态。稍后您将看到UAC权限提示，请允许其执行必要的操作。是否继续？</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_InterceptWindowsETipFailure_Content" translate="yes" xml:space="preserve">
+          <source>Unable to redirect Win+E due to an unexpected error</source>
+          <target state="translated">由于出现了意外错误，无法重定向Win+E键</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RestoreWindowsETipFailure_Content" translate="yes" xml:space="preserve">
+          <source>Unable to restore Win+E due to an unexpected error</source>
+          <target state="translated">由于出现了意外错误，无法还原Win+E键</target>
+        </trans-unit>
+        <trans-unit id="UseWinAndEActivate.Header" translate="yes" xml:space="preserve">
+          <source>Use [Win+E] to activate this app</source>
+          <target state="translated">使用[Win+E]激活此应用</target>
+        </trans-unit>
+        <trans-unit id="UseWinAndEActivate.OffContent" translate="yes" xml:space="preserve">
+          <source>Disable</source>
+          <target state="translated">禁用</target>
+        </trans-unit>
+        <trans-unit id="UseWinAndEActivate.OnContent" translate="yes" xml:space="preserve">
+          <source>Enable</source>
+          <target state="translated">启用</target>
         </trans-unit>
       </group>
     </body>

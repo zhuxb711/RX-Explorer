@@ -226,14 +226,6 @@
           <source>Custom font color</source>
           <target state="translated">Couleur de police personnalisée</target>
         </trans-unit>
-        <trans-unit id="CustomFontColor.OffContent" translate="yes" xml:space="preserve">
-          <source>White</source>
-          <target state="translated">Blanc</target>
-        </trans-unit>
-        <trans-unit id="CustomFontColor.OnContent" translate="yes" xml:space="preserve">
-          <source>Black</source>
-          <target state="translated">Noir</target>
-        </trans-unit>
         <trans-unit id="CustomUISubtype1.Content" translate="yes" xml:space="preserve">
           <source>Acrylic background</source>
           <target state="translated">Arrière-plan acrylique</target>
@@ -1031,14 +1023,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="SettingFolderOpenMethod.Header" translate="yes" xml:space="preserve">
           <source>Folder open method</source>
           <target state="translated">Méthode d'ouverture de dossier</target>
-        </trans-unit>
-        <trans-unit id="SettingFolderOpenMethod.OffContent" translate="yes" xml:space="preserve">
-          <source>Click</source>
-          <target state="translated">Clic</target>
-        </trans-unit>
-        <trans-unit id="SettingFolderOpenMethod.OnContent" translate="yes" xml:space="preserve">
-          <source>Double click</source>
-          <target state="translated">Double clic</target>
         </trans-unit>
         <trans-unit id="SettingLike.Text" translate="yes" xml:space="preserve">
           <source>Rate the app</source>
@@ -3252,6 +3236,46 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="QueueDialog_EnableHiddenItemDisplayWarning_Content" translate="yes" xml:space="preserve">
           <source>Enable the hidden file display function, improper use may damage your computer.\r\rWhether to continue to enable it?</source>
           <target state="translated">Activez la fonction d'affichage des fichiers cachés, une mauvaise utilisation peut endommager votre ordinateur. \r\rPour continuer à l'activer?</target>
+        </trans-unit>
+        <trans-unit id="Folder_Open_Method_1" translate="yes" xml:space="preserve">
+          <source>Double click</source>
+          <target state="translated">Double clic</target>
+        </trans-unit>
+        <trans-unit id="Folder_Open_Method_2" translate="yes" xml:space="preserve">
+          <source>Click</source>
+          <target state="translated">Cliquez sur</target>
+        </trans-unit>
+        <trans-unit id="Font_Color_Black" translate="yes" xml:space="preserve">
+          <source>Black</source>
+          <target state="translated">Noir</target>
+        </trans-unit>
+        <trans-unit id="Font_Color_White" translate="yes" xml:space="preserve">
+          <source>White</source>
+          <target state="translated">Blanc</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_BeforeInterceptWindowsETip_Content" translate="yes" xml:space="preserve">
+          <source>This operation will try to redirect Win+E to activate the RX-Explorer, and you need to turn off this switch before uninstalling the RX-Explorer, otherwise the Win+E key cannot be reset to the initial state. You will see the UAC permission prompt later, please allow it to perform necessary operations. Whether to continue?</source>
+          <target state="translated">Cette opération essaiera de rediriger Win + E pour activer le RX-Explorer, et vous devez désactiver ce commutateur avant de désinstaller le RX-Explorer, sinon la clé Win + E ne peut pas être réinitialisée à l'état initial. Vous verrez l'invite d'autorisation UAC plus tard, veuillez l'autoriser à effectuer les opérations nécessaires. Que ce soit pour continuer?</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_InterceptWindowsETipFailure_Content" translate="yes" xml:space="preserve">
+          <source>Unable to redirect Win+E due to an unexpected error</source>
+          <target state="translated">Impossible de rediriger Win + E en raison d'une erreur inattendue</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RestoreWindowsETipFailure_Content" translate="yes" xml:space="preserve">
+          <source>Unable to restore Win+E due to an unexpected error</source>
+          <target state="translated">Impossible de restaurer Win + E en raison d'une erreur inattendue</target>
+        </trans-unit>
+        <trans-unit id="UseWinAndEActivate.Header" translate="yes" xml:space="preserve">
+          <source>Use [Win+E] to activate this app</source>
+          <target state="translated">Utilisez [Win+E] pour activer l'application</target>
+        </trans-unit>
+        <trans-unit id="UseWinAndEActivate.OffContent" translate="yes" xml:space="preserve">
+          <source>Disable</source>
+          <target state="translated">Désactiver</target>
+        </trans-unit>
+        <trans-unit id="UseWinAndEActivate.OnContent" translate="yes" xml:space="preserve">
+          <source>Enable</source>
+          <target state="translated">Activer</target>
         </trans-unit>
       </group>
     </body>

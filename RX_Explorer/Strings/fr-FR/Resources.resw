@@ -177,12 +177,6 @@
   <data name="CustomFontColor.Header" xml:space="preserve">
     <value>Couleur de police personnalisée</value>
   </data>
-  <data name="CustomFontColor.OffContent" xml:space="preserve">
-    <value>Blanc</value>
-  </data>
-  <data name="CustomFontColor.OnContent" xml:space="preserve">
-    <value>Noir</value>
-  </data>
   <data name="CustomUISubtype1.Content" xml:space="preserve">
     <value>Arrière-plan acrylique</value>
   </data>
@@ -780,12 +774,6 @@
   </data>
   <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
     <value>Méthode d'ouverture de dossier</value>
-  </data>
-  <data name="SettingFolderOpenMethod.OffContent" xml:space="preserve">
-    <value>Clic</value>
-  </data>
-  <data name="SettingFolderOpenMethod.OnContent" xml:space="preserve">
-    <value>Double clic</value>
   </data>
   <data name="SettingLike.Text" xml:space="preserve">
     <value>Évaluez l'application</value>
@@ -2458,5 +2446,32 @@
   </data>
   <data name="QueueDialog_EnableHiddenItemDisplayWarning_Content" xml:space="preserve">
     <value>Activez la fonction d'affichage des fichiers cachés, une mauvaise utilisation peut endommager votre ordinateur. \r\rPour continuer à l'activer?</value>
+  </data>
+  <data name="Folder_Open_Method_1" xml:space="preserve">
+    <value>Double clic</value>
+  </data>
+  <data name="Folder_Open_Method_2" xml:space="preserve">
+    <value>Cliquez sur</value>
+  </data>
+  <data name="Font_Color_Black" xml:space="preserve">
+    <value>Noir</value>
+  </data>
+  <data name="Font_Color_White" xml:space="preserve">
+    <value>Blanc</value>
+  </data>
+  <data name="QueueDialog_BeforeInterceptWindowsETip_Content" xml:space="preserve">
+    <value>Cette opération essaiera de rediriger Win + E pour activer le RX-Explorer, et vous devez désactiver ce commutateur avant de désinstaller le RX-Explorer, sinon la clé Win + E ne peut pas être réinitialisée à l'état initial. Vous verrez l'invite d'autorisation UAC plus tard, veuillez l'autoriser à effectuer les opérations nécessaires. Que ce soit pour continuer?</value>
+  </data>
+  <data name="QueueDialog_InterceptWindowsETipFailure_Content" xml:space="preserve">
+    <value>Impossible de rediriger Win + E en raison d'une erreur inattendue</value>
+  </data>
+  <data name="QueueDialog_RestoreWindowsETipFailure_Content" xml:space="preserve">
+    <value>Impossible de restaurer Win + E en raison d'une erreur inattendue</value>
+  </data>
+  <data name="UseWinAndEActivate.Header" xml:space="preserve">
+    <value>Utilisez [Win+E] pour activer l'application</value>
+  </data>
+  <data name="UseWinAndEActivate.OnContent" xml:space="preserve">
+    <value>Activer</value>
   </data>
 </root>

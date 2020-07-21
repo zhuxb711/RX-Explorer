@@ -205,20 +205,19 @@
                                   Toggled="TreeViewDetach_Toggled" />
 
                     <ToggleSwitch Margin="0,20,0,0"
-                                  Header="文件夹打开方式"
-                                  OnContent="双击"
-                                  OffContent="单击"
-                                  x:Uid="SettingFolderOpenMethod"
-                                  Name="FolderOpenMethod"
-                                  Toggled="FolderOpenMethod_Toggled" />
-
-                    <ToggleSwitch Margin="0,20,0,0"
                                   Header="显示隐藏文件/文件夹"
                                   x:Uid="SettingDisplayHiddenItem"
                                   OnContent="启用"
                                   OffContent="禁用"
-                                  Name="DisplayHiddenItem"
-                                  Toggled="DisplayHiddenItem_Toggled"/>
+                                  Name="DisplayHiddenItem"/>
+
+                    <ComboBox Margin="0,20,0,0"
+                              Header="文件夹打开方式"
+                              x:Uid="SettingFolderOpenMethod"
+                              MinWidth="120"
+                              Name="FolderOpenMethod"
+                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
+                              SelectionChanged="FolderOpenMethod_SelectionChanged" />
 
                     <StackPanel>
                         <ComboBox Margin="0,20,0,0"
@@ -242,14 +241,6 @@
                                x:Uid="SettingAdvance"
                                FontSize="22"
                                Margin="0,30,0,0" />
-
-                    <ToggleSwitch Header="自定义字体颜色"
-                                  OnContent="黑色"
-                                  OffContent="白色"
-                                  Margin="0,20,0,0"
-                                  x:Uid="CustomFontColor"
-                                  Name="CustomFontColor"
-                                  Toggled="CustomFontColor_Toggled" />
 
                     <ToggleSwitch Header="随系统自动启动"
                                   OnContent="启用"
@@ -297,6 +288,21 @@
                                       Toggled="EnableQuicklook_Toggled" />
                     </StackPanel>
 
+                    <ToggleSwitch Header="使用[Win+E]激活该应用"
+                                  Margin="0,20,0,0"
+                                  Name="UseWinAndEActivate"
+                                  OnContent="启用"
+                                  OffContent="禁用"
+                                  x:Uid="UseWinAndEActivate"/>
+
+                    <ComboBox Header="自定义字体颜色"
+                              Margin="0,20,0,0"
+                              MinWidth="120"
+                              x:Uid="CustomFontColor"
+                              Name="CustomFontColor"
+                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
+                              SelectionChanged="CustomFontColor_SelectionChanged"/>
+
                     <TextBlock Text="个性化"
                                x:Uid="SettingPersonalize"
                                FontSize="22"
@@ -315,7 +321,7 @@
                               Margin="0,20,0,0"
                               SelectionChanged="UIMode_SelectionChanged"
                               Name="UIMode"
-                              Width="150"
+                              MinWidth="120"
                               Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
 
                     <StackPanel Margin="0,10,0,0"

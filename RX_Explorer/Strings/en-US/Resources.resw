@@ -282,12 +282,6 @@
   <data name="CustomFontColor.Header" xml:space="preserve">
     <value>Custom font color</value>
   </data>
-  <data name="CustomFontColor.OffContent" xml:space="preserve">
-    <value>White</value>
-  </data>
-  <data name="CustomFontColor.OnContent" xml:space="preserve">
-    <value>Black</value>
-  </data>
   <data name="CustomUISubtype1.Content" xml:space="preserve">
     <value>Acrylic background</value>
   </data>
@@ -894,12 +888,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
     <value>Folder open method</value>
-  </data>
-  <data name="SettingFolderOpenMethod.OffContent" xml:space="preserve">
-    <value>Click</value>
-  </data>
-  <data name="SettingFolderOpenMethod.OnContent" xml:space="preserve">
-    <value>Double click</value>
   </data>
   <data name="SettingLike.Text" xml:space="preserve">
     <value>Rate the app</value>
@@ -2563,5 +2551,35 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_EnableHiddenItemDisplayWarning_Content" xml:space="preserve">
     <value>Enable the hidden file display function, improper use may damage your computer.\r\rWhether to continue to enable it?</value>
+  </data>
+  <data name="Folder_Open_Method_1" xml:space="preserve">
+    <value>Double click</value>
+  </data>
+  <data name="Folder_Open_Method_2" xml:space="preserve">
+    <value>Click</value>
+  </data>
+  <data name="Font_Color_Black" xml:space="preserve">
+    <value>Black</value>
+  </data>
+  <data name="Font_Color_White" xml:space="preserve">
+    <value>White</value>
+  </data>
+  <data name="QueueDialog_BeforeInterceptWindowsETip_Content" xml:space="preserve">
+    <value>This operation will try to redirect Win+E to activate the RX-Explorer, and you need to turn off this switch before uninstalling the RX-Explorer, otherwise the Win+E key cannot be reset to the initial state. You will see the UAC permission prompt later, please allow it to perform necessary operations. Whether to continue?</value>
+  </data>
+  <data name="QueueDialog_InterceptWindowsETipFailure_Content" xml:space="preserve">
+    <value>Unable to redirect Win+E due to an unexpected error</value>
+  </data>
+  <data name="QueueDialog_RestoreWindowsETipFailure_Content" xml:space="preserve">
+    <value>Unable to restore Win+E due to an unexpected error</value>
+  </data>
+  <data name="UseWinAndEActivate.Header" xml:space="preserve">
+    <value>Use [Win+E] to activate this app</value>
+  </data>
+  <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="UseWinAndEActivate.OnContent" xml:space="preserve">
+    <value>Enable</value>
   </data>
 </root>

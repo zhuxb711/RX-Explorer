@@ -80,6 +80,11 @@
             <uap:DisplayName>ms-resource:AppDisplayName</uap:DisplayName>
           </uap:Protocol>
         </uap:Extension>
+        <uap5:Extension Category="windows.appExecutionAlias" Executable="RX_Explorer.exe" EntryPoint="RX_Explorer.App">
+          <uap5:AppExecutionAlias>
+            <uap5:ExecutionAlias Alias="RX-Explorer.exe"/>
+          </uap5:AppExecutionAlias>
+        </uap5:Extension>
       </Extensions>
     </Application>
   </Applications>

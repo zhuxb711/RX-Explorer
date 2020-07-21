@@ -1,10 +1,12 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
@@ -13,6 +15,8 @@ using System.Threading.Tasks;
 using Vanara.PInvoke;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
+using Windows.Storage;
+using FileAttributes = System.IO.FileAttributes;
 
 namespace FullTrustProcess
 {
@@ -32,6 +36,9 @@ namespace FullTrustProcess
         private readonly static ManualResetEvent ExitLocker = new ManualResetEvent(false);
 
         private static readonly object Locker = new object();
+
+        [DllImport("User32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
 
         [STAThread]
         static async Task Main(string[] args)
@@ -102,6 +109,73 @@ namespace FullTrustProcess
             {
                 switch (args.Request.Message["ExcuteType"])
                 {
+                    case "Excute_Intercept_Win_E":
+                        {
+                            ValueSet Value = new ValueSet();
+
+                            try
+                            {
+                                StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_WIN_E.reg"));
+                                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Intercept_WIN_E_Temp.reg", CreationCollisionOption.ReplaceExisting);
+
+                                using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                                using (StreamReader Reader = new StreamReader(FileStream))
+                                {
+                                    string Content = await Reader.ReadToEndAsync().ConfigureAwait(false);
+                                    string LocalApplicationDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+                                    using (Stream TempStream = await TempFile.OpenStreamForWriteAsync())
+                                    using (StreamWriter Writer = new StreamWriter(TempStream))
+                                    {
+                                        await Writer.WriteAsync(Content.Replace("%LOCALAPPDATA%", LocalApplicationDataPath.Replace(@"\",@"\\")));
+                                    }
+                                }
+
+                                using (Process Process = Process.Start(TempFile.Path))
+                                {
+                                    SetForegroundWindow(Process.MainWindowHandle);
+                                    Process.WaitForExit();
+                                }
+
+                                Value.Add("Success", string.Empty);
+                            }
+                            catch (Exception e)
+                            {
+                                Value.Add("Error", e.Message);
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
+                    case "Excute_Restore_Win_E":
+                        {
+                            ValueSet Value = new ValueSet();
+
+                            try
+                            {
+                                StorageFile RestoreFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_WIN_E.reg"));
+                                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Restore_WIN_E_Temp.reg", CreationCollisionOption.ReplaceExisting);
+
+                                await RestoreFile.CopyAndReplaceAsync(TempFile);
+
+                                using (Process Process = Process.Start(TempFile.Path))
+                                {
+                                    SetForegroundWindow(Process.MainWindowHandle);
+                                    Process.WaitForExit();
+                                }
+
+                                Value.Add("Success", string.Empty);
+                            }
+                            catch (Exception e)
+                            {
+                                Value.Add("Error", e.Message);
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Excute_RemoveHiddenAttribute":
                         {
                             ValueSet Value = new ValueSet();
@@ -114,7 +188,7 @@ namespace FullTrustProcess
                                 {
                                     File.SetAttributes(ExcutePath, File.GetAttributes(ExcutePath) & ~FileAttributes.Hidden);
                                 }
-                                else if(Directory.Exists(ExcutePath))
+                                else if (Directory.Exists(ExcutePath))
                                 {
                                     DirectoryInfo Info = new DirectoryInfo(ExcutePath);
                                     Info.Attributes &= ~FileAttributes.Hidden;
@@ -122,7 +196,7 @@ namespace FullTrustProcess
 
                                 Value.Add("Success", string.Empty);
                             }
-                            catch(Exception e)
+                            catch (Exception e)
                             {
                                 Value.Add("Error_RemoveAttributeFailure", e.Message);
                             }
@@ -162,7 +236,7 @@ namespace FullTrustProcess
                     case "Excute_Quicklook":
                         {
                             string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
-                            
+
                             if (!string.IsNullOrEmpty(ExcutePath))
                             {
                                 await QuicklookConnector.SendMessageToQuicklook(ExcutePath);
@@ -525,12 +599,12 @@ namespace FullTrustProcess
                                     }
                                     else
                                     {
-                                        ExcutePathList.Where((Path) => File.Exists(Path)).ToList().ForEach((Item) => 
+                                        ExcutePathList.Where((Path) => File.Exists(Path)).ToList().ForEach((Item) =>
                                         {
                                             File.SetAttributes(Item, FileAttributes.Normal);
                                         });
 
-                                        ExcutePathList.Where((Path) => Directory.Exists(Path)).ToList().ForEach((Item) => 
+                                        ExcutePathList.Where((Path) => Directory.Exists(Path)).ToList().ForEach((Item) =>
                                         {
                                             DirectoryInfo Info = new DirectoryInfo(Item);
                                             Info.Attributes &= ~FileAttributes.ReadOnly;
@@ -638,6 +712,7 @@ namespace FullTrustProcess
                                         }
 
                                         Process.Start();
+                                        SetForegroundWindow(Process.MainWindowHandle);
                                     }
                                 }
                                 else
@@ -655,6 +730,7 @@ namespace FullTrustProcess
                                             }
 
                                             Process.Start();
+                                            SetForegroundWindow(Process.MainWindowHandle);
                                         }
                                     }
                                     else
@@ -670,6 +746,7 @@ namespace FullTrustProcess
                                             }
 
                                             Process.Start();
+                                            SetForegroundWindow(Process.MainWindowHandle);
                                         }
                                     }
                                 }

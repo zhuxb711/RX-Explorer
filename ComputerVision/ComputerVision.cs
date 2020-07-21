@@ -167,15 +167,19 @@ namespace ComputerVision
                                 }
                             }
 
-                            Mat[] bgr = Cv2.Split(Temp);
+                            Mat[] BGRChannel = Cv2.Split(Temp);
 
-                            // 校正图像对比度
-                            bgr[0] = (gain.Mul(bgr[0] + Gray) + bgr[0] - Gray) * 0.5f;
-                            bgr[1] = (gain.Mul(bgr[1] + Gray) + bgr[1] - Gray) * 0.5f;
-                            bgr[2] = (gain.Mul(bgr[2] + Gray) + bgr[2] - Gray) * 0.5f;
+                            BGRChannel[0] = (gain.Mul(BGRChannel[0] + Gray) + BGRChannel[0] - Gray) * 0.5f;
+                            BGRChannel[1] = (gain.Mul(BGRChannel[1] + Gray) + BGRChannel[1] - Gray) * 0.5f;
+                            BGRChannel[2] = (gain.Mul(BGRChannel[2] + Gray) + BGRChannel[2] - Gray) * 0.5f;
 
-                            Cv2.Merge(bgr, Temp);
+                            Cv2.Merge(BGRChannel, Temp);
                             Temp.ConvertTo(outputMat, MatType.CV_8UC4);
+
+                            foreach(Mat Item in BGRChannel)
+                            {
+                                Item.Dispose();
+                            }
                         }
                     }
                 }
@@ -310,8 +314,10 @@ namespace ComputerVision
                     int StartXPosition = (inputMat.Cols - CropSize) / 2;
                     int StartYPosition = 0;
                     Rect CropRect = new Rect(StartXPosition, StartYPosition, CropSize, CropSize);
-                    Mat CroppedMat = new Mat(inputMat, CropRect);
-                    Cv2.Resize(CroppedMat, outputMat, new Size(Width, Height), 0, 0, InterpolationFlags.Linear);
+                    using (Mat CroppedMat = new Mat(inputMat, CropRect))
+                    {
+                        Cv2.Resize(CroppedMat, outputMat, new Size(Width, Height), 0, 0, InterpolationFlags.Linear);
+                    }
                 }
                 else
                 {
@@ -319,8 +325,10 @@ namespace ComputerVision
                     int StartYPosition = (inputMat.Rows - CropSize) / 2;
                     int StartXPosition = 0;
                     Rect CropRect = new Rect(StartXPosition, StartYPosition, CropSize, CropSize);
-                    Mat CroppedMat = new Mat(inputMat, CropRect);
-                    Cv2.Resize(CroppedMat, outputMat, new Size(Width, Height), 0, 0, InterpolationFlags.Linear);
+                    using (Mat CroppedMat = new Mat(inputMat, CropRect))
+                    {
+                        Cv2.Resize(CroppedMat, outputMat, new Size(Width, Height), 0, 0, InterpolationFlags.Linear);
+                    }
                 }
 
                 return outputMat.MatToSoftwareBitmap();

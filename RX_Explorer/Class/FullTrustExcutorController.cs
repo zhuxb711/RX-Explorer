@@ -33,6 +33,10 @@ namespace RX_Explorer.Class
 
         private const string ExcuteType_RemoveHiddenAttribute = "Excute_RemoveHiddenAttribute";
 
+        private const string ExcuteType_InterceptWinE = "Excute_Intercept_Win_E";
+
+        private const string ExcuteType_RestoreWinE = "Excute_Restore_Win_E";
+
         private const string ExcuteType_EmptyRecycleBin = "Excute_Empty_RecycleBin";
 
         private const string ExcuteType_UnlockOccupy = "Excute_Unlock_Occupy";
@@ -138,6 +142,86 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task<bool> InterceptWindowsPlusE()
+        {
+            try
+            {
+                IsNowHasAnyActionExcuting = true;
+
+                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExcuteType", ExcuteType_InterceptWinE}
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Message.ContainsKey("Success"))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                Debug.WriteLine("Warning: InterceptWindowsPlusE() excute error");
+                return false;
+            }
+            finally
+            {
+                IsNowHasAnyActionExcuting = false;
+            }
+        }
+
+        public async Task<bool> RestoreWindowsPlusE()
+        {
+            try
+            {
+                IsNowHasAnyActionExcuting = true;
+
+                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExcuteType", ExcuteType_RestoreWinE}
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Message.ContainsKey("Success"))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                Debug.WriteLine("Warning: InterceptWindowsPlusE() excute error");
+                return false;
+            }
+            finally
+            {
+                IsNowHasAnyActionExcuting = false;
+            }
+        }
+
         public async Task<bool> RemoveHiddenAttribute(string Path)
         {
             try
@@ -154,7 +238,7 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    if(Response.Message.ContainsKey("Success"))
+                    if (Response.Message.ContainsKey("Success"))
                     {
                         return true;
                     }
@@ -170,7 +254,7 @@ namespace RX_Explorer.Class
             }
             catch
             {
-                Debug.WriteLine("Warning: RequestCreateNewPipeLine() excute error");
+                Debug.WriteLine("Warning: RemoveHiddenAttribute() excute error");
                 return false;
             }
             finally

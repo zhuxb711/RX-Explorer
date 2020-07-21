@@ -177,12 +177,6 @@
   <data name="CustomFontColor.Header" xml:space="preserve">
     <value>自定义字体颜色</value>
   </data>
-  <data name="CustomFontColor.OffContent" xml:space="preserve">
-    <value>白色</value>
-  </data>
-  <data name="CustomFontColor.OnContent" xml:space="preserve">
-    <value>黑色</value>
-  </data>
   <data name="CustomUISubtype1.Content" xml:space="preserve">
     <value>Acrylic背景</value>
   </data>
@@ -780,12 +774,6 @@
   </data>
   <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
     <value>文件夹打开方式</value>
-  </data>
-  <data name="SettingFolderOpenMethod.OffContent" xml:space="preserve">
-    <value>单击</value>
-  </data>
-  <data name="SettingFolderOpenMethod.OnContent" xml:space="preserve">
-    <value>双击</value>
   </data>
   <data name="SettingLike.Text" xml:space="preserve">
     <value>给App点赞</value>
@@ -2458,5 +2446,35 @@
   </data>
   <data name="QueueDialog_EnableHiddenItemDisplayWarning_Content" xml:space="preserve">
     <value>启用隐藏文件显示功能，使用不当可能会损坏您的计算机\r\r是否继续启用?</value>
+  </data>
+  <data name="Folder_Open_Method_1" xml:space="preserve">
+    <value>双击</value>
+  </data>
+  <data name="Folder_Open_Method_2" xml:space="preserve">
+    <value>单击</value>
+  </data>
+  <data name="Font_Color_Black" xml:space="preserve">
+    <value>黑色</value>
+  </data>
+  <data name="Font_Color_White" xml:space="preserve">
+    <value>白色</value>
+  </data>
+  <data name="QueueDialog_BeforeInterceptWindowsETip_Content" xml:space="preserve">
+    <value>此操作将尝试将Win+E重定向为激活RX文件管理器，并且您需要在卸载RX文件管理器之前关闭此开关，否则Win+E键无法重置为初始状态。稍后您将看到UAC权限提示，请允许其执行必要的操作。是否继续？</value>
+  </data>
+  <data name="QueueDialog_InterceptWindowsETipFailure_Content" xml:space="preserve">
+    <value>由于出现了意外错误，无法重定向Win+E键</value>
+  </data>
+  <data name="QueueDialog_RestoreWindowsETipFailure_Content" xml:space="preserve">
+    <value>由于出现了意外错误，无法还原Win+E键</value>
+  </data>
+  <data name="UseWinAndEActivate.Header" xml:space="preserve">
+    <value>使用[Win+E]激活此应用</value>
+  </data>
+  <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="UseWinAndEActivate.OnContent" xml:space="preserve">
+    <value>启用</value>
   </data>
 </root>

@@ -187,6 +187,10 @@ namespace RX_Explorer
             LanguageComboBox.Items.Add("English (United States)");
             LanguageComboBox.Items.Add("Français");
             LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
+            FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_2"));
+            FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_1"));
+            CustomFontColor.Items.Add(Globalization.GetString("Font_Color_White"));
+            CustomFontColor.Items.Add(Globalization.GetString("Font_Color_Black"));
 
             if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is int ModeIndex)
             {
@@ -205,7 +209,11 @@ namespace RX_Explorer
 
             if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)
             {
-                FolderOpenMethod.IsOn = IsDoubleClick;
+                FolderOpenMethod.SelectedIndex = IsDoubleClick ? 1 : 0;
+            }
+            else
+            {
+                FolderOpenMethod.SelectedIndex = 1;
             }
 
             if (ApplicationData.Current.LocalSettings.Values["EnablePreLaunch"] is bool PreLaunch)
@@ -215,7 +223,11 @@ namespace RX_Explorer
 
             if (AppThemeController.Current.Theme == ElementTheme.Light)
             {
-                CustomFontColor.IsOn = true;
+                CustomFontColor.SelectedIndex = 1;
+            }
+            else
+            {
+                CustomFontColor.SelectedIndex = 0;
             }
 
             TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
@@ -232,6 +244,14 @@ namespace RX_Explorer
                 DisplayHiddenItem.IsOn = IsHidden;
                 IsDisplayHiddenItem = IsHidden;
             }
+
+            if(ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] is bool IsIntercepted)
+            {
+                UseWinAndEActivate.IsOn = IsIntercepted;
+            }
+
+            DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
+            UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
         }
 
         private async void SettingPage_Loaded(object sender, RoutedEventArgs e)
@@ -442,6 +462,7 @@ namespace RX_Explorer
                         SolidColor_White.IsChecked = null;
                         SolidColor_Black.IsChecked = null;
                         CustomFontColor.IsEnabled = true;
+                        CustomFontColor.SelectedIndex = 0;
 
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
                         BackgroundController.Current.TintOpacity = 0.6;
@@ -777,20 +798,6 @@ namespace RX_Explorer
             TabViewContainer.ThisPage.LeftSideLength = OpenLeftArea.IsOn ? new GridLength(300) : new GridLength(0);
         }
 
-        private void FolderOpenMethod_Toggled(object sender, RoutedEventArgs e)
-        {
-            if (FolderOpenMethod.IsOn)
-            {
-                ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = true;
-                IsDoubleClickEnable = true;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = false;
-                IsDoubleClickEnable = false;
-            }
-        }
-
         private void AcrylicMode_Checked(object sender, RoutedEventArgs e)
         {
             CustomAcrylicArea.Visibility = Visibility.Visible;
@@ -932,18 +939,6 @@ namespace RX_Explorer
             }
         }
 
-        private void CustomFontColor_Toggled(object sender, RoutedEventArgs e)
-        {
-            if (CustomFontColor.IsOn)
-            {
-                AppThemeController.Current.ChangeThemeTo(ElementTheme.Light);
-            }
-            else
-            {
-                AppThemeController.Current.ChangeThemeTo(ElementTheme.Dark);
-            }
-        }
-
         private async void AutoBoot_Toggled(object sender, RoutedEventArgs e)
         {
             StartupTask BootTask = await StartupTask.GetAsync("RXExplorer");
@@ -1001,27 +996,15 @@ namespace RX_Explorer
         private void SolidColor_White_Checked(object sender, RoutedEventArgs e)
         {
             BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: Colors.White);
-            if (CustomFontColor.IsOn)
-            {
-                AppThemeController.Current.ChangeThemeTo(ElementTheme.Light);
-            }
-            else
-            {
-                CustomFontColor.IsOn = true;
-            }
+
+            CustomFontColor.SelectedIndex = 1;
         }
 
         private void SolidColor_Black_Checked(object sender, RoutedEventArgs e)
         {
             BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: Colors.Black);
-            if (CustomFontColor.IsOn)
-            {
-                CustomFontColor.IsOn = false;
-            }
-            else
-            {
-                AppThemeController.Current.ChangeThemeTo(ElementTheme.Dark);
-            }
+
+            CustomFontColor.SelectedIndex = 0;
         }
 
         private async void FeedBackNotice_Click(object sender, RoutedEventArgs e)
@@ -1168,7 +1151,7 @@ namespace RX_Explorer
 
         private async void DisplayHiddenItem_Toggled(object sender, RoutedEventArgs e)
         {
-            if(DisplayHiddenItem.IsOn)
+            if (DisplayHiddenItem.IsOn)
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -1178,7 +1161,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                 };
 
-                if(await Dialog.ShowAsync().ConfigureAwait(true)!=ContentDialogResult.Primary)
+                if (await Dialog.ShowAsync().ConfigureAwait(true) != ContentDialogResult.Primary)
                 {
                     DisplayHiddenItem.IsOn = false;
                     return;
@@ -1192,6 +1175,107 @@ namespace RX_Explorer
             {
                 Control.DisplayItemsInFolder(Control.CurrentFolder, true);
                 await Control.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(false);
+            }
+        }
+
+        private void FolderOpenMethod_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            switch (FolderOpenMethod.SelectedIndex)
+            {
+                case 0:
+                    {
+                        ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = false;
+                        IsDoubleClickEnable = false;
+                        break;
+                    }
+                case 1:
+                    {
+                        ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = true;
+                        IsDoubleClickEnable = true;
+                        break;
+                    }
+            }
+        }
+
+        private void CustomFontColor_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            switch (CustomFontColor.SelectedIndex)
+            {
+                case 0:
+                    {
+                        AppThemeController.Current.ChangeThemeTo(ElementTheme.Dark);
+                        break;
+                    }
+                case 1:
+                    {
+                        AppThemeController.Current.ChangeThemeTo(ElementTheme.Light);
+                        break;
+                    }
+            }
+        }
+
+        private async void UseWinAndEActivate_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (UseWinAndEActivate.IsOn)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                    Content = Globalization.GetString("QueueDialog_BeforeInterceptWindowsETip_Content"),
+                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                };
+
+                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                {
+                    if (await FullTrustExcutorController.Current.InterceptWindowsPlusE().ConfigureAwait(true))
+                    {
+                        ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = true;
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_InterceptWindowsETipFailure_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+
+                        UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
+                        UseWinAndEActivate.IsOn = false;
+                        UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
+                    }
+                }
+                else
+                {
+                    UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
+                    UseWinAndEActivate.IsOn = false;
+                    UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
+                }
+            }
+            else
+            {
+                if (await FullTrustExcutorController.Current.RestoreWindowsPlusE().ConfigureAwait(true))
+                {
+                    ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = false;
+                }
+                else
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_RestoreWindowsETipFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+
+                    UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
+                    UseWinAndEActivate.IsOn = true;
+                    UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
+                }
             }
         }
     }
