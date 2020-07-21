@@ -202,7 +202,7 @@ namespace SQLConnectionPoolProvider
                         {
                             if (UsingConnectionPool.Count < MaxConnections)
                             {
-                                DbConnection Connection = new T
+                                T Connection = new T
                                 {
                                     ConnectionString = ConnectString
                                 };
@@ -252,7 +252,7 @@ namespace SQLConnectionPoolProvider
                         {
                             for (int i = 0; i < MinConnections; i++)
                             {
-                                DbConnection Connection = new T
+                                T Connection = new T
                                 {
                                     ConnectionString = ConnectString
                                 };
@@ -268,7 +268,7 @@ namespace SQLConnectionPoolProvider
                         }
                         else
                         {
-                            DbConnection Connection = new T
+                            T Connection = new T
                             {
                                 ConnectionString = ConnectString
                             };

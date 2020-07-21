@@ -280,7 +280,10 @@ namespace RX_Explorer
                     FeedBackCollection.Add(FeedBackItem);
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+            }
             finally
             {
                 if (FeedBackCollection.Count == 0)

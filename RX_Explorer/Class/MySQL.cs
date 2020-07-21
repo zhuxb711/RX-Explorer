@@ -56,7 +56,7 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    ConnectionPool = new SQLConnectionPool<MySqlConnection>($"{AccessCredential}CharSet=utf8;Database=FeedBackDataBase;", 2, 1);
+                    ConnectionPool = new SQLConnectionPool<MySqlConnection>($"{AccessCredential}CharSet=utf8mb4;Database=FeedBackDataBase;", 2, 1);
                 }
                 finally
                 {
