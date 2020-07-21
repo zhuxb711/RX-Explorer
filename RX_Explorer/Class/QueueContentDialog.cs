@@ -16,6 +16,7 @@ namespace RX_Explorer.Class
 
         private static int WaitCount = 0;
 
+
         /// <summary>
         /// 指示当前是否存在正处于弹出状态的ContentDialog
         /// </summary>

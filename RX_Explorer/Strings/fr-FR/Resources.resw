@@ -2471,6 +2471,9 @@
   <data name="UseWinAndEActivate.Header" xml:space="preserve">
     <value>Utilisez [Win+E] pour activer l'application</value>
   </data>
+  <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
+    <value>Désactiver</value>
+  </data>
   <data name="UseWinAndEActivate.OnContent" xml:space="preserve">
     <value>Activer</value>
   </data>
