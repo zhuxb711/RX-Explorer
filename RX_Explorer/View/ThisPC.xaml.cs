@@ -143,7 +143,7 @@ namespace RX_Explorer
             {
                 if (SettingControl.IsInputFromPrimaryButton && (e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Device)
                 {
-                    if ((await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector())).Select((Device) => StorageDevice.FromId(Device.Id)).Any((Folder) => Folder.Name == Device.Folder.Name))
+                    if (string.IsNullOrEmpty(Device.Folder.Path))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -153,7 +153,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                         };
 
-                        if((await Dialog.ShowAsync().ConfigureAwait(true))==ContentDialogResult.Primary)
+                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                         {
                             await Launcher.LaunchFolderAsync(Device.Folder);
                         }
@@ -331,7 +331,7 @@ namespace RX_Explorer
             {
                 if (DeviceGrid.SelectedItem is HardDeviceInfo Device)
                 {
-                    if ((await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector())).Select((Device) => StorageDevice.FromId(Device.Id)).Any((Folder) => Folder.Name == Device.Folder.Name))
+                    if (string.IsNullOrEmpty(Device.Folder.Path))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -460,7 +460,7 @@ namespace RX_Explorer
                     TabViewContainer.ThisPage.HardDeviceList.Clear();
 
                     bool AccessError = false;
-                    foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                    foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
                                                                      .Where((NewItem) => TabViewContainer.ThisPage.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
                     {
                         try
@@ -486,7 +486,7 @@ namespace RX_Explorer
 
                         if (PropertiesRetrieve["System.Capacity"] is ulong && PropertiesRetrieve["System.FreeSpace"] is ulong)
                         {
-                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, false));
+                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
                         }
                         else
                         {
@@ -499,16 +499,16 @@ namespace RX_Explorer
 
                                 if (InnerPropertiesRetrieve["System.Capacity"] is ulong && InnerPropertiesRetrieve["System.FreeSpace"] is ulong)
                                 {
-                                    TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, false));
+                                    TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, true));
                                 }
                                 else
                                 {
-                                    TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, false));
+                                    TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
                                 }
                             }
                             else
                             {
-                                TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, false));
+                                TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
                             }
                         }
                     }
@@ -544,7 +544,7 @@ namespace RX_Explorer
 
                 if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is HardDeviceInfo Device)
                 {
-                    if ((await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector())).Select((Device) => StorageDevice.FromId(Device.Id)).Any((Folder) => Folder.Name == Device.Folder.Name))
+                    if (string.IsNullOrEmpty(Device.Folder.Path))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -734,12 +734,7 @@ namespace RX_Explorer
         {
             if (DeviceGrid.SelectedItem is HardDeviceInfo Item)
             {
-                if (await FullTrustExcutorController.Current.EjectPortableDevice(Item.Folder.Path).ConfigureAwait(true))
-                {
-                    TabViewContainer.ThisPage.HardDeviceList.Remove(Item);
-                    ShowEjectNotification();
-                }
-                else
+                if (string.IsNullOrEmpty(Item.Folder.Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -748,6 +743,23 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                }
+                else
+                {
+                    if (await FullTrustExcutorController.Current.EjectPortableDevice(Item.Folder.Path).ConfigureAwait(true))
+                    {
+                        ShowEjectNotification();
+                    }
+                    else
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueContentDialog_UnableToEject_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    }
                 }
             }
         }

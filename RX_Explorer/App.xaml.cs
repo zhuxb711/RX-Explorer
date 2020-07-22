@@ -1,6 +1,5 @@
 ﻿using RX_Explorer.Class;
 using System;
-using System.Diagnostics;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
@@ -91,7 +90,7 @@ namespace RX_Explorer
             SQLite.Current.Dispose();
             MySQL.Current.Dispose();
 
-            if(!FullTrustExcutorController.Current.IsNowHasAnyActionExcuting)
+            if (!FullTrustExcutorController.Current.IsNowHasAnyActionExcuting)
             {
                 PipeLineController.Current.Dispose();
                 FullTrustExcutorController.Current.Dispose();
@@ -164,7 +163,7 @@ namespace RX_Explorer
                 if (args.Kind == ActivationKind.Protocol)
                 {
                     ProtocolActivatedEventArgs ProtocalArgs = args as ProtocolActivatedEventArgs;
-                    
+
                     if (!string.IsNullOrWhiteSpace(ProtocalArgs.Uri.LocalPath))
                     {
                         ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{ProtocalArgs.Uri.LocalPath}");

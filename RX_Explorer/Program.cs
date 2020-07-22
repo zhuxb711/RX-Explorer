@@ -11,6 +11,11 @@ namespace RX_Explorer
         {
             IActivatedEventArgs activatedArgs = AppInstance.GetActivatedEventArgs();
 
+            if (activatedArgs is ToastNotificationActivatedEventArgs)
+            {
+                return;
+            }
+
             AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(Guid.NewGuid().ToString());
 
             if (Instance.IsCurrentInstance)
