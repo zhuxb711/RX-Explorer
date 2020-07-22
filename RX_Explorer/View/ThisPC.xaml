@@ -116,12 +116,6 @@
                               x:Name="OpenDevice"
                               Click="OpenDevice_Click" />
                 <AppBarSeparator />
-                <AppBarButton Icon="UnPin"
-                              Label="隐藏驱动器"
-                              x:Uid="HideDevice"
-                              x:Name="HideDevice"
-                              Click="HideDevice_Click" />
-                <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="属性"
                               x:Uid="DeviceAttribute"
@@ -147,10 +141,6 @@
                                   Glyph="&#xF847;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
-                <AppBarButton Icon="UnPin"
-                              Label="隐藏驱动器"
-                              x:Uid="HideDevice"
-                              Click="HideDevice_Click" />
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="属性"

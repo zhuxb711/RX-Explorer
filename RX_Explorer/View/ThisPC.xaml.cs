@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Windows.Devices.Enumeration;
+using Windows.Devices.Portable;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
@@ -135,19 +137,37 @@ namespace RX_Explorer
             }
         }
 
-        private void DeviceGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private async void DeviceGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
             try
             {
                 if (SettingControl.IsInputFromPrimaryButton && (e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Device)
                 {
-                    if (AnimationController.Current.IsEnableAnimation)
+                    if ((await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector())).Select((Device) => StorageDevice.FromId(Device.Id)).Any((Folder) => Folder.Name == Device.Folder.Name))
                     {
-                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_MTP_CouldNotAccess_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                        };
+
+                        if((await Dialog.ShowAsync().ConfigureAwait(true))==ContentDialogResult.Primary)
+                        {
+                            await Launcher.LaunchFolderAsync(Device.Folder);
+                        }
                     }
                     else
                     {
-                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new SuppressNavigationTransitionInfo());
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
+                        }
+                        else
+                        {
+                            Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new SuppressNavigationTransitionInfo());
+                        }
                     }
                 }
             }
@@ -305,19 +325,37 @@ namespace RX_Explorer
             }
         }
 
-        private void OpenDevice_Click(object sender, RoutedEventArgs e)
+        private async void OpenDevice_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 if (DeviceGrid.SelectedItem is HardDeviceInfo Device)
                 {
-                    if (AnimationController.Current.IsEnableAnimation)
+                    if ((await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector())).Select((Device) => StorageDevice.FromId(Device.Id)).Any((Folder) => Folder.Name == Device.Folder.Name))
                     {
-                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_MTP_CouldNotAccess_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                        };
+
+                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                        {
+                            await Launcher.LaunchFolderAsync(Device.Folder);
+                        }
                     }
                     else
                     {
-                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new SuppressNavigationTransitionInfo());
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
+                        }
+                        else
+                        {
+                            Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new SuppressNavigationTransitionInfo());
+                        }
                     }
                 }
             }
@@ -421,11 +459,9 @@ namespace RX_Explorer
                 {
                     TabViewContainer.ThisPage.HardDeviceList.Clear();
 
-                    Dictionary<string, bool> VisibilityMap = await SQLite.Current.GetDeviceVisibilityMapAsync().ConfigureAwait(true);
-
+                    bool AccessError = false;
                     foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
-                                                 .Where((NewItem) => TabViewContainer.ThisPage.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName))
-                                                 .Where((Drive) => !VisibilityMap.ContainsKey(Drive.RootDirectory.FullName) || VisibilityMap[Drive.RootDirectory.FullName]))
+                                                                     .Where((NewItem) => TabViewContainer.ThisPage.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
                     {
                         try
                         {
@@ -437,7 +473,59 @@ namespace RX_Explorer
                         }
                         catch
                         {
+                            AccessError = true;
+                        }
+                    }
 
+                    foreach (DeviceInformation Device in await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector()))
+                    {
+                        StorageFolder DeviceFolder = StorageDevice.FromId(Device.Id);
+
+                        BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
+                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+
+                        if (PropertiesRetrieve["System.Capacity"] is ulong && PropertiesRetrieve["System.FreeSpace"] is ulong)
+                        {
+                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, false));
+                        }
+                        else
+                        {
+                            IReadOnlyList<IStorageItem> InnerItemList = await DeviceFolder.GetItemsAsync(0, 2);
+
+                            if (InnerItemList.Count == 1 && InnerItemList[0] is StorageFolder InnerFolder)
+                            {
+                                BasicProperties InnerProperties = await InnerFolder.GetBasicPropertiesAsync();
+                                IDictionary<string, object> InnerPropertiesRetrieve = await InnerProperties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+
+                                if (InnerPropertiesRetrieve["System.Capacity"] is ulong && InnerPropertiesRetrieve["System.FreeSpace"] is ulong)
+                                {
+                                    TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, false));
+                                }
+                                else
+                                {
+                                    TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, false));
+                                }
+                            }
+                            else
+                            {
+                                TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, false));
+                            }
+                        }
+                    }
+
+                    if (AccessError && !ApplicationData.Current.LocalSettings.Values.ContainsKey("DisableAccessErrorTip"))
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                            Content = Globalization.GetString("QueueDialog_DeviceHideForError_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_DoNotTip"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        {
+                            ApplicationData.Current.LocalSettings.Values["DisableAccessErrorTip"] = true;
                         }
                     }
                 }
@@ -448,15 +536,30 @@ namespace RX_Explorer
             }
         }
 
-        private void DeviceGrid_ItemClick(object sender, ItemClickEventArgs e)
+        private async void DeviceGrid_ItemClick(object sender, ItemClickEventArgs e)
         {
             try
             {
                 LibraryGrid.SelectedIndex = -1;
 
-                if (!SettingControl.IsDoubleClickEnable)
+                if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is HardDeviceInfo Device)
                 {
-                    if (e.ClickedItem is HardDeviceInfo Device)
+                    if ((await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector())).Select((Device) => StorageDevice.FromId(Device.Id)).Any((Folder) => Folder.Name == Device.Folder.Name))
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_MTP_CouldNotAccess_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                        };
+
+                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                        {
+                            await Launcher.LaunchFolderAsync(Device.Folder);
+                        }
+                    }
+                    else
                     {
                         if (AnimationController.Current.IsEnableAnimation)
                         {
@@ -481,18 +584,15 @@ namespace RX_Explorer
             {
                 DeviceGrid.SelectedIndex = -1;
 
-                if (!SettingControl.IsDoubleClickEnable)
+                if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is LibraryFolder Library)
                 {
-                    if (e.ClickedItem is LibraryFolder Library)
+                    if (AnimationController.Current.IsEnableAnimation)
                     {
-                        if (AnimationController.Current.IsEnableAnimation)
-                        {
-                            Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
-                        }
-                        else
-                        {
-                            Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new SuppressNavigationTransitionInfo());
-                        }
+                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
+                    }
+                    else
+                    {
+                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new SuppressNavigationTransitionInfo());
                     }
                 }
             }
@@ -522,7 +622,6 @@ namespace RX_Explorer
                         BasicProperties Properties = await Device.GetBasicPropertiesAsync();
                         IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
                         TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, new DriveInfo(Device.Path).DriveType == DriveType.Removable));
-                        await SQLite.Current.SetDeviceVisibilityAsync(Device.Path, true).ConfigureAwait(false);
                     }
                     else
                     {
@@ -545,15 +644,6 @@ namespace RX_Explorer
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
-            }
-        }
-
-        private async void HideDevice_Click(object sender, RoutedEventArgs e)
-        {
-            if (DeviceGrid.SelectedItem is HardDeviceInfo Device)
-            {
-                TabViewContainer.ThisPage.HardDeviceList.Remove(Device);
-                await SQLite.Current.SetDeviceVisibilityAsync(Device.Folder.Path, false).ConfigureAwait(false);
             }
         }
 

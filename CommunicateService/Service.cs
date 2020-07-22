@@ -107,33 +107,43 @@ namespace CommunicateService
         {
             lock (Locker)
             {
-                AppServiceConnection DisConnection = (sender.TriggerDetails as AppServiceTriggerDetails).AppServiceConnection;
-
-                DisConnection.RequestReceived -= Connection_RequestReceived;
-
-                if (ClientConnections.ContainsKey(DisConnection))
+                if((sender.TriggerDetails as AppServiceTriggerDetails)?.AppServiceConnection is AppServiceConnection DisConnection)
                 {
-                    ServerConnection.SendMessageAsync(new ValueSet { { "ExcuteType", "Excute_RequestClosePipe" }, { "Guid", ClientConnections[DisConnection] } }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+                    DisConnection.RequestReceived -= Connection_RequestReceived;
 
-                    ClientConnections.Remove(DisConnection);
-
-                    DisConnection.Dispose();
-
-                    if (ClientConnections.Count == 0)
+                    if (ClientConnections.ContainsKey(DisConnection))
                     {
-                        ServerConnection.SendMessageAsync(new ValueSet { { "ExcuteType", "Excute_Exit" } }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
-                    }
-                }
-                else
-                {
-                    if (ReferenceEquals(DisConnection, ServerConnection))
-                    {
-                        ServerConnection.Dispose();
-                        ServerConnection = null;
+                        if (ServerConnection != null)
+                        {
+                            ServerConnection.SendMessageAsync(new ValueSet { { "ExcuteType", "Excute_RequestClosePipe" }, { "Guid", ClientConnections[DisConnection] } }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+
+                            ClientConnections.Remove(DisConnection);
+
+                            DisConnection.Dispose();
+
+                            if (ClientConnections.Count == 0)
+                            {
+                                ServerConnection.SendMessageAsync(new ValueSet { { "ExcuteType", "Excute_Exit" } }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+                            }
+                        }
+                        else
+                        {
+                            ClientConnections.Remove(DisConnection);
+
+                            DisConnection.Dispose();
+                        }
                     }
                     else
                     {
-                        DisConnection.Dispose();
+                        if (ReferenceEquals(DisConnection, ServerConnection))
+                        {
+                            ServerConnection.Dispose();
+                            ServerConnection = null;
+                        }
+                        else
+                        {
+                            DisConnection.Dispose();
+                        }
                     }
                 }
             }

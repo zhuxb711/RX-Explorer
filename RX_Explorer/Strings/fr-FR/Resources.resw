@@ -318,9 +318,6 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>Vide</value>
   </data>
-  <data name="HideDevice.Label" xml:space="preserve">
-    <value>Cacher le lecteur</value>
-  </data>
   <data name="HotWebTitle.Text" xml:space="preserve">
     <value>Sites populaires</value>
   </data>
@@ -2476,5 +2473,8 @@
   </data>
   <data name="UseWinAndEActivate.OnContent" xml:space="preserve">
     <value>Activer</value>
+  </data>
+  <data name="QueueDialog_MTP_CouldNotAccess_Content" xml:space="preserve">
+    <value>RX ne prend pas en charge l'affichage des périphériques de type MTP. Voulez-vous l'ouvrir avec l'explorateur système?</value>
   </data>
 </root>

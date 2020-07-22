@@ -121,6 +121,7 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="SQLConnection.cs" />
     <Compile Include="SQLConnectionPool.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

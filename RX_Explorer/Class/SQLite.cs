@@ -61,7 +61,6 @@ namespace RX_Explorer.Class
                                 Create Table If Not Exists Library (Path Text Not Null, Type Text Not Null, Primary Key (Path));
                                 Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
                                 Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));
-                                Create Table If Not Exists DeviceVisibility (Path Text Not Null, IsVisible Text Not Null, Primary Key(Path));
                                 Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null, Primary Key(FileType,Path));
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');
@@ -128,48 +127,6 @@ namespace RX_Explorer.Class
                 _ = Command.Parameters.AddWithValue("@FileType", FileType);
                 _ = Command.Parameters.AddWithValue("@Path", Path);
                 _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-            }
-        }
-
-        public async Task<Dictionary<string, bool>> GetDeviceVisibilityMapAsync()
-        {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From DeviceVisibility"))
-            using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
-            {
-                Dictionary<string, bool> Dic = new Dictionary<string, bool>();
-                while (query.Read())
-                {
-                    Dic.Add(query[0].ToString(), Convert.ToBoolean(query[1]));
-                }
-                return Dic;
-            }
-        }
-
-        public async Task SetDeviceVisibilityAsync(string Path, bool IsVisible)
-        {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command1 = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select Count(*) From DeviceVisibility Where Path=@Path"))
-            {
-                _ = Command1.Parameters.AddWithValue("@Path", Path);
-                if (Convert.ToInt32(await Command1.ExecuteScalarAsync().ConfigureAwait(false)) == 0)
-                {
-                    using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into DeviceVisibility Values (@Path,@IsVisible)"))
-                    {
-                        _ = Command.Parameters.AddWithValue("@Path", Path);
-                        _ = Command.Parameters.AddWithValue("@IsVisible", IsVisible.ToString());
-                        _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    }
-                }
-                else
-                {
-                    using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Update DeviceVisibility Set IsVisible=@IsVisible Where Path=@Path"))
-                    {
-                        _ = Command.Parameters.AddWithValue("@Path", Path);
-                        _ = Command.Parameters.AddWithValue("@IsVisible", IsVisible.ToString());
-                        _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    }
-                }
             }
         }
 

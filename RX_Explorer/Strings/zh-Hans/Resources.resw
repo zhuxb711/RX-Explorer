@@ -318,9 +318,6 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>无内容</value>
   </data>
-  <data name="HideDevice.Label" xml:space="preserve">
-    <value>隐藏驱动器</value>
-  </data>
   <data name="HotWebTitle.Text" xml:space="preserve">
     <value>热门网站</value>
   </data>
@@ -2476,5 +2473,8 @@
   </data>
   <data name="UseWinAndEActivate.OnContent" xml:space="preserve">
     <value>启用</value>
+  </data>
+  <data name="QueueDialog_MTP_CouldNotAccess_Content" xml:space="preserve">
+    <value>RX不支持查看MTP类型的设备，尝试通过系统资源管理器打开它吗？</value>
   </data>
 </root>

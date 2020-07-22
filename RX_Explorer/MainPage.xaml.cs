@@ -11,6 +11,8 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Background;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Devices.Enumeration;
+using Windows.Devices.Portable;
 using Windows.Foundation;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;

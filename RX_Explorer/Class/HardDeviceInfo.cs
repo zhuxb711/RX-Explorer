@@ -101,18 +101,13 @@ namespace RX_Explorer.Class
         {
             Folder = Device ?? throw new FileNotFoundException();
 
-            if (PropertiesRetrieve == null)
-            {
-                throw new ArgumentNullException(nameof(PropertiesRetrieve), "Parameter could not be null");
-            }
-
-            this.Thumbnail = Thumbnail;
+            this.Thumbnail = Thumbnail ?? new BitmapImage(new Uri("ms-appx:///Assets/DeviceIcon.png"));
             this.IsPortableDevice = IsPortableDevice;
 
-            if (PropertiesRetrieve["System.Capacity"] is ulong TotalByte && PropertiesRetrieve["System.FreeSpace"] is ulong FreeByte)
+            if (PropertiesRetrieve != null && PropertiesRetrieve["System.Capacity"] is ulong TotalByte && PropertiesRetrieve["System.FreeSpace"] is ulong FreeByte)
             {
-                this.TotalByte = (ulong)PropertiesRetrieve["System.Capacity"];
-                this.FreeByte = (ulong)PropertiesRetrieve["System.FreeSpace"];
+                this.TotalByte = TotalByte;
+                this.FreeByte = FreeByte;
                 Capacity = GetSizeDescription(TotalByte);
                 FreeSpace = GetSizeDescription(FreeByte);
                 Percent = 1 - FreeByte / Convert.ToDouble(TotalByte);

@@ -414,10 +414,6 @@
           <source>Empty</source>
           <target state="translated">无内容</target>
         </trans-unit>
-        <trans-unit id="HideDevice.Label" translate="yes" xml:space="preserve">
-          <source>Hide drive</source>
-          <target state="translated">隐藏驱动器</target>
-        </trans-unit>
         <trans-unit id="HotWebTitle.Text" translate="yes" xml:space="preserve">
           <source>Popular Website</source>
           <target state="translated">热门网站</target>
@@ -3276,6 +3272,10 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="UseWinAndEActivate.OnContent" translate="yes" xml:space="preserve">
           <source>Enable</source>
           <target state="translated">启用</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_MTP_CouldNotAccess_Content" translate="yes" xml:space="preserve">
+          <source>RX does not support viewing MTP type devices. Try open it by system explorer?</source>
+          <target state="translated">RX不支持查看MTP类型的设备，尝试通过系统资源管理器打开它吗？</target>
         </trans-unit>
       </group>
     </body>

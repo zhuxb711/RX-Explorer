@@ -432,9 +432,6 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>Empty</value>
   </data>
-  <data name="HideDevice.Label" xml:space="preserve">
-    <value>Hide drive</value>
-  </data>
   <data name="HotWebTitle.Text" xml:space="preserve">
     <value>Popular Website</value>
   </data>
@@ -2581,5 +2578,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="UseWinAndEActivate.OnContent" xml:space="preserve">
     <value>Enable</value>
+  </data>
+  <data name="QueueDialog_MTP_CouldNotAccess_Content" xml:space="preserve">
+    <value>RX does not support viewing MTP type devices. Try open it by system explorer?</value>
   </data>
 </root>

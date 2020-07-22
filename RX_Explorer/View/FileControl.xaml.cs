@@ -1290,8 +1290,12 @@ namespace RX_Explorer
                     {
                         if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
                         {
-                            TreeViewNode ParenetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
-                            DisplayItemsInFolder(ParenetNode);
+                            TreeViewNode ParentNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+
+                            if (ParentFolder != null)
+                            {
+                                DisplayItemsInFolder(ParentNode);
+                            }
                         }
                     }
                 }
