@@ -23,8 +23,6 @@ namespace RX_Explorer.Class
 
         private bool IsDisposed = false;
 
-        private AutoResetEvent ConnectionLocker;
-
         private SQLConnectionPool<MySqlConnection> ConnectionPool;
 
         private static readonly object Locker = new object();
@@ -48,7 +46,6 @@ namespace RX_Explorer.Class
         /// </summary>
         private MySQL()
         {
-            ConnectionLocker = new AutoResetEvent(true);
             using (SecureString Secure = SecureAccessProvider.GetMySQLAccessCredential(Package.Current))
             {
                 IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
@@ -79,86 +76,79 @@ namespace RX_Explorer.Class
         /// 从数据库连接池中获取连接对象
         /// </summary>
         /// <returns></returns>
-        public Task<SQLConnection> GetConnectionFromPoolAsync()
+        public async Task<SQLConnection> GetConnectionFromPoolAsync()
         {
-            return Task.Run(() =>
-            {
-                ConnectionLocker.WaitOne();
+            SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false);
 
-                SQLConnection Connection = ConnectionPool.GetConnectionFromDataBasePoolAsync().Result;
+            #region MySQL数据库存储过程和触发器初始化代码，仅首次运行时需要
+            //if (Connection.IsConnected)
+            //{
+            //    StringBuilder Builder = new StringBuilder();
+            //    Builder.AppendLine("Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);")
+            //           .AppendLine("Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null);")
 
-                #region MySQL数据库存储过程和触发器初始化代码，仅首次运行时需要
-                //if (Connection.IsConnected)
-                //{
-                //    StringBuilder Builder = new StringBuilder();
-                //    Builder.AppendLine("Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);")
-                //           .AppendLine("Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null);")
+            //           .AppendLine("Drop Trigger RemoveVoteRecordTrigger;")
+            //           .AppendLine("Create Trigger RemoveVoteRecordTrigger After Delete On FeedBackTable For Each Row Delete From VoteRecordTable Where GUID=old.GUID;")
 
-                //           .AppendLine("Drop Trigger RemoveVoteRecordTrigger;")
-                //           .AppendLine("Create Trigger RemoveVoteRecordTrigger After Delete On FeedBackTable For Each Row Delete From VoteRecordTable Where GUID=old.GUID;")
+            //           .AppendLine("Drop Procedure If Exists GetFeedBackProcedure;")
+            //           .AppendLine("Create Procedure GetFeedBackProcedure(IN Para Text)")
+            //           .AppendLine("Begin")
+            //           .AppendLine("Declare EndSignal int Default 0;")
+            //           .AppendLine("Declare P1 Text;")
+            //           .AppendLine("Declare P2 Text;")
+            //           .AppendLine("Declare P3 Text;")
+            //           .AppendLine("Declare P4 Text;")
+            //           .AppendLine("Declare P5 Text;")
+            //           .AppendLine("Declare P6 Text;")
+            //           .AppendLine("Declare P7 Text;")
+            //           .AppendLine("Declare P8 Text;")
+            //           .AppendLine("Declare RowData Cursor For Select * From FeedBackTable;")
+            //           .AppendLine("Declare Continue Handler For Not Found Set EndSignal=1;")
+            //           .AppendLine("Drop Table If Exists DataTemporary;")
+            //           .AppendLine("Create Temporary Table DataTemporary (UserName Text, Title Text, Suggestion Text, LikeNum Text, DislikeNum Text, UserID Text, GUID Text, Behavior Text);")
+            //           .AppendLine("Open RowData;")
+            //           .AppendLine("Fetch RowData Into P1,P2,P3,P4,P5,P6,P7;")
+            //           .AppendLine("While EndSignal<>1 Do")
+            //           .AppendLine("If (Select Count(*) From VoteRecordTable Where UserID=Para And GUID=P7) <> 0")
+            //           .AppendLine("Then")
+            //           .AppendLine("Select Behavior Into P8 From VoteRecordTable Where UserID=Para And GUID=P7;")
+            //           .AppendLine("Else")
+            //           .AppendLine("Set P8 = 'NULL';")
+            //           .AppendLine("End If;")
+            //           .AppendLine("Insert Into DataTemporary Values (P1,P2,P3,P4,P5,P6,P7,P8);")
+            //           .AppendLine("Fetch RowData Into P1,P2,P3,P4,P5,P6,P7;")
+            //           .AppendLine("End While;")
+            //           .AppendLine("Close RowData;")
+            //           .AppendLine("Select * From DataTemporary;")
+            //           .AppendLine("End;")
 
-                //           .AppendLine("Drop Procedure If Exists GetFeedBackProcedure;")
-                //           .AppendLine("Create Procedure GetFeedBackProcedure(IN Para Text)")
-                //           .AppendLine("Begin")
-                //           .AppendLine("Declare EndSignal int Default 0;")
-                //           .AppendLine("Declare P1 Text;")
-                //           .AppendLine("Declare P2 Text;")
-                //           .AppendLine("Declare P3 Text;")
-                //           .AppendLine("Declare P4 Text;")
-                //           .AppendLine("Declare P5 Text;")
-                //           .AppendLine("Declare P6 Text;")
-                //           .AppendLine("Declare P7 Text;")
-                //           .AppendLine("Declare P8 Text;")
-                //           .AppendLine("Declare RowData Cursor For Select * From FeedBackTable;")
-                //           .AppendLine("Declare Continue Handler For Not Found Set EndSignal=1;")
-                //           .AppendLine("Drop Table If Exists DataTemporary;")
-                //           .AppendLine("Create Temporary Table DataTemporary (UserName Text, Title Text, Suggestion Text, LikeNum Text, DislikeNum Text, UserID Text, GUID Text, Behavior Text);")
-                //           .AppendLine("Open RowData;")
-                //           .AppendLine("Fetch RowData Into P1,P2,P3,P4,P5,P6,P7;")
-                //           .AppendLine("While EndSignal<>1 Do")
-                //           .AppendLine("If (Select Count(*) From VoteRecordTable Where UserID=Para And GUID=P7) <> 0")
-                //           .AppendLine("Then")
-                //           .AppendLine("Select Behavior Into P8 From VoteRecordTable Where UserID=Para And GUID=P7;")
-                //           .AppendLine("Else")
-                //           .AppendLine("Set P8 = 'NULL';")
-                //           .AppendLine("End If;")
-                //           .AppendLine("Insert Into DataTemporary Values (P1,P2,P3,P4,P5,P6,P7,P8);")
-                //           .AppendLine("Fetch RowData Into P1,P2,P3,P4,P5,P6,P7;")
-                //           .AppendLine("End While;")
-                //           .AppendLine("Close RowData;")
-                //           .AppendLine("Select * From DataTemporary;")
-                //           .AppendLine("End;")
+            //           .AppendLine("Drop Procedure If Exists UpdateFeedBackVoteProcedure;")
+            //           .AppendLine("Create Procedure UpdateFeedBackVoteProcedure(IN LNum Text,IN DNum Text,IN UID Text,IN GID Text,IN Beh Text)")
+            //           .AppendLine("Begin")
+            //           .AppendLine("Update FeedBackTable Set LikeNum=LNum, DislikeNum=DNum Where GUID=GID;")
+            //           .AppendLine("If (Select Count(*) From VoteRecordTable Where UserID=UID And GUID=GID) <> 0")
+            //           .AppendLine("Then")
+            //           .AppendLine("If Beh <> '='")
+            //           .AppendLine("Then")
+            //           .AppendLine("Update VoteRecordTable Set Behavior=Beh Where UserID=UID And GUID=GID;")
+            //           .AppendLine("Else")
+            //           .AppendLine("Delete From VoteRecordTable Where UserID=UID And GUID=GID;")
+            //           .AppendLine("End If;")
+            //           .AppendLine("Else")
+            //           .AppendLine("If Beh <> '='")
+            //           .AppendLine("Then")
+            //           .AppendLine("Insert Into VoteRecordTable Values (UID,GID,Beh);")
+            //           .AppendLine("End If;")
+            //           .AppendLine("End If;")
+            //           .AppendLine("End;");
+            //    using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>(Builder.ToString()))
+            //    {
+            //        _ = Command.ExecuteNonQuery();
+            //    }
+            //}
+            #endregion
 
-                //           .AppendLine("Drop Procedure If Exists UpdateFeedBackVoteProcedure;")
-                //           .AppendLine("Create Procedure UpdateFeedBackVoteProcedure(IN LNum Text,IN DNum Text,IN UID Text,IN GID Text,IN Beh Text)")
-                //           .AppendLine("Begin")
-                //           .AppendLine("Update FeedBackTable Set LikeNum=LNum, DislikeNum=DNum Where GUID=GID;")
-                //           .AppendLine("If (Select Count(*) From VoteRecordTable Where UserID=UID And GUID=GID) <> 0")
-                //           .AppendLine("Then")
-                //           .AppendLine("If Beh <> '='")
-                //           .AppendLine("Then")
-                //           .AppendLine("Update VoteRecordTable Set Behavior=Beh Where UserID=UID And GUID=GID;")
-                //           .AppendLine("Else")
-                //           .AppendLine("Delete From VoteRecordTable Where UserID=UID And GUID=GID;")
-                //           .AppendLine("End If;")
-                //           .AppendLine("Else")
-                //           .AppendLine("If Beh <> '='")
-                //           .AppendLine("Then")
-                //           .AppendLine("Insert Into VoteRecordTable Values (UID,GID,Beh);")
-                //           .AppendLine("End If;")
-                //           .AppendLine("End If;")
-                //           .AppendLine("End;");
-                //    using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>(Builder.ToString()))
-                //    {
-                //        _ = Command.ExecuteNonQuery();
-                //    }
-                //}
-                #endregion
-
-                ConnectionLocker.Set();
-
-                return Connection;
-            });
+            return Connection;
         }
 
         /// <summary>
@@ -371,9 +361,7 @@ namespace RX_Explorer.Class
                 IsDisposed = true;
 
                 ConnectionPool.Dispose();
-                ConnectionLocker?.Dispose();
                 ConnectionPool = null;
-                ConnectionLocker = null;
                 Instance = null;
 
                 GC.SuppressFinalize(this);

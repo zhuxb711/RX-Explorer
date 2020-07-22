@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
@@ -127,7 +126,7 @@ namespace FullTrustProcess
                                     using (Stream TempStream = await TempFile.OpenStreamForWriteAsync())
                                     using (StreamWriter Writer = new StreamWriter(TempStream))
                                     {
-                                        await Writer.WriteAsync(Content.Replace("%LOCALAPPDATA%", LocalApplicationDataPath.Replace(@"\",@"\\")));
+                                        await Writer.WriteAsync(Content.Replace("%LOCALAPPDATA%", LocalApplicationDataPath.Replace(@"\", @"\\")));
                                     }
                                 }
 
