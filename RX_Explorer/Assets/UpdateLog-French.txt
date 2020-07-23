@@ -1,4 +1,25 @@
 ﻿*****
+###Quoi de neuf dans la version 5.1.4.0
+
+>#####Mise à jour des fonctionnalités
+
+>>#####Prend en charge la détection des périphériques MTP (tels que les téléphones mobiles, etc.), mais RX-Explorer lui-même ne peut pas être ouvert, vous devez utiliser l'explorateur système pour ouvrir
+
+>>#####Supprimez complètement la fonction de lecteur caché (la fonction qui reste de l'historique lorsque la fonction n'est pas parfaite au stade initial du développement)
+
+>#####Mise à jour de l'interface utilisateur
+
+>>#####Remplacé plusieurs fonds d'écran par défaut, les fonds d'écran d'origine peuvent rendre le texte illisible
+
+>#####Correction de bogue
+
+>>#####Résolution du problème selon lequel WIN + E ne pouvait pas démarrer le RX-Explorer
+
+>>#####Résolution du problème selon lequel la tâche de communication en arrière-plan peut planter si le processus auxiliaire se termine avant l'application en raison d'une exception (faible probabilité)
+
+>>#####Résolution du problème suivant: après la transformation de RX-Explorer en une application multi-instance, cliquer sur la notification push dans le coin inférieur droit lancera un nouveau processus
+
+*****
 ###Quoi de neuf dans la version 5.1.2.0
 
 >#####Mise à jour des fonctionnalités

@@ -275,9 +275,7 @@ namespace RX_Explorer
 
                 await ShowReleaseLogDialogAsync().ConfigureAwait(true);
 
-#if !DEBUG
                 await RegisterBackgroundTaskAsync().ConfigureAwait(true);
-#endif
 
                 await PurchaseApplicationAsync().ConfigureAwait(true);
 

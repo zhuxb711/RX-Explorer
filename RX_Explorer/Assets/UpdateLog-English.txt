@@ -1,4 +1,25 @@
 ﻿*****
+###What's new in Ver.5.1.4.0
+
+>#####Feature Update
+
+>>#####Supports detection of MTP devices (such as mobile phones, etc.), but RX-Explorer itself cannot be opened, you need to use the system explorer to open
+
+>>#####Completely remove the hidden drive function (the function left over from the history when the function is not perfect at the initial stage of development)
+
+>#####UI Update
+
+>>#####Replaced several default wallpapers, the original wallpapers may cause the text to be unreadable
+
+>#####Bug fix
+
+>>#####Solved the problem that WIN+E could not start the RX-Explorer
+
+>>#####Resolved the problem that the background communication task may crash if the auxiliary process exits before the application due to an exception (small probability)
+
+>>#####Resolved the problem that after RX-Explorer is transformed into a multi-instance application, clicking the push notification in the lower right corner will start a new process
+
+*****
 ###What's new in Ver.5.1.2.0
 
 >#####Feature Update
