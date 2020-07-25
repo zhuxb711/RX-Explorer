@@ -231,6 +231,11 @@ namespace RX_Explorer.Class
         /// 使用纯色背景
         /// </summary>
         SolidColor = 2,
+
+        /// <summary>
+        /// 使用Bing图片作为背景
+        /// </summary>
+        BingPicture = 4,
     }
 
     /// <summary>

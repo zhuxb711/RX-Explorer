@@ -1,4 +1,29 @@
 ﻿*****
+###Quoi de neuf dans la version 5.1.6.0
+
+>#####Mise à jour des fonctionnalités
+
+>>#####Nouveaux paramètres personnalisés - "Fonds d'écran Bing" peut être utilisé comme arrière-plan
+
+>>#####La fonction Renommer permet désormais de ne conserver que le suffixe de fichier
+
+>#####Correction de bogue
+
+>>#####Correction des problèmes liés au contrôleur d'arrière-plan et amélioration des performances de ce module
+
+>>#####Correction du problème selon lequel les caractères illégaux dans le nom de fichier n'étaient pas vérifiés lors de la création d'un nouveau fichier
+
+>>#####Correction du problème de ne pas vérifier les noms réservés du système lors de la création de nouveaux fichiers et du changement de nom des fichiers existants
+
+>>#####Correction du problème selon lequel le nom affiché lorsque le renommage est cliqué la deuxième fois ne correspond pas au nom réel lorsque le changement de nom échoue
+
+>>#####Correction du problème de modification du nom de fichier par erreur en cas d'échec du changement de nom
+
+>>#####Correction du problème pouvant provoquer un crash lorsque le périphérique MTP refuse l'accès
+
+>>#####Amélioration de la fiabilité du pool de connexion à la base de données SQL pour éviter une déconnexion accidentelle de la base de données cloud
+
+*****
 ###Quoi de neuf dans la version 5.1.4.0
 
 >#####Mise à jour des fonctionnalités

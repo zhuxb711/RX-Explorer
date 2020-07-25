@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,6 +39,10 @@ namespace SQLConnectionPoolProvider
         /// </summary>
         private List<SQLConnection> AvaliableConnectionPool;
 
+        private static readonly object TimerLocker = new object();
+
+        private volatile bool IsRunning = false;
+
         /// <summary>
         /// 存储正在使用的数据库连接
         /// </summary>
@@ -58,8 +63,8 @@ namespace SQLConnectionPoolProvider
         /// <param name="ConnectString">数据库连接字符串</param>
         /// <param name="MaxConnections">最大连接数量，超过此数量的数据库连接请求将被排队直到空闲连接空出</param>
         /// <param name="MinConnections">最少连接数量，数据库连接池将始终保持大于或等于此值指定的数据库连接。若数据库总连接数超过此值且存在空闲连接，则一定时间后将自动关闭空闲连接</param>
-        /// <param name="ConnnectionKeepAlivePeriod">数据库连接回收时间。当数据库连接总数大于最小值并且某一连接连续空闲时间超过此值则回收此连接。单位：毫秒；默认值：60s</param>
-        public SQLConnectionPool(string ConnectString, ushort MaxConnections, ushort MinConnections, uint ConnnectionKeepAlivePeriod = 60000)
+        /// <param name="ConnnectionKeepAlivePeriod">数据库连接回收时间。当数据库连接总数大于最小值并且某一连接连续空闲时间超过此值则回收此连接。单位：毫秒；默认值：30s</param>
+        public SQLConnectionPool(string ConnectString, ushort MaxConnections, ushort MinConnections, uint ConnnectionKeepAlivePeriod = 30000)
         {
             if (MaxConnections <= MinConnections)
             {
@@ -84,33 +89,39 @@ namespace SQLConnectionPoolProvider
                 AutoReset = true,
                 Enabled = true
             };
-            MaintainTimer.Elapsed += (s, e) =>
+            MaintainTimer.Elapsed += MaintainTimer_Elapsed;
+        }
+
+        private void MaintainTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            lock (TimerLocker)
             {
-                Locker.Reset();
-
-                MaintainTimer.Enabled = false;
-
-                IEnumerable<SQLConnection> Connections = UsingConnectionPool.Where((Item) => Item.IsDisposed);
-                while (Connections.Count() != 0)
+                if (!IsRunning)
                 {
-                    SQLConnection RecycleConnection = Connections.First();
-                    RecycleConnection.IsDisposed = false;
-                    AvaliableConnectionPool.Add(RecycleConnection);
-                    UsingConnectionPool.Remove(RecycleConnection);
+                    Locker.Reset();
+
+                    foreach (SQLConnection RecycleConnection in UsingConnectionPool.Where((Item) => Item.IsDisposed).ToList())
+                    {
+                        RecycleConnection.IsDisposed = false;
+
+                        UsingConnectionPool.Remove(RecycleConnection);
+                        AvaliableConnectionPool.Add(RecycleConnection);
+                    }
+
+                    while (AvaliableConnectionPool.Count + UsingConnectionPool.Count > MinConnections && AvaliableConnectionPool.Count > 0)
+                    {
+                        if (AvaliableConnectionPool.FirstOrDefault() is SQLConnection Connection)
+                        {
+                            AvaliableConnectionPool.RemoveAt(0);
+
+                            Connection.InnerConnection.Close();
+                            Connection.InnerConnection.Dispose();
+                        }
+                    }
+
+                    Locker.Set();
                 }
-
-                while (AvaliableConnectionPool.Count + UsingConnectionPool.Count > MinConnections && AvaliableConnectionPool.Count > 0)
-                {
-                    SQLConnection Item = AvaliableConnectionPool.First();
-                    Item.InnerConnection.Close();
-                    Item.InnerConnection.Dispose();
-                    AvaliableConnectionPool.RemoveAt(0);
-                }
-
-                MaintainTimer.Enabled = true;
-
-                Locker.Set();
-            };
+            }
         }
 
         /// <summary>
@@ -122,19 +133,18 @@ namespace SQLConnectionPoolProvider
             return Task.Run(() =>
             {
                 Locker.WaitOne();
-                MaintainTimer.Stop();
+                IsRunning = true;
 
                 try
                 {
                     if (IsInitialized)
                     {
-                        IEnumerable<SQLConnection> Connections = UsingConnectionPool.Where((Item) => Item.IsDisposed);
-                        while (Connections.Count() != 0)
+                        foreach (SQLConnection RecycleConnection in UsingConnectionPool.Where((Item) => Item.IsDisposed).ToList())
                         {
-                            SQLConnection RecycleConnection = Connections.First();
                             RecycleConnection.IsDisposed = false;
-                            AvaliableConnectionPool.Add(RecycleConnection);
+
                             UsingConnectionPool.Remove(RecycleConnection);
+                            AvaliableConnectionPool.Add(RecycleConnection);
                         }
 
                         if (AvaliableConnectionPool.Count == 0)
@@ -155,23 +165,20 @@ namespace SQLConnectionPoolProvider
                             }
                             else
                             {
-                                while (UsingConnectionPool.All((Connection) => !Connection.IsDisposed) && !IsDisposed)
-                                {
-                                    Thread.Sleep(200);
-                                }
+                                SpinWait.SpinUntil(() => UsingConnectionPool.Any((Connection) => Connection.IsDisposed));
 
-                                IEnumerable<SQLConnection> ReConnections = UsingConnectionPool.Where((Item) => Item.IsDisposed);
-                                while (Connections.Count() != 0)
+                                foreach (SQLConnection RecycleConnection in UsingConnectionPool.Where((Item) => Item.IsDisposed).ToList())
                                 {
-                                    SQLConnection RecycleConnection = ReConnections.First();
                                     RecycleConnection.IsDisposed = false;
-                                    AvaliableConnectionPool.Add(RecycleConnection);
+
                                     UsingConnectionPool.Remove(RecycleConnection);
+                                    AvaliableConnectionPool.Add(RecycleConnection);
                                 }
 
                                 SQLConnection AvaliableItem = AvaliableConnectionPool.First();
                                 AvaliableConnectionPool.Remove(AvaliableItem);
                                 UsingConnectionPool.Add(AvaliableItem);
+
                                 return AvaliableItem;
                             }
                         }
@@ -180,6 +187,7 @@ namespace SQLConnectionPoolProvider
                             SQLConnection AvaliableItem = AvaliableConnectionPool.First();
                             AvaliableConnectionPool.Remove(AvaliableItem);
                             UsingConnectionPool.Add(AvaliableItem);
+
                             return AvaliableItem;
                         }
                     }
@@ -203,6 +211,7 @@ namespace SQLConnectionPoolProvider
                             SQLConnection AvaliableItem = AvaliableConnectionPool.First();
                             AvaliableConnectionPool.Remove(AvaliableItem);
                             UsingConnectionPool.Add(AvaliableItem);
+
                             return AvaliableItem;
                         }
                         else
@@ -227,7 +236,7 @@ namespace SQLConnectionPoolProvider
                 }
                 finally
                 {
-                    MaintainTimer.Start();
+                    IsRunning = false;
                     Locker.Set();
                 }
             });
@@ -242,10 +251,11 @@ namespace SQLConnectionPoolProvider
             {
                 IsDisposed = true;
 
+                MaintainTimer.Elapsed -= MaintainTimer_Elapsed;
                 MaintainTimer.Stop();
                 MaintainTimer.Dispose();
 
-                foreach (var Connection in AvaliableConnectionPool.Concat(UsingConnectionPool))
+                foreach (SQLConnection Connection in AvaliableConnectionPool.Concat(UsingConnectionPool))
                 {
                     Connection.InnerConnection.Close();
                     Connection.InnerConnection.Dispose();
@@ -257,7 +267,14 @@ namespace SQLConnectionPoolProvider
                 UsingConnectionPool = null;
                 Locker.Dispose();
                 Locker = null;
+
+                GC.SuppressFinalize(this);
             }
+        }
+
+        ~SQLConnectionPool()
+        {
+            Dispose();
         }
     }
 }

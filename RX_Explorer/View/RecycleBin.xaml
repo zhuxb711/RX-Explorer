@@ -1,36 +1,35 @@
-﻿<Page
-    x:Class="RX_Explorer.View.RecycleBin"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:RX_Explorer.View"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-    xmlns:Cls="using:RX_Explorer.Class"
-    mc:Ignorable="d"
-    Background="Transparent"
-    NavigationCacheMode="Required">
+﻿<Page x:Class="RX_Explorer.View.RecycleBin"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:RX_Explorer.View"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      xmlns:Cls="using:RX_Explorer.Class"
+      mc:Ignorable="d"
+      Background="Transparent"
+      NavigationCacheMode="Required">
 
     <Page.Resources>
         <CommandBarFlyout x:Name="SelectFlyout"
                           Placement="RightEdgeAlignedTop">
             <CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Label="永久删除" 
+                <AppBarButton Label="永久删除"
                               Icon="Delete"
                               Name="PermanentDelete"
                               x:Uid="RecyclePermanentDelete"
-                              Click="PermanentDelete_Click"/>
-                <AppBarButton Label="还原" 
+                              Click="PermanentDelete_Click" />
+                <AppBarButton Label="还原"
                               Icon="Redo"
                               Name="RestoreRecycle"
                               x:Uid="RestoreRecycle"
-                              Click="RestoreRecycle_Click"/>
+                              Click="RestoreRecycle_Click" />
                 <AppBarSeparator />
-                <AppBarButton Label="属性" 
+                <AppBarButton Label="属性"
                               Icon="Tag"
                               Name="PropertyButton"
-                              Click="PropertyButton_Click"/>
+                              Click="PropertyButton_Click" />
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
@@ -39,9 +38,9 @@
             <CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Refresh"
                               Label="刷新"
-                              x:Uid="RefreshView" 
+                              x:Uid="RefreshView"
                               x:Name="Refresh"
-                              Click="Refresh_Click"/>
+                              Click="Refresh_Click" />
                 <AppBarSeparator />
                 <AppBarButton Label="清空回收站"
                               x:Uid="ClearRecycleBin"

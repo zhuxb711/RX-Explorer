@@ -1,4 +1,29 @@
 ﻿*****
+###What's new in Ver.5.1.6.0
+
+>#####Feature Update
+
+>>#####New personalized settings-"Bing wallpaper" can be used as the background
+
+>>#####Rename function now allows to keep only file suffix
+
+>#####Bug fix
+
+>>#####Fixed the related problems of the background controller and improve the performance of this module
+
+>>#####Fixed the problem that illegal characters in the file name were not checked when creating a new file
+
+>>#####Fixed the problem of not checking the reserved names of the system when creating new files and renaming existing files
+
+>>#####Fixed the problem that the name displayed when the rename box is clicked the second time does not match the actual name when the rename fails
+
+>>#####Fixed the problem that changing the file name by mistake in the case of rename failure
+
+>>#####Fixed the problem that may cause a crash when the MTP device denies access
+
+>>#####Improved the reliability of the SQL database connection pool to avoid accidental disconnection from the cloud database
+
+*****
 ###What's new in Ver.5.1.4.0
 
 >#####Feature Update

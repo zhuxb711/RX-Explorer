@@ -2753,10 +2753,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>The target folder cannot be included in the drag item</source>
           <target state="translated">Le dossier cible ne peut pas être inclus dans le glisser-déposer.</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_EmptyFileName_Content" translate="yes" xml:space="preserve">
-          <source>File name cannot be empty, rename failed</source>
-          <target state="translated">Le nom de fichier ne peut être vide, le renommage a échoué</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_EncryptError_Content" translate="yes" xml:space="preserve">
           <source>An unexpected error occurred while encrypting the file, the import process has ended</source>
           <target state="translated">Une erreur inattendue s'est produite lors du chiffrement du fichier, le processus d'importation est terminé</target>
@@ -3276,6 +3272,36 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="QueueDialog_MTP_CouldNotAccess_Content" translate="yes" xml:space="preserve">
           <source>RX does not support viewing MTP type devices. Try open it by system explorer?</source>
           <target state="translated">RX ne prend pas en charge l'affichage des périphériques de type MTP. Voulez-vous l'ouvrir avec l'explorateur système?</target>
+        </trans-unit>
+        <trans-unit id="PresentInvalidCharTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Cannot contain illegal characters 
+Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</source>
+          <target state="translated">Ne peut pas contenir de caractères illégaux
+Les caractères illégaux incluent \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</target>
+        </trans-unit>
+        <trans-unit id="PresentInvalidCharTip.Title" translate="yes" xml:space="preserve">
+          <source>Error</source>
+          <target state="translated">Erreur</target>
+        </trans-unit>
+        <trans-unit id="PresentInvalidNameTip.Title" translate="yes" xml:space="preserve">
+          <source>Error</source>
+          <target state="translated">Erreur</target>
+        </trans-unit>
+        <trans-unit id="PresentInvalidNameTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>The name cannot be empty and cannot contain invalid names 
+Invalid names include 
+"CON","PRN", "AUX", "CLOCK$", "NUL"
+"COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9"
+"LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</source>
+          <target state="translated">Le nom ne peut pas être vide et ne peut pas contenir de noms non valides
+Les noms non valides incluent
+"CON","PRN", "AUX", "CLOCK$", "NUL"
+"COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9"
+"LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</target>
+        </trans-unit>
+        <trans-unit id="CustomUISubtype3.Content" translate="yes" xml:space="preserve">
+          <source>Bing wallpaper</source>
+          <target state="translated">Fonds d'écran Bing</target>
         </trans-unit>
       </group>
     </body>

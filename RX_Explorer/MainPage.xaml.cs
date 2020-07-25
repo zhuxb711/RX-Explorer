@@ -257,19 +257,14 @@ namespace RX_Explorer
                     {typeof(RecycleBin),Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label") }
                 };
 
+                await BackgroundController.Current.Initialize().ConfigureAwait(true);
+
                 if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && AnimationController.Current.IsEnableAnimation && !IsPathActivate)
                 {
                     EntranceEffectProvider.StartEntranceEffect();
                 }
 
                 Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
-
-                var PictureUri = await SQLite.Current.GetBackgroundPictureAsync().ConfigureAwait(true);
-                var FileList = await (await ApplicationData.Current.LocalFolder.CreateFolderAsync("CustomImageFolder", CreationCollisionOption.OpenIfExists)).GetFilesAsync();
-                foreach (var ToDeletePicture in FileList.Where((File) => PictureUri.All((ImageUri) => ImageUri.ToString().Replace("ms-appdata:///local/CustomImageFolder/", string.Empty) != File.Name)))
-                {
-                    await ToDeletePicture.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                }
 
                 await GetUserInfoAsync().ConfigureAwait(true);
 

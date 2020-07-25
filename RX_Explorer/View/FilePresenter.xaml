@@ -13,9 +13,15 @@
     <Page.Resources>
         <controls1:TeachingTip x:Name="InvalidCharTip"
                                IsLightDismissEnabled="True"
-                               x:Uid="RenameDialogInvalidCharTip"
+                               x:Uid="PresentInvalidCharTip"
                                Title="错误"
-                               Subtitle="名称不能为空且不能包含非法字符&#x000A;非法字符包括 \ / : * ? &quot; &lt; &gt; |" />
+                               Subtitle="不能包含非法字符&#x000A;非法字符包括 \ / : * ? &quot; &lt; &gt; |" />
+
+        <controls1:TeachingTip x:Name="InvalidNameTip"
+                               IsLightDismissEnabled="True"
+                               x:Uid="PresentInvalidNameTip"
+                               Title="错误"
+                               Subtitle="名称不能为空且不能包含无效的名称" />
 
         <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
 
@@ -50,7 +56,7 @@
                 </AppBarButton>
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
-        
+
         <CommandBarFlyout x:Name="FileFlyout"
                           Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Copy"
@@ -334,7 +340,7 @@
                           Name="Undo"
                           x:Uid="Undo"
                           Click="Undo_Click"
-                          IsEnabled="False"/>
+                          IsEnabled="False" />
             <CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
                               Label="新建"
@@ -537,9 +543,9 @@
                              Width="150"
                              FontSize="14"
                              IsSpellCheckEnabled="False"
-                             Text="{x:Bind Name,Mode=OneWay}"
                              Visibility="Collapsed"
                              LostFocus="NameEditBox_LostFocus"
+                             BeforeTextChanging="NameEditBox_BeforeTextChanging"
                              x:DeferLoadStrategy="Lazy" />
                     <TextBlock Text="{x:Bind DisplayType,Mode=OneWay}"
                                FontSize="12"
@@ -738,9 +744,9 @@
                              FontSize="14"
                              Grid.Column="1"
                              IsSpellCheckEnabled="False"
-                             Text="{x:Bind Name,Mode=OneWay}"
                              Visibility="Collapsed"
                              LostFocus="NameEditBox_LostFocus"
+                             BeforeTextChanging="NameEditBox_BeforeTextChanging"
                              x:DeferLoadStrategy="Lazy" />
                 </Grid>
                 <TextBlock VerticalAlignment="Center"
@@ -805,9 +811,9 @@
                          FontSize="14"
                          Grid.Column="1"
                          IsSpellCheckEnabled="False"
-                         Text="{x:Bind Name,Mode=OneWay}"
                          Visibility="Collapsed"
                          LostFocus="NameEditBox_LostFocus"
+                         BeforeTextChanging="NameEditBox_BeforeTextChanging"
                          x:DeferLoadStrategy="Lazy" />
                 <TextBlock VerticalAlignment="Center"
                            Margin="8,0,0,0"

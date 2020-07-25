@@ -164,53 +164,6 @@ namespace RX_Explorer
             CoreWindow.GetForCurrentThread().KeyDown += TabViewContainer_KeyDown;
         }
 
-        private async void MTPDeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
-        {
-
-        }
-
-        private async void MTPDeviceWatcher_Added(DeviceWatcher sender, DeviceInformation args)
-        {
-            StorageFolder DeviceFolder = StorageDevice.FromId(args.Id);
-
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-            {
-                if (HardDeviceList.All((Device) => Device.Folder.Name != DeviceFolder.Name))
-                {
-                    BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
-                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-
-                    if (PropertiesRetrieve["System.Capacity"] is ulong && PropertiesRetrieve["System.FreeSpace"] is ulong)
-                    {
-                        HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, false));
-                    }
-                    else
-                    {
-                        IReadOnlyList<IStorageItem> InnerItemList = await DeviceFolder.GetItemsAsync(0, 2);
-
-                        if (InnerItemList.Count == 1 && InnerItemList[0] is StorageFolder InnerFolder)
-                        {
-                            BasicProperties InnerProperties = await InnerFolder.GetBasicPropertiesAsync();
-                            IDictionary<string, object> InnerPropertiesRetrieve = await InnerProperties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-
-                            if (InnerPropertiesRetrieve["System.Capacity"] is ulong && InnerPropertiesRetrieve["System.FreeSpace"] is ulong)
-                            {
-                                HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, false));
-                            }
-                            else
-                            {
-                                HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, false));
-                            }
-                        }
-                        else
-                        {
-                            HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, false));
-                        }
-                    }
-                }
-            });
-        }
-
         private async void TabViewContainer_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
             if (!QueueContentDialog.IsRunningOrWaiting && CurrentTabNavigation.Content is ThisPC PC)
@@ -757,37 +710,44 @@ namespace RX_Explorer
 
                 foreach (DeviceInformation Device in await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector()))
                 {
-                    StorageFolder DeviceFolder = StorageDevice.FromId(Device.Id);
-
-                    BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
-                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-
-                    if (PropertiesRetrieve["System.Capacity"] is ulong && PropertiesRetrieve["System.FreeSpace"] is ulong)
+                    try
                     {
-                        HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
-                    }
-                    else
-                    {
-                        IReadOnlyList<IStorageItem> InnerItemList = await DeviceFolder.GetItemsAsync(0, 2);
+                        StorageFolder DeviceFolder = StorageDevice.FromId(Device.Id);
 
-                        if (InnerItemList.Count == 1 && InnerItemList[0] is StorageFolder InnerFolder)
+                        BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
+                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+
+                        if (PropertiesRetrieve["System.Capacity"] is ulong && PropertiesRetrieve["System.FreeSpace"] is ulong)
                         {
-                            BasicProperties InnerProperties = await InnerFolder.GetBasicPropertiesAsync();
-                            IDictionary<string, object> InnerPropertiesRetrieve = await InnerProperties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+                            HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
+                        }
+                        else
+                        {
+                            IReadOnlyList<IStorageItem> InnerItemList = await DeviceFolder.GetItemsAsync(0, 2);
 
-                            if (InnerPropertiesRetrieve["System.Capacity"] is ulong && InnerPropertiesRetrieve["System.FreeSpace"] is ulong)
+                            if (InnerItemList.Count == 1 && InnerItemList[0] is StorageFolder InnerFolder)
                             {
-                                HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, true));
+                                BasicProperties InnerProperties = await InnerFolder.GetBasicPropertiesAsync();
+                                IDictionary<string, object> InnerPropertiesRetrieve = await InnerProperties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+
+                                if (InnerPropertiesRetrieve["System.Capacity"] is ulong && InnerPropertiesRetrieve["System.FreeSpace"] is ulong)
+                                {
+                                    HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, true));
+                                }
+                                else
+                                {
+                                    HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
+                                }
                             }
                             else
                             {
                                 HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
                             }
                         }
-                        else
-                        {
-                            HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
-                        }
+                    }
+                    catch
+                    {
+                        AccessError = true;
                     }
                 }
 

@@ -1,4 +1,5 @@
 ﻿using RX_Explorer.Class;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Windows.UI.Xaml.Controls;
@@ -23,9 +24,10 @@ namespace RX_Explorer.Dialog
 
         private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            if (string.IsNullOrWhiteSpace(NewFileNameTextBox.Text))
+            if (string.IsNullOrWhiteSpace(NewFileNameTextBox.Text) || !FileSystemItemNameChecker.IsValid(NewFileNameTextBox.Text))
             {
                 args.Cancel = true;
+                InvalidNameTip.IsOpen = true;
             }
             else
             {
@@ -56,6 +58,16 @@ namespace RX_Explorer.Dialog
         private void TypeQuestion_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             TypeTip.IsOpen = true;
+        }
+
+        private void NewFileNameTextBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
+        {
+            if (args.NewText.Any((Item) => Path.GetInvalidFileNameChars().Contains(Item)))
+            {
+                args.Cancel = true;
+
+                InvalidCharTip.IsOpen = true;
+            }
         }
     }
 }

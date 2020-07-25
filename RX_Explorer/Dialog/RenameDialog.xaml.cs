@@ -38,10 +38,10 @@ namespace RX_Explorer.Dialog
 
         private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            if (RenameText.Text.Any((Char) => Path.GetInvalidFileNameChars().Contains(Char)))
+            if (!FileSystemItemNameChecker.IsValid(RenameText.Text))
             {
                 args.Cancel = true;
-                InvalidCharTip.IsOpen = true;
+                InvalidNameTip.IsOpen = true;
             }
             else if (string.IsNullOrWhiteSpace(RenameText.Text))
             {
@@ -57,6 +57,15 @@ namespace RX_Explorer.Dialog
         private void RenameText_TextChanged(object sender, TextChangedEventArgs e)
         {
             Preview.Text = $"{Item.Name}\r⋙⋙   ⋙⋙   ⋙⋙\r{RenameText.Text}";
+        }
+
+        private void RenameText_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
+        {
+            if (args.NewText.Any((Item) => Path.GetInvalidFileNameChars().Contains(Item)))
+            {
+                args.Cancel = true;
+                InvalidCharTip.IsOpen = true;
+            }
         }
     }
 }

@@ -4,6 +4,7 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -308,9 +309,9 @@ namespace RX_Explorer
                         }
                     }
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
-                    ExceptionTracer.RequestBlueScreen(ex);
+                    Debug.WriteLine("UpdateAddressButton throw an exception, message: " + ex.Message);
                 }
                 finally
                 {

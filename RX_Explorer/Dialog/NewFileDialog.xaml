@@ -26,7 +26,22 @@
                               x:Uid="NewFileDialogTypeTip"
                               Title="说明"
                               Subtitle="您可以手动输入您需要创建的文件类型，亦可以选择由RX文件管理器预定义的类型。但RX文件管理器仅能够保证预定义类型的正确创建，不能保证您手动输入的类型能够正确创建。"
-                              Target="{x:Bind TypeQuestion}"/>
+                              Target="{x:Bind TypeQuestion}" />
+
+        <controls:TeachingTip x:Name="InvalidCharTip"
+                              IsLightDismissEnabled="True"
+                              x:Uid="PresentInvalidCharTip"
+                              Target="{x:Bind NewFileNameTextBox}"
+                              Title="错误"
+                              Subtitle="不能包含非法字符&#x000A;非法字符包括 \ / : * ? &quot; &lt; &gt; |" />
+
+        <controls:TeachingTip x:Name="InvalidNameTip"
+                              IsLightDismissEnabled="True"
+                              x:Uid="PresentInvalidNameTip"
+                              Target="{x:Bind NewFileNameTextBox}"
+                              Title="错误"
+                              Subtitle="名称不能为空且不能包含无效的名称" />
+
     </local:QueueContentDialog.Resources>
 
     <Grid>
@@ -34,11 +49,12 @@
             <TextBox Header="文件名"
                      x:Uid="NewFileDialogFileName"
                      PlaceholderText="输入新建文件名"
-                     Name="NewFileNameTextBox" />
+                     Name="NewFileNameTextBox"
+                     BeforeTextChanging="NewFileNameTextBox_BeforeTextChanging" />
             <StackPanel Margin="0,10,0,0">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="文件类型"
-                               x:Uid="NewFileDialogFileTypeTitle"/>
+                               x:Uid="NewFileDialogFileTypeTitle" />
                     <Viewbox Margin="8,0,0,1"
                              Height="15"
                              VerticalAlignment="Bottom">

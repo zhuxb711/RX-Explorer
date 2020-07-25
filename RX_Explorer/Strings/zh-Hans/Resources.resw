@@ -541,7 +541,7 @@
     <value>错误</value>
   </data>
   <data name="RenameDialogInvalidCharTip.Subtitle" xml:space="preserve">
-    <value>名称不能为空且不能包含非法字符
+    <value>名称不能为空且不能包含非法字符 
 非法字符包括 \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="ResetDialog.CloseButtonText" xml:space="preserve">
@@ -2081,9 +2081,6 @@
   <data name="QueueDialog_DragIncludeFolderError" xml:space="preserve">
     <value>目标文件夹不可以包含在拖动项中</value>
   </data>
-  <data name="QueueDialog_EmptyFileName_Content" xml:space="preserve">
-    <value>文件名不能为空，重命名失败</value>
-  </data>
   <data name="QueueDialog_EncryptError_Content" xml:space="preserve">
     <value>加密文件时出现意外错误，导入过程已经终止</value>
   </data>
@@ -2476,5 +2473,25 @@
   </data>
   <data name="QueueDialog_MTP_CouldNotAccess_Content" xml:space="preserve">
     <value>RX不支持查看MTP类型的设备，尝试通过系统资源管理器打开它吗？</value>
+  </data>
+  <data name="PresentInvalidCharTip.Subtitle" xml:space="preserve">
+    <value>不能包含非法字符
+非法字符包括 \ / : * ? " &lt; &gt; |</value>
+  </data>
+  <data name="PresentInvalidCharTip.Title" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="PresentInvalidNameTip.Title" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="PresentInvalidNameTip.Subtitle" xml:space="preserve">
+    <value>名称不能为空且不能包含无效的名称
+无效名称包括
+"CON","PRN", "AUX", "CLOCK$", "NUL"
+"COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9"
+"LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</value>
+  </data>
+  <data name="CustomUISubtype3.Content" xml:space="preserve">
+    <value>必应壁纸</value>
   </data>
 </root>

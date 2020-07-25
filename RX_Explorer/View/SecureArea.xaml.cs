@@ -720,19 +720,6 @@ namespace RX_Explorer
                 RenameDialog dialog = new RenameDialog(await RenameItem.GetStorageItem().ConfigureAwait(true));
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    if (dialog.DesireName == RenameItem.Type)
-                    {
-                        QueueContentDialog content = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_EmptyFileName_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        await content.ShowAsync().ConfigureAwait(true);
-                        return;
-                    }
-
                     await (await RenameItem.GetStorageItem().ConfigureAwait(true)).RenameAsync(dialog.DesireName);
                 }
             }

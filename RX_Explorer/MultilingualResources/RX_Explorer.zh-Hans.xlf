@@ -712,9 +712,9 @@
         </trans-unit>
         <trans-unit id="RenameDialogInvalidCharTip.Subtitle" translate="yes" xml:space="preserve">
           <source>Name cannot be empty and cannot contain illegal characters 
-Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</source>
-          <target state="translated">名称不能为空且不能包含非法字符
-非法字符包括 \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</target>
+Illegal characters include \ / : * ? " &lt; &gt; |</source>
+          <target state="translated">名称不能为空且不能包含非法字符 
+非法字符包括 \ / : * ? " &lt; &gt; |</target>
         </trans-unit>
         <trans-unit id="ResetDialog.CloseButtonText" translate="yes" xml:space="preserve">
           <source>Cancel</source>
@@ -2753,10 +2753,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>The target folder cannot be included in the drag item</source>
           <target state="translated">目标文件夹不可以包含在拖动项中</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_EmptyFileName_Content" translate="yes" xml:space="preserve">
-          <source>File name cannot be empty, rename failed</source>
-          <target state="translated">文件名不能为空，重命名失败</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_EncryptError_Content" translate="yes" xml:space="preserve">
           <source>An unexpected error occurred while encrypting the file, the import process has ended</source>
           <target state="translated">加密文件时出现意外错误，导入过程已经终止</target>
@@ -3276,6 +3272,36 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="QueueDialog_MTP_CouldNotAccess_Content" translate="yes" xml:space="preserve">
           <source>RX does not support viewing MTP type devices. Try open it by system explorer?</source>
           <target state="translated">RX不支持查看MTP类型的设备，尝试通过系统资源管理器打开它吗？</target>
+        </trans-unit>
+        <trans-unit id="PresentInvalidCharTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Cannot contain illegal characters 
+Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</source>
+          <target state="translated">不能包含非法字符
+非法字符包括 \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</target>
+        </trans-unit>
+        <trans-unit id="PresentInvalidCharTip.Title" translate="yes" xml:space="preserve">
+          <source>Error</source>
+          <target state="translated">错误</target>
+        </trans-unit>
+        <trans-unit id="PresentInvalidNameTip.Title" translate="yes" xml:space="preserve">
+          <source>Error</source>
+          <target state="translated">错误</target>
+        </trans-unit>
+        <trans-unit id="PresentInvalidNameTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>The name cannot be empty and cannot contain invalid names 
+Invalid names include 
+"CON","PRN", "AUX", "CLOCK$", "NUL"
+"COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9"
+"LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</source>
+          <target state="translated">名称不能为空且不能包含无效的名称
+无效名称包括
+"CON","PRN", "AUX", "CLOCK$", "NUL"
+"COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9"
+"LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</target>
+        </trans-unit>
+        <trans-unit id="CustomUISubtype3.Content" translate="yes" xml:space="preserve">
+          <source>Bing wallpaper</source>
+          <target state="translated">必应壁纸</target>
         </trans-unit>
       </group>
     </body>

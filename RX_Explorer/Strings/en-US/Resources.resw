@@ -2209,9 +2209,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_DragIncludeFolderError" xml:space="preserve">
     <value>The target folder cannot be included in the drag item</value>
   </data>
-  <data name="QueueDialog_EmptyFileName_Content" xml:space="preserve">
-    <value>File name cannot be empty, rename failed</value>
-  </data>
   <data name="QueueDialog_EncryptError_Content" xml:space="preserve">
     <value>An unexpected error occurred while encrypting the file, the import process has ended</value>
   </data>
@@ -2581,5 +2578,25 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_MTP_CouldNotAccess_Content" xml:space="preserve">
     <value>RX does not support viewing MTP type devices. Try open it by system explorer?</value>
+  </data>
+  <data name="PresentInvalidCharTip.Subtitle" xml:space="preserve">
+    <value>Cannot contain illegal characters 
+Illegal characters include \ / : * ? " &lt; &gt; |</value>
+  </data>
+  <data name="PresentInvalidCharTip.Title" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="PresentInvalidNameTip.Subtitle" xml:space="preserve">
+    <value>The name cannot be empty and cannot contain invalid names 
+Invalid names include 
+"CON","PRN", "AUX", "CLOCK$", "NUL"
+"COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9"
+"LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</value>
+  </data>
+  <data name="PresentInvalidNameTip.Title" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="CustomUISubtype3.Content" xml:space="preserve">
+    <value>Bing wallpaper</value>
   </data>
 </root>

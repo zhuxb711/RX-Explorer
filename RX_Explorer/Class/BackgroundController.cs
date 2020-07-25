@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -21,12 +23,23 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 图片背景刷
         /// </summary>
-        private readonly ImageBrush PictureBackgroundBrush;
+        private readonly ImageBrush PictureBackgroundBrush = new ImageBrush
+        {
+            Stretch = Stretch.UniformToFill
+        };
 
         /// <summary>
         /// 纯色背景刷
         /// </summary>
         private readonly SolidColorBrush SolidColorBackgroundBrush;
+
+        /// <summary>
+        /// 必应背景刷
+        /// </summary>
+        private readonly ImageBrush BingPictureBursh = new ImageBrush
+        {
+            Stretch = Stretch.UniformToFill
+        };
 
         /// <summary>
         /// 指示当前的背景类型
@@ -49,6 +62,10 @@ namespace RX_Explorer.Class
                     case BackgroundBrushType.Picture:
                         {
                             return PictureBackgroundBrush;
+                        }
+                    case BackgroundBrushType.BingPicture:
+                        {
+                            return BingPictureBursh;
                         }
                     default:
                         {
@@ -138,7 +155,7 @@ namespace RX_Explorer.Class
                             {
                                 if (double.TryParse(Convert.ToString(ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"]), out double TintOpacity))
                                 {
-                                    if(double.TryParse(Convert.ToString(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]), out double TintLuminosity))
+                                    if (double.TryParse(Convert.ToString(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]), out double TintLuminosity))
                                     {
                                         AcrylicBackgroundBrush = new AcrylicBrush
                                         {
@@ -216,21 +233,47 @@ namespace RX_Explorer.Class
 
                 CurrentType = BackgroundBrushType.Acrylic;
             }
+        }
 
-            if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string uri)
+        public async Task Initialize()
+        {
+            switch (CurrentType)
             {
-                PictureBackgroundBrush = new ImageBrush
-                {
-                    ImageSource = new BitmapImage(new Uri(uri)),
-                    Stretch = Stretch.UniformToFill
-                };
-            }
-            else
-            {
-                PictureBackgroundBrush = new ImageBrush
-                {
-                    Stretch = Stretch.UniformToFill
-                };
+                case BackgroundBrushType.Picture:
+                    {
+                        string UriString = Convert.ToString(ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"]);
+                        
+                        BitmapImage Bitmap = new BitmapImage();
+
+                        StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(UriString));
+
+                        using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                        {
+                            await Bitmap.SetSourceAsync(Stream);
+                        }
+
+                        PictureBackgroundBrush.ImageSource = Bitmap;
+
+                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                        break;
+                    }
+
+                case BackgroundBrushType.BingPicture:
+                    {
+                        BitmapImage Bitmap = new BitmapImage();
+
+                        StorageFile ImageFile = await BingPictureDownloader.DownloadDailyPicture().ConfigureAwait(true);
+
+                        using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                        {
+                            await Bitmap.SetSourceAsync(Stream);
+                        }
+
+                        BingPictureBursh.ImageSource = Bitmap;
+
+                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                        break;
+                    }
             }
         }
 
@@ -303,7 +346,7 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Type">背景类型</param>
         /// <param name="uri">图片背景的Uri</param>
-        public void SwitchTo(BackgroundBrushType Type, Uri uri = null, Color? Color = null)
+        public void SwitchTo(BackgroundBrushType Type, BitmapImage Background = null, Uri ImageUri = null, Color? Color = null)
         {
             CurrentType = Type;
 
@@ -311,30 +354,23 @@ namespace RX_Explorer.Class
             {
                 case BackgroundBrushType.Picture:
                     {
-                        if (uri == null)
+                        if (ImageUri == null)
                         {
-                            throw new ArgumentNullException(nameof(uri), "if parameter: 'Type' is BackgroundBrushType.Picture, parameter: 'uri' could not be null or empty");
+                            throw new ArgumentNullException(nameof(ImageUri), "if parameter: 'Type' is BackgroundBrushType.Picture, parameter: 'ImageUri' could not be null");
                         }
 
-                        if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string Ur)
-                        {
-                            if (Ur != uri.ToString())
-                            {
-                                BitmapImage Bitmap = new BitmapImage(uri);
-                                PictureBackgroundBrush.ImageSource = Bitmap;
-                                ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = uri.ToString();
-                            }
-                        }
-                        else
-                        {
-                            BitmapImage Bitmap = new BitmapImage(uri);
-                            PictureBackgroundBrush.ImageSource = Bitmap;
-                            ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = uri.ToString();
-                        }
+                        PictureBackgroundBrush.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), "if parameter: 'Type' is BackgroundBrushType.Picture, parameter: 'Background' could not be null");
+
+                        ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = ImageUri.ToString();
 
                         break;
                     }
+                case BackgroundBrushType.BingPicture:
+                    {
+                        BingPictureBursh.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), "if parameter: 'Type' is BackgroundBrushType.BingPicture, parameter: 'Background' could not be null");
 
+                        break;
+                    }
                 case BackgroundBrushType.SolidColor:
                     {
                         if (Color == null)
@@ -343,12 +379,15 @@ namespace RX_Explorer.Class
                         }
 
                         SolidColorBackgroundBrush.Color = Color.GetValueOrDefault();
+
                         ApplicationData.Current.LocalSettings.Values["SolidColorType"] = Color.GetValueOrDefault().ToString();
+
                         break;
                     }
                 default:
                     {
                         AppThemeController.Current.ChangeThemeTo(ElementTheme.Dark);
+
                         break;
                     }
             }

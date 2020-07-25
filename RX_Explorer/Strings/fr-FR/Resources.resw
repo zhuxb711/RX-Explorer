@@ -2081,9 +2081,6 @@
   <data name="QueueDialog_DragIncludeFolderError" xml:space="preserve">
     <value>Le dossier cible ne peut pas être inclus dans le glisser-déposer.</value>
   </data>
-  <data name="QueueDialog_EmptyFileName_Content" xml:space="preserve">
-    <value>Le nom de fichier ne peut être vide, le renommage a échoué</value>
-  </data>
   <data name="QueueDialog_EncryptError_Content" xml:space="preserve">
     <value>Une erreur inattendue s'est produite lors du chiffrement du fichier, le processus d'importation est terminé</value>
   </data>
@@ -2476,5 +2473,25 @@
   </data>
   <data name="QueueDialog_MTP_CouldNotAccess_Content" xml:space="preserve">
     <value>RX ne prend pas en charge l'affichage des périphériques de type MTP. Voulez-vous l'ouvrir avec l'explorateur système?</value>
+  </data>
+  <data name="PresentInvalidCharTip.Subtitle" xml:space="preserve">
+    <value>Ne peut pas contenir de caractères illégaux
+Les caractères illégaux incluent \ / : * ? " &lt; &gt; |</value>
+  </data>
+  <data name="PresentInvalidCharTip.Title" xml:space="preserve">
+    <value>Erreur</value>
+  </data>
+  <data name="PresentInvalidNameTip.Title" xml:space="preserve">
+    <value>Erreur</value>
+  </data>
+  <data name="PresentInvalidNameTip.Subtitle" xml:space="preserve">
+    <value>Le nom ne peut pas être vide et ne peut pas contenir de noms non valides
+Les noms non valides incluent
+"CON","PRN", "AUX", "CLOCK$", "NUL"
+"COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9"
+"LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</value>
+  </data>
+  <data name="CustomUISubtype3.Content" xml:space="preserve">
+    <value>Fonds d'écran Bing</value>
   </data>
 </root>

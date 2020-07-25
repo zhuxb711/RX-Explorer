@@ -1153,6 +1153,23 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static string ComputeMD5Hash(this Stream Stream)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                Stream.Seek(0, SeekOrigin.Begin);
+
+                byte[] hash = md5.ComputeHash(Stream);
+
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < hash.Length; i++)
+                {
+                    _ = builder.Append(hash[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
+
         public async static Task<string> ComputeMD5Hash(this StorageFile File, CancellationToken Token)
         {
             using (MD5 md5 = MD5.Create())

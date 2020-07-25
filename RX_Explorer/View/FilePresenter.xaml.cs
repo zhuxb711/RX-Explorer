@@ -937,18 +937,6 @@ namespace RX_Explorer
                     RenameDialog dialog = new RenameDialog(File);
                     if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
-                        if (dialog.DesireName == RenameItem.Type)
-                        {
-                            QueueContentDialog content = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_EmptyFileName_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-                            await content.ShowAsync().ConfigureAwait(true);
-                            return;
-                        }
-
                         try
                         {
                             await (await RenameItem.GetStorageItem().ConfigureAwait(true)).RenameAsync(dialog.DesireName);
@@ -3911,6 +3899,7 @@ namespace RX_Explorer
 
                             if ((NameLabel.Parent as FrameworkElement).FindName("NameEditBox") is TextBox EditBox)
                             {
+                                EditBox.Text = NameLabel.Text;
                                 EditBox.Visibility = Visibility.Visible;
                                 EditBox.Focus(FocusState.Programmatic);
                             }
@@ -3928,21 +3917,22 @@ namespace RX_Explorer
         {
             TextBox NameEditBox = (TextBox)sender;
 
-            if (string.IsNullOrWhiteSpace(NameEditBox.Text) || NameEditBox.Text.Any((Char) => Path.GetInvalidFileNameChars().Contains(Char)))
-            {
-                InvalidCharTip.Target = NameEditBox;
-                InvalidCharTip.IsOpen = true;
-                NameEditBox.Focus(FocusState.Programmatic);
-                return;
-            }
-
-            if (NameEditBox.DataContext is FileSystemStorageItem Item)
+            if (NameEditBox.DataContext is FileSystemStorageItem Item && (NameEditBox.Parent as FrameworkElement).FindName("NameLabel") is TextBlock NameLabel)
             {
                 try
                 {
+                    if (string.IsNullOrWhiteSpace(NameEditBox.Text) || !FileSystemItemNameChecker.IsValid(NameEditBox.Text))
+                    {
+                        InvalidNameTip.Target = NameLabel;
+                        InvalidNameTip.IsOpen = true;
+                        return;
+                    }
+
                     if (Item.Name != NameEditBox.Text)
                     {
                         await (await Item.GetStorageItem().ConfigureAwait(true)).RenameAsync(NameEditBox.Text);
+
+                        NameLabel.Text = NameEditBox.Text;
                     }
                 }
                 catch (UnauthorizedAccessException)
@@ -3980,11 +3970,7 @@ namespace RX_Explorer
                 {
                     NameEditBox.Visibility = Visibility.Collapsed;
 
-                    if ((NameEditBox.Parent as FrameworkElement).FindName("NameLabel") is TextBlock NameLabel)
-                    {
-                        NameLabel.Visibility = Visibility.Visible;
-                        NameLabel.Text = NameEditBox.Text;
-                    }
+                    NameLabel.Visibility = Visibility.Visible;
 
                     LastClickTime = DateTimeOffset.MaxValue;
 
@@ -4041,6 +4027,20 @@ namespace RX_Explorer
             if (!await Launcher.LaunchFolderPathAsync(SelectedItem.Path))
             {
                 await Launcher.LaunchFolderPathAsync(Path.GetDirectoryName(SelectedItem.Path));
+            }
+        }
+
+        private void NameEditBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
+        {
+            if (args.NewText.Any((Item) => Path.GetInvalidFileNameChars().Contains(Item)))
+            {
+                args.Cancel = true;
+
+                if ((sender.Parent as FrameworkElement).FindName("NameLabel") is TextBlock NameLabel)
+                {
+                    InvalidCharTip.Target = NameLabel;
+                    InvalidCharTip.IsOpen = true;
+                }
             }
         }
     }

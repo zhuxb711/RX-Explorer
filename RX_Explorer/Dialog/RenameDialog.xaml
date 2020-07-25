@@ -13,6 +13,12 @@
                           PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
     <local:QueueContentDialog.Resources>
+        <controls:TeachingTip x:Name="InvalidNameTip"
+                              IsLightDismissEnabled="True"
+                              x:Uid="PresentInvalidNameTip"
+                              Target="{x:Bind RenameText}"
+                              Title="错误"
+                              Subtitle="名称不能为空且不能包含无效的名称" />
         <controls:TeachingTip x:Name="InvalidCharTip"
                               IsLightDismissEnabled="True"
                               Target="{x:Bind RenameText}"
@@ -24,12 +30,13 @@
         <StackPanel Orientation="Vertical">
             <TextBox  Name="RenameText"
                       TextChanged="RenameText_TextChanged"
+                      BeforeTextChanging="RenameText_BeforeTextChanging"
                       FontSize="16"
-                      Width="300"/>
+                      Width="300" />
             <TextBlock Text="预览"
                        x:Uid="RenamePreview"
                        FontSize="22"
-                       Margin="0,10,0,0"/>
+                       Margin="0,10,0,0" />
             <TextBlock Name="Preview"
                        FontSize="16"
                        Width="300"

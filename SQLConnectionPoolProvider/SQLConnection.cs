@@ -16,7 +16,13 @@ namespace SQLConnectionPoolProvider
         /// <summary>
         /// 指示该连接是否已经连接
         /// </summary>
-        public bool IsConnected { get; private set; }
+        public bool IsConnected
+        {
+            get
+            {
+                return InnerConnection != null && InnerConnection.State == ConnectionState.Open;
+            }
+        }
 
         /// <summary>
         /// 打开SQL连接对象成功时调用此构造函数
@@ -25,7 +31,6 @@ namespace SQLConnectionPoolProvider
         internal SQLConnection(DbConnection InnerConnection)
         {
             this.InnerConnection = InnerConnection;
-            IsConnected = true;
         }
 
         /// <summary>
@@ -33,7 +38,7 @@ namespace SQLConnectionPoolProvider
         /// </summary>
         internal SQLConnection()
         {
-            IsConnected = false;
+            InnerConnection = null;
         }
 
         /// <summary>
@@ -42,7 +47,6 @@ namespace SQLConnectionPoolProvider
         /// <typeparam name="T">SQL命令对象，具体因不同数据库而异</typeparam>
         /// <param name="CommandText">SQL命令</param>
         /// <returns>SQL命令对象</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "<挂起>")]
         public T CreateDbCommandFromConnection<T>(string CommandText, CommandType Type = CommandType.Text) where T : DbCommand, new()
         {
             T Command = new T
