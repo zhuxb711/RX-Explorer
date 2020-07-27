@@ -154,11 +154,8 @@ namespace FullTrustProcess
                             try
                             {
                                 StorageFile RestoreFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_WIN_E.reg"));
-                                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Restore_WIN_E_Temp.reg", CreationCollisionOption.ReplaceExisting);
 
-                                await RestoreFile.CopyAndReplaceAsync(TempFile);
-
-                                using (Process Process = Process.Start(TempFile.Path))
+                                using (Process Process = Process.Start(RestoreFile.Path))
                                 {
                                     SetForegroundWindow(Process.MainWindowHandle);
                                     Process.WaitForExit();

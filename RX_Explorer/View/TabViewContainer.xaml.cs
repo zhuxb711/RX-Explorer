@@ -326,51 +326,75 @@ namespace RX_Explorer
 
         private async void PortalDeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
         {
-            IEnumerable<string> AllBaseDevice = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
-                                                                     .Select((Info) => Info.RootDirectory.FullName);
-
-            IEnumerable<StorageFolder> AllPortableDevice = (await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector())).Select((It) => StorageDevice.FromId(It.Id));
-
-            List<HardDeviceInfo> OneStepDeviceList = HardDeviceList.Where((Item) => !AllBaseDevice.Contains(Item.Folder.Path)).ToList();
-            List<HardDeviceInfo> TwoStepDeviceList = OneStepDeviceList.Where((RemoveItem) => AllPortableDevice.All((Item) => Item.Name != RemoveItem.Folder.Name)).ToList();
-
-            foreach (HardDeviceInfo Device in TwoStepDeviceList)
+            try
             {
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                List<string> AllBaseDevice = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                                                                  .Select((Info) => Info.RootDirectory.FullName).ToList();
+
+                List<StorageFolder> PortableDevice = new List<StorageFolder>();
+
+                foreach (DeviceInformation Device in await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector()))
                 {
-                    for (int j = 0; j < TabViewControl.TabItems.Count; j++)
+                    try
                     {
-                        if (((TabViewControl.TabItems[j] as TabViewItem)?.Content as Frame)?.Content is FileControl Control && Path.GetPathRoot(Control.CurrentFolder.Path) == Device.Folder.Path)
+                        PortableDevice.Add(StorageDevice.FromId(Device.Id));
+                    }
+                    catch
+                    {
+                        Debug.WriteLine($"Error happened when get storagefolder from {Device.Name}");
+                    }
+                }
+
+                foreach (string PortDevice in AllBaseDevice.Where((Path) => PortableDevice.Any((Item) => Item.Path == Path)))
+                {
+                    AllBaseDevice.Remove(PortDevice);
+                }
+
+                List<HardDeviceInfo> OneStepDeviceList = HardDeviceList.Where((Item) => !AllBaseDevice.Contains(Item.Folder.Path)).ToList();
+                List<HardDeviceInfo> TwoStepDeviceList = OneStepDeviceList.Where((RemoveItem) => PortableDevice.All((Item) => Item.Name != RemoveItem.Folder.Name)).ToList();
+
+                foreach (HardDeviceInfo Device in TwoStepDeviceList)
+                {
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    {
+                        for (int j = 0; j < TabViewControl.TabItems.Count; j++)
                         {
-                            if (TabViewControl.TabItems.Count == 1)
+                            if (((TabViewControl.TabItems[j] as TabViewItem)?.Content as Frame)?.Content is FileControl Control && Path.GetPathRoot(Control.CurrentFolder.Path) == Device.Folder.Path)
                             {
-                                while (CurrentTabNavigation.CanGoBack)
-                                {
-                                    CurrentTabNavigation.GoBack();
-                                }
-                            }
-                            else
-                            {
-                                if (TFInstanceContainer.ContainsValue(Control))
-                                {
-                                    Control.Dispose();
-                                    FFInstanceContainer.Remove(Control);
-                                    FSInstanceContainer.Remove(Control);
-                                    TFInstanceContainer.Remove(TFInstanceContainer.First((Item) => Item.Value == Control).Key);
-                                }
-
-                                TabViewControl.TabItems.RemoveAt(j);
-
                                 if (TabViewControl.TabItems.Count == 1)
                                 {
-                                    (TabViewControl.TabItems.First() as TabViewItem).IsClosable = false;
+                                    while (CurrentTabNavigation.CanGoBack)
+                                    {
+                                        CurrentTabNavigation.GoBack();
+                                    }
+                                }
+                                else
+                                {
+                                    if (TFInstanceContainer.ContainsValue(Control))
+                                    {
+                                        Control.Dispose();
+                                        FFInstanceContainer.Remove(Control);
+                                        FSInstanceContainer.Remove(Control);
+                                        TFInstanceContainer.Remove(TFInstanceContainer.First((Item) => Item.Value == Control).Key);
+                                    }
+
+                                    TabViewControl.TabItems.RemoveAt(j);
+
+                                    if (TabViewControl.TabItems.Count == 1)
+                                    {
+                                        (TabViewControl.TabItems.First() as TabViewItem).IsClosable = false;
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    HardDeviceList.Remove(Device);
-                });
+                        HardDeviceList.Remove(Device);
+                    });
+                }
+            }
+            catch
+            {
+                Debug.WriteLine($"Error happened when remove device from HardDeviceList");
             }
         }
 
@@ -380,12 +404,7 @@ namespace RX_Explorer
             {
                 StorageFolder DeviceFolder = StorageDevice.FromId(args.Id);
 
-                IEnumerable<string> AllBaseDevice = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
-                                                                         .Select((Info) => Info.RootDirectory.FullName);
-
-                List<HardDeviceInfo> PortableDeviceList = HardDeviceList.Where((Item) => !AllBaseDevice.Contains(Item.Folder.Path)).ToList();
-
-                if (PortableDeviceList.All((Device) => Device.Folder.Name != DeviceFolder.Name))
+                if (HardDeviceList.All((Device) => (string.IsNullOrEmpty(Device.Folder.Path) || string.IsNullOrEmpty(DeviceFolder.Path)) ? Device.Folder.Name != DeviceFolder.Name : Device.Folder.Path != DeviceFolder.Path))
                 {
                     BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
                     IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
@@ -691,7 +710,7 @@ namespace RX_Explorer
                 }
 
                 bool AccessError = false;
-                foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network || Drives.DriveType == DriveType.Removable)
                                                                  .Where((NewItem) => HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
                 {
                     try
@@ -701,49 +720,6 @@ namespace RX_Explorer
                         BasicProperties Properties = await Device.GetBasicPropertiesAsync();
                         IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
                         HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType == DriveType.Removable));
-                    }
-                    catch
-                    {
-                        AccessError = true;
-                    }
-                }
-
-                foreach (DeviceInformation Device in await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector()))
-                {
-                    try
-                    {
-                        StorageFolder DeviceFolder = StorageDevice.FromId(Device.Id);
-
-                        BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
-                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-
-                        if (PropertiesRetrieve["System.Capacity"] is ulong && PropertiesRetrieve["System.FreeSpace"] is ulong)
-                        {
-                            HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
-                        }
-                        else
-                        {
-                            IReadOnlyList<IStorageItem> InnerItemList = await DeviceFolder.GetItemsAsync(0, 2);
-
-                            if (InnerItemList.Count == 1 && InnerItemList[0] is StorageFolder InnerFolder)
-                            {
-                                BasicProperties InnerProperties = await InnerFolder.GetBasicPropertiesAsync();
-                                IDictionary<string, object> InnerPropertiesRetrieve = await InnerProperties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-
-                                if (InnerPropertiesRetrieve["System.Capacity"] is ulong && InnerPropertiesRetrieve["System.FreeSpace"] is ulong)
-                                {
-                                    HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, true));
-                                }
-                                else
-                                {
-                                    HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
-                                }
-                            }
-                            else
-                            {
-                                HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
-                            }
-                        }
                     }
                     catch
                     {

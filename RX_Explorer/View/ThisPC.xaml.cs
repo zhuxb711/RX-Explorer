@@ -460,7 +460,7 @@ namespace RX_Explorer
                     TabViewContainer.ThisPage.HardDeviceList.Clear();
 
                     bool AccessError = false;
-                    foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network)
+                    foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network || Drives.DriveType == DriveType.Removable)
                                                                      .Where((NewItem) => TabViewContainer.ThisPage.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
                     {
                         try
@@ -479,37 +479,47 @@ namespace RX_Explorer
 
                     foreach (DeviceInformation Device in await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector()))
                     {
-                        StorageFolder DeviceFolder = StorageDevice.FromId(Device.Id);
-
-                        BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
-                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-
-                        if (PropertiesRetrieve["System.Capacity"] is ulong && PropertiesRetrieve["System.FreeSpace"] is ulong)
+                        try
                         {
-                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
-                        }
-                        else
-                        {
-                            IReadOnlyList<IStorageItem> InnerItemList = await DeviceFolder.GetItemsAsync(0, 2);
+                            StorageFolder DeviceFolder = StorageDevice.FromId(Device.Id);
 
-                            if (InnerItemList.Count == 1 && InnerItemList[0] is StorageFolder InnerFolder)
+                            if (TabViewContainer.ThisPage.HardDeviceList.All((Item) => (string.IsNullOrEmpty(Item.Folder.Path) || string.IsNullOrEmpty(DeviceFolder.Path)) ? Item.Folder.Name != DeviceFolder.Name : Item.Folder.Path != DeviceFolder.Path))
                             {
-                                BasicProperties InnerProperties = await InnerFolder.GetBasicPropertiesAsync();
-                                IDictionary<string, object> InnerPropertiesRetrieve = await InnerProperties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+                                BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
+                                IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
 
-                                if (InnerPropertiesRetrieve["System.Capacity"] is ulong && InnerPropertiesRetrieve["System.FreeSpace"] is ulong)
-                                {
-                                    TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, true));
-                                }
-                                else
+                                if (PropertiesRetrieve["System.Capacity"] is ulong && PropertiesRetrieve["System.FreeSpace"] is ulong)
                                 {
                                     TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
                                 }
+                                else
+                                {
+                                    IReadOnlyList<IStorageItem> InnerItemList = await DeviceFolder.GetItemsAsync(0, 2);
+
+                                    if (InnerItemList.Count == 1 && InnerItemList[0] is StorageFolder InnerFolder)
+                                    {
+                                        BasicProperties InnerProperties = await InnerFolder.GetBasicPropertiesAsync();
+                                        IDictionary<string, object> InnerPropertiesRetrieve = await InnerProperties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
+
+                                        if (InnerPropertiesRetrieve["System.Capacity"] is ulong && InnerPropertiesRetrieve["System.FreeSpace"] is ulong)
+                                        {
+                                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, true));
+                                        }
+                                        else
+                                        {
+                                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
+                                    }
+                                }
                             }
-                            else
-                            {
-                                TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
-                            }
+                        }
+                        catch
+                        {
+                            AccessError = true;
                         }
                     }
 

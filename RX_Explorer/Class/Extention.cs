@@ -193,7 +193,7 @@ namespace RX_Explorer.Class
                 {
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                     {
-                        if (Node.Children.FirstOrDefault((Item) => (Item.Content as TreeViewNodeContent).Path == RemovePath) is TreeViewNode RemoveNode)
+                        if (Node.Children.FirstOrDefault((Item) => (Item.Content as TreeViewNodeContent)?.Path == RemovePath) is TreeViewNode RemoveNode)
                         {
                             Node.Children.Remove(RemoveNode);
                         }

@@ -345,7 +345,7 @@
                                      GroupName="CustomSubRadio"/>
                         <StackPanel Orientation="Horizontal"
                                     Margin="0,10,0,0">
-                            <RadioButton Content="必应壁纸"
+                            <RadioButton Content="必应每日壁纸"
                                          Name="BingPictureMode"
                                          x:Uid="CustomUISubtype3"
                                          GroupName="CustomSubRadio"

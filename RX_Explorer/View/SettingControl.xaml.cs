@@ -180,7 +180,7 @@ namespace RX_Explorer
 
         private void SettingPage_Loading(FrameworkElement sender, object args)
         {
-            UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Recommand"));
+            UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Recommend"));
             UIMode.Items.Add(Globalization.GetString("Setting_UIMode_SolidColor"));
             UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Custom"));
 
@@ -467,7 +467,6 @@ namespace RX_Explorer
                         SolidColor_White.IsChecked = null;
                         SolidColor_Black.IsChecked = null;
                         CustomFontColor.IsEnabled = true;
-                        CustomFontColor.SelectedIndex = 0;
 
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
                         BackgroundController.Current.TintOpacity = 0.6;
@@ -981,13 +980,13 @@ namespace RX_Explorer
                     DecodePixelHeight = 90
                 };
 
-                using(IRandomAccessStream Stream = await CopyedFile.OpenAsync(FileAccessMode.Read))
+                using (IRandomAccessStream Stream = await CopyedFile.OpenAsync(FileAccessMode.Read))
                 {
                     await Bitmap.SetSourceAsync(Stream);
                 }
 
                 BackgroundPicture Picture = new BackgroundPicture(Bitmap, new Uri($"ms-appdata:///local/CustomImageFolder/{CopyedFile.Name}"));
-                
+
                 PictureList.Add(Picture);
 
                 PictureGirdView.ScrollIntoViewSmoothly(Picture);
@@ -1326,14 +1325,32 @@ namespace RX_Explorer
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_InterceptWindowsETipFailure_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            PrimaryButtonText = Globalization.GetString("QueueDialog_InterceptWindowsETipFailure_PrimaryButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                         };
 
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        {
+                            StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_WIN_E.reg"));
+                            
+                            FolderPicker Picker = new FolderPicker
+                            {
+                                SuggestedStartLocation = PickerLocationId.Desktop
+                            };
+                            Picker.FileTypeFilter.Add("*");
 
-                        UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
-                        UseWinAndEActivate.IsOn = false;
-                        UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
+                            if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
+                            {
+                                await InterceptFile.CopyAsync(Folder, InterceptFile.Name, NameCollisionOption.ReplaceExisting);
+                                await Launcher.LaunchFolderAsync(Folder);
+                            }
+                        }
+                        else
+                        {
+                            UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
+                            UseWinAndEActivate.IsOn = false;
+                            UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
+                        }
                     }
                 }
                 else
@@ -1355,14 +1372,32 @@ namespace RX_Explorer
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_RestoreWindowsETipFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        PrimaryButtonText = Globalization.GetString("QueueDialog_RestoreWindowsETipFailure_PrimaryButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                     };
 
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        StorageFile RestoreFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_WIN_E.reg"));
 
-                    UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
-                    UseWinAndEActivate.IsOn = true;
-                    UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
+                        FolderPicker Picker = new FolderPicker
+                        {
+                            SuggestedStartLocation = PickerLocationId.Desktop
+                        };
+                        Picker.FileTypeFilter.Add("*");
+
+                        if(await Picker.PickSingleFolderAsync() is StorageFolder Folder)
+                        {
+                            await RestoreFile.CopyAsync(Folder, RestoreFile.Name, NameCollisionOption.ReplaceExisting);
+                            await Launcher.LaunchFolderAsync(Folder);
+                        }
+                    }
+                    else
+                    {
+                        UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
+                        UseWinAndEActivate.IsOn = true;
+                        UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
+                    }
                 }
             }
         }

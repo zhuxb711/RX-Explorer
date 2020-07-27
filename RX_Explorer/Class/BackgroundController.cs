@@ -386,8 +386,6 @@ namespace RX_Explorer.Class
                     }
                 default:
                     {
-                        AppThemeController.Current.ChangeThemeTo(ElementTheme.Dark);
-
                         break;
                     }
             }

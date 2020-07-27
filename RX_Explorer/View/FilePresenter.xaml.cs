@@ -131,7 +131,7 @@ namespace RX_Explorer
 
         private void Current_Resuming(object sender, object e)
         {
-            AreaWatcher.SetCurrentLocation(FileControlInstance.CurrentFolder.Path);
+            AreaWatcher.SetCurrentLocation(FileControlInstance.CurrentFolder?.Path);
         }
 
         private void Current_Suspending(object sender, SuspendingEventArgs e)
@@ -1370,7 +1370,6 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
                 };
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
-
 
                 FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
                 return;
@@ -3928,11 +3927,11 @@ namespace RX_Explorer
                         return;
                     }
 
-                    if (Item.Name != NameEditBox.Text)
+                    if (Item.Name != NameEditBox.Text && await Item.GetStorageItem().ConfigureAwait(true) is IStorageItem StorageItem)
                     {
-                        await (await Item.GetStorageItem().ConfigureAwait(true)).RenameAsync(NameEditBox.Text);
+                        await StorageItem.RenameAsync(NameEditBox.Text);
 
-                        NameLabel.Text = NameEditBox.Text;
+                        await Task.Delay(500).ConfigureAwait(true);
                     }
                 }
                 catch (UnauthorizedAccessException)
@@ -3960,9 +3959,10 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                     };
 
-                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary && await Item.GetStorageItem().ConfigureAwait(true) is IStorageItem StorageItem)
                     {
-                        await (await Item.GetStorageItem().ConfigureAwait(true)).RenameAsync(NameEditBox.Text, NameCollisionOption.GenerateUniqueName);
+                        await StorageItem.RenameAsync(NameEditBox.Text, NameCollisionOption.GenerateUniqueName);
+
                         await Task.Delay(500).ConfigureAwait(true);
                     }
                 }

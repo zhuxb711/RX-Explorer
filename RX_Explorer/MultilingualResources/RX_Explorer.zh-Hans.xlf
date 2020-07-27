@@ -2887,10 +2887,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Custom</source>
           <target state="translated">自定义</target>
         </trans-unit>
-        <trans-unit id="Setting_UIMode_Recommand" translate="yes" xml:space="preserve">
-          <source>Recommand</source>
-          <target state="translated">推荐</target>
-        </trans-unit>
         <trans-unit id="Setting_UIMode_SolidColor" translate="yes" xml:space="preserve">
           <source>Solid Color</source>
           <target state="translated">纯色</target>
@@ -3250,8 +3246,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">此操作将尝试将Win+E重定向为激活RX文件管理器，并且您需要在卸载RX文件管理器之前关闭此开关，否则Win+E键无法重置为初始状态。稍后您将看到UAC权限提示，请允许其执行必要的操作。是否继续？</target>
         </trans-unit>
         <trans-unit id="QueueDialog_InterceptWindowsETipFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to redirect Win+E due to an unexpected error</source>
-          <target state="translated">由于出现了意外错误，无法重定向Win+E键</target>
+          <source>Unable to redirect Win+E due to an unexpected error. You can do it manually according to the following methods: \r\r1.Click manual operation below \r2.Save the .reg file to any location \r3.Right-click the file and edit with Notepad \r4.Enter %LOCALAPPDATA% into the address bar of the system file manager and go to that location \r5.Copy the location of the current folder, paste and replace %LOCALAPPDATA% in the .reg file \r6.Save and double-click the .reg file to run</source>
+          <target state="translated">由于出现了意外错误，无法重定向Win+E键。您可以根据以下方法手动操作: \r\r1.点击下方的手动操作按钮 \r2.保存.reg文件至任意位置 \r3.右键该文件并使用记事本编辑 \r4.打开系统文件管理器并在地址栏输入%LOCALAPPDATA%然后转到该文件夹 \r5.复制该文件夹的路径，粘贴并替换.reg文件中的%LOCALAPPDATA% \r6.保存并双击.reg文件运行即可</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RestoreWindowsETipFailure_Content" translate="yes" xml:space="preserve">
           <source>Unable to restore Win+E due to an unexpected error</source>
@@ -3301,7 +3297,19 @@ Invalid names include
         </trans-unit>
         <trans-unit id="CustomUISubtype3.Content" translate="yes" xml:space="preserve">
           <source>Bing wallpaper</source>
-          <target state="translated">必应壁纸</target>
+          <target state="translated">必应每日壁纸</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_InterceptWindowsETipFailure_PrimaryButton" translate="yes" xml:space="preserve">
+          <source>Manual operation</source>
+          <target state="translated">手动操作</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RestoreWindowsETipFailure_PrimaryButton" translate="yes" xml:space="preserve">
+          <source>Manual operation</source>
+          <target state="translated">手动操作</target>
+        </trans-unit>
+        <trans-unit id="Setting_UIMode_Recommend" translate="yes" xml:space="preserve">
+          <source>Recommend</source>
+          <target state="translated">推荐</target>
         </trans-unit>
       </group>
     </body>

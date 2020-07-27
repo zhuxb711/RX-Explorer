@@ -714,7 +714,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    await CurrentNode.Parent.UpdateAllSubNode().ConfigureAwait(true);
+                    await CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
                 }
 
                 await LoadingActivation(false).ConfigureAwait(true);
@@ -782,8 +782,7 @@ namespace RX_Explorer
 
                 DisplayItemsInFolder(CurrentNode.Parent, true);
 
-                await CurrentNode.Parent.UpdateAllSubNode().ConfigureAwait(false);
-
+                await CurrentNode.UpdateAllSubNode().ConfigureAwait(false);
                 return;
             }
 
@@ -898,7 +897,7 @@ namespace RX_Explorer
 
                 DisplayItemsInFolder(CurrentNode.Parent, true);
 
-                await CurrentNode.Parent.UpdateAllSubNode().ConfigureAwait(false);
+                await CurrentNode.UpdateAllSubNode().ConfigureAwait(false);
 
                 return;
             }

@@ -1,5 +1,5 @@
 ﻿*****
-###Quoi de neuf dans la version 5.1.6.0
+###Quoi de neuf dans la version 5.1.7.0
 
 >#####Mise à jour des fonctionnalités
 
@@ -19,9 +19,17 @@
 
 >>#####Correction du problème de modification du nom de fichier par erreur en cas d'échec du changement de nom
 
->>#####Correction du problème pouvant provoquer un crash lorsque le périphérique MTP refuse l'accès
+>>#####Correction du problème qui provoquait un crash au démarrage lorsque le périphérique USB refusait l'accès
 
 >>#####Amélioration de la fiabilité du pool de connexion à la base de données SQL pour éviter une déconnexion accidentelle de la base de données cloud
+
+>>#####Correction du problème qui pouvait provoquer un plantage lors d'un clic droit sur le répertoire du dossier à gauche et en sélectionnant Supprimer
+
+>>#####Correction du problème selon lequel la couleur de police de "Noir" ne pouvait pas être enregistrée en mode "Recommander"
+
+>>#####Correction du problème qui pouvait planter lorsqu'il était placé en arrière-plan pendant une longue période
+
+>>#####Résolution du problème suivant: le disque dur amovible affiche plusieurs lettres de lecteur en double
 
 *****
 ###Quoi de neuf dans la version 5.1.4.0

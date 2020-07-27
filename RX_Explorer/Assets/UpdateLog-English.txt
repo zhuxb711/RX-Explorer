@@ -1,5 +1,5 @@
 ﻿*****
-###What's new in Ver.5.1.6.0
+###What's new in Ver.5.1.7.0
 
 >#####Feature Update
 
@@ -19,9 +19,17 @@
 
 >>#####Fixed the problem that changing the file name by mistake in the case of rename failure
 
->>#####Fixed the problem that may cause a crash when the MTP device denies access
+>>#####Fixed the problem that caused a crash at startup when the USB device denied access
 
 >>#####Improved the reliability of the SQL database connection pool to avoid accidental disconnection from the cloud database
+
+>>#####Fixed the problem that may cause a crash when right-clicking the folder directory on the left and selecting delete
+
+>>#####Fixed the problem that the font color of "Black" could not be saved in "Recommended" mode
+
+>>#####Fixed the problem that may crash when placed in the background for a long time
+
+>>#####Fixed the problem that the removable hard drive displays multiple duplicate drive letters
 
 *****
 ###What's new in Ver.5.1.4.0

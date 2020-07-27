@@ -2184,9 +2184,6 @@
   <data name="Setting_UIMode_Custom" xml:space="preserve">
     <value>Personnalisé</value>
   </data>
-  <data name="Setting_UIMode_Recommand" xml:space="preserve">
-    <value>Recommandé</value>
-  </data>
   <data name="Setting_UIMode_SolidColor" xml:space="preserve">
     <value>Couleur pleine</value>
   </data>
@@ -2457,7 +2454,7 @@
     <value>Cette opération essaiera de rediriger Win + E pour activer le RX-Explorer, et vous devez désactiver ce commutateur avant de désinstaller le RX-Explorer, sinon la clé Win + E ne peut pas être réinitialisée à l'état initial. Vous verrez l'invite d'autorisation UAC plus tard, veuillez l'autoriser à effectuer les opérations nécessaires. Que ce soit pour continuer?</value>
   </data>
   <data name="QueueDialog_InterceptWindowsETipFailure_Content" xml:space="preserve">
-    <value>Impossible de rediriger Win + E en raison d'une erreur inattendue</value>
+    <value>Impossible de rediriger Win + E en raison d'une erreur inattendue. Vous pouvez le faire manuellement selon les méthodes suivantes: \r\r1.Cliquez sur opération manuelle ci-dessous \r2.Sauvez le fichier .reg à n'importe quel emplacement \r3.Cliquez droit sur le fichier et modifiez-le avec le Bloc-notes \r4.Entrez %LOCALAPPDATA% dans la barre d'adresse du gestionnaire de fichiers système et accédez à cet emplacement \r5.Copiez l'emplacement du dossier actuel, collez et remplacez %LOCALAPPDATA% dans le fichier .reg \r6.Save et double-cliquez sur le fichier .reg pour l'exécuter</value>
   </data>
   <data name="QueueDialog_RestoreWindowsETipFailure_Content" xml:space="preserve">
     <value>Impossible de restaurer Win + E en raison d'une erreur inattendue</value>
@@ -2493,5 +2490,14 @@ Les noms non valides incluent
   </data>
   <data name="CustomUISubtype3.Content" xml:space="preserve">
     <value>Fonds d'écran Bing</value>
+  </data>
+  <data name="QueueDialog_InterceptWindowsETipFailure_PrimaryButton" xml:space="preserve">
+    <value>Opération manuelle</value>
+  </data>
+  <data name="QueueDialog_RestoreWindowsETipFailure_PrimaryButton" xml:space="preserve">
+    <value>Opération manuelle</value>
+  </data>
+  <data name="Setting_UIMode_Recommend" xml:space="preserve">
+    <value>Recommander</value>
   </data>
 </root>

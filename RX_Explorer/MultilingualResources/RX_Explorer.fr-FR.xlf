@@ -2887,10 +2887,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Custom</source>
           <target state="translated">Personnalisé</target>
         </trans-unit>
-        <trans-unit id="Setting_UIMode_Recommand" translate="yes" xml:space="preserve">
-          <source>Recommand</source>
-          <target state="translated">Recommandé</target>
-        </trans-unit>
         <trans-unit id="Setting_UIMode_SolidColor" translate="yes" xml:space="preserve">
           <source>Solid Color</source>
           <target state="translated">Couleur pleine</target>
@@ -3250,8 +3246,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Cette opération essaiera de rediriger Win + E pour activer le RX-Explorer, et vous devez désactiver ce commutateur avant de désinstaller le RX-Explorer, sinon la clé Win + E ne peut pas être réinitialisée à l'état initial. Vous verrez l'invite d'autorisation UAC plus tard, veuillez l'autoriser à effectuer les opérations nécessaires. Que ce soit pour continuer?</target>
         </trans-unit>
         <trans-unit id="QueueDialog_InterceptWindowsETipFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to redirect Win+E due to an unexpected error</source>
-          <target state="translated">Impossible de rediriger Win + E en raison d'une erreur inattendue</target>
+          <source>Unable to redirect Win+E due to an unexpected error. You can do it manually according to the following methods: \r\r1.Click manual operation below \r2.Save the .reg file to any location \r3.Right-click the file and edit with Notepad \r4.Enter %LOCALAPPDATA% into the address bar of the system file manager and go to that location \r5.Copy the location of the current folder, paste and replace %LOCALAPPDATA% in the .reg file \r6.Save and double-click the .reg file to run</source>
+          <target state="translated">Impossible de rediriger Win + E en raison d'une erreur inattendue. Vous pouvez le faire manuellement selon les méthodes suivantes: \r\r1.Cliquez sur opération manuelle ci-dessous \r2.Sauvez le fichier .reg à n'importe quel emplacement \r3.Cliquez droit sur le fichier et modifiez-le avec le Bloc-notes \r4.Entrez %LOCALAPPDATA% dans la barre d'adresse du gestionnaire de fichiers système et accédez à cet emplacement \r5.Copiez l'emplacement du dossier actuel, collez et remplacez %LOCALAPPDATA% dans le fichier .reg \r6.Save et double-cliquez sur le fichier .reg pour l'exécuter</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RestoreWindowsETipFailure_Content" translate="yes" xml:space="preserve">
           <source>Unable to restore Win+E due to an unexpected error</source>
@@ -3302,6 +3298,18 @@ Les noms non valides incluent
         <trans-unit id="CustomUISubtype3.Content" translate="yes" xml:space="preserve">
           <source>Bing wallpaper</source>
           <target state="translated">Fonds d'écran Bing</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_InterceptWindowsETipFailure_PrimaryButton" translate="yes" xml:space="preserve">
+          <source>Manual operation</source>
+          <target state="translated">Opération manuelle</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RestoreWindowsETipFailure_PrimaryButton" translate="yes" xml:space="preserve">
+          <source>Manual operation</source>
+          <target state="translated">Opération manuelle</target>
+        </trans-unit>
+        <trans-unit id="Setting_UIMode_Recommend" translate="yes" xml:space="preserve">
+          <source>Recommend</source>
+          <target state="translated">Recommander</target>
         </trans-unit>
       </group>
     </body>
