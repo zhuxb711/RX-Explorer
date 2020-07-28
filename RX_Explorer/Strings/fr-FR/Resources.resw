@@ -2500,4 +2500,7 @@ Les noms non valides incluent
   <data name="Setting_UIMode_Recommend" xml:space="preserve">
     <value>Recommander</value>
   </data>
+  <data name="Progress_Tip_WaitingForAction" xml:space="preserve">
+    <value>En attente d'action...</value>
+  </data>
 </root>

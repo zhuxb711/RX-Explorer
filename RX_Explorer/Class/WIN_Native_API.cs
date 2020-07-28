@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.Search;
 using FileAttributes = System.IO.FileAttributes;
 
 namespace RX_Explorer.Class

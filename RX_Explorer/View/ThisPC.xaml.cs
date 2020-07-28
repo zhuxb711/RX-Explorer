@@ -315,7 +315,7 @@ namespace RX_Explorer
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Context)
                 {
                     DeviceGrid.SelectedItem = Context;
-                    DeviceGrid.ContextFlyout = Context.IsPortableDevice ? PortableDeviceFlyout : DeviceFlyout;
+                    DeviceGrid.ContextFlyout = Context.DriveType == DriveType.Removable ? PortableDeviceFlyout : DeviceFlyout;
                 }
                 else
                 {
@@ -469,7 +469,7 @@ namespace RX_Explorer
 
                             BasicProperties Properties = await Device.GetBasicPropertiesAsync();
                             IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType == DriveType.Removable));
+                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType));
                         }
                         catch
                         {
@@ -490,7 +490,7 @@ namespace RX_Explorer
 
                                 if (PropertiesRetrieve["System.Capacity"] is ulong && PropertiesRetrieve["System.FreeSpace"] is ulong)
                                 {
-                                    TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
+                                    TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
                                 }
                                 else
                                 {
@@ -503,16 +503,16 @@ namespace RX_Explorer
 
                                         if (InnerPropertiesRetrieve["System.Capacity"] is ulong && InnerPropertiesRetrieve["System.FreeSpace"] is ulong)
                                         {
-                                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, true));
+                                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, DriveType.Removable));
                                         }
                                         else
                                         {
-                                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
+                                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
                                         }
                                     }
                                     else
                                     {
-                                        TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
+                                        TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
                                     }
                                 }
                             }
@@ -631,7 +631,7 @@ namespace RX_Explorer
                     {
                         BasicProperties Properties = await Device.GetBasicPropertiesAsync();
                         IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-                        TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, new DriveInfo(Device.Path).DriveType == DriveType.Removable));
+                        TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, new DriveInfo(Device.Path).DriveType));
                     }
                     else
                     {
@@ -720,7 +720,7 @@ namespace RX_Explorer
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Context)
                 {
                     DeviceGrid.SelectedItem = Context;
-                    DeviceGrid.ContextFlyout = Context.IsPortableDevice ? PortableDeviceFlyout : DeviceFlyout;
+                    DeviceGrid.ContextFlyout = Context.DriveType == DriveType.Removable ? PortableDeviceFlyout : DeviceFlyout;
                 }
                 else
                 {

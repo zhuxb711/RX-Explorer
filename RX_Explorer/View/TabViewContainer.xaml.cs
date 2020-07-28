@@ -413,7 +413,7 @@ namespace RX_Explorer
                     {
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                         {
-                            HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
+                            HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
                         });
                     }
                     else
@@ -429,14 +429,14 @@ namespace RX_Explorer
                             {
                                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                                 {
-                                    HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, true));
+                                    HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, DriveType.Removable));
                                 });
                             }
                             else
                             {
                                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                                 {
-                                    HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
+                                    HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
                                 });
                             }
                         }
@@ -444,7 +444,7 @@ namespace RX_Explorer
                         {
                             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                             {
-                                HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, true));
+                                HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
                             });
                         }
                     }
@@ -719,7 +719,7 @@ namespace RX_Explorer
 
                         BasicProperties Properties = await Device.GetBasicPropertiesAsync();
                         IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-                        HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType == DriveType.Removable));
+                        HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType));
                     }
                     catch
                     {

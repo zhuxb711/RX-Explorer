@@ -2605,4 +2605,7 @@ Invalid names include
   <data name="QueueDialog_RestoreWindowsETipFailure_PrimaryButton" xml:space="preserve">
     <value>Manual operation</value>
   </data>
+  <data name="Progress_Tip_WaitingForAction" xml:space="preserve">
+    <value>Waiting for action...</value>
+  </data>
 </root>

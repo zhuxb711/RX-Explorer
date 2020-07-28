@@ -94,6 +94,7 @@
     <rescap:Capability Name="runFullTrust" />
     <rescap:Capability Name="broadFileSystemAccess" />
     <Capability Name="internetClientServer"/>
+    <Capability Name="privateNetworkClientServer" />
     <uap:Capability Name="removableStorage"/>
     <uap:Capability Name="userAccountInformation"/>
     <DeviceCapability Name="bluetooth"/>

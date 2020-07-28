@@ -2500,4 +2500,7 @@
   <data name="Setting_UIMode_Recommend" xml:space="preserve">
     <value>推荐</value>
   </data>
+  <data name="Progress_Tip_WaitingForAction" xml:space="preserve">
+    <value>正在等待操作...</value>
+  </data>
 </root>

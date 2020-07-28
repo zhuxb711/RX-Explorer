@@ -2,6 +2,7 @@
 using RX_Explorer.Dialog;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
@@ -1259,7 +1260,7 @@ namespace RX_Explorer
             IsDisplayHiddenItem = DisplayHiddenItem.IsOn;
             ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] = IsDisplayHiddenItem;
 
-            if (TabViewContainer.CurrentTabNavigation?.Content is FileControl Control)
+            if (TabViewContainer.CurrentTabNavigation?.Content is FileControl Control && Control.CurrentFolder != null)
             {
                 Control.DisplayItemsInFolder(Control.CurrentFolder, true);
                 await Control.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(false);
@@ -1304,36 +1305,88 @@ namespace RX_Explorer
 
         private async void UseWinAndEActivate_Toggled(object sender, RoutedEventArgs e)
         {
-            if (UseWinAndEActivate.IsOn)
+            try
             {
-                QueueContentDialog Dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                    Content = Globalization.GetString("QueueDialog_BeforeInterceptWindowsETip_Content"),
-                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                };
+                LoadingControl.IsLoading = true;
+                LoadingText.Text = Globalization.GetString("Progress_Tip_WaitingForAction");
 
-                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                if (UseWinAndEActivate.IsOn)
                 {
-                    if (await FullTrustExcutorController.Current.InterceptWindowsPlusE().ConfigureAwait(true))
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = true;
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_BeforeInterceptWindowsETip_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                    };
+
+                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        if (await FullTrustExcutorController.Current.InterceptWindowsPlusE().ConfigureAwait(true))
+                        {
+                            ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = true;
+                        }
+                        else
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_InterceptWindowsETipFailure_Content"),
+                                PrimaryButtonText = Globalization.GetString("QueueDialog_InterceptWindowsETipFailure_PrimaryButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            };
+
+                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                            {
+                                StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_WIN_E.reg"));
+
+                                FolderPicker Picker = new FolderPicker
+                                {
+                                    SuggestedStartLocation = PickerLocationId.Desktop
+                                };
+                                Picker.FileTypeFilter.Add("*");
+
+                                if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
+                                {
+                                    await InterceptFile.CopyAsync(Folder, InterceptFile.Name, NameCollisionOption.ReplaceExisting);
+                                    await Launcher.LaunchFolderAsync(Folder);
+                                }
+                            }
+                            else
+                            {
+                                UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
+                                UseWinAndEActivate.IsOn = false;
+                                UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
+                        UseWinAndEActivate.IsOn = false;
+                        UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
+                    }
+                }
+                else
+                {
+                    if (await FullTrustExcutorController.Current.RestoreWindowsPlusE().ConfigureAwait(true))
+                    {
+                        ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = false;
                     }
                     else
                     {
                         QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_InterceptWindowsETipFailure_Content"),
-                            PrimaryButtonText = Globalization.GetString("QueueDialog_InterceptWindowsETipFailure_PrimaryButton"),
+                            Content = Globalization.GetString("QueueDialog_RestoreWindowsETipFailure_Content"),
+                            PrimaryButtonText = Globalization.GetString("QueueDialog_RestoreWindowsETipFailure_PrimaryButton"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                         };
 
                         if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
-                            StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_WIN_E.reg"));
-                            
+                            StorageFile RestoreFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_WIN_E.reg"));
+
                             FolderPicker Picker = new FolderPicker
                             {
                                 SuggestedStartLocation = PickerLocationId.Desktop
@@ -1342,64 +1395,26 @@ namespace RX_Explorer
 
                             if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
                             {
-                                await InterceptFile.CopyAsync(Folder, InterceptFile.Name, NameCollisionOption.ReplaceExisting);
+                                await RestoreFile.CopyAsync(Folder, RestoreFile.Name, NameCollisionOption.ReplaceExisting);
                                 await Launcher.LaunchFolderAsync(Folder);
                             }
                         }
                         else
                         {
                             UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
-                            UseWinAndEActivate.IsOn = false;
+                            UseWinAndEActivate.IsOn = true;
                             UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
                         }
                     }
                 }
-                else
-                {
-                    UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
-                    UseWinAndEActivate.IsOn = false;
-                    UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
-                }
             }
-            else
+            catch
             {
-                if (await FullTrustExcutorController.Current.RestoreWindowsPlusE().ConfigureAwait(true))
-                {
-                    ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = false;
-                }
-                else
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_RestoreWindowsETipFailure_Content"),
-                        PrimaryButtonText = Globalization.GetString("QueueDialog_RestoreWindowsETipFailure_PrimaryButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                    };
-
-                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                    {
-                        StorageFile RestoreFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_WIN_E.reg"));
-
-                        FolderPicker Picker = new FolderPicker
-                        {
-                            SuggestedStartLocation = PickerLocationId.Desktop
-                        };
-                        Picker.FileTypeFilter.Add("*");
-
-                        if(await Picker.PickSingleFolderAsync() is StorageFolder Folder)
-                        {
-                            await RestoreFile.CopyAsync(Folder, RestoreFile.Name, NameCollisionOption.ReplaceExisting);
-                            await Launcher.LaunchFolderAsync(Folder);
-                        }
-                    }
-                    else
-                    {
-                        UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
-                        UseWinAndEActivate.IsOn = true;
-                        UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
-                    }
-                }
+                Debug.WriteLine("Error happend when Enable/Disable Win+E");
+            }
+            finally
+            {
+                LoadingControl.IsLoading = false;
             }
         }
 

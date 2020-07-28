@@ -3311,6 +3311,10 @@ Les noms non valides incluent
           <source>Recommend</source>
           <target state="translated">Recommander</target>
         </trans-unit>
+        <trans-unit id="Progress_Tip_WaitingForAction" translate="yes" xml:space="preserve">
+          <source>Waiting for action...</source>
+          <target state="translated">En attente d'action...</target>
+        </trans-unit>
       </group>
     </body>
   </file>

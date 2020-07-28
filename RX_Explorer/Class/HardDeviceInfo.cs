@@ -89,7 +89,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public bool IsPortableDevice { get; private set; }
+        public DriveType DriveType { get; private set; }
 
         /// <summary>
         /// 初始化HardDeviceInfo对象
@@ -97,12 +97,12 @@ namespace RX_Explorer.Class
         /// <param name="Device">驱动器文件夹</param>
         /// <param name="Thumbnail">缩略图</param>
         /// <param name="PropertiesRetrieve">额外信息</param>
-        public HardDeviceInfo(StorageFolder Device, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve, bool IsPortableDevice)
+        public HardDeviceInfo(StorageFolder Device, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType)
         {
             Folder = Device ?? throw new FileNotFoundException();
 
             this.Thumbnail = Thumbnail ?? new BitmapImage(new Uri("ms-appx:///Assets/DeviceIcon.png"));
-            this.IsPortableDevice = IsPortableDevice;
+            this.DriveType = DriveType;
 
             if (PropertiesRetrieve != null && PropertiesRetrieve["System.Capacity"] is ulong TotalByte && PropertiesRetrieve["System.FreeSpace"] is ulong FreeByte)
             {

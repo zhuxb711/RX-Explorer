@@ -3311,6 +3311,10 @@ Invalid names include
           <source>Recommend</source>
           <target state="translated">推荐</target>
         </trans-unit>
+        <trans-unit id="Progress_Tip_WaitingForAction" translate="yes" xml:space="preserve">
+          <source>Waiting for action...</source>
+          <target state="translated">正在等待操作...</target>
+        </trans-unit>
       </group>
     </body>
   </file>
