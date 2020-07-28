@@ -187,6 +187,15 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
+                    else
+                    {
+                        if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItem NewItem)
+                        {
+                            await NewItem.LoadMoreProperty().ConfigureAwait(true);
+
+                            CurrentCollection.Add(NewItem);
+                        }
+                    }
                 }
                 catch
                 {

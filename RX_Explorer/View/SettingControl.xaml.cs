@@ -466,7 +466,8 @@ namespace RX_Explorer
                         BingPictureMode.IsChecked = null;
                         SolidColor_White.IsChecked = null;
                         SolidColor_Black.IsChecked = null;
-                        CustomFontColor.IsEnabled = true;
+                        CustomFontColor.IsEnabled = false;
+                        CustomFontColor.SelectedIndex = 0;
 
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
                         BackgroundController.Current.TintOpacity = 0.6;
