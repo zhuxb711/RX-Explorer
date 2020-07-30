@@ -94,6 +94,7 @@ namespace RX_Explorer
 
         private WiFiShareProvider WiFiProvider;
         private FileSystemStorageItem TabTarget = null;
+        private FileSystemStorageItem CurrentNameEditItem = null;
         private DateTimeOffset LastClickTime;
 
         public FileSystemStorageItem SelectedItem
@@ -2096,36 +2097,37 @@ namespace RX_Explorer
         {
             Restore();
 
-            StorageFolder folder = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFolder;
-
-            if (!await folder.CheckExist().ConfigureAwait(true))
+            if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFolder folder)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                if (!await folder.CheckExist().ConfigureAwait(true))
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
-                };
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
-                return;
-            }
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                    return;
+                }
 
-            if (TabViewContainer.ThisPage.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
-            {
-                QueueContentDialog dialog = new QueueContentDialog
+                if (TabViewContainer.ThisPage.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
                 {
-                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                    Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
-            }
-            else
-            {
-                TabViewContainer.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, await folder.GetThumbnailBitmapAsync().ConfigureAwait(true)));
-                await SQLite.Current.SetLibraryPathAsync(folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                }
+                else
+                {
+                    TabViewContainer.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, await folder.GetThumbnailBitmapAsync().ConfigureAwait(true)));
+                    await SQLite.Current.SetLibraryPathAsync(folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
+                }
             }
         }
 
@@ -2539,7 +2541,7 @@ namespace RX_Explorer
                                 FileControlInstance.CurrentNode.IsExpanded = true;
                             }
 
-                            TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(TabTarget.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                            TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(TabTarget.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
 
                             if (TargetNode != null)
                             {
@@ -3171,6 +3173,11 @@ namespace RX_Explorer
                 args.ItemContainer.DragEnter -= ItemContainer_DragEnter;
                 args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
                 args.ItemContainer.PointerExited -= ItemContainer_PointerExited;
+
+                if (args.ItemContainer.ContentTemplateRoot.FindChildOfType<TextBox>() is TextBox NameEditBox)
+                {
+                    NameEditBox.Visibility = Visibility.Collapsed;
+                }
             }
             else
             {
@@ -3898,6 +3905,7 @@ namespace RX_Explorer
                         if (ClickSpan.TotalMilliseconds > 700)
                         {
                             NameLabel.Visibility = Visibility.Collapsed;
+                            CurrentNameEditItem = Item;
 
                             if ((NameLabel.Parent as FrameworkElement).FindName("NameEditBox") is TextBox EditBox)
                             {
@@ -3919,7 +3927,7 @@ namespace RX_Explorer
         {
             TextBox NameEditBox = (TextBox)sender;
 
-            if (NameEditBox.DataContext is FileSystemStorageItem Item && (NameEditBox.Parent as FrameworkElement).FindName("NameLabel") is TextBlock NameLabel)
+            if ((NameEditBox.Parent as FrameworkElement).FindName("NameLabel") is TextBlock NameLabel && CurrentNameEditItem != null)
             {
                 try
                 {
@@ -3930,11 +3938,9 @@ namespace RX_Explorer
                         return;
                     }
 
-                    if (Item.Name != NameEditBox.Text && await Item.GetStorageItem().ConfigureAwait(true) is IStorageItem StorageItem)
+                    if (CurrentNameEditItem.Name != NameEditBox.Text && await CurrentNameEditItem.GetStorageItem().ConfigureAwait(true) is IStorageItem StorageItem)
                     {
                         await StorageItem.RenameAsync(NameEditBox.Text);
-
-                        await Task.Delay(500).ConfigureAwait(true);
                     }
                 }
                 catch (UnauthorizedAccessException)
@@ -3962,11 +3968,9 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                     };
 
-                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary && await Item.GetStorageItem().ConfigureAwait(true) is IStorageItem StorageItem)
+                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary && await CurrentNameEditItem.GetStorageItem().ConfigureAwait(true) is IStorageItem StorageItem)
                     {
                         await StorageItem.RenameAsync(NameEditBox.Text, NameCollisionOption.GenerateUniqueName);
-
-                        await Task.Delay(500).ConfigureAwait(true);
                     }
                 }
                 finally

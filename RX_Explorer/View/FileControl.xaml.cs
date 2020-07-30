@@ -91,7 +91,9 @@ namespace RX_Explorer
 
         private volatile StorageFolder currentFolder;
 
-        private SemaphoreSlim EnterLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim EnterLock = new SemaphoreSlim(1, 1);
+
+        public bool IsNetworkDevice { get; private set; } = false;
 
         private CancellationTokenSource AddItemCancellation;
 
@@ -345,7 +347,16 @@ namespace RX_Explorer
 
             FolderTree.RootNodes.Clear();
 
-            bool HasItem = WIN_Native_API.CheckContainsAnyItem(Folder.Path, ItemFilters.Folder);
+            if (TabViewContainer.ThisPage.HardDeviceList.FirstOrDefault((Item) => Item.Folder.Path == Path.GetPathRoot(Folder.Path)) is HardDeviceInfo Info && Info.DriveType == DriveType.Network)
+            {
+                IsNetworkDevice = true;
+            }
+            else
+            {
+                IsNetworkDevice = false;
+            }
+
+            bool HasItem = (await Folder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
 
             StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetPathRoot(Folder.Path));
 
@@ -361,7 +372,7 @@ namespace RX_Explorer
             {
                 await FillTreeNode(RootNode).ConfigureAwait(true);
 
-                TreeViewNode TargetNode = await RootNode.FindFolderLocationInTree(new PathAnalysis(Folder.Path, string.Empty)).ConfigureAwait(true);
+                TreeViewNode TargetNode = await RootNode.GetChildNode(new PathAnalysis(Folder.Path, string.Empty)).ConfigureAwait(true);
                 if (TargetNode == null)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
@@ -395,6 +406,15 @@ namespace RX_Explorer
                 if (Parameters.Item3 != null && !TabViewContainer.ThisPage.TFInstanceContainer.ContainsKey(Parameters.Item3))
                 {
                     TabViewContainer.ThisPage.TFInstanceContainer.Add(Parameters.Item3, this);
+                }
+
+                if (TabViewContainer.ThisPage.HardDeviceList.FirstOrDefault((Item) => Item.Folder.Path == Path.GetPathRoot(Parameters.Item2.Path)) is HardDeviceInfo Info && Info.DriveType == DriveType.Network)
+                {
+                    IsNetworkDevice = true;
+                }
+                else
+                {
+                    IsNetworkDevice = false;
                 }
 
                 await Initialize(Parameters.Item2).ConfigureAwait(false);
@@ -472,7 +492,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    if (TabViewContainer.ThisPage.HardDeviceList.FirstOrDefault((Item) => Item.Folder.Path == Path.GetPathRoot(Content.Path)) is HardDeviceInfo Info && Info.DriveType == DriveType.Network)
+                    if (IsNetworkDevice)
                     {
                         if (await Content.GetStorageFolderAsync().ConfigureAwait(true) is StorageFolder Folder)
                         {
@@ -617,7 +637,7 @@ namespace RX_Explorer
 
                     if (await Content.GetStorageFolderAsync().ConfigureAwait(true) is StorageFolder Folder)
                     {
-                        if (TabViewContainer.ThisPage.HardDeviceList.FirstOrDefault((Item) => Item.Folder.Path == Path.GetPathRoot(Folder.Path)) is HardDeviceInfo Info && Info.DriveType == DriveType.Network)
+                        if (IsNetworkDevice)
                         {
                             QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
                             {
@@ -725,7 +745,7 @@ namespace RX_Explorer
 
                 Presenter.FileCollection.Clear();
 
-                if (TabViewContainer.ThisPage.HardDeviceList.FirstOrDefault((Item) => Item.Folder.Path == Path.GetPathRoot(Folder.Path)) is HardDeviceInfo Info && Info.DriveType == DriveType.Network)
+                if (IsNetworkDevice)
                 {
                     QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
                     {
@@ -940,7 +960,7 @@ namespace RX_Explorer
                 {
                     await CurrentFolder.RenameAsync(renameDialog.DesireName);
 
-                    await CurrentNode.Parent.UpdateAllSubNode().ConfigureAwait(true);
+                    (CurrentNode.Content as TreeViewNodeContent).Update(CurrentFolder);
 
                     UpdateAddressButton(CurrentFolder.Path);
                 }
@@ -1329,7 +1349,7 @@ namespace RX_Explorer
                     {
                         if (QueryText.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                         {
-                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
                             if (TargetNode != null)
                             {
                                 await DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
@@ -1427,7 +1447,7 @@ namespace RX_Explorer
                     {
                         if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
                         {
-                            TreeViewNode ParentNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                            TreeViewNode ParentNode = await FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
 
                             if (ParentFolder != null)
                             {
@@ -1482,7 +1502,7 @@ namespace RX_Explorer
                         if (Path.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                         {
 
-                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
                             if (TargetNode == null)
                             {
                                 QueueContentDialog dialog = new QueueContentDialog
@@ -1567,7 +1587,7 @@ namespace RX_Explorer
                         if (Path.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                         {
 
-                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
                             if (TargetNode == null)
                             {
                                 QueueContentDialog dialog = new QueueContentDialog
@@ -1747,7 +1767,7 @@ namespace RX_Explorer
             {
                 if (ActualString.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                 {
-                    if ((await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(ActualString, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true)) is TreeViewNode TargetNode)
+                    if ((await FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(ActualString, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true)) is TreeViewNode TargetNode)
                     {
                         await DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
 
@@ -1872,7 +1892,7 @@ namespace RX_Explorer
                 {
                     if (TargetPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                     {
-                        TreeViewNode TargetNode = await FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(TargetPath, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                        TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(TargetPath, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
                         if (TargetNode != null)
                         {
                             await DisplayItemsInFolder(TargetNode).ConfigureAwait(true);

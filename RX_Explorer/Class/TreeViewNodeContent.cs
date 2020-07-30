@@ -1,10 +1,11 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace RX_Explorer.Class
 {
-    public sealed class TreeViewNodeContent
+    public sealed class TreeViewNodeContent : INotifyPropertyChanged
     {
         private StorageFolder InnerFolder;
 
@@ -26,6 +27,13 @@ namespace RX_Explorer.Class
 
         private string InnerPath;
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged(string Name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(Name));
+        }
+
         public async Task<StorageFolder> GetStorageFolderAsync()
         {
             if (InnerFolder == null)
@@ -43,6 +51,13 @@ namespace RX_Explorer.Class
             {
                 return InnerFolder;
             }
+        }
+
+        public void Update(StorageFolder Folder)
+        {
+            InnerFolder = Folder ?? throw new ArgumentNullException(nameof(Folder), "Argument could not be null");
+
+            OnPropertyChanged(nameof(DisplayName));
         }
 
         public TreeViewNodeContent(StorageFolder Folder)

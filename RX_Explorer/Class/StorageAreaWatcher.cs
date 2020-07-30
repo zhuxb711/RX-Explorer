@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
-using Windows.Storage.Search;
 using Windows.UI.Core;
 
 namespace RX_Explorer.Class
@@ -93,7 +92,18 @@ namespace RX_Explorer.Class
 
                     if (!SettingControl.IsDetachTreeViewAndPresenter)
                     {
-                        await TreeView.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                        if (await TreeView.RootNodes[0].GetChildNode(new PathAnalysis(OldPath, (TreeView.RootNodes[0].Content as TreeViewNodeContent).Path), true).ConfigureAwait(true) is TreeViewNode Node)
+                        {
+                            try
+                            {
+                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(NewPath);
+                                (Node.Content as TreeViewNodeContent).Update(Folder);
+                            }
+                            catch
+                            {
+                                Debug.WriteLine("Error happened when try to rename folder in Treeview");
+                            }
+                        }
                     }
                 }
                 catch

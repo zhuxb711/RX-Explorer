@@ -319,7 +319,7 @@
                                           Glyph="{Binding IsExpanded,Converter={StaticResource StateConverter},Mode=OneWay}"
                                           Name="Icon" />
                             </Viewbox>
-                            <TextBlock Text="{Binding Content.DisplayName,Mode=OneTime}"
+                            <TextBlock Text="{Binding Content.DisplayName,Mode=OneWay}"
                                        HorizontalTextAlignment="Left"
                                        VerticalAlignment="Center"
                                        Margin="5,0,0,0"

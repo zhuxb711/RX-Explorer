@@ -211,9 +211,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<TreeViewNode> FindFolderLocationInTree(this TreeViewNode Node, PathAnalysis Analysis)
+        public static async Task<TreeViewNode> GetChildNode(this TreeViewNode Node, PathAnalysis Analysis, bool DoNotExpandNodeWhenSearching = false)
         {
-            if (Node.HasUnrealizedChildren && !Node.IsExpanded)
+            if (Node.HasUnrealizedChildren && !Node.IsExpanded && !DoNotExpandNodeWhenSearching)
             {
                 Node.IsExpanded = true;
             }
@@ -228,16 +228,29 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    while (true)
+                    if (DoNotExpandNodeWhenSearching)
                     {
-                        TreeViewNode TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as TreeViewNodeContent).Path == NextPathLevel).FirstOrDefault();
-                        if (TargetNode != null)
+                        if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path == NextPathLevel) is TreeViewNode TargetNode)
                         {
                             return TargetNode;
                         }
                         else
                         {
-                            await Task.Delay(200).ConfigureAwait(true);
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        while (true)
+                        {
+                            if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path == NextPathLevel) is TreeViewNode TargetNode)
+                            {
+                                return TargetNode;
+                            }
+                            else
+                            {
+                                await Task.Delay(200).ConfigureAwait(true);
+                            }
                         }
                     }
                 }
@@ -246,20 +259,33 @@ namespace RX_Explorer.Class
             {
                 if ((Node.Content as TreeViewNodeContent).Path == NextPathLevel)
                 {
-                    return await FindFolderLocationInTree(Node, Analysis).ConfigureAwait(true);
+                    return await GetChildNode(Node, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
                 }
                 else
                 {
-                    while (true)
+                    if (DoNotExpandNodeWhenSearching)
                     {
-                        TreeViewNode TargetNode = Node.Children.Where((SubNode) => (SubNode.Content as TreeViewNodeContent).Path == NextPathLevel).FirstOrDefault();
-                        if (TargetNode != null)
+                        if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path == NextPathLevel) is TreeViewNode TargetNode)
                         {
-                            return await FindFolderLocationInTree(TargetNode, Analysis).ConfigureAwait(true);
+                            return await GetChildNode(TargetNode, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
                         }
                         else
                         {
-                            await Task.Delay(200).ConfigureAwait(true);
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        while (true)
+                        {
+                            if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path == NextPathLevel) is TreeViewNode TargetNode)
+                            {
+                                return await GetChildNode(TargetNode, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
+                            }
+                            else
+                            {
+                                await Task.Delay(200).ConfigureAwait(true);
+                            }
                         }
                     }
                 }

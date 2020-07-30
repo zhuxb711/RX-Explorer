@@ -49,6 +49,11 @@ namespace SQLConnectionPoolProvider
         /// <returns>SQL命令对象</returns>
         public T CreateDbCommandFromConnection<T>(string CommandText, CommandType Type = CommandType.Text) where T : DbCommand, new()
         {
+            if (InnerConnection.State != ConnectionState.Open)
+            {
+                InnerConnection.Open();
+            }
+
             T Command = new T
             {
                 Connection = InnerConnection,
