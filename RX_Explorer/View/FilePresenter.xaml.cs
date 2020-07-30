@@ -18,6 +18,7 @@ using Windows.Devices.Input;
 using Windows.Devices.Radios;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
+using Windows.Storage.Search;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
@@ -133,12 +134,18 @@ namespace RX_Explorer
 
         private void Current_Resuming(object sender, object e)
         {
-            AreaWatcher.SetCurrentLocation(FileControlInstance.CurrentFolder?.Path);
+            if (!FileControlInstance.IsNetworkDevice)
+            {
+                AreaWatcher.SetCurrentLocation(FileControlInstance.CurrentFolder?.Path);
+            }
         }
 
         private void Current_Suspending(object sender, SuspendingEventArgs e)
         {
-            AreaWatcher.SetCurrentLocation(null);
+            if (!FileControlInstance.IsNetworkDevice)
+            {
+                AreaWatcher.SetCurrentLocation(null);
+            }
         }
 
         private void FilePresenter_Unloaded(object sender, RoutedEventArgs e)
@@ -308,11 +315,23 @@ namespace RX_Explorer
                                                 {
                                                     if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
                                                     {
-                                                        await FullTrustExcutorController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
+                                                        if (FileControlInstance.IsNetworkDevice)
                                                         {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                        }, true).ConfigureAwait(true);
+                                                            if (FileCollection.FirstOrDefault((Item) => Item.Path == File.Path) is FileSystemStorageItem Item)
+                                                            {
+                                                                FileCollection.Remove(Item);
+                                                            }
+
+                                                            await File.MoveAsync(OriginFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+                                                        }
+                                                        else
+                                                        {
+                                                            await FullTrustExcutorController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
+                                                            {
+                                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            }, true).ConfigureAwait(true);
+                                                        }
                                                     }
                                                     else
                                                     {
@@ -325,15 +344,23 @@ namespace RX_Explorer
                                                 {
                                                     if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFolder Folder)
                                                     {
-                                                        await FullTrustExcutorController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
+                                                        if(FileControlInstance.IsNetworkDevice)
                                                         {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                        }, true).ConfigureAwait(true);
+                                                            if (FileCollection.FirstOrDefault((Item) => Item.Path == Folder.Path) is FileSystemStorageItem Item)
+                                                            {
+                                                                FileCollection.Remove(Item);
+                                                            }
 
-                                                        if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
+                                                            StorageFolder NewFolder = await OriginFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.OpenIfExists);
+                                                            await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
+                                                        }
+                                                        else
                                                         {
-                                                            await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
+                                                            await FullTrustExcutorController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
+                                                            {
+                                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            }, true).ConfigureAwait(true);
                                                         }
                                                     }
                                                     else
@@ -355,11 +382,20 @@ namespace RX_Explorer
 
                                                     if ((await TargetFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
                                                     {
-                                                        await FullTrustExcutorController.Current.MoveAsync(File, FileControlInstance.CurrentFolder, (s, arg) =>
+                                                        if (FileControlInstance.IsNetworkDevice)
                                                         {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                        }, true).ConfigureAwait(true);
+                                                            await File.MoveAsync(FileControlInstance.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+
+                                                            FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                                        }
+                                                        else
+                                                        {
+                                                            await FullTrustExcutorController.Current.MoveAsync(File, FileControlInstance.CurrentFolder, (s, arg) =>
+                                                            {
+                                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            }, true).ConfigureAwait(true);
+                                                        }
                                                     }
                                                     else
                                                     {
@@ -372,15 +408,30 @@ namespace RX_Explorer
                                                 {
                                                     StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
 
-                                                    await FullTrustExcutorController.Current.MoveAsync(Folder, FileControlInstance.CurrentFolder, (s, arg) =>
+                                                    if(FileControlInstance.IsNetworkDevice)
                                                     {
-                                                        FileControlInstance.ProBar.IsIndeterminate = false;
-                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                    }, true).ConfigureAwait(true);
+                                                        StorageFolder NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
 
-                                                    if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
+                                                        await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
+
+                                                        FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+
+                                                        if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
+                                                        {
+                                                            FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                                            {
+                                                                Content = new TreeViewNodeContent(NewFolder),
+                                                                HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                                            });
+                                                        }
+                                                    }
+                                                    else
                                                     {
-                                                        await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
+                                                        await FullTrustExcutorController.Current.MoveAsync(Folder, FileControlInstance.CurrentFolder, (s, arg) =>
+                                                        {
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }, true).ConfigureAwait(true);
                                                     }
 
                                                     break;
@@ -397,11 +448,18 @@ namespace RX_Explorer
                                                 {
                                                     StorageFile File = await StorageFile.GetFileFromPathAsync(SplitGroup[3]);
 
-                                                    await FullTrustExcutorController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
+                                                    if(FileControlInstance.IsNetworkDevice)
                                                     {
-                                                        FileControlInstance.ProBar.IsIndeterminate = false;
-                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                    }, true).ConfigureAwait(true);
+                                                        await File.MoveAsync(OriginFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+                                                    }
+                                                    else
+                                                    {
+                                                        await FullTrustExcutorController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
+                                                        {
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }, true).ConfigureAwait(true);
+                                                    }
 
                                                     break;
                                                 }
@@ -409,15 +467,18 @@ namespace RX_Explorer
                                                 {
                                                     StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
 
-                                                    await FullTrustExcutorController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
+                                                    if (FileControlInstance.IsNetworkDevice)
                                                     {
-                                                        FileControlInstance.ProBar.IsIndeterminate = false;
-                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                    }, true).ConfigureAwait(true);
-
-                                                    if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                        StorageFolder NewFolder = await OriginFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.OpenIfExists);
+                                                        await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
+                                                    }
+                                                    else
                                                     {
-                                                        await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                                                        await FullTrustExcutorController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
+                                                        {
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }, true).ConfigureAwait(true);
                                                     }
 
                                                     break;
@@ -437,11 +498,23 @@ namespace RX_Explorer
                                                 {
                                                     if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
                                                     {
-                                                        await FullTrustExcutorController.Current.DeleteAsync(File, true, (s, arg) =>
+                                                        if(FileControlInstance.IsNetworkDevice)
                                                         {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                        }, true).ConfigureAwait(true);
+                                                            if (FileCollection.FirstOrDefault((Item) => Item.Path == File.Path) is FileSystemStorageItem Item)
+                                                            {
+                                                                FileCollection.Remove(Item);
+                                                            }
+
+                                                            await File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                                                        }
+                                                        else
+                                                        {
+                                                            await FullTrustExcutorController.Current.DeleteAsync(File, true, (s, arg) =>
+                                                            {
+                                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            }, true).ConfigureAwait(true);
+                                                        }
                                                     }
                                                     else
                                                     {
@@ -452,15 +525,25 @@ namespace RX_Explorer
                                                 }
                                             case "Folder":
                                                 {
-                                                    await FullTrustExcutorController.Current.DeleteAsync(SplitGroup[3], true, (s, arg) =>
+                                                    if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFolder Folder)
                                                     {
-                                                        FileControlInstance.ProBar.IsIndeterminate = false;
-                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                    }, true).ConfigureAwait(true);
+                                                        if (FileControlInstance.IsNetworkDevice)
+                                                        {
+                                                            if (FileCollection.FirstOrDefault((Item) => Item.Path == Folder.Path) is FileSystemStorageItem Item)
+                                                            {
+                                                                FileCollection.Remove(Item);
+                                                            }
 
-                                                    if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
-                                                    {
-                                                        await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
+                                                            await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                                                        }
+                                                        else
+                                                        {
+                                                            await FullTrustExcutorController.Current.DeleteAsync(Folder, true, (s, arg) =>
+                                                            {
+                                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            }, true).ConfigureAwait(true);
+                                                        }
                                                     }
 
                                                     break;
@@ -469,11 +552,32 @@ namespace RX_Explorer
                                     }
                                     else
                                     {
-                                        await FullTrustExcutorController.Current.DeleteAsync(SplitGroup[3], true, (s, arg) =>
+                                        if (FileControlInstance.IsNetworkDevice)
                                         {
-                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                        }, true).ConfigureAwait(true);
+                                            switch (SplitGroup[2])
+                                            {
+                                                case "File":
+                                                    {
+                                                        StorageFile File = await StorageFile.GetFileFromPathAsync(SplitGroup[3]);
+                                                        await File.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                                                        break;
+                                                    }
+                                                case "Folder":
+                                                    {
+                                                        StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
+                                                        await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                                                        break;
+                                                    }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            await FullTrustExcutorController.Current.DeleteAsync(SplitGroup[3], true, (s, arg) =>
+                                            {
+                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                            }, true).ConfigureAwait(true);
+                                        }
                                     }
                                     break;
                                 }
@@ -593,15 +697,42 @@ namespace RX_Explorer
 
                         try
                         {
-                            await FullTrustExcutorController.Current.MoveAsync(ItemList, FileControlInstance.CurrentFolder, (s, arg) =>
+                            if (FileControlInstance.IsNetworkDevice)
                             {
-                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                            }).ConfigureAwait(true);
+                                foreach (IStorageItem NewItem in ItemList)
+                                {
+                                    if (NewItem is StorageFile File)
+                                    {
+                                        await File.MoveAsync(FileControlInstance.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
 
-                            if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
+                                        FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                    }
+                                    else if (NewItem is StorageFolder Folder)
+                                    {
+                                        StorageFolder NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
+
+                                        await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
+
+                                        FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+
+                                        if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
+                                        {
+                                            FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                            {
+                                                Content = new TreeViewNodeContent(NewFolder),
+                                                HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                            else
                             {
-                                await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
+                                await FullTrustExcutorController.Current.MoveAsync(ItemList, FileControlInstance.CurrentFolder, (s, arg) =>
+                                {
+                                    FileControlInstance.ProBar.IsIndeterminate = false;
+                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                }).ConfigureAwait(true);
                             }
                         }
                         catch (FileNotFoundException)
@@ -678,15 +809,42 @@ namespace RX_Explorer
 
                         try
                         {
-                            await FullTrustExcutorController.Current.CopyAsync(ItemList, FileControlInstance.CurrentFolder, (s, arg) =>
+                            if (FileControlInstance.IsNetworkDevice)
                             {
-                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                            }).ConfigureAwait(true);
+                                foreach (IStorageItem NewItem in ItemList)
+                                {
+                                    if (NewItem is StorageFile File)
+                                    {
+                                        StorageFile NewFile = await File.CopyAsync(FileControlInstance.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
 
-                            if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
+                                        FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                    }
+                                    else if (NewItem is StorageFolder Folder)
+                                    {
+                                        StorageFolder NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
+
+                                        await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
+
+                                        FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+
+                                        if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
+                                        {
+                                            FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                            {
+                                                Content = new TreeViewNodeContent(NewFolder),
+                                                HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                            else
                             {
-                                await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
+                                await FullTrustExcutorController.Current.CopyAsync(ItemList, FileControlInstance.CurrentFolder, (s, arg) =>
+                                {
+                                    FileControlInstance.ProBar.IsIndeterminate = false;
+                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                }).ConfigureAwait(true);
                             }
                         }
                         catch (FileNotFoundException)
@@ -826,9 +984,20 @@ namespace RX_Explorer
                         FileControlInstance.ProBar.Value = arg.ProgressPercentage;
                     }).ConfigureAwait(true);
 
-                    if (!SettingControl.IsDetachTreeViewAndPresenter)
+                    if (FileControlInstance.IsNetworkDevice)
                     {
-                        await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
+                        foreach (FileSystemStorageItem Item in FileCollection.Where((Item) => PathList.Contains(Item.Path)).ToList())
+                        {
+                            FileCollection.Remove(Item);
+
+                            if (!SettingControl.IsDetachTreeViewAndPresenter)
+                            {
+                                if (FileControlInstance.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == Item.Path) is TreeViewNode Node)
+                                {
+                                    FileControlInstance.CurrentNode.Children.Remove(Node);
+                                }
+                            }
+                        }
                     }
                 }
                 catch (FileNotFoundException)
@@ -941,7 +1110,7 @@ namespace RX_Explorer
                     {
                         try
                         {
-                            await (await RenameItem.GetStorageItem().ConfigureAwait(true)).RenameAsync(dialog.DesireName);
+                            await File.RenameAsync(dialog.DesireName);
                         }
                         catch (UnauthorizedAccessException)
                         {
@@ -1010,30 +1179,15 @@ namespace RX_Explorer
 
                         try
                         {
-                            if (SettingControl.IsDetachTreeViewAndPresenter)
+                            string OldPath = Folder.Path;
+
+                            await Folder.RenameAsync(dialog.DesireName);
+
+                            await RenameItem.Replace(Folder.Path).ConfigureAwait(true);
+
+                            if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.IsNetworkDevice && FileControlInstance.CurrentNode.Children.Select((Item) => Item.Content as TreeViewNodeContent).FirstOrDefault((Item) => Item.Path == OldPath) is TreeViewNodeContent Content)
                             {
-                                await (await RenameItem.GetStorageItem().ConfigureAwait(true)).RenameAsync(dialog.DesireName);
-                            }
-                            else
-                            {
-                                if (FileControlInstance.CurrentNode.IsExpanded)
-                                {
-                                    if (FileControlInstance.CurrentNode.Children.Select((Item) => Item.Content as TreeViewNodeContent).FirstOrDefault((Item) => Item.Path == RenameItem.Path) is TreeViewNodeContent Content)
-                                    {
-                                        if (await Content.GetStorageFolderAsync().ConfigureAwait(true) is StorageFolder TreeFolder)
-                                        {
-                                            await TreeFolder.RenameAsync(dialog.DesireName);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        await (await RenameItem.GetStorageItem().ConfigureAwait(true)).RenameAsync(dialog.DesireName);
-                                    }
-                                }
-                                else
-                                {
-                                    await (await RenameItem.GetStorageItem().ConfigureAwait(true)).RenameAsync(dialog.DesireName);
-                                }
+                                Content.Update(Folder);
                             }
                         }
                         catch (UnauthorizedAccessException)
@@ -1063,33 +1217,33 @@ namespace RX_Explorer
 
                             if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                             {
-                                if (SettingControl.IsDetachTreeViewAndPresenter)
+                                string OldPath = Folder.Path;
+
+                                await Folder.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
+
+                                await RenameItem.Replace(Folder.Path).ConfigureAwait(true);
+
+                                if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.IsNetworkDevice && FileControlInstance.CurrentNode.Children.Select((Item) => Item.Content as TreeViewNodeContent).FirstOrDefault((Item) => Item.Path == Folder.Path) is TreeViewNodeContent Content)
                                 {
-                                    await (await RenameItem.GetStorageItem().ConfigureAwait(true)).RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
-                                }
-                                else
-                                {
-                                    if (FileControlInstance.CurrentNode.IsExpanded)
-                                    {
-                                        if (FileControlInstance.CurrentNode.Children.Select((Item) => Item.Content as TreeViewNodeContent).FirstOrDefault((Item) => Item.Path == RenameItem.Path) is TreeViewNodeContent Content)
-                                        {
-                                            if (await Content.GetStorageFolderAsync().ConfigureAwait(true) is StorageFolder TreeFolder)
-                                            {
-                                                await TreeFolder.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            await (await RenameItem.GetStorageItem().ConfigureAwait(true)).RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        await (await RenameItem.GetStorageItem().ConfigureAwait(true)).RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
-                                    }
+                                    Content.Update(Folder);
                                 }
                             }
                         }
+                    }
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFolder_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                    };
+
+                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                     }
                 }
             }

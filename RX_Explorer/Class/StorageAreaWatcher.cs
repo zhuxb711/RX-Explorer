@@ -121,13 +121,18 @@ namespace RX_Explorer.Class
         {
             await Locker2.WaitAsync().ConfigureAwait(false);
 
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async() =>
             {
                 try
                 {
                     if (CurrentCollection.FirstOrDefault((Item) => Item.Path == Path) is FileSystemStorageItem Item)
                     {
                         CurrentCollection.Remove(Item);
+                    }
+
+                    if (!SettingControl.IsDetachTreeViewAndPresenter)
+                    {
+                        await TreeView.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
                     }
                 }
                 catch
@@ -206,6 +211,11 @@ namespace RX_Explorer.Class
 
                             CurrentCollection.Add(NewItem);
                         }
+                    }
+
+                    if (!SettingControl.IsDetachTreeViewAndPresenter)
+                    {
+                        await TreeView.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
                     }
                 }
                 catch

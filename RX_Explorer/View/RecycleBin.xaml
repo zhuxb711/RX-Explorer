@@ -45,6 +45,7 @@
                 <AppBarButton Label="清空回收站"
                               x:Uid="ClearRecycleBin"
                               Name="ClearRecycleBin"
+                              IsEnabled="False"
                               Click="ClearRecycleBin_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"

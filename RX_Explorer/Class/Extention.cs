@@ -35,6 +35,58 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extention
     {
+        public static async Task MoveSubFilesAndSubFoldersAsync(this StorageFolder Folder, StorageFolder TargetFolder)
+        {
+            if (Folder == null)
+            {
+                throw new ArgumentNullException(nameof(Folder), "Parameter could not be null");
+            }
+
+            if (TargetFolder == null)
+            {
+                throw new ArgumentNullException(nameof(TargetFolder), "Parameter could not be null");
+            }
+
+            foreach (var Item in await Folder.GetItemsAsync())
+            {
+                if (Item is StorageFolder SubFolder)
+                {
+                    StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(SubFolder.Name, CreationCollisionOption.OpenIfExists);
+                    await MoveSubFilesAndSubFoldersAsync(SubFolder, NewFolder).ConfigureAwait(false);
+                }
+                else
+                {
+                    await ((StorageFile)Item).MoveAsync(TargetFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
+                }
+            }
+        }
+
+        public static async Task CopySubFilesAndSubFoldersAsync(this StorageFolder Folder, StorageFolder TargetFolder)
+        {
+            if (Folder == null)
+            {
+                throw new ArgumentNullException(nameof(Folder), "Parameter could not be null");
+            }
+
+            if (TargetFolder == null)
+            {
+                throw new ArgumentNullException(nameof(TargetFolder), "Parameter could not be null");
+            }
+
+            foreach (var Item in await Folder.GetItemsAsync())
+            {
+                if (Item is StorageFolder SubFolder)
+                {
+                    StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(SubFolder.Name, CreationCollisionOption.OpenIfExists);
+                    await CopySubFilesAndSubFoldersAsync(SubFolder, NewFolder).ConfigureAwait(false);
+                }
+                else
+                {
+                    await ((StorageFile)Item).CopyAsync(TargetFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
+                }
+            }
+        }
+
         public static bool CanTraceToRootNode(this TreeViewNode Node, TreeViewNode RootNode)
         {
             if (Node == null)

@@ -92,8 +92,8 @@ namespace FullTrustProcess
         {
             try
             {
-                File.Delete(System.IO.Path.GetFileName(Path));
-                File.Delete(System.IO.Path.GetFileName(Path).Replace("$R", "$I"));
+                File.Delete(Path);
+                File.Delete(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), System.IO.Path.GetFileName(Path).Replace("$R", "$I")));
                 return true;
             }
             catch
