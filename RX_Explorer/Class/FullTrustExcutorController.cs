@@ -469,6 +469,7 @@ namespace RX_Explorer.Class
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+                    
                     if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error"))
                     {
                         return Convert.ToBoolean(Response.Message["Check_QuicklookIsAvaliable_Result"]);

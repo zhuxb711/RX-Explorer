@@ -233,12 +233,13 @@ namespace RX_Explorer
             }
 
             TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
-            this.EnableQuicklook.IsEnabled = IsQuicklookAvailable;
+            
+            EnableQuicklook.IsEnabled = IsQuicklookAvailable;
 
-            if (ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] is bool EnableQuicklook)
+            if (ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] is bool IsEnable)
             {
-                this.EnableQuicklook.IsOn = EnableQuicklook;
-                IsQuicklookEnable = EnableQuicklook;
+                EnableQuicklook.IsOn = IsEnable;
+                IsQuicklookEnable = IsEnable;
             }
 
             if (ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] is bool IsHidden)
@@ -1262,7 +1263,7 @@ namespace RX_Explorer
 
             if (TabViewContainer.CurrentTabNavigation?.Content is FileControl Control && Control.CurrentFolder != null)
             {
-                Control.DisplayItemsInFolder(Control.CurrentFolder, true);
+                await Control.DisplayItemsInFolder(Control.CurrentFolder, true).ConfigureAwait(true);
                 await Control.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(false);
             }
         }

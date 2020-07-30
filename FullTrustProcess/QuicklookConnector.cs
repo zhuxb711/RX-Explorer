@@ -11,30 +11,30 @@ namespace FullTrustProcess
         private const string ToggleCommand = "QuickLook.App.PipeMessages.Toggle";
         private const string SwitchCommand = "QuickLook.App.PipeMessages.Switch";
 
-        public static async Task<bool> CheckQuicklookIsAvaliable()
+        public static bool CheckQuicklookIsAvaliable()
         {
-            using (NamedPipeClientStream Client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out))
+            try
             {
-                try
+                using (NamedPipeClientStream Client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out))
                 {
-                    await Client.ConnectAsync(1000);
+                    Client.Connect(1500);
 
                     using (StreamWriter Writer = new StreamWriter(Client))
                     {
-                        await Writer.WriteLineAsync($"{SwitchCommand}|");
-                        await Writer.FlushAsync();
+                        Writer.WriteLine($"{SwitchCommand}|");
+                        Writer.Flush();
                     }
 
                     return true;
                 }
-                catch
-                {
-                    return false;
-                }
+            }
+            catch
+            {
+                return false;
             }
         }
 
-        public static async Task<bool> SendMessageToQuicklook(string Path)
+        public static bool SendMessageToQuicklook(string Path)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {
@@ -45,12 +45,12 @@ namespace FullTrustProcess
             {
                 using (NamedPipeClientStream Client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out))
                 {
-                    await Client.ConnectAsync(1000);
+                    Client.Connect(1500);
 
                     using (StreamWriter Writer = new StreamWriter(Client))
                     {
-                        await Writer.WriteLineAsync($"{ToggleCommand}|{Path}");
-                        await Writer.FlushAsync();
+                        Writer.WriteLine($"{ToggleCommand}|{Path}");
+                        Writer.Flush();
                     }
                 }
 

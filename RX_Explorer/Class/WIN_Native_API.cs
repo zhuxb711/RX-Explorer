@@ -8,7 +8,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.Storage.Search;
 using FileAttributes = System.IO.FileAttributes;
 
 namespace RX_Explorer.Class
@@ -142,7 +141,7 @@ namespace RX_Explorer.Class
             {
                 IntPtr hDir = CreateFileFromApp(Path, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero);
 
-                if (hDir == IntPtr.Zero)
+                if (hDir == IntPtr.Zero || hDir.ToInt64() == -1)
                 {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }

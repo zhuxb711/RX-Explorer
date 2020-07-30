@@ -5,6 +5,7 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -856,7 +857,7 @@ namespace RX_Explorer
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                    FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(true);
                 }
                 else if (IsUnauthorized)
                 {
@@ -930,7 +931,7 @@ namespace RX_Explorer
                         };
                         _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                        FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                        await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
                         return;
                     }
 
@@ -986,7 +987,7 @@ namespace RX_Explorer
                         };
                         _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                        FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                        await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
                         return;
                     }
 
@@ -1109,7 +1110,7 @@ namespace RX_Explorer
                 };
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
                 return;
             }
 
@@ -1347,7 +1348,7 @@ namespace RX_Explorer
                 };
                 _ = await dialog.ShowAsync().ConfigureAwait(true);
 
-                FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
                 return;
             }
 
@@ -1371,7 +1372,7 @@ namespace RX_Explorer
                 };
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
                 return;
             }
 
@@ -1826,7 +1827,7 @@ namespace RX_Explorer
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                    FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
                     return;
                 }
 
@@ -1936,7 +1937,7 @@ namespace RX_Explorer
                 };
                 _ = await dialog.ShowAsync().ConfigureAwait(true);
 
-                FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
                 return;
             }
 
@@ -2008,7 +2009,7 @@ namespace RX_Explorer
                 };
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
             }
         }
 
@@ -2107,7 +2108,7 @@ namespace RX_Explorer
                 };
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
                 return;
             }
 
@@ -2215,7 +2216,7 @@ namespace RX_Explorer
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                    FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
                     return;
                 }
 
@@ -2248,7 +2249,7 @@ namespace RX_Explorer
                 return;
             }
 
-            FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
         }
 
         private async void ViewControl_ItemClick(object sender, ItemClickEventArgs e)
@@ -2263,6 +2264,8 @@ namespace RX_Explorer
 
         private async Task EnterSelectedItem(FileSystemStorageItem ReFile, bool RunAsAdministrator = false)
         {
+            await FileControlInstance.CancelAddItemOperation().ConfigureAwait(true);
+
             if (Interlocked.Exchange(ref TabTarget, ReFile) == null)
             {
                 try
@@ -2293,7 +2296,7 @@ namespace RX_Explorer
                             };
                             _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                            FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
                             return;
                         }
 
@@ -2516,13 +2519,13 @@ namespace RX_Explorer
                             };
                             _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                            FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
                             return;
                         }
 
                         if (SettingControl.IsDetachTreeViewAndPresenter)
                         {
-                            FileControlInstance.DisplayItemsInFolder(Folder);
+                            await FileControlInstance.DisplayItemsInFolder(Folder).ConfigureAwait(true);
                         }
                         else
                         {
@@ -2540,7 +2543,7 @@ namespace RX_Explorer
 
                             if (TargetNode != null)
                             {
-                                FileControlInstance.DisplayItemsInFolder(TargetNode);
+                                await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
                             }
                         }
                     }
@@ -2883,7 +2886,7 @@ namespace RX_Explorer
                 };
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
                 return;
             }
 
@@ -3577,7 +3580,7 @@ namespace RX_Explorer
                         };
                         _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                        FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                        await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
                         return;
                     }
                 }
@@ -3595,7 +3598,7 @@ namespace RX_Explorer
                         };
                         _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                        FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                        await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
                         return;
                     }
                 }
@@ -3802,12 +3805,12 @@ namespace RX_Explorer
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                    FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true);
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(true);
                 }
             }
             catch
             {
-
+                Debug.WriteLine("Error: CalculateHash failed");
             }
             finally
             {

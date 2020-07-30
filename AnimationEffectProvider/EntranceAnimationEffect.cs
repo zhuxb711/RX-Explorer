@@ -66,7 +66,7 @@ namespace AnimationEffectProvider
 
             // 设置缩放和动画
             const float ScaleFactor = 20f;
-            TimeSpan duration = TimeSpan.FromMilliseconds(1200);
+            TimeSpan duration = TimeSpan.FromMilliseconds(800);
             LinearEasingFunction linearEase = compositor.CreateLinearEasingFunction();
             CubicBezierEasingFunction easeInOut = compositor.CreateCubicBezierEasingFunction(new Vector2(.38f, 0f), new Vector2(.45f, 1f));
 

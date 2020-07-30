@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
+using Windows.Storage.Search;
 using Windows.UI.Core;
 
 namespace RX_Explorer.Class
@@ -217,7 +218,7 @@ namespace RX_Explorer.Class
                 WIN_Native_API.StopDirectoryWatcher(ref WatchPtr);
             }
 
-            Locker1.Dispose(); 
+            Locker1.Dispose();
             Locker2.Dispose();
         }
 

@@ -13,7 +13,6 @@ using Windows.Storage;
 using Windows.Storage.Search;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
@@ -140,16 +139,17 @@ namespace RX_Explorer
                     {
                         if (SettingControl.IsDetachTreeViewAndPresenter)
                         {
-                            StorageFolder Folder = (await Item.GetStorageItem().ConfigureAwait(true)) as StorageFolder;
-
-                            FileControlInstance.DisplayItemsInFolder(Folder);
+                            if ((await Item.GetStorageItem().ConfigureAwait(true)) is StorageFolder Folder)
+                            {
+                                await FileControlInstance.DisplayItemsInFolder(Folder).ConfigureAwait(true);
+                            }
                         }
                         else
                         {
                             TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Item.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
                             if (TargetNode != null)
                             {
-                                FileControlInstance.DisplayItemsInFolder(TargetNode);
+                                await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
                             }
                             else
                             {
@@ -172,17 +172,18 @@ namespace RX_Explorer
                 {
                     try
                     {
-                        StorageFile File = (await Item.GetStorageItem().ConfigureAwait(true)) as StorageFile;
-
-                        if (SettingControl.IsDetachTreeViewAndPresenter)
+                        if ((await Item.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
                         {
-                            FileControlInstance.DisplayItemsInFolder(await File.GetParentAsync());
-                        }
-                        else
-                        {
-                            TreeViewNode CurrentNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Path.GetDirectoryName(Item.Path), (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                            if (SettingControl.IsDetachTreeViewAndPresenter)
+                            {
+                                await FileControlInstance.DisplayItemsInFolder(await File.GetParentAsync()).ConfigureAwait(true);
+                            }
+                            else
+                            {
+                                TreeViewNode CurrentNode = await FileControlInstance.FolderTree.RootNodes[0].FindFolderLocationInTree(new PathAnalysis(Path.GetDirectoryName(Item.Path), (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
 
-                            FileControlInstance.DisplayItemsInFolder(CurrentNode);
+                                await FileControlInstance.DisplayItemsInFolder(CurrentNode).ConfigureAwait(true);
+                            }
                         }
                     }
                     catch (FileNotFoundException)
@@ -202,8 +203,12 @@ namespace RX_Explorer
         private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
             FileSystemStorageItem Device = SearchResultList.SelectedItems.FirstOrDefault() as FileSystemStorageItem;
-            PropertyDialog Dialog = new PropertyDialog(await Device.GetStorageItem());
-            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
+            if (await Device.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+            {
+                PropertyDialog Dialog = new PropertyDialog(Item);
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+            }
         }
 
         private void SearchResultList_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)

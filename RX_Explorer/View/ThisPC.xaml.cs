@@ -460,7 +460,7 @@ namespace RX_Explorer
                     TabViewContainer.ThisPage.HardDeviceList.Clear();
 
                     bool AccessError = false;
-                    foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Ram || Drives.DriveType == DriveType.Network || Drives.DriveType == DriveType.Removable)
+                    foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Network || Drives.DriveType == DriveType.Removable)
                                                                      .Where((NewItem) => TabViewContainer.ThisPage.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
                     {
                         try

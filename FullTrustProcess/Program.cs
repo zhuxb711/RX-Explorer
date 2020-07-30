@@ -235,14 +235,15 @@ namespace FullTrustProcess
 
                             if (!string.IsNullOrEmpty(ExcutePath))
                             {
-                                await QuicklookConnector.SendMessageToQuicklook(ExcutePath);
+                                QuicklookConnector.SendMessageToQuicklook(ExcutePath);
                             }
 
                             break;
                         }
                     case "Excute_Check_QuicklookIsAvaliable":
                         {
-                            bool IsSuccess = await QuicklookConnector.CheckQuicklookIsAvaliable();
+                            bool IsSuccess = QuicklookConnector.CheckQuicklookIsAvaliable();
+                            
                             ValueSet Result = new ValueSet
                             {
                                 {"Check_QuicklookIsAvaliable_Result",IsSuccess }
