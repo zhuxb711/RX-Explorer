@@ -8,7 +8,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -3291,9 +3290,17 @@ namespace RX_Explorer
 
                 foreach (object obj in e.Items)
                 {
-                    if (await (obj as FileSystemStorageItem).GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+                    if (obj is FileSystemStorageItem StorageItem)
                     {
-                        TempList.Add(Item);
+                        if (ItemPresenter.ContainerFromItem(StorageItem) is SelectorItem SItem && SItem.ContentTemplateRoot.FindChildOfType<TextBox>() is TextBox NameEditBox)
+                        {
+                            NameEditBox.Visibility = Visibility.Collapsed;
+                        }
+
+                        if (await StorageItem.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+                        {
+                            TempList.Add(Item);
+                        }
                     }
                 }
 
@@ -4334,7 +4341,7 @@ namespace RX_Explorer
 
         public void SortMenuFlyout_Opening(object sender, object e)
         {
-            if(SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
+            if (SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
             {
                 Desc.IsChecked = false;
                 Asc.IsChecked = true;

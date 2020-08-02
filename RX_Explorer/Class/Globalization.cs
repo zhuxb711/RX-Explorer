@@ -22,11 +22,6 @@ namespace RX_Explorer.Class
 
         public static bool SwitchTo(LanguageEnum Language)
         {
-            if (Language == CurrentLanguage)
-            {
-                return false;
-            }
-
             switch (Language)
             {
                 case LanguageEnum.Chinese_Simplified:
@@ -55,7 +50,7 @@ namespace RX_Explorer.Class
                     }
             }
 
-            return true;
+            return Language != CurrentLanguage;
         }
 
         public static string GetString(string Key)
