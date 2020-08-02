@@ -425,39 +425,25 @@
     <Content Include="FullTrust\Vanara.Windows.Shell.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="HotWebImage\Bing.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="HotWebImage\Facebook.png" />
     <Content Include="HotWebImage\Instagram.png" />
     <Content Include="HotWebImage\Twitter.png" />
+    <Content Include="QuickStartImage\Calculator.png" />
+    <Content Include="QuickStartImage\Calendar.png" />
+    <Content Include="QuickStartImage\Email.png" />
+    <Content Include="QuickStartImage\MicrosoftStore.png" />
+    <Content Include="QuickStartImage\Photos.png" />
+    <Content Include="QuickStartImage\Setting.png" />
+    <Content Include="QuickStartImage\Weather.png" />
     <Content Include="SecureAccess\NetworkAccess.dll" />
     <Content Include="Assets\Intercept_WIN_E.reg" />
     <Content Include="Assets\Restore_WIN_E.reg" />
     <None Include="Package.StoreAssociation.xml" />
-    <Content Include="QuickStartImage\Calculator.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="QuickStartImage\Calendar.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="QuickStartImage\Email.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Assets\LargeTile.scale-100.png" />
     <Content Include="Assets\LargeTile.scale-125.png" />
     <Content Include="Assets\LargeTile.scale-150.png" />
     <Content Include="Assets\LargeTile.scale-200.png" />
     <Content Include="Assets\LargeTile.scale-400.png" />
-    <Content Include="QuickStartImage\Map.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="QuickStartImage\MicrosoftStore.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="QuickStartImage\Setting.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Assets\SmallTile.scale-100.png" />
     <Content Include="Assets\SmallTile.scale-125.png" />
     <Content Include="Assets\SmallTile.scale-150.png" />
@@ -494,9 +480,6 @@
     <Content Include="Assets\StoreLogo.scale-150.png" />
     <Content Include="Assets\StoreLogo.scale-200.png" />
     <Content Include="Assets\StoreLogo.scale-400.png" />
-    <Content Include="QuickStartImage\Weather.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Assets\Wide310x150Logo.scale-100.png" />
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />

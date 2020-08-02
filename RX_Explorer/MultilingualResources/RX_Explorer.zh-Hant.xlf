@@ -2181,12 +2181,12 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated" state-qualifier="tm-suggestion">行事曆</target>
         </trans-unit>
         <trans-unit id="ExtendedSplash_QuickStartItem_Name_6" translate="yes" xml:space="preserve">
-          <source>Bing Map</source>
-          <target state="translated">Bing 地圖</target>
+          <source>Photos</source>
+          <target state="translated">相片</target>
         </trans-unit>
         <trans-unit id="ExtendedSplash_QuickStartItem_Name_7" translate="yes" xml:space="preserve">
           <source>Weather</source>
-          <target state="translated" state-qualifier="tm-suggestion">天氣</target>
+          <target state="translated">天氣</target>
         </trans-unit>
         <trans-unit id="ExtendedSplash_QuickStartItem_Name_8" translate="yes" xml:space="preserve">
           <source>Bing</source>
@@ -3314,6 +3314,54 @@ Invalid names include
         <trans-unit id="Progress_Tip_WaitingForAction" translate="yes" xml:space="preserve">
           <source>Waiting for action...</source>
           <target state="translated" state-qualifier="tm-suggestion">正在等候動作</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_FolderOccupied_Content" translate="yes" xml:space="preserve">
+          <source>The folder is already occupied and cannot be renamed</source>
+          <target state="translated">該文件夾已被佔用，無法重命名</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_FileOccupied_Content" translate="yes" xml:space="preserve">
+          <source>The file is already occupied and cannot be renamed</source>
+          <target state="translated">該文件已被佔用，無法重命名</target>
+        </trans-unit>
+        <trans-unit id="CollectionSort.Label" translate="yes" xml:space="preserve">
+          <source>Sort</source>
+          <target state="translated">排序</target>
+        </trans-unit>
+        <trans-unit id="CollectionSortDirection_Asc.Text" translate="yes" xml:space="preserve">
+          <source>Ascending</source>
+          <target state="translated">升序</target>
+        </trans-unit>
+        <trans-unit id="CollectionSortDirection_Desc.Text" translate="yes" xml:space="preserve">
+          <source>Descending</source>
+          <target state="translated">降序</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Sort" translate="yes" xml:space="preserve">
+          <source>Sort</source>
+          <target state="translated">排序</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_SortTarget_Name" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">名稱</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_SortTarget_Size" translate="yes" xml:space="preserve">
+          <source>Size</source>
+          <target state="translated">尺寸</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_SortTarget_Time" translate="yes" xml:space="preserve">
+          <source>Date modified</source>
+          <target state="translated">修改日期</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_SortTarget_Type" translate="yes" xml:space="preserve">
+          <source>Type</source>
+          <target state="translated">類型</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_SortDirection_Asc" translate="yes" xml:space="preserve">
+          <source>Ascending</source>
+          <target state="translated">升序</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_SortDirection_Desc" translate="yes" xml:space="preserve">
+          <source>Descending</source>
+          <target state="translated">降序</target>
         </trans-unit>
       </group>
     </body>

@@ -1019,6 +1019,17 @@ namespace RX_Explorer
                                 _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                             }
                         }
+                        catch (FileLoadException)
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_FileOccupied_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                            };
+
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        }
                         catch
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
@@ -1096,6 +1107,17 @@ namespace RX_Explorer
                             {
                                 _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                             }
+                        }
+                        catch (FileLoadException)
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_FolderOccupied_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                            };
+
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
                         catch
                         {
@@ -4214,7 +4236,7 @@ namespace RX_Explorer
             }
         }
 
-        private void OrderByName_Click(object sender, RoutedEventArgs e)
+        public void OrderByName_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -4230,7 +4252,7 @@ namespace RX_Explorer
             }
         }
 
-        private void OrderByTime_Click(object sender, RoutedEventArgs e)
+        public void OrderByTime_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -4246,7 +4268,7 @@ namespace RX_Explorer
             }
         }
 
-        private void OrderByType_Click(object sender, RoutedEventArgs e)
+        public void OrderByType_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -4262,7 +4284,7 @@ namespace RX_Explorer
             }
         }
 
-        private void OrderBySize_Click(object sender, RoutedEventArgs e)
+        public void OrderBySize_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -4278,7 +4300,7 @@ namespace RX_Explorer
             }
         }
 
-        private void Desc_Click(object sender, RoutedEventArgs e)
+        public void Desc_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -4294,7 +4316,7 @@ namespace RX_Explorer
             }
         }
 
-        private void Asc_Click(object sender, RoutedEventArgs e)
+        public void Asc_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -4310,7 +4332,7 @@ namespace RX_Explorer
             }
         }
 
-        private void SortMenuFlyout_Opening(object sender, object e)
+        public void SortMenuFlyout_Opening(object sender, object e)
         {
             if(SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
             {

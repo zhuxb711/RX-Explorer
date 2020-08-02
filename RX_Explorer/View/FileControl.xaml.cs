@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Animations;
+using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
@@ -1003,6 +1004,17 @@ namespace RX_Explorer
                     {
                         _ = await Launcher.LaunchFolderAsync(CurrentFolder);
                     }
+                }
+                catch (FileLoadException)
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_FolderOccupied_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                    };
+
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
                 catch
                 {
@@ -2735,6 +2747,119 @@ namespace RX_Explorer
                         Icon = new SymbolIcon(Symbol.Add),
                         Label = Globalization.GetString("Operate_Text_Create"),
                         Flyout = NewFlyout
+                    });
+
+                    bool DescCheck = false;
+                    bool AscCheck = false;
+                    bool NameCheck = false;
+                    bool TimeCheck = false;
+                    bool TypeCheck = false;
+                    bool SizeCheck = false;
+
+                    if (SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
+                    {
+                        DescCheck = false;
+                        AscCheck = true;
+                    }
+                    else
+                    {
+                        AscCheck = false;
+                        DescCheck = true;
+                    }
+
+                    switch (SortCollectionGenerator.Current.SortTarget)
+                    {
+                        case SortTarget.Name:
+                            {
+                                TypeCheck = false;
+                                TimeCheck = false;
+                                SizeCheck = false;
+                                NameCheck = true;
+                                break;
+                            }
+                        case SortTarget.Type:
+                            {
+                                TimeCheck = false;
+                                SizeCheck = false;
+                                NameCheck = false;
+                                TypeCheck = true;
+                                break;
+                            }
+                        case SortTarget.ModifiedTime:
+                            {
+                                SizeCheck = false;
+                                NameCheck = false;
+                                TypeCheck = false;
+                                TimeCheck = true;
+                                break;
+                            }
+                        case SortTarget.Size:
+                            {
+                                NameCheck = false;
+                                TypeCheck = false;
+                                TimeCheck = false;
+                                SizeCheck = true;
+                                break;
+                            }
+                    }
+
+                    MenuFlyout SortFlyout = new MenuFlyout();
+
+                    RadioMenuFlyoutItem SortName = new RadioMenuFlyoutItem
+                    {
+                        Text = Globalization.GetString("Operate_Text_SortTarget_Name"),
+                        IsChecked = NameCheck
+                    };
+                    SortName.Click += Instance.OrderByName_Click;
+                    SortFlyout.Items.Add(SortName);
+
+                    RadioMenuFlyoutItem SortTime = new RadioMenuFlyoutItem
+                    {
+                        Text = Globalization.GetString("Operate_Text_SortTarget_Time"),
+                        IsChecked = TimeCheck
+                    };
+                    SortTime.Click += Instance.OrderByTime_Click;
+                    SortFlyout.Items.Add(SortTime);
+
+                    RadioMenuFlyoutItem SortType = new RadioMenuFlyoutItem
+                    {
+                        Text = Globalization.GetString("Operate_Text_SortTarget_Type"),
+                        IsChecked = TypeCheck
+                    };
+                    SortType.Click += Instance.OrderByType_Click;
+                    SortFlyout.Items.Add(SortType);
+
+                    RadioMenuFlyoutItem SortSize = new RadioMenuFlyoutItem
+                    {
+                        Text = Globalization.GetString("Operate_Text_SortTarget_Size"),
+                        IsChecked = SizeCheck
+                    };
+                    SortSize.Click += Instance.OrderBySize_Click;
+                    SortFlyout.Items.Add(SortSize);
+
+                    SortFlyout.Items.Add(new MenuFlyoutSeparator());
+
+                    RadioMenuFlyoutItem Asc = new RadioMenuFlyoutItem
+                    {
+                        Text = Globalization.GetString("Operate_Text_SortDirection_Asc"),
+                        IsChecked = AscCheck
+                    };
+                    Asc.Click += Instance.Asc_Click;
+                    SortFlyout.Items.Add(Asc);
+
+                    RadioMenuFlyoutItem Desc = new RadioMenuFlyoutItem
+                    {
+                        Text = Globalization.GetString("Operate_Text_SortDirection_Desc"),
+                        IsChecked = DescCheck
+                    };
+                    Desc.Click += Instance.Desc_Click;
+                    SortFlyout.Items.Add(Desc);
+
+                    BottomCommandBar.SecondaryCommands.Add(new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Sort),
+                        Label = Globalization.GetString("Operate_Text_Sort"),
+                        Flyout = SortFlyout
                     });
 
                     BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());

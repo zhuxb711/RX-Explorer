@@ -210,7 +210,7 @@ namespace RX_Explorer
             bool BackButtonPressed = args.CurrentPoint.Properties.IsXButton1Pressed;
             bool ForwardButtonPressed = args.CurrentPoint.Properties.IsXButton2Pressed;
 
-            if (CurrentTabNavigation.Content is FileControl Control)
+            if (CurrentTabNavigation?.Content is FileControl Control)
             {
                 if (BackButtonPressed)
                 {
@@ -244,7 +244,7 @@ namespace RX_Explorer
                     SettingControl.IsInputFromPrimaryButton = true;
                 }
             }
-            else if (CurrentTabNavigation.Content is ThisPC PC)
+            else if (CurrentTabNavigation?.Content is ThisPC PC)
             {
                 if (BackButtonPressed)
                 {

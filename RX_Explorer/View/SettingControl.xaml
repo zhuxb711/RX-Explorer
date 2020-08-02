@@ -554,7 +554,10 @@
                                x:Uid="ThankTranslate"
                                Name="ThankTranslate" />
                     <TextBlock Text="• Yann Lacroix"
-                               FontSize="15"
+                               FontSize="14"
+                               Margin="0,3,0,0" />
+                    <TextBlock Text="• 秋夜AuNight"
+                               FontSize="14"
                                Margin="0,3,0,0" />
                 </StackPanel>
                 <StackPanel Grid.Column="2"

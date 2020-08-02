@@ -598,7 +598,7 @@ namespace RX_Explorer
 
             if (Device != null)
             {
-                if (Device.Path == Path.GetPathRoot(Device.Path))
+                if (Device.Path == Path.GetPathRoot(Device.Path) && DriveInfo.GetDrives().Where((Drive) => Drive.DriveType == DriveType.Fixed || Drive.DriveType == DriveType.Network || Drive.DriveType == DriveType.Removable).Any((Item) => Item.RootDirectory.FullName == Device.Path))
                 {
                     if (TabViewContainer.ThisPage.HardDeviceList.All((Item) => Item.Folder.Path != Device.Path))
                     {
@@ -625,6 +625,7 @@ namespace RX_Explorer
                         Content = Globalization.GetString("QueueDialog_DeviceSelectError_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_TipTitle")
                     };
+
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
             }

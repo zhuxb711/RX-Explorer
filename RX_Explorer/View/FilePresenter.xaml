@@ -362,32 +362,39 @@
                     </AppBarButton.Flyout>
                 </AppBarButton>
                 <AppBarButton Icon="Sort"
-                              Label="排序">
+                              Label="排序"
+                              x:Uid="CollectionSort">
                     <AppBarButton.Flyout>
                         <MenuFlyout Opening="SortMenuFlyout_Opening">
                             <muxc:RadioMenuFlyoutItem Text="名称"
                                                       Name="OrderByName"
+                                                      x:Uid="SearchName"
                                                       GroupName="Order"
                                                       Click="OrderByName_Click"/>
                             <muxc:RadioMenuFlyoutItem Text="修改时间" 
                                                       Name="OrderByTime"
+                                                      x:Uid="SearchModified"
                                                       GroupName="Order"
                                                       Click="OrderByTime_Click"/>
                             <muxc:RadioMenuFlyoutItem Text="类型" 
                                                       Name="OrderByType"
+                                                      x:Uid="SearchType"
                                                       GroupName="Order"
                                                       Click="OrderByType_Click"/>
                             <muxc:RadioMenuFlyoutItem Text="大小" 
                                                       Name="OrderBySize"
+                                                      x:Uid="SearchSize"
                                                       GroupName="Order"
                                                       Click="OrderBySize_Click"/>
                             <MenuFlyoutSeparator />
                             <muxc:RadioMenuFlyoutItem Text="升序"
                                                       Name="Asc"
+                                                      x:Uid="CollectionSortDirection_Asc"
                                                       GroupName="Direction"
                                                       Click="Asc_Click"/>
                             <muxc:RadioMenuFlyoutItem Text="降序"
                                                       Name="Desc"
+                                                      x:Uid="CollectionSortDirection_Desc"
                                                       GroupName="Direction"
                                                       Click="Desc_Click" />
                         </MenuFlyout>

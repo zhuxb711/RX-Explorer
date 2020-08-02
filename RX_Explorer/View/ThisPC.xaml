@@ -30,8 +30,8 @@
                        Width="40"
                        Source="{x:Bind Image,Mode=OneWay}"
                        Stretch="Uniform" />
-                <TextBlock HorizontalAlignment="Center"
-                           Width="75"
+                <TextBlock Width="75"
+                           FontSize="12"
                            TextTrimming="CharacterEllipsis"
                            HorizontalTextAlignment="Center"
                            Text="{x:Bind DisplayName,Mode=OneWay}" />

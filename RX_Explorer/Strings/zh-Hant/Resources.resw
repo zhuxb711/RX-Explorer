@@ -1648,7 +1648,7 @@
     <value>行事曆</value>
   </data>
   <data name="ExtendedSplash_QuickStartItem_Name_6" xml:space="preserve">
-    <value>Bing 地圖</value>
+    <value>相片</value>
   </data>
   <data name="ExtendedSplash_QuickStartItem_Name_7" xml:space="preserve">
     <value>天氣</value>
@@ -2502,5 +2502,41 @@
   </data>
   <data name="Progress_Tip_WaitingForAction" xml:space="preserve">
     <value>正在等候動作</value>
+  </data>
+  <data name="QueueDialog_FolderOccupied_Content" xml:space="preserve">
+    <value>該文件夾已被佔用，無法重命名</value>
+  </data>
+  <data name="QueueDialog_FileOccupied_Content" xml:space="preserve">
+    <value>該文件已被佔用，無法重命名</value>
+  </data>
+  <data name="CollectionSort.Label" xml:space="preserve">
+    <value>排序</value>
+  </data>
+  <data name="CollectionSortDirection_Asc.Text" xml:space="preserve">
+    <value>升序</value>
+  </data>
+  <data name="CollectionSortDirection_Desc.Text" xml:space="preserve">
+    <value>降序</value>
+  </data>
+  <data name="Operate_Text_Sort" xml:space="preserve">
+    <value>排序</value>
+  </data>
+  <data name="Operate_Text_SortTarget_Name" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="Operate_Text_SortTarget_Size" xml:space="preserve">
+    <value>尺寸</value>
+  </data>
+  <data name="Operate_Text_SortTarget_Time" xml:space="preserve">
+    <value>修改日期</value>
+  </data>
+  <data name="Operate_Text_SortTarget_Type" xml:space="preserve">
+    <value>類型</value>
+  </data>
+  <data name="Operate_Text_SortDirection_Asc" xml:space="preserve">
+    <value>升序</value>
+  </data>
+  <data name="Operate_Text_SortDirection_Desc" xml:space="preserve">
+    <value>降序</value>
   </data>
 </root>
