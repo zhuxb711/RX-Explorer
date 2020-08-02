@@ -378,7 +378,7 @@ namespace RX_Explorer
             {
                 await FillTreeNode(RootNode).ConfigureAwait(true);
 
-                TreeViewNode TargetNode = await RootNode.GetChildNode(new PathAnalysis(Folder.Path, string.Empty)).ConfigureAwait(true);
+                TreeViewNode TargetNode = await RootNode.GetChildNodeAsync(new PathAnalysis(Folder.Path, string.Empty)).ConfigureAwait(true);
                 if (TargetNode == null)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
@@ -680,7 +680,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            List<FileSystemStorageItem> ItemList = WIN_Native_API.GetStorageItems(Content.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder).SortList(SortTarget.Name, SortDirection.Ascending);
+                            List<FileSystemStorageItem> ItemList = SortCollectionGenerator.Current.GetSortedCollection(WIN_Native_API.GetStorageItems(Content.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder));
 
                             Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
@@ -790,7 +790,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    List<FileSystemStorageItem> ItemList = WIN_Native_API.GetStorageItems(Folder, SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder).SortList(SortTarget.Name, SortDirection.Ascending);
+                    List<FileSystemStorageItem> ItemList = SortCollectionGenerator.Current.GetSortedCollection(WIN_Native_API.GetStorageItems(Folder, SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder));
 
                     Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
@@ -855,7 +855,7 @@ namespace RX_Explorer
                     {
                         await DisplayItemsInFolder(CurrentNode.Parent).ConfigureAwait(true);
 
-                        await CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
+                        await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
                     }
                 }
                 catch (FileCaputureException)
@@ -1018,7 +1018,7 @@ namespace RX_Explorer
                     {
                         await CurrentFolder.RenameAsync(renameDialog.DesireName, NameCollisionOption.GenerateUniqueName);
 
-                        await CurrentNode.Parent.UpdateAllSubNode().ConfigureAwait(true);
+                        await CurrentNode.Parent.UpdateAllSubNodeAsync().ConfigureAwait(true);
 
                         UpdateAddressButton(CurrentFolder.Path);
                     }
@@ -1054,11 +1054,9 @@ namespace RX_Explorer
                             Content = new TreeViewNodeContent(NewFolder),
                             HasUnrealizedChildren = false
                         });
+
+                        TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
                     }
-                }
-                else
-                {
-                    await CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
                 }
             }
             catch (UnauthorizedAccessException)
@@ -1382,7 +1380,7 @@ namespace RX_Explorer
                     {
                         if (QueryText.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                         {
-                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
                             if (TargetNode != null)
                             {
                                 await DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
@@ -1480,7 +1478,7 @@ namespace RX_Explorer
                     {
                         if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
                         {
-                            TreeViewNode ParentNode = await FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                            TreeViewNode ParentNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
 
                             if (ParentFolder != null)
                             {
@@ -1535,7 +1533,7 @@ namespace RX_Explorer
                         if (Path.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                         {
 
-                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
                             if (TargetNode == null)
                             {
                                 QueueContentDialog dialog = new QueueContentDialog
@@ -1620,7 +1618,7 @@ namespace RX_Explorer
                         if (Path.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                         {
 
-                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
                             if (TargetNode == null)
                             {
                                 QueueContentDialog dialog = new QueueContentDialog
@@ -1802,7 +1800,7 @@ namespace RX_Explorer
             {
                 if (ActualString.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                 {
-                    if ((await FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(ActualString, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true)) is TreeViewNode TargetNode)
+                    if ((await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(ActualString, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true)) is TreeViewNode TargetNode)
                     {
                         await DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
 
@@ -1953,7 +1951,7 @@ namespace RX_Explorer
                 {
                     if (TargetPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                     {
-                        TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(TargetPath, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                        TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(TargetPath, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
                         if (TargetNode != null)
                         {
                             await DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
@@ -2039,31 +2037,50 @@ namespace RX_Explorer
 
                                     try
                                     {
-                                        await FullTrustExcutorController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
+                                        if (IsNetworkDevice)
                                         {
-                                            ProBar.IsIndeterminate = false;
-                                            ProBar.Value = arg.ProgressPercentage;
-                                        }).ConfigureAwait(true);
-
-                                        if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
-                                        {
-                                            if (IsNetworkDevice)
+                                            foreach (IStorageItem DragItem in DragItemList)
                                             {
-                                                if (await FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(ActualPath, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path), true).ConfigureAwait(true) is TreeViewNode TargetNode && TargetNode.IsExpanded)
+                                                if (DragItem is StorageFile File)
                                                 {
-                                                    foreach (StorageFolder CopyFolder in DragItemList.Where((Item) => Item.IsOfType(StorageItemTypes.Folder)))
+                                                    await File.CopyAsync(TargetFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+                                                }
+                                                else if (DragItem is StorageFolder Folder)
+                                                {
+                                                    StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
+
+                                                    await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
+
+                                                    if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                                                     {
-                                                        TargetNode.Children.Add(new TreeViewNode
+                                                        if (await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(ActualPath, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path), true).ConfigureAwait(true) is TreeViewNode TargetNode)
                                                         {
-                                                            Content = new TreeViewNodeContent(CopyFolder),
-                                                            HasUnrealizedChildren = (await CopyFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                                                        });
+                                                            TargetNode.HasUnrealizedChildren = true;
+
+                                                            if (TargetNode.IsExpanded)
+                                                            {
+                                                                TargetNode.Children.Add(new TreeViewNode
+                                                                {
+                                                                    Content = new TreeViewNodeContent(NewFolder),
+                                                                    HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                                                });
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
-                                            else
+                                        }
+                                        else
+                                        {
+                                            await FullTrustExcutorController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
                                             {
-                                                await FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                                                ProBar.IsIndeterminate = false;
+                                                ProBar.Value = arg.ProgressPercentage;
+                                            }).ConfigureAwait(true);
+
+                                            if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
+                                            {
+                                                await FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                                             }
                                         }
                                     }
@@ -2115,12 +2132,11 @@ namespace RX_Explorer
                                         };
                                         _ = await dialog.ShowAsync().ConfigureAwait(true);
                                     }
-
                                     break;
                                 }
                             case DataPackageOperation.Move:
                                 {
-                                    if (DragItemList.Select((Item) => Item.Path).All((Item) => Path.GetDirectoryName(Item) == CurrentFolder.Path))
+                                    if (DragItemList.Select((Item) => Item.Path).All((Item) => Path.GetDirectoryName(Item) == ActualPath))
                                     {
                                         return;
                                     }
@@ -2134,31 +2150,65 @@ namespace RX_Explorer
 
                                     try
                                     {
-                                        await FullTrustExcutorController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
+                                        if (IsNetworkDevice)
                                         {
-                                            ProBar.IsIndeterminate = false;
-                                            ProBar.Value = arg.ProgressPercentage;
-                                        }).ConfigureAwait(true);
-
-                                        if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
-                                        {
-                                            if (IsNetworkDevice)
+                                            foreach (IStorageItem DragItem in DragItemList)
                                             {
-                                                if (await FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(ActualPath, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path), true).ConfigureAwait(true) is TreeViewNode TargetNode && TargetNode.IsExpanded)
+                                                if (DragItem is StorageFile File)
                                                 {
-                                                    foreach (StorageFolder MoveFolder in DragItemList.Where((Item) => Item.IsOfType(StorageItemTypes.Folder)))
+                                                    await File.MoveAsync(TargetFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+                                                }
+                                                else if (DragItem is StorageFolder Folder)
+                                                {
+                                                    StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
+
+                                                    await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
+
+                                                    if (TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.FirstOrDefault((Item) => Item.Path == Folder.Path) is FileSystemStorageItem RemoveItem)
                                                     {
-                                                        TargetNode.Children.Add(new TreeViewNode
+                                                        TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(RemoveItem);
+                                                    }
+
+                                                    if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
+                                                    {
+                                                        if (CurrentNode.IsExpanded)
                                                         {
-                                                            Content = new TreeViewNodeContent(MoveFolder),
-                                                            HasUnrealizedChildren = (await MoveFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                                                        });
+                                                            if (CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == Folder.Path) is TreeViewNode Node)
+                                                            {
+                                                                CurrentNode.Children.Remove(Node);
+                                                            }
+                                                        }
+
+                                                        CurrentNode.HasUnrealizedChildren = (await CurrentFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
+
+                                                        if (await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(ActualPath, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path), true).ConfigureAwait(true) is TreeViewNode TargetNode)
+                                                        {
+                                                            TargetNode.HasUnrealizedChildren = true;
+
+                                                            if (TargetNode.IsExpanded)
+                                                            {
+                                                                TargetNode.Children.Add(new TreeViewNode
+                                                                {
+                                                                    Content = new TreeViewNodeContent(NewFolder),
+                                                                    HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                                                });
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
-                                            else
+                                        }
+                                        else
+                                        {
+                                            await FullTrustExcutorController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
                                             {
-                                                await FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                                                ProBar.IsIndeterminate = false;
+                                                ProBar.Value = arg.ProgressPercentage;
+                                            }).ConfigureAwait(true);
+
+                                            if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
+                                            {
+                                                await FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                                             }
                                         }
                                     }
@@ -2724,6 +2774,32 @@ namespace RX_Explorer
             EnterLock.Dispose();
             TabViewContainer.ThisPage.FFInstanceContainer[this].AreaWatcher.Dispose();
         }
-    }
 
+        private void Nav_PointerWheelChanged(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            Frame Frame = sender as Frame;
+
+            int Delta = e.GetCurrentPoint(Frame).Properties.MouseWheelDelta;
+
+            if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down))
+            {
+                if (Delta > 0)
+                {
+                    if (ItemDisplayMode.SelectedIndex > 0)
+                    {
+                        ItemDisplayMode.SelectedIndex -= 1;
+                    }
+                }
+                else
+                {
+                    if (ItemDisplayMode.SelectedIndex < ItemDisplayMode.Items.Count - 1)
+                    {
+                        ItemDisplayMode.SelectedIndex += 1;
+                    }
+                }
+
+                e.Handled = true;
+            }
+        }
+    }
 }

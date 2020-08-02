@@ -4,20 +4,20 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-      xmlns:controls1="using:Microsoft.UI.Xaml.Controls"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:Cls="using:RX_Explorer.Class"
       mc:Ignorable="d"
       NavigationCacheMode="Required"
       Background="Transparent">
 
     <Page.Resources>
-        <controls1:TeachingTip x:Name="InvalidCharTip"
+        <muxc:TeachingTip x:Name="InvalidCharTip"
                                IsLightDismissEnabled="True"
                                x:Uid="PresentInvalidCharTip"
                                Title="错误"
                                Subtitle="不能包含非法字符&#x000A;非法字符包括 \ / : * ? &quot; &lt; &gt; |" />
 
-        <controls1:TeachingTip x:Name="InvalidNameTip"
+        <muxc:TeachingTip x:Name="InvalidNameTip"
                                IsLightDismissEnabled="True"
                                x:Uid="PresentInvalidNameTip"
                                Title="错误"
@@ -361,6 +361,38 @@
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
+                <AppBarButton Icon="Sort"
+                              Label="排序">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout Opening="SortMenuFlyout_Opening">
+                            <muxc:RadioMenuFlyoutItem Text="名称"
+                                                      Name="OrderByName"
+                                                      GroupName="Order"
+                                                      Click="OrderByName_Click"/>
+                            <muxc:RadioMenuFlyoutItem Text="修改时间" 
+                                                      Name="OrderByTime"
+                                                      GroupName="Order"
+                                                      Click="OrderByTime_Click"/>
+                            <muxc:RadioMenuFlyoutItem Text="类型" 
+                                                      Name="OrderByType"
+                                                      GroupName="Order"
+                                                      Click="OrderByType_Click"/>
+                            <muxc:RadioMenuFlyoutItem Text="大小" 
+                                                      Name="OrderBySize"
+                                                      GroupName="Order"
+                                                      Click="OrderBySize_Click"/>
+                            <MenuFlyoutSeparator />
+                            <muxc:RadioMenuFlyoutItem Text="升序"
+                                                      Name="Asc"
+                                                      GroupName="Direction"
+                                                      Click="Asc_Click"/>
+                            <muxc:RadioMenuFlyoutItem Text="降序"
+                                                      Name="Desc"
+                                                      GroupName="Direction"
+                                                      Click="Desc_Click" />
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
                 <AppBarButton Icon="Refresh"
                               Label="刷新"
                               x:Uid="RefreshView"
@@ -402,17 +434,17 @@
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
 
-        <controls1:TeachingTip PreferredPlacement="Auto"
+        <muxc:TeachingTip PreferredPlacement="Auto"
                                Title="WIFI分享"
                                x:Uid="WIFIShareTip"
                                HeroContentPlacement="Auto"
                                Closing="QRTeachTip_Closing"
                                x:Name="QRTeachTip">
-            <controls1:TeachingTip.HeroContent>
+            <muxc:TeachingTip.HeroContent>
                 <Image Stretch="UniformToFill"
                        Name="QRImage" />
-            </controls1:TeachingTip.HeroContent>
-            <controls1:TeachingTip.Content>
+            </muxc:TeachingTip.HeroContent>
+            <muxc:TeachingTip.Content>
                 <StackPanel HorizontalAlignment="Center">
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Center">
@@ -437,15 +469,15 @@
                                TextWrapping="WrapWholeWords"
                                Text="传输过程中请勿关闭此窗口，否则将停止分享" />
                 </StackPanel>
-            </controls1:TeachingTip.Content>
-        </controls1:TeachingTip>
+            </muxc:TeachingTip.Content>
+        </muxc:TeachingTip>
 
-        <controls1:TeachingTip PreferredPlacement="Auto"
+        <muxc:TeachingTip PreferredPlacement="Auto"
                                Title="Hash计算"
                                x:Name="HashTeachTip"
                                x:Uid="HashTeachTip"
                                Closing="HashTeachTip_Closing">
-            <controls1:TeachingTip.Content>
+            <muxc:TeachingTip.Content>
                 <StackPanel HorizontalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <TextBox IsSpellCheckEnabled="False"
@@ -513,8 +545,8 @@
                         </Button>
                     </StackPanel>
                 </StackPanel>
-            </controls1:TeachingTip.Content>
-        </controls1:TeachingTip>
+            </muxc:TeachingTip.Content>
+        </muxc:TeachingTip>
 
         <DataTemplate x:Name="TileDataTemplate"
                       x:FieldModifier="public"

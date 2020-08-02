@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using Windows.ApplicationModel.AppService;
 using Windows.ApplicationModel.Background;
@@ -107,15 +108,15 @@ namespace CommunicateService
         {
             lock (Locker)
             {
-                if((sender.TriggerDetails as AppServiceTriggerDetails)?.AppServiceConnection is AppServiceConnection DisConnection)
+                try
                 {
-                    DisConnection.RequestReceived -= Connection_RequestReceived;
-
-                    if (ClientConnections.ContainsKey(DisConnection))
+                    if ((sender.TriggerDetails as AppServiceTriggerDetails)?.AppServiceConnection is AppServiceConnection DisConnection)
                     {
-                        if (ServerConnection != null)
+                        DisConnection.RequestReceived -= Connection_RequestReceived;
+
+                        if (ClientConnections.ContainsKey(DisConnection))
                         {
-                            ServerConnection.SendMessageAsync(new ValueSet { { "ExcuteType", "Excute_RequestClosePipe" }, { "Guid", ClientConnections[DisConnection] } }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+                            ServerConnection?.SendMessageAsync(new ValueSet { { "ExcuteType", "Excute_RequestClosePipe" }, { "Guid", ClientConnections[DisConnection] } }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
 
                             ClientConnections.Remove(DisConnection);
 
@@ -123,32 +124,37 @@ namespace CommunicateService
 
                             if (ClientConnections.Count == 0)
                             {
-                                ServerConnection.SendMessageAsync(new ValueSet { { "ExcuteType", "Excute_Exit" } }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+                                ServerConnection?.SendMessageAsync(new ValueSet { { "ExcuteType", "Excute_Exit" } }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
                             }
                         }
                         else
                         {
-                            ClientConnections.Remove(DisConnection);
+                            if (ReferenceEquals(DisConnection, ServerConnection))
+                            {
+                                ServerConnection.Dispose();
+                                ServerConnection = null;
+                            }
+                            else
+                            {
+                                DisConnection.Dispose();
 
-                            DisConnection.Dispose();
-                        }
-                    }
-                    else
-                    {
-                        if (ReferenceEquals(DisConnection, ServerConnection))
-                        {
-                            ServerConnection.Dispose();
-                            ServerConnection = null;
-                        }
-                        else
-                        {
-                            DisConnection.Dispose();
+                                if (ClientConnections.Count == 0)
+                                {
+                                    ServerConnection?.SendMessageAsync(new ValueSet { { "ExcuteType", "Excute_Exit" } }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+                                }
+                            }
                         }
                     }
                 }
+                catch(Exception ex)
+                {
+                    Debug.WriteLine($"Error thrown in CommuniteService: {ex.Message}");
+                }
+                finally
+                {
+                    Deferral.Complete();
+                }
             }
-
-            Deferral.Complete();
         }
     }
 }

@@ -13,7 +13,7 @@ namespace RX_Explorer.Dialog
             StorageFile IntroFile = null;
             switch (Globalization.CurrentLanguage)
             {
-                case LanguageEnum.Chinese:
+                case LanguageEnum.Chinese_Simplified:
                     {
                         IntroFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-Chinese.txt")).AsTask().Result;
                         break;

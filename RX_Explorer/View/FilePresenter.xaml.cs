@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,23 +41,11 @@ namespace RX_Explorer
     {
         public ObservableCollection<FileSystemStorageItem> FileCollection { get; private set; }
 
-        private readonly Dictionary<SortTarget, SortDirection> SortMap = new Dictionary<SortTarget, SortDirection>
-        {
-            {SortTarget.Name,SortDirection.Ascending },
-            {SortTarget.Type,SortDirection.Ascending },
-            {SortTarget.ModifiedTime,SortDirection.Ascending },
-            {SortTarget.Size,SortDirection.Ascending }
-        };
-
         private FileControl FileControlInstance;
 
         private int DropLock = 0;
 
         private int ViewDropLock = 0;
-
-        private volatile FileSystemStorageItem StayInItem;
-
-        private readonly DispatcherTimer PointerHoverTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
 
         private CancellationTokenSource HashCancellation;
 
@@ -153,7 +142,6 @@ namespace RX_Explorer
             Application.Current.Suspending -= Current_Suspending;
             Application.Current.Resuming -= Current_Resuming;
             CoreWindow.GetForCurrentThread().KeyDown -= Window_KeyDown;
-            PointerHoverTimer.Tick -= Timer_Tick;
         }
 
         private void FilePresenter_Loaded(object sender, RoutedEventArgs e)
@@ -161,7 +149,6 @@ namespace RX_Explorer
             Application.Current.Suspending += Current_Suspending;
             Application.Current.Resuming += Current_Resuming;
             CoreWindow.GetForCurrentThread().KeyDown += Window_KeyDown;
-            PointerHoverTimer.Tick += Timer_Tick;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -181,9 +168,8 @@ namespace RX_Explorer
 
         private async void Window_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            var WindowInstance = CoreWindow.GetForCurrentThread();
-            var CtrlState = WindowInstance.GetKeyState(VirtualKey.Control);
-            var ShiftState = WindowInstance.GetKeyState(VirtualKey.Shift);
+            var CtrlState = sender.GetKeyState(VirtualKey.Control);
+            var ShiftState = sender.GetKeyState(VirtualKey.Shift);
 
             if (!FileControlInstance.IsSearchOrPathBoxFocused && !QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning && SelectedItems.All((Item) => !Item.IsHidenItem))
             {
@@ -315,23 +301,11 @@ namespace RX_Explorer
                                                 {
                                                     if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
                                                     {
-                                                        if (FileControlInstance.IsNetworkDevice)
+                                                        await FullTrustExcutorController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
                                                         {
-                                                            if (FileCollection.FirstOrDefault((Item) => Item.Path == File.Path) is FileSystemStorageItem Item)
-                                                            {
-                                                                FileCollection.Remove(Item);
-                                                            }
-
-                                                            await File.MoveAsync(OriginFolder, File.Name, NameCollisionOption.GenerateUniqueName);
-                                                        }
-                                                        else
-                                                        {
-                                                            await FullTrustExcutorController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
-                                                            {
-                                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                            }, true).ConfigureAwait(true);
-                                                        }
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }, true).ConfigureAwait(true);
                                                     }
                                                     else
                                                     {
@@ -344,24 +318,11 @@ namespace RX_Explorer
                                                 {
                                                     if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFolder Folder)
                                                     {
-                                                        if(FileControlInstance.IsNetworkDevice)
+                                                        await FullTrustExcutorController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
                                                         {
-                                                            if (FileCollection.FirstOrDefault((Item) => Item.Path == Folder.Path) is FileSystemStorageItem Item)
-                                                            {
-                                                                FileCollection.Remove(Item);
-                                                            }
-
-                                                            StorageFolder NewFolder = await OriginFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.OpenIfExists);
-                                                            await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
-                                                        }
-                                                        else
-                                                        {
-                                                            await FullTrustExcutorController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
-                                                            {
-                                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                            }, true).ConfigureAwait(true);
-                                                        }
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }, true).ConfigureAwait(true);
                                                     }
                                                     else
                                                     {
@@ -382,20 +343,11 @@ namespace RX_Explorer
 
                                                     if ((await TargetFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
                                                     {
-                                                        if (FileControlInstance.IsNetworkDevice)
+                                                        await FullTrustExcutorController.Current.MoveAsync(File, FileControlInstance.CurrentFolder, (s, arg) =>
                                                         {
-                                                            await File.MoveAsync(FileControlInstance.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
-
-                                                            FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
-                                                        }
-                                                        else
-                                                        {
-                                                            await FullTrustExcutorController.Current.MoveAsync(File, FileControlInstance.CurrentFolder, (s, arg) =>
-                                                            {
-                                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                            }, true).ConfigureAwait(true);
-                                                        }
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }, true).ConfigureAwait(true);
                                                     }
                                                     else
                                                     {
@@ -408,31 +360,11 @@ namespace RX_Explorer
                                                 {
                                                     StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
 
-                                                    if(FileControlInstance.IsNetworkDevice)
+                                                    await FullTrustExcutorController.Current.MoveAsync(Folder, FileControlInstance.CurrentFolder, (s, arg) =>
                                                     {
-                                                        StorageFolder NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
-
-                                                        await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
-
-                                                        FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
-
-                                                        if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
-                                                        {
-                                                            FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
-                                                            {
-                                                                Content = new TreeViewNodeContent(NewFolder),
-                                                                HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                                                            });
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        await FullTrustExcutorController.Current.MoveAsync(Folder, FileControlInstance.CurrentFolder, (s, arg) =>
-                                                        {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                        }, true).ConfigureAwait(true);
-                                                    }
+                                                        FileControlInstance.ProBar.IsIndeterminate = false;
+                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                    }, true).ConfigureAwait(true);
 
                                                     break;
                                                 }
@@ -448,18 +380,11 @@ namespace RX_Explorer
                                                 {
                                                     StorageFile File = await StorageFile.GetFileFromPathAsync(SplitGroup[3]);
 
-                                                    if(FileControlInstance.IsNetworkDevice)
+                                                    await FullTrustExcutorController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
                                                     {
-                                                        await File.MoveAsync(OriginFolder, File.Name, NameCollisionOption.GenerateUniqueName);
-                                                    }
-                                                    else
-                                                    {
-                                                        await FullTrustExcutorController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
-                                                        {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                        }, true).ConfigureAwait(true);
-                                                    }
+                                                        FileControlInstance.ProBar.IsIndeterminate = false;
+                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                    }, true).ConfigureAwait(true);
 
                                                     break;
                                                 }
@@ -467,18 +392,15 @@ namespace RX_Explorer
                                                 {
                                                     StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
 
-                                                    if (FileControlInstance.IsNetworkDevice)
+                                                    await FullTrustExcutorController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
                                                     {
-                                                        StorageFolder NewFolder = await OriginFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.OpenIfExists);
-                                                        await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
-                                                    }
-                                                    else
+                                                        FileControlInstance.ProBar.IsIndeterminate = false;
+                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                    }, true).ConfigureAwait(true);
+
+                                                    if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                     {
-                                                        await FullTrustExcutorController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
-                                                        {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                        }, true).ConfigureAwait(true);
+                                                        await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                                                     }
 
                                                     break;
@@ -498,23 +420,11 @@ namespace RX_Explorer
                                                 {
                                                     if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
                                                     {
-                                                        if(FileControlInstance.IsNetworkDevice)
+                                                        await FullTrustExcutorController.Current.DeleteAsync(File, true, (s, arg) =>
                                                         {
-                                                            if (FileCollection.FirstOrDefault((Item) => Item.Path == File.Path) is FileSystemStorageItem Item)
-                                                            {
-                                                                FileCollection.Remove(Item);
-                                                            }
-
-                                                            await File.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                                                        }
-                                                        else
-                                                        {
-                                                            await FullTrustExcutorController.Current.DeleteAsync(File, true, (s, arg) =>
-                                                            {
-                                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                            }, true).ConfigureAwait(true);
-                                                        }
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }, true).ConfigureAwait(true);
                                                     }
                                                     else
                                                     {
@@ -527,23 +437,11 @@ namespace RX_Explorer
                                                 {
                                                     if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFolder Folder)
                                                     {
-                                                        if (FileControlInstance.IsNetworkDevice)
+                                                        await FullTrustExcutorController.Current.DeleteAsync(Folder, true, (s, arg) =>
                                                         {
-                                                            if (FileCollection.FirstOrDefault((Item) => Item.Path == Folder.Path) is FileSystemStorageItem Item)
-                                                            {
-                                                                FileCollection.Remove(Item);
-                                                            }
-
-                                                            await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                                                        }
-                                                        else
-                                                        {
-                                                            await FullTrustExcutorController.Current.DeleteAsync(Folder, true, (s, arg) =>
-                                                            {
-                                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                            }, true).ConfigureAwait(true);
-                                                        }
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }, true).ConfigureAwait(true);
                                                     }
 
                                                     break;
@@ -552,31 +450,15 @@ namespace RX_Explorer
                                     }
                                     else
                                     {
-                                        if (FileControlInstance.IsNetworkDevice)
+                                        await FullTrustExcutorController.Current.DeleteAsync(SplitGroup[3], true, (s, arg) =>
                                         {
-                                            switch (SplitGroup[2])
-                                            {
-                                                case "File":
-                                                    {
-                                                        StorageFile File = await StorageFile.GetFileFromPathAsync(SplitGroup[3]);
-                                                        await File.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                                                        break;
-                                                    }
-                                                case "Folder":
-                                                    {
-                                                        StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
-                                                        await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                                                        break;
-                                                    }
-                                            }
-                                        }
-                                        else
+                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                        }, true).ConfigureAwait(true);
+
+                                        if (!SettingControl.IsDetachTreeViewAndPresenter)
                                         {
-                                            await FullTrustExcutorController.Current.DeleteAsync(SplitGroup[3], true, (s, arg) =>
-                                            {
-                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                            }, true).ConfigureAwait(true);
+                                            await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                                         }
                                     }
                                     break;
@@ -715,13 +597,18 @@ namespace RX_Explorer
 
                                         FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
 
-                                        if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
+                                        if (!SettingControl.IsDetachTreeViewAndPresenter)
                                         {
-                                            FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                            FileControlInstance.CurrentNode.HasUnrealizedChildren = true;
+
+                                            if (FileControlInstance.CurrentNode.IsExpanded)
                                             {
-                                                Content = new TreeViewNodeContent(NewFolder),
-                                                HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                                            });
+                                                FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                                {
+                                                    Content = new TreeViewNodeContent(NewFolder),
+                                                    HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                                });
+                                            }
                                         }
                                     }
                                 }
@@ -827,13 +714,18 @@ namespace RX_Explorer
 
                                         FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
 
-                                        if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
+                                        if (!SettingControl.IsDetachTreeViewAndPresenter)
                                         {
-                                            FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                            FileControlInstance.CurrentNode.HasUnrealizedChildren = true;
+
+                                            if (FileControlInstance.CurrentNode.IsExpanded)
                                             {
-                                                Content = new TreeViewNodeContent(NewFolder),
-                                                HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                                            });
+                                                FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                                {
+                                                    Content = new TreeViewNodeContent(NewFolder),
+                                                    HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                                });
+                                            }
                                         }
                                     }
                                 }
@@ -1533,13 +1425,7 @@ namespace RX_Explorer
 
             if (Item.FileType == ".zip")
             {
-                if ((await UnZipAsync(Item).ConfigureAwait(true)) != null)
-                {
-                    if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
-                    {
-                        await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
-                    }
-                }
+                await UnZipAsync(Item).ConfigureAwait(true);
             }
             else
             {
@@ -2306,9 +2192,18 @@ namespace RX_Explorer
             {
                 StorageFolder NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), CreationCollisionOption.GenerateUniqueName);
 
-                if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
+                if (FileControlInstance.IsNetworkDevice)
                 {
-                    await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
+                    FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+
+                    if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
+                    {
+                        FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                        {
+                            Content = new TreeViewNodeContent(NewFolder),
+                            HasUnrealizedChildren = false
+                        });
+                    }
                 }
             }
             catch
@@ -2414,7 +2309,13 @@ namespace RX_Explorer
 
             if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is FileSystemStorageItem ReFile)
             {
-                await EnterSelectedItem(ReFile).ConfigureAwait(false);
+                CoreVirtualKeyStates CtrlState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control);
+                CoreVirtualKeyStates ShiftState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift);
+
+                if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
+                {
+                    await EnterSelectedItem(ReFile).ConfigureAwait(false);
+                }
             }
         }
 
@@ -2695,7 +2596,7 @@ namespace RX_Explorer
                                 FileControlInstance.CurrentNode.IsExpanded = true;
                             }
 
-                            TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(TabTarget.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                            TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(TabTarget.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
 
                             if (TargetNode != null)
                             {
@@ -2826,14 +2727,12 @@ namespace RX_Explorer
 
         private void ListHeaderName_Click(object sender, RoutedEventArgs e)
         {
-            if (SortMap[SortTarget.Name] == SortDirection.Ascending)
+            if (SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
             {
-                SortMap[SortTarget.Name] = SortDirection.Descending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
+                SortCollectionGenerator.Current.ModifySortWay(SortTarget.Name, SortDirection.Descending);
 
-                List<FileSystemStorageItem> SortResult = FileCollection.SortList(SortTarget.Name, SortDirection.Descending);
+                List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+
                 FileCollection.Clear();
 
                 foreach (FileSystemStorageItem Item in SortResult)
@@ -2843,12 +2742,10 @@ namespace RX_Explorer
             }
             else
             {
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
+                SortCollectionGenerator.Current.ModifySortWay(SortTarget.Name, SortDirection.Ascending);
 
-                List<FileSystemStorageItem> SortResult = FileCollection.SortList(SortTarget.Name, SortDirection.Ascending);
+                List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+
                 FileCollection.Clear();
 
                 foreach (FileSystemStorageItem Item in SortResult)
@@ -2860,14 +2757,12 @@ namespace RX_Explorer
 
         private void ListHeaderModifiedTime_Click(object sender, RoutedEventArgs e)
         {
-            if (SortMap[SortTarget.ModifiedTime] == SortDirection.Ascending)
+            if (SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
             {
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Descending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
+                SortCollectionGenerator.Current.ModifySortWay(SortTarget.ModifiedTime, SortDirection.Descending);
 
-                List<FileSystemStorageItem> SortResult = FileCollection.SortList(SortTarget.ModifiedTime, SortDirection.Descending);
+                List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+
                 FileCollection.Clear();
 
                 foreach (FileSystemStorageItem Item in SortResult)
@@ -2877,12 +2772,10 @@ namespace RX_Explorer
             }
             else
             {
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
+                SortCollectionGenerator.Current.ModifySortWay(SortTarget.ModifiedTime, SortDirection.Ascending);
 
-                List<FileSystemStorageItem> SortResult = FileCollection.SortList(SortTarget.ModifiedTime, SortDirection.Ascending);
+                List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+
                 FileCollection.Clear();
 
                 foreach (FileSystemStorageItem Item in SortResult)
@@ -2894,14 +2787,12 @@ namespace RX_Explorer
 
         private void ListHeaderType_Click(object sender, RoutedEventArgs e)
         {
-            if (SortMap[SortTarget.Type] == SortDirection.Ascending)
+            if (SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
             {
-                SortMap[SortTarget.Type] = SortDirection.Descending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
+                SortCollectionGenerator.Current.ModifySortWay(SortTarget.Type, SortDirection.Descending);
 
-                List<FileSystemStorageItem> SortResult = FileCollection.SortList(SortTarget.Type, SortDirection.Descending);
+                List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+
                 FileCollection.Clear();
 
                 foreach (FileSystemStorageItem Item in SortResult)
@@ -2911,12 +2802,10 @@ namespace RX_Explorer
             }
             else
             {
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
+                SortCollectionGenerator.Current.ModifySortWay(SortTarget.Type, SortDirection.Ascending);
 
-                List<FileSystemStorageItem> SortResult = FileCollection.SortList(SortTarget.Type, SortDirection.Ascending);
+                List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+
                 FileCollection.Clear();
 
                 foreach (FileSystemStorageItem Item in SortResult)
@@ -2928,14 +2817,11 @@ namespace RX_Explorer
 
         private void ListHeaderSize_Click(object sender, RoutedEventArgs e)
         {
-            if (SortMap[SortTarget.Size] == SortDirection.Ascending)
+            if (SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
             {
-                SortMap[SortTarget.Size] = SortDirection.Descending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
+                SortCollectionGenerator.Current.ModifySortWay(SortTarget.Size, SortDirection.Descending);
 
-                List<FileSystemStorageItem> SortResult = FileCollection.SortList(SortTarget.Size, SortDirection.Descending);
+                List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
                 FileCollection.Clear();
 
                 foreach (FileSystemStorageItem Item in SortResult)
@@ -2946,12 +2832,9 @@ namespace RX_Explorer
             }
             else
             {
-                SortMap[SortTarget.Size] = SortDirection.Ascending;
-                SortMap[SortTarget.Type] = SortDirection.Ascending;
-                SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
-                SortMap[SortTarget.Name] = SortDirection.Ascending;
+                SortCollectionGenerator.Current.ModifySortWay(SortTarget.Size, SortDirection.Ascending);
 
-                List<FileSystemStorageItem> SortResult = FileCollection.SortList(SortTarget.Size, SortDirection.Ascending);
+                List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
                 FileCollection.Clear();
 
                 foreach (FileSystemStorageItem Item in SortResult)
@@ -3130,15 +3013,50 @@ namespace RX_Explorer
 
                                         try
                                         {
-                                            await FullTrustExcutorController.Current.CopyAsync(DragItemList, FileControlInstance.CurrentFolder, (s, arg) =>
+                                            if (FileControlInstance.IsNetworkDevice)
                                             {
-                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                            }).ConfigureAwait(true);
+                                                foreach (IStorageItem DragItem in DragItemList)
+                                                {
+                                                    if (DragItem is StorageFile File)
+                                                    {
+                                                        await File.CopyAsync(TargetFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+                                                    }
+                                                    else if (DragItem is StorageFolder Folder)
+                                                    {
+                                                        StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
+                                                        await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
 
-                                            if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                        if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                        {
+                                                            if (FileControlInstance.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == TargetFolder.Path) is TreeViewNode Node)
+                                                            {
+                                                                Node.HasUnrealizedChildren = true;
+
+                                                                if (Node.IsExpanded)
+                                                                {
+                                                                    Node.Children.Add(new TreeViewNode
+                                                                    {
+                                                                        Content = new TreeViewNodeContent(NewFolder),
+                                                                        HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                                                    });
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            else
                                             {
-                                                await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                                                await FullTrustExcutorController.Current.CopyAsync(DragItemList, FileControlInstance.CurrentFolder, (s, arg) =>
+                                                {
+                                                    FileControlInstance.ProBar.IsIndeterminate = false;
+                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                }).ConfigureAwait(true);
+
+                                                if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                {
+                                                    await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                                }
                                             }
                                         }
                                         catch (FileNotFoundException)
@@ -3203,15 +3121,61 @@ namespace RX_Explorer
 
                                         try
                                         {
-                                            await FullTrustExcutorController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
+                                            if (FileControlInstance.IsNetworkDevice)
                                             {
-                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                            }).ConfigureAwait(true);
+                                                foreach (IStorageItem DragItem in DragItemList)
+                                                {
+                                                    if (DragItem is StorageFile File)
+                                                    {
+                                                        await File.MoveAsync(TargetFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+                                                    }
+                                                    else if (DragItem is StorageFolder Folder)
+                                                    {
+                                                        StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
 
-                                            if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                        await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
+
+                                                        if (FileCollection.FirstOrDefault((Item) => Item.Path == Folder.Path) is FileSystemStorageItem RemoveItem)
+                                                        {
+                                                            FileCollection.Remove(RemoveItem);
+                                                        }
+
+                                                        if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                        {
+                                                            if (FileControlInstance.CurrentNode.IsExpanded)
+                                                            {
+                                                                if (FileControlInstance.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == Folder.Path) is TreeViewNode RemoveNode)
+                                                                {
+                                                                    FileControlInstance.CurrentNode.Children.Remove(RemoveNode);
+                                                                }
+                                                            }
+
+                                                            FileControlInstance.CurrentNode.HasUnrealizedChildren = (await FileControlInstance.CurrentFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
+
+                                                            if (FileControlInstance.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == TargetFolder.Path) is TreeViewNode Node)
+                                                            {
+                                                                Node.HasUnrealizedChildren = true;
+
+                                                                if (Node.IsExpanded)
+                                                                {
+                                                                    Node.Children.Add(new TreeViewNode
+                                                                    {
+                                                                        Content = new TreeViewNodeContent(NewFolder),
+                                                                        HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                                                    });
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            else
                                             {
-                                                await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                                                await FullTrustExcutorController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
+                                                {
+                                                    FileControlInstance.ProBar.IsIndeterminate = false;
+                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                }).ConfigureAwait(true);
                                             }
                                         }
                                         catch (FileNotFoundException)
@@ -3318,7 +3282,7 @@ namespace RX_Explorer
             }
         }
 
-        private void ViewControl_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+        private async void ViewControl_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
         {
             if (args.InRecycleQueue)
             {
@@ -3326,7 +3290,6 @@ namespace RX_Explorer
                 args.ItemContainer.Drop -= Item_Drop;
                 args.ItemContainer.DragEnter -= ItemContainer_DragEnter;
                 args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
-                args.ItemContainer.PointerExited -= ItemContainer_PointerExited;
 
                 if (args.ItemContainer.ContentTemplateRoot.FindChildOfType<TextBox>() is TextBox NameEditBox)
                 {
@@ -3339,7 +3302,7 @@ namespace RX_Explorer
                 {
                     if (Item.StorageType == StorageItemTypes.File)
                     {
-                        _ = Item.LoadMoreProperty();
+                        await Item.LoadMoreProperty().ConfigureAwait(true);
                     }
 
                     if (Item.StorageType == StorageItemTypes.Folder)
@@ -3356,7 +3319,6 @@ namespace RX_Explorer
                     }
 
                     args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
-                    args.ItemContainer.PointerExited += ItemContainer_PointerExited;
                 }
             }
         }
@@ -3390,31 +3352,15 @@ namespace RX_Explorer
             }
         }
 
-        private void ItemContainer_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            if (!SettingControl.IsDoubleClickEnable)
-            {
-                PointerHoverTimer.Stop();
-            }
-        }
-
         private void ItemContainer_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (!SettingControl.IsDoubleClickEnable)
+            if (!SettingControl.IsDoubleClickEnable && e.KeyModifiers != VirtualKeyModifiers.Control && e.KeyModifiers != VirtualKeyModifiers.Shift)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
                 {
-                    StayInItem = Item;
-
-                    PointerHoverTimer.Start();
+                    SelectedItem = Item;
                 }
             }
-        }
-
-        private void Timer_Tick(object sender, object e)
-        {
-            PointerHoverTimer.Stop();
-            SelectedItem = StayInItem;
         }
 
         private async void ViewControl_Drop(object sender, DragEventArgs e)
@@ -3456,15 +3402,46 @@ namespace RX_Explorer
 
                                     try
                                     {
-                                        await FullTrustExcutorController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
+                                        if (FileControlInstance.IsNetworkDevice)
                                         {
-                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                        }).ConfigureAwait(true);
+                                            foreach (IStorageItem DragItem in DragItemList)
+                                            {
+                                                if (DragItem is StorageFile File)
+                                                {
+                                                    StorageFile NewFile = await File.CopyAsync(TargetFolder, File.Name, NameCollisionOption.GenerateUniqueName);
 
-                                        if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
+                                                    FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                                }
+                                                else if (DragItem is StorageFolder Folder)
+                                                {
+                                                    StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
+                                                    await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
+
+                                                    FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+
+                                                    if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                    {
+                                                        FileControlInstance.CurrentNode.HasUnrealizedChildren = true;
+
+                                                        if (FileControlInstance.CurrentNode.IsExpanded)
+                                                        {
+                                                            FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                                            {
+                                                                Content = new TreeViewNodeContent(NewFolder),
+                                                                HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                                            });
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else
                                         {
-                                            await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
+                                            await FullTrustExcutorController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
+                                            {
+                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                            }).ConfigureAwait(true);
                                         }
                                     }
                                     catch (FileNotFoundException)
@@ -3534,15 +3511,62 @@ namespace RX_Explorer
 
                                     try
                                     {
-                                        await FullTrustExcutorController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
+                                        if (FileControlInstance.IsNetworkDevice)
                                         {
-                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                        }).ConfigureAwait(true);
+                                            foreach (IStorageItem DragItem in DragItemList)
+                                            {
+                                                if (DragItem is StorageFile File)
+                                                {
+                                                    await File.MoveAsync(TargetFolder, File.Name, NameCollisionOption.GenerateUniqueName);
 
-                                        if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
+                                                    FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                                }
+                                                else if (DragItem is StorageFolder Folder)
+                                                {
+                                                    StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
+
+                                                    await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
+
+                                                    FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+
+                                                    if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                    {
+                                                        if (TabViewContainer.ThisPage.TabViewControl.TabItems.Select((Tab) => ((Tab as Microsoft.UI.Xaml.Controls.TabViewItem)?.Content as Frame)?.Content as FileControl).Where((Control) => Control != null).FirstOrDefault((Control) => Control.CurrentFolder.Path == Path.GetDirectoryName(Folder.Path)) is FileControl Control && Control.IsNetworkDevice)
+                                                        {
+                                                            if (Control.CurrentNode.IsExpanded)
+                                                            {
+                                                                if (Control.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == Folder.Path) is TreeViewNode Node)
+                                                                {
+                                                                    Control.CurrentNode.Children.Remove(Node);
+                                                                }
+                                                            }
+
+                                                            Control.CurrentNode.HasUnrealizedChildren = (await Control.CurrentFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
+
+                                                            TabViewContainer.ThisPage.FFInstanceContainer[Control].Refresh_Click(null, null);
+                                                        }
+
+                                                        FileControlInstance.CurrentNode.HasUnrealizedChildren = true;
+
+                                                        if (FileControlInstance.CurrentNode.IsExpanded)
+                                                        {
+                                                            FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                                            {
+                                                                Content = new TreeViewNodeContent(NewFolder),
+                                                                HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                                            });
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else
                                         {
-                                            await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
+                                            await FullTrustExcutorController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
+                                            {
+                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                            }).ConfigureAwait(true);
                                         }
                                     }
                                     catch (FileCaputureException)
@@ -3560,15 +3584,6 @@ namespace RX_Explorer
                                     catch (Exception)
                                     {
                                         IsUnauthorized = true;
-                                    }
-
-                                    if (!SettingControl.IsDetachTreeViewAndPresenter && DragItemList.Any((Item) => Item.IsOfType(StorageItemTypes.Folder)))
-                                    {
-                                        if (TabViewContainer.ThisPage.TabViewControl.TabItems.Select((Tab) => ((Tab as Microsoft.UI.Xaml.Controls.TabViewItem)?.Content as Frame)?.Content as FileControl).Where((Control) => Control != null).FirstOrDefault((Control) => Control.CurrentFolder.Path == Path.GetDirectoryName(DragItemList[0].Path)) is FileControl Control)
-                                        {
-                                            await Control.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
-                                            TabViewContainer.ThisPage.FFInstanceContainer[Control].Refresh_Click(null, null);
-                                        }
                                     }
 
                                     if (IsItemNotFound)
@@ -3823,13 +3838,7 @@ namespace RX_Explorer
                 {
                     StorageFile File = (await Item.GetStorageItem().ConfigureAwait(true)) as StorageFile;
 
-                    if ((await UnZipAsync(File).ConfigureAwait(true)) != null)
-                    {
-                        if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
-                        {
-                            await FileControlInstance.CurrentNode.UpdateAllSubNode().ConfigureAwait(true);
-                        }
-                    }
+                    await UnZipAsync(File).ConfigureAwait(true);
                 }
             }
 
@@ -4056,7 +4065,7 @@ namespace RX_Explorer
                     {
                         TimeSpan ClickSpan = DateTimeOffset.Now - LastClickTime;
 
-                        if (ClickSpan.TotalMilliseconds > 700)
+                        if (ClickSpan.TotalMilliseconds > 1200)
                         {
                             NameLabel.Visibility = Visibility.Collapsed;
                             CurrentNameEditItem = Item;
@@ -4202,6 +4211,152 @@ namespace RX_Explorer
                     InvalidCharTip.Target = NameLabel;
                     InvalidCharTip.IsOpen = true;
                 }
+            }
+        }
+
+        private void OrderByName_Click(object sender, RoutedEventArgs e)
+        {
+            Restore();
+
+            SortCollectionGenerator.Current.ModifySortWay(SortTarget.Name, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+
+            List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+
+            FileCollection.Clear();
+
+            foreach (FileSystemStorageItem Item in SortResult)
+            {
+                FileCollection.Add(Item);
+            }
+        }
+
+        private void OrderByTime_Click(object sender, RoutedEventArgs e)
+        {
+            Restore();
+
+            SortCollectionGenerator.Current.ModifySortWay(SortTarget.ModifiedTime, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+
+            List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+
+            FileCollection.Clear();
+
+            foreach (FileSystemStorageItem Item in SortResult)
+            {
+                FileCollection.Add(Item);
+            }
+        }
+
+        private void OrderByType_Click(object sender, RoutedEventArgs e)
+        {
+            Restore();
+
+            SortCollectionGenerator.Current.ModifySortWay(SortTarget.Type, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+
+            List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+
+            FileCollection.Clear();
+
+            foreach (FileSystemStorageItem Item in SortResult)
+            {
+                FileCollection.Add(Item);
+            }
+        }
+
+        private void OrderBySize_Click(object sender, RoutedEventArgs e)
+        {
+            Restore();
+
+            SortCollectionGenerator.Current.ModifySortWay(SortTarget.Size, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+
+            List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+
+            FileCollection.Clear();
+
+            foreach (FileSystemStorageItem Item in SortResult)
+            {
+                FileCollection.Add(Item);
+            }
+        }
+
+        private void Desc_Click(object sender, RoutedEventArgs e)
+        {
+            Restore();
+
+            SortCollectionGenerator.Current.ModifySortWay(SortDirection: SortDirection.Descending);
+
+            List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+
+            FileCollection.Clear();
+
+            foreach (FileSystemStorageItem Item in SortResult)
+            {
+                FileCollection.Add(Item);
+            }
+        }
+
+        private void Asc_Click(object sender, RoutedEventArgs e)
+        {
+            Restore();
+
+            SortCollectionGenerator.Current.ModifySortWay(SortDirection: SortDirection.Ascending);
+
+            List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+
+            FileCollection.Clear();
+
+            foreach (FileSystemStorageItem Item in SortResult)
+            {
+                FileCollection.Add(Item);
+            }
+        }
+
+        private void SortMenuFlyout_Opening(object sender, object e)
+        {
+            if(SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
+            {
+                Desc.IsChecked = false;
+                Asc.IsChecked = true;
+            }
+            else
+            {
+                Asc.IsChecked = false;
+                Desc.IsChecked = true;
+            }
+
+            switch (SortCollectionGenerator.Current.SortTarget)
+            {
+                case SortTarget.Name:
+                    {
+                        OrderByType.IsChecked = false;
+                        OrderByTime.IsChecked = false;
+                        OrderBySize.IsChecked = false;
+                        OrderByName.IsChecked = true;
+                        break;
+                    }
+                case SortTarget.Type:
+                    {
+                        OrderByTime.IsChecked = false;
+                        OrderBySize.IsChecked = false;
+                        OrderByName.IsChecked = false;
+                        OrderByType.IsChecked = true;
+                        break;
+                    }
+                case SortTarget.ModifiedTime:
+                    {
+                        OrderBySize.IsChecked = false;
+                        OrderByName.IsChecked = false;
+                        OrderByType.IsChecked = false;
+                        OrderByTime.IsChecked = true;
+                        break;
+                    }
+                case SortTarget.Size:
+                    {
+                        OrderByName.IsChecked = false;
+                        OrderByType.IsChecked = false;
+                        OrderByTime.IsChecked = false;
+                        OrderBySize.IsChecked = true;
+                        break;
+                    }
             }
         }
     }

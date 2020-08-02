@@ -188,9 +188,12 @@ namespace RX_Explorer
             LanguageComboBox.Items.Add("中文(简体)");
             LanguageComboBox.Items.Add("English (United States)");
             LanguageComboBox.Items.Add("Français");
+            LanguageComboBox.Items.Add("中文(繁體)");
             LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
+
             FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_2"));
             FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_1"));
+
             CustomFontColor.Items.Add(Globalization.GetString("Font_Color_White"));
             CustomFontColor.Items.Add(Globalization.GetString("Font_Color_Black"));
 
@@ -1115,7 +1118,7 @@ namespace RX_Explorer
 
                             if (Regex.IsMatch(SelectItem.UserID, "^\\s*([A-Za-z0-9_-]+(\\.\\w+)*@(\\w+\\.)+\\w{2,5})\\s*$"))
                             {
-                                if (Globalization.CurrentLanguage == LanguageEnum.Chinese)
+                                if (Globalization.CurrentLanguage == LanguageEnum.Chinese_Simplified)
                                 {
                                     string Message = $"您的反馈原文：\r------------------------------------\r{SelectItem.Title}{Environment.NewLine}{SelectItem.Suggestion}\r------------------------------------\r\r开发者回复内容：\r------------------------------------\r{Item.Title}{Environment.NewLine}{Item.Suggestion}\r------------------------------------{Environment.NewLine}";
                                     _ = await Launcher.LaunchUriAsync(new Uri($"mailto:{SelectItem.UserID}?subject=开发者已回复您的反馈&body={Uri.EscapeDataString(Message)}"), new LauncherOptions { TreatAsUntrusted = false, DisplayApplicationPicker = false });
@@ -1182,7 +1185,7 @@ namespace RX_Explorer
             {
                 case 0:
                     {
-                        if (Globalization.SwitchTo(LanguageEnum.Chinese))
+                        if (Globalization.SwitchTo(LanguageEnum.Chinese_Simplified))
                         {
                             LanguageRestartTip.Visibility = Visibility.Visible;
                         }
@@ -1207,6 +1210,18 @@ namespace RX_Explorer
                 case 2:
                     {
                         if (Globalization.SwitchTo(LanguageEnum.French))
+                        {
+                            LanguageRestartTip.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            LanguageRestartTip.Visibility = Visibility.Collapsed;
+                        }
+                        break;
+                    }
+                case 3:
+                    {
+                        if (Globalization.SwitchTo(LanguageEnum.Chinese_Traditional))
                         {
                             LanguageRestartTip.Visibility = Visibility.Visible;
                         }
@@ -1264,7 +1279,7 @@ namespace RX_Explorer
             if (TabViewContainer.CurrentTabNavigation?.Content is FileControl Control && Control.CurrentFolder != null)
             {
                 await Control.DisplayItemsInFolder(Control.CurrentFolder, true).ConfigureAwait(true);
-                await Control.FolderTree.RootNodes[0].UpdateAllSubNode().ConfigureAwait(false);
+                await Control.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(false);
             }
         }
 

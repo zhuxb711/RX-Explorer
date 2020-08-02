@@ -92,7 +92,7 @@ namespace RX_Explorer.Class
 
                     if (!SettingControl.IsDetachTreeViewAndPresenter)
                     {
-                        if (await TreeView.RootNodes[0].GetChildNode(new PathAnalysis(OldPath, (TreeView.RootNodes[0].Content as TreeViewNodeContent).Path), true).ConfigureAwait(true) is TreeViewNode Node)
+                        if (await TreeView.RootNodes[0].GetChildNodeAsync(new PathAnalysis(OldPath, (TreeView.RootNodes[0].Content as TreeViewNodeContent).Path), true).ConfigureAwait(true) is TreeViewNode Node)
                         {
                             try
                             {
@@ -132,7 +132,7 @@ namespace RX_Explorer.Class
 
                     if (!SettingControl.IsDetachTreeViewAndPresenter)
                     {
-                        await TreeView.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                        await TreeView.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                     }
                 }
                 catch
@@ -215,7 +215,7 @@ namespace RX_Explorer.Class
 
                     if (!SettingControl.IsDetachTreeViewAndPresenter)
                     {
-                        await TreeView.RootNodes[0].UpdateAllSubNode().ConfigureAwait(true);
+                        await TreeView.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                     }
                 }
                 catch

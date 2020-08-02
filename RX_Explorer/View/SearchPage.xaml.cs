@@ -146,7 +146,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(Item.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                            TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Item.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
                             if (TargetNode != null)
                             {
                                 await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
@@ -180,7 +180,7 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                TreeViewNode CurrentNode = await FileControlInstance.FolderTree.RootNodes[0].GetChildNode(new PathAnalysis(Path.GetDirectoryName(Item.Path), (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                                TreeViewNode CurrentNode = await FileControlInstance.FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Path.GetDirectoryName(Item.Path), (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
 
                                 await FileControlInstance.DisplayItemsInFolder(CurrentNode).ConfigureAwait(true);
                             }

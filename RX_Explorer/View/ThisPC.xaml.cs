@@ -28,11 +28,6 @@ namespace RX_Explorer
         private TabViewItem TabItem;
         private QuickStartItem CurrentSelectedItem;
         private int LockResource = 0;
-        private object StayInItem;
-        private readonly DispatcherTimer HoverTimer = new DispatcherTimer
-        {
-            Interval = TimeSpan.FromMilliseconds(700)
-        };
 
         public ThisPC()
         {
@@ -41,23 +36,6 @@ namespace RX_Explorer
             DeviceGrid.ItemsSource = TabViewContainer.ThisPage.HardDeviceList;
             QuickStartGridView.ItemsSource = TabViewContainer.ThisPage.QuickStartList;
             WebGridView.ItemsSource = TabViewContainer.ThisPage.HotWebList;
-            HoverTimer.Tick += HoverTimer_Tick;
-        }
-
-        private void HoverTimer_Tick(object sender, object e)
-        {
-            HoverTimer.Stop();
-
-            if (StayInItem is LibraryFolder)
-            {
-                LibraryGrid.SelectedItem = StayInItem;
-                DeviceGrid.SelectedIndex = -1;
-            }
-            else if (StayInItem is HardDeviceInfo)
-            {
-                DeviceGrid.SelectedItem = StayInItem;
-                LibraryGrid.SelectedIndex = -1;
-            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -75,12 +53,10 @@ namespace RX_Explorer
             if (args.InRecycleQueue)
             {
                 args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
-                args.ItemContainer.PointerExited -= ItemContainer_PointerExited;
             }
             else
             {
                 args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
-                args.ItemContainer.PointerExited += ItemContainer_PointerExited;
 
                 if (AnimationController.Current.IsEnableAnimation)
                 {
@@ -107,20 +83,10 @@ namespace RX_Explorer
             if (args.InRecycleQueue)
             {
                 args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
-                args.ItemContainer.PointerExited -= ItemContainer_PointerExited;
             }
             else
             {
                 args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
-                args.ItemContainer.PointerExited += ItemContainer_PointerExited;
-            }
-        }
-
-        private void ItemContainer_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            if (!SettingControl.IsDoubleClickEnable)
-            {
-                HoverTimer.Stop();
             }
         }
 
@@ -130,9 +96,16 @@ namespace RX_Explorer
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is object Item)
                 {
-                    StayInItem = Item;
-
-                    HoverTimer.Start();
+                    if (Item is LibraryFolder)
+                    {
+                        LibraryGrid.SelectedItem = Item;
+                        DeviceGrid.SelectedIndex = -1;
+                    }
+                    else if (Item is HardDeviceInfo)
+                    {
+                        DeviceGrid.SelectedItem = Item;
+                        LibraryGrid.SelectedIndex = -1;
+                    }
                 }
             }
         }

@@ -31,7 +31,6 @@
     <GenerateTestArtifacts>False</GenerateTestArtifacts>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-    <PackageCertificateThumbprint>B8261191E6D2053DB7905482E9153EDBCC1B12A9</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -164,6 +163,7 @@
     <Compile Include="Class\Exception.cs" />
     <Compile Include="Class\OperationRecorder.cs" />
     <Compile Include="Class\PipeLineController.cs" />
+    <Compile Include="Class\SortCollectionGenerator.cs" />
     <Compile Include="Class\SpecialTypeGenerator.cs" />
     <Compile Include="Class\StorageAreaWatcher.cs" />
     <Compile Include="Class\FileSystemItemNameChecker.cs" />
@@ -341,7 +341,8 @@
     <Content Include="Assets\SAIntro1_cn.png" />
     <Content Include="Assets\SAIntro1_en.png" />
     <Content Include="Assets\SAIntro1_fr.png" />
-    <Content Include="Assets\UpdateLog-Chinese.txt" />
+    <Content Include="Assets\UpdateLog-Chinese_S.txt" />
+    <Content Include="Assets\UpdateLog-Chinese_T.txt" />
     <Content Include="Assets\UpdateLog-English.txt" />
     <Content Include="Assets\UpdateLog-French.txt" />
     <Content Include="Assets\Viewer.png" />
@@ -509,6 +510,7 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <None Include="SecureAccess\NetworkAccess.pri" />
+    <PRIResource Include="Strings\zh-Hant\Resources.resw" />
     <PRIResource Include="Strings\en-US\Resources.resw">
       <SubType>Designer</SubType>
     </PRIResource>
@@ -782,6 +784,7 @@
   <ItemGroup>
     <XliffResource Include="MultilingualResources\RX_Explorer.fr-FR.xlf" />
     <XliffResource Include="MultilingualResources\RX_Explorer.zh-Hans.xlf" />
+    <XliffResource Include="MultilingualResources\RX_Explorer.zh-Hant.xlf" />
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="WindowsDesktop, Version=10.0.19041.0">

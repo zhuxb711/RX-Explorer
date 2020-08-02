@@ -1,0 +1,2506 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AddDevice.Label" xml:space="preserve">
+    <value>新增裝置</value>
+  </data>
+  <data name="AESCheckBox.Content" xml:space="preserve">
+    <value>加密完成後刪除原始文件</value>
+  </data>
+  <data name="AESDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="AESDialog.PrimaryButtonText" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="AESDialog.Title" xml:space="preserve">
+    <value>進階加密標準</value>
+  </data>
+  <data name="AESMethod.Header" xml:space="preserve">
+    <value>加密方法</value>
+  </data>
+  <data name="AESPassword.Header" xml:space="preserve">
+    <value>加密密碼</value>
+  </data>
+  <data name="AESPassword.PlaceholderText" xml:space="preserve">
+    <value>密碼</value>
+  </data>
+  <data name="AppDelete.Label" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="AppDisplayName" xml:space="preserve">
+    <value>RX 檔案總管</value>
+  </data>
+  <data name="AppEdit.Label" xml:space="preserve">
+    <value>編輯</value>
+  </data>
+  <data name="AttributeCreated.Text" xml:space="preserve">
+    <value>建立日期</value>
+  </data>
+  <data name="AttributeDialog.CloseButtonText" xml:space="preserve">
+    <value>確定</value>
+  </data>
+  <data name="AttributeDialog.Title" xml:space="preserve">
+    <value>內容</value>
+  </data>
+  <data name="AttributeName.Text" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="AttributeInclude.Text" xml:space="preserve">
+    <value>包括</value>
+  </data>
+  <data name="AttributeExtraData.Text" xml:space="preserve">
+    <value>相關資訊</value>
+  </data>
+  <data name="AttributeLocation.Text" xml:space="preserve">
+    <value>檔案位置</value>
+  </data>
+  <data name="AttributeModified.Text" xml:space="preserve">
+    <value>修改日期</value>
+  </data>
+  <data name="AttributeSecureLevel.Text" xml:space="preserve">
+    <value>安全性等級</value>
+  </data>
+  <data name="AttributeSize.Text" xml:space="preserve">
+    <value>大小</value>
+  </data>
+  <data name="AttributeType.Text" xml:space="preserve">
+    <value>類型</value>
+  </data>
+  <data name="AutoBootOnStartup.Header" xml:space="preserve">
+    <value>開機自動啟動</value>
+  </data>
+  <data name="AutoBootOnStartup.OffContent" xml:space="preserve">
+    <value>停用</value>
+  </data>
+  <data name="AutoBootOnStartup.OnContent" xml:space="preserve">
+    <value>啟用</value>
+  </data>
+  <data name="BlueScreenReport.Content" xml:space="preserve">
+    <value>回報給開發人員</value>
+  </data>
+  <data name="BluetoothShare.Text" xml:space="preserve">
+    <value>藍牙</value>
+  </data>
+  <data name="BluetoothTranfer.SecondaryButtonText" xml:space="preserve">
+    <value>中止</value>
+  </data>
+  <data name="BluetoothTranfer.Title" xml:space="preserve">
+    <value>初始化中</value>
+  </data>
+  <data name="BluetoothUI.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="BluetoothUI.PrimaryButtonText" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="BluetoothUI.Title" xml:space="preserve">
+    <value>選擇裝置</value>
+  </data>
+  <data name="BluetoothUIPinNo.Content" xml:space="preserve">
+    <value>否</value>
+  </data>
+  <data name="BluetoothUIPinYes.Content" xml:space="preserve">
+    <value>是</value>
+  </data>
+  <data name="BluetoothUISearching.Text" xml:space="preserve">
+    <value>搜尋中</value>
+  </data>
+  <data name="Browser.Content" xml:space="preserve">
+    <value>瀏覽器</value>
+  </data>
+  <data name="ChooseOtherApp.Text" xml:space="preserve">
+    <value>選擇其他應用程式</value>
+  </data>
+  <data name="CloseButton.Content" xml:space="preserve">
+    <value>結束</value>
+  </data>
+  <data name="CrashText.Text" xml:space="preserve">
+    <value>RX 檔案總管意外崩潰...(￣▽￣)/</value>
+  </data>
+  <data name="CropperPageAlphaSlider.Header" xml:space="preserve">
+    <value>對比</value>
+  </data>
+  <data name="CropperPageAspButton.Text" xml:space="preserve">
+    <value>外觀比例</value>
+  </data>
+  <data name="CropperPageAutoOptimizeButton.Text" xml:space="preserve">
+    <value>自動優化</value>
+  </data>
+  <data name="CropperPageBackButton.Content" xml:space="preserve">
+    <value>返回</value>
+  </data>
+  <data name="CropperPageBetaSlider.Header" xml:space="preserve">
+    <value>亮度</value>
+  </data>
+  <data name="CropperPageCropperOptionTitle.Text" xml:space="preserve">
+    <value>裁剪選項</value>
+  </data>
+  <data name="CropperPageFilterTitle.Text" xml:space="preserve">
+    <value>圖片篩選條件</value>
+  </data>
+  <data name="CropperPageFlipButton.Text" xml:space="preserve">
+    <value>翻轉</value>
+  </data>
+  <data name="CropperPageHistogram.Text" xml:space="preserve">
+    <value>顏色分佈</value>
+  </data>
+  <data name="CropperPageImageAdjustTitle.Text" xml:space="preserve">
+    <value>調整圖片</value>
+  </data>
+  <data name="CropperPageResetButton.Text" xml:space="preserve">
+    <value>重設</value>
+  </data>
+  <data name="CropperPageRotateButton.Text" xml:space="preserve">
+    <value>旋轉</value>
+  </data>
+  <data name="CropperPageSaveAsButton.Text" xml:space="preserve">
+    <value>另存新檔…</value>
+  </data>
+  <data name="CropperPageSaveButton.Text" xml:space="preserve">
+    <value>覆蓋並保存</value>
+  </data>
+  <data name="CropperPageSavingTips.Text" xml:space="preserve">
+    <value>正在儲存…</value>
+  </data>
+  <data name="CustomFontColor.Header" xml:space="preserve">
+    <value>自定義文字顏色</value>
+  </data>
+  <data name="CustomUISubtype1.Content" xml:space="preserve">
+    <value>透明背景</value>
+  </data>
+  <data name="CustomUISubtype2.Content" xml:space="preserve">
+    <value>自定義背景圖片</value>
+  </data>
+  <data name="DeviceAttribute.Label" xml:space="preserve">
+    <value>內容</value>
+  </data>
+  <data name="DeviceCapacity.Text" xml:space="preserve">
+    <value>容量</value>
+  </data>
+  <data name="DeviceDialog.CloseButtonText" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="DeviceExpander.Text" xml:space="preserve">
+    <value>裝置</value>
+  </data>
+  <data name="DeviceFreeSpace.Text" xml:space="preserve">
+    <value>可用空間：</value>
+  </data>
+  <data name="DeviceType.Text" xml:space="preserve">
+    <value>磁碟類型:</value>
+  </data>
+  <data name="DeviceUsedSpace.Text" xml:space="preserve">
+    <value>已使用空間:</value>
+  </data>
+  <data name="PurchaseTip.ActionButtonContent" xml:space="preserve">
+    <value>購買</value>
+  </data>
+  <data name="PurchaseTip.CloseButtonContent" xml:space="preserve">
+    <value>稍後</value>
+  </data>
+  <data name="PurchaseTip.Title" xml:space="preserve">
+    <value>購買支持這個程式!</value>
+  </data>
+  <data name="EmptyFlyoutNew.Label" xml:space="preserve">
+    <value>新增</value>
+  </data>
+  <data name="EmptyFlyoutNewFile.Text" xml:space="preserve">
+    <value>新增檔案</value>
+  </data>
+  <data name="EmptyFlyoutNewFolder.Text" xml:space="preserve">
+    <value>新增資料夾</value>
+  </data>
+  <data name="FeedBackAddButton.Text" xml:space="preserve">
+    <value>提交我的回饋</value>
+  </data>
+  <data name="FeedBackAgainstText.Text" xml:space="preserve">
+    <value>不同意</value>
+  </data>
+  <data name="FeedBackAgreeText.Text" xml:space="preserve">
+    <value>同意</value>
+  </data>
+  <data name="FeedBackDeleteButton.Label" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="FeedBackDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="FeedBackDialog.PrimaryButtonText" xml:space="preserve">
+    <value>提交</value>
+  </data>
+  <data name="FeedBackDialog.Title" xml:space="preserve">
+    <value>投票</value>
+  </data>
+  <data name="FeedBackDialogContent.Header" xml:space="preserve">
+    <value>建議與回饋</value>
+  </data>
+  <data name="FeedBackDialogContent.PlaceholderText" xml:space="preserve">
+    <value>請輸入內容</value>
+  </data>
+  <data name="FeedBackDialogTitle.Header" xml:space="preserve">
+    <value>標題</value>
+  </data>
+  <data name="FeedBackDialogTitle.PlaceholderText" xml:space="preserve">
+    <value>請輸入標題</value>
+  </data>
+  <data name="FeedBackEditButton.Label" xml:space="preserve">
+    <value>編輯</value>
+  </data>
+  <data name="FeedBackListHeader.Text" xml:space="preserve">
+    <value>回饋列表</value>
+  </data>
+  <data name="FeedBackTip.Subtitle" xml:space="preserve">
+    <value>此回饋列表將向所有用戶顯示您的建議或回饋。 您還可以查看其他人的建議，並為感興趣的建議提供支持。 支持越多，反對越少，優先更新越高，開發人員將聽取您的建議。 您只能修改或刪除您提交的建議。</value>
+  </data>
+  <data name="FeedBackTip.Title" xml:space="preserve">
+    <value>建議說明</value>
+  </data>
+  <data name="FileAttribute.Label" xml:space="preserve">
+    <value>內容</value>
+  </data>
+  <data name="FileControlAttribute.Label" xml:space="preserve">
+    <value>內容</value>
+  </data>
+  <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>返回</value>
+  </data>
+  <data name="FileControlCreateFolder.Label" xml:space="preserve">
+    <value>新增資料夾</value>
+  </data>
+  <data name="FileControlDeleteFolder.Label" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="FileControlForwardButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>下一步</value>
+  </data>
+  <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>上一步</value>
+  </data>
+  <data name="FileControlRenameFolder.Label" xml:space="preserve">
+    <value>重新命名</value>
+  </data>
+  <data name="FileCopy.ToolTipService.ToolTip" xml:space="preserve">
+    <value>複製</value>
+  </data>
+  <data name="FileCut.ToolTipService.ToolTip" xml:space="preserve">
+    <value>移動</value>
+  </data>
+  <data name="FileDelete.ToolTipService.ToolTip" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="FileEdit.Label" xml:space="preserve">
+    <value>編輯</value>
+  </data>
+  <data name="FileOpen.Label" xml:space="preserve">
+    <value>開啟</value>
+  </data>
+  <data name="FilePaste.Label" xml:space="preserve">
+    <value>貼上</value>
+  </data>
+  <data name="FileRename.ToolTipService.ToolTip" xml:space="preserve">
+    <value>重新命名</value>
+  </data>
+  <data name="FileShare.Label" xml:space="preserve">
+    <value>分享</value>
+  </data>
+  <data name="FolderAttribute.Label" xml:space="preserve">
+    <value>內容</value>
+  </data>
+  <data name="FolderOpen.Label" xml:space="preserve">
+    <value>開啟</value>
+  </data>
+  <data name="FolderRename.ToolTipService.ToolTip" xml:space="preserve">
+    <value>重新命名</value>
+  </data>
+  <data name="HasFile.Text" xml:space="preserve">
+    <value>空白</value>
+  </data>
+  <data name="HotWebTitle.Text" xml:space="preserve">
+    <value>熱門網站</value>
+  </data>
+  <data name="LibraryCancelButton.Label" xml:space="preserve">
+    <value>取消釘選</value>
+  </data>
+  <data name="LibraryExpander.Text" xml:space="preserve">
+    <value>資料庫</value>
+  </data>
+  <data name="LibraryOpenButton.Label" xml:space="preserve">
+    <value>開啟</value>
+  </data>
+  <data name="MergeDialog.PrimaryButtonText" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="MergeDialog.SecondaryButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="MergeDialog.Title" xml:space="preserve">
+    <value>合併</value>
+  </data>
+  <data name="MergeDialogEmptyTip.Subtitle" xml:space="preserve">
+    <value>必須增加影片才能繼續</value>
+  </data>
+  <data name="MergeDialogEmptyTip.Title" xml:space="preserve">
+    <value>小提示</value>
+  </data>
+  <data name="MergeDialogEncodingProfile.Text" xml:space="preserve">
+    <value>編碼配置</value>
+  </data>
+  <data name="MergeDialogEncodingQuality.Text" xml:space="preserve">
+    <value>品質</value>
+  </data>
+  <data name="MergeDialogPickClip.Content" xml:space="preserve">
+    <value>擷取一個片段</value>
+  </data>
+  <data name="MergeDialogText.Text" xml:space="preserve">
+    <value>合併</value>
+  </data>
+  <data name="NewFileDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="NewFileDialog.PrimaryButtonText" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="NewFileDialog.Title" xml:space="preserve">
+    <value>新增檔案</value>
+  </data>
+  <data name="NewFileDialogFileName.Header" xml:space="preserve">
+    <value>檔案名稱</value>
+  </data>
+  <data name="NewFileDialogFileName.PlaceholderText" xml:space="preserve">
+    <value>輸入檔案名稱</value>
+  </data>
+  <data name="NewFileDialogInvalidInputTip.Subtitle" xml:space="preserve">
+    <value>您指定的檔案類型不符合規定。 請重新輸入</value>
+  </data>
+  <data name="NewFileDialogInvalidInputTip.Title" xml:space="preserve">
+    <value>格式不正確</value>
+  </data>
+  <data name="NewFileDialogType.PlaceholderText" xml:space="preserve">
+    <value>輸入或選擇一種類型</value>
+  </data>
+  <data name="OpenDevice.Label" xml:space="preserve">
+    <value>開啟</value>
+  </data>
+  <data name="OtherOpenMethod.Label" xml:space="preserve">
+    <value>開啟檔案</value>
+  </data>
+  <data name="PdfPasswordDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="PdfPasswordDialog.PrimaryButtonText" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="PdfPasswordDialog.Title" xml:space="preserve">
+    <value>需要密碼</value>
+  </data>
+  <data name="PdfPasswordDialogPasswordBox.Header" xml:space="preserve">
+    <value>PDF 密碼</value>
+  </data>
+  <data name="PdfPasswordDialogPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>請輸入密碼以解鎖此PDF</value>
+  </data>
+  <data name="PermissionButton.Content" xml:space="preserve">
+    <value>權限</value>
+  </data>
+  <data name="PhotoViewerAdjustButton.Label" xml:space="preserve">
+    <value>編輯</value>
+  </data>
+  <data name="PhotoViewerDeleteButton.Label" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="PhotoViewerRotateButton.Label" xml:space="preserve">
+    <value>旋轉</value>
+  </data>
+  <data name="PhotoViewerSaveTips.Text" xml:space="preserve">
+    <value>正在儲存…</value>
+  </data>
+  <data name="PhotoViewerTranscodeButton.Label" xml:space="preserve">
+    <value>轉檔</value>
+  </data>
+  <data name="PinTip.ActionButtonContent" xml:space="preserve">
+    <value>現在</value>
+  </data>
+  <data name="PinTip.CloseButtonContent" xml:space="preserve">
+    <value>關閉</value>
+  </data>
+  <data name="PinTip.Title" xml:space="preserve">
+    <value>快速啟動</value>
+  </data>
+  <data name="PinToLibrary.Label" xml:space="preserve">
+    <value>固定在主頁</value>
+  </data>
+  <data name="ProgramPickerDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="ProgramPickerDialog.PrimaryButtonText" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="ProgramPickerDialog.Title" xml:space="preserve">
+    <value>開啟檔案...</value>
+  </data>
+  <data name="ProgramPickerDialogPickOther.Content" xml:space="preserve">
+    <value>選擇此電腦上的其他應用程式</value>
+  </data>
+  <data name="ProgramPickerDialogUseAsAdmin.Content" xml:space="preserve">
+    <value>一律使用此程式來開啟檔案</value>
+  </data>
+  <data name="PreLaunchHeader.Text" xml:space="preserve">
+    <value>使用預啟動技術</value>
+  </data>
+  <data name="PreLaunchSwitch.OnContent" xml:space="preserve">
+    <value>啟用</value>
+  </data>
+  <data name="PreLaunchSwitch.OffContent" xml:space="preserve">
+    <value>停用</value>
+  </data>
+  <data name="PreLaunchTip.Title" xml:space="preserve">
+    <value>預啟動技術</value>
+  </data>
+  <data name="PreLaunchTip.Subtitle" xml:space="preserve">
+    <value>開啟預啟動技術後，Windows將根據您的使用情況自動決定是否在效能充足預啟動RX 檔案總管。 如果Windows已預先啟動RX 檔案總管，則將大幅提升啟動速度</value>
+  </data>
+  <data name="QRText.Header" xml:space="preserve">
+    <value>複製此連接至瀏覽器進行下載</value>
+  </data>
+  <data name="QuickStartChooseIcon.Content" xml:space="preserve">
+    <value>選擇圖片</value>
+  </data>
+  <data name="QuickStartDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="QuickStartDialog.PrimaryButtonText" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="QuickStartDialog.Title" xml:space="preserve">
+    <value>自定義</value>
+  </data>
+  <data name="QuickStartDisplayName.PlaceholderText" xml:space="preserve">
+    <value>顯示名稱</value>
+  </data>
+  <data name="QuickStartEmptyTip.Subtitle" xml:space="preserve">
+    <value>此處不能空白</value>
+  </data>
+  <data name="QuickStartExistTip.Subtitle" xml:space="preserve">
+    <value>此位置已有同名的檔案</value>
+  </data>
+  <data name="QuickStartFailureTips.Subtitle" xml:space="preserve">
+    <value>無法自動取得網頁圖標，請手動選擇圖標</value>
+  </data>
+  <data name="QuickStartFormatErrorTip.Subtitle" xml:space="preserve">
+    <value>協議或地址格式錯誤</value>
+  </data>
+  <data name="QuickStartGetWebImage.Content" xml:space="preserve">
+    <value>自動取得</value>
+  </data>
+  <data name="QuickStartLink.Content" xml:space="preserve">
+    <value>使用統一資源標誌符(URI)啟動程式</value>
+  </data>
+  <data name="QuickStartLink.NavigateUri" xml:space="preserve">
+    <value>https://docs.microsoft.com/en-us/windows/uwp/launch-resume/launch-app-with-uri</value>
+  </data>
+  <data name="QuickStartProtocal.PlaceholderText" xml:space="preserve">
+    <value>協議</value>
+  </data>
+  <data name="QuickStartProtocalTip.Subtitle" xml:space="preserve">
+    <value>協議參考</value>
+  </data>
+  <data name="QuickStartTitle.Text" xml:space="preserve">
+    <value>快速啟動</value>
+  </data>
+  <data name="RateTip.ActionButtonContent" xml:space="preserve">
+    <value>立即評分</value>
+  </data>
+  <data name="RateTip.CloseButtonContent" xml:space="preserve">
+    <value>沒有提示</value>
+  </data>
+  <data name="RateTip.Subtitle" xml:space="preserve">
+    <value>您的評分對我非常重要!請花一點時間為該程式評分</value>
+  </data>
+  <data name="RateTip.Title" xml:space="preserve">
+    <value>請幫我們評分</value>
+  </data>
+  <data name="RefreshView.Label" xml:space="preserve">
+    <value>重新整理</value>
+  </data>
+  <data name="RenameDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="RenameDialog.PrimaryButtonText" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="RenameDialog.Title" xml:space="preserve">
+    <value>重新命名</value>
+  </data>
+  <data name="RenamePreview.Text" xml:space="preserve">
+    <value>預覽</value>
+  </data>
+  <data name="RenameDialogInvalidCharTip.Title" xml:space="preserve">
+    <value>錯誤</value>
+  </data>
+  <data name="RenameDialogInvalidCharTip.Subtitle" xml:space="preserve">
+    <value>檔案名稱不能為空且不可以包含下列任意字元:
+\ / : * ? " &lt; &gt; |</value>
+  </data>
+  <data name="ResetDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="ResetDialog.PrimaryButtonText" xml:space="preserve">
+    <value>繼續</value>
+  </data>
+  <data name="ResetDialog.Title" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="ResetDialogButton.Content" xml:space="preserve">
+    <value>選擇輸出位置</value>
+  </data>
+  <data name="ResetDialogCheckBox1.Content" xml:space="preserve">
+    <value>應用程式保存設置及數據儲存</value>
+  </data>
+  <data name="ResetDialogCheckBox2.Content" xml:space="preserve">
+    <value>檔案儲存在加密庫</value>
+  </data>
+  <data name="ResetDialogText1.Text" xml:space="preserve">
+    <value>此行為將會重置 RX 檔案總管</value>
+  </data>
+  <data name="ResetDialogText2.Text" xml:space="preserve">
+    <value>包含</value>
+  </data>
+  <data name="ResetDialogTip.Subtitle" xml:space="preserve">
+    <value>請選擇輸出的資料夾</value>
+  </data>
+  <data name="RunWithSystemAuthority.Text" xml:space="preserve">
+    <value>以系統管理員身分執行</value>
+  </data>
+  <data name="SAVerifyDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="SAVerifyDialog.PrimaryButtonText" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="SAVerifyDialog.Title" xml:space="preserve">
+    <value>輸入認證</value>
+  </data>
+  <data name="SAVerifyDialogErrorTip.Subtitle" xml:space="preserve">
+    <value>密碼錯誤,，請重新輸入</value>
+  </data>
+  <data name="SAVerifyDialogErrorTip.Title" xml:space="preserve">
+    <value>錯誤</value>
+  </data>
+  <data name="SAVerifyDialogPasswordBox.Header" xml:space="preserve">
+    <value>密碼</value>
+  </data>
+  <data name="SAVerifyDialogPasswordBox.PlaceholderText" xml:space="preserve">
+    <value>輸入密碼</value>
+  </data>
+  <data name="SAWelcomeDialog.CloseButtonText" xml:space="preserve">
+    <value>返回</value>
+  </data>
+  <data name="SAWelcomeDialog.PrimaryButtonText" xml:space="preserve">
+    <value>繼續</value>
+  </data>
+  <data name="SAWelcomeDialog.Title" xml:space="preserve">
+    <value>首次執行設定</value>
+  </data>
+  <data name="SAWelcomeDialogConfrimPassword.Header" xml:space="preserve">
+    <value>再次輸入密碼</value>
+  </data>
+  <data name="SAWelcomeDialogConfrimPassword.PlaceholderText" xml:space="preserve">
+    <value>輸入主要密碼</value>
+  </data>
+  <data name="SAWelcomeDialogEmptyTip.Subtitle" xml:space="preserve">
+    <value>必填輸入此區域內容</value>
+  </data>
+  <data name="SAWelcomeDialogErrorTip.Subtitle" xml:space="preserve">
+    <value>兩次輸入的密碼不一致，請重新檢查密碼</value>
+  </data>
+  <data name="SAWelcomeDialogPrimaryPassword.Header" xml:space="preserve">
+    <value>主要密碼</value>
+  </data>
+  <data name="SAWelcomeDialogPrimaryPassword.PlaceholderText" xml:space="preserve">
+    <value>設定解鎖密碼</value>
+  </data>
+  <data name="SAWelcomeDialogSecureLevel.Header" xml:space="preserve">
+    <value>安全性等級</value>
+  </data>
+  <data name="SAWelcomeDialogUseWH.Content" xml:space="preserve">
+    <value>使用Windows Hello代替密碼驗證</value>
+  </data>
+  <data name="SearchFlyoutCancel.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="SearchFlyoutConfirm.Content" xml:space="preserve">
+    <value>搜尋</value>
+  </data>
+  <data name="SearchFlyoutDeepRadio.Content" xml:space="preserve">
+    <value>深度搜尋所有路徑（緩慢）</value>
+  </data>
+  <data name="SearchFlyoutShallowRadio.Content" xml:space="preserve">
+    <value>只搜尋目前路徑（快速）</value>
+  </data>
+  <data name="SearchHasItem.Text" xml:space="preserve">
+    <value>沒有結果</value>
+  </data>
+  <data name="SearchingText.Text" xml:space="preserve">
+    <value>搜尋中...</value>
+  </data>
+  <data name="SearchLocation.Label" xml:space="preserve">
+    <value>開啟檔案位置</value>
+  </data>
+  <data name="SearchModified.Text" xml:space="preserve">
+    <value>修改日期</value>
+  </data>
+  <data name="SearchName.Text" xml:space="preserve">
+    <value>名稱(N)</value>
+  </data>
+  <data name="SearchPath.Text" xml:space="preserve">
+    <value>路徑</value>
+  </data>
+  <data name="SearchProperties.Label" xml:space="preserve">
+    <value>內容</value>
+  </data>
+  <data name="SearchResult.Text" xml:space="preserve">
+    <value>搜尋結果</value>
+  </data>
+  <data name="SearchSize.Text" xml:space="preserve">
+    <value>大小</value>
+  </data>
+  <data name="SearchCopyPath.Label" xml:space="preserve">
+    <value>複製完整路徑</value>
+  </data>
+  <data name="SearchTip.CloseButtonContent" xml:space="preserve">
+    <value>我知道了</value>
+  </data>
+  <data name="SearchTip.Subtitle" xml:space="preserve">
+    <value>清空搜尋框或單擊任何資料夾來退出搜尋狀態</value>
+  </data>
+  <data name="SearchType.Text" xml:space="preserve">
+    <value>類型</value>
+  </data>
+  <data name="SecureArea.Content" xml:space="preserve">
+    <value>加密庫</value>
+  </data>
+  <data name="SecureAreaAddFileButton.Label" xml:space="preserve">
+    <value>新增檔案</value>
+  </data>
+  <data name="SecureAreaDeleteButton.Label" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="SecureAreaDropText.Text" xml:space="preserve">
+    <value>單擊按鈕或將檔案移動到此處</value>
+  </data>
+  <data name="SecureAreaEncryptTip.Subtitle" xml:space="preserve">
+    <value>預設狀況下，AES-128-CBC模式已經提供了足夠的安全性，但是您也可以選擇AES-256-CBC模式以獲得更好的安全保護。 Intel Core第二代處理器及更高版本的處理器支持兩種硬體加速模式，因此不需擔心性能的問題</value>
+  </data>
+  <data name="SecureAreaEncryptTip.Title" xml:space="preserve">
+    <value>進階加密標準模式</value>
+  </data>
+  <data name="SecureAreaExportButton.Label" xml:space="preserve">
+    <value>輸出</value>
+  </data>
+  <data name="SecureAreaIntroDialog.CloseButtonText" xml:space="preserve">
+    <value>返回</value>
+  </data>
+  <data name="SecureAreaIntroDialog.PrimaryButtonText" xml:space="preserve">
+    <value>解鎖</value>
+  </data>
+  <data name="SecureAreaIntroDialog.Title" xml:space="preserve">
+    <value>加密庫介紹</value>
+  </data>
+  <data name="SecureAreaProperty.Label" xml:space="preserve">
+    <value>內容</value>
+  </data>
+  <data name="SecureAreaRenameButton.Label" xml:space="preserve">
+    <value>重新命名</value>
+  </data>
+  <data name="SecureAreaSettingAboutHeader.Text" xml:space="preserve">
+    <value>關於</value>
+  </data>
+  <data name="SecureAreaSettingAboutText1.Text" xml:space="preserve">
+    <value>RX內建資料庫</value>
+  </data>
+  <data name="SecureAreaSettingAboutText2.Text" xml:space="preserve">
+    <value>基於AES-CBC算法及結合多種系統級安全認證措施，確保檔案安全無虞</value>
+  </data>
+  <data name="SecureAreaSettingAESMode1.Content" xml:space="preserve">
+    <value>AES-128bit CBC 模式</value>
+  </data>
+  <data name="SecureAreaSettingAESMode2.Content" xml:space="preserve">
+    <value>AES-256bit CBC 模式</value>
+  </data>
+  <data name="SecureAreaSettingButton.Label" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="SecureAreaSettingEncryptionHeader.Text" xml:space="preserve">
+    <value>加密方式</value>
+  </data>
+  <data name="SecureAreaSettingHeader.Text" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="SecureAreaSettingLockMode1.Content" xml:space="preserve">
+    <value>離開此頁面時立即鎖定</value>
+  </data>
+  <data name="SecureAreaSettingLockMode2.Content" xml:space="preserve">
+    <value>該應式關閉時鎖定</value>
+  </data>
+  <data name="SecureAreaSettingLockModeHeader.Text" xml:space="preserve">
+    <value>加密庫鎖定模式</value>
+  </data>
+  <data name="SecureAreaSettingUseWH.Header" xml:space="preserve">
+    <value>使用Windows Hello簡化身份驗證</value>
+  </data>
+  <data name="SecureAreaWHTip.Subtitle" xml:space="preserve">
+    <value>使用Windows Hello增強加密目的安全性，Windows Hello將必要的憑據保存到TPM安全芯片。 TPM芯片不受任何軟件和硬件漏洞的影響，因此不會在任何未授權狀態下公開這些憑據。 RX利用此功能，結合AES加密，提供了無與倫比的安全保護</value>
+  </data>
+  <data name="SecureAreaWHTip.Title" xml:space="preserve">
+    <value>支持Windows Hello認證</value>
+  </data>
+  <data name="SettingAbout.Text" xml:space="preserve">
+    <value>關於</value>
+  </data>
+  <data name="SettingAdvance.Text" xml:space="preserve">
+    <value>進階</value>
+  </data>
+  <data name="SettingBasicText.Text" xml:space="preserve">
+    <value>基本</value>
+  </data>
+  <data name="SettingCleanup.Content" xml:space="preserve">
+    <value>復原並重置</value>
+  </data>
+  <data name="SettingFolderOpenMethod.Header" xml:space="preserve">
+    <value>資料夾開啟方式</value>
+  </data>
+  <data name="SettingLike.Text" xml:space="preserve">
+    <value>為應用程式評分</value>
+  </data>
+  <data name="SettingOpenLeftArea.Header" xml:space="preserve">
+    <value>側邊欄</value>
+  </data>
+  <data name="SettingOpenLeftArea.OffContent" xml:space="preserve">
+    <value>隱藏視窗</value>
+  </data>
+  <data name="SettingOpenLeftArea.OnContent" xml:space="preserve">
+    <value>顯示</value>
+  </data>
+  <data name="SettingOther.Text" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="SettingPageColorPickerTip.Title" xml:space="preserve">
+    <value>透明主題顏色</value>
+  </data>
+  <data name="SettingPageLuminosityTip.Title" xml:space="preserve">
+    <value>背景透明度</value>
+  </data>
+  <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
+    <value>背景透明度決定了背景透光度。 數值越小，透明主題比例越高，背景透光度的比例越高。此功能在Win10-1903以下的版本中不可用。</value>
+  </data>
+  <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
+    <value>調整此數值可能會導致內容不清楚或無法清晰識別</value>
+  </data>
+  <data name="SettingPageOpacityTip.Title" xml:space="preserve">
+    <value>顏色透明度</value>
+  </data>
+  <data name="SettingPageOpacityTipText1.Text" xml:space="preserve">
+    <value>透明效果顏色的透明度，該數值越大，透明效果顏色越淺，越小表示顏色越深</value>
+  </data>
+  <data name="SettingPageOpacityTipText2.Text" xml:space="preserve">
+    <value>推薦模式下此數值為60%</value>
+  </data>
+  <data name="SettingPageThemeColorButton.Content" xml:space="preserve">
+    <value>透明效果主題色</value>
+  </data>
+  <data name="SettingPageTintLuminositySliderHeader.Text" xml:space="preserve">
+    <value>透明效果透光率</value>
+  </data>
+  <data name="SettingPageTintOpacitySliderHeader.Text" xml:space="preserve">
+    <value>透明效果顏色透明度</value>
+  </data>
+  <data name="SettingPageUIMode.Header" xml:space="preserve">
+    <value>模式</value>
+  </data>
+  <data name="SettingPrivacyPolicyLink.Content" xml:space="preserve">
+    <value>用戶隱私聲明</value>
+  </data>
+  <data name="SettingRecovery.Text" xml:space="preserve">
+    <value>復原</value>
+  </data>
+  <data name="SettingSettingPrivacyPolicyTitle.Text" xml:space="preserve">
+    <value>隱私權</value>
+  </data>
+  <data name="SettingPurchase.Content" xml:space="preserve">
+    <value>購買此程式（贊助）</value>
+  </data>
+  <data name="SettingSystemInfo.Content" xml:space="preserve">
+    <value>系統資訊</value>
+  </data>
+  <data name="SettingUpdateLogButton.Content" xml:space="preserve">
+    <value>檢式更新日誌</value>
+  </data>
+  <data name="SettingVersion.Text" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="SystemInfoDialog.CloseButtonText" xml:space="preserve">
+    <value>關閉</value>
+  </data>
+  <data name="SystemInfoDialog.Title" xml:space="preserve">
+    <value>系統資訊</value>
+  </data>
+  <data name="SystemInfoDialogBasicInfo.Text" xml:space="preserve">
+    <value>基本資訊</value>
+  </data>
+  <data name="SystemInfoDialogCPUArchitecture.Text" xml:space="preserve">
+    <value>CPU 架構</value>
+  </data>
+  <data name="SystemInfoDialogCPUCache.Text" xml:space="preserve">
+    <value>CPU 快取</value>
+  </data>
+  <data name="SystemInfoDialogCPUCore.Text" xml:space="preserve">
+    <value>CPU 核心:</value>
+  </data>
+  <data name="SystemInfoDialogCPUFeature.Text" xml:space="preserve">
+    <value>CPU 功能</value>
+  </data>
+  <data name="SystemInfoDialogCPUInfo.Text" xml:space="preserve">
+    <value>CPU 資訊</value>
+  </data>
+  <data name="SystemInfoDialogCPUModel.Text" xml:space="preserve">
+    <value>CPU 型號</value>
+  </data>
+  <data name="SystemInfoDialogCurrentColorMode.Text" xml:space="preserve">
+    <value>Current color mode</value>
+  </data>
+  <data name="SystemInfoDialogDeivceModel.Text" xml:space="preserve">
+    <value>裝置型號</value>
+  </data>
+  <data name="SystemInfoDialogDeviceName.Text" xml:space="preserve">
+    <value>裝置名稱</value>
+  </data>
+  <data name="SystemInfoDialogDisplayTitle.Text" xml:space="preserve">
+    <value>螢幕資訊</value>
+  </data>
+  <data name="SystemInfoDialogGPUInfo.Text" xml:space="preserve">
+    <value>GPU資訊</value>
+  </data>
+  <data name="SystemInfoDialogManufacturer.Text" xml:space="preserve">
+    <value>製造商</value>
+  </data>
+  <data name="SystemInfoDialogMemoryInfo.Text" xml:space="preserve">
+    <value>記憶體資訊</value>
+  </data>
+  <data name="SystemInfoDialogNetwork.Text" xml:space="preserve">
+    <value>網路資訊</value>
+  </data>
+  <data name="SystemInfoDialogPixeldensity.Text" xml:space="preserve">
+    <value>像素密度</value>
+  </data>
+  <data name="SystemInfoDialogResolution.Text" xml:space="preserve">
+    <value>解析度</value>
+  </data>
+  <data name="SystemInfoDialogResolutionScale.Text" xml:space="preserve">
+    <value>Windows 縮放度</value>
+  </data>
+  <data name="SystemInfoDialogScreenSize.Text" xml:space="preserve">
+    <value>螢幕大小</value>
+  </data>
+  <data name="SystemInfoDialogWindowsLanguage.Text" xml:space="preserve">
+    <value>Windows 語言</value>
+  </data>
+  <data name="SystemInfoDialogWindowsVersion.Text" xml:space="preserve">
+    <value>Windows 版本:</value>
+  </data>
+  <data name="SystemManagerOpen.Label" xml:space="preserve">
+    <value>在 Windows 檔案總管中開啟</value>
+  </data>
+  <data name="SystemShare.Text" xml:space="preserve">
+    <value>系統分享</value>
+  </data>
+  <data name="TextViewerCancel.Label" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="TextViewerLoading.Text" xml:space="preserve">
+    <value>正在讀取...</value>
+  </data>
+  <data name="TextViewerSave.Label" xml:space="preserve">
+    <value>儲存</value>
+  </data>
+  <data name="ThisPC.Content" xml:space="preserve">
+    <value>我的電腦</value>
+  </data>
+  <data name="Transcode.Text" xml:space="preserve">
+    <value>轉檔</value>
+  </data>
+  <data name="TranscodeBoost.Content" xml:space="preserve">
+    <value>使用硬體加速(推薦)</value>
+  </data>
+  <data name="TranscodeDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="TranscodeDialog.PrimaryButtonText" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="TranscodeDialog.Title" xml:space="preserve">
+    <value>轉檔</value>
+  </data>
+  <data name="TranscodeFormat.Header" xml:space="preserve">
+    <value>轉檔格式</value>
+  </data>
+  <data name="TranscodeImageDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="TranscodeImageDialog.PrimaryButtonText" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="TranscodeImageDialog.Title" xml:space="preserve">
+    <value>Transcode</value>
+  </data>
+  <data name="TranscodeImageDialogEnableScale.Content" xml:space="preserve">
+    <value>啟用縮放</value>
+  </data>
+  <data name="TranscodeImageDialogFormat.Header" xml:space="preserve">
+    <value>目標檔案格式</value>
+  </data>
+  <data name="TranscodeImageDialogPickLocationButton.Content" xml:space="preserve">
+    <value>儲存位置</value>
+  </data>
+  <data name="TranscodeImageDialogScale.Header" xml:space="preserve">
+    <value>比例</value>
+  </data>
+  <data name="TranscodeImageDialogTips.Subtitle" xml:space="preserve">
+    <value>請選擇保存位置</value>
+  </data>
+  <data name="TranscodeImageDialogTips.Title" xml:space="preserve">
+    <value>小提示</value>
+  </data>
+  <data name="TranscodeImageDialogZoomMode.Header" xml:space="preserve">
+    <value>縮放模式</value>
+  </data>
+  <data name="TranscodeQuality.Header" xml:space="preserve">
+    <value>品質</value>
+  </data>
+  <data name="UpdateLogDialog.CloseButtonText" xml:space="preserve">
+    <value>我知道了</value>
+  </data>
+  <data name="UpdateLogDialog.Title" xml:space="preserve">
+    <value>最近更新</value>
+  </data>
+  <data name="USBDisplayName" xml:space="preserve">
+    <value>開啟及預覽文件</value>
+  </data>
+  <data name="UserFolderDialog.CloseButtonText" xml:space="preserve">
+    <value>立刻略過</value>
+  </data>
+  <data name="UserFolderDialog.PrimaryButtonText" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="UserFolderDialog.Title" xml:space="preserve">
+    <value>選擇資料庫資料夾</value>
+  </data>
+  <data name="UserFolderNotReferTip.Subtitle" xml:space="preserve">
+    <value>請指定資料夾後確認</value>
+  </data>
+  <data name="UserFolderReferButton.Content" xml:space="preserve">
+    <value>指定...</value>
+  </data>
+  <data name="UserFolderText1.Text" xml:space="preserve">
+    <value>無法自動判定資料庫資料夾</value>
+  </data>
+  <data name="UserFolderText2.Text" xml:space="preserve">
+    <value>請手動指定資料庫</value>
+  </data>
+  <data name="VideoEditDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="VideoEditDialog.PrimaryButtonText" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="VideoEditDialog.Title" xml:space="preserve">
+    <value>剪輯</value>
+  </data>
+  <data name="VideoEditDialogErrorTip.Subtitle" xml:space="preserve">
+    <value>時間格式不正確，請重新輸入</value>
+  </data>
+  <data name="VideoEditDialogErrorTip.Title" xml:space="preserve">
+    <value>小提示</value>
+  </data>
+  <data name="VideoEditDialogText1.Text" xml:space="preserve">
+    <value>裁剪</value>
+  </data>
+  <data name="VideoEditDialogText2.Text" xml:space="preserve">
+    <value>輸出編碼配置</value>
+  </data>
+  <data name="VideoEditDialogText3.Text" xml:space="preserve">
+    <value>輸出品質</value>
+  </data>
+  <data name="VideoEditDialogText4.Text" xml:space="preserve">
+    <value>裁剪精準度</value>
+  </data>
+  <data name="VideoEditDialogUseSameProfile.Text" xml:space="preserve">
+    <value>使用與源視頻相同的編碼配置</value>
+  </data>
+  <data name="VideoMerge.Text" xml:space="preserve">
+    <value>合併</value>
+  </data>
+  <data name="VideoMontage.Text" xml:space="preserve">
+    <value>剪輯</value>
+  </data>
+  <data name="WebAllowDB.Header" xml:space="preserve">
+    <value>允許使用IndexedDB API</value>
+  </data>
+  <data name="WebAllowJS.Header" xml:space="preserve">
+    <value>允許執行JavaScript</value>
+  </data>
+  <data name="WebClearCache.Content" xml:space="preserve">
+    <value>刪除快取與歷史</value>
+  </data>
+  <data name="WebDefaultSearchEngine.Header" xml:space="preserve">
+    <value>預設搜尋引擎</value>
+  </data>
+  <data name="WebDelete.Label" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="WebDonwloadLoaction.Text" xml:space="preserve">
+    <value>預設下載位置</value>
+  </data>
+  <data name="WebDownloadButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>下載列表</value>
+  </data>
+  <data name="WebDownloadCancel.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="WebDownloadCancelText.Text" xml:space="preserve">
+    <value>已取消</value>
+  </data>
+  <data name="WebDownloadCompleteText.Text" xml:space="preserve">
+    <value>完成</value>
+  </data>
+  <data name="WebDownloadErrorText.Text" xml:space="preserve">
+    <value>錯誤</value>
+  </data>
+  <data name="WebDownloadList.Text" xml:space="preserve">
+    <value>下載列表</value>
+  </data>
+  <data name="WebDownloadListCopyLink.Label" xml:space="preserve">
+    <value>複製連結</value>
+  </data>
+  <data name="WebDownloadListEmpty.Text" xml:space="preserve">
+    <value>空白</value>
+  </data>
+  <data name="WebDownloadListOpenLocation.Label" xml:space="preserve">
+    <value>開啟檔案位置</value>
+  </data>
+  <data name="WebDownloadPause.Content" xml:space="preserve">
+    <value>暫停</value>
+  </data>
+  <data name="WebDownloadPauseCancel.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="WebDownloadPauseContinue.Content" xml:space="preserve">
+    <value>繼續</value>
+  </data>
+  <data name="WebDownloadPauseText.Text" xml:space="preserve">
+    <value>已暫停</value>
+  </data>
+  <data name="WebEdit.Label" xml:space="preserve">
+    <value>編輯</value>
+  </data>
+  <data name="WebExplorerButton.Content" xml:space="preserve">
+    <value>瀏覽</value>
+  </data>
+  <data name="WebFavButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>我的最愛</value>
+  </data>
+  <data name="WebFavFlyoutCancel.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="WebFavFlyoutConfirm.Content" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="WebFavName.Header" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="WebFavouriteClear.Text" xml:space="preserve">
+    <value>全部刪除</value>
+  </data>
+  <data name="WebFavouriteClearCancel.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="WebFavouriteClearConfirm.Content" xml:space="preserve">
+    <value>繼續</value>
+  </data>
+  <data name="WebFavouriteClearText.Text" xml:space="preserve">
+    <value>要刪除所有標籤嗎?</value>
+  </data>
+  <data name="WebFavouriteFlyoutDelete.Label" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="WebFavouriteListTitle.Header" xml:space="preserve">
+    <value>我的最愛</value>
+  </data>
+  <data name="WebFavouriteText.Text" xml:space="preserve">
+    <value>我的最愛</value>
+  </data>
+  <data name="WebHistoryClear.Text" xml:space="preserve">
+    <value>全部清除</value>
+  </data>
+  <data name="WebHistoryClearCancel.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="WebHistoryClearConfirm.Content" xml:space="preserve">
+    <value>繼續</value>
+  </data>
+  <data name="WebHistoryClearText.Text" xml:space="preserve">
+    <value>要清除所有歷史記錄?</value>
+  </data>
+  <data name="WebHistoryEmptyTip.Text" xml:space="preserve">
+    <value>空白</value>
+  </data>
+  <data name="WebHistoryTitle.Header" xml:space="preserve">
+    <value>歷史記錄</value>
+  </data>
+  <data name="WebInPrivate.Header" xml:space="preserve">
+    <value>隱私(InPrivate)模式</value>
+  </data>
+  <data name="WebInPrivateConfirm.Content" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="WebInPrivateExit.Content" xml:space="preserve">
+    <value>離開隱私模式</value>
+  </data>
+  <data name="WebInPrivateText.Text" xml:space="preserve">
+    <value>瀏覽器已進入InPrivate隱私模式，將不會記錄任何資訊</value>
+  </data>
+  <data name="WebScreenShot.Content" xml:space="preserve">
+    <value>螢幕擷取並透過藍牙發送</value>
+  </data>
+  <data name="WebSettingAbout.Content" xml:space="preserve">
+    <value>關於</value>
+  </data>
+  <data name="WebSettingAdvanceTile.Text" xml:space="preserve">
+    <value>進階</value>
+  </data>
+  <data name="WebSettingButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="WebSettingClearFlyCancel.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="WebSettingClearFlyConfirm.Content" xml:space="preserve">
+    <value>繼續</value>
+  </data>
+  <data name="WebSettingClearFlyText.Text" xml:space="preserve">
+    <value>包括瀏覽歷史記錄在內的所有緩存將被刪除</value>
+  </data>
+  <data name="WebSettingOtherTitle.Text" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="WebSettingShowMainPage.Header" xml:space="preserve">
+    <value>顯示首頁按鈕</value>
+  </data>
+  <data name="WebSettingTitle.Text" xml:space="preserve">
+    <value>自訂 </value>
+  </data>
+  <data name="WebSettingUrl.Header" xml:space="preserve">
+    <value>首頁網址</value>
+  </data>
+  <data name="WebSettingUrl.PlaceholderText" xml:space="preserve">
+    <value>輸入網址</value>
+  </data>
+  <data name="WebSpecificUrl.Header" xml:space="preserve">
+    <value>頁面網址</value>
+  </data>
+  <data name="WebSpecificUrl.PlaceholderText" xml:space="preserve">
+    <value>輸入網址</value>
+  </data>
+  <data name="WebSuggestBox.PlaceholderText" xml:space="preserve">
+    <value>搜尋或是輸入網址</value>
+  </data>
+  <data name="WebTabOpenMethod.Header" xml:space="preserve">
+    <value>開啟檔案...</value>
+  </data>
+  <data name="WevFavEmptyTip.Text" xml:space="preserve">
+    <value>空白</value>
+  </data>
+  <data name="WIFIShare.Text" xml:space="preserve">
+    <value>Wi-Fi</value>
+  </data>
+  <data name="WIFIShareText.Text" xml:space="preserve">
+    <value>傳輸期間請勿關閉此頁面</value>
+  </data>
+  <data name="WIFIShareTip.Title" xml:space="preserve">
+    <value>Wi-Fi 分享</value>
+  </data>
+  <data name="ZipDialog.PrimaryButtonText" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="ZipDialog.Title" xml:space="preserve">
+    <value>Zip 壓縮選項</value>
+  </data>
+  <data name="ZipDialogCheckBox.Content" xml:space="preserve">
+    <value>啟用Zip加密</value>
+  </data>
+  <data name="ZipDialogEncryption.Header" xml:space="preserve">
+    <value>加密方法</value>
+  </data>
+  <data name="ZipDialogLevel.Header" xml:space="preserve">
+    <value>壓縮等級</value>
+  </data>
+  <data name="ZipDialogName.Header" xml:space="preserve">
+    <value>檔案名稱</value>
+  </data>
+  <data name="ZipDialogPassword.Header" xml:space="preserve">
+    <value>密碼</value>
+  </data>
+  <data name="ZipDialogPassword.PlaceholderText" xml:space="preserve">
+    <value>輸入密碼</value>
+  </data>
+  <data name="Zip.Label" xml:space="preserve">
+    <value>壓縮</value>
+  </data>
+  <data name="ZipDialog.CloseButtonText" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="SettingTreeViewDetach.Header" xml:space="preserve">
+    <value>資料夾目錄</value>
+  </data>
+  <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
+    <value>隱藏視窗</value>
+  </data>
+  <data name="SettingTreeViewDetach.OnContent" xml:space="preserve">
+    <value>顯示.</value>
+  </data>
+  <data name="EnableQuicklook.OffContent" xml:space="preserve">
+    <value>停用</value>
+  </data>
+  <data name="EnableQuicklook.OnContent" xml:space="preserve">
+    <value>啟用</value>
+  </data>
+  <data name="QuicklookHeader.Text" xml:space="preserve">
+    <value>Quicklook</value>
+  </data>
+  <data name="QuicklookTip.Subtitle" xml:space="preserve">
+    <value>QuickLook是一個輔助軟體，可方便快捷地查看檔案內容。若要啟用此功能，必須預先安裝QuickLook並確保QuickLook正常執行。 您可以在RX 檔案總管中單擊任意檔案，然後按空格鍵以使用QuickLook</value>
+  </data>
+  <data name="AppName.Text" xml:space="preserve">
+    <value>RX 檔案總管</value>
+  </data>
+  <data name="SettingPersonalize.Text" xml:space="preserve">
+    <value>個人化</value>
+  </data>
+  <data name="LanguageComboBox.Header" xml:space="preserve">
+    <value>語言</value>
+  </data>
+  <data name="NewFileDialogTypeTip.Subtitle" xml:space="preserve">
+    <value>您可以手動輸入需要新增的檔案類型，也可以選擇RX 檔案總管預定義的檔案類型。 但是RX 檔案總管預只能保證正確新增預定義的類型。它不能保證您手動輸入的類型是否可以正確新增。</value>
+  </data>
+  <data name="NewFileDIalogTypeTip.Title" xml:space="preserve">
+    <value>說明</value>
+  </data>
+  <data name="NewFileDialogFileTypeTitle.Text" xml:space="preserve">
+    <value>檔案類型</value>
+  </data>
+  <data name="SubmitIssueOnGithub.Content" xml:space="preserve">
+    <value>在Github上提交問題</value>
+  </data>
+  <data name="DelayLoadNotification_Content_1" xml:space="preserve">
+    <value>無法取得某些檔案的縮圖</value>
+  </data>
+  <data name="DelayLoadNotification_Content_2" xml:space="preserve">
+    <value>請耐心等待</value>
+  </data>
+  <data name="DelayLoadNotification_Title" xml:space="preserve">
+    <value>讀取可能會延遲</value>
+  </data>
+  <data name="FeedBackItem_SupportDescription_Negative" xml:space="preserve">
+    <value>不同意</value>
+  </data>
+  <data name="FeedBackItem_SupportDescription_Positive" xml:space="preserve">
+    <value>同意</value>
+  </data>
+  <data name="Common_Dialog_CloseButton" xml:space="preserve">
+    <value>我知道了</value>
+  </data>
+  <data name="Network_Error_Dialog_Content" xml:space="preserve">
+    <value>由於網絡原因無法執行此操作</value>
+  </data>
+  <data name="Common_Dialog_ErrorTitle" xml:space="preserve">
+    <value>錯誤</value>
+  </data>
+  <data name="PairedText" xml:space="preserve">
+    <value>已配對</value>
+  </data>
+  <data name="PairText" xml:space="preserve">
+    <value>配對</value>
+  </data>
+  <data name="ReadyToPairText" xml:space="preserve">
+    <value>準備好進行配對</value>
+  </data>
+  <data name="UnknownText" xml:space="preserve">
+    <value>不明</value>
+  </data>
+  <data name="UnpairText" xml:space="preserve">
+    <value>取消配對</value>
+  </data>
+  <data name="Bluetooth_Transfer_Description_1" xml:space="preserve">
+    <value>目前裝置停止了檔案傳輸</value>
+  </data>
+  <data name="Bluetooth_Transfer_Description_2" xml:space="preserve">
+    <value>檔案傳輸停止</value>
+  </data>
+  <data name="Bluetooth_Transfer_Description_3" xml:space="preserve">
+    <value>連線失敗:</value>
+    <comment>Example: Connection failed: [Reason]</comment>
+  </data>
+  <data name="Bluetooth_Transfer_Description_4" xml:space="preserve">
+    <value>檔案傳輸完成</value>
+  </data>
+  <data name="Bluetooth_Transfer_DeviceName" xml:space="preserve">
+    <value>目標裝置:</value>
+    <comment>Example: Target device: [Bluetooth Device Name]</comment>
+  </data>
+  <data name="Bluetooth_Transfer_ExitButton" xml:space="preserve">
+    <value>結束</value>
+  </data>
+  <data name="Bluetooth_Transfer_FileName" xml:space="preserve">
+    <value>傳輸檔案：</value>
+    <comment>Example: File to transfer:  [FileName]</comment>
+  </data>
+  <data name="Bluetooth_Transfer_RetryButton" xml:space="preserve">
+    <value>重試</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_1" xml:space="preserve">
+    <value>傳送中...</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_2" xml:space="preserve">
+    <value>傳輸停止</value>
+  </data>
+  <data name="Bluetooth_Transfer_Status_3" xml:space="preserve">
+    <value>傳輸完成</value>
+  </data>
+  <data name="Crop_Toast_Cancel_Text_1" xml:space="preserve">
+    <value>壓縮任務已取消</value>
+  </data>
+  <data name="Crop_Toast_Cancel_Text_2" xml:space="preserve">
+    <value>您可以嘗試重新啟動該任務</value>
+  </data>
+  <data name="Crop_Toast_Complete_Text" xml:space="preserve">
+    <value>壓縮任務已完成!</value>
+  </data>
+  <data name="Crop_Toast_ProbarTitle" xml:space="preserve">
+    <value>正在壓縮...</value>
+  </data>
+  <data name="Crop_Toast_Title" xml:space="preserve">
+    <value>壓縮:</value>
+  </data>
+  <data name="Disk_Capacity_Description" xml:space="preserve">
+    <value>可用</value>
+    <comment>Describe the available capacity and total capacity of the disk, such as "128GB free of 256GB"</comment>
+  </data>
+  <data name="EnDecode_Dialog_Content" xml:space="preserve">
+    <value>由於缺少編碼器或不支持此操作，無法轉換圖像格式</value>
+  </data>
+  <data name="GeneralTransformer_Crop_Cancel" xml:space="preserve">
+    <value>影片壓縮任務已取消</value>
+  </data>
+  <data name="GeneralTransformer_Crop_Error" xml:space="preserve">
+    <value>壓縮影片時發現未知錯誤</value>
+  </data>
+  <data name="GeneralTransformer_Crop_Success" xml:space="preserve">
+    <value>影片壓縮完成</value>
+  </data>
+  <data name="GeneralTransformer_Merge_Cancel" xml:space="preserve">
+    <value>影片合併已取消</value>
+  </data>
+  <data name="GeneralTransformer_Merge_Error" xml:space="preserve">
+    <value>合併影片時發現未知錯誤</value>
+  </data>
+  <data name="GeneralTransformer_Merge_Success" xml:space="preserve">
+    <value>影片合併成功</value>
+  </data>
+  <data name="GeneralTransformer_Transcode_Cancel" xml:space="preserve">
+    <value>轉檔已取消</value>
+  </data>
+  <data name="GeneralTransformer_Transcode_Failure" xml:space="preserve">
+    <value>轉檔失敗:</value>
+  </data>
+  <data name="GeneralTransformer_Transcode_NotSupport" xml:space="preserve">
+    <value>編碼格式不支持</value>
+  </data>
+  <data name="GeneralTransformer_Transcode_Success" xml:space="preserve">
+    <value>轉檔完成</value>
+  </data>
+  <data name="Merge_Toast_Cancel_Text_1" xml:space="preserve">
+    <value>合併已取消</value>
+  </data>
+  <data name="Merge_Toast_Cancel_Text_2" xml:space="preserve">
+    <value>您可以嘗試重新啟動該任務</value>
+  </data>
+  <data name="Merge_Toast_Complete_Text" xml:space="preserve">
+    <value>合併成功</value>
+  </data>
+  <data name="Merge_Toast_ProbarTitle" xml:space="preserve">
+    <value>正在合併...</value>
+  </data>
+  <data name="Merge_Toast_Title" xml:space="preserve">
+    <value>合併影片...</value>
+  </data>
+  <data name="Toast_ClickToCancel_Text" xml:space="preserve">
+    <value>單擊提示取消</value>
+  </data>
+  <data name="Toast_ClickToClear_Text" xml:space="preserve">
+    <value>單擊移除提示</value>
+  </data>
+  <data name="Transcode_Toast_Cancel_Text_1" xml:space="preserve">
+    <value>轉碼取消</value>
+  </data>
+  <data name="Transcode_Toast_Cancel_Text_2" xml:space="preserve">
+    <value>您可以嘗試重新轉檔</value>
+  </data>
+  <data name="Transcode_Toast_Complete_Text_1" xml:space="preserve">
+    <value>轉檔成功</value>
+  </data>
+  <data name="Transcode_Toast_Complete_Text_2" xml:space="preserve">
+    <value>檔案已成功轉換為</value>
+    <comment>Example: FILE1 has been successfully transcoded to FILE2</comment>
+  </data>
+  <data name="Transcode_Toast_Title" xml:space="preserve">
+    <value>轉檔:</value>
+  </data>
+  <data name="WIFIShare_Error_Web_Content" xml:space="preserve">
+    <value>找不到指定的資源，請檢查網址</value>
+  </data>
+  <data name="BluetoothUI_Status_Text_1" xml:space="preserve">
+    <value>搜尋中...</value>
+  </data>
+  <data name="BluetoothUI_Status_Text_2" xml:space="preserve">
+    <value>搜尋完成</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_1" xml:space="preserve">
+    <value>請先選擇已配對的設備</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_2" xml:space="preserve">
+    <value>無法連接到此藍牙設備，請打開此設備的藍牙</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_3" xml:space="preserve">
+    <value>無法發現支持藍牙設備的Obex Object Push服務</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_4" xml:space="preserve">
+    <value>配對失敗</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_5" xml:space="preserve">
+    <value>請確認PIN碼與配對的設備相同</value>
+  </data>
+  <data name="BluetoothUI_Tips_Text_6" xml:space="preserve">
+    <value>請確認是否與設備配對</value>
+  </data>
+  <data name="Bluetooth_Transfer_Description_5" xml:space="preserve">
+    <value>檔案傳輸意外終止：</value>
+    <comment>Example: File transfer terminated unexpectedly: &lt;Reason&gt;</comment>
+  </data>
+  <data name="Bluetooth_Transfer_Description_6" xml:space="preserve">
+    <value>無法重新連接目標設備</value>
+  </data>
+  <data name="Device_Capacity_Unit" xml:space="preserve">
+    <value>位元組</value>
+    <comment>Example: 1024 bytes</comment>
+  </data>
+  <data name="Device_Type_1" xml:space="preserve">
+    <value>本地磁碟</value>
+  </data>
+  <data name="Device_Type_2" xml:space="preserve">
+    <value>網路磁碟機</value>
+  </data>
+  <data name="Device_Type_3" xml:space="preserve">
+    <value>抽取式磁碟機</value>
+  </data>
+  <data name="Device_Type_4" xml:space="preserve">
+    <value>記憶體硬碟</value>
+  </data>
+  <data name="Device_Type_5" xml:space="preserve">
+    <value>不明</value>
+  </data>
+  <data name="FileProperty_Bitrate" xml:space="preserve">
+    <value>位元率</value>
+  </data>
+  <data name="FileProperty_Duration" xml:space="preserve">
+    <value>持續時間</value>
+  </data>
+  <data name="FileProperty_Latitude" xml:space="preserve">
+    <value>緯度</value>
+  </data>
+  <data name="FileProperty_Longitude" xml:space="preserve">
+    <value>經度</value>
+  </data>
+  <data name="FileProperty_Resolution" xml:space="preserve">
+    <value>解析度</value>
+  </data>
+  <data name="FileProperty_ShootingDate" xml:space="preserve">
+    <value>拍攝日期</value>
+  </data>
+  <data name="File_Type_Compress_Description" xml:space="preserve">
+    <value>壓縮檔</value>
+    <comment>.zip description</comment>
+  </data>
+  <data name="File_Type_RTF_Description" xml:space="preserve">
+    <value>RTF 文件</value>
+    <comment>.rtf description</comment>
+  </data>
+  <data name="File_Type_TXT_Description" xml:space="preserve">
+    <value>文字檔</value>
+    <comment>.txt description</comment>
+  </data>
+  <data name="ProgramPicker_Dialog_BuiltInViewer" xml:space="preserve">
+    <value>RX 內置檢視器</value>
+  </data>
+  <data name="ProgramPicker_Dialog_BuiltInViewer_Description" xml:space="preserve">
+    <value>RX 檔案總管提供基本的觀看功能</value>
+  </data>
+  <data name="ProgramPicker_Dialog_Title_1" xml:space="preserve">
+    <value>繼續使用</value>
+  </data>
+  <data name="ProgramPicker_Dialog_Title_2" xml:space="preserve">
+    <value>選擇其他程式</value>
+  </data>
+  <data name="SizeProperty_Calculating_Text" xml:space="preserve">
+    <value>計算中...</value>
+  </data>
+  <data name="Common_Dialog_TipTitle" xml:space="preserve">
+    <value>小提示</value>
+  </data>
+  <data name="Common_Dialog_WarningTitle" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="Crash_Screenshot_Send_Text" xml:space="preserve">
+    <value>崩潰前的螢幕截圖（請透過電子郵件附件發送）</value>
+  </data>
+  <data name="CropperPage_Custom_Text" xml:space="preserve">
+    <value>自訂 </value>
+  </data>
+  <data name="CropperPage_Filter_Type_1" xml:space="preserve">
+    <value>來源</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_2" xml:space="preserve">
+    <value>反轉</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_3" xml:space="preserve">
+    <value>灰色</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_4" xml:space="preserve">
+    <value>二進位</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_5" xml:space="preserve">
+    <value>復古</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_6" xml:space="preserve">
+    <value>馬賽克</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_7" xml:space="preserve">
+    <value>繪圖</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_8" xml:space="preserve">
+    <value>朦朧</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="CropperPage_Filter_Type_9" xml:space="preserve">
+    <value>油畫</value>
+    <comment>Image filter</comment>
+  </data>
+  <data name="ExtendedSplash_Access_Tips" xml:space="preserve">
+    <value>請啟用此程式的系統檔案訪問權限，以使其正常運行\r然後重新啟動該程式</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_1" xml:space="preserve">
+    <value>Microsoft 商店</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_10" xml:space="preserve">
+    <value>Instagram</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_11" xml:space="preserve">
+    <value>Twitter</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_2" xml:space="preserve">
+    <value>小算盤</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_3" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_4" xml:space="preserve">
+    <value>寄送電子郵件</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_5" xml:space="preserve">
+    <value>行事曆</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_6" xml:space="preserve">
+    <value>Bing 地圖</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_7" xml:space="preserve">
+    <value>天氣</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_8" xml:space="preserve">
+    <value>Bing</value>
+  </data>
+  <data name="ExtendedSplash_QuickStartItem_Name_9" xml:space="preserve">
+    <value>Facebook </value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_Details" xml:space="preserve">
+    <value>詳細資料</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_Large_Icon" xml:space="preserve">
+    <value>大圖示</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_List" xml:space="preserve">
+    <value>清單</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_Medium_Icon" xml:space="preserve">
+    <value>中圖示</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_Small_Icon" xml:space="preserve">
+    <value>小圖示</value>
+  </data>
+  <data name="FileControl_ItemDisplayMode_Tiles" xml:space="preserve">
+    <value>並排</value>
+  </data>
+  <data name="FolderInfo_File_Count" xml:space="preserve">
+    <value>檔案</value>
+    <comment>Format: [File Count] files, Example: 20 files (in folder)</comment>
+  </data>
+  <data name="FolderInfo_Folder_Count" xml:space="preserve">
+    <value>資料夾</value>
+    <comment>Format: [Folder Count] folders, Example: 20 folders (in folder)</comment>
+  </data>
+  <data name="MainPage_PageDictionary_SecureArea_Label" xml:space="preserve">
+    <value>加密庫</value>
+  </data>
+  <data name="MainPage_PageDictionary_ThisPC_Label" xml:space="preserve">
+    <value>我的電腦</value>
+  </data>
+  <data name="Operate_Text_BluetoothShare" xml:space="preserve">
+    <value>藍牙</value>
+  </data>
+  <data name="Operate_Text_ChooseAnotherApp" xml:space="preserve">
+    <value>選擇其他應用程式</value>
+  </data>
+  <data name="Operate_Text_Compression" xml:space="preserve">
+    <value>壓縮</value>
+  </data>
+  <data name="Operate_Text_Copy" xml:space="preserve">
+    <value>複製</value>
+  </data>
+  <data name="Operate_Text_Create" xml:space="preserve">
+    <value>新增</value>
+  </data>
+  <data name="Operate_Text_CreateFile" xml:space="preserve">
+    <value>新增檔案</value>
+  </data>
+  <data name="Operate_Text_CreateFolder" xml:space="preserve">
+    <value>新增資料夾</value>
+  </data>
+  <data name="Operate_Text_Cut" xml:space="preserve">
+    <value>剪下</value>
+  </data>
+  <data name="Operate_Text_Delete" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="Operate_Text_Edit" xml:space="preserve">
+    <value>編輯</value>
+  </data>
+  <data name="Operate_Text_Merge" xml:space="preserve">
+    <value>合併</value>
+  </data>
+  <data name="Operate_Text_Montage" xml:space="preserve">
+    <value>剪輯</value>
+  </data>
+  <data name="Operate_Text_Open" xml:space="preserve">
+    <value>開啟</value>
+  </data>
+  <data name="Operate_Text_OpenAsAdministrator" xml:space="preserve">
+    <value>以系統管理員執行</value>
+  </data>
+  <data name="Operate_Text_OpenInWinExplorer" xml:space="preserve">
+    <value>在 Windows 檔案總管中開啟</value>
+  </data>
+  <data name="Operate_Text_OpenWith" xml:space="preserve">
+    <value>開啟檔案</value>
+  </data>
+  <data name="Operate_Text_Paste" xml:space="preserve">
+    <value>貼上</value>
+  </data>
+  <data name="Operate_Text_PinToHome" xml:space="preserve">
+    <value>固定在主頁</value>
+  </data>
+  <data name="Operate_Text_Property" xml:space="preserve">
+    <value>內容</value>
+  </data>
+  <data name="Operate_Text_Refresh" xml:space="preserve">
+    <value>重新整理</value>
+  </data>
+  <data name="Operate_Text_Rename" xml:space="preserve">
+    <value>重新命名</value>
+  </data>
+  <data name="Operate_Text_Share" xml:space="preserve">
+    <value>分享</value>
+  </data>
+  <data name="Operate_Text_SystemShare" xml:space="preserve">
+    <value>系統分享</value>
+  </data>
+  <data name="Operate_Text_Transcode" xml:space="preserve">
+    <value>轉檔</value>
+  </data>
+  <data name="Operate_Text_WIFIShare" xml:space="preserve">
+    <value>Wi-Fi</value>
+  </data>
+  <data name="QueueDialog_BackgroundTaskDisable_CloseButton" xml:space="preserve">
+    <value>永不醒</value>
+  </data>
+  <data name="QueueDialog_BackgroundTaskDisable_Content" xml:space="preserve">
+    <value>若禁用了背景運行，更新發佈時，RX 檔案總管將無法及時通知您。 請手動啟用背景運行權限</value>
+  </data>
+  <data name="QueueDialog_BackgroundTaskDisable_PrimaryButton" xml:space="preserve">
+    <value>立即授權</value>
+  </data>
+  <data name="QueueDialog_BackgroundTaskDisable_SecondaryButton" xml:space="preserve">
+    <value>稍後提醒</value>
+  </data>
+  <data name="QueueDialog_Store_NetworkError_Content" xml:space="preserve">
+    <value>由於Microsoft 商店或網路問題而無法打開購買頁面，請稍後再試</value>
+  </data>
+  <data name="QueueDialog_LocateFolderFailure_Content" xml:space="preserve">
+    <value>無法找到資料夾，該資料夾可能已被刪除或移動</value>
+  </data>
+  <data name="QueueDialog_WaitUntilFinish_CloseButton" xml:space="preserve">
+    <value>稍後</value>
+  </data>
+  <data name="QueueDialog_WaitUntilFinish_Content" xml:space="preserve">
+    <value>RX 檔案總管正在運行某些任務，此時關閉可能會導致數據錯誤，是否要繼續？</value>
+  </data>
+  <data name="QueueDialog_WaitUntilFinish_PrimaryButton" xml:space="preserve">
+    <value>立即</value>
+  </data>
+  <data name="QuickStart_Protocal_Application_PlaceholderText" xml:space="preserve">
+    <value>協議</value>
+  </data>
+  <data name="QuickStart_Protocal_Web_PlaceholderText" xml:space="preserve">
+    <value>網站</value>
+  </data>
+  <data name="Reset_Dialog_TotalFile" xml:space="preserve">
+    <value>總計</value>
+  </data>
+  <data name="SearchBox_PlaceholderText" xml:space="preserve">
+    <value>搜尋</value>
+  </data>
+  <data name="SecureArea_AES_128Level_Description" xml:space="preserve">
+    <value>推薦</value>
+  </data>
+  <data name="SecureArea_AES_256Level_Description" xml:space="preserve">
+    <value>較安全</value>
+  </data>
+  <data name="SystemInfo_Dialog_CPU_L1Cache_Text" xml:space="preserve">
+    <value>L1 快取</value>
+  </data>
+  <data name="SystemInfo_Dialog_CPU_L2Cache_Text" xml:space="preserve">
+    <value>L2 快取</value>
+  </data>
+  <data name="SystemInfo_Dialog_CPU_L3Cache_Text" xml:space="preserve">
+    <value>L3 快取</value>
+  </data>
+  <data name="SystemInfo_Dialog_CPU_LogicalCore_Text" xml:space="preserve">
+    <value>邏輯核心</value>
+    <comment>Example: 8 logical core (in CPU)</comment>
+  </data>
+  <data name="SystemInfo_Dialog_CPU_PhysicalCore_Text" xml:space="preserve">
+    <value>物理核心</value>
+    <comment>Example: 4 physical core (in CPU)</comment>
+  </data>
+  <data name="SystemInfo_Dialog_Gateway_Text" xml:space="preserve">
+    <value>閘道</value>
+  </data>
+  <data name="SystemInfo_Dialog_GPU_Memory_Text" xml:space="preserve">
+    <value>GPU 記憶體</value>
+  </data>
+  <data name="SystemInfo_Dialog_GPU_Model_Text" xml:space="preserve">
+    <value>GPU 型號</value>
+  </data>
+  <data name="SystemInfo_Dialog_Memory_Available_Text" xml:space="preserve">
+    <value>可用</value>
+    <comment>Example: Total 1024 MB, 512MB available</comment>
+  </data>
+  <data name="SystemInfo_Dialog_Memory_Total_Text" xml:space="preserve">
+    <value>總計</value>
+    <comment>Example: Total 1024 MB, 512MB available</comment>
+  </data>
+  <data name="SystemInfo_Dialog_Memory_Usage_Text" xml:space="preserve">
+    <value>軟體記憶體使用率</value>
+  </data>
+  <data name="SystemInfo_Dialog_Monitor_MaxBrightness_Text" xml:space="preserve">
+    <value>最大平均亮度</value>
+  </data>
+  <data name="SystemInfo_Dialog_Monitor_PeakBrightness_Text" xml:space="preserve">
+    <value>最高亮度</value>
+  </data>
+  <data name="SystemInfo_Dialog_NetworkAdapter_Text" xml:space="preserve">
+    <value>網路介面卡</value>
+  </data>
+  <data name="SystemInfo_Dialog_Primary_DNS_Text" xml:space="preserve">
+    <value>主要 DNS 伺服器</value>
+  </data>
+  <data name="SystemInfo_Dialog_Secondary_DNS_Text" xml:space="preserve">
+    <value>次要 DNS 伺服器</value>
+  </data>
+  <data name="TeachingTip_PurchaseTip_Subtitle" xml:space="preserve">
+    <value>🎉您可以透過購買此應用程式來支持開發人員繼續開發。🎉\r\r如果不想，可以單擊“下次”取消\r如果要購買，可以單擊“購買”來購買此應用程序 應用程式\r\r提示：購買可以解鎖獨特的檔案安全功能：“加密庫”</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="TeachingTip_PinToMenu_Subtitle" xml:space="preserve">
+    <value>將RX 檔案總管釘選到[開始]和工作列！\r\r★釘選到[開始] \r\r★釘選到工作列</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_ActionButton_1" xml:space="preserve">
+    <value>啟動</value>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_ActionButton_2" xml:space="preserve">
+    <value>稍後</value>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_Text_1" xml:space="preserve">
+    <value>等待使用者完成操作...</value>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_Text_2" xml:space="preserve">
+    <value>請打開檔案系統權限</value>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_Text_3" xml:space="preserve">
+    <value>然後點擊下面的啟動按鈕立即開始</value>
+  </data>
+  <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
+    <value>請不要最小化RX 檔案總管</value>
+  </data>
+  <data name="Toast_EnterBackground_Text_2" xml:space="preserve">
+    <value>Windows系統設定可能會停止RX 檔案總管</value>
+  </data>
+  <data name="Toast_EnterBackground_Text_3" xml:space="preserve">
+    <value>點擊以啟動</value>
+  </data>
+  <data name="Transcode_Dialog_Format_Text" xml:space="preserve">
+    <value>格式</value>
+    <comment>Example: MP4 format</comment>
+  </data>
+  <data name="Transcode_Image_Preview_Resolution" xml:space="preserve">
+    <value>預覽解析度</value>
+  </data>
+  <data name="Transcode_Simaple_Rate_Text" xml:space="preserve">
+    <value>採樣率</value>
+  </data>
+  <data name="VideoEdit_Dialog_Crop_Precision_Level_1" xml:space="preserve">
+    <value>精緻（較慢）</value>
+  </data>
+  <data name="VideoEdit_Dialog_Crop_Precision_Level_2" xml:space="preserve">
+    <value>快速（更快）</value>
+  </data>
+  <data name="Video_Dialog_Encoding_Text" xml:space="preserve">
+    <value>編碼方式</value>
+  </data>
+  <data name="Zip_Dialog_Level_1" xml:space="preserve">
+    <value>最大值</value>
+  </data>
+  <data name="Zip_Dialog_Level_2" xml:space="preserve">
+    <value>標準</value>
+  </data>
+  <data name="Zip_Dialog_Level_3" xml:space="preserve">
+    <value>僅封裝格式</value>
+  </data>
+  <data name="Zip_Dialog_Password_PlaceholderText" xml:space="preserve">
+    <value>輸入解壓密碼</value>
+  </data>
+  <data name="Zip_Dialog_Password_Title" xml:space="preserve">
+    <value>需要密碼</value>
+  </data>
+  <data name="Common_Dialog_CancelButton" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Common_Dialog_ContinueButton" xml:space="preserve">
+    <value>繼續</value>
+  </data>
+  <data name="Common_Dialog_LaterButton" xml:space="preserve">
+    <value>稍後</value>
+  </data>
+  <data name="Common_Dialog_NowButton" xml:space="preserve">
+    <value>現在</value>
+  </data>
+  <data name="Create_NewFolder_Admin_Name" xml:space="preserve">
+    <value>新增資料夾</value>
+  </data>
+  <data name="Drag_Tip_CopyTo" xml:space="preserve">
+    <value>複製到...</value>
+  </data>
+  <data name="Drag_Tip_MoveTo" xml:space="preserve">
+    <value>移動至</value>
+  </data>
+  <data name="Drag_Tip_ReleaseToAdd" xml:space="preserve">
+    <value>發佈到新增檔案</value>
+  </data>
+  <data name="Progress_Tip_CheckingLicense" xml:space="preserve">
+    <value>檢查許可...</value>
+  </data>
+  <data name="Progress_Tip_Compressing" xml:space="preserve">
+    <value>正在壓縮...</value>
+  </data>
+  <data name="Progress_Tip_Copying" xml:space="preserve">
+    <value>複製...</value>
+  </data>
+  <data name="Progress_Tip_Deleting" xml:space="preserve">
+    <value>正在刪除...</value>
+  </data>
+  <data name="Progress_Tip_Exporting" xml:space="preserve">
+    <value>正在輸出...</value>
+  </data>
+  <data name="Progress_Tip_Extracting" xml:space="preserve">
+    <value>正在解壓縮...</value>
+  </data>
+  <data name="Progress_Tip_Importing" xml:space="preserve">
+    <value>正在導入...</value>
+  </data>
+  <data name="Progress_Tip_Loading" xml:space="preserve">
+    <value>正在讀取...</value>
+  </data>
+  <data name="Progress_Tip_Moving" xml:space="preserve">
+    <value>移動中...</value>
+  </data>
+  <data name="Progress_Tip_Transcoding" xml:space="preserve">
+    <value>轉檔中...</value>
+  </data>
+  <data name="Progress_Tip_Undoing" xml:space="preserve">
+    <value>正在復原...</value>
+  </data>
+  <data name="QueueDialog_CopyFailForNotExist_Content" xml:space="preserve">
+    <value>某些檔案不存在，無法將其複製到指定位置</value>
+  </data>
+  <data name="QueueDialog_DeleteFolder_Content" xml:space="preserve">
+    <value>這將刪除資料夾中的所有內容。 是否繼續？</value>
+  </data>
+  <data name="QueueDialog_EmptyFolderName_Content" xml:space="preserve">
+    <value>資料夾名稱不能為空，重新命名失敗</value>
+  </data>
+  <data name="QueueDialog_LocatePathFailure_Content" xml:space="preserve">
+    <value>無法找到路徑：</value>
+  </data>
+  <data name="QueueDialog_MoveFailForNotExist_Content" xml:space="preserve">
+    <value>某些檔案不存在，無法將其移動到指定位置</value>
+  </data>
+  <data name="QueueDialog_RepeatAddToHomePage_Content" xml:space="preserve">
+    <value>此資料夾已增加到主頁，不能再次增加</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedCreateFolder_Content" xml:space="preserve">
+    <value>RX 檔案總管沒有新增資料夾的權限，可能是您沒有權限訪問此資料夾\r\r立即進入檔案總管？</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
+    <value>RX沒有權限刪除此項目，立即進入檔案總管？</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
+    <value>RX 檔案總管沒有權限貼上檔案，可能是您沒有權限訪問此資料夾\r\r立即進入檔案總管？</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UnauthorizedRenameFolder_Content" xml:space="preserve">
+    <value>RX 檔案總管沒有權限重新命名，可能是您沒有權限訪問此資料夾\r\r立即進入檔案總管？</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="Common_Dialog_GoBack" xml:space="preserve">
+    <value>返回</value>
+  </data>
+  <data name="Common_Dialog_RefreshButton" xml:space="preserve">
+    <value>重新整理</value>
+  </data>
+  <data name="Common_Dialog_RetryButton" xml:space="preserve">
+    <value>重試</value>
+  </data>
+  <data name="Common_Dialog_TryAgain" xml:space="preserve">
+    <value>再試一次</value>
+  </data>
+  <data name="Common_Dialog_UsePassword" xml:space="preserve">
+    <value>使用密碼</value>
+  </data>
+  <data name="Crop_Image_Name_Tail" xml:space="preserve">
+    <value>裁剪</value>
+  </data>
+  <data name="DecryptFail_Backup_Text" xml:space="preserve">
+    <value>檔案備份師敗</value>
+  </data>
+  <data name="Download_Folder_Name" xml:space="preserve">
+    <value>下載</value>
+    <comment>Name of [Downloads folder]</comment>
+  </data>
+  <data name="Media_Tip_Text" xml:space="preserve">
+    <value>請享受:</value>
+  </data>
+  <data name="Merge_Image_Name_Tail" xml:space="preserve">
+    <value>已合併</value>
+  </data>
+  <data name="Operate_Text_Decompression" xml:space="preserve">
+    <value>解壓縮</value>
+  </data>
+  <data name="Pdf_Page_Tip" xml:space="preserve">
+    <value>[CurrentPageIndex] / ([TotalPageCount] 頁 )</value>
+    <comment>Used to display the current number of PDF pages and the total number of pages. Do not modify [CurrentPageIndex] and [TotalPageCount]. They are placeholders. Please place it in the correct position according to the word order of the corresponding language</comment>
+  </data>
+  <data name="Progress_Tip_NoFeedback" xml:space="preserve">
+    <value>沒有回饋或建議</value>
+  </data>
+  <data name="QueueDialog_AddDeviceFail_Content" xml:space="preserve">
+    <value>由於權限不足，無法增加可外接裝置，設備名稱：</value>
+  </data>
+  <data name="QueueDialog_BootAtStart_Content" xml:space="preserve">
+    <value>無法啟動RX 檔案總管，因為系統已禁用啟動\r您可以轉到[設定]進行管理</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_CompressionError_Content" xml:space="preserve">
+    <value>壓縮檔案時時發生異常\r\r錯誤訊息：\r\r</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_DecompressionError_Content" xml:space="preserve">
+    <value>解壓縮檔案時時發生異常\r\r錯誤訊息：\r\r</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_DecryptError_Content" xml:space="preserve">
+    <value>解密檔案時發生意外錯誤</value>
+  </data>
+  <data name="QueueDialog_DecryptPasswordError_Content" xml:space="preserve">
+    <value>由於解密密碼錯誤，解密失敗，任務終止\r\r這可能是由於要解密的檔案數據不匹配所致</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_DeleteFiles_Content" xml:space="preserve">
+    <value>此操作將刪除這些檔案。 是否繼續？</value>
+  </data>
+  <data name="QueueDialog_DeleteFile_Content" xml:space="preserve">
+    <value>此操作將刪除這個檔案。 是否繼續？</value>
+  </data>
+  <data name="QueueDialog_DeleteItemError_Content" xml:space="preserve">
+    <value>無法刪除某些檔案/資料夾，該檔案/資料夾可能已移動或刪除</value>
+  </data>
+  <data name="QueueDialog_DeviceExist_Content" xml:space="preserve">
+    <value>所選設備已存在</value>
+  </data>
+  <data name="QueueDialog_DeviceHideForError_Content" xml:space="preserve">
+    <value>由於缺少足夠的權限，某些裝置無法顯示</value>
+  </data>
+  <data name="QueueDialog_DeviceSelectError_Content" xml:space="preserve">
+    <value>所選內容不是磁碟</value>
+  </data>
+  <data name="QueueDialog_DragIncludeFolderError" xml:space="preserve">
+    <value>目標資料夾不能包含在拖動項目中</value>
+  </data>
+  <data name="QueueDialog_EncryptError_Content" xml:space="preserve">
+    <value>加密檔案時發生意外錯誤</value>
+  </data>
+  <data name="QueueDialog_FeedBackNetworkError_Content" xml:space="preserve">
+    <value>由於網路原因無法執行此操作</value>
+  </data>
+  <data name="QueueDialog_FeedBackRepeatError_Content" xml:space="preserve">
+    <value>已有相同的回饋，請不要重複提交</value>
+  </data>
+  <data name="QueueDialog_FileDamageError_Content" xml:space="preserve">
+    <value>因為要解密的檔案的內部結構已損壞並且解密失敗，所以導出任務已終止\r\r這可能是由於檔案的數據被損壞或修改引起的</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_LocateFileFailure_Content" xml:space="preserve">
+    <value>找不到相應的檔案，它可能已被移動或刪除</value>
+  </data>
+  <data name="QueueDialog_NotSupportARM_Content" xml:space="preserve">
+    <value>系統資訊對話框所依賴的某些元件僅支持X86或X64處理器\r暫時不支持ARM處理器，因此將不會打開此對話框</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_OpenBluetooth_Content" xml:space="preserve">
+    <value>請重新打開藍牙</value>
+  </data>
+  <data name="QueueDialog_OpenFailure_Content" xml:space="preserve">
+    <value>RX 檔案總管無法打開該檔案\r\r但是可以透過其他應用程式打開</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_OpenFailure_PrimaryButton" xml:space="preserve">
+    <value>預設應用程式</value>
+  </data>
+  <data name="QueueDialog_PDFOpenFailure" xml:space="preserve">
+    <value>無法解析此PDF文件，無法打開PDF</value>
+  </data>
+  <data name="QueueDialog_PinFolderNotFound_Content" xml:space="preserve">
+    <value>某些釘選的資料夾已不存在，將被自動刪除\r\r包括：\r</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_RenameNumError_Content" xml:space="preserve">
+    <value>此操作一次只能重新命名一個對象</value>
+  </data>
+  <data name="QueueDialog_RestartFail_Content" xml:space="preserve">
+    <value>自動重啟過程中出現問題，請手動重啟RX 檔案總管</value>
+  </data>
+  <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
+    <value>加密庫不支持移入資料夾，所有資料夾均已篩選</value>
+  </data>
+  <data name="QueueDialog_SecureAreaNetworkUnavailable_Content" xml:space="preserve">
+    <value>由於當前網路或使用者不可用，無法檢查許可證狀態</value>
+  </data>
+  <data name="QueueDialog_SecureAreaUnlock_Content" xml:space="preserve">
+    <value>感謝您對RX 檔案管理的支持，加密庫已解鎖</value>
+  </data>
+  <data name="QueueDialog_TaskWorking_Content" xml:space="preserve">
+    <value>已經有一項正在進行的任務，請等待它完成</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedCompression_Content" xml:space="preserve">
+    <value>RX 檔案管理沒有權限在此處新增Zip文件，可能是您沒有權限訪問此檔案。\r\r立即進入檔案總管？</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UnauthorizedCreateDecryptFile_Content" xml:space="preserve">
+    <value>RX沒有權限在此新增解密檔案</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedCreateNewFile_Content" xml:space="preserve">
+    <value>RX 檔案總管沒有權限在此資料夾中新增檔案\r\r立即進入檔案總管？</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UnauthorizedDecompression_Content" xml:space="preserve">
+    <value>RX 檔案總管沒有在此處解壓Zip檔案的權限，可能是您沒有權限訪問此檔案\r\r立即進入檔案總管？</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
+    <value>RX沒有重新命名的權限，可能是您無權訪問此資料夾\r\r立即進入檔案總管？</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
+    <value>由於某些檔案/資料夾不存在，因此復原操作無法完成</value>
+  </data>
+  <data name="QueueDialog_WiFiError_Content" xml:space="preserve">
+    <value>Wi-Fi傳輸有意外錯誤：\r</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_WinHelloAuthFail_Content" xml:space="preserve">
+    <value>Windows Hello身份驗證失敗，您無沒有權限進入加密庫</value>
+  </data>
+  <data name="QueueDialog_WinHelloCredentialLost_Content" xml:space="preserve">
+    <value>Windows Hello身份驗證憑據丟失，無法使用Windows Hello，請使用密碼輸入\r\r重新進入加密庫後，輸入設定以重新註冊Windows Hello</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="QueueDialog_WinHelloDisable_Content" xml:space="preserve">
+    <value>Windows Hello已禁用，無法通過Windows Hello進入加密庫</value>
+  </data>
+  <data name="QueueDialog_WinHelloSetupError_Content" xml:space="preserve">
+    <value>Windows Hello無法正確設定，請重試</value>
+  </data>
+  <data name="Queue_Dialog_ImageReadError_Content" xml:space="preserve">
+    <value>由於讀取圖像資料夾異常，圖片檢視器無法讀取任何圖像文件。 請再試一次。</value>
+  </data>
+  <data name="RX_BuildIn_Viewer_Name" xml:space="preserve">
+    <value>RX 檔案管理內置檢視器</value>
+  </data>
+  <data name="Setting_UIMode_Custom" xml:space="preserve">
+    <value>自訂 </value>
+  </data>
+  <data name="Setting_UIMode_Recommend" xml:space="preserve">
+    <value>建議</value>
+  </data>
+  <data name="Setting_UIMode_SolidColor" xml:space="preserve">
+    <value>純色</value>
+  </data>
+  <data name="SecureAreaImportCancelButton.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="SolidColor_Black.Content" xml:space="preserve">
+    <value>黑色</value>
+  </data>
+  <data name="SolidColor_White.Content" xml:space="preserve">
+    <value>白色</value>
+  </data>
+  <data name="Folder_Admin_DisplayType" xml:space="preserve">
+    <value>資料夾</value>
+  </data>
+  <data name="Application_Admin_Name" xml:space="preserve">
+    <value>應用程式</value>
+  </data>
+  <data name="Zip_Admin_Name_Text" xml:space="preserve">
+    <value>新Zip</value>
+  </data>
+  <data name="SettingPageAnimationSwitch.Header" xml:space="preserve">
+    <value>動畫效果</value>
+  </data>
+  <data name="SettingPageAnimationSwitch.OffContent" xml:space="preserve">
+    <value>停用</value>
+  </data>
+  <data name="SettingPageAnimationSwitch.OnContent" xml:space="preserve">
+    <value>啟用</value>
+  </data>
+  <data name="ThankTranslate.Text" xml:space="preserve">
+    <value>特別感謝以下翻譯人員：</value>
+  </data>
+  <data name="QueueDialog_Store_AlreadyPurchase_Content" xml:space="preserve">
+    <value>您已經購買了此應用程式，無法重複購買</value>
+  </data>
+  <data name="QueueDialog_Store_NotPurchase_Content" xml:space="preserve">
+    <value>購買操作已被取消，您可以繼續使用此應用程式，但相關功能不會被解鎖</value>
+  </data>
+  <data name="QueueDialog_Store_PurchaseSuccess_Content" xml:space="preserve">
+    <value>此應用程式已成功購買，相關功能已解鎖，感謝支持</value>
+  </data>
+  <data name="QueueDialog_EditErrorWhenOpen_Content" xml:space="preserve">
+    <value>裁剪失敗,無法剪輯這部影片</value>
+  </data>
+  <data name="MainPage_PageDictionary_RecycleBin_Label" xml:space="preserve">
+    <value>資源回收筒</value>
+  </data>
+  <data name="RecycleBin.Content" xml:space="preserve">
+    <value>資源回收筒</value>
+  </data>
+  <data name="RecycleOriginLocation.Text" xml:space="preserve">
+    <value>原始位置</value>
+  </data>
+  <data name="RecycleTime.Text" xml:space="preserve">
+    <value>回收日期</value>
+  </data>
+  <data name="QueueDialog_Item_Captured_Content" xml:space="preserve">
+    <value>此檔案已被另一個應用程式佔用，無法執行此操作</value>
+  </data>
+  <data name="QueueDialog_EmptyRecycleBin_Content" xml:space="preserve">
+    <value>你確定要永久刪除這個檔案媽?</value>
+  </data>
+  <data name="RecycleBinEmptyingText" xml:space="preserve">
+    <value>正在刪除...</value>
+  </data>
+  <data name="RecycleBinRestoreText" xml:space="preserve">
+    <value>正在還原...</value>
+  </data>
+  <data name="QueueDialog_RecycleBinEmptyError_Content" xml:space="preserve">
+    <value>發生意外錯誤，無法清空資源回收筒</value>
+  </data>
+  <data name="PermanentDelete.Content" xml:space="preserve">
+    <value>永久刪除這個檔案</value>
+  </data>
+  <data name="ComputeHash.Text" xml:space="preserve">
+    <value>計算哈希值</value>
+  </data>
+  <data name="Operate_Text_ComputeHash" xml:space="preserve">
+    <value>計算哈希值</value>
+  </data>
+  <data name="Operate_Text_Tool" xml:space="preserve">
+    <value>工具</value>
+  </data>
+  <data name="Operate_Text_Unlock" xml:space="preserve">
+    <value>解除佔用</value>
+  </data>
+  <data name="Tool.Label" xml:space="preserve">
+    <value>工具</value>
+  </data>
+  <data name="TryUnlock.Text" xml:space="preserve">
+    <value>解除佔用</value>
+  </data>
+  <data name="ClearRecycleBin.Label" xml:space="preserve">
+    <value>清理資源回收筒</value>
+  </data>
+  <data name="HashTeachTip.Title" xml:space="preserve">
+    <value>計算哈希值</value>
+  </data>
+  <data name="Progress_Tip_Unlock" xml:space="preserve">
+    <value>覆蓋中</value>
+  </data>
+  <data name="QueueDialog_Unlock_Failure_Content" xml:space="preserve">
+    <value>清除失敗</value>
+  </data>
+  <data name="QueueDialog_Unlock_FileNotFound_Content" xml:space="preserve">
+    <value>找不到對應的檔案</value>
+  </data>
+  <data name="QueueDialog_Unlock_NoLock_Content" xml:space="preserve">
+    <value>此檔案未被覆蓋，無需移除覆蓋</value>
+  </data>
+  <data name="QueueDialog_Unlock_Success_Content" xml:space="preserve">
+    <value>成功覆蓋</value>
+  </data>
+  <data name="QueueDialog_Unlock_UnexpectedError_Content" xml:space="preserve">
+    <value>發生意外錯誤</value>
+  </data>
+  <data name="RecyclePermanentDelete.Label" xml:space="preserve">
+    <value>永久刪除</value>
+  </data>
+  <data name="RestoreRecycle.Label" xml:space="preserve">
+    <value>還原</value>
+  </data>
+  <data name="QueueContentDialog_UnableToEject_Content" xml:space="preserve">
+    <value>無法彈出此USB裝置</value>
+  </data>
+  <data name="EjectUSB.Label" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="OpenInTerminal.Label" xml:space="preserve">
+    <value>在Windows PoweShell中打開...</value>
+  </data>
+  <data name="Operate_Text_OpenInTerminal" xml:space="preserve">
+    <value>在Windows PoweShell中打開...</value>
+  </data>
+  <data name="RecycleBinDeleteText" xml:space="preserve">
+    <value>正在刪除</value>
+  </data>
+  <data name="QueueDialog_RecycleBinDeleteError_Content" xml:space="preserve">
+    <value>刪除以下檔案時發生錯誤：</value>
+  </data>
+  <data name="QueueDialog_RecycleBinRestoreError_Content" xml:space="preserve">
+    <value>復原以下檔案時發生錯誤：</value>
+  </data>
+  <data name="FeedBackTranslateButton.Label" xml:space="preserve">
+    <value>翻譯</value>
+  </data>
+  <data name="Common_Dialog_DoNotTip" xml:space="preserve">
+    <value>沒有提示</value>
+  </data>
+  <data name="QueueDialog_FolderRepeat_CloseButton" xml:space="preserve">
+    <value>儲存複本</value>
+  </data>
+  <data name="QueueDialog_FolderRepeat_Content" xml:space="preserve">
+    <value>此目的地已包含一個具有相同名稱的資料夾：</value>
+  </data>
+  <data name="QueueDialog_FolderRepeat_PrimaryButton" xml:space="preserve">
+    <value>合併資料夾</value>
+  </data>
+  <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
+    <value>此位置已經有同名的檔案,是否自動重新命名?</value>
+  </data>
+  <data name="Eject_Toast_Text_1" xml:space="preserve">
+    <value>成功</value>
+  </data>
+  <data name="Eject_Toast_Text_2" xml:space="preserve">
+    <value>USB裝置已成功移除</value>
+  </data>
+  <data name="Eject_Toast_Text_3" xml:space="preserve">
+    <value>現在可以安全刪除USB裝置</value>
+  </data>
+  <data name="OpenFolderInNewTab.Label" xml:space="preserve">
+    <value>在新索引標籤中開啟</value>
+  </data>
+  <data name="OpenFolderInNewWindow.Label" xml:space="preserve">
+    <value>在新視窗開啟</value>
+  </data>
+  <data name="Operate_Text_NewTab" xml:space="preserve">
+    <value>在新索引標籤中開啟</value>
+  </data>
+  <data name="Operate_Text_NewWindow" xml:space="preserve">
+    <value>在新視窗開啟</value>
+  </data>
+  <data name="QueueDialog_CopyFailUnexpectError_Content" xml:space="preserve">
+    <value>複製檔案時發生錯誤，複製失敗</value>
+  </data>
+  <data name="QueueDialog_DeleteFailUnexpectError_Content" xml:space="preserve">
+    <value>刪除檔案時發生錯誤，刪除失敗</value>
+  </data>
+  <data name="QueueDialog_MoveFailUnexpectError_Content" xml:space="preserve">
+    <value>移動檔案時發生錯誤，移動失敗</value>
+  </data>
+  <data name="Undo.Label" xml:space="preserve">
+    <value>復原</value>
+  </data>
+  <data name="LanguageRestartTip.Text" xml:space="preserve">
+    <value>（請重新啟動應用程式以使設定生效）</value>
+  </data>
+  <data name="SettingSubmitIssueOnGithub.Content" xml:space="preserve">
+    <value>在Github上提交問題</value>
+  </data>
+  <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
+    <value>無法取得剪貼簿的內容</value>
+  </data>
+  <data name="QueueDialog_ItemHidden_Content" xml:space="preserve">
+    <value>無法存取隱藏的檔案或資料夾，請取消隱藏它們，然後嘗試再次存取</value>
+  </data>
+  <data name="QueueDialog_RemoveHiddenError_Content" xml:space="preserve">
+    <value>無法刪除隱藏的屬性</value>
+  </data>
+  <data name="RemoveHiddenProperty.Label" xml:space="preserve">
+    <value>刪除隱藏的屬性</value>
+  </data>
+  <data name="SettingDisplayHiddenItem.Header" xml:space="preserve">
+    <value>顯示隱藏的檔案/資料夾</value>
+  </data>
+  <data name="SettingDisplayHiddenItem.OffContent" xml:space="preserve">
+    <value>停用</value>
+  </data>
+  <data name="SettingDisplayHiddenItem.OnContent" xml:space="preserve">
+    <value>啟用</value>
+  </data>
+  <data name="Operate_Text_Undo" xml:space="preserve">
+    <value>復原</value>
+  </data>
+  <data name="Operate_Text_RemoveHidden" xml:space="preserve">
+    <value>刪除隱藏的屬性</value>
+  </data>
+  <data name="QueueDialog_EnableHiddenItemDisplayWarning_Content" xml:space="preserve">
+    <value>啟用隱藏檔案顯示功能，使用不當可能會損壞電腦。\r\r是否繼續啟用它？</value>
+  </data>
+  <data name="Folder_Open_Method_1" xml:space="preserve">
+    <value>按兩下</value>
+  </data>
+  <data name="Folder_Open_Method_2" xml:space="preserve">
+    <value>按一下</value>
+  </data>
+  <data name="Font_Color_Black" xml:space="preserve">
+    <value>黑色</value>
+  </data>
+  <data name="Font_Color_White" xml:space="preserve">
+    <value>白色</value>
+  </data>
+  <data name="QueueDialog_BeforeInterceptWindowsETip_Content" xml:space="preserve">
+    <value>此操作將嘗試定向Win + E以啟動RX 檔案總管，並且您需要在刪除RX 檔案總管之前關閉此開關，否則Win + E密鑰無法重置為初始狀態。 稍後您將看到UAC權限提示，請允許其執行必要的操作。 是否繼續？</value>
+  </data>
+  <data name="QueueDialog_InterceptWindowsETipFailure_Content" xml:space="preserve">
+    <value>由於意外錯誤，無法定向Win + E。 您可以按照以下方法手動進行操作：\r\r1。單擊\r2下的手動操作。將.reg文件保存到任何位置\r3。右鍵單擊該文件並使用記事本\r4進行編輯。輸入％LOCALAPPDATA％ 進入系統文件管理器的地址欄並轉到該位置\r5。複製當前資料夾的位置，將％LOCALAPPDATA％貼上並替換為.reg文件\r6。保存並雙擊.reg文件以執行</value>
+  </data>
+  <data name="QueueDialog_RestoreWindowsETipFailure_Content" xml:space="preserve">
+    <value>由於意外錯誤，無法定向Win + E</value>
+  </data>
+  <data name="UseWinAndEActivate.Header" xml:space="preserve">
+    <value>使用[Win + E]執行此程式</value>
+  </data>
+  <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
+    <value>停用</value>
+  </data>
+  <data name="UseWinAndEActivate.OnContent" xml:space="preserve">
+    <value>啟用</value>
+  </data>
+  <data name="QueueDialog_MTP_CouldNotAccess_Content" xml:space="preserve">
+    <value>RX 檔案總管不支持查看MTP類型的設備。 嘗試通過檔案總管打開它嗎？</value>
+  </data>
+  <data name="PresentInvalidCharTip.Subtitle" xml:space="preserve">
+    <value>不可以包含下列任意字元
+\ / : * ? " &lt; &gt; |</value>
+  </data>
+  <data name="PresentInvalidCharTip.Title" xml:space="preserve">
+    <value>錯誤</value>
+  </data>
+  <data name="PresentInvalidNameTip.Subtitle" xml:space="preserve">
+    <value>名稱不能為空，並且不能包含無效名稱
+無效名稱包括
+"CON","PRN", "AUX", "CLOCK$", "NUL"
+"COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9"
+"LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</value>
+  </data>
+  <data name="PresentInvalidNameTip.Title" xml:space="preserve">
+    <value>錯誤</value>
+  </data>
+  <data name="CustomUISubtype3.Content" xml:space="preserve">
+    <value>Bing 桌布</value>
+  </data>
+  <data name="QueueDialog_InterceptWindowsETipFailure_PrimaryButton" xml:space="preserve">
+    <value>手動操作</value>
+  </data>
+  <data name="QueueDialog_RestoreWindowsETipFailure_PrimaryButton" xml:space="preserve">
+    <value>手動操作</value>
+  </data>
+  <data name="Progress_Tip_WaitingForAction" xml:space="preserve">
+    <value>正在等候動作</value>
+  </data>
+</root>

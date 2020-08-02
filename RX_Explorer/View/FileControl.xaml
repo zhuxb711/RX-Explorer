@@ -282,7 +282,8 @@
                 </Grid.RowDefinitions>
                 <Frame Name="Nav"
                        Margin="0,0,0,-20"
-                       x:FieldModifier="Public" />
+                       x:FieldModifier="Public" 
+                       PointerWheelChanged="Nav_PointerWheelChanged"/>
                 <CommandBar IsOpen="False"
                             Grid.Row="1"
                             VerticalAlignment="Bottom"

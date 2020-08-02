@@ -47,11 +47,12 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(TargetFolder), "Parameter could not be null");
             }
 
-            foreach (var Item in await Folder.GetItemsAsync())
+            foreach (IStorageItem Item in await Folder.GetItemsAsync())
             {
                 if (Item is StorageFolder SubFolder)
                 {
                     StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(SubFolder.Name, CreationCollisionOption.OpenIfExists);
+                    
                     await MoveSubFilesAndSubFoldersAsync(SubFolder, NewFolder).ConfigureAwait(false);
                 }
                 else
@@ -59,6 +60,8 @@ namespace RX_Explorer.Class
                     await ((StorageFile)Item).MoveAsync(TargetFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
                 }
             }
+
+            await Folder.DeleteAllSubFilesAndFolders().ConfigureAwait(false);
         }
 
         public static async Task CopySubFilesAndSubFoldersAsync(this StorageFolder Folder, StorageFolder TargetFolder)
@@ -117,104 +120,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static List<FileSystemStorageItem> SortList(this IEnumerable<FileSystemStorageItem> FileCollection, SortTarget Target, SortDirection Direction)
-        {
-            switch (Target)
-            {
-                case SortTarget.Name:
-                    {
-                        if (Direction == SortDirection.Ascending)
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.Name).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.Name).ToList();
-
-                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
-                        }
-                        else
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.Name).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.Name).ToList();
-
-                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
-                        }
-                    }
-
-                case SortTarget.Type:
-                    {
-                        if (Direction == SortDirection.Ascending)
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.Type).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.Type).ToList();
-
-                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
-                        }
-                        else
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.Type).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.Type).ToList();
-
-                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
-                        }
-                    }
-                case SortTarget.ModifiedTime:
-                    {
-                        if (Direction == SortDirection.Ascending)
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.ModifiedTimeRaw).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.ModifiedTimeRaw).ToList();
-
-                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
-                        }
-                        else
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.ModifiedTimeRaw).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.ModifiedTimeRaw).ToList();
-
-                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
-                        }
-                    }
-                case SortTarget.Size:
-                    {
-                        if (Direction == SortDirection.Ascending)
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.SizeRaw).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.SizeRaw).ToList();
-
-                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
-                        }
-                        else
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.SizeRaw).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.SizeRaw).ToList();
-
-                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
-                        }
-                    }
-                case SortTarget.OriginPath:
-                    {
-                        if (Direction == SortDirection.Ascending)
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.RecycleItemOriginPath).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.RecycleItemOriginPath).ToList();
-
-                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
-                        }
-                        else
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.RecycleItemOriginPath).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.RecycleItemOriginPath).ToList();
-
-                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
-                        }
-                    }
-                default:
-                    {
-                        return null;
-                    }
-            }
-        }
-
-        public static async Task UpdateAllSubNode(this TreeViewNode Node)
+        public static async Task UpdateAllSubNodeAsync(this TreeViewNode Node)
         {
             if (Node == null)
             {
@@ -254,7 +160,7 @@ namespace RX_Explorer.Class
 
                 foreach (TreeViewNode SubNode in Node.Children)
                 {
-                    await SubNode.UpdateAllSubNode().ConfigureAwait(true);
+                    await SubNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
                 }
             }
             else
@@ -263,7 +169,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<TreeViewNode> GetChildNode(this TreeViewNode Node, PathAnalysis Analysis, bool DoNotExpandNodeWhenSearching = false)
+        public static async Task<TreeViewNode> GetChildNodeAsync(this TreeViewNode Node, PathAnalysis Analysis, bool DoNotExpandNodeWhenSearching = false)
         {
             if (Node.HasUnrealizedChildren && !Node.IsExpanded && !DoNotExpandNodeWhenSearching)
             {
@@ -311,7 +217,7 @@ namespace RX_Explorer.Class
             {
                 if ((Node.Content as TreeViewNodeContent).Path == NextPathLevel)
                 {
-                    return await GetChildNode(Node, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
+                    return await GetChildNodeAsync(Node, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
                 }
                 else
                 {
@@ -319,7 +225,7 @@ namespace RX_Explorer.Class
                     {
                         if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path == NextPathLevel) is TreeViewNode TargetNode)
                         {
-                            return await GetChildNode(TargetNode, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
+                            return await GetChildNodeAsync(TargetNode, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
                         }
                         else
                         {
@@ -332,7 +238,7 @@ namespace RX_Explorer.Class
                         {
                             if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path == NextPathLevel) is TreeViewNode TargetNode)
                             {
-                                return await GetChildNode(TargetNode, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
+                                return await GetChildNodeAsync(TargetNode, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
                             }
                             else
                             {
@@ -374,9 +280,14 @@ namespace RX_Explorer.Class
                                         break;
                                     }
 
-                                case LanguageEnum.Chinese:
+                                case LanguageEnum.Chinese_Simplified:
                                     {
                                         CurrentLanguage = LanguageCodes.ChineseSimplified;
+                                        break;
+                                    }
+                                case LanguageEnum.Chinese_Traditional:
+                                    {
+                                        CurrentLanguage = LanguageCodes.ChineseTraditional;
                                         break;
                                     }
                                 case LanguageEnum.French:
@@ -1015,6 +926,8 @@ namespace RX_Explorer.Class
                     await Item.DeleteAsync(StorageDeleteOption.PermanentDelete);
                 }
             }
+
+            await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
         }
 
         public static async Task<ulong> GetSizeRawDataAsync(this IStorageItem Item)
@@ -1093,7 +1006,7 @@ namespace RX_Explorer.Class
                     {
                         Task<StorageItemThumbnail> GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 100).AsTask(Cancellation.Token);
 
-                        bool IsSuccess = await Task.Run(() => SpinWait.SpinUntil(() => GetThumbnailTask.IsCompleted, 2000)).ConfigureAwait(true);
+                        bool IsSuccess = await Task.Run(() => SpinWait.SpinUntil(() => GetThumbnailTask.IsCompleted, 3000)).ConfigureAwait(true);
 
                         if (IsSuccess)
                         {

@@ -176,9 +176,9 @@ namespace RX_Explorer.Class
     public enum LanguageEnum
     {
         /// <summary>
-        /// 界面使用中文
+        /// 界面使用简体中文
         /// </summary>
-        Chinese = 1,
+        Chinese_Simplified = 1,
         /// <summary>
         /// 界面使用英文
         /// </summary>
@@ -186,7 +186,11 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 界面使用法语
         /// </summary>
-        French = 4
+        French = 4,
+        /// <summary>
+        /// 界面使用繁体中文
+        /// </summary>
+        Chinese_Traditional = 8
     }
 
     /// <summary>

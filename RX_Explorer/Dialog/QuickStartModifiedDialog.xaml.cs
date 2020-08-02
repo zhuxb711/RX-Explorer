@@ -310,7 +310,7 @@ namespace RX_Explorer.Dialog
             {
                 try
                 {
-                    Uri QueryUrl = Globalization.CurrentLanguage == LanguageEnum.Chinese
+                    Uri QueryUrl = Globalization.CurrentLanguage == LanguageEnum.Chinese_Simplified
                         ? new Uri($"http://statics.dnspod.cn/proxy_favicon/_/favicon?domain={new Uri(Protocal.Text).Host}")
                         : new Uri($"http://www.google.com/s2/favicons?domain={new Uri(Protocal.Text).Host}");
 

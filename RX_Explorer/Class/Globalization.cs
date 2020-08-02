@@ -29,7 +29,7 @@ namespace RX_Explorer.Class
 
             switch (Language)
             {
-                case LanguageEnum.Chinese:
+                case LanguageEnum.Chinese_Simplified:
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 0;
                         ApplicationLanguages.PrimaryLanguageOverride = "zh-Hans";
@@ -45,6 +45,12 @@ namespace RX_Explorer.Class
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 2;
                         ApplicationLanguages.PrimaryLanguageOverride = "fr-FR";
+                        break;
+                    }
+                case LanguageEnum.Chinese_Traditional:
+                    {
+                        ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 3;
+                        ApplicationLanguages.PrimaryLanguageOverride = "zh-Hant";
                         break;
                     }
             }
@@ -90,7 +96,7 @@ namespace RX_Explorer.Class
                 {
                     case 0:
                         {
-                            CurrentLanguage = LanguageEnum.Chinese;
+                            CurrentLanguage = LanguageEnum.Chinese_Simplified;
                             break;
                         }
                     case 1:
@@ -103,6 +109,11 @@ namespace RX_Explorer.Class
                             CurrentLanguage = LanguageEnum.French;
                             break;
                         }
+                    case 3:
+                        {
+                            CurrentLanguage = LanguageEnum.Chinese_Traditional;
+                            break;
+                        }
                 }
             }
             else
@@ -111,9 +122,30 @@ namespace RX_Explorer.Class
 
                 if (PrimaryLanguage.StartsWith("zh", StringComparison.OrdinalIgnoreCase))
                 {
-                    CurrentLanguage = LanguageEnum.Chinese;
-                    ApplicationLanguages.PrimaryLanguageOverride = "zh-Hans";
-                    ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 0;
+                    switch (PrimaryLanguage)
+                    {
+                        case "zh-Hans":
+                            {
+                                CurrentLanguage = LanguageEnum.Chinese_Simplified;
+                                ApplicationLanguages.PrimaryLanguageOverride = "zh-Hans";
+                                ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 0;
+                                break;
+                            }
+                        case "zh-Hant":
+                            {
+                                CurrentLanguage = LanguageEnum.Chinese_Traditional;
+                                ApplicationLanguages.PrimaryLanguageOverride = "zh-Hant";
+                                ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 3;
+                                break;
+                            }
+                        default:
+                            {
+                                CurrentLanguage = LanguageEnum.English;
+                                ApplicationLanguages.PrimaryLanguageOverride = "en-US";
+                                ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 1;
+                                break;
+                            }
+                    }
                 }
                 else if (PrimaryLanguage.StartsWith("fr", StringComparison.OrdinalIgnoreCase))
                 {

@@ -16,13 +16,18 @@ namespace RX_Explorer.Dialog
         {
             switch (Globalization.CurrentLanguage)
             {
-                case LanguageEnum.Chinese:
+                case LanguageEnum.Chinese_Simplified:
                     {
-                        StorageFile UpdateFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese.txt")).AsTask().Result;
+                        StorageFile UpdateFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_S.txt")).AsTask().Result;
                         MarkDown.Text = FileIO.ReadTextAsync(UpdateFile).AsTask().Result;
                         break;
                     }
-
+                case LanguageEnum.Chinese_Traditional:
+                    {
+                        StorageFile UpdateFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_T.txt")).AsTask().Result;
+                        MarkDown.Text = FileIO.ReadTextAsync(UpdateFile).AsTask().Result;
+                        break;
+                    }
                 case LanguageEnum.English:
                     {
                         StorageFile UpdateFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-English.txt")).AsTask().Result;
