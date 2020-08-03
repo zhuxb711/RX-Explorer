@@ -1,4 +1,51 @@
 ﻿*****
+###Quoi de neuf dans la version 5.2.0.0
+
+>#####Mise à jour des fonctionnalités
+
+>>#####Ajout de la prise en charge de "Network Drive" (test bêta)
+
+>>#####Ajouter une fonction de mémoire de tri
+
+>>#####Ajouter le bouton "Trier"
+
+>>#####Ajout de la prise en charge de la langue "chinois (traditionnel)"
+
+>>#####Lorsque vous cliquez sur "Shift" et appuyez sur le bouton "Supprimer", la suppression définitive sera effectuée
+
+>>#####Vous pouvez maintenant utiliser Ctrl + molette pour changer le mode d'affichage
+
+>>#####Vous pouvez maintenant utiliser Shift et Ctrl pour une sélection multiple en mode de sélection unique
+
+>#####Mise à jour de l'interface utilisateur
+
+>>#####Accélère l'animation de démarrage (1200ms → 800ms)
+
+>>#####Prolonger le temps d'activation de la fonction de renommage pour éviter un faux déclenchement de cette fonction (700ms → 1200ms)
+
+>>#####Optimisation du comportement du répertoire de fichiers de gauche lors du changement de nom du dossier
+
+>>#####En mode simple clic, lorsque la souris reste sur l'élément correspondant, elle n'attend plus et sélectionne immédiatement
+
+>>#####L'icône sur le côté gauche de la page principale a été mise à jour en icône Fluent
+
+>#####Correction de bogue
+
+>>#####Résolution du problème selon lequel la corbeille ne peut pas effectuer de «suppression permanente»
+
+>>#####Correction d'un problème pouvant provoquer un plantage si le dossier est occupé lorsque le dossier est renommé
+
+>>#####Correction d'un problème où le bouton "Vider la Corbeille" pouvait être incorrectement activé si la Corbeille est vide
+
+>>#####Correction d'un problème qui empêchait l'exécution de la commande "Déplacer" lors du glissement d'un dossier vers la barre d'adresse
+
+>>#####Correction d'un problème où le bouton "Ajouter un lecteur" pouvait autoriser l'ajout de lecteurs non pris en charge
+
+>>#####Correction d'un problème selon lequel les fichiers et les dossiers dans l'état renommé ne seront pas automatiquement restaurés à l'état normal lors du glisser-déposer
+
+>>#####Correction de certains problèmes lors du changement de langue, ce qui peut entraîner un affichage incorrect de la langue
+
+*****
 ###Quoi de neuf dans la version 5.1.7.0
 
 >#####Mise à jour des fonctionnalités

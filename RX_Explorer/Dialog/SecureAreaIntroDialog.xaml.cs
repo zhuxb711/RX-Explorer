@@ -15,7 +15,12 @@ namespace RX_Explorer.Dialog
             {
                 case LanguageEnum.Chinese_Simplified:
                     {
-                        IntroFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-Chinese.txt")).AsTask().Result;
+                        IntroFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-Chinese_S.txt")).AsTask().Result;
+                        break;
+                    }
+                case LanguageEnum.Chinese_Traditional:
+                    {
+                        IntroFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-Chinese_T.txt")).AsTask().Result;
                         break;
                     }
                 case LanguageEnum.English:

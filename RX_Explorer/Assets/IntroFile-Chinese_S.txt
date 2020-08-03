@@ -3,7 +3,7 @@
 *****
 ####安全域提供了一个基于AES加密机制的文件保险箱，并完全支持使用Windows Hello来进行身份认证。
 
-![Local Image](/Assets/SAIntro1_cn.png)
+![Local Image](/Assets/SAIntro_cn_s.png)
 
 ###安全特性
 

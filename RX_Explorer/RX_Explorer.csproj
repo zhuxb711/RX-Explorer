@@ -27,7 +27,7 @@
     <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <AppInstallerUpdateFrequency>0</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
-    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+    <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
     <GenerateTestArtifacts>False</GenerateTestArtifacts>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
@@ -331,16 +331,18 @@
     <Content Include="Assets\FolderIcon.png" />
     <Content Include="Assets\Github-Intro1.png" />
     <Content Include="Assets\Github-Intro2.png" />
-    <Content Include="Assets\IntroFile-Chinese.txt" />
+    <Content Include="Assets\IntroFile-Chinese_S.txt" />
+    <Content Include="Assets\IntroFile-Chinese_T.txt" />
     <Content Include="Assets\IntroFile-English.txt" />
     <Content Include="Assets\IntroFile-French.txt" />
     <Content Include="Assets\Lock.png" />
     <Content Include="Assets\LockFile.png" />
     <Content Include="Assets\Page_Solid_Black.png" />
     <Content Include="Assets\Page_Solid_White.png" />
-    <Content Include="Assets\SAIntro1_cn.png" />
-    <Content Include="Assets\SAIntro1_en.png" />
-    <Content Include="Assets\SAIntro1_fr.png" />
+    <Content Include="Assets\SAIntro_cn_s.png" />
+    <Content Include="Assets\SAIntro_cn_t.png" />
+    <Content Include="Assets\SAIntro_en.png" />
+    <Content Include="Assets\SAIntro_fr.png" />
     <Content Include="Assets\UpdateLog-Chinese_S.txt" />
     <Content Include="Assets\UpdateLog-Chinese_T.txt" />
     <Content Include="Assets\UpdateLog-English.txt" />

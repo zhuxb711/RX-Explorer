@@ -1,4 +1,51 @@
 ﻿*****
+###What's new in Ver.5.2.0.0
+
+>#####Feature Update
+
+>>#####Added support for "Network Drive" (Beta test)
+
+>>#####Add sorting memory function
+
+>>#####Add "Sort" button
+
+>>#####Added "Chinese (Traditional)" language support
+
+>>#####When you click "Shift" and press the "Delete" button, the permanent deletion will be performed
+
+>>#####Now you can use Ctrl+wheel to switch the display mode
+
+>>#####Now you can use Shift and Ctrl for multiple selection in single selection mode
+
+>#####UI Update
+
+>>#####Speeds up the startup animation (1200ms→800ms)
+
+>>#####Extend the activation time of the rename function to avoid false triggering of this function (700ms→1200ms)
+
+>>#####Optimized the behavior of the left file directory when renaming the folder
+
+>>#####In single-click mode, when the mouse stays on the corresponding item, it will no longer wait and select immediately
+
+>>#####The icon on the left side of the main page has been updated to a Fluent icon
+
+>#####Bug fix
+
+>>#####Resolved the problem that the Recycle Bin cannot perform "permanent deletion"
+
+>>#####Fixed an issue that may cause a crash if the folder is occupied when the folder is renamed
+
+>>#####Fixed an issue where the "Empty Recycle Bin" button may be incorrectly enabled if the Recycle Bin is empty
+
+>>#####Fixed an issue that the "Move" command cannot be executed when dragging a folder to the address bar
+
+>>#####Fixed an issue that the "Add Drive" button may allow adding unsupported drives
+
+>>#####Fixed an issue that files and folders in the renamed state will not be automatically restored to the normal state when dragging and dropping
+
+>>#####Fixed some problems when switching languages, which may cause incorrect language display
+
+*****
 ###What's new in Ver.5.1.7.0
 
 >#####Feature Update
