@@ -273,7 +273,7 @@
                 <ColumnDefinition x:Name="TreeViewGridCol"
                                   Width="{x:Bind local:TabViewContainer.ThisPage.TreeViewLength,Mode=OneWay}" />
                 <ColumnDefinition Width="{x:Bind TreeViewGridCol.Width,Mode=OneWay,Converter={StaticResource Converter}}" />
-                <ColumnDefinition Width="5*" />
+                <ColumnDefinition Width="6.5*" />
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="2">
                 <Grid.RowDefinitions>

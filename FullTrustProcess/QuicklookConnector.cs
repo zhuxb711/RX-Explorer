@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.IO.Pipes;
 using System.Security.Principal;
-using System.Threading.Tasks;
 
 namespace FullTrustProcess
 {
@@ -17,7 +16,7 @@ namespace FullTrustProcess
             {
                 using (NamedPipeClientStream Client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out))
                 {
-                    Client.Connect(1500);
+                    Client.Connect(3000);
 
                     using (StreamWriter Writer = new StreamWriter(Client))
                     {
@@ -45,7 +44,7 @@ namespace FullTrustProcess
             {
                 using (NamedPipeClientStream Client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out))
                 {
-                    Client.Connect(1500);
+                    Client.Connect(3000);
 
                     using (StreamWriter Writer = new StreamWriter(Client))
                     {

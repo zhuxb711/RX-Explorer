@@ -1,22 +1,35 @@
-﻿using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Text;
+using Vanara.PInvoke;
 
 namespace FullTrustProcess
 {
     public static class ExtensionAssociate
     {
-        [DllImport("shell32.dll", EntryPoint = "FindExecutable")]
-        private static extern long FindExecutable(string lpFile, string lpDirectory, StringBuilder lpResult);
-
         public static string GetAssociate(string Path)
         {
-            StringBuilder executable = new StringBuilder();
-            
-            if (FindExecutable(Path, string.Empty, executable) >= 32)
+            try
             {
-                return executable.ToString();
+                uint Length = 0;
+
+                if (ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_NOFIXUPS | ShlwApi.ASSOCF.ASSOCF_VERIFY, ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE, System.IO.Path.GetExtension(Path), null, null, ref Length) == HRESULT.S_FALSE)
+                {
+                    StringBuilder Builder = new StringBuilder((int)Length);
+
+                    if (ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_NOFIXUPS | ShlwApi.ASSOCF.ASSOCF_VERIFY, ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE, System.IO.Path.GetExtension(Path), null, Builder, ref Length) == HRESULT.S_OK)
+                    {
+                        return Builder.ToString();
+                    }
+                    else
+                    {
+                        return string.Empty;
+                    }
+                }
+                else
+                {
+                    return string.Empty;
+                }
             }
-            else
+            catch
             {
                 return string.Empty;
             }
