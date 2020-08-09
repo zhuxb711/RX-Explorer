@@ -175,9 +175,31 @@ namespace RX_Explorer
 
         private async void QuickStartGridView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            if (e.ClickedItem is QuickStartItem Item && Item.ProtocalUri != null)
+            if (e.ClickedItem is QuickStartItem Item && !string.IsNullOrEmpty(Item.Protocol))
             {
-                await Launcher.LaunchUriAsync(Item.ProtocalUri);
+                Uri Ur = new Uri(Item.Protocol);
+
+                if (Ur.IsFile)
+                {
+                    if (WIN_Native_API.CheckExist(Item.Protocol))
+                    {
+                        await FullTrustExcutorController.Current.RunAsync(Item.Protocol).ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_ApplicationNotFound_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    }
+                }
+                else
+                {
+                    await Launcher.LaunchUriAsync(Ur);
+                }
             }
             else
             {
@@ -188,9 +210,9 @@ namespace RX_Explorer
 
         private async void WebGridView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            if (e.ClickedItem is QuickStartItem Item && Item.ProtocalUri != null)
+            if (e.ClickedItem is QuickStartItem Item && !string.IsNullOrEmpty(Item.Protocol))
             {
-                await Launcher.LaunchUriAsync(Item.ProtocalUri);
+                await Launcher.LaunchUriAsync(new Uri(Item.Protocol));
             }
             else
             {
@@ -243,7 +265,7 @@ namespace RX_Explorer
                 {
                     CurrentSelectedItem = Item;
 
-                    if (Item == null || Item.ProtocalUri == null)
+                    if (Item == null || Item.Protocol == null)
                     {
                         QuickStartGridView.ContextFlyout = null;
                     }
@@ -263,7 +285,7 @@ namespace RX_Explorer
                 {
                     CurrentSelectedItem = Item;
 
-                    if (Item == null || Item.ProtocalUri == null)
+                    if (Item == null || Item.Protocol == null)
                     {
                         WebGridView.ContextFlyout = null;
                     }
@@ -639,7 +661,7 @@ namespace RX_Explorer
                 {
                     CurrentSelectedItem = Item;
 
-                    if (Item == null || Item.ProtocalUri == null)
+                    if (Item == null || Item.Protocol == null)
                     {
                         QuickStartGridView.ContextFlyout = null;
                     }
@@ -659,7 +681,7 @@ namespace RX_Explorer
                 {
                     CurrentSelectedItem = Item;
 
-                    if (Item == null || Item.ProtocalUri == null)
+                    if (Item == null || Item.Protocol == null)
                     {
                         WebGridView.ContextFlyout = null;
                     }

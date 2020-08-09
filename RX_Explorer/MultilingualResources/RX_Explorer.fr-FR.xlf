@@ -610,10 +610,6 @@
           <source>Copy this link to your browser to download</source>
           <target state="translated">Copier ce lien vers votre navigateur pour télécharger</target>
         </trans-unit>
-        <trans-unit id="QuickStartChooseIcon.Content" translate="yes" xml:space="preserve">
-          <source>Select Image</source>
-          <target state="translated">Sélectionner image</target>
-        </trans-unit>
         <trans-unit id="QuickStartDialog.CloseButtonText" translate="yes" xml:space="preserve">
           <source>Cancel</source>
           <target state="translated">Annuler</target>
@@ -639,16 +635,16 @@
           <target state="translated">Ce nom existe déjà et ne peut pas être ajouté</target>
         </trans-unit>
         <trans-unit id="QuickStartFailureTips.Subtitle" translate="yes" xml:space="preserve">
-          <source>Unable to get webpage icon automatically, please select icon manually</source>
-          <target state="translated">Impossible d'accèder à l'icône de ce site automatiquement, veuillez sélectionner l'icône manuellement</target>
+          <source>Unable to get icon automatically, please try again</source>
+          <target state="translated">Impossible d'obtenir l'icône automatiquement, veuillez réessayer</target>
         </trans-unit>
         <trans-unit id="QuickStartFormatErrorTip.Subtitle" translate="yes" xml:space="preserve">
           <source>Protocol or address format error</source>
           <target state="translated">Protocole ou format d'adresse erroné</target>
         </trans-unit>
         <trans-unit id="QuickStartGetWebImage.Content" translate="yes" xml:space="preserve">
-          <source>Auto-acquisition</source>
-          <target state="translated">Acquisition automatique</target>
+          <source>Get icon</source>
+          <target state="translated">Obtenir l'icône</target>
         </trans-unit>
         <trans-unit id="QuickStartLink.Content" translate="yes" xml:space="preserve">
           <source>Launch an app with a URI</source>
@@ -657,10 +653,6 @@
         <trans-unit id="QuickStartLink.NavigateUri" translate="yes" xml:space="preserve">
           <source>https://docs.microsoft.com/en-us/windows/uwp/launch-resume/launch-app-with-uri</source>
           <target state="translated">https://docs.microsoft.com/en-us/windows/uwp/launch-resume/launch-app-with-uri</target>
-        </trans-unit>
-        <trans-unit id="QuickStartProtocal.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Protocal</source>
-          <target state="translated">Protocole</target>
         </trans-unit>
         <trans-unit id="QuickStartProtocalTip.Subtitle" translate="yes" xml:space="preserve">
           <source>Protocal Reference</source>
@@ -2354,14 +2346,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Right now</source>
           <target state="translated">Tout de suite</target>
         </trans-unit>
-        <trans-unit id="QuickStart_Protocal_Application_PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Protocal</source>
-          <target state="translated">Protocole</target>
-        </trans-unit>
-        <trans-unit id="QuickStart_Protocal_Web_PlaceholderText" translate="yes" xml:space="preserve">
-          <source>WebSite</source>
-          <target state="translated">Site web</target>
-        </trans-unit>
         <trans-unit id="Reset_Dialog_TotalFile" translate="yes" xml:space="preserve">
           <source>In total</source>
           <target state="translated">Total</target>
@@ -3353,7 +3337,7 @@ Les noms non valides incluent
         </trans-unit>
         <trans-unit id="Operate_Text_SortTarget_Type" translate="yes" xml:space="preserve">
           <source>Type</source>
-          <target state="new">Type</target>
+          <target state="translated">Type</target>
         </trans-unit>
         <trans-unit id="Operate_Text_SortDirection_Asc" translate="yes" xml:space="preserve">
           <source>Ascending</source>
@@ -3362,6 +3346,26 @@ Les noms non valides incluent
         <trans-unit id="Operate_Text_SortDirection_Desc" translate="yes" xml:space="preserve">
           <source>Descending</source>
           <target state="translated">Descendant</target>
+        </trans-unit>
+        <trans-unit id="QuickStart_Protocol_Application_PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter path or protocol</source>
+          <target state="translated">Entrez le chemin ou le protocole</target>
+        </trans-unit>
+        <trans-unit id="QuickStart_Protocol_Web_PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter website</source>
+          <target state="translated">Entrez sur le site Web</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ApplicationNotFound_Content" translate="yes" xml:space="preserve">
+          <source>The application cannot be found, please reset the executable file path</source>
+          <target state="translated">L'application est introuvable, veuillez réinitialiser le chemin du fichier exécutable</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_AccessFolderFailure_Content" translate="yes" xml:space="preserve">
+          <source>Unable to access the folder.\rError message:</source>
+          <target state="translated">Impossible d'accéder au dossier\rMessage d'erreur:</target>
+        </trans-unit>
+        <trans-unit id="SolidColor_FollowSystem.Content" translate="yes" xml:space="preserve">
+          <source>Windows default</source>
+          <target state="translated">Par défaut de Windows</target>
         </trans-unit>
       </group>
     </body>

@@ -622,10 +622,6 @@
           <source>Copy this link to your browser to download</source>
           <target state="translated">複製此連接至瀏覽器進行下載</target>
         </trans-unit>
-        <trans-unit id="QuickStartChooseIcon.Content" translate="yes" xml:space="preserve">
-          <source>Select Image</source>
-          <target state="translated">選擇圖片</target>
-        </trans-unit>
         <trans-unit id="QuickStartDialog.CloseButtonText" translate="yes" xml:space="preserve">
           <source>Cancel</source>
           <target state="translated" state-qualifier="tm-suggestion">取消</target>
@@ -651,16 +647,16 @@
           <target state="translated">此位置已有同名的檔案</target>
         </trans-unit>
         <trans-unit id="QuickStartFailureTips.Subtitle" translate="yes" xml:space="preserve">
-          <source>Unable to get webpage icon automatically, please select icon manually</source>
-          <target state="translated">無法自動取得網頁圖標，請手動選擇圖標</target>
+          <source>Unable to get icon automatically, please try again</source>
+          <target state="translated">無法自動取得圖標，請重試</target>
         </trans-unit>
         <trans-unit id="QuickStartFormatErrorTip.Subtitle" translate="yes" xml:space="preserve">
           <source>Protocol or address format error</source>
           <target state="translated">協議或地址格式錯誤</target>
         </trans-unit>
         <trans-unit id="QuickStartGetWebImage.Content" translate="yes" xml:space="preserve">
-          <source>Auto-acquisition</source>
-          <target state="translated">自動取得</target>
+          <source>Get icon</source>
+          <target state="translated">獲取圖標</target>
         </trans-unit>
         <trans-unit id="QuickStartLink.Content" translate="yes" xml:space="preserve">
           <source>Launch an app with a URI</source>
@@ -669,10 +665,6 @@
         <trans-unit id="QuickStartLink.NavigateUri" translate="yes" xml:space="preserve">
           <source>https://docs.microsoft.com/en-us/windows/uwp/launch-resume/launch-app-with-uri</source>
           <target state="translated">https://docs.microsoft.com/en-us/windows/uwp/launch-resume/launch-app-with-uri</target>
-        </trans-unit>
-        <trans-unit id="QuickStartProtocal.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Protocal</source>
-          <target state="translated">協議</target>
         </trans-unit>
         <trans-unit id="QuickStartProtocalTip.Subtitle" translate="yes" xml:space="preserve">
           <source>Protocal Reference</source>
@@ -2374,14 +2366,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Right now</source>
           <target state="translated">立即</target>
         </trans-unit>
-        <trans-unit id="QuickStart_Protocal_Application_PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Protocal</source>
-          <target state="translated">協議</target>
-        </trans-unit>
-        <trans-unit id="QuickStart_Protocal_Web_PlaceholderText" translate="yes" xml:space="preserve">
-          <source>WebSite</source>
-          <target state="translated" state-qualifier="tm-suggestion">網站</target>
-        </trans-unit>
         <trans-unit id="Reset_Dialog_TotalFile" translate="yes" xml:space="preserve">
           <source>In total</source>
           <target state="translated">總計</target>
@@ -3362,6 +3346,26 @@ Invalid names include
         <trans-unit id="Operate_Text_SortDirection_Desc" translate="yes" xml:space="preserve">
           <source>Descending</source>
           <target state="translated">降序</target>
+        </trans-unit>
+        <trans-unit id="QuickStart_Protocol_Application_PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter path or protocol</source>
+          <target state="translated">輸入路徑或協議</target>
+        </trans-unit>
+        <trans-unit id="QuickStart_Protocol_Web_PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter website</source>
+          <target state="translated">輸入網址</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ApplicationNotFound_Content" translate="yes" xml:space="preserve">
+          <source>The application cannot be found, please reset the executable file path</source>
+          <target state="translated">該應用程序已無法找到，請重新設置可執行文件路徑</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_AccessFolderFailure_Content" translate="yes" xml:space="preserve">
+          <source>Unable to access the folder.\rError message:</source>
+          <target state="translated">無法訪問該文件夾\r錯誤信息：</target>
+        </trans-unit>
+        <trans-unit id="SolidColor_FollowSystem.Content" translate="yes" xml:space="preserve">
+          <source>Windows default</source>
+          <target state="translated">Windows默認</target>
         </trans-unit>
       </group>
     </body>

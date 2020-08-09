@@ -864,6 +864,10 @@
     </Page.Resources>
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
         <ListView Background="Transparent"
                   x:Name="ListViewControl"
                   HorizontalAlignment="Stretch"
@@ -888,12 +892,9 @@
                   DoubleTapped="ViewControl_DoubleTapped"
                   x:FieldModifier="Public"
                   Visibility="Collapsed"
+                  Margin="0,0,0,-16"
+                  HeaderTemplate="{StaticResource ListHeaderDataTemplate}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterListViewTransitions,Mode=OneWay}">
-            <ListView.Header>
-                <controls:ScrollHeader Mode="Sticky"
-                                       Name="ListHeader"
-                                       x:FieldModifier="public" />
-            </ListView.Header>
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment"
@@ -927,6 +928,7 @@
                   IsDoubleTapEnabled="True"
                   DoubleTapped="ViewControl_DoubleTapped"
                   x:FieldModifier="Public"
+                  Margin="0,0,0,-16"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterGridViewTransitions,Mode=OneWay}">
             <GridView.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -943,5 +945,13 @@
                    Text="无文件"
                    FontSize="16"
                    Visibility="Collapsed" />
+        <CommandBar IsOpen="False"
+                    Grid.Row="1"
+                    VerticalAlignment="Bottom"
+                    ClosedDisplayMode="Minimal"
+                    DefaultLabelPosition="Right"
+                    Name="BottomCommandBar"
+                    Opening="BottomCommandBar_Opening"
+                    Background="{StaticResource ElementAcrylicBrush}" />
     </Grid>
 </Page>

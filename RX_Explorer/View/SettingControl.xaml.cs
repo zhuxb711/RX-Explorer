@@ -226,17 +226,8 @@ namespace RX_Explorer
                 EnablePreLaunch.IsOn = PreLaunch;
             }
 
-            if (AppThemeController.Current.Theme == ElementTheme.Light)
-            {
-                CustomFontColor.SelectedIndex = 1;
-            }
-            else
-            {
-                CustomFontColor.SelectedIndex = 0;
-            }
-
             TreeViewDetach.IsOn = !IsDetachTreeViewAndPresenter;
-            
+
             EnableQuicklook.IsEnabled = IsQuicklookAvailable;
 
             if (ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] is bool IsEnable)
@@ -288,7 +279,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message);
             }
             finally
             {
@@ -296,14 +287,6 @@ namespace RX_Explorer
                 {
                     EmptyFeedBack.Text = Globalization.GetString("Progress_Tip_NoFeedback");
                     SubmitIssueOnGithub.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    FeedBackList.UpdateLayout();
-
-                    await Task.Delay(500).ConfigureAwait(true);
-
-                    FeedBackList.ScrollIntoViewSmoothly(FeedBackCollection.Last());
                 }
             }
         }
@@ -470,9 +453,9 @@ namespace RX_Explorer
                         PictureMode.IsChecked = null;
                         BingPictureMode.IsChecked = null;
                         SolidColor_White.IsChecked = null;
+                        SolidColor_FollowSystem.IsChecked = null;
                         SolidColor_Black.IsChecked = null;
                         CustomFontColor.IsEnabled = false;
-                        CustomFontColor.SelectedIndex = 0;
 
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
                         BackgroundController.Current.TintOpacity = 0.6;
@@ -503,7 +486,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            SolidColor_White.IsChecked = true;
+                            SolidColor_FollowSystem.IsChecked = true;
                         }
 
                         break;
@@ -514,6 +497,7 @@ namespace RX_Explorer
                         SolidColorArea.Visibility = Visibility.Collapsed;
                         SolidColor_White.IsChecked = null;
                         SolidColor_Black.IsChecked = null;
+                        SolidColor_FollowSystem.IsChecked = null;
                         CustomFontColor.IsEnabled = true;
 
                         if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string Mode)
@@ -567,7 +551,7 @@ namespace RX_Explorer
 
                             if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
                             {
-                                BackgroundController.Current.AcrylicColor = BackgroundController.GetColorFromHexString(AcrylicColor);
+                                BackgroundController.Current.AcrylicColor = AcrylicColor.GetColorFromHexString();
                             }
                         }
 
@@ -854,7 +838,7 @@ namespace RX_Explorer
 
             if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
             {
-                BackgroundController.Current.AcrylicColor = BackgroundController.GetColorFromHexString(AcrylicColor);
+                BackgroundController.Current.AcrylicColor = AcrylicColor.GetColorFromHexString();
             }
         }
 
@@ -1086,18 +1070,19 @@ namespace RX_Explorer
             PreLaunchTip.IsOpen = true;
         }
 
+        private void SolidColor_FollowSystem_Checked(object sender, RoutedEventArgs e)
+        {
+            BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: null);
+        }
+
         private void SolidColor_White_Checked(object sender, RoutedEventArgs e)
         {
             BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: Colors.White);
-
-            CustomFontColor.SelectedIndex = 1;
         }
 
         private void SolidColor_Black_Checked(object sender, RoutedEventArgs e)
         {
-            BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: Colors.Black);
-
-            CustomFontColor.SelectedIndex = 0;
+            BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: "#1E1E1E".GetColorFromHexString());
         }
 
         private async void FeedBackNotice_Click(object sender, RoutedEventArgs e)
@@ -1297,23 +1282,6 @@ namespace RX_Explorer
                     {
                         ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = true;
                         IsDoubleClickEnable = true;
-                        break;
-                    }
-            }
-        }
-
-        private void CustomFontColor_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            switch (CustomFontColor.SelectedIndex)
-            {
-                case 0:
-                    {
-                        AppThemeController.Current.ChangeThemeTo(ElementTheme.Dark);
-                        break;
-                    }
-                case 1:
-                    {
-                        AppThemeController.Current.ChangeThemeTo(ElementTheme.Light);
                         break;
                     }
             }

@@ -1,5 +1,6 @@
 ﻿using ComputerVision;
 using ICSharpCode.SharpZipLib.Zip;
+using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
@@ -85,6 +86,8 @@ namespace RX_Explorer
         private FileSystemStorageItem TabTarget = null;
         private FileSystemStorageItem CurrentNameEditItem = null;
         private DateTimeOffset LastClickTime;
+        private DateTimeOffset LastPressTime;
+        private string LastPressChar;
 
         public FileSystemStorageItem SelectedItem
         {
@@ -167,12 +170,17 @@ namespace RX_Explorer
 
         private async void Window_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            var CtrlState = sender.GetKeyState(VirtualKey.Control);
-            var ShiftState = sender.GetKeyState(VirtualKey.Shift);
+            CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
+            CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
 
             if (!FileControlInstance.IsSearchOrPathBoxFocused && !QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning && SelectedItems.All((Item) => !Item.IsHidenItem))
             {
                 args.Handled = true;
+
+                if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
+                {
+                    NavigateToStorageItem(args.VirtualKey);
+                }
 
                 switch (args.VirtualKey)
                 {
@@ -251,6 +259,63 @@ namespace RX_Explorer
                             await Ctrl_Z_Click().ConfigureAwait(false);
                             break;
                         }
+                }
+            }
+        }
+
+        private void NavigateToStorageItem(VirtualKey Key)
+        {
+            if (Key >= VirtualKey.A && Key <= VirtualKey.Z)
+            {
+                try
+                {
+                    string TargetChar = Convert.ToChar((int)Key).ToString();
+
+                    if (LastPressChar != TargetChar && (DateTimeOffset.Now - LastPressTime).TotalMilliseconds < 1000)
+                    {
+                        TargetChar = LastPressChar + TargetChar;
+                    }
+
+                    List<FileSystemStorageItem> Group = FileCollection.Where((Item) => Item.Name.StartsWith(TargetChar, StringComparison.OrdinalIgnoreCase)).ToList();
+
+                    if (Group.Count > 0)
+                    {
+                        if (SelectedItem != null)
+                        {
+                            if (Group.Any((Item) => Item == SelectedItem))
+                            {
+                                int NextIndex = Group.IndexOf(SelectedItem);
+
+                                if (NextIndex < Group.Count - 1)
+                                {
+                                    SelectedItem = Group[NextIndex + 1];
+                                    ItemPresenter.ScrollIntoViewSmoothly(SelectedItem);
+                                }
+                                else
+                                {
+                                    SelectedItem = Group[0];
+                                    ItemPresenter.ScrollIntoViewSmoothly(SelectedItem);
+                                }
+                            }
+                            else
+                            {
+                                SelectedItem = Group[0];
+                                ItemPresenter.ScrollIntoViewSmoothly(SelectedItem);
+                            }
+                        }
+                        else
+                        {
+                            SelectedItem = Group[0];
+                            ItemPresenter.ScrollIntoViewSmoothly(SelectedItem);
+                        }
+                    }
+
+                    LastPressChar = TargetChar;
+                    LastPressTime = DateTimeOffset.Now;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error happened in NavigateToStorageItem: {ex.Message}");
                 }
             }
         }
@@ -507,7 +572,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void Copy_Click(object sender, RoutedEventArgs e)
+        private async void Copy_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -550,7 +615,7 @@ namespace RX_Explorer
             FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
         }
 
-        public async void Paste_Click(object sender, RoutedEventArgs e)
+        private async void Paste_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -807,7 +872,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void Cut_Click(object sender, RoutedEventArgs e)
+        private async void Cut_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -850,7 +915,7 @@ namespace RX_Explorer
             SelectedItems.ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.ReduceOpacity));
         }
 
-        public async void Delete_Click(object sender, RoutedEventArgs e)
+        private async void Delete_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -961,7 +1026,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void Rename_Click(object sender, RoutedEventArgs e)
+        private async void Rename_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -1162,7 +1227,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void BluetoothShare_Click(object sender, RoutedEventArgs e)
+        private async void BluetoothShare_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -1400,7 +1465,7 @@ namespace RX_Explorer
             e.Handled = true;
         }
 
-        public async void Attribute_Click(object sender, RoutedEventArgs e)
+        private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -1424,7 +1489,7 @@ namespace RX_Explorer
             _ = await Dialog.ShowAsync().ConfigureAwait(true);
         }
 
-        public async void Zip_Click(object sender, RoutedEventArgs e)
+        private async void Zip_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -1873,7 +1938,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void Transcode_Click(object sender, RoutedEventArgs e)
+        private async void Transcode_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -1974,7 +2039,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void FolderOpen_Click(object sender, RoutedEventArgs e)
+        private async void FolderOpen_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -1984,7 +2049,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void FolderProperty_Click(object sender, RoutedEventArgs e)
+        private async void FolderProperty_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2007,7 +2072,7 @@ namespace RX_Explorer
             _ = await Dialog.ShowAsync().ConfigureAwait(true);
         }
 
-        public async void WIFIShare_Click(object sender, RoutedEventArgs e)
+        private async void WIFIShare_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2098,14 +2163,14 @@ namespace RX_Explorer
             Clipboard.SetContent(Package);
         }
 
-        public async void UseSystemFileMananger_Click(object sender, RoutedEventArgs e)
+        private async void UseSystemFileMananger_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
             _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
         }
 
-        public async void ParentProperty_Click(object sender, RoutedEventArgs e)
+        private async void ParentProperty_Click(object sender, RoutedEventArgs e)
         {
             if (!await FileControlInstance.CurrentFolder.CheckExist().ConfigureAwait(true))
             {
@@ -2139,7 +2204,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void FileOpen_Click(object sender, RoutedEventArgs e)
+        private async void FileOpen_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2154,7 +2219,7 @@ namespace RX_Explorer
             ((TextBox)sender).SelectAll();
         }
 
-        public async void AddToLibray_Click(object sender, RoutedEventArgs e)
+        private async void AddToLibray_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2192,7 +2257,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void CreateFolder_Click(object sender, RoutedEventArgs e)
+        private async void CreateFolder_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2272,7 +2337,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void SystemShare_Click(object sender, RoutedEventArgs e)
+        private async void SystemShare_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2305,7 +2370,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void Refresh_Click(object sender, RoutedEventArgs e)
+        private async void Refresh_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2638,7 +2703,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void VideoEdit_Click(object sender, RoutedEventArgs e)
+        private async void VideoEdit_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2667,7 +2732,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void VideoMerge_Click(object sender, RoutedEventArgs e)
+        private async void VideoMerge_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2697,7 +2762,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void ChooseOtherApp_Click(object sender, RoutedEventArgs e)
+        private async void ChooseOtherApp_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2736,7 +2801,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void RunWithSystemAuthority_Click(object sender, RoutedEventArgs e)
+        private async void RunWithSystemAuthority_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2865,14 +2930,14 @@ namespace RX_Explorer
             }
         }
 
-        private void QRTeachTip_Closing(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosingEventArgs args)
+        private void QRTeachTip_Closing(TeachingTip sender, TeachingTipClosingEventArgs args)
         {
             QRImage.Source = null;
             WiFiProvider.Dispose();
             WiFiProvider = null;
         }
 
-        public async void CreateFile_Click(object sender, RoutedEventArgs e)
+        private async void CreateFile_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2930,7 +2995,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void CompressFolder_Click(object sender, RoutedEventArgs e)
+        private async void CompressFolder_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -3765,7 +3830,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void MixZip_Click(object sender, RoutedEventArgs e)
+        private async void MixZip_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -3873,7 +3938,7 @@ namespace RX_Explorer
 
         }
 
-        public async void TryUnlock_Click(object sender, RoutedEventArgs e)
+        private async void TryUnlock_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -3942,7 +4007,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void CalculateHash_Click(object sender, RoutedEventArgs e)
+        private async void CalculateHash_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -4050,7 +4115,7 @@ namespace RX_Explorer
             HashCancellation?.Cancel();
         }
 
-        public async void OpenInTerminal_Click(object sender, RoutedEventArgs e)
+        private async void OpenInTerminal_Click(object sender, RoutedEventArgs e)
         {
             switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
             {
@@ -4069,7 +4134,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
+        private async void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
         {
             if (SelectedItem is FileSystemStorageItem Item && Item.StorageType == StorageItemTypes.Folder)
             {
@@ -4183,7 +4248,7 @@ namespace RX_Explorer
             ItemPresenter.Focus(FocusState.Programmatic);
         }
 
-        public async void OpenFolderInNewWindow_Click(object sender, RoutedEventArgs e)
+        private async void OpenFolderInNewWindow_Click(object sender, RoutedEventArgs e)
         {
             if (SelectedItem is FileSystemStorageItem Item && Item.StorageType == StorageItemTypes.Folder)
             {
@@ -4191,14 +4256,14 @@ namespace RX_Explorer
             }
         }
 
-        public async void Undo_Click(object sender, RoutedEventArgs e)
+        private async void Undo_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
             await Ctrl_Z_Click().ConfigureAwait(false);
         }
 
-        public async void RemoveHidden_Click(object sender, RoutedEventArgs e)
+        private async void RemoveHidden_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -4219,7 +4284,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void OpenHiddenItemExplorer_Click(object sender, RoutedEventArgs e)
+        private async void OpenHiddenItemExplorer_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -4243,7 +4308,7 @@ namespace RX_Explorer
             }
         }
 
-        public void OrderByName_Click(object sender, RoutedEventArgs e)
+        private void OrderByName_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -4259,7 +4324,7 @@ namespace RX_Explorer
             }
         }
 
-        public void OrderByTime_Click(object sender, RoutedEventArgs e)
+        private void OrderByTime_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -4275,7 +4340,7 @@ namespace RX_Explorer
             }
         }
 
-        public void OrderByType_Click(object sender, RoutedEventArgs e)
+        private void OrderByType_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -4291,7 +4356,7 @@ namespace RX_Explorer
             }
         }
 
-        public void OrderBySize_Click(object sender, RoutedEventArgs e)
+        private void OrderBySize_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -4307,7 +4372,7 @@ namespace RX_Explorer
             }
         }
 
-        public void Desc_Click(object sender, RoutedEventArgs e)
+        private void Desc_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -4323,7 +4388,7 @@ namespace RX_Explorer
             }
         }
 
-        public void Asc_Click(object sender, RoutedEventArgs e)
+        private void Asc_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -4339,7 +4404,7 @@ namespace RX_Explorer
             }
         }
 
-        public void SortMenuFlyout_Opening(object sender, object e)
+        private void SortMenuFlyout_Opening(object sender, object e)
         {
             if (SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
             {
@@ -4386,6 +4451,538 @@ namespace RX_Explorer
                         OrderBySize.IsChecked = true;
                         break;
                     }
+            }
+        }
+
+        private void BottomCommandBar_Opening(object sender, object e)
+        {
+            BottomCommandBar.PrimaryCommands.Clear();
+            BottomCommandBar.SecondaryCommands.Clear();
+
+            if (SelectedItems.Count > 1)
+            {
+                if (SelectedItems.Any((Item) => Item.IsHidenItem))
+                {
+                    BottomCommandBar.IsOpen = false;
+                    return;
+                }
+
+                AppBarButton CopyButton = new AppBarButton
+                {
+                    Icon = new SymbolIcon(Symbol.Copy),
+                    Label = Globalization.GetString("Operate_Text_Copy")
+                };
+                CopyButton.Click += Copy_Click;
+                BottomCommandBar.PrimaryCommands.Add(CopyButton);
+
+                AppBarButton CutButton = new AppBarButton
+                {
+                    Icon = new SymbolIcon(Symbol.Cut),
+                    Label = Globalization.GetString("Operate_Text_Cut")
+                };
+                CutButton.Click += Cut_Click;
+                BottomCommandBar.PrimaryCommands.Add(CutButton);
+
+                AppBarButton DeleteButton = new AppBarButton
+                {
+                    Icon = new SymbolIcon(Symbol.Delete),
+                    Label = Globalization.GetString("Operate_Text_Delete")
+                };
+                DeleteButton.Click += Delete_Click;
+                BottomCommandBar.PrimaryCommands.Add(DeleteButton);
+
+                bool EnableMixZipButton = true;
+                string MixZipButtonText = Globalization.GetString("Operate_Text_Compression");
+
+                if (SelectedItems.Any((Item) => Item.StorageType != StorageItemTypes.Folder))
+                {
+                    if (SelectedItems.All((Item) => Item.StorageType == StorageItemTypes.File))
+                    {
+                        if (SelectedItems.All((Item) => Item.Type == ".zip"))
+                        {
+                            MixZipButtonText = Globalization.GetString("Operate_Text_Decompression");
+                        }
+                        else if (SelectedItems.All((Item) => Item.Type != ".zip"))
+                        {
+                            MixZipButtonText = Globalization.GetString("Operate_Text_Compression");
+                        }
+                        else
+                        {
+                            EnableMixZipButton = false;
+                        }
+                    }
+                    else
+                    {
+                        if (SelectedItems.Where((It) => It.StorageType == StorageItemTypes.File).Any((Item) => Item.Type == ".zip"))
+                        {
+                            EnableMixZipButton = false;
+                        }
+                        else
+                        {
+                            MixZipButtonText = Globalization.GetString("Operate_Text_Compression");
+                        }
+                    }
+                }
+                else
+                {
+                    MixZipButtonText = Globalization.GetString("Operate_Text_Compression");
+                }
+
+                AppBarButton CompressionButton = new AppBarButton
+                {
+                    Icon = new SymbolIcon(Symbol.Bookmarks),
+                    Label = MixZipButtonText,
+                    IsEnabled = EnableMixZipButton
+                };
+                CompressionButton.Click += MixZip_Click;
+                BottomCommandBar.SecondaryCommands.Add(CompressionButton);
+            }
+            else
+            {
+                if (SelectedItem is FileSystemStorageItem Item)
+                {
+                    if (Item.IsHidenItem)
+                    {
+                        AppBarButton WinExButton = new AppBarButton
+                        {
+                            Icon = new FontIcon { Glyph = "\uEC50" },
+                            Label = Globalization.GetString("Operate_Text_OpenInWinExplorer")
+                        };
+                        WinExButton.Click += OpenHiddenItemExplorer_Click;
+                        BottomCommandBar.PrimaryCommands.Add(WinExButton);
+
+                        AppBarButton RemoveHiddenButton = new AppBarButton
+                        {
+                            Icon = new FontIcon { Glyph = "\uF5EF" },
+                            Label = Globalization.GetString("Operate_Text_RemoveHidden")
+                        };
+                        RemoveHiddenButton.Click += RemoveHidden_Click;
+                        BottomCommandBar.PrimaryCommands.Add(RemoveHiddenButton);
+                    }
+                    else
+                    {
+                        AppBarButton CopyButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.Copy),
+                            Label = Globalization.GetString("Operate_Text_Copy")
+                        };
+                        CopyButton.Click += Copy_Click;
+                        BottomCommandBar.PrimaryCommands.Add(CopyButton);
+
+                        AppBarButton CutButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.Cut),
+                            Label = Globalization.GetString("Operate_Text_Cut")
+                        };
+                        CutButton.Click += Cut_Click;
+                        BottomCommandBar.PrimaryCommands.Add(CutButton);
+
+                        AppBarButton DeleteButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.Delete),
+                            Label = Globalization.GetString("Operate_Text_Delete")
+                        };
+                        DeleteButton.Click += Delete_Click;
+                        BottomCommandBar.PrimaryCommands.Add(DeleteButton);
+
+                        AppBarButton RenameButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.Rename),
+                            Label = Globalization.GetString("Operate_Text_Rename")
+                        };
+                        RenameButton.Click += Rename_Click;
+                        BottomCommandBar.PrimaryCommands.Add(RenameButton);
+
+                        if (Item.StorageType == StorageItemTypes.File)
+                        {
+                            AppBarButton OpenButton = new AppBarButton
+                            {
+                                Icon = new SymbolIcon(Symbol.OpenFile),
+                                Label = Globalization.GetString("Operate_Text_Open")
+                            };
+                            OpenButton.Click += FileOpen_Click;
+                            BottomCommandBar.SecondaryCommands.Add(OpenButton);
+
+                            MenuFlyout OpenFlyout = new MenuFlyout();
+                            MenuFlyoutItem AdminItem = new MenuFlyoutItem
+                            {
+                                Icon = new FontIcon { Glyph = "\uEA0D" },
+                                Text = Globalization.GetString("Operate_Text_OpenAsAdministrator"),
+                                IsEnabled = RunWithSystemAuthority.IsEnabled
+                            };
+                            AdminItem.Click += RunWithSystemAuthority_Click;
+                            OpenFlyout.Items.Add(AdminItem);
+
+                            MenuFlyoutItem OtherItem = new MenuFlyoutItem
+                            {
+                                Icon = new SymbolIcon(Symbol.SwitchApps),
+                                Text = Globalization.GetString("Operate_Text_ChooseAnotherApp"),
+                                IsEnabled = ChooseOtherApp.IsEnabled
+                            };
+                            OtherItem.Click += ChooseOtherApp_Click;
+                            OpenFlyout.Items.Add(OtherItem);
+
+                            BottomCommandBar.SecondaryCommands.Add(new AppBarButton
+                            {
+                                Icon = new SymbolIcon(Symbol.OpenWith),
+                                Label = Globalization.GetString("Operate_Text_OpenWith"),
+                                Flyout = OpenFlyout
+                            });
+
+                            BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
+
+                            MenuFlyout ToolFlyout = new MenuFlyout();
+                            MenuFlyoutItem UnLock = new MenuFlyoutItem
+                            {
+                                Icon = new FontIcon { Glyph = "\uE785" },
+                                Text = Globalization.GetString("Operate_Text_Unlock")
+                            };
+                            UnLock.Click += TryUnlock_Click;
+                            ToolFlyout.Items.Add(UnLock);
+
+                            MenuFlyoutItem Hash = new MenuFlyoutItem
+                            {
+                                Icon = new FontIcon { Glyph = "\uE2B2" },
+                                Text = Globalization.GetString("Operate_Text_ComputeHash")
+                            };
+                            Hash.Click += CalculateHash_Click;
+                            ToolFlyout.Items.Add(Hash);
+
+                            BottomCommandBar.SecondaryCommands.Add(new AppBarButton
+                            {
+                                Icon = new FontIcon { Glyph = "\uE90F" },
+                                Label = Globalization.GetString("Operate_Text_Tool"),
+                                Flyout = ToolFlyout
+                            });
+
+                            MenuFlyout EditFlyout = new MenuFlyout();
+                            MenuFlyoutItem MontageItem = new MenuFlyoutItem
+                            {
+                                Icon = new FontIcon { Glyph = "\uE177" },
+                                Text = Globalization.GetString("Operate_Text_Montage"),
+                                IsEnabled = VideoEdit.IsEnabled
+                            };
+                            MontageItem.Click += VideoEdit_Click;
+                            EditFlyout.Items.Add(MontageItem);
+
+                            MenuFlyoutItem MergeItem = new MenuFlyoutItem
+                            {
+                                Icon = new FontIcon { Glyph = "\uE11E" },
+                                Text = Globalization.GetString("Operate_Text_Merge"),
+                                IsEnabled = VideoMerge.IsEnabled
+                            };
+                            MergeItem.Click += VideoMerge_Click;
+                            EditFlyout.Items.Add(MergeItem);
+
+                            MenuFlyoutItem TranscodeItem = new MenuFlyoutItem
+                            {
+                                Icon = new FontIcon { Glyph = "\uE1CA" },
+                                Text = Globalization.GetString("Operate_Text_Transcode"),
+                                IsEnabled = Transcode.IsEnabled
+                            };
+                            TranscodeItem.Click += Transcode_Click;
+                            EditFlyout.Items.Add(TranscodeItem);
+
+                            BottomCommandBar.SecondaryCommands.Add(new AppBarButton
+                            {
+                                Icon = new SymbolIcon(Symbol.Edit),
+                                Label = Globalization.GetString("Operate_Text_Edit"),
+                                Flyout = EditFlyout
+                            });
+
+                            MenuFlyout ShareFlyout = new MenuFlyout();
+                            MenuFlyoutItem SystemShareItem = new MenuFlyoutItem
+                            {
+                                Icon = new SymbolIcon(Symbol.Share),
+                                Text = Globalization.GetString("Operate_Text_SystemShare")
+                            };
+                            SystemShareItem.Click += SystemShare_Click;
+                            ShareFlyout.Items.Add(SystemShareItem);
+
+                            MenuFlyoutItem WIFIShareItem = new MenuFlyoutItem
+                            {
+                                Icon = new FontIcon { Glyph = "\uE701" },
+                                Text = Globalization.GetString("Operate_Text_WIFIShare")
+                            };
+                            WIFIShareItem.Click += WIFIShare_Click;
+                            ShareFlyout.Items.Add(WIFIShareItem);
+
+                            MenuFlyoutItem BluetoothShare = new MenuFlyoutItem
+                            {
+                                Icon = new FontIcon { Glyph = "\uE702" },
+                                Text = Globalization.GetString("Operate_Text_BluetoothShare")
+                            };
+                            BluetoothShare.Click += BluetoothShare_Click;
+                            ShareFlyout.Items.Add(BluetoothShare);
+
+                            BottomCommandBar.SecondaryCommands.Add(new AppBarButton
+                            {
+                                Icon = new SymbolIcon(Symbol.Share),
+                                Label = Globalization.GetString("Operate_Text_Share"),
+                                Flyout = ShareFlyout
+                            });
+
+                            AppBarButton CompressionButton = new AppBarButton
+                            {
+                                Icon = new SymbolIcon(Symbol.Bookmarks),
+                                Label = Zip.Label
+                            };
+                            CompressionButton.Click += Zip_Click;
+                            BottomCommandBar.SecondaryCommands.Add(CompressionButton);
+
+                            BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
+
+                            AppBarButton PropertyButton = new AppBarButton
+                            {
+                                Icon = new SymbolIcon(Symbol.Tag),
+                                Label = Globalization.GetString("Operate_Text_Property")
+                            };
+                            PropertyButton.Click += Attribute_Click;
+                            BottomCommandBar.SecondaryCommands.Add(PropertyButton);
+                        }
+                        else
+                        {
+                            AppBarButton OpenButton = new AppBarButton
+                            {
+                                Icon = new SymbolIcon(Symbol.BackToWindow),
+                                Label = Globalization.GetString("Operate_Text_Open")
+                            };
+                            OpenButton.Click += FolderOpen_Click;
+                            BottomCommandBar.SecondaryCommands.Add(OpenButton);
+
+                            AppBarButton NewWindowButton = new AppBarButton
+                            {
+                                Icon = new FontIcon { Glyph = "\uE727" },
+                                Label = Globalization.GetString("Operate_Text_NewWindow")
+                            };
+                            NewWindowButton.Click += OpenFolderInNewWindow_Click;
+                            BottomCommandBar.SecondaryCommands.Add(NewWindowButton);
+
+                            AppBarButton NewTabButton = new AppBarButton
+                            {
+                                Icon = new FontIcon { Glyph = "\uF7ED" },
+                                Label = Globalization.GetString("Operate_Text_NewTab")
+                            };
+                            NewTabButton.Click += OpenFolderInNewTab_Click;
+                            BottomCommandBar.SecondaryCommands.Add(NewTabButton);
+
+                            AppBarButton CompressionButton = new AppBarButton
+                            {
+                                Icon = new SymbolIcon(Symbol.Bookmarks),
+                                Label = Globalization.GetString("Operate_Text_Compression")
+                            };
+                            CompressionButton.Click += CompressFolder_Click;
+                            BottomCommandBar.SecondaryCommands.Add(CompressionButton);
+
+                            AppBarButton PinButton = new AppBarButton
+                            {
+                                Icon = new SymbolIcon(Symbol.Add),
+                                Label = Globalization.GetString("Operate_Text_PinToHome")
+                            };
+                            PinButton.Click += AddToLibray_Click;
+                            BottomCommandBar.SecondaryCommands.Add(PinButton);
+
+                            AppBarButton PropertyButton = new AppBarButton
+                            {
+                                Icon = new SymbolIcon(Symbol.Tag),
+                                Label = Globalization.GetString("Operate_Text_Property")
+                            };
+                            PropertyButton.Click += FolderProperty_Click;
+                            BottomCommandBar.SecondaryCommands.Add(PropertyButton);
+                        }
+                    }
+                }
+                else
+                {
+                    AppBarButton PasteButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Paste),
+                        Label = Globalization.GetString("Operate_Text_Paste")
+                    };
+                    PasteButton.Click += Paste_Click;
+                    BottomCommandBar.PrimaryCommands.Add(PasteButton);
+
+                    AppBarButton UndoButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Undo),
+                        Label = Globalization.GetString("Operate_Text_Undo")
+                    };
+                    UndoButton.Click += Undo_Click;
+                    BottomCommandBar.PrimaryCommands.Add(UndoButton);
+
+                    AppBarButton RefreshButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Refresh),
+                        Label = Globalization.GetString("Operate_Text_Refresh")
+                    };
+                    RefreshButton.Click += Refresh_Click;
+                    BottomCommandBar.PrimaryCommands.Add(RefreshButton);
+
+                    MenuFlyout NewFlyout = new MenuFlyout();
+                    MenuFlyoutItem CreateFileItem = new MenuFlyoutItem
+                    {
+                        Icon = new SymbolIcon(Symbol.Page2),
+                        Text = Globalization.GetString("Operate_Text_CreateFile"),
+                        MinWidth = 150
+                    };
+                    CreateFileItem.Click += CreateFile_Click;
+                    NewFlyout.Items.Add(CreateFileItem);
+
+                    MenuFlyoutItem CreateFolder = new MenuFlyoutItem
+                    {
+                        Icon = new SymbolIcon(Symbol.NewFolder),
+                        Text = Globalization.GetString("Operate_Text_CreateFolder"),
+                        MinWidth = 150
+                    };
+                    CreateFolder.Click += CreateFolder_Click;
+                    NewFlyout.Items.Add(CreateFolder);
+
+                    BottomCommandBar.SecondaryCommands.Add(new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Add),
+                        Label = Globalization.GetString("Operate_Text_Create"),
+                        Flyout = NewFlyout
+                    });
+
+                    bool DescCheck = false;
+                    bool AscCheck = false;
+                    bool NameCheck = false;
+                    bool TimeCheck = false;
+                    bool TypeCheck = false;
+                    bool SizeCheck = false;
+
+                    if (SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
+                    {
+                        DescCheck = false;
+                        AscCheck = true;
+                    }
+                    else
+                    {
+                        AscCheck = false;
+                        DescCheck = true;
+                    }
+
+                    switch (SortCollectionGenerator.Current.SortTarget)
+                    {
+                        case SortTarget.Name:
+                            {
+                                TypeCheck = false;
+                                TimeCheck = false;
+                                SizeCheck = false;
+                                NameCheck = true;
+                                break;
+                            }
+                        case SortTarget.Type:
+                            {
+                                TimeCheck = false;
+                                SizeCheck = false;
+                                NameCheck = false;
+                                TypeCheck = true;
+                                break;
+                            }
+                        case SortTarget.ModifiedTime:
+                            {
+                                SizeCheck = false;
+                                NameCheck = false;
+                                TypeCheck = false;
+                                TimeCheck = true;
+                                break;
+                            }
+                        case SortTarget.Size:
+                            {
+                                NameCheck = false;
+                                TypeCheck = false;
+                                TimeCheck = false;
+                                SizeCheck = true;
+                                break;
+                            }
+                    }
+
+                    MenuFlyout SortFlyout = new MenuFlyout();
+
+                    RadioMenuFlyoutItem SortName = new RadioMenuFlyoutItem
+                    {
+                        Text = Globalization.GetString("Operate_Text_SortTarget_Name"),
+                        IsChecked = NameCheck
+                    };
+                    SortName.Click += OrderByName_Click;
+                    SortFlyout.Items.Add(SortName);
+
+                    RadioMenuFlyoutItem SortTime = new RadioMenuFlyoutItem
+                    {
+                        Text = Globalization.GetString("Operate_Text_SortTarget_Time"),
+                        IsChecked = TimeCheck
+                    };
+                    SortTime.Click += OrderByTime_Click;
+                    SortFlyout.Items.Add(SortTime);
+
+                    RadioMenuFlyoutItem SortType = new RadioMenuFlyoutItem
+                    {
+                        Text = Globalization.GetString("Operate_Text_SortTarget_Type"),
+                        IsChecked = TypeCheck
+                    };
+                    SortType.Click += OrderByType_Click;
+                    SortFlyout.Items.Add(SortType);
+
+                    RadioMenuFlyoutItem SortSize = new RadioMenuFlyoutItem
+                    {
+                        Text = Globalization.GetString("Operate_Text_SortTarget_Size"),
+                        IsChecked = SizeCheck
+                    };
+                    SortSize.Click += OrderBySize_Click;
+                    SortFlyout.Items.Add(SortSize);
+
+                    SortFlyout.Items.Add(new MenuFlyoutSeparator());
+
+                    RadioMenuFlyoutItem Asc = new RadioMenuFlyoutItem
+                    {
+                        Text = Globalization.GetString("Operate_Text_SortDirection_Asc"),
+                        IsChecked = AscCheck
+                    };
+                    Asc.Click += Asc_Click;
+                    SortFlyout.Items.Add(Asc);
+
+                    RadioMenuFlyoutItem Desc = new RadioMenuFlyoutItem
+                    {
+                        Text = Globalization.GetString("Operate_Text_SortDirection_Desc"),
+                        IsChecked = DescCheck
+                    };
+                    Desc.Click += Desc_Click;
+                    SortFlyout.Items.Add(Desc);
+
+                    BottomCommandBar.SecondaryCommands.Add(new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Sort),
+                        Label = Globalization.GetString("Operate_Text_Sort"),
+                        Flyout = SortFlyout
+                    });
+
+                    BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
+
+                    AppBarButton PropertyButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Tag),
+                        Label = Globalization.GetString("Operate_Text_Property")
+                    };
+                    PropertyButton.Click += ParentProperty_Click;
+                    BottomCommandBar.SecondaryCommands.Add(PropertyButton);
+
+                    AppBarButton WinExButton = new AppBarButton
+                    {
+                        Icon = new FontIcon { Glyph = "\uEC50" },
+                        Label = Globalization.GetString("Operate_Text_OpenInWinExplorer")
+                    };
+                    WinExButton.Click += UseSystemFileMananger_Click;
+                    BottomCommandBar.SecondaryCommands.Add(WinExButton);
+
+                    AppBarButton TerminalButton = new AppBarButton
+                    {
+                        Icon = new FontIcon { Glyph = "\uE756" },
+                        Label = Globalization.GetString("Operate_Text_OpenInTerminal")
+                    };
+                    TerminalButton.Click += OpenInTerminal_Click;
+                    BottomCommandBar.SecondaryCommands.Add(TerminalButton);
+                }
             }
         }
     }

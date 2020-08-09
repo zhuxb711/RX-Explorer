@@ -465,9 +465,6 @@
   <data name="QRText.Header" xml:space="preserve">
     <value>复制此链接至浏览器即可下载</value>
   </data>
-  <data name="QuickStartChooseIcon.Content" xml:space="preserve">
-    <value>选择图片</value>
-  </data>
   <data name="QuickStartDialog.CloseButtonText" xml:space="preserve">
     <value>取消</value>
   </data>
@@ -487,22 +484,19 @@
     <value>该名称已存在，无法重复添加</value>
   </data>
   <data name="QuickStartFailureTips.Subtitle" xml:space="preserve">
-    <value>无法自动获取网页图标，请手动选择图标</value>
+    <value>无法自动获取图标，请重试</value>
   </data>
   <data name="QuickStartFormatErrorTip.Subtitle" xml:space="preserve">
     <value>协议或地址格式错误</value>
   </data>
   <data name="QuickStartGetWebImage.Content" xml:space="preserve">
-    <value>自动获取</value>
+    <value>获取图标</value>
   </data>
   <data name="QuickStartLink.Content" xml:space="preserve">
     <value>Win10_UWP应用启动命令大全-IT之家</value>
   </data>
   <data name="QuickStartLink.NavigateUri" xml:space="preserve">
     <value>https://www.ithome.com/html/win10/295999.htm</value>
-  </data>
-  <data name="QuickStartProtocal.PlaceholderText" xml:space="preserve">
-    <value>启动协议</value>
   </data>
   <data name="QuickStartProtocalTip.Subtitle" xml:space="preserve">
     <value>协议参考</value>
@@ -1778,12 +1772,6 @@
   <data name="QueueDialog_WaitUntilFinish_PrimaryButton" xml:space="preserve">
     <value>立即关闭</value>
   </data>
-  <data name="QuickStart_Protocal_Application_PlaceholderText" xml:space="preserve">
-    <value>启动协议</value>
-  </data>
-  <data name="QuickStart_Protocal_Web_PlaceholderText" xml:space="preserve">
-    <value>网址</value>
-  </data>
   <data name="Reset_Dialog_TotalFile" xml:space="preserve">
     <value>总共</value>
   </data>
@@ -2538,5 +2526,20 @@
   </data>
   <data name="Operate_Text_SortDirection_Desc" xml:space="preserve">
     <value>降序</value>
+  </data>
+  <data name="QuickStart_Protocol_Application_PlaceholderText" xml:space="preserve">
+    <value>输入路径或协议</value>
+  </data>
+  <data name="QuickStart_Protocol_Web_PlaceholderText" xml:space="preserve">
+    <value>输入网址</value>
+  </data>
+  <data name="QueueDialog_ApplicationNotFound_Content" xml:space="preserve">
+    <value>该应用程序已无法找到，请重新设置可执行文件路径</value>
+  </data>
+  <data name="QueueDialog_AccessFolderFailure_Content" xml:space="preserve">
+    <value>无法访问此文件夹\r错误信息:</value>
+  </data>
+  <data name="SolidColor_FollowSystem.Content" xml:space="preserve">
+    <value>Windows默认</value>
   </data>
 </root>

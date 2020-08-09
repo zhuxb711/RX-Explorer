@@ -474,9 +474,6 @@
   <data name="QRText.Header" xml:space="preserve">
     <value>複製此連接至瀏覽器進行下載</value>
   </data>
-  <data name="QuickStartChooseIcon.Content" xml:space="preserve">
-    <value>選擇圖片</value>
-  </data>
   <data name="QuickStartDialog.CloseButtonText" xml:space="preserve">
     <value>取消</value>
   </data>
@@ -496,22 +493,19 @@
     <value>此位置已有同名的檔案</value>
   </data>
   <data name="QuickStartFailureTips.Subtitle" xml:space="preserve">
-    <value>無法自動取得網頁圖標，請手動選擇圖標</value>
+    <value>無法自動取得圖標，請重試</value>
   </data>
   <data name="QuickStartFormatErrorTip.Subtitle" xml:space="preserve">
     <value>協議或地址格式錯誤</value>
   </data>
   <data name="QuickStartGetWebImage.Content" xml:space="preserve">
-    <value>自動取得</value>
+    <value>獲取圖標</value>
   </data>
   <data name="QuickStartLink.Content" xml:space="preserve">
     <value>使用統一資源標誌符(URI)啟動程式</value>
   </data>
   <data name="QuickStartLink.NavigateUri" xml:space="preserve">
     <value>https://docs.microsoft.com/en-us/windows/uwp/launch-resume/launch-app-with-uri</value>
-  </data>
-  <data name="QuickStartProtocal.PlaceholderText" xml:space="preserve">
-    <value>協議</value>
   </data>
   <data name="QuickStartProtocalTip.Subtitle" xml:space="preserve">
     <value>協議參考</value>
@@ -1793,12 +1787,6 @@
   <data name="QueueDialog_WaitUntilFinish_PrimaryButton" xml:space="preserve">
     <value>立即</value>
   </data>
-  <data name="QuickStart_Protocal_Application_PlaceholderText" xml:space="preserve">
-    <value>協議</value>
-  </data>
-  <data name="QuickStart_Protocal_Web_PlaceholderText" xml:space="preserve">
-    <value>網站</value>
-  </data>
   <data name="Reset_Dialog_TotalFile" xml:space="preserve">
     <value>總計</value>
   </data>
@@ -2538,5 +2526,20 @@
   </data>
   <data name="Operate_Text_SortDirection_Desc" xml:space="preserve">
     <value>降序</value>
+  </data>
+  <data name="QuickStart_Protocol_Application_PlaceholderText" xml:space="preserve">
+    <value>輸入路徑或協議</value>
+  </data>
+  <data name="QuickStart_Protocol_Web_PlaceholderText" xml:space="preserve">
+    <value>輸入網址</value>
+  </data>
+  <data name="QueueDialog_ApplicationNotFound_Content" xml:space="preserve">
+    <value>該應用程序已無法找到，請重新設置可執行文件路徑</value>
+  </data>
+  <data name="QueueDialog_AccessFolderFailure_Content" xml:space="preserve">
+    <value>無法訪問該文件夾\r錯誤信息：</value>
+  </data>
+  <data name="SolidColor_FollowSystem.Content" xml:space="preserve">
+    <value>Windows默認</value>
   </data>
 </root>

@@ -4,12 +4,13 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d"
-      NavigationCacheMode="Required"
+      NavigationCacheMode="Enabled"
       Background="Transparent">
-    <Grid>
+    <Grid Padding="5">
         <Grid.RowDefinitions>
-            <RowDefinition Height="42" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <CommandBar VerticalAlignment="Stretch"
@@ -31,30 +32,35 @@
         </CommandBar>
         <TextBlock Margin="10,0,0,0"
                    HorizontalAlignment="Left"
-                   FontSize="22"
+                   VerticalAlignment="Center"
+                   FontSize="16"
                    Name="Title" />
         <TextBox Name="Text"
                  Grid.Row="1"
-                 Background="Transparent"
                  AcceptsReturn="True"
-                 IsSpellCheckEnabled="False" />
-        <controls:Loading Name="LoadingControl"
+                 BorderThickness="1"
+                 IsSpellCheckEnabled="False"
+                 ScrollViewer.VerticalScrollBarVisibility="Visible" />
+        <controls:Loading x:Name="LoadingControl"
                           IsLoading="False"
                           Grid.RowSpan="2">
             <controls:Loading.Background>
                 <SolidColorBrush Color="Black"
                                  Opacity="0.65" />
             </controls:Loading.Background>
-            <StackPanel Orientation="Horizontal">
-                <ProgressRing IsActive="True"
-                              Height="25"
-                              Width="25"
-                              VerticalAlignment="Center" />
-                <TextBlock Margin="10,0,0,0"
+            <StackPanel>
+                <TextBlock Name="ProgressInfo"
+                           FontSize="16"
                            x:Uid="TextViewerLoading"
                            Text="正在加载..."
-                           FontSize="16"
-                           VerticalAlignment="Center" />
+                           VerticalAlignment="Center"
+                           TextAlignment="Center" />
+                <muxc:ProgressBar IsIndeterminate="True"
+                                  Width="180"
+                                  Name="ProBar"
+                                  Minimum="0"
+                                  Maximum="100"
+                                  Margin="0,10,0,0" />
             </StackPanel>
         </controls:Loading>
     </Grid>

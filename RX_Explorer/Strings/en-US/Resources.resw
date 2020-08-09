@@ -579,9 +579,6 @@
   <data name="QRText.Header" xml:space="preserve">
     <value>Copy this link to your browser to download</value>
   </data>
-  <data name="QuickStartChooseIcon.Content" xml:space="preserve">
-    <value>Select Image</value>
-  </data>
   <data name="QuickStartDialog.CloseButtonText" xml:space="preserve">
     <value>Cancel</value>
   </data>
@@ -601,22 +598,19 @@
     <value>The name already exists and cannot be added repeatedly</value>
   </data>
   <data name="QuickStartFailureTips.Subtitle" xml:space="preserve">
-    <value>Unable to get webpage icon automatically, please select icon manually</value>
+    <value>Unable to get icon automatically, please try again</value>
   </data>
   <data name="QuickStartFormatErrorTip.Subtitle" xml:space="preserve">
     <value>Protocol or address format error</value>
   </data>
   <data name="QuickStartGetWebImage.Content" xml:space="preserve">
-    <value>Auto-acquisition</value>
+    <value>Get icon</value>
   </data>
   <data name="QuickStartLink.Content" xml:space="preserve">
     <value>Launch an app with a URI</value>
   </data>
   <data name="QuickStartLink.NavigateUri" xml:space="preserve">
     <value>https://docs.microsoft.com/en-us/windows/uwp/launch-resume/launch-app-with-uri</value>
-  </data>
-  <data name="QuickStartProtocal.PlaceholderText" xml:space="preserve">
-    <value>Protocal</value>
   </data>
   <data name="QuickStartProtocalTip.Subtitle" xml:space="preserve">
     <value>Protocal Reference</value>
@@ -1898,11 +1892,11 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_WaitUntilFinish_PrimaryButton" xml:space="preserve">
     <value>Right now</value>
   </data>
-  <data name="QuickStart_Protocal_Application_PlaceholderText" xml:space="preserve">
-    <value>Protocal</value>
+  <data name="QuickStart_Protocol_Application_PlaceholderText" xml:space="preserve">
+    <value>Enter path or protocol</value>
   </data>
-  <data name="QuickStart_Protocal_Web_PlaceholderText" xml:space="preserve">
-    <value>WebSite</value>
+  <data name="QuickStart_Protocol_Web_PlaceholderText" xml:space="preserve">
+    <value>Enter website</value>
   </data>
   <data name="Reset_Dialog_TotalFile" xml:space="preserve">
     <value>In total</value>
@@ -2643,5 +2637,14 @@ Invalid names include
   </data>
   <data name="Operate_Text_SortTarget_Type" xml:space="preserve">
     <value>Type</value>
+  </data>
+  <data name="QueueDialog_ApplicationNotFound_Content" xml:space="preserve">
+    <value>The application cannot be found, please reset the executable file path</value>
+  </data>
+  <data name="QueueDialog_AccessFolderFailure_Content" xml:space="preserve">
+    <value>Unable to access the folder.\rError message:</value>
+  </data>
+  <data name="SolidColor_FollowSystem.Content" xml:space="preserve">
+    <value>Windows default</value>
   </data>
 </root>

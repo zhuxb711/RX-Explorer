@@ -23,10 +23,10 @@
                 <SolidColorBrush x:Key="TabViewBackground"
                                  Color="Transparent" />
                 <AcrylicBrush x:Key="TabViewItemHeaderBackgroundSelected"
-                              BackgroundSource="Backdrop" 
-                              TintColor="{StaticResource SystemChromeAltHighColor}" 
-                              TintOpacity="0.6" 
-                              FallbackColor="{StaticResource SystemChromeMediumColor}" />
+                              BackgroundSource="Backdrop"
+                              TintColor="{ThemeResource SystemAltLowColor}" 
+                              TintOpacity="0.6"
+                              FallbackColor="{StaticResource SystemAltLowColor}" />
             </muxc:TabView.Resources>
         </muxc:TabView>
         <controls:InAppNotification StackMode="Replace"

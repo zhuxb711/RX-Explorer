@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -33,7 +31,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 协议或网址
         /// </summary>
-        public Uri ProtocalUri { get; private set; }
+        public string Protocol { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -41,13 +39,13 @@ namespace RX_Explorer.Class
         /// 更新快速启动项的信息
         /// </summary>
         /// <param name="Image">缩略图</param>
-        /// <param name="ProtocalUri">协议</param>
+        /// <param name="Protocol">协议</param>
         /// <param name="RelativePath">图标位置</param>
         /// <param name="DisplayName">显示名称</param>
-        public void Update(BitmapImage Image, Uri ProtocalUri, string RelativePath, string DisplayName)
+        public void Update(BitmapImage Image, string Protocol, string RelativePath, string DisplayName)
         {
             this.Image = Image;
-            this.ProtocalUri = ProtocalUri;
+            this.Protocol = Protocol;
 
             this.DisplayName = DisplayName;
 
@@ -56,8 +54,8 @@ namespace RX_Explorer.Class
                 this.RelativePath = RelativePath;
             }
 
-            OnPropertyChanged("DisplayName");
-            OnPropertyChanged("Image");
+            OnPropertyChanged(nameof(DisplayName));
+            OnPropertyChanged(nameof(Image));
         }
 
         private void OnPropertyChanged(string name)
@@ -73,10 +71,10 @@ namespace RX_Explorer.Class
         /// <param name="Type">类型</param>
         /// <param name="RelativePath">图标位置</param>
         /// <param name="DisplayName">显示名称</param>
-        public QuickStartItem(BitmapImage Image, Uri Uri, QuickStartType Type, string RelativePath, string DisplayName = null)
+        public QuickStartItem(BitmapImage Image, string Protocol, QuickStartType Type, string RelativePath, string DisplayName = null)
         {
             this.Image = Image;
-            ProtocalUri = Uri;
+            this.Protocol = Protocol;
             this.Type = Type;
 
             this.DisplayName = DisplayName;

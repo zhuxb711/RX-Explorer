@@ -1,6 +1,7 @@
 ﻿using OpenCvSharp;
 using OpenCvSharp.XImgProc;
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Windows.Graphics.Imaging;
 using Windows.UI;
@@ -176,7 +177,7 @@ namespace ComputerVision
                             Cv2.Merge(BGRChannel, Temp);
                             Temp.ConvertTo(outputMat, MatType.CV_8UC4);
 
-                            foreach(Mat Item in BGRChannel)
+                            foreach (Mat Item in BGRChannel)
                             {
                                 Item.Dispose();
                             }
@@ -519,6 +520,45 @@ namespace ComputerVision
             }
         }
 
+        public static SoftwareBitmap ResizeToActual(SoftwareBitmap Input)
+        {
+            using (Mat inputMat = Input.SoftwareBitmapToMat())
+            using (Mat tempMat = new Mat(inputMat.Rows, inputMat.Cols, MatType.CV_8UC4))
+            {
+                Cv2.CvtColor(inputMat, tempMat, ColorConversionCodes.BGRA2GRAY);
+                Cv2.Threshold(tempMat, tempMat, 100, 255, ThresholdTypes.Binary);
+                
+                using (Mat Hie = new Mat(tempMat.Size(), tempMat.Type()))
+                {
+                    Cv2.FindContours(tempMat, out Mat[] Result, Hie, RetrievalModes.External, ContourApproximationModes.ApproxNone);
+
+                    try
+                    {
+                        if (Result.FirstOrDefault() is Mat Contour)
+                        {
+                            Rect Area = Cv2.BoundingRect(Contour);
+                            return inputMat[Area].Clone().MatToSoftwareBitmap();
+                        }
+                        else
+                        {
+                            return SoftwareBitmap.Copy(Input);
+                        }
+                    }
+                    catch
+                    {
+                        return SoftwareBitmap.Copy(Input);
+                    }
+                    finally
+                    {
+                        foreach (Mat Item in Result)
+                        {
+                            Item.Dispose();
+                        }
+                    }
+                }
+            }
+        }
+
         private static unsafe Mat SoftwareBitmapToMat(this SoftwareBitmap softwareBitmap)
         {
             try
@@ -554,7 +594,7 @@ namespace ComputerVision
                         for (int j = 0; j < BufferLayout.Width; j++)
                         {
                             int Index = BufferLayout.StartIndex + (BufferLayout.Stride * i) + (4 * j);
-                            
+
                             DataInBytes[Index] = input.DataPointer[Index];
                             DataInBytes[Index + 1] = input.DataPointer[Index + 1];
                             DataInBytes[Index + 2] = input.DataPointer[Index + 2];

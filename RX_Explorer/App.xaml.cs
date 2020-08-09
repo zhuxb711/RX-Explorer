@@ -44,7 +44,14 @@ namespace RX_Explorer
 
         protected async override void OnWindowCreated(WindowCreatedEventArgs args)
         {
-            await FullTrustExcutorController.Current.TryConnectToFullTrustExutor().ConfigureAwait(true);
+            if (await FullTrustExcutorController.Current.CheckQuicklookIsAvaliableAsync().ConfigureAwait(true))
+            {
+                SettingControl.IsQuicklookAvailable = true;
+            }
+            else
+            {
+                SettingControl.IsQuicklookAvailable = false;
+            }
         }
 
         private void App_Suspending(object sender, SuspendingEventArgs e)

@@ -176,7 +176,8 @@
                           VerticalScrollBarVisibility="Hidden"
                           HorizontalAlignment="Left"
                           Grid.Column="3"
-                          Margin="12,0,0,0"
+                          Margin="5,0,0,0"
+                          Padding="7,0,0,0"
                           Name="AddressButtonScrollViewer">
                 <muxc:ItemsRepeater ItemsSource="{x:Bind AddressButtonList}">
                     <muxc:ItemsRepeater.Layout>
@@ -194,8 +195,8 @@
                                         AllowDrop="True"
                                         Drop="AddressButton_Drop"
                                         DragOver="AddressButton_DragOver"
-                                        Background="{ThemeResource ButtonDisabledBackgroundThemeBrush}" />
-                                <Button Background="{ThemeResource ButtonDisabledBackgroundThemeBrush}"
+                                        Background="Transparent" />
+                                <Button Background="Transparent"
                                         VerticalAlignment="Center"
                                         HorizontalContentAlignment="Center"
                                         Padding="3,5,3,6"
@@ -275,25 +276,10 @@
                 <ColumnDefinition Width="{x:Bind TreeViewGridCol.Width,Mode=OneWay,Converter={StaticResource Converter}}" />
                 <ColumnDefinition Width="6.5*" />
             </Grid.ColumnDefinitions>
-            <Grid Grid.Column="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition Height="40" />
-                </Grid.RowDefinitions>
-                <Frame Name="Nav"
-                       Margin="0,0,0,-20"
-                       x:FieldModifier="Public" 
-                       PointerWheelChanged="Nav_PointerWheelChanged"/>
-                <CommandBar IsOpen="False"
-                            Grid.Row="1"
-                            VerticalAlignment="Bottom"
-                            ClosedDisplayMode="Minimal"
-                            DefaultLabelPosition="Right"
-                            Name="BottomCommandBar"
-                            Opening="BottomCommandBar_Opening"
-                            Background="{StaticResource ElementAcrylicBrush}">
-                </CommandBar>
-            </Grid>
+            <Frame Name="Nav"
+                   Grid.Column="2"
+                   x:FieldModifier="Public"
+                   PointerWheelChanged="Nav_PointerWheelChanged" />
             <muxc:TreeView Name="FolderTree"
                            x:FieldModifier="public"
                            Expanding="FolderTree_Expanding"

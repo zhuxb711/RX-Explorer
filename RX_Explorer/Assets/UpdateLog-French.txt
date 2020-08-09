@@ -1,4 +1,35 @@
 ﻿*****
+###Quoi de neuf dans la version 5.2.3.0
+
+>#####Mise à jour des fonctionnalités
+
+>>#####Maintenant, la barre de lancement rapide peut ajouter des applications Win32 et UWP, et a également la fonction d'obtenir automatiquement des icônes
+
+>>#####Ajout de l'option "Windows par défaut" à "Paramètres-Personnalisation-Mode couleur pure", qui synchronisera les thèmes Windows
+
+>#####Mise à jour de l'interface utilisateur
+
+>>#####Mise à jour de l'apparence de la visionneuse de texte et ajout d'une barre de défilement
+
+>>#####Mise à jour de la couleur de l'onglet pour mieux correspondre au mode de couleur unie
+
+>>#####Utilisez "# 1E1E1E" au lieu du noir en mode couleur unie
+
+>#####Correction de bogue
+
+>>#####Correction du problème suivant: lorsque l'arrière-plan est défini sur l'image Bing, s'il n'y a pas de connexion réseau lors du redémarrage, cela provoquera un crash
+
+>>#####Correction du problème de blocage d'une partie des informations système
+
+>>#####Correction du problème qui empêchait le passage au chinois traditionnel
+
+>>#####Correction du problème qui pouvait être bloqué lors de la recherche du programme associé par défaut
+
+>>#####Correction du problème que la barre de menu en bas ne disparaît pas lors de la saisie d'autres pages
+
+>>#####Pour résoudre le problème selon lequel le menu contextuel peut déplacer la liste, désactivez temporairement la fonction rémanente d'en-tête de colonne
+
+*****
 ###Quoi de neuf dans la version 5.2.0.0
 
 >#####Mise à jour des fonctionnalités

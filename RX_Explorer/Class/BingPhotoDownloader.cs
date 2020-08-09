@@ -13,19 +13,20 @@ namespace RX_Explorer.Class
         {
             string Path = await GetDailyPhotoPath().ConfigureAwait(true);
 
-            if (string.IsNullOrWhiteSpace(Path))
+            try
             {
-                return null;
-            }
-            else
-            {
-                try
+                if ((await ApplicationData.Current.LocalFolder.TryGetItemAsync("BingDailyPicture.jpg")) is StorageFile ExistFile)
                 {
-                    if ((await ApplicationData.Current.LocalFolder.TryGetItemAsync("BingDailyPicture.jpg")) is StorageFile ExistFile)
+                    if (string.IsNullOrWhiteSpace(Path))
                     {
-                        StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("BingDailyPicture_Cache.jpg", CreationCollisionOption.ReplaceExisting);
+                        return ExistFile;
+                    }
 
-                        using (Stream TempFileStream = (await TempFile.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
+                    StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("BingDailyPicture_Cache.jpg", CreationCollisionOption.ReplaceExisting);
+
+                    using (Stream TempFileStream = (await TempFile.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
+                    {
+                        try
                         {
                             await Task.Run(() =>
                             {
@@ -36,44 +37,53 @@ namespace RX_Explorer.Class
                                     ResponseStream.CopyTo(TempFileStream);
                                 }
                             }).ConfigureAwait(false);
+                        }
+                        catch
+                        {
+                            return ExistFile;
+                        }
 
-                            using (Stream FileStream = await ExistFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                        using (Stream FileStream = await ExistFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                        {
+                            if (FileStream.ComputeMD5Hash() == TempFileStream.ComputeMD5Hash())
                             {
-                                if (FileStream.ComputeMD5Hash() == TempFileStream.ComputeMD5Hash())
-                                {
-                                    return ExistFile;
-                                }
+                                return ExistFile;
                             }
                         }
-
-                        await TempFile.MoveAndReplaceAsync(ExistFile);
-
-                        return ExistFile;
                     }
-                    else
-                    {
-                        StorageFile BingDailyPictureFile = await ApplicationData.Current.LocalFolder.CreateFileAsync("BingDailyPicture.jpg", CreationCollisionOption.ReplaceExisting);
 
-                        using (Stream FileStream = await BingDailyPictureFile.OpenStreamForWriteAsync().ConfigureAwait(false))
-                        {
-                            await Task.Run(() =>
-                            {
-                                HttpWebRequest Request = (HttpWebRequest)WebRequest.Create(new Uri($"https://www.bing.com{Path}"));
-                                using (WebResponse Response = Request.GetResponse())
-                                using (Stream ResponseStream = Response.GetResponseStream())
-                                {
-                                    ResponseStream.CopyTo(FileStream);
-                                }
-                            }).ConfigureAwait(false);
-                        }
+                    await TempFile.MoveAndReplaceAsync(ExistFile);
 
-                        return BingDailyPictureFile;
-                    }
+                    return ExistFile;
                 }
-                catch
+                else
                 {
-                    return null;
+                    if (string.IsNullOrWhiteSpace(Path))
+                    {
+                        return null;
+                    }
+
+                    StorageFile BingDailyPictureFile = await ApplicationData.Current.LocalFolder.CreateFileAsync("BingDailyPicture.jpg", CreationCollisionOption.ReplaceExisting);
+
+                    using (Stream FileStream = await BingDailyPictureFile.OpenStreamForWriteAsync().ConfigureAwait(false))
+                    {
+                        await Task.Run(() =>
+                        {
+                            HttpWebRequest Request = (HttpWebRequest)WebRequest.Create(new Uri($"https://www.bing.com{Path}"));
+                            using (WebResponse Response = Request.GetResponse())
+                            using (Stream ResponseStream = Response.GetResponseStream())
+                            {
+                                ResponseStream.CopyTo(FileStream);
+                            }
+                        }).ConfigureAwait(false);
+                    }
+
+                    return BingDailyPictureFile;
                 }
+            }
+            catch
+            {
+                return null;
             }
         }
 

@@ -94,7 +94,7 @@ namespace RX_Explorer.Dialog
                 AppInfo[] Apps = (await Launcher.FindFileHandlersAsync(OpenFile.FileType)).ToArray();
                 foreach (AppInfo Info in Apps)
                 {
-                    using (IRandomAccessStreamWithContentType LogoStream = await Info.DisplayInfo.GetLogo(new Windows.Foundation.Size(100, 100)).OpenReadAsync())
+                    using (IRandomAccessStreamWithContentType LogoStream = await Info.DisplayInfo.GetLogo(new Windows.Foundation.Size(150, 150)).OpenReadAsync())
                     {
                         BitmapImage Image = new BitmapImage();
                         await Image.SetSourceAsync(LogoStream);

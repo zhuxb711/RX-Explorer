@@ -16,7 +16,7 @@ namespace FullTrustProcess
             {
                 using (NamedPipeClientStream Client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out))
                 {
-                    Client.Connect(3000);
+                    Client.Connect(2000);
 
                     using (StreamWriter Writer = new StreamWriter(Client))
                     {
@@ -44,7 +44,7 @@ namespace FullTrustProcess
             {
                 using (NamedPipeClientStream Client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out))
                 {
-                    Client.Connect(3000);
+                    Client.Connect(2000);
 
                     using (StreamWriter Writer = new StreamWriter(Client))
                     {

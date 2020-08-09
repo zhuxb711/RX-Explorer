@@ -12,6 +12,8 @@
              d:DesignWidth="1920">
 
     <UserControl.Resources>
+        <local:ThemeToIndexConverter x:Key="ThemeConverter"/>
+        
         <controls:TeachingTip x:Name="ColorPickerTeachTip"
                               IsLightDismissEnabled="True"
                               Title="Acrylic主题颜色"
@@ -298,10 +300,10 @@
                     <ComboBox Header="自定义字体颜色"
                               Margin="0,20,0,0"
                               MinWidth="120"
+                              SelectedIndex="{x:Bind local:AppThemeController.Current.Theme,Mode=TwoWay,Converter={StaticResource ThemeConverter}}"
                               x:Uid="CustomFontColor"
                               Name="CustomFontColor"
-                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"
-                              SelectionChanged="CustomFontColor_SelectionChanged"/>
+                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"/>
 
                     <TextBlock Text="个性化"
                                x:Uid="SettingPersonalize"
@@ -325,8 +327,11 @@
                               Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
 
                     <StackPanel Margin="0,10,0,0"
-                                Name="SolidColorArea"
-                                Orientation="Horizontal">
+                                Name="SolidColorArea">
+                        <RadioButton Content="Windows默认"
+                                     Name="SolidColor_FollowSystem"
+                                     x:Uid="SolidColor_FollowSystem"
+                                     Checked="SolidColor_FollowSystem_Checked"/>
                         <RadioButton Content="白色"
                                      x:Uid="SolidColor_White"
                                      Name="SolidColor_White"

@@ -13,7 +13,24 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 指示当前应用的主题色
         /// </summary>
-        public ElementTheme Theme { get; private set; }
+        public ElementTheme Theme
+        {
+            get
+            {
+                return theme;
+            }
+            set
+            {
+                if (value != theme)
+                {
+                    theme = value;
+                    ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = Enum.GetName(typeof(ElementTheme), value);
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Theme)));
+                }
+            }
+        }
+
+        private ElementTheme theme;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -30,17 +47,6 @@ namespace RX_Explorer.Class
                     return Instance ??= new AppThemeController();
                 }
             }
-        }
-
-        /// <summary>
-        /// 使用此方法切换主题色
-        /// </summary>
-        /// <param name="Theme"></param>
-        public void ChangeThemeTo(ElementTheme Theme)
-        {
-            this.Theme = Theme;
-            ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = Enum.GetName(typeof(ElementTheme), Theme);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Theme)));
         }
 
         /// <summary>

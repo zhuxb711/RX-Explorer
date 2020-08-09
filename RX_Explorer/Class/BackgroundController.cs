@@ -1,9 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI;
+using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
@@ -81,6 +85,8 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private readonly UISettings UIS;
+
         /// <summary>
         /// 获取背景控制器的实例
         /// </summary>
@@ -100,13 +106,23 @@ namespace RX_Explorer.Class
         /// </summary>
         private BackgroundController()
         {
+            UIS = new UISettings();
+            UIS.ColorValuesChanged += UIS_ColorValuesChanged;
+
             if (ApplicationData.Current.LocalSettings.Values["SolidColorType"] is string ColorType)
             {
-                SolidColorBackgroundBrush = new SolidColorBrush(GetColorFromHexString(ColorType));
+                SolidColorBackgroundBrush = new SolidColorBrush(ColorType.GetColorFromHexString());
             }
             else
             {
-                SolidColorBackgroundBrush = new SolidColorBrush(Colors.White);
+                if (UIS.GetColorValue(UIColorType.Background) == Colors.White)
+                {
+                    SolidColorBackgroundBrush = new SolidColorBrush(Colors.White);
+                }
+                else
+                {
+                    SolidColorBackgroundBrush = new SolidColorBrush("#1E1E1E".GetColorFromHexString());
+                }
             }
 
             if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is int ModeIndex)
@@ -140,11 +156,11 @@ namespace RX_Explorer.Class
 
                             if (SolidColorBackgroundBrush.Color == Colors.White && AppThemeController.Current.Theme == ElementTheme.Dark)
                             {
-                                AppThemeController.Current.ChangeThemeTo(ElementTheme.Light);
+                                AppThemeController.Current.Theme = ElementTheme.Light;
                             }
                             else if (SolidColorBackgroundBrush.Color == Colors.Black && AppThemeController.Current.Theme == ElementTheme.Light)
                             {
-                                AppThemeController.Current.ChangeThemeTo(ElementTheme.Dark);
+                                AppThemeController.Current.Theme = ElementTheme.Dark;
                             }
 
                             break;
@@ -160,7 +176,7 @@ namespace RX_Explorer.Class
                                         AcrylicBackgroundBrush = new AcrylicBrush
                                         {
                                             BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                            TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? GetColorFromHexString(Color) : Colors.LightSlateGray,
+                                            TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? Color.GetColorFromHexString() : Colors.LightSlateGray,
                                             TintOpacity = 1 - TintOpacity,
                                             TintLuminosityOpacity = 1 - TintLuminosity,
                                             FallbackColor = Colors.DimGray
@@ -171,7 +187,7 @@ namespace RX_Explorer.Class
                                         AcrylicBackgroundBrush = new AcrylicBrush
                                         {
                                             BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                            TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? GetColorFromHexString(Color) : Colors.LightSlateGray,
+                                            TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? Color.GetColorFromHexString() : Colors.LightSlateGray,
                                             TintOpacity = 1 - TintOpacity,
                                             FallbackColor = Colors.DimGray
                                         };
@@ -195,7 +211,7 @@ namespace RX_Explorer.Class
                                     AcrylicBackgroundBrush = new AcrylicBrush
                                     {
                                         BackgroundSource = AcrylicBackgroundSource.HostBackdrop,
-                                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? GetColorFromHexString(Color) : Colors.LightSlateGray,
+                                        TintColor = ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string Color ? Color.GetColorFromHexString() : Colors.LightSlateGray,
                                         TintOpacity = 1 - TintOpacity,
                                         FallbackColor = Colors.DimGray
                                     };
@@ -235,6 +251,30 @@ namespace RX_Explorer.Class
             }
         }
 
+        private async void UIS_ColorValuesChanged(UISettings sender, object args)
+        {
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High, () =>
+            {
+                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("SolidColorType"))
+                {
+                    if (UIS.GetColorValue(UIColorType.Background) == Colors.White)
+                    {
+                        SolidColorBackgroundBrush.Color = Colors.White;
+
+                        AppThemeController.Current.Theme = ElementTheme.Light;
+                    }
+                    else
+                    {
+                        SolidColorBackgroundBrush.Color = "#1E1E1E".GetColorFromHexString();
+
+                        AppThemeController.Current.Theme = ElementTheme.Dark;
+                    }
+
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                }
+            });
+        }
+
         public async Task Initialize()
         {
             switch (CurrentType)
@@ -242,19 +282,27 @@ namespace RX_Explorer.Class
                 case BackgroundBrushType.Picture:
                     {
                         string UriString = Convert.ToString(ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"]);
-                        
-                        BitmapImage Bitmap = new BitmapImage();
 
-                        StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(UriString));
-
-                        using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                        if (!string.IsNullOrEmpty(UriString))
                         {
-                            await Bitmap.SetSourceAsync(Stream);
+                            BitmapImage Bitmap = new BitmapImage();
+
+                            StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(UriString));
+
+                            using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                            {
+                                await Bitmap.SetSourceAsync(Stream);
+                            }
+
+                            PictureBackgroundBrush.ImageSource = Bitmap;
+
+                            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                        }
+                        else
+                        {
+                            Debug.WriteLine("UriString is empty, BackgroundController.Initialize is not finished");
                         }
 
-                        PictureBackgroundBrush.ImageSource = Bitmap;
-
-                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
                         break;
                     }
 
@@ -262,16 +310,22 @@ namespace RX_Explorer.Class
                     {
                         BitmapImage Bitmap = new BitmapImage();
 
-                        StorageFile ImageFile = await BingPictureDownloader.DownloadDailyPicture().ConfigureAwait(true);
-
-                        using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                        if (await BingPictureDownloader.DownloadDailyPicture().ConfigureAwait(true) is StorageFile ImageFile)
                         {
-                            await Bitmap.SetSourceAsync(Stream);
+                            using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                            {
+                                await Bitmap.SetSourceAsync(Stream);
+                            }
+
+                            BingPictureBursh.ImageSource = Bitmap;
+
+                            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Download Bing picture failed, BackgroundController.Initialize is not finished");
                         }
 
-                        BingPictureBursh.ImageSource = Bitmap;
-
-                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
                         break;
                     }
             }
@@ -375,86 +429,38 @@ namespace RX_Explorer.Class
                     {
                         if (Color == null)
                         {
-                            throw new ArgumentNullException(nameof(Color), "if parameter: 'Type' is BackgroundBrushType.SolidColor, parameter: 'Color' could not be null");
+                            ApplicationData.Current.LocalSettings.Values.Remove("SolidColorType");
+
+                            if (UIS.GetColorValue(UIColorType.Background) == Colors.White)
+                            {
+                                SolidColorBackgroundBrush.Color = Colors.White;
+                                AppThemeController.Current.Theme = ElementTheme.Light;
+                            }
+                            else
+                            {
+                                SolidColorBackgroundBrush.Color = "#1E1E1E".GetColorFromHexString();
+                                AppThemeController.Current.Theme = ElementTheme.Dark;
+                            }
                         }
+                        else
+                        {
+                            AppThemeController.Current.Theme = Color == Colors.White ? ElementTheme.Light : ElementTheme.Dark;
 
-                        SolidColorBackgroundBrush.Color = Color.GetValueOrDefault();
+                            SolidColorBackgroundBrush.Color = Color.GetValueOrDefault();
 
-                        ApplicationData.Current.LocalSettings.Values["SolidColorType"] = Color.GetValueOrDefault().ToString();
+                            ApplicationData.Current.LocalSettings.Values["SolidColorType"] = Color.GetValueOrDefault().ToString();
+                        }
 
                         break;
                     }
-                default:
+                case BackgroundBrushType.Acrylic:
                     {
+                        AppThemeController.Current.Theme = ElementTheme.Dark;
                         break;
                     }
             }
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
-        }
-
-        /// <summary>
-        /// 将16进制字符串转换成Color对象
-        /// </summary>
-        /// <param name="Hex">十六进制字符串</param>
-        /// <returns></returns>
-        public static Color GetColorFromHexString(string Hex)
-        {
-            if (string.IsNullOrWhiteSpace(Hex))
-            {
-                throw new ArgumentException("Hex could not be null or empty", nameof(Hex));
-            }
-
-            Hex = Hex.Replace("#", string.Empty);
-
-            bool ExistAlpha = Hex.Length == 8 || Hex.Length == 4;
-            bool IsDoubleHex = Hex.Length == 8 || Hex.Length == 6;
-
-            if (!ExistAlpha && Hex.Length != 6 && Hex.Length != 3)
-            {
-                throw new ArgumentException("输入的hex不是有效颜色");
-            }
-
-            int n = 0;
-            byte a;
-            int HexCount = IsDoubleHex ? 2 : 1;
-            if (ExistAlpha)
-            {
-                n = HexCount;
-                a = (byte)ConvertHexToByte(Hex, 0, HexCount);
-                if (!IsDoubleHex)
-                {
-                    a = (byte)(a * 16 + a);
-                }
-            }
-            else
-            {
-                a = 0xFF;
-            }
-
-            var r = (byte)ConvertHexToByte(Hex, n, HexCount);
-            var g = (byte)ConvertHexToByte(Hex, n + HexCount, HexCount);
-            var b = (byte)ConvertHexToByte(Hex, n + 2 * HexCount, HexCount);
-            if (!IsDoubleHex)
-            {
-                r = (byte)(r * 16 + r);
-                g = (byte)(g * 16 + g);
-                b = (byte)(b * 16 + b);
-            }
-
-            return Color.FromArgb(a, r, g, b);
-        }
-
-        /// <summary>
-        /// 将十六进制字符串转换成byte
-        /// </summary>
-        /// <param name="hex">十六进制字符串</param>
-        /// <param name="n">起始位置</param>
-        /// <param name="count">长度</param>
-        /// <returns></returns>
-        private static uint ConvertHexToByte(string hex, int n, int count = 2)
-        {
-            return Convert.ToUInt32(hex.Substring(n, count), 16);
         }
     }
 }

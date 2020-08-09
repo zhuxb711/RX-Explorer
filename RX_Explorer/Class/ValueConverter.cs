@@ -4,6 +4,47 @@ using Windows.UI.Xaml.Data;
 
 namespace RX_Explorer.Class
 {
+    public sealed class ThemeToIndexConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is ElementTheme Theme)
+            {
+                return Theme == ElementTheme.Dark ? 0 : 1;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            if (value is int Index)
+            {
+                switch(Index)
+                {
+                    case 0:
+                        {
+                            return ElementTheme.Dark;
+                        }
+                    case 1:
+                        {
+                            return ElementTheme.Light;
+                        }
+                    default:
+                        {
+                            throw new NotImplementedException();
+                        }
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+
     public sealed class InverseBooleanConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)

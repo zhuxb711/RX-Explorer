@@ -1,4 +1,35 @@
 ﻿*****
+###What's new in Ver.5.2.3.0
+
+>#####Feature Update
+
+>>#####Now the quick launch bar can add Win32 and UWP applications, and also has the function of automatically obtaining icons
+
+>>#####Added the "Windows Default" option to "Settings-Personalization-Pure Color Mode", which will synchronize Windows themes
+
+>#####UI Update
+
+>>#####Updated the appearance of the text viewer and added a scroll bar
+
+>>#####Updated the tab color to better match the solid color mode
+
+>>#####Use "#1E1E1E" instead of black in solid color mode
+
+>#####Bug fix
+
+>>#####Fixed the problem that when the background is set to Bing image, if there is no network connection when restarting, it will cause a crash
+
+>>#####Fixed the problem that part of the system information is blocked
+
+>>#####Fixed the problem that switching to Traditional Chinese is invalid
+
+>>#####Fixed the problem that may be stuck when searching for the default associated program
+
+>>#####Fixed the problem that the menu bar at the bottom does not disappear when entering other pages
+
+>>#####To solve the problem that the right-click menu may move the list, temporarily disable the column header sticky function
+
+*****
 ###What's new in Ver.5.2.0.0
 
 >#####Feature Update

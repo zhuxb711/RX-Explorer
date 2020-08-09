@@ -74,17 +74,8 @@ namespace RX_Explorer
             }
         }
 
-        private async void MainPage_Loaded1(object sender, RoutedEventArgs e)
+        private void MainPage_Loaded1(object sender, RoutedEventArgs e)
         {
-            if (await FullTrustExcutorController.Current.CheckQuicklookIsAvaliableAsync().ConfigureAwait(false))
-            {
-                SettingControl.IsQuicklookAvailable = true;
-            }
-            else
-            {
-                SettingControl.IsQuicklookAvailable = false;
-            }
-
             if (ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] is bool Enable)
             {
                 SettingControl.IsQuicklookEnable = Enable;

@@ -465,9 +465,6 @@
   <data name="QRText.Header" xml:space="preserve">
     <value>Copier ce lien vers votre navigateur pour télécharger</value>
   </data>
-  <data name="QuickStartChooseIcon.Content" xml:space="preserve">
-    <value>Sélectionner image</value>
-  </data>
   <data name="QuickStartDialog.CloseButtonText" xml:space="preserve">
     <value>Annuler</value>
   </data>
@@ -487,22 +484,19 @@
     <value>Ce nom existe déjà et ne peut pas être ajouté</value>
   </data>
   <data name="QuickStartFailureTips.Subtitle" xml:space="preserve">
-    <value>Impossible d'accèder à l'icône de ce site automatiquement, veuillez sélectionner l'icône manuellement</value>
+    <value>Impossible d'obtenir l'icône automatiquement, veuillez réessayer</value>
   </data>
   <data name="QuickStartFormatErrorTip.Subtitle" xml:space="preserve">
     <value>Protocole ou format d'adresse erroné</value>
   </data>
   <data name="QuickStartGetWebImage.Content" xml:space="preserve">
-    <value>Acquisition automatique</value>
+    <value>Obtenir l'icône</value>
   </data>
   <data name="QuickStartLink.Content" xml:space="preserve">
     <value>Lancer l'application avec un URL</value>
   </data>
   <data name="QuickStartLink.NavigateUri" xml:space="preserve">
     <value>https://docs.microsoft.com/en-us/windows/uwp/launch-resume/launch-app-with-uri</value>
-  </data>
-  <data name="QuickStartProtocal.PlaceholderText" xml:space="preserve">
-    <value>Protocole</value>
   </data>
   <data name="QuickStartProtocalTip.Subtitle" xml:space="preserve">
     <value>Référence du protocole</value>
@@ -1778,12 +1772,6 @@
   <data name="QueueDialog_WaitUntilFinish_PrimaryButton" xml:space="preserve">
     <value>Tout de suite</value>
   </data>
-  <data name="QuickStart_Protocal_Application_PlaceholderText" xml:space="preserve">
-    <value>Protocole</value>
-  </data>
-  <data name="QuickStart_Protocal_Web_PlaceholderText" xml:space="preserve">
-    <value>Site web</value>
-  </data>
   <data name="Reset_Dialog_TotalFile" xml:space="preserve">
     <value>Total</value>
   </data>
@@ -2530,10 +2518,28 @@ Les noms non valides incluent
   <data name="Operate_Text_SortTarget_Time" xml:space="preserve">
     <value>Date modifiée</value>
   </data>
+  <data name="Operate_Text_SortTarget_Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
   <data name="Operate_Text_SortDirection_Asc" xml:space="preserve">
     <value>Ascendant</value>
   </data>
   <data name="Operate_Text_SortDirection_Desc" xml:space="preserve">
     <value>Descendant</value>
+  </data>
+  <data name="QuickStart_Protocol_Application_PlaceholderText" xml:space="preserve">
+    <value>Entrez le chemin ou le protocole</value>
+  </data>
+  <data name="QuickStart_Protocol_Web_PlaceholderText" xml:space="preserve">
+    <value>Entrez sur le site Web</value>
+  </data>
+  <data name="QueueDialog_ApplicationNotFound_Content" xml:space="preserve">
+    <value>L'application est introuvable, veuillez réinitialiser le chemin du fichier exécutable</value>
+  </data>
+  <data name="QueueDialog_AccessFolderFailure_Content" xml:space="preserve">
+    <value>Impossible d'accéder au dossier\rMessage d'erreur:</value>
+  </data>
+  <data name="SolidColor_FollowSystem.Content" xml:space="preserve">
+    <value>Par défaut de Windows</value>
   </data>
 </root>

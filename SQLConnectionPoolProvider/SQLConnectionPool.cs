@@ -112,7 +112,7 @@ namespace SQLConnectionPoolProvider
                     {
                         if (AvaliableConnectionPool.FirstOrDefault() is SQLConnection Connection)
                         {
-                            AvaliableConnectionPool.RemoveAt(0);
+                            AvaliableConnectionPool.Remove(Connection);
 
                             Connection.InnerConnection.Close();
                             Connection.InnerConnection.Dispose();
@@ -175,20 +175,30 @@ namespace SQLConnectionPoolProvider
                                     AvaliableConnectionPool.Add(RecycleConnection);
                                 }
 
-                                SQLConnection AvaliableItem = AvaliableConnectionPool.First();
-                                AvaliableConnectionPool.Remove(AvaliableItem);
-                                UsingConnectionPool.Add(AvaliableItem);
+                                SQLConnection AvailableItem = AvaliableConnectionPool.First();
+                                AvaliableConnectionPool.Remove(AvailableItem);
+                                UsingConnectionPool.Add(AvailableItem);
 
-                                return AvaliableItem;
+                                if (!AvailableItem.IsConnected)
+                                {
+                                    AvailableItem.InnerConnection.Open();
+                                }
+
+                                return AvailableItem;
                             }
                         }
                         else
                         {
-                            SQLConnection AvaliableItem = AvaliableConnectionPool.First();
-                            AvaliableConnectionPool.Remove(AvaliableItem);
-                            UsingConnectionPool.Add(AvaliableItem);
+                            SQLConnection AvailableItem = AvaliableConnectionPool.First();
+                            AvaliableConnectionPool.Remove(AvailableItem);
+                            UsingConnectionPool.Add(AvailableItem);
 
-                            return AvaliableItem;
+                            if (!AvailableItem.IsConnected)
+                            {
+                                AvailableItem.InnerConnection.Open();
+                            }
+
+                            return AvailableItem;
                         }
                     }
                     else
@@ -230,8 +240,9 @@ namespace SQLConnectionPoolProvider
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Debug.WriteLine($"MySQL Exception: {ex.Message}");
                     return new SQLConnection();
                 }
                 finally

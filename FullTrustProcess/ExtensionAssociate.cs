@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Vanara.PInvoke;
 
 namespace FullTrustProcess
@@ -7,29 +10,41 @@ namespace FullTrustProcess
     {
         public static string GetAssociate(string Path)
         {
-            try
+            Task<string> RunTask = Task.Run(() =>
             {
-                uint Length = 0;
-
-                if (ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_NOFIXUPS | ShlwApi.ASSOCF.ASSOCF_VERIFY, ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE, System.IO.Path.GetExtension(Path), null, null, ref Length) == HRESULT.S_FALSE)
+                try
                 {
-                    StringBuilder Builder = new StringBuilder((int)Length);
+                    uint Length = 0;
 
-                    if (ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_NOFIXUPS | ShlwApi.ASSOCF.ASSOCF_VERIFY, ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE, System.IO.Path.GetExtension(Path), null, Builder, ref Length) == HRESULT.S_OK)
+                    if (ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_NOFIXUPS | ShlwApi.ASSOCF.ASSOCF_VERIFY, ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE, System.IO.Path.GetExtension(Path), null, null, ref Length) == HRESULT.S_FALSE)
                     {
-                        return Builder.ToString();
+                        StringBuilder Builder = new StringBuilder((int)Length);
+
+                        if (ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_NOFIXUPS | ShlwApi.ASSOCF.ASSOCF_VERIFY, ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE, System.IO.Path.GetExtension(Path), null, Builder, ref Length) == HRESULT.S_OK)
+                        {
+                            return Builder.ToString();
+                        }
+                        else
+                        {
+                            return string.Empty;
+                        }
                     }
                     else
                     {
                         return string.Empty;
                     }
                 }
-                else
+                catch
                 {
                     return string.Empty;
                 }
+            });
+
+            if (SpinWait.SpinUntil(() => RunTask.IsCompleted, 3000))
+            {
+                return RunTask.Result;
             }
-            catch
+            else
             {
                 return string.Empty;
             }
