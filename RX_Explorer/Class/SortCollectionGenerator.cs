@@ -48,93 +48,34 @@ namespace RX_Explorer.Class
 
         public List<FileSystemStorageItem> GetSortedCollection(ICollection<FileSystemStorageItem> InputCollection)
         {
+            IEnumerable<FileSystemStorageItem> FolderList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.Folder);
+            IEnumerable<FileSystemStorageItem> FileList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.File);
+
             switch (SortTarget)
             {
                 case SortTarget.Name:
                     {
-                        if (SortDirection == SortDirection.Ascending)
-                        {
-                            List<FileSystemStorageItem> FolderSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.Name).ToList();
-                            List<FileSystemStorageItem> FileSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.Name).ToList();
-
-                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
-                        }
-                        else
-                        {
-                            List<FileSystemStorageItem> FolderSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.Name).ToList();
-                            List<FileSystemStorageItem> FileSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.Name).ToList();
-
-                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
-                        }
+                        return SortDirection == SortDirection.Ascending
+                            ? new List<FileSystemStorageItem>(FolderList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection).Concat(FileList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection)))
+                            : new List<FileSystemStorageItem>(FileList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection).Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection)));
                     }
-
                 case SortTarget.Type:
                     {
-                        if (SortDirection == SortDirection.Ascending)
-                        {
-                            List<FileSystemStorageItem> FolderSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.Type).ToList();
-                            List<FileSystemStorageItem> FileSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.Type).ToList();
-
-                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
-                        }
-                        else
-                        {
-                            List<FileSystemStorageItem> FolderSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.Type).ToList();
-                            List<FileSystemStorageItem> FileSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.Type).ToList();
-
-                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
-                        }
+                        return SortDirection == SortDirection.Ascending
+                            ? new List<FileSystemStorageItem>(FolderList.OrderByLikeFileSystem((Item) => Item.Type, SortDirection).Concat(FileList.OrderByLikeFileSystem((Item) => Item.Type, SortDirection)))
+                            : new List<FileSystemStorageItem>(FileList.OrderByLikeFileSystem((Item) => Item.Type, SortDirection).Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Type, SortDirection)));
                     }
                 case SortTarget.ModifiedTime:
                     {
-                        if (SortDirection == SortDirection.Ascending)
-                        {
-                            List<FileSystemStorageItem> FolderSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.ModifiedTimeRaw).ToList();
-                            List<FileSystemStorageItem> FileSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.ModifiedTimeRaw).ToList();
-
-                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
-                        }
-                        else
-                        {
-                            List<FileSystemStorageItem> FolderSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.ModifiedTimeRaw).ToList();
-                            List<FileSystemStorageItem> FileSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.ModifiedTimeRaw).ToList();
-
-                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
-                        }
+                        return SortDirection == SortDirection.Ascending
+                            ? new List<FileSystemStorageItem>(FolderList.OrderBy((Item) => Item.ModifiedTimeRaw).Concat(FileList.OrderBy((Item) => Item.ModifiedTimeRaw)))
+                            : new List<FileSystemStorageItem>(FileList.OrderByDescending((Item) => Item.ModifiedTimeRaw).Concat(FolderList.OrderByDescending((Item) => Item.ModifiedTimeRaw)));
                     }
                 case SortTarget.Size:
                     {
-                        if (SortDirection == SortDirection.Ascending)
-                        {
-                            List<FileSystemStorageItem> FolderSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.SizeRaw).ToList();
-                            List<FileSystemStorageItem> FileSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.SizeRaw).ToList();
-
-                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
-                        }
-                        else
-                        {
-                            List<FileSystemStorageItem> FolderSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.SizeRaw).ToList();
-                            List<FileSystemStorageItem> FileSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.SizeRaw).ToList();
-
-                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
-                        }
-                    }
-                case SortTarget.OriginPath:
-                    {
-                        if (SortDirection == SortDirection.Ascending)
-                        {
-                            List<FileSystemStorageItem> FolderSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.RecycleItemOriginPath).ToList();
-                            List<FileSystemStorageItem> FileSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.RecycleItemOriginPath).ToList();
-
-                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
-                        }
-                        else
-                        {
-                            List<FileSystemStorageItem> FolderSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.RecycleItemOriginPath).ToList();
-                            List<FileSystemStorageItem> FileSortList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.RecycleItemOriginPath).ToList();
-
-                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
-                        }
+                        return SortDirection == SortDirection.Ascending
+                            ? new List<FileSystemStorageItem>(FolderList.OrderBy((Item) => Item.SizeRaw).Concat(FileList.OrderBy((Item) => Item.SizeRaw)))
+                            : new List<FileSystemStorageItem>(FileList.OrderByDescending((Item) => Item.SizeRaw).Concat(FolderList.OrderByDescending((Item) => Item.SizeRaw)));
                     }
                 default:
                     {

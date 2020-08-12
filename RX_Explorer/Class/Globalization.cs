@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Windows.ApplicationModel.Resources;
 using Windows.Globalization;
 using Windows.Storage;
@@ -113,7 +114,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                string PrimaryLanguage = GlobalizationPreferences.Languages[0];
+                string PrimaryLanguage = CultureInfo.CurrentUICulture.Name;
 
                 if (PrimaryLanguage.StartsWith("zh", StringComparison.OrdinalIgnoreCase))
                 {

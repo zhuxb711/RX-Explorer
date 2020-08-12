@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -36,6 +37,28 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extention
     {
+        public static IEnumerable<T> OrderByLikeFileSystem<T>(this IEnumerable<T> Input, Func<T, string> GetString, SortDirection Direction)
+        {
+            int MaxLength = Input.Select(Item => GetString(Item).Length).Max();
+
+            if (Direction == SortDirection.Ascending)
+            {
+                return Input.Select(Item => new
+                {
+                    OriginItem = Item,
+                    SortString = Regex.Replace(GetString(Item), @"(\d+)|(\D+)", Eva => Eva.Value.PadLeft(MaxLength, char.IsDigit(Eva.Value[0]) ? ' ' : '\xffff'))
+                }).OrderBy(x => x.SortString).Select(x => x.OriginItem);
+            }
+            else
+            {
+                return Input.Select(Item => new
+                {
+                    OriginItem = Item,
+                    SortString = Regex.Replace(GetString(Item), @"(\d+)|(\D+)", Eva => Eva.Value.PadLeft(MaxLength, char.IsDigit(Eva.Value[0]) ? ' ' : '\xffff'))
+                }).OrderByDescending(x => x.SortString).Select(x => x.OriginItem);
+            }
+        }
+
         /// <summary>
         /// 将16进制字符串转换成Color对象
         /// </summary>
@@ -55,7 +78,7 @@ namespace RX_Explorer.Class
 
             if (!ExistAlpha && Hex.Length != 6 && Hex.Length != 3)
             {
-                throw new ArgumentException("输入的hex不是有效颜色");
+                throw new ArgumentException("Hex is invalid");
             }
 
             int n = 0;
@@ -105,7 +128,7 @@ namespace RX_Explorer.Class
                 if (Item is StorageFolder SubFolder)
                 {
                     StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(SubFolder.Name, CreationCollisionOption.OpenIfExists);
-                    
+
                     await MoveSubFilesAndSubFoldersAsync(SubFolder, NewFolder).ConfigureAwait(false);
                 }
                 else
@@ -167,7 +190,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    Debug.WriteLine($"已无法找到对应根节点，返回false");
+                    Debug.WriteLine($"Could not found the root node, return false");
                     return false;
                 }
             }
