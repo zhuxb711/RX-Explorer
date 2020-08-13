@@ -114,21 +114,21 @@ namespace RX_Explorer.Class
             }
             else
             {
-                string PrimaryLanguage = CultureInfo.CurrentUICulture.Name;
+                string PrimaryLanguage = GlobalizationPreferences.Languages[0];
 
                 if (PrimaryLanguage.StartsWith("zh", StringComparison.OrdinalIgnoreCase))
                 {
-                    if(PrimaryLanguage.Contains("zh-Hans"))
-                    {
-                        CurrentLanguage = LanguageEnum.Chinese_Simplified;
-                        ApplicationLanguages.PrimaryLanguageOverride = "zh-Hans";
-                        ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 0;
-                    }
-                    else if(PrimaryLanguage.Contains("zh-Hant"))
+                    if(PrimaryLanguage.Contains("Hant"))
                     {
                         CurrentLanguage = LanguageEnum.Chinese_Traditional;
                         ApplicationLanguages.PrimaryLanguageOverride = "zh-Hant";
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 3;
+                    }
+                    else if(PrimaryLanguage.Contains("Hans"))
+                    {
+                        CurrentLanguage = LanguageEnum.Chinese_Simplified;
+                        ApplicationLanguages.PrimaryLanguageOverride = "zh-Hans";
+                        ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 0;
                     }
                     else
                     {

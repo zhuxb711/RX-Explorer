@@ -1,4 +1,29 @@
 ﻿*****
+###What's new in Ver.5.2.5.0
+
+>#####UI Update
+
+>>#####Eliminates the problem that the small square on the address bar overflows with several pixels
+
+>#####Bug fix
+
+>>#####Solved the problem that incorrect sorting of files and folders
+
+>>#####Solved the problem that the modified time was incorrectly displayed as UTC time instead of local time
+
+>>#####Solved the problem that multiple duplicate files caused by temporary files created by software such as Office
+
+>>#####Solved the problem that may cause a crash when directly renaming files used by other applications
+
+>>#####Solved the problem that may cause a crash when opening the picture fails
+
+>>#####Solved the problem that may cause a crash at startup when the registration background task fails
+
+>#####Component Update
+
+>>#####Update to the latest version of Microsoft's UI control library, which reduces the probability of accidental crashes and fixes some control problems
+
+*****
 ###What's new in Ver.5.2.3.0
 
 >#####Feature Update

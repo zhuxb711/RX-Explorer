@@ -1,6 +1,31 @@
 ﻿*****
 ###Quoi de neuf dans la version 5.2.3.0
 
+>#####Mise à jour de l'interface utilisateur
+
+>>#####Élimine le problème que le petit carré de la barre d'adresse déborde de plusieurs pixels
+
+>#####Correction de bogue
+
+>>#####Résolution du problème de tri incorrect des fichiers et des dossiers
+
+>>#####Résolution du problème suivant: l'heure modifiée ne s'affichait pas correctement en heure UTC au lieu de l'heure locale
+
+>>#####Résolution du problème de plusieurs fichiers en double causés par des fichiers temporaires créés par un logiciel tel qu'Office
+
+>>#####Résolution du problème pouvant provoquer un plantage lors du changement de nom direct des fichiers utilisés par d'autres applications
+
+>>#####Résolution du problème pouvant provoquer un crash lors de l'échec de l'ouverture de l'image
+
+>>#####Résolution du problème pouvant provoquer un plantage au démarrage lorsque la tâche d'enregistrement en arrière-plan échoue
+
+>#####Mise à jour des composants
+
+>>#####Mise à jour vers la dernière version de la bibliothèque de contrôle de l'interface utilisateur de Microsoft, ce qui réduit la probabilité de plantages accidentels et corrige certains problèmes de contrôle
+
+*****
+###Quoi de neuf dans la version 5.2.3.0
+
 >#####Mise à jour des fonctionnalités
 
 >>#####Maintenant, la barre de lancement rapide peut ajouter des applications Win32 et UWP, et a également la fonction d'obtenir automatiquement des icônes
