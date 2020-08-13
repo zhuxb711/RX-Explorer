@@ -179,6 +179,7 @@
                       Stroke="Gray" />
             </StackPanel>
             <GridView Name="QuickStartGridView"
+                      ItemsSource="{x:Bind Cls:CommonAccessCollection.QuickStartList}"
                       AllowFocusOnInteraction="False"
                       SelectionMode="None"
                       IsItemClickEnabled="True"
@@ -217,6 +218,7 @@
                       Stroke="Gray" />
             </StackPanel>
             <GridView Name="WebGridView"
+                      ItemsSource="{x:Bind Cls:CommonAccessCollection.HotWebList}"
                       SelectionMode="None"
                       IsItemClickEnabled="True"
                       IsDoubleTapEnabled="False"
@@ -275,6 +277,7 @@
                     </controls:Expander.HeaderTemplate>
                     <GridView Margin="0,20,0,0"
                               Name="LibraryGrid"
+                              ItemsSource="{x:Bind Cls:CommonAccessCollection.LibraryFolderList}"
                               ContainerContentChanging="LibraryGrid_ContainerContentChanging"
                               x:FieldModifier="public"
                               IsItemClickEnabled="True"
@@ -351,6 +354,7 @@
                     </controls:Expander.HeaderTemplate>
                     <GridView Margin="0,20,0,0"
                               Name="DeviceGrid"
+                              ItemsSource="{x:Bind Cls:CommonAccessCollection.HardDeviceList}"
                               x:FieldModifier="public"
                               IsItemClickEnabled="True"
                               IsDoubleTapEnabled="True"

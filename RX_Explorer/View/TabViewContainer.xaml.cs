@@ -33,18 +33,7 @@ namespace RX_Explorer
 
         public static Frame CurrentTabNavigation { get; private set; }
 
-        public ObservableCollection<HardDeviceInfo> HardDeviceList { get; private set; } = new ObservableCollection<HardDeviceInfo>();
-        public ObservableCollection<LibraryFolder> LibraryFolderList { get; private set; } = new ObservableCollection<LibraryFolder>();
-        public ObservableCollection<QuickStartItem> QuickStartList { get; private set; } = new ObservableCollection<QuickStartItem>();
-        public ObservableCollection<QuickStartItem> HotWebList { get; private set; } = new ObservableCollection<QuickStartItem>();
-
         private readonly DeviceWatcher PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
-
-        public Dictionary<FileControl, FilePresenter> FFInstanceContainer { get; private set; } = new Dictionary<FileControl, FilePresenter>();
-
-        public Dictionary<FileControl, SearchPage> FSInstanceContainer { get; private set; } = new Dictionary<FileControl, SearchPage>();
-
-        public Dictionary<ThisPC, FileControl> TFInstanceContainer { get; private set; } = new Dictionary<ThisPC, FileControl>();
 
         public static TabViewContainer ThisPage { get; private set; }
 
@@ -350,7 +339,7 @@ namespace RX_Explorer
                     AllBaseDevice.Remove(PortDevice);
                 }
 
-                List<HardDeviceInfo> OneStepDeviceList = HardDeviceList.Where((Item) => !AllBaseDevice.Contains(Item.Folder.Path)).ToList();
+                List<HardDeviceInfo> OneStepDeviceList = CommonAccessCollection.HardDeviceList.Where((Item) => !AllBaseDevice.Contains(Item.Folder.Path)).ToList();
                 List<HardDeviceInfo> TwoStepDeviceList = OneStepDeviceList.Where((RemoveItem) => PortableDevice.All((Item) => Item.Name != RemoveItem.Folder.Name)).ToList();
 
                 foreach (HardDeviceInfo Device in TwoStepDeviceList)
@@ -370,13 +359,9 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    if (TFInstanceContainer.ContainsValue(Control))
-                                    {
-                                        Control.Dispose();
-                                        FFInstanceContainer.Remove(Control);
-                                        FSInstanceContainer.Remove(Control);
-                                        TFInstanceContainer.Remove(TFInstanceContainer.First((Item) => Item.Value == Control).Key);
-                                    }
+                                    CommonAccessCollection.UnRegister(Control);
+                                    
+                                    Control.Dispose();
 
                                     TabViewControl.TabItems.RemoveAt(j);
 
@@ -388,7 +373,7 @@ namespace RX_Explorer
                             }
                         }
 
-                        HardDeviceList.Remove(Device);
+                        CommonAccessCollection.HardDeviceList.Remove(Device);
                     });
                 }
             }
@@ -404,7 +389,7 @@ namespace RX_Explorer
             {
                 StorageFolder DeviceFolder = StorageDevice.FromId(args.Id);
 
-                if (HardDeviceList.All((Device) => (string.IsNullOrEmpty(Device.Folder.Path) || string.IsNullOrEmpty(DeviceFolder.Path)) ? Device.Folder.Name != DeviceFolder.Name : Device.Folder.Path != DeviceFolder.Path))
+                if (CommonAccessCollection.HardDeviceList.All((Device) => (string.IsNullOrEmpty(Device.Folder.Path) || string.IsNullOrEmpty(DeviceFolder.Path)) ? Device.Folder.Name != DeviceFolder.Name : Device.Folder.Path != DeviceFolder.Path))
                 {
                     BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
                     IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
@@ -413,7 +398,7 @@ namespace RX_Explorer
                     {
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                         {
-                            HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
+                            CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
                         });
                     }
                     else
@@ -429,14 +414,14 @@ namespace RX_Explorer
                             {
                                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                                 {
-                                    HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, DriveType.Removable));
+                                    CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, DriveType.Removable));
                                 });
                             }
                             else
                             {
                                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                                 {
-                                    HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
+                                    CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
                                 });
                             }
                         }
@@ -444,7 +429,7 @@ namespace RX_Explorer
                         {
                             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                             {
-                                HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
+                                CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
                             });
                         }
                     }
@@ -499,16 +484,16 @@ namespace RX_Explorer
                 {
                     if (Item.Key == QuickStartType.Application)
                     {
-                        QuickStartList.Add(Item.Value);
+                        CommonAccessCollection.QuickStartList.Add(Item.Value);
                     }
                     else
                     {
-                        HotWebList.Add(Item.Value);
+                        CommonAccessCollection.HotWebList.Add(Item.Value);
                     }
                 }
 
-                QuickStartList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
-                HotWebList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
+                CommonAccessCollection.QuickStartList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
+                CommonAccessCollection.HotWebList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
 
                 if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("IsLibraryInitialized"))
                 {
@@ -700,7 +685,7 @@ namespace RX_Explorer
                     {
                         StorageFolder PinFile = await StorageFolder.GetFolderFromPathAsync(FolderPath);
                         BitmapImage Thumbnail = await PinFile.GetThumbnailBitmapAsync().ConfigureAwait(true);
-                        LibraryFolderList.Add(new LibraryFolder(PinFile, Thumbnail));
+                        CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(PinFile, Thumbnail));
                     }
                     catch (Exception)
                     {
@@ -711,7 +696,7 @@ namespace RX_Explorer
 
                 bool AccessError = false;
                 foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Network || Drives.DriveType == DriveType.Removable)
-                                                                 .Where((NewItem) => HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
+                                                                 .Where((NewItem) => CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
                 {
                     try
                     {
@@ -719,7 +704,8 @@ namespace RX_Explorer
 
                         BasicProperties Properties = await Device.GetBasicPropertiesAsync();
                         IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-                        HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType));
+                        
+                        CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType));
                     }
                     catch
                     {
@@ -780,19 +766,15 @@ namespace RX_Explorer
 
         private void TabViewControl_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
         {
-            if ((args.Tab.Content as Frame).Content is ThisPC PC && TFInstanceContainer.ContainsKey(PC))
+            if ((args.Tab.Content as Frame).Content is ThisPC PC)
             {
-                TFInstanceContainer[PC].Dispose();
-                FFInstanceContainer.Remove(TFInstanceContainer[PC]);
-                FSInstanceContainer.Remove(TFInstanceContainer[PC]);
-                TFInstanceContainer.Remove(PC);
+                CommonAccessCollection.GetFileControlInstance(PC)?.Dispose();
+                CommonAccessCollection.UnRegister(PC);
             }
-            else if ((args.Tab.Content as Frame).Content is FileControl Control && TFInstanceContainer.ContainsValue(Control))
+            else if ((args.Tab.Content as Frame).Content is FileControl Control)
             {
+                CommonAccessCollection.UnRegister(Control);
                 Control.Dispose();
-                FFInstanceContainer.Remove(Control);
-                FSInstanceContainer.Remove(Control);
-                TFInstanceContainer.Remove(TFInstanceContainer.First((Item) => Item.Value == Control).Key);
             }
 
             args.Tab.DragEnter -= Item_DragEnter;

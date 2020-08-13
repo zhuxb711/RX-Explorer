@@ -32,10 +32,6 @@ namespace RX_Explorer
         public ThisPC()
         {
             InitializeComponent();
-            LibraryGrid.ItemsSource = TabViewContainer.ThisPage.LibraryFolderList;
-            DeviceGrid.ItemsSource = TabViewContainer.ThisPage.HardDeviceList;
-            QuickStartGridView.ItemsSource = TabViewContainer.ThisPage.QuickStartList;
-            WebGridView.ItemsSource = TabViewContainer.ThisPage.HotWebList;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -225,7 +221,7 @@ namespace RX_Explorer
         {
             if (CurrentSelectedItem != null)
             {
-                TabViewContainer.ThisPage.QuickStartList.Remove(CurrentSelectedItem);
+                CommonAccessCollection.QuickStartList.Remove(CurrentSelectedItem);
                 await SQLite.Current.DeleteQuickStartItemAsync(CurrentSelectedItem).ConfigureAwait(false);
             }
         }
@@ -252,7 +248,7 @@ namespace RX_Explorer
         {
             if (CurrentSelectedItem != null)
             {
-                TabViewContainer.ThisPage.HotWebList.Remove(CurrentSelectedItem);
+                CommonAccessCollection.HotWebList.Remove(CurrentSelectedItem);
                 await SQLite.Current.DeleteQuickStartItemAsync(CurrentSelectedItem).ConfigureAwait(false);
             }
         }
@@ -432,7 +428,7 @@ namespace RX_Explorer
         {
             if (LibraryGrid.SelectedItem is LibraryFolder Library)
             {
-                TabViewContainer.ThisPage.LibraryFolderList.Remove(Library);
+                CommonAccessCollection.LibraryFolderList.Remove(Library);
                 await SQLite.Current.DeleteLibraryAsync(Library.Folder.Path).ConfigureAwait(false);
             }
         }
@@ -452,11 +448,11 @@ namespace RX_Explorer
             {
                 try
                 {
-                    TabViewContainer.ThisPage.HardDeviceList.Clear();
+                    CommonAccessCollection.HardDeviceList.Clear();
 
                     bool AccessError = false;
                     foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Network || Drives.DriveType == DriveType.Removable)
-                                                                     .Where((NewItem) => TabViewContainer.ThisPage.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
+                                                                     .Where((NewItem) => CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
                     {
                         try
                         {
@@ -464,7 +460,7 @@ namespace RX_Explorer
 
                             BasicProperties Properties = await Device.GetBasicPropertiesAsync();
                             IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType));
+                            CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType));
                         }
                         catch
                         {
@@ -478,14 +474,14 @@ namespace RX_Explorer
                         {
                             StorageFolder DeviceFolder = StorageDevice.FromId(Device.Id);
 
-                            if (TabViewContainer.ThisPage.HardDeviceList.All((Item) => (string.IsNullOrEmpty(Item.Folder.Path) || string.IsNullOrEmpty(DeviceFolder.Path)) ? Item.Folder.Name != DeviceFolder.Name : Item.Folder.Path != DeviceFolder.Path))
+                            if (CommonAccessCollection.HardDeviceList.All((Item) => (string.IsNullOrEmpty(Item.Folder.Path) || string.IsNullOrEmpty(DeviceFolder.Path)) ? Item.Folder.Name != DeviceFolder.Name : Item.Folder.Path != DeviceFolder.Path))
                             {
                                 BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
                                 IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
 
                                 if (PropertiesRetrieve["System.Capacity"] is ulong && PropertiesRetrieve["System.FreeSpace"] is ulong)
                                 {
-                                    TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
+                                    CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
                                 }
                                 else
                                 {
@@ -498,16 +494,16 @@ namespace RX_Explorer
 
                                         if (InnerPropertiesRetrieve["System.Capacity"] is ulong && InnerPropertiesRetrieve["System.FreeSpace"] is ulong)
                                         {
-                                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, DriveType.Removable));
+                                            CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, DriveType.Removable));
                                         }
                                         else
                                         {
-                                            TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
+                                            CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
                                         }
                                     }
                                     else
                                     {
-                                        TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
+                                        CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
                                     }
                                 }
                             }
@@ -622,11 +618,11 @@ namespace RX_Explorer
             {
                 if (Device.Path == Path.GetPathRoot(Device.Path) && DriveInfo.GetDrives().Where((Drive) => Drive.DriveType == DriveType.Fixed || Drive.DriveType == DriveType.Network || Drive.DriveType == DriveType.Removable).Any((Item) => Item.RootDirectory.FullName == Device.Path))
                 {
-                    if (TabViewContainer.ThisPage.HardDeviceList.All((Item) => Item.Folder.Path != Device.Path))
+                    if (CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != Device.Path))
                     {
                         BasicProperties Properties = await Device.GetBasicPropertiesAsync();
                         IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace" });
-                        TabViewContainer.ThisPage.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, new DriveInfo(Device.Path).DriveType));
+                        CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, new DriveInfo(Device.Path).DriveType));
                     }
                     else
                     {

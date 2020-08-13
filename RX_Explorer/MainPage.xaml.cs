@@ -5,14 +5,13 @@ using RX_Explorer.Dialog;
 using RX_Explorer.View;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Background;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Devices.Enumeration;
-using Windows.Devices.Portable;
 using Windows.Foundation;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
@@ -322,63 +321,72 @@ namespace RX_Explorer
 
         private async Task RegisterBackgroundTaskAsync()
         {
-            switch (await BackgroundExecutionManager.RequestAccessAsync())
+            try
             {
-                case BackgroundAccessStatus.AllowedSubjectToSystemPolicy:
-                case BackgroundAccessStatus.AlwaysAllowed:
-                    {
-                        if (BackgroundTaskRegistration.AllTasks.Select((item) => item.Value).FirstOrDefault((task) => task.Name == "UpdateTask") is IBackgroundTaskRegistration Registration)
+                switch (await BackgroundExecutionManager.RequestAccessAsync())
+                {
+                    case BackgroundAccessStatus.AllowedSubjectToSystemPolicy:
+                    case BackgroundAccessStatus.AlwaysAllowed:
                         {
-                            Registration.Unregister(true);
-                        }
-
-                        SystemTrigger Trigger = new SystemTrigger(SystemTriggerType.SessionConnected, false);
-                        BackgroundTaskBuilder Builder = new BackgroundTaskBuilder
-                        {
-                            Name = "UpdateTask",
-                            IsNetworkRequested = true,
-                            TaskEntryPoint = "UpdateCheckBackgroundTask.UpdateCheck"
-                        };
-                        Builder.SetTrigger(Trigger);
-                        Builder.AddCondition(new SystemCondition(SystemConditionType.InternetAvailable));
-                        Builder.AddCondition(new SystemCondition(SystemConditionType.UserPresent));
-                        Builder.AddCondition(new SystemCondition(SystemConditionType.FreeNetworkAvailable));
-                        Builder.Register();
-
-                        break;
-                    }
-                default:
-                    {
-                        if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DisableBackgroundTaskTips"))
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            if (BackgroundTaskRegistration.AllTasks.Select((item) => item.Value).FirstOrDefault((task) => task.Name == "UpdateTask") is IBackgroundTaskRegistration Registration)
                             {
-                                Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                Content = Globalization.GetString("QueueDialog_BackgroundTaskDisable_Content"),
-                                PrimaryButtonText = Globalization.GetString("QueueDialog_BackgroundTaskDisable_PrimaryButton"),
-                                SecondaryButtonText = Globalization.GetString("QueueDialog_BackgroundTaskDisable_SecondaryButton"),
-                                CloseButtonText = Globalization.GetString("QueueDialog_BackgroundTaskDisable_CloseButton")
-                            };
-                            switch (await Dialog.ShowAsync().ConfigureAwait(true))
-                            {
-                                case ContentDialogResult.Primary:
-                                    {
-                                        _ = await Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-backgroundapps"));
-                                        break;
-                                    }
-                                case ContentDialogResult.Secondary:
-                                    {
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        ApplicationData.Current.LocalSettings.Values["DisableBackgroundTaskTips"] = true;
-                                        break;
-                                    }
+                                Registration.Unregister(true);
                             }
+
+                            SystemTrigger Trigger = new SystemTrigger(SystemTriggerType.SessionConnected, false);
+                            BackgroundTaskBuilder Builder = new BackgroundTaskBuilder
+                            {
+                                Name = "UpdateTask",
+                                IsNetworkRequested = true,
+                                TaskEntryPoint = "UpdateCheckBackgroundTask.UpdateCheck"
+                            };
+                            Builder.SetTrigger(Trigger);
+                            Builder.AddCondition(new SystemCondition(SystemConditionType.InternetAvailable));
+                            Builder.AddCondition(new SystemCondition(SystemConditionType.UserPresent));
+                            Builder.AddCondition(new SystemCondition(SystemConditionType.FreeNetworkAvailable));
+                            Builder.Register();
+
+                            break;
                         }
-                        break;
-                    }
+                    default:
+                        {
+                            if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DisableBackgroundTaskTips"))
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                    Content = Globalization.GetString("QueueDialog_BackgroundTaskDisable_Content"),
+                                    PrimaryButtonText = Globalization.GetString("QueueDialog_BackgroundTaskDisable_PrimaryButton"),
+                                    SecondaryButtonText = Globalization.GetString("QueueDialog_BackgroundTaskDisable_SecondaryButton"),
+                                    CloseButtonText = Globalization.GetString("QueueDialog_BackgroundTaskDisable_CloseButton")
+                                };
+
+                                switch (await Dialog.ShowAsync().ConfigureAwait(true))
+                                {
+                                    case ContentDialogResult.Primary:
+                                        {
+                                            _ = await Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-backgroundapps"));
+                                            break;
+                                        }
+                                    case ContentDialogResult.Secondary:
+                                        {
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            ApplicationData.Current.LocalSettings.Values["DisableBackgroundTaskTips"] = true;
+                                            break;
+                                        }
+                                }
+                            }
+
+                            break;
+                        }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine($"Error happened in RegisterBackgroundTaskAsync, Message: {e.Message}");
             }
         }
 

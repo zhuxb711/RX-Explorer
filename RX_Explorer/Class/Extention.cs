@@ -39,23 +39,30 @@ namespace RX_Explorer.Class
     {
         public static IEnumerable<T> OrderByLikeFileSystem<T>(this IEnumerable<T> Input, Func<T, string> GetString, SortDirection Direction)
         {
-            int MaxLength = Input.Select(Item => GetString(Item).Length).Max();
-
-            if (Direction == SortDirection.Ascending)
+            if (Input.Any())
             {
-                return Input.Select(Item => new
+                int MaxLength = Input.Select(Item => GetString(Item).Length).Max();
+
+                if (Direction == SortDirection.Ascending)
                 {
-                    OriginItem = Item,
-                    SortString = Regex.Replace(GetString(Item), @"(\d+)|(\D+)", Eva => Eva.Value.PadLeft(MaxLength, char.IsDigit(Eva.Value[0]) ? ' ' : '\xffff'))
-                }).OrderBy(x => x.SortString).Select(x => x.OriginItem);
+                    return Input.Select(Item => new
+                    {
+                        OriginItem = Item,
+                        SortString = Regex.Replace(GetString(Item), @"(\d+)|(\D+)", Eva => Eva.Value.PadLeft(MaxLength, char.IsDigit(Eva.Value[0]) ? ' ' : '\xffff'))
+                    }).OrderBy(x => x.SortString).Select(x => x.OriginItem);
+                }
+                else
+                {
+                    return Input.Select(Item => new
+                    {
+                        OriginItem = Item,
+                        SortString = Regex.Replace(GetString(Item), @"(\d+)|(\D+)", Eva => Eva.Value.PadLeft(MaxLength, char.IsDigit(Eva.Value[0]) ? ' ' : '\xffff'))
+                    }).OrderByDescending(x => x.SortString).Select(x => x.OriginItem);
+                }
             }
             else
             {
-                return Input.Select(Item => new
-                {
-                    OriginItem = Item,
-                    SortString = Regex.Replace(GetString(Item), @"(\d+)|(\D+)", Eva => Eva.Value.PadLeft(MaxLength, char.IsDigit(Eva.Value[0]) ? ' ' : '\xffff'))
-                }).OrderByDescending(x => x.SortString).Select(x => x.OriginItem);
+                return new List<T>();
             }
         }
 

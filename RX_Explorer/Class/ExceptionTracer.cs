@@ -15,7 +15,7 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class ExceptionTracer
     {
-        private static AutoResetEvent Locker = new AutoResetEvent(true);
+        private static readonly AutoResetEvent Locker = new AutoResetEvent(true);
 
         /// <summary>
         /// 请求进入蓝屏状态
@@ -137,6 +137,7 @@ namespace RX_Explorer.Class
             }).ConfigureAwait(false);
 
             string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            
             if (!string.IsNullOrEmpty(DesktopPath))
             {
                 try

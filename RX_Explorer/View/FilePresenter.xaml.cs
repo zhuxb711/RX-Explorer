@@ -157,14 +157,11 @@ namespace RX_Explorer
         {
             if (e.Parameter is FileControl Instance)
             {
+                CommonAccessCollection.Register(Instance, this);
+
                 FileControlInstance = Instance;
 
                 AreaWatcher = new StorageAreaWatcher(FileCollection, FileControlInstance.FolderTree);
-
-                if (!TabViewContainer.ThisPage.FFInstanceContainer.ContainsKey(Instance))
-                {
-                    TabViewContainer.ThisPage.FFInstanceContainer.Add(Instance, this);
-                }
             }
         }
 
@@ -2186,7 +2183,7 @@ namespace RX_Explorer
 
             if (FileControlInstance.CurrentFolder.Path == Path.GetPathRoot(FileControlInstance.CurrentFolder.Path))
             {
-                if (TabViewContainer.ThisPage.HardDeviceList.FirstOrDefault((Device) => Device.Name == FileControlInstance.CurrentFolder.DisplayName) is HardDeviceInfo Info)
+                if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Device) => Device.Name == FileControlInstance.CurrentFolder.DisplayName) is HardDeviceInfo Info)
                 {
                     DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
@@ -2239,7 +2236,7 @@ namespace RX_Explorer
                     return;
                 }
 
-                if (TabViewContainer.ThisPage.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
+                if (CommonAccessCollection.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -2251,7 +2248,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    TabViewContainer.ThisPage.LibraryFolderList.Add(new LibraryFolder(folder, await folder.GetThumbnailBitmapAsync().ConfigureAwait(true)));
+                    CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(folder, await folder.GetThumbnailBitmapAsync().ConfigureAwait(true)));
                     await SQLite.Current.SetLibraryPathAsync(folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
                 }
             }
@@ -3637,7 +3634,7 @@ namespace RX_Explorer
 
                                                             Control.CurrentNode.HasUnrealizedChildren = (await Control.CurrentFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
 
-                                                            TabViewContainer.ThisPage.FFInstanceContainer[Control].Refresh_Click(null, null);
+                                                            Refresh_Click(null, null);
                                                         }
 
                                                         FileControlInstance.CurrentNode.HasUnrealizedChildren = true;
@@ -4110,7 +4107,7 @@ namespace RX_Explorer
             Clipboard.SetContent(Package);
         }
 
-        private void HashTeachTip_Closing(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosingEventArgs args)
+        private void HashTeachTip_Closing(TeachingTip sender, TeachingTipClosingEventArgs args)
         {
             HashCancellation?.Cancel();
         }
@@ -4214,6 +4211,17 @@ namespace RX_Explorer
                     {
                         _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
                     }
+                }
+                catch (FileLoadException)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_FileOccupied_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                    };
+
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 catch
                 {

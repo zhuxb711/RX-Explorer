@@ -85,8 +85,8 @@ namespace RX_Explorer.Dialog
         {
             ContentDialogButtonClickDeferral Deferral = args.GetDeferral();
 
-            if ((Type == QuickStartType.Application && TabViewContainer.ThisPage.QuickStartList.Any((Item) => Item.DisplayName == DisplayName.Text))
-                || (Type == QuickStartType.WebSite && TabViewContainer.ThisPage.HotWebList.Any((Item) => Item.DisplayName == DisplayName.Text)))
+            if ((Type == QuickStartType.Application && CommonAccessCollection.QuickStartList.Any((Item) => Item.DisplayName == DisplayName.Text))
+                || (Type == QuickStartType.WebSite && CommonAccessCollection.HotWebList.Any((Item) => Item.DisplayName == DisplayName.Text)))
             {
                 ExistTip.IsOpen = true;
                 args.Cancel = true;
@@ -120,7 +120,7 @@ namespace RX_Explorer.Dialog
                                 string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
                                 StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
-                                TabViewContainer.ThisPage.QuickStartList.Insert(TabViewContainer.ThisPage.QuickStartList.Count - 1, new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.Application, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text));
+                                CommonAccessCollection.QuickStartList.Insert(CommonAccessCollection.QuickStartList.Count - 1, new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.Application, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text));
                                 await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application).ConfigureAwait(true);
                             }
                             else
@@ -138,7 +138,7 @@ namespace RX_Explorer.Dialog
                                 string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
                                 StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("HotWebImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
-                                TabViewContainer.ThisPage.HotWebList.Insert(TabViewContainer.ThisPage.HotWebList.Count - 1, new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.WebSite, $"HotWebImage\\{NewFile.Name}", DisplayName.Text));
+                                CommonAccessCollection.HotWebList.Insert(CommonAccessCollection.HotWebList.Count - 1, new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.WebSite, $"HotWebImage\\{NewFile.Name}", DisplayName.Text));
                                 await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"HotWebImage\\{NewFile.Name}", Protocol.Text, QuickStartType.WebSite).ConfigureAwait(true);
                             }
                             else

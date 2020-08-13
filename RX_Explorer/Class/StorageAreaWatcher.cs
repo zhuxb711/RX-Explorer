@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -50,7 +51,7 @@ namespace RX_Explorer.Class
         {
             await Locker1.WaitAsync().ConfigureAwait(false);
 
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
             {
                 try
                 {
@@ -78,9 +79,20 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if (CurrentCollection.FirstOrDefault((Item) => Item.Path == OldPath) is FileSystemStorageItem Item)
+                    if (CurrentCollection.FirstOrDefault((Item) => Item.Path == OldPath) is FileSystemStorageItem OlderItem)
                     {
-                        await Item.Replace(NewPath).ConfigureAwait(true);
+                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path == NewPath) is FileSystemStorageItem ExistItem)
+                        {
+                            await ExistItem.Replace(NewPath).ConfigureAwait(true);
+                            
+                            await Task.Delay(700).ConfigureAwait(true);
+
+                            CurrentCollection.Remove(OlderItem);
+                        }
+                        else
+                        {
+                            await OlderItem.Replace(NewPath).ConfigureAwait(true);
+                        }
                     }
                     else
                     {
@@ -119,9 +131,9 @@ namespace RX_Explorer.Class
 
         private async void Removed(string Path)
         {
-            await Locker2.WaitAsync().ConfigureAwait(false);
+            await Locker1.WaitAsync().ConfigureAwait(false);
 
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async() =>
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
             {
                 try
                 {
@@ -141,7 +153,7 @@ namespace RX_Explorer.Class
                 }
                 finally
                 {
-                    Locker2.Release();
+                    Locker1.Release();
                 }
             });
         }

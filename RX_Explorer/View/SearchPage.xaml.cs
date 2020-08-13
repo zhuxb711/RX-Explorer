@@ -55,10 +55,7 @@ namespace RX_Explorer
                 FileControlInstance = Parameters.Item1;
                 ItemQuery = Parameters.Item2;
 
-                if (!TabViewContainer.ThisPage.FSInstanceContainer.ContainsKey(FileControlInstance))
-                {
-                    TabViewContainer.ThisPage.FSInstanceContainer.Add(FileControlInstance, this);
-                }
+                CommonAccessCollection.Register(FileControlInstance, this);
 
                 await Initialize().ConfigureAwait(false);
             }

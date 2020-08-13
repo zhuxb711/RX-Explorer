@@ -45,7 +45,7 @@ namespace RX_Explorer
             {
                 if (!IsNetworkDevice)
                 {
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].AreaWatcher.SetCurrentLocation((value?.Content as TreeViewNodeContent)?.Path);
+                    CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.SetCurrentLocation((value?.Content as TreeViewNodeContent)?.Path);
                 }
 
                 if (value != null && value.Content is TreeViewNodeContent Content)
@@ -54,7 +54,7 @@ namespace RX_Explorer
 
                     UpdateAddressButton(Content.Path);
 
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].ItemPresenter.Focus(FocusState.Programmatic);
+                    CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter.Focus(FocusState.Programmatic);
 
                     string PlaceText;
                     if (Content.DisplayName.Length > 22)
@@ -117,14 +117,14 @@ namespace RX_Explorer
             {
                 if (!IsNetworkDevice)
                 {
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].AreaWatcher.SetCurrentLocation(value?.Path);
+                    CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.SetCurrentLocation(value?.Path);
                 }
 
                 if (value != null)
                 {
                     UpdateAddressButton(value.Path);
 
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].ItemPresenter.Focus(FocusState.Programmatic);
+                    CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter.Focus(FocusState.Programmatic);
 
                     string PlaceText;
                     if (value.DisplayName.Length > 22)
@@ -220,9 +220,9 @@ namespace RX_Explorer
         {
             if (IsLoading)
             {
-                if (TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility == Visibility.Visible)
+                if (CommonAccessCollection.GetFilePresenterInstance(this).HasFile.Visibility == Visibility.Visible)
                 {
-                    TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = Visibility.Collapsed;
+                    CommonAccessCollection.GetFilePresenterInstance(this).HasFile.Visibility = Visibility.Collapsed;
                 }
 
                 ProBar.IsIndeterminate = true;
@@ -348,12 +348,12 @@ namespace RX_Explorer
 
         private async Task OpenTargetFolder(StorageFolder Folder)
         {
-            TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Clear();
-            TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = Visibility.Collapsed;
+            CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.Clear();
+            CommonAccessCollection.GetFilePresenterInstance(this).HasFile.Visibility = Visibility.Collapsed;
 
             FolderTree.RootNodes.Clear();
 
-            if (TabViewContainer.ThisPage.HardDeviceList.FirstOrDefault((Item) => Item.Folder.Path == Path.GetPathRoot(Folder.Path)) is HardDeviceInfo Info && Info.DriveType == DriveType.Network)
+            if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Item) => Item.Folder.Path == Path.GetPathRoot(Folder.Path)) is HardDeviceInfo Info && Info.DriveType == DriveType.Network)
             {
                 IsNetworkDevice = true;
             }
@@ -409,12 +409,12 @@ namespace RX_Explorer
                     TabItem = Parameters.Item1;
                 }
 
-                if (Parameters.Item3 != null && !TabViewContainer.ThisPage.TFInstanceContainer.ContainsKey(Parameters.Item3))
+                if (Parameters.Item3 != null)
                 {
-                    TabViewContainer.ThisPage.TFInstanceContainer.Add(Parameters.Item3, this);
+                    CommonAccessCollection.Register(Parameters.Item3, this);
                 }
 
-                if (TabViewContainer.ThisPage.HardDeviceList.FirstOrDefault((Item) => Item.Folder.Path == Path.GetPathRoot(Parameters.Item2.Path)) is HardDeviceInfo Info && Info.DriveType == DriveType.Network)
+                if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Item) => Item.Folder.Path == Path.GetPathRoot(Parameters.Item2.Path)) is HardDeviceInfo Info && Info.DriveType == DriveType.Network)
                 {
                     IsNetworkDevice = true;
                 }
@@ -438,8 +438,8 @@ namespace RX_Explorer
 
             FolderTree.RootNodes.Clear();
 
-            TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Clear();
-            TabViewContainer.ThisPage.FFInstanceContainer[this].HasFile.Visibility = Visibility.Collapsed;
+            CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.Clear();
+            CommonAccessCollection.GetFilePresenterInstance(this).HasFile.Visibility = Visibility.Collapsed;
 
             RecordIndex = 0;
 
@@ -637,7 +637,7 @@ namespace RX_Explorer
 
                     CurrentNode = Node;
 
-                    FilePresenter Presenter = TabViewContainer.ThisPage.FFInstanceContainer[this];
+                    FilePresenter Presenter = CommonAccessCollection.GetFilePresenterInstance(this);
 
                     Presenter.FileCollection.Clear();
 
@@ -686,7 +686,7 @@ namespace RX_Explorer
 
                             for (int i = 0; i < ItemList.Count; i++)
                             {
-                                TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Add(ItemList[i]);
+                                CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.Add(ItemList[i]);
                             }
                         }
                     }
@@ -756,7 +756,7 @@ namespace RX_Explorer
 
                 CurrentFolder = Folder;
 
-                FilePresenter Presenter = TabViewContainer.ThisPage.FFInstanceContainer[this];
+                FilePresenter Presenter = CommonAccessCollection.GetFilePresenterInstance(this);
 
                 Presenter.FileCollection.Clear();
 
@@ -1080,7 +1080,7 @@ namespace RX_Explorer
                             HasUnrealizedChildren = false
                         });
 
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                        CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
                     }
                 }
             }
@@ -1118,7 +1118,7 @@ namespace RX_Explorer
 
             if (CurrentNode == FolderTree.RootNodes.FirstOrDefault())
             {
-                if (TabViewContainer.ThisPage.HardDeviceList.FirstOrDefault((Device) => Device.Name == CurrentFolder.DisplayName) is HardDeviceInfo Info)
+                if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Device) => Device.Name == CurrentFolder.DisplayName) is HardDeviceInfo Info)
                 {
                     DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
@@ -1151,7 +1151,7 @@ namespace RX_Explorer
                 return;
             }
 
-            if (TabViewContainer.ThisPage.LibraryFolderList.Any((Folder) => Folder.Folder.Path == CurrentFolder.Path))
+            if (CommonAccessCollection.LibraryFolderList.Any((Folder) => Folder.Folder.Path == CurrentFolder.Path))
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -1164,7 +1164,7 @@ namespace RX_Explorer
             else
             {
                 BitmapImage Thumbnail = await CurrentFolder.GetThumbnailBitmapAsync().ConfigureAwait(true);
-                TabViewContainer.ThisPage.LibraryFolderList.Add(new LibraryFolder(CurrentFolder, Thumbnail));
+                CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(CurrentFolder, Thumbnail));
                 await SQLite.Current.SetLibraryPathAsync(CurrentFolder.Path, LibraryType.UserCustom).ConfigureAwait(false);
             }
         }
@@ -1248,7 +1248,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    TabViewContainer.ThisPage.FSInstanceContainer[this].SetSearchTarget = Options;
+                    CommonAccessCollection.GetSearchPageInstance(this).SetSearchTarget = Options;
                 }
             }
             catch (Exception ex)
@@ -1366,7 +1366,7 @@ namespace RX_Explorer
                     return;
                 }
 
-                if (Path.IsPathRooted(QueryText) && TabViewContainer.ThisPage.HardDeviceList.Any((Drive) => Drive.Folder.Path == Path.GetPathRoot(QueryText)))
+                if (Path.IsPathRooted(QueryText) && CommonAccessCollection.HardDeviceList.Any((Drive) => Drive.Folder.Path == Path.GetPathRoot(QueryText)))
                 {
                     StorageFile File = await StorageFile.GetFileFromPathAsync(QueryText);
                     if (!await Launcher.LaunchFileAsync(File))
@@ -1442,7 +1442,7 @@ namespace RX_Explorer
             {
                 if (Path.IsPathRooted(sender.Text)
                     && Path.GetDirectoryName(sender.Text) is string DirectoryName
-                    && TabViewContainer.ThisPage.HardDeviceList.Any((Drive) => Drive.Folder.Path == Path.GetPathRoot(sender.Text)))
+                    && CommonAccessCollection.HardDeviceList.Any((Drive) => Drive.Folder.Path == Path.GetPathRoot(sender.Text)))
                 {
                     if (Interlocked.Exchange(ref TextChangeLockResource, 1) == 0)
                     {
@@ -1709,49 +1709,49 @@ namespace RX_Explorer
             {
                 case 0:
                     {
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].TileDataTemplate;
+                        CommonAccessCollection.GetFilePresenterInstance(this).GridViewControl.ItemTemplate = CommonAccessCollection.GetFilePresenterInstance(this).TileDataTemplate;
 
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].ItemPresenter = TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl;
+                        CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter = CommonAccessCollection.GetFilePresenterInstance(this).GridViewControl;
                         break;
                     }
                 case 1:
                     {
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl.HeaderTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].ListHeaderDataTemplate;
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewDetailDataTemplate;
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl.ItemsSource = TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection;
+                        CommonAccessCollection.GetFilePresenterInstance(this).ListViewControl.HeaderTemplate = CommonAccessCollection.GetFilePresenterInstance(this).ListHeaderDataTemplate;
+                        CommonAccessCollection.GetFilePresenterInstance(this).ListViewControl.ItemTemplate = CommonAccessCollection.GetFilePresenterInstance(this).ListViewDetailDataTemplate;
+                        CommonAccessCollection.GetFilePresenterInstance(this).ListViewControl.ItemsSource = CommonAccessCollection.GetFilePresenterInstance(this).FileCollection;
 
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].ItemPresenter = TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl;
+                        CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter = CommonAccessCollection.GetFilePresenterInstance(this).ListViewControl;
                         break;
                     }
 
                 case 2:
                     {
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl.HeaderTemplate = null;
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewSimpleDataTemplate;
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl.ItemsSource = TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection;
+                        CommonAccessCollection.GetFilePresenterInstance(this).ListViewControl.HeaderTemplate = null;
+                        CommonAccessCollection.GetFilePresenterInstance(this).ListViewControl.ItemTemplate = CommonAccessCollection.GetFilePresenterInstance(this).ListViewSimpleDataTemplate;
+                        CommonAccessCollection.GetFilePresenterInstance(this).ListViewControl.ItemsSource = CommonAccessCollection.GetFilePresenterInstance(this).FileCollection;
 
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].ItemPresenter = TabViewContainer.ThisPage.FFInstanceContainer[this].ListViewControl;
+                        CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter = CommonAccessCollection.GetFilePresenterInstance(this).ListViewControl;
                         break;
                     }
                 case 3:
                     {
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].LargeImageDataTemplate;
+                        CommonAccessCollection.GetFilePresenterInstance(this).GridViewControl.ItemTemplate = CommonAccessCollection.GetFilePresenterInstance(this).LargeImageDataTemplate;
 
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].ItemPresenter = TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl;
+                        CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter = CommonAccessCollection.GetFilePresenterInstance(this).GridViewControl;
                         break;
                     }
                 case 4:
                     {
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].MediumImageDataTemplate;
+                        CommonAccessCollection.GetFilePresenterInstance(this).GridViewControl.ItemTemplate = CommonAccessCollection.GetFilePresenterInstance(this).MediumImageDataTemplate;
 
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].ItemPresenter = TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl;
+                        CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter = CommonAccessCollection.GetFilePresenterInstance(this).GridViewControl;
                         break;
                     }
                 case 5:
                     {
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl.ItemTemplate = TabViewContainer.ThisPage.FFInstanceContainer[this].SmallImageDataTemplate;
+                        CommonAccessCollection.GetFilePresenterInstance(this).GridViewControl.ItemTemplate = CommonAccessCollection.GetFilePresenterInstance(this).SmallImageDataTemplate;
 
-                        TabViewContainer.ThisPage.FFInstanceContainer[this].ItemPresenter = TabViewContainer.ThisPage.FFInstanceContainer[this].GridViewControl;
+                        CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter = CommonAccessCollection.GetFilePresenterInstance(this).GridViewControl;
                         break;
                     }
             }
@@ -2189,9 +2189,9 @@ namespace RX_Explorer
 
                                                     await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
 
-                                                    if (TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.FirstOrDefault((Item) => Item.Path == Folder.Path) is FileSystemStorageItem RemoveItem)
+                                                    if (CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.FirstOrDefault((Item) => Item.Path == Folder.Path) is FileSystemStorageItem RemoveItem)
                                                     {
-                                                        TabViewContainer.ThisPage.FFInstanceContainer[this].FileCollection.Remove(RemoveItem);
+                                                        CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.Remove(RemoveItem);
                                                     }
 
                                                     if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
@@ -2376,7 +2376,7 @@ namespace RX_Explorer
             AddItemCancellation?.Dispose();
 
             EnterLock.Dispose();
-            TabViewContainer.ThisPage.FFInstanceContainer[this].AreaWatcher.Dispose();
+            CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.Dispose();
         }
 
         private void Nav_PointerWheelChanged(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)

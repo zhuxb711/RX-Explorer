@@ -169,7 +169,7 @@ namespace RX_Explorer
             Cancellation.Dispose();
             Cancellation = null;
             Behavior.Detach();
-            PhotoCollection.Clear();
+            PhotoCollection?.Clear();
             PhotoCollection = null;
             SelectedPhotoName = string.Empty;
             Flip.SelectionChanged -= Flip_SelectionChanged;
