@@ -259,9 +259,11 @@ namespace RX_Explorer.Class
                 {
                     do
                     {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                        FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
+
+                        if (!Attribute.HasFlag(FileAttributes.System))
                         {
-                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
+                            if (Attribute.HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                             {
                                 if (Data.cFileName != "." && Data.cFileName != "..")
                                 {
@@ -270,10 +272,7 @@ namespace RX_Explorer.Class
                             }
                             else if (Filter.HasFlag(ItemFilters.File))
                             {
-                                if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
-                                {
-                                    return true;
-                                }
+                                return true;
                             }
                         }
                     }
@@ -310,14 +309,7 @@ namespace RX_Explorer.Class
             {
                 if (Ptr.ToInt64() != -1)
                 {
-                    if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return true;
-                    }
+                    return true;
                 }
                 else
                 {
@@ -399,10 +391,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
-                            {
-                                TotalSize += ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
-                            }
+                            TotalSize += ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
                         }
                     }
                     while (FindNextFile(Ptr, out Data));
@@ -494,23 +483,38 @@ namespace RX_Explorer.Class
 
                     do
                     {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System) && (IncludeHiddenItem || !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden)))
+                        FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
+
+                        if (!Attribute.HasFlag(FileAttributes.System) && (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)))
                         {
-                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
+                            if (Attribute.HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                             {
                                 if (Data.cFileName != "." && Data.cFileName != "..")
                                 {
                                     FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
                                     DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
-                                    Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+
+                                    if (Attribute.HasFlag(FileAttributes.Hidden))
+                                    {
+                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                    }
+                                    else
+                                    {
+                                        Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                    }
                                 }
                             }
                             else if (Filter.HasFlag(ItemFilters.File))
                             {
-                                if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
+                                FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
+                                DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
+
+                                if (Attribute.HasFlag(FileAttributes.Hidden))
                                 {
-                                    FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                    DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
+                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                }
+                                else
+                                {
                                     Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
                                 }
                             }
@@ -555,23 +559,38 @@ namespace RX_Explorer.Class
                     {
                         if (Ptr.ToInt64() != -1)
                         {
-                            if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System))
+                            FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
+
+                            if (!Attribute.HasFlag(FileAttributes.System))
                             {
-                                if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
+                                if (Attribute.HasFlag(FileAttributes.Directory))
                                 {
                                     if (Data.cFileName != "." && Data.cFileName != "..")
                                     {
                                         FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
                                         DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
-                                        Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, Path, ModifiedTime.ToLocalTime()));
+
+                                        if (Attribute.HasFlag(FileAttributes.Hidden))
+                                        {
+                                            Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, Path, ModifiedTime.ToLocalTime()));
+                                        }
+                                        else
+                                        {
+                                            Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, Path, ModifiedTime.ToLocalTime()));
+                                        }
                                     }
                                 }
                                 else
                                 {
-                                    if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
+                                    FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
+                                    DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
+
+                                    if (Attribute.HasFlag(FileAttributes.Hidden))
                                     {
-                                        FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                        DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
+                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, Path, ModifiedTime.ToLocalTime()));
+                                    }
+                                    else
+                                    {
                                         Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, Path, ModifiedTime.ToLocalTime()));
                                     }
                                 }
@@ -613,23 +632,38 @@ namespace RX_Explorer.Class
 
                     do
                     {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System) && (IncludeHiddenItem || !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden)))
+                        FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
+
+                        if (!Attribute.HasFlag(FileAttributes.System) && (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)))
                         {
-                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
+                            if (Attribute.HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                             {
                                 if (Data.cFileName != "." && Data.cFileName != "..")
                                 {
                                     FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
                                     DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
-                                    Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+
+                                    if (Attribute.HasFlag(FileAttributes.Hidden))
+                                    {
+                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                    }
+                                    else
+                                    {
+                                        Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                    }
                                 }
                             }
                             else if (Filter.HasFlag(ItemFilters.File))
                             {
-                                if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
+                                FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
+                                DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
+
+                                if (Attribute.HasFlag(FileAttributes.Hidden))
                                 {
-                                    FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                    DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
+                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                }
+                                else
+                                {
                                     Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
                                 }
                             }
@@ -683,10 +717,7 @@ namespace RX_Explorer.Class
                             }
                             else if (Filter.HasFlag(ItemFilters.File))
                             {
-                                if (!Data.cFileName.EndsWith(".lnk") && !Data.cFileName.EndsWith(".url"))
-                                {
-                                    Result.Add(System.IO.Path.Combine(Path, Data.cFileName));
-                                }
+                                Result.Add(System.IO.Path.Combine(Path, Data.cFileName));
                             }
                         }
                     }

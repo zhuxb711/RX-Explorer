@@ -12,34 +12,22 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供对设备中的存储对象的描述
     /// </summary>
-    public sealed class FileSystemStorageItem : INotifyPropertyChanged, IComparable
+    public class FileSystemStorageItem : INotifyPropertyChanged, IComparable
     {
         /// <summary>
         /// 指示所包含的存储对象类型
         /// </summary>
-        public StorageItemTypes StorageType { get; private set; }
+        public StorageItemTypes StorageType { get; protected set; }
 
         /// <summary>
         /// 存储对象
         /// </summary>
-        private IStorageItem StorageItem;
+        protected IStorageItem StorageItem { get; set; }
 
         /// <summary>
         /// 用于兼容WIN_Native_API所提供的路径
         /// </summary>
-        private readonly string InternalPathString;
-
-        /// <summary>
-        /// 指示是否是回收站对象，此值为true时将改变一些呈现内容
-        /// </summary>
-        public bool IsRecycleItem { get; private set; } = false;
-
-        public bool IsHidenItem { get; private set; } = false;
-
-        /// <summary>
-        /// 当IsRecycleItem=true时提供回收站对象的原始路径
-        /// </summary>
-        public string RecycleItemOriginPath { get; private set; }
+        protected string InternalPathString { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -72,13 +60,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        private BitmapImage Inner_Thumbnail;
+        protected BitmapImage Inner_Thumbnail { get; set; }
 
-        private readonly static BitmapImage Const_Folder_Image = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
+        protected readonly static BitmapImage Const_Folder_Image = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
 
-        private readonly static BitmapImage Const_File_White_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_White.png"));
+        protected readonly static BitmapImage Const_File_White_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_White.png"));
 
-        private readonly static BitmapImage Const_File_Black_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+        protected readonly static BitmapImage Const_File_Black_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
 
         /// <summary>
         /// 初始化FileSystemStorageItem对象
@@ -123,19 +111,18 @@ namespace RX_Explorer.Class
             ModifiedTimeRaw = ModifiedTime;
             this.StorageType = StorageType;
 
-            if (((System.IO.FileAttributes)Data.dwFileAttributes).HasFlag(System.IO.FileAttributes.Hidden))
-            {
-                IsHidenItem = true;
-                SetThumbnailOpacity(ThumbnailStatus.ReduceOpacity);
-            }
-
             if (StorageType != StorageItemTypes.Folder)
             {
                 SizeRaw = ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
             }
         }
 
-        private void OnPropertyChanged(string name)
+        protected FileSystemStorageItem()
+        {
+
+        }
+
+        protected void OnPropertyChanged(string name)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
@@ -150,11 +137,6 @@ namespace RX_Explorer.Class
             {
                 if (StorageItem == null)
                 {
-                    if (IsHidenItem)
-                    {
-                        return null;
-                    }
-
                     if (StorageType == StorageItemTypes.File)
                     {
                         return StorageItem = await StorageFile.GetFileFromPathAsync(InternalPathString);
@@ -193,18 +175,6 @@ namespace RX_Explorer.Class
         }
 
         /// <summary>
-        /// 调用此方法以将该对象标记为回收站对象
-        /// </summary>
-        /// <param name="OriginPath">原始路径</param>
-        /// <param name="CreateTime">修改时间</param>
-        public void SetAsRecycleItem(string OriginPath, DateTimeOffset CreateTime)
-        {
-            IsRecycleItem = true;
-            RecycleItemOriginPath = OriginPath;
-            ModifiedTimeRaw = CreateTime;
-        }
-
-        /// <summary>
         /// 设置缩略图的透明度，用于表示文件的是否处于待移动或隐藏状态
         /// </summary>
         /// <param name="Status">状态</param>
@@ -231,20 +201,6 @@ namespace RX_Explorer.Class
             }
 
             OnPropertyChanged(nameof(ThumbnailOpacity));
-        }
-
-        public void SetHiddenProperty(bool IsHidden)
-        {
-            IsHidenItem = IsHidden;
-
-            if(IsHidden)
-            {
-                SetThumbnailOpacity(ThumbnailStatus.ReduceOpacity);
-            }
-            else
-            {
-                SetThumbnailOpacity(ThumbnailStatus.Normal);
-            }
         }
 
         /// <summary>
@@ -324,12 +280,12 @@ namespace RX_Explorer.Class
             }
         }
 
-        public double ThumbnailOpacity { get; private set; } = 1d;
+        public double ThumbnailOpacity { get; protected set; } = 1d;
 
         /// <summary>
         /// 获取原始的修改时间
         /// </summary>
-        public DateTimeOffset ModifiedTimeRaw { get; private set; }
+        public DateTimeOffset ModifiedTimeRaw { get; protected set; }
 
         /// <summary>
         /// 获取文件的路径
@@ -366,7 +322,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取原始大小数据
         /// </summary>
-        public ulong SizeRaw { get; private set; } = 0;
+        public ulong SizeRaw { get; protected set; }
 
         /// <summary>
         /// 获取文件的完整文件名(包括后缀)
@@ -375,14 +331,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (IsRecycleItem)
-                {
-                    return System.IO.Path.GetFileName(RecycleItemOriginPath);
-                }
-                else
-                {
-                    return StorageItem == null ? System.IO.Path.GetFileName(InternalPathString) : StorageItem.Name;
-                }
+                return StorageItem == null ? System.IO.Path.GetFileName(InternalPathString) : StorageItem.Name;
             }
         }
 

@@ -3,6 +3,7 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
@@ -13,6 +14,7 @@ using Windows.ApplicationModel.Core;
 using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.Storage.Search;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
@@ -24,6 +26,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using AnimationController = RX_Explorer.Class.AnimationController;
+using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer
 {
@@ -39,7 +42,7 @@ namespace RX_Explorer
 
         public static bool IsDoubleClickEnable { get; set; } = true;
 
-        public static bool IsDetachTreeViewAndPresenter { get; set; } = false;
+        public static bool IsDetachTreeViewAndPresenter { get; set; }
 
         public static bool IsQuicklookAvailable { get; set; }
 
@@ -47,11 +50,11 @@ namespace RX_Explorer
 
         public static bool IsInputFromPrimaryButton { get; set; } = true;
 
-        public static bool IsDisplayHiddenItem { get; set; } = false;
+        public static bool IsDisplayHiddenItem { get; set; }
 
-        private int EnterAndExitLock = 0;
+        private int EnterAndExitLock;
 
-        public bool IsOpened { get; private set; } = false;
+        public bool IsOpened { get; private set; }
 
         public SettingControl()
         {
@@ -1140,9 +1143,32 @@ namespace RX_Explorer
             }
         }
 
-        private void TreeViewDetach_Toggled(object sender, RoutedEventArgs e)
+        private async void TreeViewDetach_Toggled(object sender, RoutedEventArgs e)
         {
             TabViewContainer.ThisPage.TreeViewLength = TreeViewDetach.IsOn ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
+
+            if (TabViewContainer.CurrentTabNavigation?.Content is FileControl Control && Control.CurrentFolder != null)
+            {
+                if (TreeViewDetach.IsOn)
+                {
+                    Control.FolderTree.RootNodes.Clear();
+
+                    TreeViewNode RootNode = new TreeViewNode
+                    {
+                        Content = new TreeViewNodeContent(Control.CurrentFolder),
+                        IsExpanded = false,
+                        HasUnrealizedChildren = (await Control.CurrentFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                    };
+
+                    Control.FolderTree.RootNodes.Add(RootNode);
+
+                    await Control.DisplayItemsInFolder(RootNode, true).ConfigureAwait(false);
+                }
+                else
+                {
+                    Control.GoParentFolder.IsEnabled = Control.CurrentFolder.Path != Path.GetPathRoot(Control.CurrentFolder.Path);
+                }
+            }
         }
 
         private void QuicklookQuestion_Tapped(object sender, TappedRoutedEventArgs e)
@@ -1264,7 +1290,11 @@ namespace RX_Explorer
             if (TabViewContainer.CurrentTabNavigation?.Content is FileControl Control && Control.CurrentFolder != null)
             {
                 await Control.DisplayItemsInFolder(Control.CurrentFolder, true).ConfigureAwait(true);
-                await Control.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(false);
+
+                if (!IsDetachTreeViewAndPresenter)
+                {
+                    await Control.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(false);
+                }
             }
         }
 

@@ -31,7 +31,7 @@
     <GenerateTestArtifacts>False</GenerateTestArtifacts>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-    <PackageCertificateThumbprint>965B76F120567700E1E961F09450DCA503C5669C</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>53AC170278AD7FC4E819309056DD6E0068FBE731</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -163,8 +163,10 @@
     <Compile Include="Class\DataTemplateSelector.cs" />
     <Compile Include="Class\Enum.cs" />
     <Compile Include="Class\Exception.cs" />
+    <Compile Include="Class\HiddenStorageItem.cs" />
     <Compile Include="Class\OperationRecorder.cs" />
     <Compile Include="Class\PipeLineController.cs" />
+    <Compile Include="Class\RecycleStorageItem.cs" />
     <Compile Include="Class\SortCollectionGenerator.cs" />
     <Compile Include="Class\SpecialTypeGenerator.cs" />
     <Compile Include="Class\StorageAreaWatcher.cs" />

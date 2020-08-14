@@ -23,3 +23,9 @@ dotnet_diagnostic.CA5351.severity = none
 
 # CA1707: 标识符不应包含下划线
 dotnet_diagnostic.CA1707.severity = none
+
+# CA1721: 属性名不应与 get 方法匹配
+dotnet_diagnostic.CA1721.severity = none
+
+# CA1822: 将成员标记为 static
+dotnet_diagnostic.CA1822.severity = none

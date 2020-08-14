@@ -182,7 +182,7 @@
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="Cls:FileSystemStorageItem">
+                <DataTemplate x:DataType="Cls:RecycleStorageItem">
                     <Grid HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="4*" />
@@ -213,8 +213,8 @@
                         </Grid>
                         <TextBlock VerticalAlignment="Center"
                                    FontSize="14"
-                                   Text="{x:Bind RecycleItemOriginPath}"
-                                   ToolTipService.ToolTip="{x:Bind RecycleItemOriginPath}"
+                                   Text="{x:Bind OriginPath}"
+                                   ToolTipService.ToolTip="{x:Bind OriginPath}"
                                    Grid.Column="1"
                                    Padding="8,0,0,0"
                                    TextTrimming="CharacterEllipsis" />

@@ -46,42 +46,50 @@ namespace RX_Explorer.Class
             }
         }
 
-        public List<FileSystemStorageItem> GetSortedCollection(ICollection<FileSystemStorageItem> InputCollection)
+        public List<T> GetSortedCollection<T>(ICollection<T> InputCollection, SortTarget? Target, SortDirection? Direction) where T : FileSystemStorageItem
         {
-            IEnumerable<FileSystemStorageItem> FolderList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.Folder);
-            IEnumerable<FileSystemStorageItem> FileList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.File);
+            SortTarget TempTarget = Target ?? SortTarget;
+            SortDirection TempDirection = Direction ?? SortDirection;
 
-            switch (SortTarget)
+            IEnumerable<T> FolderList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.Folder);
+            IEnumerable<T> FileList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.File);
+
+            switch (TempTarget)
             {
                 case SortTarget.Name:
                     {
-                        return SortDirection == SortDirection.Ascending
-                            ? new List<FileSystemStorageItem>(FolderList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection).Concat(FileList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection)))
-                            : new List<FileSystemStorageItem>(FileList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection).Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection)));
+                        return TempDirection == SortDirection.Ascending
+                            ? new List<T>(FolderList.OrderByLikeFileSystem((Item) => Item.Name, TempDirection).Concat(FileList.OrderByLikeFileSystem((Item) => Item.Name, TempDirection)))
+                            : new List<T>(FileList.OrderByLikeFileSystem((Item) => Item.Name, TempDirection).Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Name, TempDirection)));
                     }
                 case SortTarget.Type:
                     {
-                        return SortDirection == SortDirection.Ascending
-                            ? new List<FileSystemStorageItem>(FolderList.OrderByLikeFileSystem((Item) => Item.Type, SortDirection).Concat(FileList.OrderByLikeFileSystem((Item) => Item.Type, SortDirection)))
-                            : new List<FileSystemStorageItem>(FileList.OrderByLikeFileSystem((Item) => Item.Type, SortDirection).Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Type, SortDirection)));
+                        return TempDirection == SortDirection.Ascending
+                            ? new List<T>(FolderList.OrderByLikeFileSystem((Item) => Item.Type, TempDirection).Concat(FileList.OrderByLikeFileSystem((Item) => Item.Type, TempDirection)))
+                            : new List<T>(FileList.OrderByLikeFileSystem((Item) => Item.Type, TempDirection).Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Type, TempDirection)));
                     }
                 case SortTarget.ModifiedTime:
                     {
-                        return SortDirection == SortDirection.Ascending
-                            ? new List<FileSystemStorageItem>(FolderList.OrderBy((Item) => Item.ModifiedTimeRaw).Concat(FileList.OrderBy((Item) => Item.ModifiedTimeRaw)))
-                            : new List<FileSystemStorageItem>(FileList.OrderByDescending((Item) => Item.ModifiedTimeRaw).Concat(FolderList.OrderByDescending((Item) => Item.ModifiedTimeRaw)));
+                        return TempDirection == SortDirection.Ascending
+                            ? new List<T>(FolderList.OrderBy((Item) => Item.ModifiedTimeRaw).Concat(FileList.OrderBy((Item) => Item.ModifiedTimeRaw)))
+                            : new List<T>(FileList.OrderByDescending((Item) => Item.ModifiedTimeRaw).Concat(FolderList.OrderByDescending((Item) => Item.ModifiedTimeRaw)));
                     }
                 case SortTarget.Size:
                     {
-                        return SortDirection == SortDirection.Ascending
-                            ? new List<FileSystemStorageItem>(FolderList.OrderBy((Item) => Item.SizeRaw).Concat(FileList.OrderBy((Item) => Item.SizeRaw)))
-                            : new List<FileSystemStorageItem>(FileList.OrderByDescending((Item) => Item.SizeRaw).Concat(FolderList.OrderByDescending((Item) => Item.SizeRaw)));
+                        return TempDirection == SortDirection.Ascending
+                            ? new List<T>(FolderList.OrderBy((Item) => Item.SizeRaw).Concat(FileList.OrderBy((Item) => Item.SizeRaw)))
+                            : new List<T>(FileList.OrderByDescending((Item) => Item.SizeRaw).Concat(FolderList.OrderByDescending((Item) => Item.SizeRaw)));
                     }
                 default:
                     {
                         return null;
                     }
             }
+        }
+
+        public List<T> GetSortedCollection<T>(ICollection<T> InputCollection) where T : FileSystemStorageItem
+        {
+            return GetSortedCollection(InputCollection, null, null);
         }
 
         private SortCollectionGenerator()

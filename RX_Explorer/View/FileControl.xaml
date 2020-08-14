@@ -146,6 +146,7 @@
                     x:Uid="FileControlParentButton"
                     Grid.Column="2"
                     x:Name="GoParentFolder"
+                    x:FieldModifier="public"
                     IsEnabled="False"
                     Click="GoParentFolder_Click"
                     Style="{ThemeResource ButtonRevealStyle}"

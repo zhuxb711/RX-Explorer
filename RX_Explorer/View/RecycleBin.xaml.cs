@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.UI.Xaml;
@@ -26,7 +25,7 @@ namespace RX_Explorer.View
             {SortTarget.OriginPath,SortDirection.Ascending }
         };
 
-        private ObservableCollection<FileSystemStorageItem> FileCollection = new ObservableCollection<FileSystemStorageItem>();
+        private ObservableCollection<RecycleStorageItem> FileCollection = new ObservableCollection<RecycleStorageItem>();
 
         public RecycleBin()
         {
@@ -50,7 +49,7 @@ namespace RX_Explorer.View
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            foreach (FileSystemStorageItem Item in SortList(await FullTrustExcutorController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true), SortTarget.Name, SortDirection.Ascending))
+            foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(await FullTrustExcutorController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true), SortTarget.Name, SortDirection.Ascending))
             {
                 FileCollection.Add(Item);
             }
@@ -121,9 +120,9 @@ namespace RX_Explorer.View
 
         private async void ListViewControl_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            if (ListViewControl.SelectedItem is FileSystemStorageItem Item)
+            if (ListViewControl.SelectedItem is RecycleStorageItem Item)
             {
-                PropertyDialog Dialog = new PropertyDialog(await Item.GetStorageItem().ConfigureAwait(true), Path.GetFileName(Item.RecycleItemOriginPath));
+                PropertyDialog Dialog = new PropertyDialog(await Item.GetStorageItem().ConfigureAwait(true), Path.GetFileName(Item.OriginPath));
                 await Dialog.ShowAsync().ConfigureAwait(false);
             }
         }
@@ -139,7 +138,7 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is RecycleStorageItem Item)
                     {
                         ListViewControl.ContextFlyout = SelectFlyout;
                         ListViewControl.SelectedItem = Item;
@@ -163,10 +162,9 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.Name, SortDirection.Descending);
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Name, SortDirection.Descending))
                 {
                     FileCollection.Add(Item);
                 }
@@ -178,11 +176,10 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
-
-                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.Name, SortDirection.Ascending);
+                
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Name, SortDirection.Ascending))
                 {
                     FileCollection.Add(Item);
                 }
@@ -199,10 +196,9 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.ModifiedTime, SortDirection.Descending);
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.ModifiedTime, SortDirection.Descending))
                 {
                     FileCollection.Add(Item);
                 }
@@ -215,10 +211,9 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.ModifiedTime, SortDirection.Ascending);
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.ModifiedTime, SortDirection.Ascending))
                 {
                     FileCollection.Add(Item);
                 }
@@ -235,10 +230,9 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.Type, SortDirection.Descending);
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Type, SortDirection.Descending))
                 {
                     FileCollection.Add(Item);
                 }
@@ -251,10 +245,9 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.Type, SortDirection.Ascending);
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Type, SortDirection.Ascending))
                 {
                     FileCollection.Add(Item);
                 }
@@ -271,10 +264,9 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Name] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.Size, SortDirection.Descending);
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Size, SortDirection.Descending))
                 {
                     FileCollection.Add(Item);
                 }
@@ -288,10 +280,9 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Name] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.Size, SortDirection.Ascending);
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Size, SortDirection.Ascending))
                 {
                     FileCollection.Add(Item);
                 }
@@ -308,10 +299,9 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
                 SortMap[SortTarget.Name] = SortDirection.Ascending;
 
-                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.OriginPath, SortDirection.Descending);
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.OriginPath, SortDirection.Descending))
                 {
                     FileCollection.Add(Item);
                 }
@@ -325,10 +315,9 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
                 SortMap[SortTarget.Name] = SortDirection.Ascending;
 
-                List<FileSystemStorageItem> SortResult = SortList(FileCollection, SortTarget.OriginPath, SortDirection.Ascending);
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.OriginPath, SortDirection.Ascending))
                 {
                     FileCollection.Add(Item);
                 }
@@ -337,9 +326,9 @@ namespace RX_Explorer.View
 
         private async void PropertyButton_Click(object sender, RoutedEventArgs e)
         {
-            if (ListViewControl.SelectedItem is FileSystemStorageItem Item)
+            if (ListViewControl.SelectedItem is RecycleStorageItem Item)
             {
-                PropertyDialog Dialog = new PropertyDialog(await Item.GetStorageItem().ConfigureAwait(true), Path.GetFileName(Item.RecycleItemOriginPath));
+                PropertyDialog Dialog = new PropertyDialog(await Item.GetStorageItem().ConfigureAwait(true), Path.GetFileName(Item.OriginPath));
                 await Dialog.ShowAsync().ConfigureAwait(false);
             }
         }
@@ -360,7 +349,7 @@ namespace RX_Explorer.View
             {
                 List<string> ErrorList = new List<string>();
 
-                foreach (FileSystemStorageItem Item in ListViewControl.SelectedItems)
+                foreach (RecycleStorageItem Item in ListViewControl.SelectedItems)
                 {
                     if (await FullTrustExcutorController.Current.DeleteItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
                     {
@@ -427,7 +416,7 @@ namespace RX_Explorer.View
 
             List<string> ErrorList = new List<string>();
 
-            foreach (FileSystemStorageItem Item in ListViewControl.SelectedItems)
+            foreach (RecycleStorageItem Item in ListViewControl.SelectedItems)
             {
                 if (await FullTrustExcutorController.Current.RestoreItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
                 {
@@ -473,7 +462,7 @@ namespace RX_Explorer.View
         {
             FileCollection.Clear();
 
-            foreach (FileSystemStorageItem Item in SortList(await FullTrustExcutorController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true), SortTarget.Name, SortDirection.Ascending))
+            foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(await FullTrustExcutorController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true), SortTarget.Name, SortDirection.Ascending))
             {
                 FileCollection.Add(Item);
             }
@@ -493,103 +482,6 @@ namespace RX_Explorer.View
             else
             {
                 PropertyButton.IsEnabled = true;
-            }
-        }
-
-        private List<FileSystemStorageItem> SortList(ICollection<FileSystemStorageItem> FileCollection, SortTarget Target, SortDirection Direction)
-        {
-            switch (Target)
-            {
-                case SortTarget.Name:
-                    {
-                        if (Direction == SortDirection.Ascending)
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.Name).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.Name).ToList();
-
-                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
-                        }
-                        else
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.Name).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.Name).ToList();
-
-                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
-                        }
-                    }
-
-                case SortTarget.Type:
-                    {
-                        if (Direction == SortDirection.Ascending)
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.Type).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.Type).ToList();
-
-                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
-                        }
-                        else
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.Type).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.Type).ToList();
-
-                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
-                        }
-                    }
-                case SortTarget.ModifiedTime:
-                    {
-                        if (Direction == SortDirection.Ascending)
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.ModifiedTimeRaw).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.ModifiedTimeRaw).ToList();
-
-                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
-                        }
-                        else
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.ModifiedTimeRaw).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.ModifiedTimeRaw).ToList();
-
-                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
-                        }
-                    }
-                case SortTarget.Size:
-                    {
-                        if (Direction == SortDirection.Ascending)
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.SizeRaw).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.SizeRaw).ToList();
-
-                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
-                        }
-                        else
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.SizeRaw).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.SizeRaw).ToList();
-
-                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
-                        }
-                    }
-                case SortTarget.OriginPath:
-                    {
-                        if (Direction == SortDirection.Ascending)
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderBy((Item) => Item.RecycleItemOriginPath).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderBy((Item) => Item.RecycleItemOriginPath).ToList();
-
-                            return new List<FileSystemStorageItem>(FolderSortList.Concat(FileSortList));
-                        }
-                        else
-                        {
-                            List<FileSystemStorageItem> FolderSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.Folder).OrderByDescending((Item) => Item.RecycleItemOriginPath).ToList();
-                            List<FileSystemStorageItem> FileSortList = FileCollection.Where((It) => It.StorageType == StorageItemTypes.File).OrderByDescending((Item) => Item.RecycleItemOriginPath).ToList();
-
-                            return new List<FileSystemStorageItem>(FileSortList.Concat(FolderSortList));
-                        }
-                    }
-                default:
-                    {
-                        return null;
-                    }
             }
         }
     }

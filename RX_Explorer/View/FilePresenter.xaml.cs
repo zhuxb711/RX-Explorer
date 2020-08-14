@@ -43,9 +43,9 @@ namespace RX_Explorer
 
         private FileControl FileControlInstance;
 
-        private int DropLock = 0;
+        private int DropLock;
 
-        private int ViewDropLock = 0;
+        private int ViewDropLock;
 
         private CancellationTokenSource HashCancellation;
 
@@ -83,8 +83,8 @@ namespace RX_Explorer
         }
 
         private WiFiShareProvider WiFiProvider;
-        private FileSystemStorageItem TabTarget = null;
-        private FileSystemStorageItem CurrentNameEditItem = null;
+        private FileSystemStorageItem TabTarget;
+        private FileSystemStorageItem CurrentNameEditItem;
         private DateTimeOffset LastClickTime;
         private DateTimeOffset LastPressTime;
         private string LastPressChar;
@@ -144,6 +144,7 @@ namespace RX_Explorer
             Application.Current.Suspending -= Current_Suspending;
             Application.Current.Resuming -= Current_Resuming;
             CoreWindow.GetForCurrentThread().KeyDown -= Window_KeyDown;
+            Dispatcher.AcceleratorKeyActivated -= Dispatcher_AcceleratorKeyActivated;
         }
 
         private void FilePresenter_Loaded(object sender, RoutedEventArgs e)
@@ -151,6 +152,27 @@ namespace RX_Explorer
             Application.Current.Suspending += Current_Suspending;
             Application.Current.Resuming += Current_Resuming;
             CoreWindow.GetForCurrentThread().KeyDown += Window_KeyDown;
+            Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
+        }
+
+        private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
+        {
+            if (args.KeyStatus.IsMenuKeyDown)
+            {
+                switch (args.VirtualKey)
+                {
+                    case VirtualKey.Left when FileControlInstance.GoBackRecord.IsEnabled:
+                        {
+                            FileControlInstance.GoBackRecord_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.Right when FileControlInstance.GoForwardRecord.IsEnabled:
+                        {
+                            FileControlInstance.GoForwardRecord_Click(null, null);
+                            break;
+                        }
+                }
+            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -170,7 +192,7 @@ namespace RX_Explorer
             CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
             CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
 
-            if (!FileControlInstance.IsSearchOrPathBoxFocused && !QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning && SelectedItems.All((Item) => !Item.IsHidenItem))
+            if (!FileControlInstance.IsSearchOrPathBoxFocused && !QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning && SelectedItems.All((Item) => !(Item is HiddenStorageItem)))
             {
                 args.Handled = true;
 
@@ -206,7 +228,7 @@ namespace RX_Explorer
                             await EnterSelectedItem(Item).ConfigureAwait(false);
                             break;
                         }
-                    case VirtualKey.Back when FileControlInstance.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && FileControlInstance.GoBackRecord.IsEnabled:
+                    case VirtualKey.Back when FileControlInstance.GoBackRecord.IsEnabled:
                         {
                             FileControlInstance.GoBackRecord_Click(null, null);
                             break;
@@ -526,7 +548,7 @@ namespace RX_Explorer
                                 }
                             case "Delete":
                                 {
-                                    if ((await FullTrustExcutorController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true)).FirstOrDefault((Item) => Item.RecycleItemOriginPath == SplitGroup[0]) is FileSystemStorageItem Item)
+                                    if ((await FullTrustExcutorController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true)).FirstOrDefault((Item) => Item.OriginPath == SplitGroup[0]) is FileSystemStorageItem Item)
                                     {
                                         if (!await FullTrustExcutorController.Current.RestoreItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
                                         {
@@ -573,7 +595,7 @@ namespace RX_Explorer
         {
             Restore();
 
-            if (SelectedItems.Any((Item) => Item.IsHidenItem))
+            if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -873,7 +895,7 @@ namespace RX_Explorer
         {
             Restore();
 
-            if (SelectedItems.Any((Item) => Item.IsHidenItem))
+            if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -1385,7 +1407,7 @@ namespace RX_Explorer
                     {
                         if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
                         {
-                            if (Context.IsHidenItem)
+                            if (Context is HiddenStorageItem)
                             {
                                 ItemPresenter.ContextFlyout = HiddenItemFlyout;
                             }
@@ -1398,13 +1420,13 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            if (SelectedItems.All((Item) => !Item.IsHidenItem))
+                            if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
                             {
-                                ItemPresenter.ContextFlyout = MixedFlyout;
+                                ItemPresenter.ContextFlyout = null;
                             }
                             else
                             {
-                                ItemPresenter.ContextFlyout = null;
+                                ItemPresenter.ContextFlyout = MixedFlyout;
                             }
                         }
                     }
@@ -1427,7 +1449,7 @@ namespace RX_Explorer
                         {
                             if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
                             {
-                                if (Context.IsHidenItem)
+                                if (Context is HiddenStorageItem)
                                 {
                                     ItemPresenter.ContextFlyout = HiddenItemFlyout;
                                 }
@@ -1440,13 +1462,13 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                if (SelectedItems.All((Item) => !Item.IsHidenItem))
+                                if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
                                 {
-                                    ItemPresenter.ContextFlyout = MixedFlyout;
+                                    ItemPresenter.ContextFlyout = null;
                                 }
                                 else
                                 {
-                                    ItemPresenter.ContextFlyout = null;
+                                    ItemPresenter.ContextFlyout = MixedFlyout;
                                 }
                             }
                         }
@@ -3403,7 +3425,7 @@ namespace RX_Explorer
                         args.ItemContainer.DragEnter += ItemContainer_DragEnter;
                     }
 
-                    if (Item.IsHidenItem)
+                    if (Item is HiddenStorageItem)
                     {
                         args.ItemContainer.AllowDrop = false;
                         args.ItemContainer.CanDrag = false;
@@ -3752,7 +3774,7 @@ namespace RX_Explorer
                     {
                         if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
                         {
-                            if (Context.IsHidenItem)
+                            if (Context is HiddenStorageItem)
                             {
                                 ItemPresenter.ContextFlyout = HiddenItemFlyout;
                             }
@@ -3765,13 +3787,13 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            if (SelectedItems.All((Item) => !Item.IsHidenItem))
+                            if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
                             {
-                                ItemPresenter.ContextFlyout = MixedFlyout;
+                                ItemPresenter.ContextFlyout = null;
                             }
                             else
                             {
-                                ItemPresenter.ContextFlyout = null;
+                                ItemPresenter.ContextFlyout = MixedFlyout;
                             }
                         }
                     }
@@ -3794,7 +3816,7 @@ namespace RX_Explorer
                         {
                             if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
                             {
-                                if (Context.IsHidenItem)
+                                if (Context is HiddenStorageItem)
                                 {
                                     ItemPresenter.ContextFlyout = HiddenItemFlyout;
                                 }
@@ -3807,13 +3829,13 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                if (SelectedItems.All((Item) => !Item.IsHidenItem))
+                                if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
                                 {
-                                    ItemPresenter.ContextFlyout = MixedFlyout;
+                                    ItemPresenter.ContextFlyout = null;
                                 }
                                 else
                                 {
-                                    ItemPresenter.ContextFlyout = null;
+                                    ItemPresenter.ContextFlyout = MixedFlyout;
                                 }
                             }
                         }
@@ -4147,7 +4169,7 @@ namespace RX_Explorer
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
                 {
-                    if (Item.IsHidenItem)
+                    if (Item is HiddenStorageItem)
                     {
                         return;
                     }
@@ -4277,7 +4299,24 @@ namespace RX_Explorer
 
             if (await FullTrustExcutorController.Current.RemoveHiddenAttribute(SelectedItem.Path).ConfigureAwait(true))
             {
-                SelectedItem.SetHiddenProperty(false);
+                if (WIN_Native_API.GetStorageItems(SelectedItem.Path).FirstOrDefault() is FileSystemStorageItem Item)
+                {
+                    int Index = FileCollection.IndexOf(SelectedItem);
+                    
+                    if (Index != -1)
+                    {
+                        FileCollection.Remove(SelectedItem);
+                        FileCollection.Insert(Index, Item);
+                    }
+                    else
+                    {
+                        FileCollection.Add(Item);
+                    }
+
+                    ItemPresenter.UpdateLayout();
+
+                    SelectedItem = Item;
+                }
             }
             else
             {
@@ -4469,7 +4508,7 @@ namespace RX_Explorer
 
             if (SelectedItems.Count > 1)
             {
-                if (SelectedItems.Any((Item) => Item.IsHidenItem))
+                if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
                 {
                     BottomCommandBar.IsOpen = false;
                     return;
@@ -4549,7 +4588,7 @@ namespace RX_Explorer
             {
                 if (SelectedItem is FileSystemStorageItem Item)
                 {
-                    if (Item.IsHidenItem)
+                    if (Item is HiddenStorageItem)
                     {
                         AppBarButton WinExButton = new AppBarButton
                         {

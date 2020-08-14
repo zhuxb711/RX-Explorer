@@ -36,9 +36,6 @@ namespace FullTrustProcess
 
         private static readonly object Locker = new object();
 
-        [DllImport("User32.dll")]
-        private static extern bool SetForegroundWindow(IntPtr hWnd);
-
         [STAThread]
         static async Task Main(string[] args)
         {
@@ -132,7 +129,7 @@ namespace FullTrustProcess
 
                                 using (Process Process = Process.Start(TempFile.Path))
                                 {
-                                    SetForegroundWindow(Process.MainWindowHandle);
+                                    User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE);
                                     Process.WaitForExit();
                                 }
 
@@ -157,7 +154,7 @@ namespace FullTrustProcess
 
                                 using (Process Process = Process.Start(RestoreFile.Path))
                                 {
-                                    SetForegroundWindow(Process.MainWindowHandle);
+                                    User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE);
                                     Process.WaitForExit();
                                 }
 
@@ -709,7 +706,8 @@ namespace FullTrustProcess
                                         }
 
                                         Process.Start();
-                                        SetForegroundWindow(Process.MainWindowHandle);
+
+                                        User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE);
                                     }
                                 }
                                 else
@@ -727,7 +725,8 @@ namespace FullTrustProcess
                                             }
 
                                             Process.Start();
-                                            SetForegroundWindow(Process.MainWindowHandle);
+
+                                            User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE);
                                         }
                                     }
                                     else
@@ -743,7 +742,8 @@ namespace FullTrustProcess
                                             }
 
                                             Process.Start();
-                                            SetForegroundWindow(Process.MainWindowHandle);
+
+                                            User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE);
                                         }
                                     }
                                 }

@@ -571,7 +571,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<FileSystemStorageItem>> GetRecycleBinItemsAsync()
+        public async Task<List<RecycleStorageItem>> GetRecycleBinItemsAsync()
         {
             try
             {
@@ -585,33 +585,33 @@ namespace RX_Explorer.Class
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+                    
                     if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error") && !string.IsNullOrEmpty(Convert.ToString(Response.Message["RecycleBinItems_Json_Result"])))
                     {
                         List<Dictionary<string, string>> Items = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(Convert.ToString(Response.Message["RecycleBinItems_Json_Result"]));
-                        List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>(Items.Count);
+                        List<RecycleStorageItem> Result = new List<RecycleStorageItem>(Items.Count);
 
                         foreach (Dictionary<string, string> PropertyDic in Items)
                         {
                             FileSystemStorageItem Item = WIN_Native_API.GetStorageItems(PropertyDic["ActualPath"]).FirstOrDefault();
-                            Item.SetAsRecycleItem(PropertyDic["OriginPath"], DateTime.FromBinary(Convert.ToInt64(PropertyDic["CreateTime"])));
-                            Result.Add(Item);
+                            Result.Add(new RecycleStorageItem(Item, PropertyDic["OriginPath"], DateTime.FromBinary(Convert.ToInt64(PropertyDic["CreateTime"]))));
                         }
 
                         return Result;
                     }
                     else
                     {
-                        return new List<FileSystemStorageItem>(0);
+                        return new List<RecycleStorageItem>(0);
                     }
                 }
                 else
                 {
-                    return new List<FileSystemStorageItem>(0);
+                    return new List<RecycleStorageItem>(0);
                 }
             }
             catch
             {
-                return new List<FileSystemStorageItem>(0);
+                return new List<RecycleStorageItem>(0);
             }
             finally
             {

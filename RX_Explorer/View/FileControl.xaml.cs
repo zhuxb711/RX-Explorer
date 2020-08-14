@@ -82,13 +82,13 @@ namespace RX_Explorer
             }
         }
 
-        private int TextChangeLockResource = 0;
+        private int TextChangeLockResource;
 
-        private int AddressButtonLockResource = 0;
+        private int AddressButtonLockResource;
 
-        private int NavigateLockResource = 0;
+        private int NavigateLockResource;
 
-        private int DropLockResource = 0;
+        private int DropLockResource;
 
         private string AddressBoxTextBackup;
 
@@ -96,7 +96,7 @@ namespace RX_Explorer
 
         private readonly SemaphoreSlim EnterLock = new SemaphoreSlim(1, 1);
 
-        public bool IsNetworkDevice { get; private set; } = false;
+        public bool IsNetworkDevice { get; private set; }
 
         private CancellationTokenSource AddItemCancellation;
 
@@ -110,7 +110,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    return (CurrentNode?.Content as TreeViewNodeContent)?.GetStorageFolderAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                    return (CurrentNode?.Content as TreeViewNodeContent)?.GetStorageFolderAsync().ConfigureAwait(false).GetAwaiter().GetResult() ?? currentFolder;
                 }
             }
             set
@@ -138,7 +138,7 @@ namespace RX_Explorer
 
                     GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {PlaceText}";
 
-                    GoParentFolder.IsEnabled = value.Path != Path.GetPathRoot(value.Path);
+                    GoParentFolder.IsEnabled = SettingControl.IsDetachTreeViewAndPresenter ? value.Path != Path.GetPathRoot(value.Path) : value.Path != (FolderTree.RootNodes[0].Content as TreeViewNodeContent)?.Path;
                     GoBackRecord.IsEnabled = RecordIndex > 0;
                     GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
 
@@ -164,13 +164,13 @@ namespace RX_Explorer
             }
         }
 
-        public bool IsSearchOrPathBoxFocused { get; set; } = false;
+        public bool IsSearchOrPathBoxFocused { get; set; }
 
         private List<string> GoAndBackRecord = new List<string>();
         private ObservableCollection<AddressBlock> AddressButtonList = new ObservableCollection<AddressBlock>();
         private ObservableCollection<string> AddressExtentionList = new ObservableCollection<string>();
-        private volatile int recordIndex = 0;
-        private bool IsBackOrForwardAction = false;
+        private volatile int recordIndex;
+        private bool IsBackOrForwardAction;
         private Microsoft.UI.Xaml.Controls.TabViewItem TabItem;
 
         public FileControl()
@@ -379,6 +379,7 @@ namespace RX_Explorer
                 await FillTreeNode(RootNode).ConfigureAwait(true);
 
                 TreeViewNode TargetNode = await RootNode.GetChildNodeAsync(new PathAnalysis(Folder.Path, string.Empty)).ConfigureAwait(true);
+
                 if (TargetNode == null)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
@@ -457,7 +458,7 @@ namespace RX_Explorer
         /// <summary>
         /// 执行文件目录的初始化
         /// </summary>
-        private async Task Initialize(StorageFolder InitFolder)
+        public async Task Initialize(StorageFolder InitFolder)
         {
             if (InitFolder != null)
             {
@@ -1547,6 +1548,7 @@ namespace RX_Explorer
                     StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
 
                     IsBackOrForwardAction = true;
+
                     if (SettingControl.IsDetachTreeViewAndPresenter)
                     {
                         await DisplayItemsInFolder(Folder).ConfigureAwait(true);
@@ -1557,8 +1559,8 @@ namespace RX_Explorer
                     {
                         if (Path.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                         {
-
                             TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+
                             if (TargetNode == null)
                             {
                                 QueueContentDialog dialog = new QueueContentDialog
