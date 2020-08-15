@@ -40,7 +40,7 @@ namespace RX_Explorer
 {
     public sealed partial class FilePresenter : Page
     {
-        public ObservableCollection<FileSystemStorageItem> FileCollection { get; private set; }
+        public ObservableCollection<FileSystemStorageItemBase> FileCollection { get; private set; }
 
         private FileControl FileControlInstance;
 
@@ -84,17 +84,17 @@ namespace RX_Explorer
         }
 
         private WiFiShareProvider WiFiProvider;
-        private FileSystemStorageItem TabTarget;
-        private FileSystemStorageItem CurrentNameEditItem;
+        private FileSystemStorageItemBase TabTarget;
+        private FileSystemStorageItemBase CurrentNameEditItem;
         private DateTimeOffset LastClickTime;
         private DateTimeOffset LastPressTime;
         private string LastPressChar;
 
-        public FileSystemStorageItem SelectedItem
+        public FileSystemStorageItemBase SelectedItem
         {
             get
             {
-                return ItemPresenter.SelectedItem as FileSystemStorageItem;
+                return ItemPresenter.SelectedItem as FileSystemStorageItemBase;
             }
             set
             {
@@ -102,11 +102,11 @@ namespace RX_Explorer
             }
         }
 
-        public List<FileSystemStorageItem> SelectedItems
+        public List<FileSystemStorageItemBase> SelectedItems
         {
             get
             {
-                return ItemPresenter.SelectedItems.Select((Item) => Item as FileSystemStorageItem).ToList();
+                return ItemPresenter.SelectedItems.Select((Item) => Item as FileSystemStorageItemBase).ToList();
             }
         }
 
@@ -114,7 +114,7 @@ namespace RX_Explorer
         {
             InitializeComponent();
 
-            FileCollection = new ObservableCollection<FileSystemStorageItem>();
+            FileCollection = new ObservableCollection<FileSystemStorageItemBase>();
             FileCollection.CollectionChanged += FileCollection_CollectionChanged;
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -224,7 +224,7 @@ namespace RX_Explorer
                             Refresh_Click(null, null);
                             break;
                         }
-                    case VirtualKey.Enter when SelectedItem is FileSystemStorageItem Item:
+                    case VirtualKey.Enter when SelectedItem is FileSystemStorageItemBase Item:
                         {
                             await EnterSelectedItem(Item).ConfigureAwait(false);
                             break;
@@ -296,7 +296,7 @@ namespace RX_Explorer
                         TargetChar = LastPressChar + TargetChar;
                     }
 
-                    List<FileSystemStorageItem> Group = FileCollection.Where((Item) => Item.Name.StartsWith(TargetChar, StringComparison.OrdinalIgnoreCase)).ToList();
+                    List<FileSystemStorageItemBase> Group = FileCollection.Where((Item) => Item.Name.StartsWith(TargetChar, StringComparison.OrdinalIgnoreCase)).ToList();
 
                     if (Group.Count > 0)
                     {
@@ -587,7 +587,7 @@ namespace RX_Explorer
                                 }
                             case "Delete":
                                 {
-                                    if ((await FullTrustExcutorController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true)).FirstOrDefault((Item) => Item.OriginPath == SplitGroup[0]) is FileSystemStorageItem Item)
+                                    if ((await FullTrustExcutorController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true)).FirstOrDefault((Item) => Item.OriginPath == SplitGroup[0]) is FileSystemStorageItemBase Item)
                                     {
                                         if (!await FullTrustExcutorController.Current.RestoreItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
                                         {
@@ -722,7 +722,7 @@ namespace RX_Explorer
                                     {
                                         await File.MoveAsync(FileControlInstance.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
 
-                                        FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                        FileCollection.Add(new FileSystemStorageItemBase(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
                                     }
                                     else if (NewItem is StorageFolder Folder)
                                     {
@@ -730,7 +730,7 @@ namespace RX_Explorer
 
                                         await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
 
-                                        FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                        FileCollection.Add(new FileSystemStorageItemBase(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
 
                                         if (!SettingControl.IsDetachTreeViewAndPresenter)
                                         {
@@ -839,7 +839,7 @@ namespace RX_Explorer
                                     {
                                         StorageFile NewFile = await File.CopyAsync(FileControlInstance.CurrentFolder, File.Name, NameCollisionOption.GenerateUniqueName);
 
-                                        FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                        FileCollection.Add(new FileSystemStorageItemBase(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                                     }
                                     else if (NewItem is StorageFolder Folder)
                                     {
@@ -847,7 +847,7 @@ namespace RX_Explorer
 
                                         await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
 
-                                        FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                        FileCollection.Add(new FileSystemStorageItemBase(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
 
                                         if (!SettingControl.IsDetachTreeViewAndPresenter)
                                         {
@@ -1207,7 +1207,7 @@ namespace RX_Explorer
 
                     if (FileControlInstance.IsNetworkDevice)
                     {
-                        foreach (FileSystemStorageItem Item in FileCollection.Where((Item) => PathList.Contains(Item.Path)).ToList())
+                        foreach (FileSystemStorageItemBase Item in FileCollection.Where((Item) => PathList.Contains(Item.Path)).ToList())
                         {
                             FileCollection.Remove(Item);
 
@@ -1308,7 +1308,7 @@ namespace RX_Explorer
                 return;
             }
 
-            if (SelectedItem is FileSystemStorageItem RenameItem)
+            if (SelectedItem is FileSystemStorageItemBase RenameItem)
             {
                 if ((await RenameItem.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
                 {
@@ -1574,7 +1574,7 @@ namespace RX_Explorer
                 MixZip.Label = Globalization.GetString("Operate_Text_Compression");
             }
 
-            if (SelectedItem is FileSystemStorageItem Item)
+            if (SelectedItem is FileSystemStorageItemBase Item)
             {
                 if (Item.StorageType == StorageItemTypes.File)
                 {
@@ -1649,7 +1649,7 @@ namespace RX_Explorer
             {
                 if (ItemPresenter is GridView)
                 {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
                     {
                         if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
                         {
@@ -1691,7 +1691,7 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
+                        if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
                         {
                             if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
                             {
@@ -2025,7 +2025,7 @@ namespace RX_Explorer
         /// <param name="Size">AES加密密钥长度</param>
         /// <param name="Password">密码</param>
         /// <returns>无</returns>
-        private async Task CreateZipAsync(IEnumerable<FileSystemStorageItem> ZipItemGroup, string NewZipName, int ZipLevel, bool EnableCryption = false, KeySize Size = KeySize.None, string Password = null)
+        private async Task CreateZipAsync(IEnumerable<FileSystemStorageItemBase> ZipItemGroup, string NewZipName, int ZipLevel, bool EnableCryption = false, KeySize Size = KeySize.None, string Password = null)
         {
             try
             {
@@ -2045,7 +2045,7 @@ namespace RX_Explorer
 
                     try
                     {
-                        foreach (FileSystemStorageItem StorageItem in ZipItemGroup)
+                        foreach (FileSystemStorageItemBase StorageItem in ZipItemGroup)
                         {
                             if (await StorageItem.GetStorageItem().ConfigureAwait(true) is StorageFile ZipFile)
                             {
@@ -2197,7 +2197,7 @@ namespace RX_Explorer
 
         private async void ViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
-            if (SettingControl.IsInputFromPrimaryButton && (e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem ReFile)
+            if (SettingControl.IsInputFromPrimaryButton && (e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase ReFile)
             {
                 await EnterSelectedItem(ReFile).ConfigureAwait(false);
             }
@@ -2308,7 +2308,7 @@ namespace RX_Explorer
         {
             Restore();
 
-            if (SelectedItem is FileSystemStorageItem Item)
+            if (SelectedItem is FileSystemStorageItemBase Item)
             {
                 await EnterSelectedItem(Item).ConfigureAwait(false);
             }
@@ -2473,7 +2473,7 @@ namespace RX_Explorer
         {
             Restore();
 
-            if (SelectedItem is FileSystemStorageItem ReFile)
+            if (SelectedItem is FileSystemStorageItemBase ReFile)
             {
                 await EnterSelectedItem(ReFile).ConfigureAwait(false);
             }
@@ -2545,7 +2545,7 @@ namespace RX_Explorer
 
                 if (FileControlInstance.IsNetworkDevice)
                 {
-                    FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                    FileCollection.Add(new FileSystemStorageItemBase(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
 
                     if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.IsExpanded)
                     {
@@ -2658,7 +2658,7 @@ namespace RX_Explorer
         {
             FileControlInstance.IsSearchOrPathBoxFocused = false;
 
-            if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is FileSystemStorageItem ReFile)
+            if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is FileSystemStorageItemBase ReFile)
             {
                 CoreVirtualKeyStates CtrlState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control);
                 CoreVirtualKeyStates ShiftState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift);
@@ -2670,7 +2670,7 @@ namespace RX_Explorer
             }
         }
 
-        private async Task EnterSelectedItem(FileSystemStorageItem ReFile, bool RunAsAdministrator = false)
+        private async Task EnterSelectedItem(FileSystemStorageItemBase ReFile, bool RunAsAdministrator = false)
         {
             await FileControlInstance.CancelAddItemOperation().ConfigureAwait(true);
 
@@ -2849,11 +2849,11 @@ namespace RX_Explorer
                                     {
                                         if (AnimationController.Current.IsEnableAnimation)
                                         {
-                                            FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, FileSystemStorageItem>(FileControlInstance, TabTarget), new DrillInNavigationTransitionInfo());
+                                            FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, FileSystemStorageItemBase>(FileControlInstance, TabTarget), new DrillInNavigationTransitionInfo());
                                         }
                                         else
                                         {
-                                            FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, FileSystemStorageItem>(FileControlInstance, TabTarget), new SuppressNavigationTransitionInfo());
+                                            FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, FileSystemStorageItemBase>(FileControlInstance, TabTarget), new SuppressNavigationTransitionInfo());
                                         }
                                         break;
                                     }
@@ -3096,11 +3096,11 @@ namespace RX_Explorer
             {
                 SortCollectionGenerator.Current.ModifySortWay(SortTarget.Name, SortDirection.Descending);
 
-                List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+                List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (FileSystemStorageItemBase Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -3109,11 +3109,11 @@ namespace RX_Explorer
             {
                 SortCollectionGenerator.Current.ModifySortWay(SortTarget.Name, SortDirection.Ascending);
 
-                List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+                List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (FileSystemStorageItemBase Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -3126,11 +3126,11 @@ namespace RX_Explorer
             {
                 SortCollectionGenerator.Current.ModifySortWay(SortTarget.ModifiedTime, SortDirection.Descending);
 
-                List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+                List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (FileSystemStorageItemBase Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -3139,11 +3139,11 @@ namespace RX_Explorer
             {
                 SortCollectionGenerator.Current.ModifySortWay(SortTarget.ModifiedTime, SortDirection.Ascending);
 
-                List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+                List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (FileSystemStorageItemBase Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -3156,11 +3156,11 @@ namespace RX_Explorer
             {
                 SortCollectionGenerator.Current.ModifySortWay(SortTarget.Type, SortDirection.Descending);
 
-                List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+                List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (FileSystemStorageItemBase Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -3169,11 +3169,11 @@ namespace RX_Explorer
             {
                 SortCollectionGenerator.Current.ModifySortWay(SortTarget.Type, SortDirection.Ascending);
 
-                List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+                List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (FileSystemStorageItemBase Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -3186,10 +3186,10 @@ namespace RX_Explorer
             {
                 SortCollectionGenerator.Current.ModifySortWay(SortTarget.Size, SortDirection.Descending);
 
-                List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+                List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (FileSystemStorageItemBase Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -3199,10 +3199,10 @@ namespace RX_Explorer
             {
                 SortCollectionGenerator.Current.ModifySortWay(SortTarget.Size, SortDirection.Ascending);
 
-                List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+                List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
                 FileCollection.Clear();
 
-                foreach (FileSystemStorageItem Item in SortResult)
+                foreach (FileSystemStorageItemBase Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -3349,7 +3349,7 @@ namespace RX_Explorer
 
                     try
                     {
-                        if ((sender as SelectorItem).Content is FileSystemStorageItem Item)
+                        if ((sender as SelectorItem).Content is FileSystemStorageItemBase Item)
                         {
                             StorageFolder TargetFolder = (await Item.GetStorageItem().ConfigureAwait(true)) as StorageFolder;
 
@@ -3500,7 +3500,7 @@ namespace RX_Explorer
 
                                                         await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
 
-                                                        if (FileCollection.FirstOrDefault((Item) => Item.Path == Folder.Path) is FileSystemStorageItem RemoveItem)
+                                                        if (FileCollection.FirstOrDefault((Item) => Item.Path == Folder.Path) is FileSystemStorageItemBase RemoveItem)
                                                         {
                                                             FileCollection.Remove(RemoveItem);
                                                         }
@@ -3634,7 +3634,7 @@ namespace RX_Explorer
 
                 foreach (object obj in e.Items)
                 {
-                    if (obj is FileSystemStorageItem StorageItem)
+                    if (obj is FileSystemStorageItemBase StorageItem)
                     {
                         if (ItemPresenter.ContainerFromItem(StorageItem) is SelectorItem SItem && SItem.ContentTemplateRoot.FindChildOfType<TextBox>() is TextBox NameEditBox)
                         {
@@ -3671,7 +3671,7 @@ namespace RX_Explorer
             }
             else
             {
-                if (args.Item is FileSystemStorageItem Item)
+                if (args.Item is FileSystemStorageItemBase Item)
                 {
                     if (Item.StorageType == StorageItemTypes.File)
                     {
@@ -3702,7 +3702,7 @@ namespace RX_Explorer
             {
                 if (sender is SelectorItem)
                 {
-                    FileSystemStorageItem Item = (sender as SelectorItem).Content as FileSystemStorageItem;
+                    FileSystemStorageItemBase Item = (sender as SelectorItem).Content as FileSystemStorageItemBase;
 
                     if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                     {
@@ -3729,7 +3729,7 @@ namespace RX_Explorer
         {
             if (!SettingControl.IsDoubleClickEnable && e.KeyModifiers != VirtualKeyModifiers.Control && e.KeyModifiers != VirtualKeyModifiers.Shift)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
                 {
                     SelectedItem = Item;
                 }
@@ -3785,14 +3785,14 @@ namespace RX_Explorer
                                                     {
                                                         StorageFile NewFile = await File.CopyAsync(TargetFolder, File.Name, NameCollisionOption.GenerateUniqueName);
 
-                                                        FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                                        FileCollection.Add(new FileSystemStorageItemBase(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                                                     }
                                                     else if (DragItem is StorageFolder Folder)
                                                     {
                                                         StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
                                                         await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
 
-                                                        FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                                        FileCollection.Add(new FileSystemStorageItemBase(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
 
                                                         if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                         {
@@ -3894,7 +3894,7 @@ namespace RX_Explorer
                                                     {
                                                         await File.MoveAsync(TargetFolder, File.Name, NameCollisionOption.GenerateUniqueName);
 
-                                                        FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                                        FileCollection.Add(new FileSystemStorageItemBase(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
                                                     }
                                                     else if (DragItem is StorageFolder Folder)
                                                     {
@@ -3902,7 +3902,7 @@ namespace RX_Explorer
 
                                                         await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
 
-                                                        FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                                        FileCollection.Add(new FileSystemStorageItemBase(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
 
                                                         if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                         {
@@ -4045,7 +4045,7 @@ namespace RX_Explorer
             {
                 if (ItemPresenter is GridView)
                 {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
                     {
                         if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
                         {
@@ -4087,7 +4087,7 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Context)
+                        if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
                         {
                             if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
                             {
@@ -4128,7 +4128,7 @@ namespace RX_Explorer
         {
             Restore();
 
-            foreach (FileSystemStorageItem Item in SelectedItems)
+            foreach (FileSystemStorageItemBase Item in SelectedItems)
             {
                 if (Item.StorageType == StorageItemTypes.Folder)
                 {
@@ -4222,7 +4222,7 @@ namespace RX_Explorer
             }
             else
             {
-                foreach (FileSystemStorageItem Item in SelectedItems)
+                foreach (FileSystemStorageItemBase Item in SelectedItems)
                 {
                     StorageFile File = (await Item.GetStorageItem().ConfigureAwait(true)) as StorageFile;
 
@@ -4236,7 +4236,7 @@ namespace RX_Explorer
         {
             Restore();
 
-            if (SelectedItem is FileSystemStorageItem Item && Item.StorageType == StorageItemTypes.File)
+            if (SelectedItem is FileSystemStorageItemBase Item && Item.StorageType == StorageItemTypes.File)
             {
                 try
                 {
@@ -4430,7 +4430,7 @@ namespace RX_Explorer
 
         private async void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
         {
-            if (SelectedItem is FileSystemStorageItem Item && Item.StorageType == StorageItemTypes.Folder)
+            if (SelectedItem is FileSystemStorageItemBase Item && Item.StorageType == StorageItemTypes.Folder)
             {
                 await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path).ConfigureAwait(false);
             }
@@ -4442,7 +4442,7 @@ namespace RX_Explorer
 
             if ((e.GetCurrentPoint(NameLabel).Properties.IsLeftButtonPressed || e.Pointer.PointerDeviceType != PointerDeviceType.Mouse) && SettingControl.IsDoubleClickEnable)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
                 {
                     if (Item is HiddenStorageItem)
                     {
@@ -4555,7 +4555,7 @@ namespace RX_Explorer
 
         private async void OpenFolderInNewWindow_Click(object sender, RoutedEventArgs e)
         {
-            if (SelectedItem is FileSystemStorageItem Item && Item.StorageType == StorageItemTypes.Folder)
+            if (SelectedItem is FileSystemStorageItemBase Item && Item.StorageType == StorageItemTypes.Folder)
             {
                 await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(Item.Path)}"));
             }
@@ -4574,7 +4574,7 @@ namespace RX_Explorer
 
             if (await FullTrustExcutorController.Current.RemoveHiddenAttribute(SelectedItem.Path).ConfigureAwait(true))
             {
-                if (WIN_Native_API.GetStorageItems(SelectedItem.Path).FirstOrDefault() is FileSystemStorageItem Item)
+                if (WIN_Native_API.GetStorageItems(SelectedItem.Path).FirstOrDefault() is FileSystemStorageItemBase Item)
                 {
                     int Index = FileCollection.IndexOf(SelectedItem);
 
@@ -4636,11 +4636,11 @@ namespace RX_Explorer
 
             SortCollectionGenerator.Current.ModifySortWay(SortTarget.Name, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
 
-            List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+            List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
             FileCollection.Clear();
 
-            foreach (FileSystemStorageItem Item in SortResult)
+            foreach (FileSystemStorageItemBase Item in SortResult)
             {
                 FileCollection.Add(Item);
             }
@@ -4652,11 +4652,11 @@ namespace RX_Explorer
 
             SortCollectionGenerator.Current.ModifySortWay(SortTarget.ModifiedTime, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
 
-            List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+            List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
             FileCollection.Clear();
 
-            foreach (FileSystemStorageItem Item in SortResult)
+            foreach (FileSystemStorageItemBase Item in SortResult)
             {
                 FileCollection.Add(Item);
             }
@@ -4668,11 +4668,11 @@ namespace RX_Explorer
 
             SortCollectionGenerator.Current.ModifySortWay(SortTarget.Type, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
 
-            List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+            List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
             FileCollection.Clear();
 
-            foreach (FileSystemStorageItem Item in SortResult)
+            foreach (FileSystemStorageItemBase Item in SortResult)
             {
                 FileCollection.Add(Item);
             }
@@ -4684,11 +4684,11 @@ namespace RX_Explorer
 
             SortCollectionGenerator.Current.ModifySortWay(SortTarget.Size, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
 
-            List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+            List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
             FileCollection.Clear();
 
-            foreach (FileSystemStorageItem Item in SortResult)
+            foreach (FileSystemStorageItemBase Item in SortResult)
             {
                 FileCollection.Add(Item);
             }
@@ -4700,11 +4700,11 @@ namespace RX_Explorer
 
             SortCollectionGenerator.Current.ModifySortWay(SortDirection: SortDirection.Descending);
 
-            List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+            List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
             FileCollection.Clear();
 
-            foreach (FileSystemStorageItem Item in SortResult)
+            foreach (FileSystemStorageItemBase Item in SortResult)
             {
                 FileCollection.Add(Item);
             }
@@ -4716,11 +4716,11 @@ namespace RX_Explorer
 
             SortCollectionGenerator.Current.ModifySortWay(SortDirection: SortDirection.Ascending);
 
-            List<FileSystemStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+            List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
             FileCollection.Clear();
 
-            foreach (FileSystemStorageItem Item in SortResult)
+            foreach (FileSystemStorageItemBase Item in SortResult)
             {
                 FileCollection.Add(Item);
             }
@@ -4861,7 +4861,7 @@ namespace RX_Explorer
             }
             else
             {
-                if (SelectedItem is FileSystemStorageItem Item)
+                if (SelectedItem is FileSystemStorageItemBase Item)
                 {
                     if (Item is HiddenStorageItem)
                     {

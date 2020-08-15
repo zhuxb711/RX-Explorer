@@ -3,7 +3,7 @@ using Windows.Storage;
 
 namespace RX_Explorer.Class
 {
-    public sealed class RecycleStorageItem : FileSystemStorageItem
+    public sealed class RecycleStorageItem : FileSystemStorageItemBase
     {
         public string OriginPath { get; private set; }
 
@@ -15,7 +15,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public RecycleStorageItem(FileSystemStorageItem Item, string OriginPath, DateTimeOffset CreateTime)
+        public RecycleStorageItem(FileSystemStorageItemBase Item, string OriginPath, DateTimeOffset CreateTime)
         {
             if (Item == null)
             {

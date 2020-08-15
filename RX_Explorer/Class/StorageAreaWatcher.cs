@@ -13,7 +13,7 @@ namespace RX_Explorer.Class
 {
     public sealed class StorageAreaWatcher : IDisposable
     {
-        private readonly ObservableCollection<FileSystemStorageItem> CurrentCollection;
+        private readonly ObservableCollection<FileSystemStorageItemBase> CurrentCollection;
 
         private readonly TreeView TreeView;
 
@@ -55,7 +55,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if (CurrentCollection.FirstOrDefault((Item) => Item.Path == Path) is FileSystemStorageItem Item)
+                    if (CurrentCollection.FirstOrDefault((Item) => Item.Path == Path) is FileSystemStorageItemBase Item)
                     {
                         await Item.Update(true).ConfigureAwait(false);
                     }
@@ -79,9 +79,9 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if (CurrentCollection.FirstOrDefault((Item) => Item.Path == OldPath) is FileSystemStorageItem OlderItem)
+                    if (CurrentCollection.FirstOrDefault((Item) => Item.Path == OldPath) is FileSystemStorageItemBase OlderItem)
                     {
-                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path == NewPath) is FileSystemStorageItem ExistItem)
+                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path == NewPath) is FileSystemStorageItemBase ExistItem)
                         {
                             await ExistItem.Replace(NewPath).ConfigureAwait(true);
                             
@@ -96,7 +96,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        foreach (FileSystemStorageItem ItemToUpdate in CurrentCollection)
+                        foreach (FileSystemStorageItemBase ItemToUpdate in CurrentCollection)
                         {
                             await ItemToUpdate.Update(false).ConfigureAwait(true);
                         }
@@ -137,7 +137,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if (CurrentCollection.FirstOrDefault((Item) => Item.Path == Path) is FileSystemStorageItem Item)
+                    if (CurrentCollection.FirstOrDefault((Item) => Item.Path == Path) is FileSystemStorageItemBase Item)
                     {
                         CurrentCollection.Remove(Item);
                     }
@@ -166,7 +166,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    if (CurrentCollection.FirstOrDefault() is FileSystemStorageItem Item)
+                    if (CurrentCollection.FirstOrDefault() is FileSystemStorageItemBase Item)
                     {
                         if (Item.StorageType == StorageItemTypes.File)
                         {
@@ -174,7 +174,7 @@ namespace RX_Explorer.Class
 
                             if (Index != -1)
                             {
-                                if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItem NewItem)
+                                if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItemBase NewItem)
                                 {
                                     await NewItem.LoadMoreProperty().ConfigureAwait(true);
 
@@ -183,7 +183,7 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItem NewItem)
+                                if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItemBase NewItem)
                                 {
                                     await NewItem.LoadMoreProperty().ConfigureAwait(true);
 
@@ -197,7 +197,7 @@ namespace RX_Explorer.Class
 
                             if (Index != -1)
                             {
-                                if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItem NewItem)
+                                if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItemBase NewItem)
                                 {
                                     await NewItem.LoadMoreProperty().ConfigureAwait(true);
 
@@ -206,7 +206,7 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItem NewItem)
+                                if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItemBase NewItem)
                                 {
                                     await NewItem.LoadMoreProperty().ConfigureAwait(true);
 
@@ -217,7 +217,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItem NewItem)
+                        if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItemBase NewItem)
                         {
                             await NewItem.LoadMoreProperty().ConfigureAwait(true);
 
@@ -254,7 +254,7 @@ namespace RX_Explorer.Class
             Locker2.Dispose();
         }
 
-        public StorageAreaWatcher(ObservableCollection<FileSystemStorageItem> InitList, TreeView TreeView)
+        public StorageAreaWatcher(ObservableCollection<FileSystemStorageItemBase> InitList, TreeView TreeView)
         {
             CurrentCollection = InitList ?? throw new ArgumentNullException(nameof(InitList), "Parameter could not be null");
             this.TreeView = TreeView ?? throw new ArgumentNullException(nameof(TreeView), "Parameter could not be null");

@@ -25,13 +25,6 @@ namespace FullTrustProcess
 
         private static readonly Dictionary<string, NamedPipeServerStream> PipeServers = new Dictionary<string, NamedPipeServerStream>();
 
-        private static readonly HashSet<string> SpecialStringMap = new HashSet<string>()
-        {
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), "cmd.exe"),
-            "wt.exe"
-        };
-
         private readonly static ManualResetEvent ExitLocker = new ManualResetEvent(false);
 
         private static readonly object Locker = new object();
@@ -744,39 +737,19 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (SpecialStringMap.Contains(ExcutePath))
+                                    using (Process Process = new Process())
                                     {
-                                        using (Process Process = new Process())
+                                        Process.StartInfo.FileName = ExcutePath;
+                                        Process.StartInfo.Arguments = ExcuteParameter;
+
+                                        if (ExcuteAuthority == "Administrator")
                                         {
-                                            Process.StartInfo.FileName = ExcutePath;
-                                            Process.StartInfo.Arguments = ExcuteParameter;
-
-                                            if (ExcuteAuthority == "Administrator")
-                                            {
-                                                Process.StartInfo.Verb = "runAs";
-                                            }
-
-                                            Process.Start();
-
-                                            User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE);
+                                            Process.StartInfo.Verb = "runAs";
                                         }
-                                    }
-                                    else
-                                    {
-                                        using (Process Process = new Process())
-                                        {
-                                            Process.StartInfo.FileName = ExcutePath;
-                                            Process.StartInfo.Arguments = $"\"{ExcuteParameter}\"";
 
-                                            if (ExcuteAuthority == "Administrator")
-                                            {
-                                                Process.StartInfo.Verb = "runAs";
-                                            }
+                                        Process.Start();
 
-                                            Process.Start();
-
-                                            User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE);
-                                        }
+                                        User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE);
                                     }
                                 }
                             }

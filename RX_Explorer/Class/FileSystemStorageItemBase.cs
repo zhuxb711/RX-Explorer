@@ -12,7 +12,7 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供对设备中的存储对象的描述
     /// </summary>
-    public class FileSystemStorageItem : INotifyPropertyChanged, IComparable
+    public class FileSystemStorageItemBase : INotifyPropertyChanged, IComparable
     {
         /// <summary>
         /// 指示所包含的存储对象类型
@@ -75,7 +75,7 @@ namespace RX_Explorer.Class
         /// <param name="Size">大小</param>
         /// <param name="Thumbnail">缩略图</param>
         /// <param name="ModifiedTime">修改时间</param>
-        public FileSystemStorageItem(StorageFile Item, ulong Size, BitmapImage Thumbnail, DateTimeOffset ModifiedTime)
+        public FileSystemStorageItemBase(StorageFile Item, ulong Size, BitmapImage Thumbnail, DateTimeOffset ModifiedTime)
         {
             StorageItem = Item;
             StorageType = StorageItemTypes.File;
@@ -90,7 +90,7 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Item">文件夹</param>
         /// <param name="ModifiedTime">修改时间</param>
-        public FileSystemStorageItem(StorageFolder Item, DateTimeOffset ModifiedTime)
+        public FileSystemStorageItemBase(StorageFolder Item, DateTimeOffset ModifiedTime)
         {
             StorageItem = Item;
             StorageType = StorageItemTypes.Folder;
@@ -105,7 +105,7 @@ namespace RX_Explorer.Class
         /// <param name="StorageType">指示存储类型</param>
         /// <param name="Path">路径</param>
         /// <param name="ModifiedTime">修改时间</param>
-        public FileSystemStorageItem(WIN_Native_API.WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset ModifiedTime)
+        public FileSystemStorageItemBase(WIN_Native_API.WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset ModifiedTime)
         {
             InternalPathString = Path;
             ModifiedTimeRaw = ModifiedTime;
@@ -117,7 +117,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected FileSystemStorageItem()
+        protected FileSystemStorageItemBase()
         {
 
         }
@@ -386,7 +386,7 @@ namespace RX_Explorer.Class
 
         public int CompareTo(object obj)
         {
-            if (obj is FileSystemStorageItem Item)
+            if (obj is FileSystemStorageItemBase Item)
             {
                 return Item.Path.CompareTo(Path);
             }
@@ -404,7 +404,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                if (obj is FileSystemStorageItem Item)
+                if (obj is FileSystemStorageItemBase Item)
                 {
                     return Item.Path.Equals(Path);
                 }
@@ -420,7 +420,7 @@ namespace RX_Explorer.Class
             return Path.GetHashCode();
         }
 
-        public static bool operator ==(FileSystemStorageItem left, FileSystemStorageItem right)
+        public static bool operator ==(FileSystemStorageItemBase left, FileSystemStorageItemBase right)
         {
             if (left is null)
             {
@@ -439,7 +439,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static bool operator !=(FileSystemStorageItem left, FileSystemStorageItem right)
+        public static bool operator !=(FileSystemStorageItemBase left, FileSystemStorageItemBase right)
         {
             if (left is null)
             {

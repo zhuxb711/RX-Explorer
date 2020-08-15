@@ -4,7 +4,7 @@ using Windows.Storage;
 
 namespace RX_Explorer.Class
 {
-    public sealed class HiddenStorageItem : FileSystemStorageItem
+    public sealed class HiddenStorageItem : FileSystemStorageItemBase
     {
         public override Task<IStorageItem> GetStorageItem()
         {

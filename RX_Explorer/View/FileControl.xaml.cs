@@ -682,18 +682,18 @@ namespace RX_Explorer
                                     IStorageItem Item = ItemList[j];
                                     if (Item is StorageFolder ItemFolder)
                                     {
-                                        Presenter.FileCollection.Add(new FileSystemStorageItem(ItemFolder, await ItemFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                        Presenter.FileCollection.Add(new FileSystemStorageItemBase(ItemFolder, await ItemFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
                                     }
                                     else if (Item is StorageFile ItemFile)
                                     {
-                                        Presenter.FileCollection.Add(new FileSystemStorageItem(ItemFile, await ItemFile.GetSizeRawDataAsync().ConfigureAwait(true), await ItemFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await ItemFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                        Presenter.FileCollection.Add(new FileSystemStorageItemBase(ItemFile, await ItemFile.GetSizeRawDataAsync().ConfigureAwait(true), await ItemFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await ItemFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                                     }
                                 }
                             }
                         }
                         else
                         {
-                            List<FileSystemStorageItem> ItemList = SortCollectionGenerator.Current.GetSortedCollection(WIN_Native_API.GetStorageItems(Content.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder));
+                            List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(WIN_Native_API.GetStorageItems(Content.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder));
 
                             Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
@@ -799,18 +799,18 @@ namespace RX_Explorer
                             IStorageItem Item = ItemList[j];
                             if (Item is StorageFolder ItemFolder)
                             {
-                                Presenter.FileCollection.Add(new FileSystemStorageItem(ItemFolder, await ItemFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                Presenter.FileCollection.Add(new FileSystemStorageItemBase(ItemFolder, await ItemFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
                             }
                             else if (Item is StorageFile ItemFile)
                             {
-                                Presenter.FileCollection.Add(new FileSystemStorageItem(ItemFile, await ItemFile.GetSizeRawDataAsync().ConfigureAwait(true), await ItemFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await ItemFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                Presenter.FileCollection.Add(new FileSystemStorageItemBase(ItemFile, await ItemFile.GetSizeRawDataAsync().ConfigureAwait(true), await ItemFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await ItemFile.GetModifiedTimeAsync().ConfigureAwait(true)));
                             }
                         }
                     }
                 }
                 else
                 {
-                    List<FileSystemStorageItem> ItemList = SortCollectionGenerator.Current.GetSortedCollection(WIN_Native_API.GetStorageItems(Folder, SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder));
+                    List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(WIN_Native_API.GetStorageItems(Folder, SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder));
 
                     Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
@@ -1093,7 +1093,7 @@ namespace RX_Explorer
                             HasUnrealizedChildren = false
                         });
 
-                        CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                        CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.Add(new FileSystemStorageItemBase(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
                     }
                 }
             }
@@ -1325,7 +1325,7 @@ namespace RX_Explorer
             if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Cmd.exe", StringComparison.OrdinalIgnoreCase))
             {
                 string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
-                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, $"/k cd /d {CurrentFolder.Path}").ConfigureAwait(false);
+                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, $"/k cd /d \"{CurrentFolder.Path}\"").ConfigureAwait(false);
                 return;
             }
 
@@ -1337,7 +1337,7 @@ namespace RX_Explorer
                     case LaunchQuerySupportStatus.Available:
                     case LaunchQuerySupportStatus.NotSupported:
                         {
-                            await FullTrustExcutorController.Current.RunAsync("wt.exe", $"/d {CurrentFolder.Path}").ConfigureAwait(false);
+                            await FullTrustExcutorController.Current.RunAsync("wt.exe", $"/d \"{CurrentFolder.Path}\"").ConfigureAwait(false);
                             return;
                         }
                 }
@@ -2203,7 +2203,7 @@ namespace RX_Explorer
 
                                                     await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
 
-                                                    if (CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.FirstOrDefault((Item) => Item.Path == Folder.Path) is FileSystemStorageItem RemoveItem)
+                                                    if (CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.FirstOrDefault((Item) => Item.Path == Folder.Path) is FileSystemStorageItemBase RemoveItem)
                                                     {
                                                         CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.Remove(RemoveItem);
                                                     }

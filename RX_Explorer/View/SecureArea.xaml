@@ -106,7 +106,7 @@
                   Padding="20"
                   ItemContainerTransitions="{x:Bind local:AnimationController.Current.PaneLeftTransitions,Mode=OneWay}">
             <GridView.ItemTemplate>
-                <DataTemplate x:DataType="local:FileSystemStorageItem">
+                <DataTemplate x:DataType="local:FileSystemStorageItemBase">
                     <StackPanel Width="215"
                                 Padding="5"
                                 Orientation="Horizontal"

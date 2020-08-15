@@ -13,7 +13,7 @@ namespace RX_Explorer
 {
     public sealed partial class TextViewer : Page
     {
-        private FileSystemStorageItem SFile;
+        private FileSystemStorageItemBase SFile;
         private FileControl FileControlInstance;
 
         public TextViewer()
@@ -60,7 +60,7 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is Tuple<FileControl, FileSystemStorageItem> Parameters)
+            if (e.Parameter is Tuple<FileControl, FileSystemStorageItemBase> Parameters)
             {
                 FileControlInstance = Parameters.Item1;
                 SFile = Parameters.Item2;

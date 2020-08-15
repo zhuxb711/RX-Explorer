@@ -23,7 +23,7 @@ namespace RX_Explorer
 {
     public sealed partial class SecureArea : Page
     {
-        private IncrementalLoadingCollection<FileSystemStorageItem> SecureCollection;
+        private IncrementalLoadingCollection<FileSystemStorageItemBase> SecureCollection;
 
         private StorageFolder SecureFolder;
 
@@ -40,7 +40,7 @@ namespace RX_Explorer
         public SecureArea()
         {
             InitializeComponent();
-            SecureCollection = new IncrementalLoadingCollection<FileSystemStorageItem>(GetMoreItemsFunction);
+            SecureCollection = new IncrementalLoadingCollection<FileSystemStorageItemBase>(GetMoreItemsFunction);
             SecureGridView.ItemsSource = SecureCollection;
             Loaded += SecureArea_Loaded;
             Unloaded += SecureArea_Unloaded;
@@ -394,7 +394,7 @@ namespace RX_Explorer
                 var Size = await Item.GetSizeRawDataAsync().ConfigureAwait(true);
                 var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
                 var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
-                SecureCollection.Add(new FileSystemStorageItem(Item as StorageFile, Size, Thumbnail, ModifiedTime));
+                SecureCollection.Add(new FileSystemStorageItemBase(Item as StorageFile, Size, Thumbnail, ModifiedTime));
             }
 
             await SecureCollection.SetStorageQueryResultAsync(ItemQuery).ConfigureAwait(false);
@@ -415,15 +415,15 @@ namespace RX_Explorer
             }
         }
 
-        private async Task<IEnumerable<FileSystemStorageItem>> GetMoreItemsFunction(uint Index, uint Num, StorageItemQueryResult Query)
+        private async Task<IEnumerable<FileSystemStorageItemBase>> GetMoreItemsFunction(uint Index, uint Num, StorageItemQueryResult Query)
         {
-            List<FileSystemStorageItem> ItemList = new List<FileSystemStorageItem>();
+            List<FileSystemStorageItemBase> ItemList = new List<FileSystemStorageItemBase>();
             foreach (var Item in await Query.GetItemsAsync(Index, Num))
             {
                 var Size = await Item.GetSizeRawDataAsync().ConfigureAwait(true);
                 var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
                 var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
-                ItemList.Add(new FileSystemStorageItem(Item as StorageFile, Size, Thumbnail, ModifiedTime));
+                ItemList.Add(new FileSystemStorageItemBase(Item as StorageFile, Size, Thumbnail, ModifiedTime));
             }
             return ItemList;
         }
@@ -452,7 +452,7 @@ namespace RX_Explorer
                         var Size = await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true);
                         var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
                         var ModifiedTime = await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true);
-                        SecureCollection.Add(new FileSystemStorageItem(EncryptedFile, Size, Thumbnail, ModifiedTime));
+                        SecureCollection.Add(new FileSystemStorageItemBase(EncryptedFile, Size, Thumbnail, ModifiedTime));
                     }
                     else
                     {
@@ -511,7 +511,7 @@ namespace RX_Explorer
                             var Size = await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true);
                             var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
                             var ModifiedTime = await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true);
-                            SecureCollection.Add(new FileSystemStorageItem(EncryptedFile, Size, Thumbnail, ModifiedTime));
+                            SecureCollection.Add(new FileSystemStorageItemBase(EncryptedFile, Size, Thumbnail, ModifiedTime));
                         }
                         else
                         {
@@ -549,7 +549,7 @@ namespace RX_Explorer
 
         private void SecureGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (SecureGridView.SelectedItem is FileSystemStorageItem)
+            if (SecureGridView.SelectedItem is FileSystemStorageItemBase)
             {
                 DeleteFile.IsEnabled = true;
                 ExportFile.IsEnabled = true;
@@ -568,7 +568,7 @@ namespace RX_Explorer
 
         private async void DeleteFile_Click(object sender, RoutedEventArgs e)
         {
-            if (SecureGridView.SelectedItem is FileSystemStorageItem Item)
+            if (SecureGridView.SelectedItem is FileSystemStorageItemBase Item)
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -593,7 +593,7 @@ namespace RX_Explorer
 
         private async void ExportFile_Click(object sender, RoutedEventArgs e)
         {
-            if (SecureGridView.SelectedItem is FileSystemStorageItem Item)
+            if (SecureGridView.SelectedItem is FileSystemStorageItemBase Item)
             {
                 FolderPicker Picker = new FolderPicker
                 {
@@ -691,7 +691,7 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
                 {
                     SecureGridView.SelectedItem = Item;
                     SecureGridView.ContextFlyout = FileFlyout;
@@ -706,7 +706,7 @@ namespace RX_Explorer
 
         private async void Property_Click(object sender, RoutedEventArgs e)
         {
-            if (SecureGridView.SelectedItem is FileSystemStorageItem Item)
+            if (SecureGridView.SelectedItem is FileSystemStorageItemBase Item)
             {
                 SecureFilePropertyDialog Dialog = new SecureFilePropertyDialog(Item);
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
@@ -715,7 +715,7 @@ namespace RX_Explorer
 
         private async void RenameFile_Click(object sender, RoutedEventArgs e)
         {
-            if (SecureGridView.SelectedItem is FileSystemStorageItem RenameItem)
+            if (SecureGridView.SelectedItem is FileSystemStorageItemBase RenameItem)
             {
                 RenameDialog dialog = new RenameDialog(await RenameItem.GetStorageItem().ConfigureAwait(true));
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
@@ -865,7 +865,7 @@ namespace RX_Explorer
         {
             if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
                 {
                     SecureGridView.SelectedItem = Item;
                     SecureGridView.ContextFlyout = FileFlyout;

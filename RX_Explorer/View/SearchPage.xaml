@@ -75,7 +75,7 @@
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="local:FileSystemStorageItem">
+                <DataTemplate x:DataType="local:FileSystemStorageItemBase">
                     <Grid HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="4*" />

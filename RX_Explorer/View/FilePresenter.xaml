@@ -557,7 +557,7 @@
 
         <DataTemplate x:Name="TileDataTemplate"
                       x:FieldModifier="public"
-                      x:DataType="Cls:FileSystemStorageItem">
+                      x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Orientation="Horizontal"
                         Padding="5">
                 <Image VerticalAlignment="Center"
@@ -602,7 +602,7 @@
 
         <DataTemplate x:Name="LargeImageDataTemplate"
                       x:FieldModifier="public"
-                      x:DataType="Cls:FileSystemStorageItem">
+                      x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Padding="5"
                         Orientation="Vertical">
                 <Image HorizontalAlignment="Center"
@@ -624,7 +624,7 @@
 
         <DataTemplate x:Name="MediumImageDataTemplate"
                       x:FieldModifier="public"
-                      x:DataType="Cls:FileSystemStorageItem">
+                      x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Padding="5"
                         Orientation="Vertical">
                 <Image HorizontalAlignment="Center"
@@ -646,7 +646,7 @@
 
         <DataTemplate x:Name="SmallImageDataTemplate"
                       x:FieldModifier="public"
-                      x:DataType="Cls:FileSystemStorageItem">
+                      x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Padding="5"
                         Orientation="Vertical">
                 <Image HorizontalAlignment="Center"
@@ -745,7 +745,7 @@
             </Grid>
         </DataTemplate>
 
-        <DataTemplate x:DataType="Cls:FileSystemStorageItem"
+        <DataTemplate x:DataType="Cls:FileSystemStorageItemBase"
                       x:Name="ListViewDetailDataTemplate"
                       x:FieldModifier="public">
             <Grid HorizontalAlignment="Stretch">
@@ -820,7 +820,7 @@
             </Grid>
         </DataTemplate>
 
-        <DataTemplate x:DataType="Cls:FileSystemStorageItem"
+        <DataTemplate x:DataType="Cls:FileSystemStorageItemBase"
                       x:Name="ListViewSimpleDataTemplate"
                       x:FieldModifier="public">
             <Grid>

@@ -20,7 +20,7 @@ namespace RX_Explorer
 {
     public sealed partial class SearchPage : Page
     {
-        private ObservableCollection<FileSystemStorageItem> SearchResult;
+        private ObservableCollection<FileSystemStorageItemBase> SearchResult;
         private StorageItemQueryResult ItemQuery;
         private CancellationTokenSource Cancellation;
         private FileControl FileControlInstance;
@@ -44,7 +44,7 @@ namespace RX_Explorer
         public SearchPage()
         {
             InitializeComponent();
-            SearchResult = new ObservableCollection<FileSystemStorageItem>();
+            SearchResult = new ObservableCollection<FileSystemStorageItemBase>();
             SearchResultList.ItemsSource = SearchResult;
         }
 
@@ -110,11 +110,11 @@ namespace RX_Explorer
                 {
                     if (Item is StorageFile File)
                     {
-                        SearchResult.Add(new FileSystemStorageItem(File, await Item.GetSizeRawDataAsync().ConfigureAwait(true), await Item.GetThumbnailBitmapAsync().ConfigureAwait(true), await Item.GetModifiedTimeAsync().ConfigureAwait(true)));
+                        SearchResult.Add(new FileSystemStorageItemBase(File, await Item.GetSizeRawDataAsync().ConfigureAwait(true), await Item.GetThumbnailBitmapAsync().ConfigureAwait(true), await Item.GetModifiedTimeAsync().ConfigureAwait(true)));
                     }
                     else if (Item is StorageFolder Folder)
                     {
-                        SearchResult.Add(new FileSystemStorageItem(Folder, await Item.GetModifiedTimeAsync().ConfigureAwait(true)));
+                        SearchResult.Add(new FileSystemStorageItemBase(Folder, await Item.GetModifiedTimeAsync().ConfigureAwait(true)));
                     }
                 }
             }
@@ -128,7 +128,7 @@ namespace RX_Explorer
 
         private async void Location_Click(object sender, RoutedEventArgs e)
         {
-            if (SearchResultList.SelectedItem is FileSystemStorageItem Item)
+            if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
             {
                 if (Item.StorageType == StorageItemTypes.Folder)
                 {
@@ -199,7 +199,7 @@ namespace RX_Explorer
 
         private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
-            if (SearchResultList.SelectedItem is FileSystemStorageItem Item)
+            if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
             {
                 PropertyDialog Dialog = new PropertyDialog(Item);
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
@@ -210,7 +210,7 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                FileSystemStorageItem Context = (e.OriginalSource as FrameworkElement)?.DataContext as FileSystemStorageItem;
+                FileSystemStorageItemBase Context = (e.OriginalSource as FrameworkElement)?.DataContext as FileSystemStorageItemBase;
                 SearchResultList.SelectedIndex = SearchResult.IndexOf(Context);
                 e.Handled = true;
             }
@@ -223,7 +223,7 @@ namespace RX_Explorer
 
         private void CopyPath_Click(object sender, RoutedEventArgs e)
         {
-            if (SearchResultList.SelectedItem is FileSystemStorageItem SelectItem)
+            if (SearchResultList.SelectedItem is FileSystemStorageItemBase SelectItem)
             {
                 DataPackage Package = new DataPackage();
                 Package.SetText(SelectItem.Path);
@@ -235,7 +235,7 @@ namespace RX_Explorer
         {
             if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
             {
-                FileSystemStorageItem Context = (e.OriginalSource as FrameworkElement)?.DataContext as FileSystemStorageItem;
+                FileSystemStorageItemBase Context = (e.OriginalSource as FrameworkElement)?.DataContext as FileSystemStorageItemBase;
                 SearchResultList.SelectedIndex = SearchResult.IndexOf(Context);
             }
         }

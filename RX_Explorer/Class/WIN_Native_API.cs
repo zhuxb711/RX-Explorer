@@ -466,7 +466,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static List<FileSystemStorageItem> GetStorageItems(string Path, bool IncludeHiddenItem, ItemFilters Filter)
+        public static List<FileSystemStorageItemBase> GetStorageItems(string Path, bool IncludeHiddenItem, ItemFilters Filter)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {
@@ -479,7 +479,7 @@ namespace RX_Explorer.Class
             {
                 if (Ptr.ToInt64() != -1)
                 {
-                    List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>();
+                    List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>();
 
                     do
                     {
@@ -500,7 +500,7 @@ namespace RX_Explorer.Class
                                     }
                                     else
                                     {
-                                        Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
                                     }
                                 }
                             }
@@ -521,7 +521,7 @@ namespace RX_Explorer.Class
                                     }
                                     else
                                     {
-                                        Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
                                     }
                                 }
                             }
@@ -534,12 +534,12 @@ namespace RX_Explorer.Class
                 else
                 {
                     Debug.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
-                    return new List<FileSystemStorageItem>();
+                    return new List<FileSystemStorageItemBase>();
                 }
             }
             catch
             {
-                return new List<FileSystemStorageItem>();
+                return new List<FileSystemStorageItemBase>();
             }
             finally
             {
@@ -547,7 +547,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static List<FileSystemStorageItem> GetStorageItems(params string[] PathArray)
+        public static List<FileSystemStorageItemBase> GetStorageItems(params string[] PathArray)
         {
             if (PathArray.Length == 0 || PathArray.Any((Item) => string.IsNullOrWhiteSpace(Item)))
             {
@@ -556,7 +556,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>(PathArray.Length);
+                List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>(PathArray.Length);
 
                 foreach (string Path in PathArray)
                 {
@@ -583,7 +583,7 @@ namespace RX_Explorer.Class
                                         }
                                         else
                                         {
-                                            Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, Path, ModifiedTime.ToLocalTime()));
+                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, Path, ModifiedTime.ToLocalTime()));
                                         }
                                     }
                                 }
@@ -604,7 +604,7 @@ namespace RX_Explorer.Class
                                         }
                                         else
                                         {
-                                            Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, Path, ModifiedTime.ToLocalTime()));
+                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path, ModifiedTime.ToLocalTime()));
                                         }
                                     }
                                 }
@@ -625,11 +625,11 @@ namespace RX_Explorer.Class
             }
             catch
             {
-                return new List<FileSystemStorageItem>();
+                return new List<FileSystemStorageItemBase>();
             }
         }
 
-        public static List<FileSystemStorageItem> GetStorageItems(StorageFolder Folder, bool IncludeHiddenItem, ItemFilters Filter)
+        public static List<FileSystemStorageItemBase> GetStorageItems(StorageFolder Folder, bool IncludeHiddenItem, ItemFilters Filter)
         {
             if (Folder == null)
             {
@@ -642,7 +642,7 @@ namespace RX_Explorer.Class
             {
                 if (Ptr.ToInt64() != -1)
                 {
-                    List<FileSystemStorageItem> Result = new List<FileSystemStorageItem>();
+                    List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>();
 
                     do
                     {
@@ -663,7 +663,7 @@ namespace RX_Explorer.Class
                                     }
                                     else
                                     {
-                                        Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
                                     }
                                 }
                             }
@@ -684,7 +684,7 @@ namespace RX_Explorer.Class
                                     }
                                     else
                                     {
-                                        Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
                                     }
                                 }
                             }
@@ -697,12 +697,12 @@ namespace RX_Explorer.Class
                 else
                 {
                     Debug.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
-                    return new List<FileSystemStorageItem>();
+                    return new List<FileSystemStorageItemBase>();
                 }
             }
             catch
             {
-                return new List<FileSystemStorageItem>();
+                return new List<FileSystemStorageItemBase>();
             }
             finally
             {

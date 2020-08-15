@@ -46,7 +46,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public List<T> GetSortedCollection<T>(ICollection<T> InputCollection, SortTarget? Target, SortDirection? Direction) where T : FileSystemStorageItem
+        public List<T> GetSortedCollection<T>(ICollection<T> InputCollection, SortTarget? Target, SortDirection? Direction) where T : FileSystemStorageItemBase
         {
             SortTarget TempTarget = Target ?? SortTarget;
             SortDirection TempDirection = Direction ?? SortDirection;
@@ -87,7 +87,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public List<T> GetSortedCollection<T>(ICollection<T> InputCollection) where T : FileSystemStorageItem
+        public List<T> GetSortedCollection<T>(ICollection<T> InputCollection) where T : FileSystemStorageItemBase
         {
             return GetSortedCollection(InputCollection, null, null);
         }

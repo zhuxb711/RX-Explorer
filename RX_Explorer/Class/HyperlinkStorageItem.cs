@@ -4,7 +4,7 @@ using Windows.Storage;
 
 namespace RX_Explorer.Class
 {
-    public sealed class HyperlinkStorageItem : FileSystemStorageItem
+    public sealed class HyperlinkStorageItem : FileSystemStorageItemBase
     {
         public string TargetPath { get; private set; }
 

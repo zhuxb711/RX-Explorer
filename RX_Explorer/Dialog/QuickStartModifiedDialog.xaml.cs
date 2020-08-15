@@ -91,7 +91,7 @@ namespace RX_Explorer.Dialog
                 ExistTip.IsOpen = true;
                 args.Cancel = true;
             }
-            else if (Icon.Source == null)
+            else if (Icon.Source == null || (Icon.Source as BitmapImage)?.UriSource?.OriginalString == "ms-appx:///Assets/AddImage.png")
             {
                 EmptyTip.Target = Icon;
                 EmptyTip.IsOpen = true;

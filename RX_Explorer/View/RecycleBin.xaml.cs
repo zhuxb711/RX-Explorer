@@ -81,7 +81,7 @@ namespace RX_Explorer.View
             }
             else
             {
-                if (args.Item is FileSystemStorageItem Item)
+                if (args.Item is FileSystemStorageItemBase Item)
                 {
                     if (Item.StorageType == StorageItemTypes.File)
                     {
@@ -104,7 +104,7 @@ namespace RX_Explorer.View
                 }
                 else
                 {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItem Item)
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
                     {
                         ListViewControl.ContextFlyout = SelectFlyout;
                         ListViewControl.SelectedItem = Item;

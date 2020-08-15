@@ -26,13 +26,13 @@ namespace RX_Explorer.Dialog
 
         public string Include { get; private set; }
 
-        private FileSystemStorageItem Item;
+        private FileSystemStorageItemBase Item;
 
         private IStorageItem SItem;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public PropertyDialog(FileSystemStorageItem Item)
+        public PropertyDialog(FileSystemStorageItemBase Item)
         {
             InitializeComponent();
             this.Item = Item;

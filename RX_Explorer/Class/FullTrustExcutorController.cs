@@ -637,7 +637,7 @@ namespace RX_Explorer.Class
 
                         foreach (Dictionary<string, string> PropertyDic in Items)
                         {
-                            FileSystemStorageItem Item = WIN_Native_API.GetStorageItems(PropertyDic["ActualPath"]).FirstOrDefault();
+                            FileSystemStorageItemBase Item = WIN_Native_API.GetStorageItems(PropertyDic["ActualPath"]).FirstOrDefault();
                             Result.Add(new RecycleStorageItem(Item, PropertyDic["OriginPath"], DateTime.FromBinary(Convert.ToInt64(PropertyDic["CreateTime"]))));
                         }
 

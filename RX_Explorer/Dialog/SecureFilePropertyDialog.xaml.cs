@@ -18,11 +18,11 @@ namespace RX_Explorer.Dialog
 
         public string Level { get; private set; }
 
-        private FileSystemStorageItem StorageItem;
+        private FileSystemStorageItemBase StorageItem;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public SecureFilePropertyDialog(FileSystemStorageItem Item)
+        public SecureFilePropertyDialog(FileSystemStorageItemBase Item)
         {
             if (Item == null)
             {
