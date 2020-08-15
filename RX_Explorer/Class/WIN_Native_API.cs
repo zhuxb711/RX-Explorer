@@ -515,7 +515,14 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                    if (Data.cFileName.EndsWith(".lnk") || Data.cFileName.EndsWith(".url"))
+                                    {
+                                        Result.Add(new HyperlinkStorageItem(Data, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                    }
+                                    else
+                                    {
+                                        Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                    }
                                 }
                             }
                         }
@@ -591,7 +598,14 @@ namespace RX_Explorer.Class
                                     }
                                     else
                                     {
-                                        Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, Path, ModifiedTime.ToLocalTime()));
+                                        if (Data.cFileName.EndsWith(".lnk") || Data.cFileName.EndsWith(".url"))
+                                        {
+                                            Result.Add(new HyperlinkStorageItem(Data, Path, ModifiedTime.ToLocalTime()));
+                                        }
+                                        else
+                                        {
+                                            Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, Path, ModifiedTime.ToLocalTime()));
+                                        }
                                     }
                                 }
                             }
@@ -664,7 +678,14 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                    if (Data.cFileName.EndsWith(".lnk") || Data.cFileName.EndsWith(".url"))
+                                    {
+                                        Result.Add(new HyperlinkStorageItem(Data, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                    }
+                                    else
+                                    {
+                                        Result.Add(new FileSystemStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                    }
                                 }
                             }
                         }

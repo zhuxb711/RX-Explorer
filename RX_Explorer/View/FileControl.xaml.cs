@@ -50,6 +50,8 @@ namespace RX_Explorer
 
                 if (value != null && value.Content is TreeViewNodeContent Content)
                 {
+                    CurrentPath = Content.Path;
+
                     FolderTree.SelectNode(value);
 
                     UpdateAddressButton(Content.Path);
@@ -100,17 +102,26 @@ namespace RX_Explorer
 
         private CancellationTokenSource AddItemCancellation;
 
+        private string CurrentPath { get; set; }
+
         public StorageFolder CurrentFolder
         {
             get
             {
-                if (SettingControl.IsDetachTreeViewAndPresenter)
+                if (currentFolder != null)
                 {
-                    return currentFolder ??= (CurrentNode?.Content as TreeViewNodeContent)?.GetStorageFolderAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                    if (currentFolder.Path != CurrentPath)
+                    {
+                        return currentFolder = (CurrentNode?.Content as TreeViewNodeContent)?.GetStorageFolderAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        return currentFolder;
+                    }
                 }
                 else
                 {
-                    return (CurrentNode?.Content as TreeViewNodeContent)?.GetStorageFolderAsync().ConfigureAwait(false).GetAwaiter().GetResult() ?? currentFolder;
+                    return currentFolder = (CurrentNode?.Content as TreeViewNodeContent)?.GetStorageFolderAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                 }
             }
             set
@@ -149,6 +160,7 @@ namespace RX_Explorer
                 }
 
                 currentFolder = value;
+                CurrentPath = value?.Path;
             }
         }
 

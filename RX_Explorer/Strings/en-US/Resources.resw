@@ -2647,4 +2647,16 @@ Invalid names include
   <data name="SolidColor_FollowSystem.Content" xml:space="preserve">
     <value>Windows default</value>
   </data>
+  <data name="Link_Admin_DisplayType" xml:space="preserve">
+    <value>Shortcut</value>
+  </data>
+  <data name="AttributeTargetPath.Text" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="QueueDialog_DropFailure_Content" xml:space="preserve">
+    <value>Unable to recognize the dragged file, please try again</value>
+  </data>
+  <data name="QueueDialog_NotAllowInNetwordDevice_Content" xml:space="preserve">
+    <value>This operation is not currently supported on network drives</value>
+  </data>
 </root>

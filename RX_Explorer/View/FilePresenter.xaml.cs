@@ -1,4 +1,5 @@
 ﻿using ComputerVision;
+using HtmlAgilityPack;
 using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
@@ -382,7 +383,15 @@ namespace RX_Explorer
                                         {
                                             case "File":
                                                 {
-                                                    if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
+                                                    if (Path.GetExtension(SplitGroup[3]) == ".lnk")
+                                                    {
+                                                        await FullTrustExcutorController.Current.MoveAsync(SplitGroup[3], OriginFolder, (s, arg) =>
+                                                        {
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }, true).ConfigureAwait(true);
+                                                    }
+                                                    else if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
                                                     {
                                                         await FullTrustExcutorController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
                                                         {
@@ -422,11 +431,9 @@ namespace RX_Explorer
                                         {
                                             case "File":
                                                 {
-                                                    StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(SplitGroup[3]));
-
-                                                    if ((await TargetFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
+                                                    if (Path.GetExtension(SplitGroup[3]) == ".lnk")
                                                     {
-                                                        await FullTrustExcutorController.Current.MoveAsync(File, FileControlInstance.CurrentFolder, (s, arg) =>
+                                                        await FullTrustExcutorController.Current.MoveAsync(SplitGroup[3], FileControlInstance.CurrentFolder, (s, arg) =>
                                                         {
                                                             FileControlInstance.ProBar.IsIndeterminate = false;
                                                             FileControlInstance.ProBar.Value = arg.ProgressPercentage;
@@ -434,7 +441,20 @@ namespace RX_Explorer
                                                     }
                                                     else
                                                     {
-                                                        throw new FileNotFoundException();
+                                                        StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(SplitGroup[3]));
+
+                                                        if ((await TargetFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
+                                                        {
+                                                            await FullTrustExcutorController.Current.MoveAsync(File, FileControlInstance.CurrentFolder, (s, arg) =>
+                                                            {
+                                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            }, true).ConfigureAwait(true);
+                                                        }
+                                                        else
+                                                        {
+                                                            throw new FileNotFoundException();
+                                                        }
                                                     }
 
                                                     break;
@@ -461,13 +481,24 @@ namespace RX_Explorer
                                         {
                                             case "File":
                                                 {
-                                                    StorageFile File = await StorageFile.GetFileFromPathAsync(SplitGroup[3]);
-
-                                                    await FullTrustExcutorController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
+                                                    if (Path.GetExtension(SplitGroup[3]) == ".lnk")
                                                     {
-                                                        FileControlInstance.ProBar.IsIndeterminate = false;
-                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                                    }, true).ConfigureAwait(true);
+                                                        await FullTrustExcutorController.Current.MoveAsync(SplitGroup[3], OriginFolder, (s, arg) =>
+                                                        {
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }, true).ConfigureAwait(true);
+                                                    }
+                                                    else
+                                                    {
+                                                        StorageFile File = await StorageFile.GetFileFromPathAsync(SplitGroup[3]);
+
+                                                        await FullTrustExcutorController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
+                                                        {
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }, true).ConfigureAwait(true);
+                                                    }
 
                                                     break;
                                                 }
@@ -501,7 +532,15 @@ namespace RX_Explorer
                                         {
                                             case "File":
                                                 {
-                                                    if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
+                                                    if (Path.GetExtension(SplitGroup[3]) == ".lnk")
+                                                    {
+                                                        await FullTrustExcutorController.Current.DeleteAsync(SplitGroup[3], true, (s, arg) =>
+                                                        {
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }, true).ConfigureAwait(true);
+                                                    }
+                                                    else if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
                                                     {
                                                         await FullTrustExcutorController.Current.DeleteAsync(File, true, (s, arg) =>
                                                         {
@@ -610,26 +649,39 @@ namespace RX_Explorer
 
             Clipboard.Clear();
 
-            List<IStorageItem> TempList = new List<IStorageItem>(SelectedItems.Count);
+            List<IStorageItem> TempItemList = new List<IStorageItem>(SelectedItems.Count);
 
-            foreach (var Item in SelectedItems)
+            foreach (var Item in SelectedItems.Where((Item) => !(Item is HyperlinkStorageItem)))
             {
                 if (await Item.GetStorageItem().ConfigureAwait(true) is IStorageItem It)
                 {
-                    TempList.Add(It);
+                    TempItemList.Add(It);
                 }
             }
 
-            if (TempList.Count > 0)
+            DataPackage Package = new DataPackage
             {
-                DataPackage Package = new DataPackage
-                {
-                    RequestedOperation = DataPackageOperation.Copy
-                };
-                Package.SetStorageItems(TempList, false);
+                RequestedOperation = DataPackageOperation.Copy
+            };
 
-                Clipboard.SetContent(Package);
+            if (SelectedItems.Any((Item) => Item is HyperlinkStorageItem))
+            {
+                StringBuilder Builder = new StringBuilder("<head>RX-Explorer-TransferLinkItem</head>");
+
+                foreach (HyperlinkStorageItem Item in SelectedItems.Where((Item) => Item is HyperlinkStorageItem))
+                {
+                    Builder.Append($"<p>{Item.Path}</p>");
+                }
+
+                Package.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat(Builder.ToString()));
             }
+
+            if (TempItemList.Count > 0)
+            {
+                Package.SetStorageItems(TempItemList, false);
+            }
+
+            Clipboard.SetContent(Package);
 
             FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
         }
@@ -873,6 +925,187 @@ namespace RX_Explorer
                         }
                     }
                 }
+                else if (Package.Contains(StandardDataFormats.Html))
+                {
+                    if (FileControlInstance.IsNetworkDevice)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_NotAllowInNetwordDevice_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                        return;
+                    }
+
+                    string Html = await Package.GetHtmlFormatAsync();
+                    string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+
+                    HtmlDocument Document = new HtmlDocument();
+                    Document.LoadHtml(Fragment);
+                    HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+
+                    if (HeadNode?.InnerText == "RX-Explorer-TransferLinkItem")
+                    {
+                        HtmlNodeCollection BodyNode = Document.DocumentNode.SelectNodes("/p");
+                        List<string> LinkItemsPath = BodyNode.Select((Node) => Node.InnerText).ToList();
+
+                        if (Package.RequestedOperation.HasFlag(DataPackageOperation.Move))
+                        {
+                            if (LinkItemsPath.All((Item) => Path.GetDirectoryName(Item) == FileControlInstance.CurrentFolder.Path))
+                            {
+                                return;
+                            }
+
+                            await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
+
+                            bool IsItemNotFound = false;
+                            bool IsUnauthorized = false;
+                            bool IsCaptured = false;
+                            bool IsOperateFailed = false;
+
+                            try
+                            {
+                                await FullTrustExcutorController.Current.MoveAsync(LinkItemsPath, FileControlInstance.CurrentFolder.Path, (s, arg) =>
+                                {
+                                    FileControlInstance.ProBar.IsIndeterminate = false;
+                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                }).ConfigureAwait(true);
+                            }
+                            catch (FileNotFoundException)
+                            {
+                                IsItemNotFound = true;
+                            }
+                            catch (FileCaputureException)
+                            {
+                                IsCaptured = true;
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                IsOperateFailed = true;
+                            }
+                            catch (Exception)
+                            {
+                                IsUnauthorized = true;
+                            }
+
+                            if (IsItemNotFound)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            }
+                            else if (IsUnauthorized)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                                };
+
+                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                {
+                                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                                }
+                            }
+                            else if (IsCaptured)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            }
+                            else if (IsOperateFailed)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            }
+                        }
+                        else if (Package.RequestedOperation.HasFlag(DataPackageOperation.Copy))
+                        {
+                            await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
+
+                            bool IsItemNotFound = false;
+                            bool IsUnauthorized = false;
+                            bool IsOperateFailed = false;
+
+                            try
+                            {
+                                await FullTrustExcutorController.Current.CopyAsync(LinkItemsPath, FileControlInstance.CurrentFolder.Path, (s, arg) =>
+                                {
+                                    FileControlInstance.ProBar.IsIndeterminate = false;
+                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                }).ConfigureAwait(true);
+                            }
+                            catch (FileNotFoundException)
+                            {
+                                IsItemNotFound = true;
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                IsOperateFailed = true;
+                            }
+                            catch (Exception)
+                            {
+                                IsUnauthorized = true;
+                            }
+
+                            if (IsItemNotFound)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                            }
+                            else if (IsUnauthorized)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                                };
+
+                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                {
+                                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                                }
+                            }
+                            else if (IsOperateFailed)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            }
+                        }
+                    }
+                }
             }
             catch
             {
@@ -910,25 +1143,38 @@ namespace RX_Explorer
 
             Clipboard.Clear();
 
-            List<IStorageItem> TempList = new List<IStorageItem>(SelectedItems.Count);
-            foreach (var Item in SelectedItems)
+            List<IStorageItem> TempItemList = new List<IStorageItem>(SelectedItems.Count);
+            foreach (var Item in SelectedItems.Where((Item) => !(Item is HyperlinkStorageItem)))
             {
                 if (await Item.GetStorageItem().ConfigureAwait(true) is IStorageItem It)
                 {
-                    TempList.Add(It);
+                    TempItemList.Add(It);
                 }
             }
 
-            if (TempList.Count > 0)
+            DataPackage Package = new DataPackage
             {
-                DataPackage Package = new DataPackage
-                {
-                    RequestedOperation = DataPackageOperation.Move
-                };
-                Package.SetStorageItems(TempList, false);
+                RequestedOperation = DataPackageOperation.Move
+            };
 
-                Clipboard.SetContent(Package);
+            if (SelectedItems.Any((Item) => Item is HyperlinkStorageItem))
+            {
+                StringBuilder Builder = new StringBuilder("<head>RX-Explorer-TransferLinkItem</head>");
+
+                foreach (HyperlinkStorageItem Item in SelectedItems.Where((Item) => Item is HyperlinkStorageItem))
+                {
+                    Builder.Append($"<p>{Item.Path}</p>");
+                }
+
+                Package.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat(Builder.ToString()));
             }
+
+            if (TempItemList.Count > 0)
+            {
+                Package.SetStorageItems(TempItemList, false);
+            }
+
+            Clipboard.SetContent(Package);
 
             FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
             SelectedItems.ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.ReduceOpacity));
@@ -1504,7 +1750,7 @@ namespace RX_Explorer
                 return;
             }
 
-            PropertyDialog Dialog = new PropertyDialog(Device);
+            PropertyDialog Dialog = new PropertyDialog(SelectedItem);
             _ = await Dialog.ShowAsync().ConfigureAwait(true);
         }
 
@@ -2087,7 +2333,7 @@ namespace RX_Explorer
                 return;
             }
 
-            PropertyDialog Dialog = new PropertyDialog(Device);
+            PropertyDialog Dialog = new PropertyDialog(SelectedItem);
             _ = await Dialog.ShowAsync().ConfigureAwait(true);
         }
 
@@ -2626,13 +2872,27 @@ namespace RX_Explorer
                                 case ".exe":
                                 case ".bat":
                                     {
-                                        if (RunAsAdministrator)
+                                        if (TabTarget is HyperlinkStorageItem Item)
                                         {
-                                            await FullTrustExcutorController.Current.RunAsAdministratorAsync(TabTarget.Path).ConfigureAwait(false);
+                                            if (Item.NeedRunAs)
+                                            {
+                                                await FullTrustExcutorController.Current.RunAsAdministratorAsync(Item.TargetPath, Item.Argument).ConfigureAwait(false);
+                                            }
+                                            else
+                                            {
+                                                await FullTrustExcutorController.Current.RunAsync(Item.TargetPath, Item.Argument).ConfigureAwait(false);
+                                            }
                                         }
                                         else
                                         {
-                                            await FullTrustExcutorController.Current.RunAsync(TabTarget.Path).ConfigureAwait(false);
+                                            if (RunAsAdministrator)
+                                            {
+                                                await FullTrustExcutorController.Current.RunAsAdministratorAsync(TabTarget.Path).ConfigureAwait(false);
+                                            }
+                                            else
+                                            {
+                                                await FullTrustExcutorController.Current.RunAsync(TabTarget.Path).ConfigureAwait(false);
+                                            }
                                         }
                                         break;
                                     }
@@ -3482,286 +3742,301 @@ namespace RX_Explorer
 
             if (Interlocked.Exchange(ref ViewDropLock, 1) == 0)
             {
-                if (e.DataView.Contains(StandardDataFormats.StorageItems))
+                try
                 {
-                    List<IStorageItem> DragItemList = (await e.DataView.GetStorageItemsAsync()).ToList();
-
-                    try
+                    if (e.DataView.Contains(StandardDataFormats.StorageItems))
                     {
-                        StorageFolder TargetFolder = FileControlInstance.CurrentFolder;
+                        List<IStorageItem> DragItemList = (await e.DataView.GetStorageItemsAsync()).ToList();
 
-                        if (DragItemList.Contains(TargetFolder))
+                        try
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            StorageFolder TargetFolder = FileControlInstance.CurrentFolder;
+
+                            if (DragItemList.Contains(TargetFolder))
                             {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_DragIncludeFolderError"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-
-                            return;
-                        }
-
-                        switch (e.AcceptedOperation)
-                        {
-                            case DataPackageOperation.Copy:
+                                QueueContentDialog Dialog = new QueueContentDialog
                                 {
-                                    bool IsItemNotFound = false;
-                                    bool IsUnauthorized = false;
-                                    bool IsOperateFailed = false;
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_DragIncludeFolderError"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                                    await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
+                                return;
+                            }
 
-                                    try
+                            switch (e.AcceptedOperation)
+                            {
+                                case DataPackageOperation.Copy:
                                     {
-                                        if (FileControlInstance.IsNetworkDevice)
+                                        bool IsItemNotFound = false;
+                                        bool IsUnauthorized = false;
+                                        bool IsOperateFailed = false;
+
+                                        await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
+
+                                        try
                                         {
-                                            foreach (IStorageItem DragItem in DragItemList)
+                                            if (FileControlInstance.IsNetworkDevice)
                                             {
-                                                if (DragItem is StorageFile File)
+                                                foreach (IStorageItem DragItem in DragItemList)
                                                 {
-                                                    StorageFile NewFile = await File.CopyAsync(TargetFolder, File.Name, NameCollisionOption.GenerateUniqueName);
-
-                                                    FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
-                                                }
-                                                else if (DragItem is StorageFolder Folder)
-                                                {
-                                                    StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
-                                                    await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
-
-                                                    FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
-
-                                                    if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                    if (DragItem is StorageFile File)
                                                     {
-                                                        FileControlInstance.CurrentNode.HasUnrealizedChildren = true;
+                                                        StorageFile NewFile = await File.CopyAsync(TargetFolder, File.Name, NameCollisionOption.GenerateUniqueName);
 
-                                                        if (FileControlInstance.CurrentNode.IsExpanded)
+                                                        FileCollection.Add(new FileSystemStorageItem(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                                    }
+                                                    else if (DragItem is StorageFolder Folder)
+                                                    {
+                                                        StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
+                                                        await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
+
+                                                        FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+
+                                                        if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                         {
-                                                            FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                                            FileControlInstance.CurrentNode.HasUnrealizedChildren = true;
+
+                                                            if (FileControlInstance.CurrentNode.IsExpanded)
                                                             {
-                                                                Content = new TreeViewNodeContent(NewFolder),
-                                                                HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                                                            });
+                                                                FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                                                {
+                                                                    Content = new TreeViewNodeContent(NewFolder),
+                                                                    HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                                                });
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
-                                        }
-                                        else
-                                        {
-                                            await FullTrustExcutorController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
+                                            else
                                             {
-                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                            }).ConfigureAwait(true);
+                                                await FullTrustExcutorController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
+                                                {
+                                                    FileControlInstance.ProBar.IsIndeterminate = false;
+                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                }).ConfigureAwait(true);
+                                            }
                                         }
-                                    }
-                                    catch (FileNotFoundException)
-                                    {
-                                        IsItemNotFound = true;
-                                    }
-                                    catch (InvalidOperationException)
-                                    {
-                                        IsOperateFailed = true;
-                                    }
-                                    catch (Exception)
-                                    {
-                                        IsUnauthorized = true;
-                                    }
-
-                                    if (IsItemNotFound)
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        catch (FileNotFoundException)
                                         {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    else if (IsUnauthorized)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                                        };
-
-                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                                            IsItemNotFound = true;
                                         }
-                                    }
-                                    else if (IsOperateFailed)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
+                                        catch (InvalidOperationException)
                                         {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-
-                                    break;
-                                }
-                            case DataPackageOperation.Move:
-                                {
-                                    if (DragItemList.Select((Item) => Item.Path).All((Item) => Path.GetDirectoryName(Item) == FileControlInstance.CurrentFolder.Path))
-                                    {
-                                        return;
-                                    }
-
-                                    await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
-
-                                    bool IsItemNotFound = false;
-                                    bool IsUnauthorized = false;
-                                    bool IsCaptured = false;
-                                    bool IsOperateFailed = false;
-
-                                    try
-                                    {
-                                        if (FileControlInstance.IsNetworkDevice)
+                                            IsOperateFailed = true;
+                                        }
+                                        catch (Exception)
                                         {
-                                            foreach (IStorageItem DragItem in DragItemList)
+                                            IsUnauthorized = true;
+                                        }
+
+                                        if (IsItemNotFound)
+                                        {
+                                            QueueContentDialog Dialog = new QueueContentDialog
                                             {
-                                                if (DragItem is StorageFile File)
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+                                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                        }
+                                        else if (IsUnauthorized)
+                                        {
+                                            QueueContentDialog dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                                                PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                                            };
+
+                                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                            {
+                                                _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                                            }
+                                        }
+                                        else if (IsOperateFailed)
+                                        {
+                                            QueueContentDialog dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+                                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                        }
+
+                                        break;
+                                    }
+                                case DataPackageOperation.Move:
+                                    {
+                                        if (DragItemList.Select((Item) => Item.Path).All((Item) => Path.GetDirectoryName(Item) == FileControlInstance.CurrentFolder.Path))
+                                        {
+                                            return;
+                                        }
+
+                                        await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
+
+                                        bool IsItemNotFound = false;
+                                        bool IsUnauthorized = false;
+                                        bool IsCaptured = false;
+                                        bool IsOperateFailed = false;
+
+                                        try
+                                        {
+                                            if (FileControlInstance.IsNetworkDevice)
+                                            {
+                                                foreach (IStorageItem DragItem in DragItemList)
                                                 {
-                                                    await File.MoveAsync(TargetFolder, File.Name, NameCollisionOption.GenerateUniqueName);
-
-                                                    FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
-                                                }
-                                                else if (DragItem is StorageFolder Folder)
-                                                {
-                                                    StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
-
-                                                    await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
-
-                                                    FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
-
-                                                    if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                    if (DragItem is StorageFile File)
                                                     {
-                                                        if (TabViewContainer.ThisPage.TabViewControl.TabItems.Select((Tab) => ((Tab as Microsoft.UI.Xaml.Controls.TabViewItem)?.Content as Frame)?.Content as FileControl).Where((Control) => Control != null).FirstOrDefault((Control) => Control.CurrentFolder.Path == Path.GetDirectoryName(Folder.Path)) is FileControl Control && Control.IsNetworkDevice)
+                                                        await File.MoveAsync(TargetFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+
+                                                        FileCollection.Add(new FileSystemStorageItem(File, await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                                    }
+                                                    else if (DragItem is StorageFolder Folder)
+                                                    {
+                                                        StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
+
+                                                        await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
+
+                                                        FileCollection.Add(new FileSystemStorageItem(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+
+                                                        if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                         {
-                                                            if (Control.CurrentNode.IsExpanded)
+                                                            if (TabViewContainer.ThisPage.TabViewControl.TabItems.Select((Tab) => ((Tab as Microsoft.UI.Xaml.Controls.TabViewItem)?.Content as Frame)?.Content as FileControl).Where((Control) => Control != null).FirstOrDefault((Control) => Control.CurrentFolder.Path == Path.GetDirectoryName(Folder.Path)) is FileControl Control && Control.IsNetworkDevice)
                                                             {
-                                                                if (Control.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == Folder.Path) is TreeViewNode Node)
+                                                                if (Control.CurrentNode.IsExpanded)
                                                                 {
-                                                                    Control.CurrentNode.Children.Remove(Node);
+                                                                    if (Control.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == Folder.Path) is TreeViewNode Node)
+                                                                    {
+                                                                        Control.CurrentNode.Children.Remove(Node);
+                                                                    }
                                                                 }
+
+                                                                Control.CurrentNode.HasUnrealizedChildren = (await Control.CurrentFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
+
+                                                                Refresh_Click(null, null);
                                                             }
 
-                                                            Control.CurrentNode.HasUnrealizedChildren = (await Control.CurrentFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
+                                                            FileControlInstance.CurrentNode.HasUnrealizedChildren = true;
 
-                                                            Refresh_Click(null, null);
-                                                        }
-
-                                                        FileControlInstance.CurrentNode.HasUnrealizedChildren = true;
-
-                                                        if (FileControlInstance.CurrentNode.IsExpanded)
-                                                        {
-                                                            FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                                            if (FileControlInstance.CurrentNode.IsExpanded)
                                                             {
-                                                                Content = new TreeViewNodeContent(NewFolder),
-                                                                HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                                                            });
+                                                                FileControlInstance.CurrentNode.Children.Add(new TreeViewNode
+                                                                {
+                                                                    Content = new TreeViewNodeContent(NewFolder),
+                                                                    HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                                                });
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
-                                        }
-                                        else
-                                        {
-                                            await FullTrustExcutorController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
+                                            else
                                             {
-                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
-                                            }).ConfigureAwait(true);
+                                                await FullTrustExcutorController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
+                                                {
+                                                    FileControlInstance.ProBar.IsIndeterminate = false;
+                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                }).ConfigureAwait(true);
+                                            }
                                         }
-                                    }
-                                    catch (FileCaputureException)
-                                    {
-                                        IsCaptured = true;
-                                    }
-                                    catch (FileNotFoundException)
-                                    {
-                                        IsItemNotFound = true;
-                                    }
-                                    catch (InvalidOperationException)
-                                    {
-                                        IsOperateFailed = true;
-                                    }
-                                    catch (Exception)
-                                    {
-                                        IsUnauthorized = true;
-                                    }
-
-                                    if (IsItemNotFound)
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        catch (FileCaputureException)
                                         {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    else if (IsUnauthorized)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                                        };
-
-                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                                            IsCaptured = true;
                                         }
-                                    }
-                                    else if (IsCaptured)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
+                                        catch (FileNotFoundException)
                                         {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    else if (IsOperateFailed)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
+                                            IsItemNotFound = true;
+                                        }
+                                        catch (InvalidOperationException)
                                         {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                    }
+                                            IsOperateFailed = true;
+                                        }
+                                        catch (Exception)
+                                        {
+                                            IsUnauthorized = true;
+                                        }
 
-                                    break;
-                                }
+                                        if (IsItemNotFound)
+                                        {
+                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+
+                                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                        }
+                                        else if (IsUnauthorized)
+                                        {
+                                            QueueContentDialog dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                                                PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                                            };
+
+                                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                            {
+                                                _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                                            }
+                                        }
+                                        else if (IsCaptured)
+                                        {
+                                            QueueContentDialog dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+
+                                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                        }
+                                        else if (IsOperateFailed)
+                                        {
+                                            QueueContentDialog dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+                                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                        }
+
+                                        break;
+                                    }
+                            }
+                        }
+                        finally
+                        {
+                            DragItemList.Clear();
+                            await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
                         }
                     }
-                    finally
+                }
+                catch
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        DragItemList.Clear();
-                        await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
-                        e.Handled = true;
-                        Deferral.Complete();
-                        _ = Interlocked.Exchange(ref ViewDropLock, 0);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_DropFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                }
+                finally
+                {
+                    e.Handled = true;
+                    Deferral.Complete();
+                    _ = Interlocked.Exchange(ref ViewDropLock, 0);
                 }
             }
-
         }
 
         private void ViewControl_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
@@ -4302,7 +4577,7 @@ namespace RX_Explorer
                 if (WIN_Native_API.GetStorageItems(SelectedItem.Path).FirstOrDefault() is FileSystemStorageItem Item)
                 {
                     int Index = FileCollection.IndexOf(SelectedItem);
-                    
+
                     if (Index != -1)
                     {
                         FileCollection.Remove(SelectedItem);

@@ -3,11 +3,11 @@ using Windows.Storage;
 
 namespace RX_Explorer.Class
 {
-    public class RecycleStorageItem : FileSystemStorageItem
+    public sealed class RecycleStorageItem : FileSystemStorageItem
     {
         public string OriginPath { get; private set; }
 
-        public new string Name
+        public override string Name
         {
             get
             {
@@ -28,7 +28,7 @@ namespace RX_Explorer.Class
             InternalPathString = Item.Path;
             Thumbnail = Item.Thumbnail;
 
-            if (StorageType!=StorageItemTypes.Folder)
+            if (StorageType != StorageItemTypes.Folder)
             {
                 SizeRaw = Item.SizeRaw;
             }

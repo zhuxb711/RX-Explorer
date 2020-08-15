@@ -3367,6 +3367,22 @@ Les noms non valides incluent
           <source>Windows default</source>
           <target state="translated">Par défaut de Windows</target>
         </trans-unit>
+        <trans-unit id="Link_Admin_DisplayType" translate="yes" xml:space="preserve">
+          <source>Shortcut</source>
+          <target state="translated">Raccourci</target>
+        </trans-unit>
+        <trans-unit id="AttributeTargetPath.Text" translate="yes" xml:space="preserve">
+          <source>Target</source>
+          <target state="translated">Cible</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DropFailure_Content" translate="yes" xml:space="preserve">
+          <source>Unable to recognize the dragged file, please try again</source>
+          <target state="translated">Impossible de reconnaître le fichier glissé, veuillez réessayer</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_NotAllowInNetwordDevice_Content" translate="yes" xml:space="preserve">
+          <source>This operation is not currently supported on network drives</source>
+          <target state="translated">Cette opération n'est actuellement pas prise en charge sur les lecteurs réseau</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -122,7 +122,7 @@ namespace RX_Explorer.View
         {
             if (ListViewControl.SelectedItem is RecycleStorageItem Item)
             {
-                PropertyDialog Dialog = new PropertyDialog(await Item.GetStorageItem().ConfigureAwait(true), Path.GetFileName(Item.OriginPath));
+                PropertyDialog Dialog = new PropertyDialog(Item);
                 await Dialog.ShowAsync().ConfigureAwait(false);
             }
         }
@@ -328,7 +328,7 @@ namespace RX_Explorer.View
         {
             if (ListViewControl.SelectedItem is RecycleStorageItem Item)
             {
-                PropertyDialog Dialog = new PropertyDialog(await Item.GetStorageItem().ConfigureAwait(true), Path.GetFileName(Item.OriginPath));
+                PropertyDialog Dialog = new PropertyDialog(Item);
                 await Dialog.ShowAsync().ConfigureAwait(false);
             }
         }

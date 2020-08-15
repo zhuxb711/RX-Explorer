@@ -2542,4 +2542,16 @@
   <data name="SolidColor_FollowSystem.Content" xml:space="preserve">
     <value>Windows默認</value>
   </data>
+  <data name="Link_Admin_DisplayType" xml:space="preserve">
+    <value>捷徑</value>
+  </data>
+  <data name="AttributeTargetPath.Text" xml:space="preserve">
+    <value>目標</value>
+  </data>
+  <data name="QueueDialog_DropFailure_Content" xml:space="preserve">
+    <value>無法識別已拖動的文件，請重試</value>
+  </data>
+  <data name="QueueDialog_NotAllowInNetwordDevice_Content" xml:space="preserve">
+    <value>當前在網絡驅動器上不支持此操作</value>
+  </data>
 </root>

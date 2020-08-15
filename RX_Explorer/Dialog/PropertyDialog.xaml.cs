@@ -22,40 +22,58 @@ namespace RX_Explorer.Dialog
 
         public string ChangeTime { get; private set; }
 
+        public string TargetPath { get; private set; }
+
         public string Include { get; private set; }
 
-        private IStorageItem Item;
+        private FileSystemStorageItem Item;
+
+        private IStorageItem SItem;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public PropertyDialog(IStorageItem Item)
+        public PropertyDialog(FileSystemStorageItem Item)
         {
             InitializeComponent();
             this.Item = Item;
             Loading += PropertyDialog_Loading;
         }
 
-        public PropertyDialog(IStorageItem Item, string ReplaceName)
+        public PropertyDialog(IStorageItem SItem)
         {
             InitializeComponent();
-            FileName = ReplaceName;
-            this.Item = Item;
+            this.SItem = SItem;
             Loading += PropertyDialog_Loading;
         }
 
         private async void PropertyDialog_Loading(FrameworkElement sender, object args)
         {
-            if (Item is StorageFile file)
+            if (SItem is StorageFile || Item?.StorageType == StorageItemTypes.File)
             {
                 IncludeArea.Visibility = Visibility.Collapsed;
 
-                if (string.IsNullOrEmpty(FileName))
+                StorageFile file;
+
+                if (Item != null)
                 {
-                    FileName = file.Name;
+                    FileName = Item.Name;
+                    Path = Item.Path;
+                    FileType = $"{Item.DisplayType} ({Item.Type})";
+
+                    file = (StorageFile)await Item.GetStorageItem().ConfigureAwait(true);
+
+                    if (Item is HyperlinkStorageItem LinkItem)
+                    {
+                        LinkTargetArea.Visibility = Visibility.Visible;
+                        TargetPath = LinkItem.TargetPath;
+                    }
+                }
+                else
+                {
+                    file = (StorageFile)SItem;
+                    FileType = $"{file.DisplayType} ({file.FileType})";
                 }
 
-                FileType = file.DisplayType + " (" + file.FileType + ")";
-                Path = file.Path;
                 CreateTime = file.DateCreated.ToString("F");
 
                 if (file.ContentType.StartsWith("video"))
@@ -137,24 +155,33 @@ namespace RX_Explorer.Dialog
 
                 OnPropertyChanged();
             }
-            else if (Item is StorageFolder folder)
+            else
             {
                 ExtraDataArea.Visibility = Visibility.Collapsed;
 
                 Include = Globalization.GetString("SizeProperty_Calculating_Text");
                 FileSize = Globalization.GetString("SizeProperty_Calculating_Text");
 
-                FileType = folder.DisplayType;
-
-                if (string.IsNullOrEmpty(FileName))
+                StorageFolder folder;
+                if (Item != null)
                 {
-                    FileName = folder.DisplayName;
+                    FileName = Item.Name;
+                    Path = Item.Path;
+                    FileType = $"{Item.DisplayType} ({Item.Type})";
+
+                    folder = (StorageFolder)await Item.GetStorageItem().ConfigureAwait(true);
+                }
+                else
+                {
+                    FileName = SItem.Name;
+                    Path = SItem.Path;
+                    folder = (StorageFolder)SItem;
+                    FileType = folder.DisplayType;
                 }
 
-                Path = folder.Path;
                 CreateTime = folder.DateCreated.ToString("F");
 
-                var Properties = await folder.GetBasicPropertiesAsync();
+                BasicProperties Properties = await folder.GetBasicPropertiesAsync();
                 ChangeTime = Properties.DateModified.ToString("F");
 
                 OnPropertyChanged();
@@ -174,6 +201,7 @@ namespace RX_Explorer.Dialog
             int Hour = 0;
             int Minute = 0;
             int Second = Convert.ToInt32(Span.TotalSeconds);
+
             if (Second >= 60)
             {
                 Minute = Second / 60;
@@ -212,6 +240,7 @@ namespace RX_Explorer.Dialog
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(FileName)));
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(FileType)));
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Path)));
+                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(TargetPath)));
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(FileSize)));
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(CreateTime)));
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(ChangeTime)));

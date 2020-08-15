@@ -2542,4 +2542,16 @@ Les noms non valides incluent
   <data name="SolidColor_FollowSystem.Content" xml:space="preserve">
     <value>Par défaut de Windows</value>
   </data>
+  <data name="Link_Admin_DisplayType" xml:space="preserve">
+    <value>Raccourci</value>
+  </data>
+  <data name="AttributeTargetPath.Text" xml:space="preserve">
+    <value>Cible</value>
+  </data>
+  <data name="QueueDialog_DropFailure_Content" xml:space="preserve">
+    <value>Impossible de reconnaître le fichier glissé, veuillez réessayer</value>
+  </data>
+  <data name="QueueDialog_NotAllowInNetwordDevice_Content" xml:space="preserve">
+    <value>Cette opération n'est actuellement pas prise en charge sur les lecteurs réseau</value>
+  </data>
 </root>

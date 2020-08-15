@@ -31,23 +31,37 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="类型"
-                           x:Uid="AttributeType"/>
+                           x:Uid="AttributeType" />
                 <TextBlock Text="{x:Bind FileType,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind FileType,Mode=OneWay}"
                            Grid.Column="1"
-                           TextTrimming="CharacterEllipsis"/>
+                           TextTrimming="CharacterEllipsis" />
             </Grid>
             <Grid Margin="0,15,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="90" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="位置"
+                <TextBlock Text="路径"
                            x:Uid="AttributeLocation"/>
                 <TextBlock Text="{x:Bind Path,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Path,Mode=OneWay}"
                            TextTrimming="CharacterEllipsis"
                            Grid.Column="1"/>
+            </Grid>
+            <Grid Margin="0,15,0,0"
+                  Name="LinkTargetArea"
+                  Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="目标"
+                           x:Uid="AttributeTargetPath"/>
+                <TextBlock Text="{x:Bind TargetPath,Mode=OneWay}"
+                           ToolTipService.ToolTip="{x:Bind TargetPath,Mode=OneWay}"
+                           TextTrimming="CharacterEllipsis"
+                           Grid.Column="1" />
             </Grid>
             <Grid Margin="0,15,0,0"
                   Name="ExtraDataArea">

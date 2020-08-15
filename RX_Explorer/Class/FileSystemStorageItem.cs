@@ -131,7 +131,7 @@ namespace RX_Explorer.Class
         /// 调用此方法以获得存储对象
         /// </summary>
         /// <returns></returns>
-        public async Task<IStorageItem> GetStorageItem()
+        public virtual async Task<IStorageItem> GetStorageItem()
         {
             try
             {
@@ -272,7 +272,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取文件的修改时间描述
         /// </summary>
-        public string ModifiedTime
+        public virtual string ModifiedTime
         {
             get
             {
@@ -290,7 +290,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取文件的路径
         /// </summary>
-        public string Path
+        public virtual string Path
         {
             get
             {
@@ -301,7 +301,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取文件大小描述
         /// </summary>
-        public string Size
+        public virtual string Size
         {
             get
             {
@@ -327,7 +327,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取文件的完整文件名(包括后缀)
         /// </summary>
-        public string Name
+        public virtual string Name
         {
             get
             {
@@ -338,7 +338,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取文件类型描述
         /// </summary>
-        public string DisplayType
+        public virtual string DisplayType
         {
             get
             {
@@ -360,7 +360,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取文件的类型
         /// </summary>
-        public string Type
+        public virtual string Type
         {
             get
             {

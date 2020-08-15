@@ -3367,6 +3367,22 @@ Invalid names include
           <source>Windows default</source>
           <target state="translated">Windows默認</target>
         </trans-unit>
+        <trans-unit id="Link_Admin_DisplayType" translate="yes" xml:space="preserve">
+          <source>Shortcut</source>
+          <target state="translated">捷徑</target>
+        </trans-unit>
+        <trans-unit id="AttributeTargetPath.Text" translate="yes" xml:space="preserve">
+          <source>Target</source>
+          <target state="translated">目標</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DropFailure_Content" translate="yes" xml:space="preserve">
+          <source>Unable to recognize the dragged file, please try again</source>
+          <target state="translated">無法識別已拖動的文件，請重試</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_NotAllowInNetwordDevice_Content" translate="yes" xml:space="preserve">
+          <source>This operation is not currently supported on network drives</source>
+          <target state="translated">當前在網絡驅動器上不支持此操作</target>
+        </trans-unit>
       </group>
     </body>
   </file>

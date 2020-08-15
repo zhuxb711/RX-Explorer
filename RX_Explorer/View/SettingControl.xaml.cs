@@ -1145,8 +1145,6 @@ namespace RX_Explorer
 
         private async void TreeViewDetach_Toggled(object sender, RoutedEventArgs e)
         {
-            TabViewContainer.ThisPage.TreeViewLength = TreeViewDetach.IsOn ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
-
             if (TabViewContainer.CurrentTabNavigation?.Content is FileControl Control && Control.CurrentFolder != null)
             {
                 if (TreeViewDetach.IsOn)
@@ -1169,6 +1167,8 @@ namespace RX_Explorer
                     Control.GoParentFolder.IsEnabled = Control.CurrentFolder.Path != Path.GetPathRoot(Control.CurrentFolder.Path);
                 }
             }
+
+            TabViewContainer.ThisPage.TreeViewLength = TreeViewDetach.IsOn ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
         }
 
         private void QuicklookQuestion_Tapped(object sender, TappedRoutedEventArgs e)

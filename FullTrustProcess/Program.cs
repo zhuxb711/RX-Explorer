@@ -5,13 +5,13 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Vanara.PInvoke;
+using Vanara.Windows.Shell;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
 using Windows.Storage;
@@ -105,6 +105,38 @@ namespace FullTrustProcess
             {
                 switch (args.Request.Message["ExcuteType"])
                 {
+                    case "Excute_GetHyperlinkInfo":
+                        {
+                            string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
+
+                            ValueSet Value = new ValueSet();
+
+                            if (File.Exists(ExcutePath))
+                            {
+                                try
+                                {
+                                    using (ShellLink Link = new ShellLink(ExcutePath))
+                                    {
+                                        Value.Add("Success", string.Empty);
+                                        Value.Add("TargetPath", Link.TargetPath);
+                                        Value.Add("Argument", Link.Arguments);
+                                        Value.Add("RunAs", Link.RunAsAdministrator);
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    Value.Add("Error", e.Message);
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "File is not exist");
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Excute_Intercept_Win_E":
                         {
                             ValueSet Value = new ValueSet();
@@ -240,7 +272,7 @@ namespace FullTrustProcess
                     case "Excute_Check_QuicklookIsAvaliable":
                         {
                             bool IsSuccess = QuicklookConnector.CheckQuicklookIsAvaliable();
-                            
+
                             ValueSet Result = new ValueSet
                             {
                                 {"Check_QuicklookIsAvaliable_Result",IsSuccess }

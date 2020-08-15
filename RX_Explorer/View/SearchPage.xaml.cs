@@ -199,9 +199,7 @@ namespace RX_Explorer
 
         private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
-            FileSystemStorageItem Device = SearchResultList.SelectedItems.FirstOrDefault() as FileSystemStorageItem;
-
-            if (await Device.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+            if (SearchResultList.SelectedItem is FileSystemStorageItem Item)
             {
                 PropertyDialog Dialog = new PropertyDialog(Item);
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);

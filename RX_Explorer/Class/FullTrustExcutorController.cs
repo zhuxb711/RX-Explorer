@@ -37,6 +37,8 @@ namespace RX_Explorer.Class
 
         private const string ExcuteType_RestoreWinE = "Excute_Restore_Win_E";
 
+        private const string ExcuteType_HyperlinkInfo = "Excute_GetHyperlinkInfo";
+
         private const string ExcuteType_EmptyRecycleBin = "Excute_Empty_RecycleBin";
 
         private const string ExcuteType_UnlockOccupy = "Excute_Unlock_Occupy";
@@ -63,9 +65,9 @@ namespace RX_Explorer.Class
 
         private static readonly object locker = new object();
 
-        private bool IsConnected = false;
+        private bool IsConnected;
 
-        public bool IsNowHasAnyActionExcuting { get; private set; } = false;
+        public bool IsNowHasAnyActionExcuting { get; private set; }
 
         private AppServiceConnection Connection;
 
@@ -139,6 +141,47 @@ namespace RX_Explorer.Class
             catch
             {
                 return IsConnected = false;
+            }
+        }
+
+        public async Task<(string, string, bool)> GetHyperlinkRelatedInformation(string Path)
+        {
+            try
+            {
+                IsNowHasAnyActionExcuting = true;
+
+                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExcuteType", ExcuteType_HyperlinkInfo},
+                        {"ExcutePath",Path }
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success && Response.Message.ContainsKey("Success"))
+                    {
+                        return (Convert.ToString(Response.Message["TargetPath"]), Convert.ToString(Response.Message["Argument"]), Convert.ToBoolean(Response.Message["RunAs"]));
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(Response.Message.ContainsKey("Error") ? Convert.ToString(Response.Message["Error"]) : "Communication failure");
+                    }
+                }
+                else
+                {
+                    throw new NoResponseException();
+                }
+            }
+            catch
+            {
+                Debug.WriteLine("Warning: GetHyperlinkRelatedInformation() throw an error");
+                throw;
+            }
+            finally
+            {
+                IsNowHasAnyActionExcuting = false;
             }
         }
 
@@ -469,7 +512,7 @@ namespace RX_Explorer.Class
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-                    
+
                     if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error"))
                     {
                         return Convert.ToBoolean(Response.Message["Check_QuicklookIsAvaliable_Result"]);
@@ -509,6 +552,7 @@ namespace RX_Explorer.Class
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
                     if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error"))
                     {
                         return Convert.ToString(Response.Message["Associate_Result"]);
@@ -585,7 +629,7 @@ namespace RX_Explorer.Class
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-                    
+
                     if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error") && !string.IsNullOrEmpty(Convert.ToString(Response.Message["RecycleBinItems_Json_Result"])))
                     {
                         List<Dictionary<string, string>> Items = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(Convert.ToString(Response.Message["RecycleBinItems_Json_Result"]));
@@ -899,6 +943,37 @@ namespace RX_Explorer.Class
             }
         }
 
+        public Task MoveAsync(string SourcePath, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        {
+            if (string.IsNullOrEmpty(SourcePath))
+            {
+                throw new ArgumentNullException(nameof(SourcePath), "Parameter could not be null");
+            }
+
+            if (Destination == null)
+            {
+                throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
+            }
+
+            return MoveAsync(new string[1] { SourcePath }, Destination.Path, ProgressHandler, IsUndoOperation);
+        }
+
+        public Task MoveAsync(string SourcePath, string Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        {
+            if (string.IsNullOrEmpty(SourcePath))
+            {
+                throw new ArgumentNullException(nameof(SourcePath), "Parameter could not be null");
+            }
+
+            if (string.IsNullOrEmpty(Destination))
+            {
+                throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
+            }
+
+            return MoveAsync(new string[1] { SourcePath }, Destination, ProgressHandler, IsUndoOperation);
+        }
+
+
         public Task MoveAsync(IEnumerable<IStorageItem> Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
             if (Source == null)
@@ -1072,6 +1147,37 @@ namespace RX_Explorer.Class
 
             return CopyAsync(Source.Select((Item) => Item.Path), Destination.Path, ProgressHandler, IsUndoOperation);
         }
+
+        public Task CopyAsync(string SourcePath, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        {
+            if (string.IsNullOrEmpty(SourcePath))
+            {
+                throw new ArgumentNullException(nameof(SourcePath), "Parameter could not be null");
+            }
+
+            if (Destination == null)
+            {
+                throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
+            }
+
+            return CopyAsync(new string[1] { SourcePath }, Destination.Path, ProgressHandler, IsUndoOperation);
+        }
+
+        public Task CopyAsync(string SourcePath, string Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        {
+            if (string.IsNullOrEmpty(SourcePath))
+            {
+                throw new ArgumentNullException(nameof(SourcePath), "Parameter could not be null");
+            }
+
+            if (string.IsNullOrEmpty(Destination))
+            {
+                throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
+            }
+
+            return CopyAsync(new string[1] { SourcePath }, Destination, ProgressHandler, IsUndoOperation);
+        }
+
 
         public Task CopyAsync(IStorageItem Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {

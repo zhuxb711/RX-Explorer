@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace RX_Explorer.Class
 {
-    public class HiddenStorageItem : FileSystemStorageItem
+    public sealed class HiddenStorageItem : FileSystemStorageItem
     {
-        public new IStorageItem GetStorageItem()
+        public override Task<IStorageItem> GetStorageItem()
         {
             return null;
         }
