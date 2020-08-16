@@ -31,7 +31,6 @@
     <GenerateTestArtifacts>False</GenerateTestArtifacts>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-    <PackageCertificateThumbprint>ED6FDE8A8B95EA1D3131D614E4F3085F7B93B66D</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -732,6 +731,9 @@
     <PackageReference Include="System.Interactive.Async">
       <Version>4.1.1</Version>
     </PackageReference>
+    <PackageReference Include="System.Runtime">
+      <Version>4.3.1</Version>
+    </PackageReference>
     <PackageReference Include="TagLib.Portable">
       <Version>1.0.4</Version>
     </PackageReference>
@@ -751,6 +753,10 @@
     <ProjectReference Include="..\ComputerVision\ComputerVision.csproj">
       <Project>{5bc5b5aa-53f4-4437-95b3-261f790ae373}</Project>
       <Name>ComputerVision</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OpenDirectoryExt\OpenDirectoryExt.vcxproj">
+      <Project>{db5f5aa6-13b4-458a-a6a9-e29238adae06}</Project>
+      <Name>OpenDirectoryExt</Name>
     </ProjectReference>
     <ProjectReference Include="..\SQLConnectionPoolProvider\SQLConnectionPoolProvider.csproj">
       <Project>{48d8d03d-e12c-433c-a9d9-a4311e12fb78}</Project>
@@ -781,7 +787,9 @@
       <Name>Windows Desktop Extensions for the UWP</Name>
     </SDKReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

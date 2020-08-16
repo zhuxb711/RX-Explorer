@@ -1,5 +1,6 @@
 ﻿using RX_Explorer.Class;
 using System;
+using System.Text;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
@@ -167,7 +168,25 @@ namespace RX_Explorer
 
             if (!(Window.Current.Content is Frame))
             {
-                if (args.Kind == ActivationKind.Protocol)
+                if (args.Kind == ActivationKind.CommandLineLaunch)
+                {
+                    var cmdArgs = args as CommandLineActivatedEventArgs;
+                    StringBuilder sb = new StringBuilder();
+                    //sb.AppendLine($"Argument: {cmdArgs.Operation.Arguments}");
+                    //cmdArgs.Operation.Arguments
+                    if (!string.IsNullOrWhiteSpace(cmdArgs.Operation.Arguments))
+                    {
+                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{cmdArgs.Operation.Arguments}");
+                        Window.Current.Content = extendedSplash;
+                    }
+                    else
+                    {
+                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
+                        Window.Current.Content = extendedSplash;
+                    }
+
+                }
+                else if (args.Kind == ActivationKind.Protocol)
                 {
                     ProtocolActivatedEventArgs ProtocalArgs = args as ProtocolActivatedEventArgs;
 
