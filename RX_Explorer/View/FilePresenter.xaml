@@ -116,7 +116,8 @@
                 </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Label="工具"
-                              x:Uid="Tool">
+                              x:Uid="Tool"
+                              x:Name="FileTool">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
                                   Glyph="&#xE90F;" />
@@ -146,7 +147,8 @@
                 </AppBarButton>
                 <AppBarButton Icon="Edit"
                               Label="编辑"
-                              x:Uid="FileEdit">
+                              x:Uid="FileEdit"
+                              x:Name="FileEdit">
                     <AppBarButton.Flyout>
                         <MenuFlyout>
                             <MenuFlyoutItem Text="剪辑"
@@ -182,7 +184,8 @@
                 </AppBarButton>
                 <AppBarButton Icon="Share"
                               x:Uid="FileShare"
-                              Label="共享">
+                              Label="共享"
+                              Name="FileShare">
                     <AppBarButton.Flyout>
                         <MenuFlyout Placement="Right">
                             <MenuFlyoutItem Text="系统共享"

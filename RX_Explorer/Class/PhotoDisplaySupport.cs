@@ -36,12 +36,12 @@ namespace RX_Explorer.Class
         /// </summary>
         private bool IsThumbnailPicture = true;
 
-        private bool IsErrorWhenGenerateBitmap = false;
+        private bool IsErrorWhenGenerateBitmap;
 
         /// <summary>
         /// 旋转角度
         /// </summary>
-        public int RotateAngle { get; set; } = 0;
+        public int RotateAngle { get; set; }
 
         /// <summary>
         /// 获取Photo的StorageFile对象

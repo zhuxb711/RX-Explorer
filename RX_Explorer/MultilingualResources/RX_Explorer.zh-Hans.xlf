@@ -3383,6 +3383,22 @@ Invalid names include
           <source>This operation is not currently supported on network drives</source>
           <target state="translated">暂不支持在网络驱动器中执行此操作</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_SetWallpaperFailure_Content" translate="yes" xml:space="preserve">
+          <source>Unable to set the picture as wallpaper due to an unknown error</source>
+          <target state="translated">由于出现未知错误，无法将图片设置为壁纸</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SetWallpaperNotSupport_Content" translate="yes" xml:space="preserve">
+          <source>Due to device or system policy, the current picture cannot be set as wallpaper</source>
+          <target state="translated">受限于设备或系统规则，无法将当前图片设置为壁纸</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SetWallpaperSuccess_Content" translate="yes" xml:space="preserve">
+          <source>The picture has been successfully set as wallpaper</source>
+          <target state="translated">该图片已成功设置为壁纸</target>
+        </trans-unit>
+        <trans-unit id="SetAsWallpaper.Label" translate="yes" xml:space="preserve">
+          <source>Set as wallpaper</source>
+          <target state="translated">设为壁纸</target>
+        </trans-unit>
       </group>
     </body>
   </file>

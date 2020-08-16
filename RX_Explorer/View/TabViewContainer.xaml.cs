@@ -437,16 +437,24 @@ namespace RX_Explorer
             }
             catch
             {
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DisableDeviceFailTip"))
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = $"{Globalization.GetString("QueueDialog_AddDeviceFail_Content")} \"{args.Name}\"",
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                });
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = $"{Globalization.GetString("QueueDialog_AddDeviceFail_Content")} \"{args.Name}\"",
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_DoNotTip"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        {
+                            ApplicationData.Current.LocalSettings.Values["DisableDeviceFailTip"] = true;
+                        }
+                    });
+                }
             }
         }
 

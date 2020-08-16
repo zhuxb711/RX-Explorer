@@ -13,6 +13,7 @@ using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Windows.System.UserProfile;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -29,11 +30,11 @@ namespace RX_Explorer
         double OriginHorizonOffset;
         double OriginVerticalOffset;
         Point OriginMousePosition;
-        bool IsNavigateToCropperPage = false;
+        bool IsNavigateToCropperPage;
         FileControl FileControlInstance;
         CancellationTokenSource Cancellation;
         Queue<int> LoadQueue;
-        private int LockResource = 0;
+        private int LockResource;
         ManualResetEvent ExitLocker;
 
         public PhotoViewer()
@@ -383,6 +384,75 @@ namespace RX_Explorer
             catch (Exception ex)
             {
                 ExceptionTracer.RequestBlueScreen(ex);
+            }
+        }
+
+        private async void SetAsWallpaper_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (!UserProfilePersonalizationSettings.IsSupported())
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_SetWallpaperNotSupport_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                }
+                else
+                {
+                    if (Flip.SelectedItem is PhotoDisplaySupport Photo)
+                    {
+                        if (await Photo.PhotoFile.GetStorageItem().ConfigureAwait(true) is StorageFile File)
+                        {
+                            StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.LocalFolder, File.Name, NameCollisionOption.GenerateUniqueName);
+
+                            try
+                            {
+                                if (await UserProfilePersonalizationSettings.Current.TrySetWallpaperImageAsync(TempFile))
+                                {
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_SetWallpaperSuccess_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+
+                                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                                }
+                                else
+                                {
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_SetWallpaperFailure_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+
+                                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                                }
+                            }
+                            finally
+                            {
+                                await TempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_SetWallpaperFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                _ = await Dialog.ShowAsync().ConfigureAwait(false);
             }
         }
     }

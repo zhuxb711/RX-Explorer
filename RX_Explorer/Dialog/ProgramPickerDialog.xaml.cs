@@ -27,13 +27,9 @@ namespace RX_Explorer.Dialog
 
         public ProgramPickerDialog(StorageFile OpenFile)
         {
-            if (OpenFile == null)
-            {
-                throw new ArgumentNullException(nameof(OpenFile), "Parameter could not be null");
-            }
-
             InitializeComponent();
-            this.OpenFile = OpenFile;
+            
+            this.OpenFile = OpenFile ?? throw new ArgumentNullException(nameof(OpenFile), "Parameter could not be null");
 
             switch (OpenFile.FileType)
             {

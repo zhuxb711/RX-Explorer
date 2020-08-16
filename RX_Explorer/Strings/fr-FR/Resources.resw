@@ -2554,4 +2554,16 @@ Les noms non valides incluent
   <data name="QueueDialog_NotAllowInNetwordDevice_Content" xml:space="preserve">
     <value>Cette opération n'est actuellement pas prise en charge sur les lecteurs réseau</value>
   </data>
+  <data name="QueueDialog_SetWallpaperFailure_Content" xml:space="preserve">
+    <value>Impossible de définir l'image comme fond d'écran en raison d'une erreur inconnue</value>
+  </data>
+  <data name="QueueDialog_SetWallpaperNotSupport_Content" xml:space="preserve">
+    <value>En raison de la politique de l'appareil ou du système, l'image actuelle ne peut pas être définie comme fond d'écran</value>
+  </data>
+  <data name="QueueDialog_SetWallpaperSuccess_Content" xml:space="preserve">
+    <value>L'image a été définie avec succès comme fond d'écran</value>
+  </data>
+  <data name="SetAsWallpaper.Label" xml:space="preserve">
+    <value>Définir en tant que fond d'écran</value>
+  </data>
 </root>

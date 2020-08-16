@@ -52,6 +52,11 @@
                           x:Uid="PhotoViewerTranscodeButton"
                           x:Name="TranscodeImage"
                           Click="TranscodeImage_Click" />
+            <AppBarButton Icon="SetLockScreen" 
+                          Label="Set as wallpaper"
+                          x:Name="SetAsWallpaper"
+                          x:Uid="SetAsWallpaper"
+                          Click="SetAsWallpaper_Click"/>
         </CommandBar>
         <FlipView x:Name="Flip"
                   Grid.Row="1"

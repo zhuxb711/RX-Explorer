@@ -1578,9 +1578,11 @@ namespace RX_Explorer
             {
                 if (Item.StorageType == StorageItemTypes.File)
                 {
-                    Transcode.IsEnabled = false;
-                    VideoEdit.IsEnabled = false;
-                    VideoMerge.IsEnabled = false;
+                    FileTool.IsEnabled = true;
+                    FileEdit.IsEnabled = false;
+                    FileShare.IsEnabled = true;
+                    Zip.IsEnabled = true;
+
                     ChooseOtherApp.IsEnabled = true;
                     RunWithSystemAuthority.IsEnabled = false;
 
@@ -1596,18 +1598,12 @@ namespace RX_Explorer
                         case ".mp4":
                         case ".wmv":
                             {
-                                VideoEdit.IsEnabled = true;
-                                Transcode.IsEnabled = true;
-                                VideoMerge.IsEnabled = true;
+                                FileEdit.IsEnabled = true;
                                 break;
                             }
                         case ".mkv":
                         case ".m4a":
                         case ".mov":
-                            {
-                                Transcode.IsEnabled = true;
-                                break;
-                            }
                         case ".mp3":
                         case ".flac":
                         case ".wma":
@@ -1619,6 +1615,7 @@ namespace RX_Explorer
                         case ".gif":
                         case ".tiff":
                             {
+                                FileEdit.IsEnabled = true;
                                 Transcode.IsEnabled = true;
                                 break;
                             }
@@ -1627,6 +1624,16 @@ namespace RX_Explorer
                             {
                                 ChooseOtherApp.IsEnabled = false;
                                 RunWithSystemAuthority.IsEnabled = true;
+                                break;
+                            }
+                        case ".lnk":
+                            {
+                                ChooseOtherApp.IsEnabled = false;
+                                RunWithSystemAuthority.IsEnabled = true;
+                                FileTool.IsEnabled = false;
+                                FileEdit.IsEnabled = false;
+                                FileShare.IsEnabled = false;
+                                Zip.IsEnabled = false;
                                 break;
                             }
                     }
@@ -2574,13 +2581,33 @@ namespace RX_Explorer
             }
         }
 
-        private void EmptyFlyout_Opening(object sender, object e)
+        private async void EmptyFlyout_Opening(object sender, object e)
         {
             try
             {
-                if (Clipboard.GetContent().Contains(StandardDataFormats.StorageItems))
+                DataPackageView Package = Clipboard.GetContent();
+
+                if (Package.Contains(StandardDataFormats.StorageItems))
                 {
                     Paste.IsEnabled = true;
+                }
+                else if (Package.Contains(StandardDataFormats.Html))
+                {
+                    string Html = await Package.GetHtmlFormatAsync();
+                    string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+
+                    HtmlDocument Document = new HtmlDocument();
+                    Document.LoadHtml(Fragment);
+                    HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+
+                    if (HeadNode?.InnerText == "RX-Explorer-TransferLinkItem")
+                    {
+                        Paste.IsEnabled = true;
+                    }
+                    else
+                    {
+                        Paste.IsEnabled = false;
+                    }
                 }
                 else
                 {
@@ -2874,7 +2901,7 @@ namespace RX_Explorer
                                     {
                                         if (TabTarget is HyperlinkStorageItem Item)
                                         {
-                                            if (Item.NeedRunAs)
+                                            if (Item.NeedRunAs || RunAsAdministrator)
                                             {
                                                 await FullTrustExcutorController.Current.RunAsAdministratorAsync(Item.TargetPath, Item.Argument).ConfigureAwait(false);
                                             }
@@ -4453,7 +4480,7 @@ namespace RX_Explorer
                     {
                         TimeSpan ClickSpan = DateTimeOffset.Now - LastClickTime;
 
-                        if (ClickSpan.TotalMilliseconds > 1200)
+                        if (ClickSpan.TotalMilliseconds > 1200 && ClickSpan.TotalMilliseconds < 2000)
                         {
                             NameLabel.Visibility = Visibility.Collapsed;
                             CurrentNameEditItem = Item;
@@ -4776,7 +4803,7 @@ namespace RX_Explorer
             }
         }
 
-        private void BottomCommandBar_Opening(object sender, object e)
+        private async void BottomCommandBar_Opening(object sender, object e)
         {
             BottomCommandBar.PrimaryCommands.Clear();
             BottomCommandBar.SecondaryCommands.Clear();
@@ -4974,6 +5001,7 @@ namespace RX_Explorer
                             {
                                 Icon = new FontIcon { Glyph = "\uE90F" },
                                 Label = Globalization.GetString("Operate_Text_Tool"),
+                                IsEnabled = FileTool.IsEnabled,
                                 Flyout = ToolFlyout
                             });
 
@@ -5009,6 +5037,7 @@ namespace RX_Explorer
                             {
                                 Icon = new SymbolIcon(Symbol.Edit),
                                 Label = Globalization.GetString("Operate_Text_Edit"),
+                                IsEnabled = FileEdit.IsEnabled,
                                 Flyout = EditFlyout
                             });
 
@@ -5041,13 +5070,15 @@ namespace RX_Explorer
                             {
                                 Icon = new SymbolIcon(Symbol.Share),
                                 Label = Globalization.GetString("Operate_Text_Share"),
+                                IsEnabled = FileShare.IsEnabled,
                                 Flyout = ShareFlyout
                             });
 
                             AppBarButton CompressionButton = new AppBarButton
                             {
                                 Icon = new SymbolIcon(Symbol.Bookmarks),
-                                Label = Zip.Label
+                                Label = Zip.Label,
+                                IsEnabled = Zip.IsEnabled
                             };
                             CompressionButton.Click += Zip_Click;
                             BottomCommandBar.SecondaryCommands.Add(CompressionButton);
@@ -5116,10 +5147,58 @@ namespace RX_Explorer
                 }
                 else
                 {
+                    bool IsEnablePaste, IsEnableUndo;
+
+                    try
+                    {
+                        DataPackageView Package = Clipboard.GetContent();
+
+                        if (Package.Contains(StandardDataFormats.StorageItems))
+                        {
+                            IsEnablePaste = true;
+                        }
+                        else if (Package.Contains(StandardDataFormats.Html))
+                        {
+                            string Html = await Package.GetHtmlFormatAsync();
+                            string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+
+                            HtmlDocument Document = new HtmlDocument();
+                            Document.LoadHtml(Fragment);
+                            HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+
+                            if (HeadNode?.InnerText == "RX-Explorer-TransferLinkItem")
+                            {
+                                IsEnablePaste = true;
+                            }
+                            else
+                            {
+                                IsEnablePaste = false;
+                            }
+                        }
+                        else
+                        {
+                            IsEnablePaste = false;
+                        }
+                    }
+                    catch
+                    {
+                        IsEnablePaste = false;
+                    }
+
+                    if (OperationRecorder.Current.Value.Count > 0)
+                    {
+                        IsEnableUndo = true;
+                    }
+                    else
+                    {
+                        IsEnableUndo = false;
+                    }
+
                     AppBarButton PasteButton = new AppBarButton
                     {
                         Icon = new SymbolIcon(Symbol.Paste),
-                        Label = Globalization.GetString("Operate_Text_Paste")
+                        Label = Globalization.GetString("Operate_Text_Paste"),
+                        IsEnabled = IsEnablePaste
                     };
                     PasteButton.Click += Paste_Click;
                     BottomCommandBar.PrimaryCommands.Add(PasteButton);
@@ -5127,7 +5206,8 @@ namespace RX_Explorer
                     AppBarButton UndoButton = new AppBarButton
                     {
                         Icon = new SymbolIcon(Symbol.Undo),
-                        Label = Globalization.GetString("Operate_Text_Undo")
+                        Label = Globalization.GetString("Operate_Text_Undo"),
+                        IsEnabled = IsEnableUndo
                     };
                     UndoButton.Click += Undo_Click;
                     BottomCommandBar.PrimaryCommands.Add(UndoButton);

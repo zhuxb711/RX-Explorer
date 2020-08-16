@@ -2659,4 +2659,16 @@ Invalid names include
   <data name="QueueDialog_NotAllowInNetwordDevice_Content" xml:space="preserve">
     <value>This operation is not currently supported on network drives</value>
   </data>
+  <data name="QueueDialog_SetWallpaperFailure_Content" xml:space="preserve">
+    <value>Unable to set the picture as wallpaper due to an unknown error</value>
+  </data>
+  <data name="QueueDialog_SetWallpaperNotSupport_Content" xml:space="preserve">
+    <value>Due to device or system policy, the current picture cannot be set as wallpaper</value>
+  </data>
+  <data name="QueueDialog_SetWallpaperSuccess_Content" xml:space="preserve">
+    <value>The picture has been successfully set as wallpaper</value>
+  </data>
+  <data name="SetAsWallpaper.Label" xml:space="preserve">
+    <value>Set as wallpaper</value>
+  </data>
 </root>

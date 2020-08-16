@@ -2554,4 +2554,16 @@
   <data name="QueueDialog_NotAllowInNetwordDevice_Content" xml:space="preserve">
     <value>當前在網絡驅動器上不支持此操作</value>
   </data>
+  <data name="QueueDialog_SetWallpaperFailure_Content" xml:space="preserve">
+    <value>由於未知錯誤，無法將圖片設置為牆紙</value>
+  </data>
+  <data name="QueueDialog_SetWallpaperNotSupport_Content" xml:space="preserve">
+    <value>由於設備或系統策略的原因，當前圖片無法設置為牆紙</value>
+  </data>
+  <data name="QueueDialog_SetWallpaperSuccess_Content" xml:space="preserve">
+    <value>圖片已成功設置為牆紙</value>
+  </data>
+  <data name="SetAsWallpaper.Label" xml:space="preserve">
+    <value>設置為牆紙</value>
+  </data>
 </root>
