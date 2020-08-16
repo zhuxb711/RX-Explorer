@@ -3399,6 +3399,10 @@ Invalid names include
           <source>Set as wallpaper</source>
           <target state="translated">设为壁纸</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_LinkIsNotAllowInMixZip_Content" translate="yes" xml:space="preserve">
+          <source>The file to be compressed cannot contain lnk files</source>
+          <target state="translated">待压缩的文件中不能包含lnk文件</target>
+        </trans-unit>
       </group>
     </body>
   </file>

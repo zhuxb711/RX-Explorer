@@ -270,7 +270,7 @@ namespace RX_Explorer.Class
                                     return true;
                                 }
                             }
-                            else if (Filter.HasFlag(ItemFilters.File))
+                            else if (Filter.HasFlag(ItemFilters.File) && !Data.cFileName.EndsWith(".url"))
                             {
                                 return true;
                             }
@@ -515,13 +515,16 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    if (Data.cFileName.EndsWith(".lnk") || Data.cFileName.EndsWith(".url"))
+                                    if (!Data.cFileName.EndsWith(".url"))
                                     {
-                                        Result.Add(new HyperlinkStorageItem(Data, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
-                                    }
-                                    else
-                                    {
-                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                        if (Data.cFileName.EndsWith(".lnk"))
+                                        {
+                                            Result.Add(new HyperlinkStorageItem(Data, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                        }
+                                        else
+                                        {
+                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                        }
                                     }
                                 }
                             }
@@ -598,13 +601,16 @@ namespace RX_Explorer.Class
                                     }
                                     else
                                     {
-                                        if (Data.cFileName.EndsWith(".lnk") || Data.cFileName.EndsWith(".url"))
+                                        if (!Data.cFileName.EndsWith(".url"))
                                         {
-                                            Result.Add(new HyperlinkStorageItem(Data, Path, ModifiedTime.ToLocalTime()));
-                                        }
-                                        else
-                                        {
-                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path, ModifiedTime.ToLocalTime()));
+                                            if (Data.cFileName.EndsWith(".lnk"))
+                                            {
+                                                Result.Add(new HyperlinkStorageItem(Data, Path, ModifiedTime.ToLocalTime()));
+                                            }
+                                            else
+                                            {
+                                                Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path, ModifiedTime.ToLocalTime()));
+                                            }
                                         }
                                     }
                                 }
@@ -678,13 +684,16 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    if (Data.cFileName.EndsWith(".lnk") || Data.cFileName.EndsWith(".url"))
+                                    if (!Data.cFileName.EndsWith(".url"))
                                     {
-                                        Result.Add(new HyperlinkStorageItem(Data, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
-                                    }
-                                    else
-                                    {
-                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                        if (Data.cFileName.EndsWith(".lnk"))
+                                        {
+                                            Result.Add(new HyperlinkStorageItem(Data, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                        }
+                                        else
+                                        {
+                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                        }
                                     }
                                 }
                             }

@@ -1,27 +1,45 @@
 ﻿*****
-###Quoi de neuf dans la version 5.2.3.0
+###Quoi de neuf dans la version 5.2.6.0
+
+>#####Mise à jour des fonctionnalités
+
+>>#####Supporte le fichier .lnk
+
+>>#####Le double-clic pour renommer augmente maintenant le temps maximum de 2000ms, après ce temps, aucune opération de changement de nom ne sera déclenchée
+
+>>#####Ajout de la fonction "Définir comme fond d'écran" à l'interface de visualisation des images
 
 >#####Mise à jour de l'interface utilisateur
 
 >>#####Élimine le problème que le petit carré de la barre d'adresse déborde de plusieurs pixels
 
+>>#####L'invite "Impossible d'ouvrir le périphérique" au démarrage peut maintenant être désactivée
+
 >#####Correction de bogue
 
->>#####Résolution du problème de tri incorrect des fichiers et des dossiers
+>>#####Correction du problème de tri incorrect des fichiers et des dossiers
 
->>#####Résolution du problème suivant: l'heure modifiée ne s'affichait pas correctement en heure UTC au lieu de l'heure locale
+>>#####Correction du problème d'affichage incorrect de l'heure modifiée en temps UTC au lieu de l'heure locale
 
->>#####Résolution du problème de plusieurs fichiers en double causés par des fichiers temporaires créés par un logiciel tel qu'Office
+>>#####Correction du problème de plusieurs fichiers en double causé par des fichiers temporaires créés par un logiciel tel qu'Office
 
->>#####Résolution du problème pouvant provoquer un plantage lors du changement de nom direct des fichiers utilisés par d'autres applications
+>>#####Correction du problème pouvant provoquer un plantage lors du changement de nom direct des fichiers utilisés par d'autres applications
 
->>#####Résolution du problème pouvant provoquer un crash lors de l'échec de l'ouverture de l'image
+>>#####Correction du problème qui peut provoquer un crash lors de l'ouverture de l'image échoue
 
->>#####Résolution du problème pouvant provoquer un plantage au démarrage lorsque la tâche d'enregistrement en arrière-plan échoue
+>>#####Correction du problème pouvant provoquer un crash au démarrage lorsque la tâche d'enregistrement en arrière-plan échoue
+
+>>#####Correction du problème selon lequel les fichiers peuvent être copiés au mauvais emplacement lors du glisser-déposer des fichiers dans un dossier
+
+>>#####Correction du problème selon lequel le bouton auxiliaire inférieur n'est pas synchronisé avec l'état du bouton du menu contextuel
+
+>>#####Correction du problème pouvant entraîner le blocage des opérations ultérieures lors du changement de "répertoire de dossiers"
 
 >#####Mise à jour des composants
 
 >>#####Mise à jour vers la dernière version de la bibliothèque de contrôle de l'interface utilisateur de Microsoft, ce qui réduit la probabilité de plantages accidentels et corrige certains problèmes de contrôle
+
+>>#####Mettre à jour la base de données SQLite
 
 *****
 ###Quoi de neuf dans la version 5.2.3.0

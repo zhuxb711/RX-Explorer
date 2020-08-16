@@ -2566,4 +2566,7 @@ Les noms non valides incluent
   <data name="SetAsWallpaper.Label" xml:space="preserve">
     <value>Définir en tant que fond d'écran</value>
   </data>
+  <data name="QueueDialog_LinkIsNotAllowInMixZip_Content" xml:space="preserve">
+    <value>Le fichier à compresser ne peut pas contenir de fichiers lnk</value>
+  </data>
 </root>

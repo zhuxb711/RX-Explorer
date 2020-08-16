@@ -10,9 +10,20 @@ namespace RX_Explorer.Dialog
     {
         public string DesireName { get; private set; }
 
-        private IStorageItem Item;
+        private IStorageItem SItem;
 
-        public RenameDialog(IStorageItem Item)
+        private HyperlinkStorageItem Item;
+
+        public RenameDialog(IStorageItem SItem)
+        {
+            InitializeComponent();
+            this.SItem = SItem;
+            RenameText.Text = Item.Name;
+            Preview.Text = $"{Item.Name}\r⋙⋙   ⋙⋙   ⋙⋙\r{Item.Name}";
+            Loaded += RenameDialog_Loaded;
+        }
+
+        public RenameDialog(HyperlinkStorageItem Item)
         {
             InitializeComponent();
             this.Item = Item;
@@ -23,16 +34,26 @@ namespace RX_Explorer.Dialog
 
         private void RenameDialog_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            if (Item.IsOfType(StorageItemTypes.File))
+            if (SItem != null)
+            {
+                if (SItem.IsOfType(StorageItemTypes.File))
+                {
+                    if (SItem.Name != Path.GetExtension(SItem.Name))
+                    {
+                        RenameText.Select(0, SItem.Name.Length - Path.GetExtension(SItem.Name).Length);
+                    }
+                }
+                else
+                {
+                    RenameText.SelectAll();
+                }
+            }
+            else if (Item != null)
             {
                 if (Item.Name != Path.GetExtension(Item.Name))
                 {
                     RenameText.Select(0, Item.Name.Length - Path.GetExtension(Item.Name).Length);
                 }
-            }
-            else
-            {
-                RenameText.SelectAll();
             }
         }
 
@@ -56,7 +77,14 @@ namespace RX_Explorer.Dialog
 
         private void RenameText_TextChanged(object sender, TextChangedEventArgs e)
         {
-            Preview.Text = $"{Item.Name}\r⋙⋙   ⋙⋙   ⋙⋙\r{RenameText.Text}";
+            if (SItem != null)
+            {
+                Preview.Text = $"{SItem.Name}\r⋙⋙   ⋙⋙   ⋙⋙\r{RenameText.Text}";
+            }
+            else if (Item != null)
+            {
+                Preview.Text = $"{Item.Name}\r⋙⋙   ⋙⋙   ⋙⋙\r{RenameText.Text}";
+            }
         }
 
         private void RenameText_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)

@@ -98,6 +98,40 @@ namespace FullTrustProcess
             {
                 switch (args.Request.Message["ExcuteType"])
                 {
+                    case "Excute_Rename":
+                        {
+                            string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            string DesireName = Convert.ToString(args.Request.Message["DesireName"]);
+
+                            ValueSet Value = new ValueSet();
+
+                            if (File.Exists(ExcutePath))
+                            {
+                                if(StorageItemController.CheckOccupied(ExcutePath))
+                                {
+                                    Value.Add("Error_Occupied", "FileLoadException");
+                                }
+                                else
+                                {
+                                    if (StorageItemController.Rename(ExcutePath, DesireName))
+                                    {
+                                        Value.Add("Success", string.Empty);
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error", "Error happened when rename");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error_NotFound", "FileNotFoundException");
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Excute_GetHyperlinkInfo":
                         {
                             string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);

@@ -112,6 +112,31 @@ namespace FullTrustProcess
             }
         }
 
+        public static bool Rename(string Source, string DesireName)
+        {
+            try
+            {
+                using (ShellFileOperations Operation = new ShellFileOperations
+                {
+                    Options = ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent
+                })
+                {
+                    using (ShellItem Item = new ShellItem(Source))
+                    {
+                        Operation.QueueRenameOperation(Item, DesireName);
+                    }
+
+                    Operation.PerformOperations();
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static bool Delete(IEnumerable<string> Source, bool PermanentDelete, ProgressChangedEventHandler Progress, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostDeleteEvent)
         {
             try

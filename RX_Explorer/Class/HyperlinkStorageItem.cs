@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ICSharpCode.SharpZipLib.Core;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -50,7 +52,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    (TargetPath, Argument, NeedRunAs) = await FullTrustExcutorController.Current.GetHyperlinkRelatedInformation(InternalPathString).ConfigureAwait(true);
+                    (TargetPath, Argument, NeedRunAs) = await FullTrustExcutorController.Current.GetHyperlinkRelatedInformationAsync(InternalPathString).ConfigureAwait(true);
 
                     return StorageItem = await StorageFile.GetFileFromPathAsync(TargetPath);
                 }
@@ -63,6 +65,42 @@ namespace RX_Explorer.Class
             {
                 return StorageItem;
             }
+        }
+
+        public override async Task Replace(string NewPath)
+        {
+            if (WIN_Native_API.GetStorageItems(NewPath).FirstOrDefault() is HyperlinkStorageItem HItem)
+            {
+                InternalPathString = HItem.Path;
+                SizeRaw = HItem.SizeRaw;
+                ModifiedTimeRaw = HItem.ModifiedTimeRaw;
+                StorageItem = null;
+                _ = await GetStorageItem().ConfigureAwait(true);
+            }
+
+            OnPropertyChanged(nameof(Name));
+            OnPropertyChanged(nameof(DisplayType));
+            OnPropertyChanged(nameof(Size));
+            OnPropertyChanged(nameof(ModifiedTime));
+        }
+
+        public override Task Update(bool ReGenerateSizeAndModifiedTime)
+        {
+            if (ReGenerateSizeAndModifiedTime)
+            {
+                if (WIN_Native_API.GetStorageItems(InternalPathString).FirstOrDefault() is HyperlinkStorageItem HItem)
+                {
+                    SizeRaw = HItem.SizeRaw;
+                    ModifiedTimeRaw = HItem.ModifiedTimeRaw;
+                }
+            }
+
+            OnPropertyChanged(nameof(Name));
+            OnPropertyChanged(nameof(ModifiedTime));
+            OnPropertyChanged(nameof(DisplayType));
+            OnPropertyChanged(nameof(Size));
+
+            return Task.CompletedTask;
         }
 
         public HyperlinkStorageItem(WIN_Native_API.WIN32_FIND_DATA Data, string Path, DateTimeOffset ModifiedTime) : base(Data, StorageItemTypes.File, Path, ModifiedTime)

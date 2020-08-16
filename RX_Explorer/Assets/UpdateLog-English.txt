@@ -1,27 +1,45 @@
 ﻿*****
-###What's new in Ver.5.2.5.0
+###What's new in Ver.5.2.6.0
+
+>#####Feature Update
+
+>>#####Support .lnk file
+
+>>#####Double-click to rename now increases the maximum time of 2000ms, after this time, no rename operation will be triggered
+
+>>#####Added "Set as Wallpaper" function to the picture viewing interface
 
 >#####UI Update
 
 >>#####Eliminates the problem that the small square on the address bar overflows with several pixels
 
+>>#####The "Cannot open device" prompt at startup can now be disabled
+
 >#####Bug fix
 
->>#####Solved the problem that incorrect sorting of files and folders
+>>#####Fixed the problem of incorrect sorting of files and folders
 
->>#####Solved the problem that the modified time was incorrectly displayed as UTC time instead of local time
+>>#####Fixed the problem that the modified time was incorrectly displayed as UTC time instead of local time
 
->>#####Solved the problem that multiple duplicate files caused by temporary files created by software such as Office
+>>#####Fixed the problem of multiple duplicate files caused by temporary files created by software such as Office
 
->>#####Solved the problem that may cause a crash when directly renaming files used by other applications
+>>#####Fixed the problem that may cause a crash when directly renaming files used by other applications
 
->>#####Solved the problem that may cause a crash when opening the picture fails
+>>#####Fixed the problem that may cause a crash when opening the picture fails
 
->>#####Solved the problem that may cause a crash at startup when the registration background task fails
+>>#####Fixed the problem that may cause a crash at startup when the registration background task fails
+
+>>#####Fixed the problem that files may be copied to the wrong location when dragging and dropping files to a folder
+
+>>#####Fixed the problem that the bottom auxiliary button is not synchronized with the right-click menu button state
+
+>>#####Fixed the problem that may cause subsequent operations to crash when switching "folder directory"
 
 >#####Component Update
 
 >>#####Update to the latest version of Microsoft's UI control library, which reduces the probability of accidental crashes and fixes some control problems
+
+>>#####Update SQLite database
 
 *****
 ###What's new in Ver.5.2.3.0

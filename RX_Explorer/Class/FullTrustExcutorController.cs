@@ -39,6 +39,8 @@ namespace RX_Explorer.Class
 
         private const string ExcuteType_HyperlinkInfo = "Excute_GetHyperlinkInfo";
 
+        private const string ExcuteType_Rename = "Excute_Rename";
+
         private const string ExcuteType_EmptyRecycleBin = "Excute_Empty_RecycleBin";
 
         private const string ExcuteType_UnlockOccupy = "Excute_Unlock_Occupy";
@@ -144,7 +146,61 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<(string, string, bool)> GetHyperlinkRelatedInformation(string Path)
+        public async Task<bool> RenameAsync(string Path, string DesireName)
+        {
+            try
+            {
+                IsNowHasAnyActionExcuting = true;
+
+                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExcuteType", ExcuteType_Rename},
+                        {"ExcutePath",Path },
+                        {"DesireName",DesireName}
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success && Response.Message.ContainsKey("Success"))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        if(Response.Message.ContainsKey("Error_Occupied"))
+                        {
+                            throw new FileLoadException();
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+                else
+                {
+                    throw new NoResponseException();
+                }
+            }
+            catch(FileLoadException)
+            {
+                Debug.WriteLine("Warning: GetHyperlinkRelatedInformation() throw an error");
+                throw;
+            }
+            catch
+            {
+                Debug.WriteLine("Warning: GetHyperlinkRelatedInformation() throw an error");
+                return false;
+            }
+            finally
+            {
+                IsNowHasAnyActionExcuting = false;
+            }
+        }
+
+        public async Task<(string, string, bool)> GetHyperlinkRelatedInformationAsync(string Path)
         {
             try
             {
@@ -176,7 +232,7 @@ namespace RX_Explorer.Class
             }
             catch
             {
-                Debug.WriteLine("Warning: GetHyperlinkRelatedInformation() throw an error");
+                Debug.WriteLine("Warning: GetHyperlinkRelatedInformationAsync() throw an error");
                 throw;
             }
             finally

@@ -208,7 +208,7 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="NewPath">新的路径</param>
         /// <returns></returns>
-        public async Task Replace(string NewPath)
+        public virtual async Task Replace(string NewPath)
         {
             try
             {
@@ -248,7 +248,7 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="ReGenerateSizeAndModifiedTime"><是否重新计算大小和修改时间/param>
         /// <returns></returns>
-        public async Task Update(bool ReGenerateSizeAndModifiedTime)
+        public virtual async Task Update(bool ReGenerateSizeAndModifiedTime)
         {
             if (ReGenerateSizeAndModifiedTime)
             {
