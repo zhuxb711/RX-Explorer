@@ -1,4 +1,15 @@
 ﻿*****
+###What's new in Ver.5.2.7.0
+
+>#####Bug fix
+
+>>#####Resolved the problem that may cause a crash when right-clicking or pressing F2 to rename
+
+>>#####Fixed a problem that may cause a crash when displaying hidden files
+
+>>#####Fixed a problem that may cause a crash when closing tabs
+
+*****
 ###What's new in Ver.5.2.6.0
 
 >#####Feature Update

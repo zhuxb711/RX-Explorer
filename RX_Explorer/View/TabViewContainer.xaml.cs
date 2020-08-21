@@ -781,8 +781,8 @@ namespace RX_Explorer
             }
             else if ((args.Tab.Content as Frame).Content is FileControl Control)
             {
-                CommonAccessCollection.UnRegister(Control);
                 Control.Dispose();
+                CommonAccessCollection.UnRegister(Control);
             }
 
             args.Tab.DragEnter -= Item_DragEnter;

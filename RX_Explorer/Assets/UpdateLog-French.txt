@@ -1,4 +1,15 @@
 ﻿*****
+###Quoi de neuf dans la version 5.2.7.0
+
+>#####Correction de bogue
+
+>>#####Correction du problème pouvant provoquer un plantage lors d'un clic droit ou d'une pression sur F2 pour renommer
+
+>>#####Correction d'un problème pouvant provoquer un crash lors de l'affichage de fichiers cachés
+
+>>#####Correction d'un problème pouvant provoquer un plantage lors de la fermeture des onglets
+
+*****
 ###Quoi de neuf dans la version 5.2.6.0
 
 >#####Mise à jour des fonctionnalités

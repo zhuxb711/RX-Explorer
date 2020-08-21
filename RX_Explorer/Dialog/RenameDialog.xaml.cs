@@ -1,4 +1,5 @@
 ﻿using RX_Explorer.Class;
+using System;
 using System.IO;
 using System.Linq;
 using Windows.Storage;
@@ -17,16 +18,18 @@ namespace RX_Explorer.Dialog
         public RenameDialog(IStorageItem SItem)
         {
             InitializeComponent();
-            this.SItem = SItem;
-            RenameText.Text = Item.Name;
-            Preview.Text = $"{Item.Name}\r⋙⋙   ⋙⋙   ⋙⋙\r{Item.Name}";
+
+            this.SItem = SItem ?? throw new ArgumentNullException(nameof(SItem), "Argument could not be null");
+            RenameText.Text = SItem.Name;
+            Preview.Text = $"{SItem.Name}\r⋙⋙   ⋙⋙   ⋙⋙\r{SItem.Name}";
             Loaded += RenameDialog_Loaded;
         }
 
         public RenameDialog(HyperlinkStorageItem Item)
         {
             InitializeComponent();
-            this.Item = Item;
+            
+            this.Item = Item ?? throw new ArgumentNullException(nameof(Item), "Argument could not be null");
             RenameText.Text = Item.Name;
             Preview.Text = $"{Item.Name}\r⋙⋙   ⋙⋙   ⋙⋙\r{Item.Name}";
             Loaded += RenameDialog_Loaded;

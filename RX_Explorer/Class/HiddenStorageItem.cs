@@ -8,7 +8,7 @@ namespace RX_Explorer.Class
     {
         public override Task<IStorageItem> GetStorageItem()
         {
-            return null;
+            return Task.FromResult<IStorageItem>(null);
         }
 
         public HiddenStorageItem(WIN_Native_API.WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset ModifiedTime) : base(Data, StorageType, Path, ModifiedTime)

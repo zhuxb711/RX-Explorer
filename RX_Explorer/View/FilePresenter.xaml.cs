@@ -1459,6 +1459,7 @@ namespace RX_Explorer
                 else if ((await RenameItem.GetStorageItem().ConfigureAwait(true)) is StorageFolder Folder)
                 {
                     RenameDialog dialog = new RenameDialog(Folder);
+                    
                     if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         if (string.IsNullOrWhiteSpace(dialog.DesireName))
