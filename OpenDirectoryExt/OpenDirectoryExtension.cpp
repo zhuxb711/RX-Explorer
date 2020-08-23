@@ -3,6 +3,8 @@
 #include <wil/filesystem.h>
 //#include <filesystem>
 #include <fmt/core.h>
+#include "resource.h"
+
 static constexpr std::wstring_view VerbDisplayName{ L"Open in RX Explorer" };
 static constexpr std::wstring_view VerbDevBuildDisplayName{ L"Open in RX Explorer (Development Mode)" };
 static constexpr std::wstring_view VerbName{ L"RxExplorerOpenHere" };
@@ -87,14 +89,30 @@ HRESULT OpenTerminalHere::GetState(IShellItemArray* /*psiItemArray*/,
     return S_OK;
 }
 
-HRESULT OpenTerminalHere::GetIcon(IShellItemArray* /*psiItemArray*/,
-    LPWSTR* ppszIcon)
+std::wstring get_module_filename(HMODULE mod = nullptr)
 {
-    // the icon ref ("dll,-<resid>") is provided here, in this case none is provided
-    *ppszIcon = nullptr;
-    // TODO GH#6111: Return the Terminal icon here
-    return E_NOTIMPL;
+    wchar_t buffer[MAX_PATH + 1];
+    DWORD actual_length = GetModuleFileNameW(mod, buffer, MAX_PATH);
+    if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+    {
+        const DWORD long_path_length = 0xFFFF; // should be always enough
+        std::wstring long_filename(long_path_length, L'\0');
+        actual_length = GetModuleFileNameW(mod, long_filename.data(), long_path_length);
+        return long_filename.substr(0, actual_length);
+    }
+    return { buffer, actual_length };
 }
+
+//HRESULT OpenTerminalHere::GetIcon(IShellItemArray* /*psiItemArray*/,
+//    LPWSTR* ppszIcon)
+//{
+//    // the icon ref ("dll,-<resid>") is provided here, in this case none is provided
+//    std::wstring iconResourcePath = get_module_filename();
+//    iconResourcePath += L",";
+//    iconResourcePath += std::to_wstring(IDI_ICON3);
+//    //MessageBox(0, iconResourcePath.c_str(), L"", MB_OK);
+//    return SHStrDup(iconResourcePath.c_str(), ppszIcon);
+//}
 
 HRESULT OpenTerminalHere::GetFlags(EXPCMDFLAGS* pFlags)
 {

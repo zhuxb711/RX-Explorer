@@ -42,6 +42,8 @@ namespace RX_Explorer
 
         public string ActivatePath { get; private set; }
 
+        private string CurrentInstanceGuid;
+
         private EntranceAnimationEffect EntranceEffectProvider;
 
         public bool IsAnyTaskRunning { get; set; }
@@ -53,6 +55,8 @@ namespace RX_Explorer
             Window.Current.SetTitleBar(TitleBar);
             Loaded += MainPage_Loaded;
             Loaded += MainPage_Loaded1;
+            CurrentInstanceGuid = ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] as string;
+            Window.Current.Activated += MainPage_Activated;
             Application.Current.EnteredBackground += Current_EnteredBackground;
             Application.Current.LeavingBackground += Current_LeavingBackground;
             SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += MainPage_CloseRequested;
@@ -71,6 +75,12 @@ namespace RX_Explorer
             {
                 AppName.Text += " (Development Mode)";
             }
+        }
+
+        private void MainPage_Activated(object sender, WindowActivatedEventArgs e)
+        {
+            if (e.WindowActivationState != CoreWindowActivationState.Deactivated)
+                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = CurrentInstanceGuid;
         }
 
         private void MainPage_Loaded1(object sender, RoutedEventArgs e)
@@ -104,6 +114,10 @@ namespace RX_Explorer
 
         private void Current_LeavingBackground(object sender, LeavingBackgroundEventArgs e)
         {
+            //List<AppInstance> insts = AppInstance.GetInstances() as List<AppInstance>;
+            //foreach (AppInstance inst in insts)
+            //    if(inst.IsCurrentInstance)
+            //        ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = inst.Key;
             ToastNotificationManager.History.Remove("EnterBackgroundTips");
         }
 

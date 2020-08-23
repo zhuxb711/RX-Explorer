@@ -19,6 +19,7 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="OpenDirectoryExtension.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="Class.idl" />
@@ -32,5 +33,27 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="ContextMenuIcon.png">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="ContextMenuIcon.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="icon2.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="ContextMenuIcon32.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="ContextMenuIcon16.ico">
+      <Filter>Resources</Filter>
+    </Image>
   </ItemGroup>
 </Project>

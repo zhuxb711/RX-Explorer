@@ -1,6 +1,7 @@
 ﻿using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.Storage;
 using Windows.UI.Xaml;
 
 namespace RX_Explorer
@@ -15,16 +16,37 @@ namespace RX_Explorer
             {
                 return;
             }
-
-            AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(Guid.NewGuid().ToString());
-
-            if (Instance.IsCurrentInstance)
+            if (args.Length != 0 && AppInstance.RecommendedInstance != null)
             {
-                Application.Start((p) => new App());
+                //ApplicationData.Current.LocalSettings.Values["Dir2Open"] = args[0];
+                AppInstance.RecommendedInstance.RedirectActivationTo();
             }
-            else
+            else if (args.Length != 0 && ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] != null &&
+                !string.IsNullOrWhiteSpace(ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] as string) &&
+                AppInstance.FindOrRegisterInstanceForKey(ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] as string) is AppInstance inst &&
+                !inst.IsCurrentInstance)
             {
-                Instance.RedirectActivationTo();
+                //ApplicationData.Current.LocalSettings.Values["Dir2Open"] = args[0];
+                inst.RedirectActivationTo();
+            }
+            else if (args.Length != 0 && AppInstance.GetInstances().Count != 0)
+            {
+                //ApplicationData.Current.LocalSettings.Values["Dir2Open"] = args[0];
+                AppInstance.GetInstances()[0].RedirectActivationTo();
+            }
+            else 
+            {
+                string key = Guid.NewGuid().ToString();
+                AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(key);
+                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = key;
+                if (Instance.IsCurrentInstance)
+                {
+                    Application.Start((p) => new App());
+                }
+                else
+                {
+                    Instance.RedirectActivationTo();
+                }
             }
         }
     }
