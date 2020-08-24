@@ -42,8 +42,6 @@ namespace RX_Explorer
 
         public string ActivatePath { get; private set; }
 
-        private string CurrentInstanceGuid;
-
         private EntranceAnimationEffect EntranceEffectProvider;
 
         public bool IsAnyTaskRunning { get; set; }
@@ -55,7 +53,6 @@ namespace RX_Explorer
             Window.Current.SetTitleBar(TitleBar);
             Loaded += MainPage_Loaded;
             Loaded += MainPage_Loaded1;
-            CurrentInstanceGuid = ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] as string;
             Window.Current.Activated += MainPage_Activated;
             Application.Current.EnteredBackground += Current_EnteredBackground;
             Application.Current.LeavingBackground += Current_LeavingBackground;
@@ -81,7 +78,7 @@ namespace RX_Explorer
         {
             if (e.WindowActivationState != CoreWindowActivationState.Deactivated)
             {
-                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = CurrentInstanceGuid;
+                AppInstanceIdContainer.LastActiveId = AppInstanceIdContainer.CurrentId;
             }
         }
 
@@ -116,10 +113,6 @@ namespace RX_Explorer
 
         private void Current_LeavingBackground(object sender, LeavingBackgroundEventArgs e)
         {
-            //List<AppInstance> insts = AppInstance.GetInstances() as List<AppInstance>;
-            //foreach (AppInstance inst in insts)
-            //    if(inst.IsCurrentInstance)
-            //        ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = inst.Key;
             ToastNotificationManager.History.Remove("EnterBackgroundTips");
         }
 
@@ -196,7 +189,11 @@ namespace RX_Explorer
             }
             catch
             {
-
+                Debug.WriteLine("Error happened when Flush Clipboard");
+            }
+            finally
+            {
+                AppInstance.Unregister();
             }
 
             Deferral.Complete();

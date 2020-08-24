@@ -79,7 +79,6 @@
             </com:SurrogateServer>
           </com:ComServer>
         </com:Extension>
-
         <Extension Category="windows.backgroundTasks" EntryPoint="UpdateCheckBackgroundTask.UpdateCheck">
           <BackgroundTasks>
             <Task Type="systemEvent"/>

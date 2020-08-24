@@ -152,6 +152,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Class\AnimationController.cs" />
+    <Compile Include="Class\AppInstanceIdContainer.cs" />
     <Compile Include="Class\BackgroundController.cs" />
     <Compile Include="Class\BackgroundPicture.cs" />
     <Compile Include="Class\BingPhotoDownloader.cs" />

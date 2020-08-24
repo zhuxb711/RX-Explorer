@@ -1,4 +1,6 @@
-﻿using System;
+﻿using RX_Explorer.Class;
+using System;
+using System.Diagnostics;
 using System.Linq;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
@@ -26,9 +28,8 @@ namespace RX_Explorer
                     {
                         AppInstance.RecommendedInstance.RedirectActivationTo();
                     }
-                    else if (ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] is string LastGuid
-                             && !string.IsNullOrWhiteSpace(LastGuid)
-                             && AppInstance.FindOrRegisterInstanceForKey(LastGuid) is AppInstance TargetInstance
+                    else if (!string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId)
+                             && AppInstance.FindOrRegisterInstanceForKey(AppInstanceIdContainer.LastActiveId) is AppInstance TargetInstance
                              && !TargetInstance.IsCurrentInstance)
                     {
                         TargetInstance.RedirectActivationTo();
@@ -41,7 +42,7 @@ namespace RX_Explorer
                     {
                         string InstanceId = Guid.NewGuid().ToString();
                         AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                        ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = InstanceId;
+                        AppInstanceIdContainer.CurrentId = InstanceId;
 
                         Application.Start((p) => new App());
                     }
@@ -50,7 +51,7 @@ namespace RX_Explorer
                 {
                     string InstanceId = Guid.NewGuid().ToString();
                     AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                    ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = InstanceId;
+                    AppInstanceIdContainer.CurrentId = InstanceId;
 
                     Application.Start((p) => new App());
                 }
@@ -59,7 +60,7 @@ namespace RX_Explorer
             {
                 string InstanceId = Guid.NewGuid().ToString();
                 AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = InstanceId;
+                AppInstanceIdContainer.CurrentId = InstanceId;
 
                 Application.Start((p) => new App());
             }
