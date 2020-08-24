@@ -1,8 +1,8 @@
 ﻿#include "pch.h"
 #include "OpenDirectoryExtension.h"
-#include <wil/filesystem.h>
+#include "include/wil/filesystem.h"
 //#include <filesystem>
-#include <fmt/core.h>
+//#include <fmt/core.h>
 #include "resource.h"
 
 static constexpr std::wstring_view VerbDisplayName{ L"Open in RX Explorer" };
@@ -87,6 +87,12 @@ HRESULT OpenTerminalHere::GetState(IShellItemArray* /*psiItemArray*/,
 
     *pCmdState = ECS_ENABLED;
     return S_OK;
+}
+
+STDMETHODIMP_(HRESULT __stdcall) OpenTerminalHere::GetIcon(IShellItemArray* psiItemArray, LPWSTR* ppszIcon)
+{
+    *ppszIcon = nullptr;
+    return E_NOTIMPL;
 }
 
 std::wstring get_module_filename(HMODULE mod = nullptr)
