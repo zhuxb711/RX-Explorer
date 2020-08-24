@@ -80,7 +80,9 @@ namespace RX_Explorer
         private void MainPage_Activated(object sender, WindowActivatedEventArgs e)
         {
             if (e.WindowActivationState != CoreWindowActivationState.Deactivated)
+            {
                 ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = CurrentInstanceGuid;
+            }
         }
 
         private void MainPage_Loaded1(object sender, RoutedEventArgs e)

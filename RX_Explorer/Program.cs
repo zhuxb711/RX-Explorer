@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Storage;
@@ -16,37 +17,51 @@ namespace RX_Explorer
             {
                 return;
             }
-            if (args.Length != 0 && AppInstance.RecommendedInstance != null)
+
+            if (activatedArgs is CommandLineActivatedEventArgs CmdActivate)
             {
-                //ApplicationData.Current.LocalSettings.Values["Dir2Open"] = args[0];
-                AppInstance.RecommendedInstance.RedirectActivationTo();
-            }
-            else if (args.Length != 0 && ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] != null &&
-                !string.IsNullOrWhiteSpace(ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] as string) &&
-                AppInstance.FindOrRegisterInstanceForKey(ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] as string) is AppInstance inst &&
-                !inst.IsCurrentInstance)
-            {
-                //ApplicationData.Current.LocalSettings.Values["Dir2Open"] = args[0];
-                inst.RedirectActivationTo();
-            }
-            else if (args.Length != 0 && AppInstance.GetInstances().Count != 0)
-            {
-                //ApplicationData.Current.LocalSettings.Values["Dir2Open"] = args[0];
-                AppInstance.GetInstances()[0].RedirectActivationTo();
-            }
-            else 
-            {
-                string key = Guid.NewGuid().ToString();
-                AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(key);
-                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = key;
-                if (Instance.IsCurrentInstance)
+                if (CmdActivate.Operation.Arguments.StartsWith("RX-Explorer.exe"))
                 {
-                    Application.Start((p) => new App());
+                    if (AppInstance.RecommendedInstance != null)
+                    {
+                        AppInstance.RecommendedInstance.RedirectActivationTo();
+                    }
+                    else if (ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] is string LastGuid
+                             && !string.IsNullOrWhiteSpace(LastGuid)
+                             && AppInstance.FindOrRegisterInstanceForKey(LastGuid) is AppInstance TargetInstance
+                             && !TargetInstance.IsCurrentInstance)
+                    {
+                        TargetInstance.RedirectActivationTo();
+                    }
+                    else if (AppInstance.GetInstances().FirstOrDefault() is AppInstance ExistInstance)
+                    {
+                        ExistInstance.RedirectActivationTo();
+                    }
+                    else
+                    {
+                        string InstanceId = Guid.NewGuid().ToString();
+                        AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
+                        ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = InstanceId;
+
+                        Application.Start((p) => new App());
+                    }
                 }
                 else
                 {
-                    Instance.RedirectActivationTo();
+                    string InstanceId = Guid.NewGuid().ToString();
+                    AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
+                    ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = InstanceId;
+
+                    Application.Start((p) => new App());
                 }
+            }
+            else
+            {
+                string InstanceId = Guid.NewGuid().ToString();
+                AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
+                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = InstanceId;
+
+                Application.Start((p) => new App());
             }
         }
     }
