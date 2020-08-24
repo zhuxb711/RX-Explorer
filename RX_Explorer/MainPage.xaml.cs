@@ -38,7 +38,7 @@ namespace RX_Explorer
 
         private Dictionary<Type, string> PageDictionary;
 
-        public bool IsPathActivate { get; set; } = false;
+        public bool IsPathActivate { get; set; }
 
         public string ActivatePath { get; private set; }
 

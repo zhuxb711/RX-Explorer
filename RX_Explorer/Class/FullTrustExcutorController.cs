@@ -169,7 +169,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        if(Response.Message.ContainsKey("Error_Occupied"))
+                        if (Response.Message.ContainsKey("Error_Occupied"))
                         {
                             throw new FileLoadException();
                         }
@@ -184,7 +184,7 @@ namespace RX_Explorer.Class
                     throw new NoResponseException();
                 }
             }
-            catch(FileLoadException)
+            catch (FileLoadException)
             {
                 Debug.WriteLine("Warning: GetHyperlinkRelatedInformation() throw an error");
                 throw;
@@ -390,46 +390,12 @@ namespace RX_Explorer.Class
         }
 
         /// <summary>
-        /// 启动指定路径的程序
-        /// </summary>
-        /// <param name="Path">程序路径</param>
-        /// <returns></returns>
-        public async Task RunAsync(string Path)
-        {
-            try
-            {
-                IsNowHasAnyActionExcuting = true;
-
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExcuteType", ExcuteType_RunExe},
-                        {"ExcutePath",Path },
-                        {"ExcuteParameter",string.Empty},
-                        {"ExcuteAuthority", ExcuteAuthority_Normal}
-                    };
-
-                    await Connection.SendMessageAsync(Value);
-                }
-            }
-            catch
-            {
-                Debug.WriteLine("Warning: RunAsync() excute error");
-            }
-            finally
-            {
-                IsNowHasAnyActionExcuting = false;
-            }
-        }
-
-        /// <summary>
         /// 启动指定路径的程序，并传递指定的参数
         /// </summary>
         /// <param name="Path">程序路径</param>
-        /// <param name="Parameter">传递的参数</param>
+        /// <param name="Parameters">传递的参数</param>
         /// <returns></returns>
-        public async Task RunAsync(string Path, string Parameter)
+        public async Task RunAsync(string Path, params string[] Parameters)
         {
             try
             {
@@ -441,7 +407,7 @@ namespace RX_Explorer.Class
                     {
                         {"ExcuteType", ExcuteType_RunExe},
                         {"ExcutePath",Path },
-                        {"ExcuteParameter",Parameter},
+                        {"ExcuteParameter", string.Join(' ', Parameters.Select((Para) => Para.Contains(" ") ? $"\"{Para}\"" : Para))},
                         {"ExcuteAuthority", ExcuteAuthority_Normal}
                     };
 
@@ -451,40 +417,6 @@ namespace RX_Explorer.Class
             catch
             {
                 Debug.WriteLine("Warning: RunAsync() excute error");
-            }
-            finally
-            {
-                IsNowHasAnyActionExcuting = false;
-            }
-        }
-
-        /// <summary>
-        /// 使用管理员权限启动指定路径的程序
-        /// </summary>
-        /// <param name="Path">程序路径</param>
-        /// <returns></returns>
-        public async Task RunAsAdministratorAsync(string Path)
-        {
-            try
-            {
-                IsNowHasAnyActionExcuting = true;
-
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExcuteType", ExcuteType_RunExe},
-                        {"ExcutePath",Path },
-                        {"ExcuteParameter",string.Empty},
-                        {"ExcuteAuthority", ExcuteAuthority_Administrator}
-                    };
-
-                    await Connection.SendMessageAsync(Value);
-                }
-            }
-            catch
-            {
-                Debug.WriteLine("Warning: RunAsAdministratorAsync() excute error");
             }
             finally
             {
@@ -496,9 +428,9 @@ namespace RX_Explorer.Class
         /// 使用管理员权限启动指定路径的程序，并传递指定的参数
         /// </summary>
         /// <param name="Path">程序路径</param>
-        /// <param name="Parameter">传递的参数</param>
+        /// <param name="Parameters">传递的参数</param>
         /// <returns></returns>
-        public async Task RunAsAdministratorAsync(string Path, string Parameter)
+        public async Task RunAsAdministratorAsync(string Path, params string[] Parameters)
         {
             try
             {
@@ -509,8 +441,8 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExcuteType", ExcuteType_RunExe},
-                        {"ExcutePath",Path },
-                        {"ExcuteParameter",Parameter},
+                        {"ExcutePath", Path },
+                        {"ExcuteParameter", string.Join(' ', Parameters.Select((Para) => Para.Contains(" ") ? $"\"{Para}\"" : Para))},
                         {"ExcuteAuthority", ExcuteAuthority_Administrator}
                     };
 

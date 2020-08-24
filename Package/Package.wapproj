@@ -62,7 +62,6 @@
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <EntryPointProjectUniqueName>..\RX_Explorer\RX_Explorer.csproj</EntryPointProjectUniqueName>
-    <PackageCertificateThumbprint>F4491A03265866475BB4BB16B795D37160BA00E2</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AppxBundle>Always</AppxBundle>

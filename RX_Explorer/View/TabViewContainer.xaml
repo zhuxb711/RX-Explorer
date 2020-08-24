@@ -16,6 +16,12 @@
                       Name="TabViewControl"
                       x:FieldModifier="public"
                       VerticalAlignment="Stretch"
+                      AllowDropTabs="True"
+                      CanDragTabs="True"
+                      TabDragCompleted="TabViewControl_TabDragCompleted"
+                      TabDragStarting="TabViewControl_TabDragStarting"
+                      TabStripDrop="TabViewControl_TabStripDrop"
+                      TabStripDragOver="TabViewControl_TabStripDragOver"
                       SelectionChanged="TabViewControl_SelectionChanged"
                       TabCloseRequested="TabViewControl_TabCloseRequested"
                       AddTabButtonClick="TabViewControl_AddTabButtonClick">

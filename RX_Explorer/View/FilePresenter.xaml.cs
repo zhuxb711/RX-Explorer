@@ -1459,7 +1459,7 @@ namespace RX_Explorer
                 else if ((await RenameItem.GetStorageItem().ConfigureAwait(true)) is StorageFolder Folder)
                 {
                     RenameDialog dialog = new RenameDialog(Folder);
-                    
+
                     if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         if (string.IsNullOrWhiteSpace(dialog.DesireName))
@@ -4736,13 +4736,13 @@ namespace RX_Explorer
                 case LaunchQuerySupportStatus.Available:
                 case LaunchQuerySupportStatus.NotSupported:
                     {
-                        await FullTrustExcutorController.Current.RunAsync("wt.exe", $"/d {FileControlInstance.CurrentFolder.Path}").ConfigureAwait(false);
+                        await FullTrustExcutorController.Current.RunAsync("wt.exe", "/d", FileControlInstance.CurrentFolder.Path).ConfigureAwait(false);
                         break;
                     }
                 default:
                     {
                         string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe");
-                        await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, $"-NoExit -Command \"Set-Location '{FileControlInstance.CurrentFolder.Path}'\"").ConfigureAwait(false);
+                        await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, "-NoExit", "-Command", "Set-Location", FileControlInstance.CurrentFolder.Path).ConfigureAwait(false);
                         break;
                     }
             }

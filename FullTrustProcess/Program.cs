@@ -107,7 +107,7 @@ namespace FullTrustProcess
 
                             if (File.Exists(ExcutePath))
                             {
-                                if(StorageItemController.CheckOccupied(ExcutePath))
+                                if (StorageItemController.CheckOccupied(ExcutePath))
                                 {
                                     Value.Add("Error_Occupied", "FileLoadException");
                                 }
@@ -188,7 +188,7 @@ namespace FullTrustProcess
 
                                 using (Process Process = Process.Start(TempFile.Path))
                                 {
-                                    User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE);
+                                    User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
                                     Process.WaitForExit();
                                 }
 
@@ -213,7 +213,7 @@ namespace FullTrustProcess
 
                                 using (Process Process = Process.Start(RestoreFile.Path))
                                 {
-                                    User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE);
+                                    User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
                                     Process.WaitForExit();
                                 }
 
@@ -766,7 +766,7 @@ namespace FullTrustProcess
 
                                         Process.Start();
 
-                                        User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE);
+                                        User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
                                     }
                                 }
                                 else
@@ -783,7 +783,7 @@ namespace FullTrustProcess
 
                                         Process.Start();
 
-                                        User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE);
+                                        User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
                                     }
                                 }
                             }

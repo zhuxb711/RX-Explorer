@@ -3403,6 +3403,14 @@ Les noms non valides incluent
           <source>The file to be compressed cannot contain lnk files</source>
           <target state="translated">Le fichier à compresser ne peut pas contenir de fichiers lnk</target>
         </trans-unit>
+        <trans-unit id="QuickStart_Picker_Application" translate="yes" xml:space="preserve">
+          <source>Pick a file</source>
+          <target state="translated">Choisissez un fichier</target>
+        </trans-unit>
+        <trans-unit id="QuickStart_Picker_Web" translate="yes" xml:space="preserve">
+          <source>Custom icon</source>
+          <target state="translated">Icône personnalisée</target>
+        </trans-unit>
       </group>
     </body>
   </file>

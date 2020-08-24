@@ -34,14 +34,14 @@ namespace RX_Explorer.Dialog
                     {
                         Protocol.PlaceholderText = Globalization.GetString("QuickStart_Protocol_Application_PlaceholderText");
                         GetImageAutomatic.Visibility = Visibility.Visible;
-                        PickerFile.Visibility = Visibility.Visible;
+                        PickerFile.Content = Globalization.GetString("QuickStart_Picker_Application");
                         break;
                     }
                 case QuickStartType.WebSite:
                     {
                         Protocol.PlaceholderText = Globalization.GetString("QuickStart_Protocol_Web_PlaceholderText");
                         GetImageAutomatic.Visibility = Visibility.Visible;
-                        PickerFile.Visibility = Visibility.Collapsed;
+                        PickerFile.Content = Globalization.GetString("QuickStart_Picker_Web");
                         break;
                     }
                 case QuickStartType.UpdateApp:
@@ -53,8 +53,7 @@ namespace RX_Explorer.Dialog
 
                         Protocol.PlaceholderText = Globalization.GetString("QuickStart_Protocol_Application_PlaceholderText");
                         GetImageAutomatic.Visibility = Visibility.Visible;
-                        PickerFile.Visibility = Visibility.Visible;
-
+                        PickerFile.Content = Globalization.GetString("QuickStart_Picker_Application");
                         Icon.Source = Item.Image;
                         DisplayName.Text = Item.DisplayName;
                         Protocol.Text = Item.Protocol.ToString();
@@ -70,8 +69,7 @@ namespace RX_Explorer.Dialog
 
                         Protocol.PlaceholderText = Globalization.GetString("QuickStart_Protocol_Web_PlaceholderText");
                         GetImageAutomatic.Visibility = Visibility.Visible;
-                        PickerFile.Visibility = Visibility.Collapsed;
-
+                        PickerFile.Content = Globalization.GetString("QuickStart_Picker_Web");
                         Icon.Source = Item.Image;
                         DisplayName.Text = Item.DisplayName;
                         Protocol.Text = Item.Protocol.ToString();
@@ -117,6 +115,14 @@ namespace RX_Explorer.Dialog
                         {
                             if (Uri.TryCreate(Protocol.Text, UriKind.Absolute, out Uri _))
                             {
+                                if (!FileSystemItemNameChecker.IsValid(DisplayName.Text))
+                                {
+                                    args.Cancel = true;
+                                    InvalidCharTip.IsOpen = true;
+                                    Deferral.Complete();
+                                    return;
+                                }
+
                                 string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
                                 StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
@@ -135,6 +141,14 @@ namespace RX_Explorer.Dialog
                         {
                             if (Uri.TryCreate(Protocol.Text, UriKind.Absolute, out Uri _))
                             {
+                                if (!FileSystemItemNameChecker.IsValid(DisplayName.Text))
+                                {
+                                    args.Cancel = true;
+                                    InvalidCharTip.IsOpen = true;
+                                    Deferral.Complete();
+                                    return;
+                                }
+
                                 string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
                                 StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("HotWebImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
@@ -413,12 +427,36 @@ namespace RX_Explorer.Dialog
                     SuggestedStartLocation = PickerLocationId.ComputerFolder,
                     ViewMode = PickerViewMode.List
                 };
-                Picker.FileTypeFilter.Add(".exe");
+
+                switch (Type)
+                {
+                    case QuickStartType.Application:
+                    case QuickStartType.UpdateApp:
+                        {
+                            Picker.FileTypeFilter.Add(".exe");
+                            break;
+                        }
+                    case QuickStartType.WebSite:
+                    case QuickStartType.UpdateWeb:
+                        {
+                            Picker.FileTypeFilter.Add("*");
+                            break;
+                        }
+                }
+
 
                 if (await Picker.PickSingleFileAsync() is StorageFile ExcuteFile)
                 {
-                    DisplayName.Text = Convert.ToString((await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"]);
-                    Protocol.Text = ExcuteFile.Path;
+                    switch (Type)
+                    {
+                        case QuickStartType.Application:
+                        case QuickStartType.UpdateApp:
+                            {
+                                DisplayName.Text = Convert.ToString((await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"]);
+                                Protocol.Text = ExcuteFile.Path;
+                                break;
+                            }
+                    }
 
                     if (await ExcuteFile.GetThumbnailBitmapAsync().ConfigureAwait(true) is BitmapImage Image)
                     {

@@ -2569,4 +2569,10 @@ Les noms non valides incluent
   <data name="QueueDialog_LinkIsNotAllowInMixZip_Content" xml:space="preserve">
     <value>Le fichier à compresser ne peut pas contenir de fichiers lnk</value>
   </data>
+  <data name="QuickStart_Picker_Application" xml:space="preserve">
+    <value>Choisissez un fichier</value>
+  </data>
+  <data name="QuickStart_Picker_Web" xml:space="preserve">
+    <value>Icône personnalisée</value>
+  </data>
 </root>

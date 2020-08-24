@@ -3403,6 +3403,14 @@ Invalid names include
           <source>The file to be compressed cannot contain lnk files</source>
           <target state="translated">待压缩的文件中不能包含lnk文件</target>
         </trans-unit>
+        <trans-unit id="QuickStart_Picker_Application" translate="yes" xml:space="preserve">
+          <source>Pick a file</source>
+          <target state="translated">选取文件</target>
+        </trans-unit>
+        <trans-unit id="QuickStart_Picker_Web" translate="yes" xml:space="preserve">
+          <source>Custom icon</source>
+          <target state="translated">自定义图标</target>
+        </trans-unit>
       </group>
     </body>
   </file>

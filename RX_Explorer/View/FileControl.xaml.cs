@@ -1324,14 +1324,14 @@ namespace RX_Explorer
             if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Powershell.exe", StringComparison.OrdinalIgnoreCase))
             {
                 string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe");
-                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, $"-NoExit -Command \"Set-Location '{CurrentFolder.Path}'\"").ConfigureAwait(false);
+                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, "-NoExit", "-Command", "Set-Location", CurrentFolder.Path).ConfigureAwait(false);
                 return;
             }
 
             if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Cmd.exe", StringComparison.OrdinalIgnoreCase))
             {
                 string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
-                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, $"/k cd /d \"{CurrentFolder.Path}\"").ConfigureAwait(false);
+                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, "/k", "cd", "/d", CurrentFolder.Path).ConfigureAwait(false);
                 return;
             }
 
@@ -1343,7 +1343,7 @@ namespace RX_Explorer
                     case LaunchQuerySupportStatus.Available:
                     case LaunchQuerySupportStatus.NotSupported:
                         {
-                            await FullTrustExcutorController.Current.RunAsync("wt.exe", $"/d \"{CurrentFolder.Path}\"").ConfigureAwait(false);
+                            await FullTrustExcutorController.Current.RunAsync("wt.exe", "/d", CurrentFolder.Path).ConfigureAwait(false);
                             return;
                         }
                 }
@@ -1355,17 +1355,17 @@ namespace RX_Explorer
 
             if (WIN_Native_API.CheckExist(ProtentialPath1))
             {
-                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ProtentialPath1, string.Empty).ConfigureAwait(false);
+                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ProtentialPath1).ConfigureAwait(false);
                 return;
             }
             else if (WIN_Native_API.CheckExist(ProtentialPath2))
             {
-                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ProtentialPath2, string.Empty).ConfigureAwait(false);
+                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ProtentialPath2).ConfigureAwait(false);
                 return;
             }
             else if (WIN_Native_API.CheckExist(ProtentialPath3))
             {
-                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ProtentialPath3, string.Empty).ConfigureAwait(false);
+                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ProtentialPath3).ConfigureAwait(false);
                 return;
             }
 
