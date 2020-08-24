@@ -1,5 +1,6 @@
 ﻿using RX_Explorer.Class;
 using System;
+using System.Linq;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
@@ -9,6 +10,7 @@ using Windows.UI;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Animation;
 
 namespace RX_Explorer
 {
@@ -165,12 +167,43 @@ namespace RX_Explorer
             viewTitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             viewTitleBar.ButtonForegroundColor = (Color)Resources["SystemBaseHighColor"];
 
-            if (!(Window.Current.Content is Frame))
+            if (Window.Current.Content is Frame mainPageFrame)
             {
-                if (args.Kind == ActivationKind.Protocol)
+                var cmdArgs = args as CommandLineActivatedEventArgs;
+                var mainPage = mainPageFrame.Content as MainPage;
+                Window.Current.Activate();
+                mainPage.NavView.IsBackEnabled = (TabViewContainer.CurrentTabNavigation?.CanGoBack).GetValueOrDefault();
+                mainPage.Nav.Navigate(typeof(TabViewContainer), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                TabViewContainer tabViewContainer = mainPage.Nav.Content as TabViewContainer;
+                _ = tabViewContainer.CreateNewTabAndOpenTargetFolder(cmdArgs.Operation.Arguments.Substring(16));
+            }
+            else //Window.Current.Content is Frame(MainPage)
+            {
+                if (args is CommandLineActivatedEventArgs CmdArgs)
                 {
-                    ProtocolActivatedEventArgs ProtocalArgs = args as ProtocolActivatedEventArgs;
+                    if (string.IsNullOrWhiteSpace(CmdArgs.Operation.Arguments))
+                    {
+                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
+                        Window.Current.Content = extendedSplash;
+                    }
+                    else
+                    {
+                        //此处采用了简略解析方法，只能解析“RX-Explorer.exe {PathToOpen}”的命令行格式，其他的（包括有路径前缀的）解析不了。如果有需要，后面再修改。
 
+                        if (CmdArgs.Operation.Arguments.StartsWith("RX-Explorer.exe"))
+                        {
+                            ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{CmdArgs.Operation.Arguments.Split(" ").LastOrDefault()}");
+                            Window.Current.Content = extendedSplash;
+                        }
+                        else
+                        {
+                            ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
+                            Window.Current.Content = extendedSplash;
+                        }
+                    }
+                }
+                else if (args is ProtocolActivatedEventArgs ProtocalArgs)
+                {
                     if (!string.IsNullOrWhiteSpace(ProtocalArgs.Uri.LocalPath))
                     {
                         ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{ProtocalArgs.Uri.LocalPath}");
@@ -187,9 +220,9 @@ namespace RX_Explorer
                     ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
                     Window.Current.Content = extendedSplash;
                 }
-            }
 
-            Window.Current.Activate();
+                Window.Current.Activate();
+            }
         }
 
         protected override void OnFileActivated(FileActivatedEventArgs args)
