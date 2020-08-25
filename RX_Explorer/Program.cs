@@ -1,10 +1,7 @@
 ﻿using RX_Explorer.Class;
 using System;
-using System.Diagnostics;
-using System.Linq;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
-using Windows.Storage;
 using Windows.UI.Xaml;
 
 namespace RX_Explorer
@@ -18,6 +15,11 @@ namespace RX_Explorer
             if (activatedArgs is ToastNotificationActivatedEventArgs)
             {
                 return;
+            }
+
+            if (AppInstance.GetInstances().Count == 0)
+            {
+                AppInstanceIdContainer.ClearAll();
             }
 
             if (activatedArgs is CommandLineActivatedEventArgs CmdActivate)
@@ -34,15 +36,11 @@ namespace RX_Explorer
                     {
                         TargetInstance.RedirectActivationTo();
                     }
-                    else if (AppInstance.GetInstances().FirstOrDefault() is AppInstance ExistInstance)
-                    {
-                        ExistInstance.RedirectActivationTo();
-                    }
                     else
                     {
                         string InstanceId = Guid.NewGuid().ToString();
                         AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                        AppInstanceIdContainer.CurrentId = InstanceId;
+                        AppInstanceIdContainer.RegisterCurrentId(InstanceId);
 
                         Application.Start((p) => new App());
                     }
@@ -51,7 +49,7 @@ namespace RX_Explorer
                 {
                     string InstanceId = Guid.NewGuid().ToString();
                     AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                    AppInstanceIdContainer.CurrentId = InstanceId;
+                    AppInstanceIdContainer.RegisterCurrentId(InstanceId);
 
                     Application.Start((p) => new App());
                 }
@@ -60,7 +58,7 @@ namespace RX_Explorer
             {
                 string InstanceId = Guid.NewGuid().ToString();
                 AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                AppInstanceIdContainer.CurrentId = InstanceId;
+                AppInstanceIdContainer.RegisterCurrentId(InstanceId);
 
                 Application.Start((p) => new App());
             }

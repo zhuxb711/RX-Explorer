@@ -78,7 +78,7 @@ namespace RX_Explorer
         {
             if (e.WindowActivationState != CoreWindowActivationState.Deactivated)
             {
-                AppInstanceIdContainer.LastActiveId = AppInstanceIdContainer.CurrentId;
+                AppInstanceIdContainer.SetAsLastActivateId();
             }
         }
 
@@ -190,10 +190,6 @@ namespace RX_Explorer
             catch
             {
                 Debug.WriteLine("Error happened when Flush Clipboard");
-            }
-            finally
-            {
-                AppInstance.Unregister();
             }
 
             Deferral.Complete();

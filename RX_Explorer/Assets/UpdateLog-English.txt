@@ -1,9 +1,21 @@
 ﻿*****
-###What's new in Ver.5.2.7.0
+###What's new in Ver.5.2.8.0
+
+>#####Feature Update
+
+>>#####Now you can directly use the system resource manager right-click menu to start this application. For scenarios where multiple instances are running at the same time, use the last activated instance
+
+>>#####Now you can drag tabs across instances (Beta testing function)
+
+>#####UI Update
+
+>>#####Now allows the use of custom images for the website in the quick start area
 
 >#####Bug fix
 
->>#####Resolved the problem that may cause a crash when right-clicking or pressing F2 to rename
+>>#####Fixed a problem that other open methods cannot be called normally if there are spaces in the file path
+
+>>#####Fixed a problem that may cause a crash when right-clicking or pressing F2 to rename
 
 >>#####Fixed a problem that may cause a crash when displaying hidden files
 

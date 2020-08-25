@@ -42,6 +42,7 @@ namespace RX_Explorer
         private async void App_Resuming(object sender, object e)
         {
             await FullTrustExcutorController.Current.TryConnectToFullTrustExutor().ConfigureAwait(true);
+            AppInstanceIdContainer.RegisterCurrentId(AppInstanceIdContainer.CurrentId);
         }
 
         protected async override void OnWindowCreated(WindowCreatedEventArgs args)
@@ -60,6 +61,7 @@ namespace RX_Explorer
         {
             PipeLineController.Current.Dispose();
             FullTrustExcutorController.Current.Dispose();
+            AppInstanceIdContainer.UngisterCurrentId();
         }
 
         private void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)

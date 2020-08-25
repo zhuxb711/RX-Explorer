@@ -1,9 +1,21 @@
 ﻿*****
-###Quoi de neuf dans la version 5.2.7.0
+###Quoi de neuf dans la version 5.2.8.0
+
+>#####Mise à jour des fonctionnalités
+
+>>#####Vous pouvez maintenant utiliser directement le menu contextuel du gestionnaire de ressources système pour démarrer cette application. Pour les scénarios où plusieurs instances s'exécutent en même temps, utilisez la dernière instance activée
+
+>>#####Vous pouvez maintenant faire glisser des onglets entre les instances (fonction de test bêta)
+
+>#####Mise à jour de l'interface utilisateur
+
+>>#####Permet désormais d'utiliser des images personnalisées pour le site Web dans la zone de démarrage rapide
 
 >#####Correction de bogue
 
->>#####Correction du problème pouvant provoquer un plantage lors d'un clic droit ou d'une pression sur F2 pour renommer
+>>#####Correction d'un problème selon lequel les autres méthodes ouvertes ne peuvent pas être appelées normalement s'il y a des espaces dans le chemin du fichier
+
+>>#####Correction d'un problème pouvant provoquer un plantage lors d'un clic droit ou d'une pression sur F2 pour renommer
 
 >>#####Correction d'un problème pouvant provoquer un crash lors de l'affichage de fichiers cachés
 

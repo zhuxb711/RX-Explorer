@@ -814,6 +814,7 @@ namespace RX_Explorer
             }
 
             args.Tab.DragOver -= Item_DragOver;
+            args.Tab.Drop -= Item_Drop;
             sender.TabItems.Remove(args.Tab);
 
             if (TabViewControl.TabItems.Count > 1)
@@ -862,6 +863,7 @@ namespace RX_Explorer
                         IsClosable = false
                     };
                     Item.DragOver += Item_DragOver;
+                    Item.Drop += Item_Drop;
 
                     if (StorageFolderForNewTab != null)
                     {
@@ -896,98 +898,13 @@ namespace RX_Explorer
             }
         }
 
-        private async void Item_DragOver(object sender, DragEventArgs e)
+        private async void Item_Drop(object sender, DragEventArgs e)
         {
             var Deferral = e.GetDeferral();
 
             try
             {
                 if (e.DataView.Contains(StandardDataFormats.Html))
-                {
-                    string Html = await e.DataView.GetHtmlFormatAsync();
-                    string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
-
-                    HtmlDocument Document = new HtmlDocument();
-                    Document.LoadHtml(Fragment);
-                    HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
-
-                    if (HeadNode?.InnerText != "RX-Explorer-TabItem")
-                    {
-                        if (e.OriginalSource is TabViewItem Item)
-                        {
-                            TabViewControl.SelectedItem = Item;
-                        }
-                    }
-                }
-                else if (e.DataView.Contains(StandardDataFormats.StorageItems))
-                {
-                    if (e.OriginalSource is TabViewItem Item)
-                    {
-                        TabViewControl.SelectedItem = Item;
-                    }
-                }
-            }
-            finally
-            {
-                Deferral.Complete();
-            }
-        }
-
-        private void TabViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            foreach (var Nav in TabViewControl.TabItems.Select((Item) => (Item as TabViewItem).Content as Frame))
-            {
-                Nav.Navigated -= Nav_Navigated;
-            }
-
-            if (TabViewControl.SelectedItem is TabViewItem Item)
-            {
-                CurrentTabNavigation = Item.Content as Frame;
-                CurrentTabNavigation.Navigated += Nav_Navigated;
-                MainPage.ThisPage.NavView.IsBackEnabled = CurrentTabNavigation.CanGoBack;
-            }
-        }
-
-        private void Nav_Navigated(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
-        {
-            MainPage.ThisPage.NavView.IsBackEnabled = CurrentTabNavigation.CanGoBack;
-        }
-
-        private async void TabViewControl_TabStripDragOver(object sender, DragEventArgs e)
-        {
-            if (e.DataView.Contains(StandardDataFormats.Html))
-            {
-                var Deferral = e.GetDeferral();
-
-                try
-                {
-                    string Html = await e.DataView.GetHtmlFormatAsync();
-                    string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
-
-                    HtmlDocument Document = new HtmlDocument();
-                    Document.LoadHtml(Fragment);
-                    HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
-
-                    if (HeadNode?.InnerText == "RX-Explorer-TabItem")
-                    {
-                        e.AcceptedOperation = DataPackageOperation.Link;
-                        e.Handled = true;
-                    }
-                }
-                finally
-                {
-                    Deferral.Complete();
-                }
-            }
-        }
-
-        private async void TabViewControl_TabStripDrop(object sender, DragEventArgs e)
-        {
-            if (e.DataView.Contains(StandardDataFormats.Html))
-            {
-                var Deferral = e.GetDeferral();
-
-                try
                 {
                     string Html = await e.DataView.GetHtmlFormatAsync();
                     string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
@@ -1014,19 +931,80 @@ namespace RX_Explorer
                                     break;
                                 }
                         }
-
-                        e.Handled = true;
                     }
                 }
-                catch
+            }
+            catch
+            {
+                Debug.WriteLine("Error happened when try to drop a tab");
+            }
+            finally
+            {
+                e.Handled = true;
+                Deferral.Complete();
+            }
+        }
+
+        private async void Item_DragOver(object sender, DragEventArgs e)
+        {
+            var Deferral = e.GetDeferral();
+
+            try
+            {
+                if (e.DataView.Contains(StandardDataFormats.Html))
                 {
-                    Debug.WriteLine("Error happened when try to drop a tab");
+                    string Html = await e.DataView.GetHtmlFormatAsync();
+                    string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+
+                    HtmlDocument Document = new HtmlDocument();
+                    Document.LoadHtml(Fragment);
+                    HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+
+                    if (HeadNode?.InnerText == "RX-Explorer-TabItem")
+                    {
+                        e.AcceptedOperation = DataPackageOperation.Link;
+                    }
+                    else
+                    {
+                        if (e.OriginalSource is TabViewItem Item)
+                        {
+                            TabViewControl.SelectedItem = Item;
+                        }
+                    }
                 }
-                finally
+                else if (e.DataView.Contains(StandardDataFormats.StorageItems))
                 {
-                    Deferral.Complete();
+                    if (e.OriginalSource is TabViewItem Item)
+                    {
+                        TabViewControl.SelectedItem = Item;
+                    }
                 }
             }
+            finally
+            {
+                e.Handled = true;
+                Deferral.Complete();
+            }
+        }
+
+        private void TabViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            foreach (var Nav in TabViewControl.TabItems.Select((Item) => (Item as TabViewItem).Content as Frame))
+            {
+                Nav.Navigated -= Nav_Navigated;
+            }
+
+            if (TabViewControl.SelectedItem is TabViewItem Item)
+            {
+                CurrentTabNavigation = Item.Content as Frame;
+                CurrentTabNavigation.Navigated += Nav_Navigated;
+                MainPage.ThisPage.NavView.IsBackEnabled = CurrentTabNavigation.CanGoBack;
+            }
+        }
+
+        private void Nav_Navigated(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
+        {
+            MainPage.ThisPage.NavView.IsBackEnabled = CurrentTabNavigation.CanGoBack;
         }
 
         private void TabViewControl_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
@@ -1065,6 +1043,8 @@ namespace RX_Explorer
                 }
 
                 args.Tab.DragOver -= Item_DragOver;
+                args.Tab.Drop -= Item_Drop;
+
                 sender.TabItems.Remove(args.Tab);
 
                 if (TabViewControl.TabItems.Count >= 1)
