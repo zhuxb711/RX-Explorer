@@ -67,6 +67,8 @@ namespace RX_Explorer.Class
 
         private static readonly object locker = new object();
 
+        private readonly int CurrentProcessId;
+
         private bool IsConnected;
 
         public bool IsNowHasAnyActionExcuting { get; private set; }
@@ -92,6 +94,11 @@ namespace RX_Explorer.Class
                 PackageFamilyName = Package.Current.Id.FamilyName
             };
             Connection.RequestReceived += Connection_RequestReceived;
+
+            using (Process CurrentProcess = Process.GetCurrentProcess())
+            {
+                CurrentProcessId = CurrentProcess.Id;
+            }
         }
 
         private async void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
@@ -112,15 +119,26 @@ namespace RX_Explorer.Class
 
         public async Task<bool> TryConnectToFullTrustExutor()
         {
-            if (IsConnected)
+            try
             {
+                if (!IsConnected)
+                {
+                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+
+                    if ((await Connection.OpenAsync()) != AppServiceConnectionStatus.Success)
+                    {
+                        return IsConnected = false;
+                    }
+                }
+
             ReCheck:
-                AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExcuteType", ExcuteType_Test_Connection } });
+                AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExcuteType", ExcuteType_Test_Connection }, { "ProcessId", CurrentProcessId } });
+
                 if (Response.Status == AppServiceResponseStatus.Success)
                 {
                     if (Response.Message.ContainsKey(ExcuteType_Test_Connection))
                     {
-                        return true;
+                        return IsConnected = true;
                     }
                     else
                     {
@@ -130,15 +148,8 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return false;
+                    return IsConnected = false;
                 }
-            }
-
-            try
-            {
-                await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
-
-                return (await Connection.OpenAsync()) == AppServiceConnectionStatus.Success ? (IsConnected = true) : (IsConnected = false);
             }
             catch
             {

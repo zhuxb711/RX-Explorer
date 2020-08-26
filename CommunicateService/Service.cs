@@ -50,8 +50,7 @@ namespace CommunicateService
                         {
                             lock (Locker)
                             {
-                                string Guid = Convert.ToString(Response.Message["Guid"]);
-                                ClientConnections.Add(IncomeConnection, Guid);
+                                ClientConnections.Add(IncomeConnection, Convert.ToString(Response.Message["Guid"]));
                             }
 
                             break;
@@ -146,7 +145,7 @@ namespace CommunicateService
                         }
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Debug.WriteLine($"Error thrown in CommuniteService: {ex.Message}");
                 }

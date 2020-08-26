@@ -167,7 +167,7 @@ namespace RX_Explorer.Dialog
                 {
                     FileName = Item.Name;
                     Path = Item.Path;
-                    FileType = $"{Item.DisplayType} ({Item.Type})";
+                    FileType = Globalization.GetString("Folder_Admin_DisplayType");
 
                     folder = (StorageFolder)await Item.GetStorageItem().ConfigureAwait(true);
                 }
@@ -176,7 +176,7 @@ namespace RX_Explorer.Dialog
                     FileName = SItem.Name;
                     Path = SItem.Path;
                     folder = (StorageFolder)SItem;
-                    FileType = folder.DisplayType;
+                    FileType = Globalization.GetString("Folder_Admin_DisplayType");
                 }
 
                 CreateTime = folder.DateCreated.ToString("F");

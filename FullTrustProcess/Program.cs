@@ -29,6 +29,10 @@ namespace FullTrustProcess
 
         private static readonly object Locker = new object();
 
+        private static readonly List<Process> ExplorerProcesses = new List<Process>();
+
+        private static Timer AliveCheckTimer;
+
         [STAThread]
         static async Task Main(string[] args)
         {
@@ -48,7 +52,11 @@ namespace FullTrustProcess
                     };
                     Connection.RequestReceived += Connection_RequestReceived;
 
-                    if (await Connection.OpenAsync() != AppServiceConnectionStatus.Success)
+                    if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
+                    {
+                        AliveCheckTimer = new Timer(AliveCheck, null, 5000, 5000);
+                    }
+                    else
                     {
                         ExitLocker.Set();
                     }
@@ -64,6 +72,10 @@ namespace FullTrustProcess
             {
                 Connection?.Dispose();
                 ExitLocker?.Dispose();
+                AliveCheckTimer?.Dispose();
+
+                ExplorerProcesses.ForEach((Process) => Process.Dispose());
+                ExplorerProcesses.Clear();
 
                 PipeServers.Values.ToList().ForEach((Item) =>
                 {
@@ -173,10 +185,10 @@ namespace FullTrustProcess
                                 StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_WIN_E.reg"));
                                 StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Intercept_WIN_E_Temp.reg", CreationCollisionOption.ReplaceExisting);
 
-                                using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                                using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync().ConfigureAwait(true))
                                 using (StreamReader Reader = new StreamReader(FileStream))
                                 {
-                                    string Content = await Reader.ReadToEndAsync().ConfigureAwait(false);
+                                    string Content = await Reader.ReadToEndAsync().ConfigureAwait(true);
                                     string LocalApplicationDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
                                     using (Stream TempStream = await TempFile.OpenStreamForWriteAsync())
@@ -792,6 +804,18 @@ namespace FullTrustProcess
                         }
                     case "Excute_Test_Connection":
                         {
+                            try
+                            {
+                                if (args.Request.Message.TryGetValue("ProcessId", out object Obj) && Obj is int Id && ExplorerProcesses.All((Process) => Process.Id != Id))
+                                {
+                                    ExplorerProcesses.Add(Process.GetProcessById(Id));
+                                }
+                            }
+                            catch
+                            {
+                                Debug.WriteLine("GetProcess from id and register Exit event failed");
+                            }
+
                             await args.Request.SendResponseAsync(new ValueSet { { "Excute_Test_Connection", string.Empty } });
 
                             break;
@@ -799,7 +823,6 @@ namespace FullTrustProcess
                     case "Excute_Exit":
                         {
                             ExitLocker.Set();
-
                             break;
                         }
                 }
@@ -816,6 +839,20 @@ namespace FullTrustProcess
             finally
             {
                 Deferral.Complete();
+            }
+        }
+
+        private static void AliveCheck(object state)
+        {
+            foreach (Process ExitedProcess in ExplorerProcesses.Where((Process) => Process.HasExited).ToList())
+            {
+                ExplorerProcesses.Remove(ExitedProcess);
+                ExitedProcess.Dispose();
+            }
+
+            if (ExplorerProcesses.Count == 0)
+            {
+                ExitLocker.Set();
             }
         }
     }

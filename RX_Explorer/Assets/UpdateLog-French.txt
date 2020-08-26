@@ -11,6 +11,8 @@
 
 >>#####Permet désormais d'utiliser des images personnalisées pour le site Web dans la zone de démarrage rapide
 
+>>#####Supprimer le contenu dupliqué de la balise "Type" dans la page de propriétés du dossier
+
 >#####Correction de bogue
 
 >>#####Correction d'un problème selon lequel les autres méthodes ouvertes ne peuvent pas être appelées normalement s'il y a des espaces dans le chemin du fichier
@@ -20,6 +22,8 @@
 >>#####Correction d'un problème pouvant provoquer un crash lors de l'affichage de fichiers cachés
 
 >>#####Correction d'un problème pouvant provoquer un plantage lors de la fermeture des onglets
+
+>>#####Correction d'un problème qui empêchait le processus auxiliaire de s'arrêter normalement dans certains cas et provoquait l'échec de l'opération
 
 *****
 ###Quoi de neuf dans la version 5.2.6.0
