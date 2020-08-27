@@ -11,9 +11,14 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
+        public override void SetThumbnailOpacity(ThumbnailStatus Status)
+        {
+
+        }
+
         public HiddenStorageItem(WIN_Native_API.WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset ModifiedTime) : base(Data, StorageType, Path, ModifiedTime)
         {
-            SetThumbnailOpacity(ThumbnailStatus.ReduceOpacity);
+            base.SetThumbnailOpacity(ThumbnailStatus.ReduceOpacity);
         }
     }
 }

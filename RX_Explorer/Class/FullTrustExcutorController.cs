@@ -61,6 +61,8 @@ namespace RX_Explorer.Class
 
         private const string ExcuteType_Delete_RecycleItem = "Excute_Delete_RecycleItem";
 
+        private const string ExcuteType_GetVariablePath = "Excute_GetVariable_Path";
+
         private const string ExcuteType_Test_Connection = "Excute_Test_Connection";
 
         private volatile static FullTrustExcutorController Instance;
@@ -154,6 +156,47 @@ namespace RX_Explorer.Class
             catch
             {
                 return IsConnected = false;
+            }
+        }
+
+        public async Task<string> GetVariablePath(string Variable)
+        {
+            try
+            {
+                IsNowHasAnyActionExcuting = true;
+
+                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExcuteType", ExcuteType_GetVariablePath},
+                        {"Variable", Variable }
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success && Response.Message.ContainsKey("Success"))
+                    {
+                        return Convert.ToString(Response.Message["Success"]);
+                    }
+                    else
+                    {
+                        return string.Empty;
+                    }
+                }
+                else
+                {
+                    throw new NoResponseException();
+                }
+            }
+            catch
+            {
+                Debug.WriteLine("Warning: GetVariablePath() throw an error");
+                return string.Empty;
+            }
+            finally
+            {
+                IsNowHasAnyActionExcuting = false;
             }
         }
 

@@ -1,7 +1,7 @@
 Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\Folder\shell\opennewwindow\command]
-@="%LOCALAPPDATA%\\Microsoft\\WindowsApps\\RX-Explorer.exe"
+@="<FillActualAliasPathInHere>"
 
 [HKEY_CLASSES_ROOT\Folder\shell\opennewwindow\command]
 "DelegateExecute"=-

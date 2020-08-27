@@ -178,7 +178,7 @@ namespace RX_Explorer.Class
         /// 设置缩略图的透明度，用于表示文件的是否处于待移动或隐藏状态
         /// </summary>
         /// <param name="Status">状态</param>
-        public void SetThumbnailOpacity(ThumbnailStatus Status)
+        public virtual void SetThumbnailOpacity(ThumbnailStatus Status)
         {
             switch (Status)
             {

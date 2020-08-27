@@ -110,6 +110,19 @@ namespace FullTrustProcess
             {
                 switch (args.Request.Message["ExcuteType"])
                 {
+                    case "Excute_GetVariable_Path":
+                        {
+                            string Variable = Convert.ToString(args.Request.Message["Variable"]);
+
+                            ValueSet Value = new ValueSet
+                            {
+                                {"Success", Environment.GetEnvironmentVariable(Variable)}
+                            };
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Excute_Rename":
                         {
                             string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
@@ -182,29 +195,37 @@ namespace FullTrustProcess
 
                             try
                             {
-                                StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_WIN_E.reg"));
-                                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Intercept_WIN_E_Temp.reg", CreationCollisionOption.ReplaceExisting);
+                                string[] EnvironmentVariables = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User).Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
 
-                                using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync().ConfigureAwait(true))
-                                using (StreamReader Reader = new StreamReader(FileStream))
+                                if (EnvironmentVariables.Where((Var) => Var.Contains("WindowsApps")).Select((Var) => Path.Combine(Var, "RX-Explorer.exe")).FirstOrDefault((Path) => File.Exists(Path)) is string AliasLocation)
                                 {
-                                    string Content = await Reader.ReadToEndAsync().ConfigureAwait(true);
-                                    string LocalApplicationDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                                    StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_WIN_E.reg"));
+                                    StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Intercept_WIN_E_Temp.reg", CreationCollisionOption.ReplaceExisting);
 
-                                    using (Stream TempStream = await TempFile.OpenStreamForWriteAsync())
-                                    using (StreamWriter Writer = new StreamWriter(TempStream))
+                                    using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                                    using (StreamReader Reader = new StreamReader(FileStream))
                                     {
-                                        await Writer.WriteAsync(Content.Replace("%LOCALAPPDATA%", LocalApplicationDataPath.Replace(@"\", @"\\")));
+                                        string Content = await Reader.ReadToEndAsync().ConfigureAwait(true);
+
+                                        using (Stream TempStream = await TempFile.OpenStreamForWriteAsync())
+                                        using (StreamWriter Writer = new StreamWriter(TempStream))
+                                        {
+                                            await Writer.WriteAsync(Content.Replace("<FillActualAliasPathInHere>", AliasLocation.Replace(@"\", @"\\")));
+                                        }
                                     }
-                                }
 
-                                using (Process Process = Process.Start(TempFile.Path))
+                                    using (Process Process = Process.Start(TempFile.Path))
+                                    {
+                                        User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
+                                        Process.WaitForExit();
+                                    }
+
+                                    Value.Add("Success", string.Empty);
+                                }
+                                else
                                 {
-                                    User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
-                                    Process.WaitForExit();
+                                    Value.Add("Error", "Alias file is not exists");
                                 }
-
-                                Value.Add("Success", string.Empty);
                             }
                             catch (Exception e)
                             {

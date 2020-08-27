@@ -2445,7 +2445,7 @@
     <value>此操作將嘗試定向Win + E以啟動RX 檔案總管，並且您需要在刪除RX 檔案總管之前關閉此開關，否則Win + E密鑰無法重置為初始狀態。 稍後您將看到UAC權限提示，請允許其執行必要的操作。 是否繼續？</value>
   </data>
   <data name="QueueDialog_InterceptWindowsETipFailure_Content" xml:space="preserve">
-    <value>由於意外錯誤，無法定向Win + E。 您可以按照以下方法手動進行操作：\r\r1。單擊\r2下的手動操作。將.reg文件保存到任何位置\r3。右鍵單擊該文件並使用記事本\r4進行編輯。輸入％LOCALAPPDATA％ 進入系統文件管理器的地址欄並轉到該位置\r5。複製當前資料夾的位置，將％LOCALAPPDATA％貼上並替換為.reg文件\r6。保存並雙擊.reg文件以執行</value>
+    <value>由於意外錯誤，無法定向Win+E</value>
   </data>
   <data name="QueueDialog_RestoreWindowsETipFailure_Content" xml:space="preserve">
     <value>由於意外錯誤，無法定向Win + E</value>
@@ -2481,12 +2481,6 @@
   </data>
   <data name="CustomUISubtype3.Content" xml:space="preserve">
     <value>Bing 桌布</value>
-  </data>
-  <data name="QueueDialog_InterceptWindowsETipFailure_PrimaryButton" xml:space="preserve">
-    <value>手動操作</value>
-  </data>
-  <data name="QueueDialog_RestoreWindowsETipFailure_PrimaryButton" xml:space="preserve">
-    <value>手動操作</value>
   </data>
   <data name="Progress_Tip_WaitingForAction" xml:space="preserve">
     <value>正在等候動作</value>
@@ -2574,5 +2568,8 @@
   </data>
   <data name="QuickStart_Picker_Web" xml:space="preserve">
     <value>自定義圖標</value>
+  </data>
+  <data name="QueueDialog_NeedOpenHiddenSwitch_Content" xml:space="preserve">
+    <value>該路徑包含隱藏的文件夾，請打開“顯示隱藏的文件夾”開關或隱藏左側的文件夾樹</value>
   </data>
 </root>

@@ -2556,7 +2556,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>This operation will try to redirect Win+E to activate the RX-Explorer, and you need to turn off this switch before uninstalling the RX-Explorer, otherwise the Win+E key cannot be reset to the initial state. You will see the UAC permission prompt later, please allow it to perform necessary operations. Whether to continue?</value>
   </data>
   <data name="QueueDialog_InterceptWindowsETipFailure_Content" xml:space="preserve">
-    <value>Unable to redirect Win+E due to an unexpected error. You can do it manually according to the following methods: \r\r1.Click manual operation below \r2.Save the .reg file to any location \r3.Right-click the file and edit with Notepad \r4.Enter %LOCALAPPDATA% into the address bar of the system file manager and go to that location \r5.Copy the location of the current folder, paste and replace %LOCALAPPDATA% in the .reg file \r6.Save and double-click the .reg file to run</value>
+    <value>Unable to redirect Win+E due to an unexpected error</value>
   </data>
   <data name="QueueDialog_RestoreWindowsETipFailure_Content" xml:space="preserve">
     <value>Unable to restore Win+E due to an unexpected error</value>
@@ -2592,12 +2592,6 @@ Invalid names include
   </data>
   <data name="CustomUISubtype3.Content" xml:space="preserve">
     <value>Bing wallpaper</value>
-  </data>
-  <data name="QueueDialog_InterceptWindowsETipFailure_PrimaryButton" xml:space="preserve">
-    <value>Manual operation</value>
-  </data>
-  <data name="QueueDialog_RestoreWindowsETipFailure_PrimaryButton" xml:space="preserve">
-    <value>Manual operation</value>
   </data>
   <data name="Progress_Tip_WaitingForAction" xml:space="preserve">
     <value>Waiting for action...</value>
@@ -2679,5 +2673,8 @@ Invalid names include
   </data>
   <data name="QuickStart_Picker_Web" xml:space="preserve">
     <value>Custom icon</value>
+  </data>
+  <data name="QueueDialog_NeedOpenHiddenSwitch_Content" xml:space="preserve">
+    <value>The path contains hidden folders, please turn on the "Show hidden folders" switch or hide the folder tree on the left</value>
   </data>
 </root>

@@ -161,6 +161,7 @@
     <Compile Include="Class\AppThemeController.cs" />
     <Compile Include="Class\AddressBlock.cs" />
     <Compile Include="Class\CommonAccessCollection.cs" />
+    <Compile Include="Class\CommonEnvironmentVariables.cs" />
     <Compile Include="Class\DataTemplateSelector.cs" />
     <Compile Include="Class\Enum.cs" />
     <Compile Include="Class\Exception.cs" />
@@ -444,8 +445,8 @@
     <Content Include="QuickStartImage\Setting.png" />
     <Content Include="QuickStartImage\Weather.png" />
     <Content Include="SecureAccess\NetworkAccess.dll" />
-    <Content Include="Assets\Intercept_WIN_E.reg" />
     <Content Include="Assets\Restore_WIN_E.reg" />
+    <Content Include="Assets\Intercept_WIN_E.reg" />
     <None Include="Package.StoreAssociation.xml" />
     <Content Include="Assets\LargeTile.scale-100.png" />
     <Content Include="Assets\LargeTile.scale-125.png" />

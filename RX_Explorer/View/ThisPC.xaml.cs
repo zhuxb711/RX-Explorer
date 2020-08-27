@@ -161,7 +161,6 @@ namespace RX_Explorer
                         Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new SuppressNavigationTransitionInfo());
                     }
                 }
-
             }
             catch (Exception ex)
             {

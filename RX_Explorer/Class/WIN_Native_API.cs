@@ -303,7 +303,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(Path));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out _, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
@@ -485,7 +485,7 @@ namespace RX_Explorer.Class
                     {
                         FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
 
-                        if (!Attribute.HasFlag(FileAttributes.System) && (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)))
+                        if (!Attribute.HasFlag(FileAttributes.ReparsePoint) && (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)))
                         {
                             if (Attribute.HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                             {
@@ -571,7 +571,7 @@ namespace RX_Explorer.Class
                         {
                             FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
 
-                            if (!Attribute.HasFlag(FileAttributes.System))
+                            if (!Attribute.HasFlag(FileAttributes.ReparsePoint))
                             {
                                 if (Attribute.HasFlag(FileAttributes.Directory))
                                 {
@@ -654,7 +654,7 @@ namespace RX_Explorer.Class
                     {
                         FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
 
-                        if (!Attribute.HasFlag(FileAttributes.System) && (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)))
+                        if (!Attribute.HasFlag(FileAttributes.ReparsePoint) && (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)))
                         {
                             if (Attribute.HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                             {
@@ -736,7 +736,9 @@ namespace RX_Explorer.Class
 
                     do
                     {
-                        if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.System) && (IncludeHiddenItem || !((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden)))
+                        FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
+
+                        if (!Attribute.HasFlag(FileAttributes.ReparsePoint) && (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)))
                         {
                             if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                             {

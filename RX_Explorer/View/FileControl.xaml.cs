@@ -1371,6 +1371,8 @@ namespace RX_Explorer
 
             try
             {
+                QueryText = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPath(QueryText).ConfigureAwait(true);
+
                 if (WIN_Native_API.CheckIfHidden(QueryText))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
@@ -1383,6 +1385,26 @@ namespace RX_Explorer
                     _ = await Dialog.ShowAsync().ConfigureAwait(false);
 
                     return;
+                }
+
+                if (!SettingControl.IsDetachTreeViewAndPresenter && !SettingControl.IsDisplayHiddenItem)
+                {
+                    PathAnalysis Analysis = new PathAnalysis(QueryText, string.Empty);
+                    while (Analysis.HasNextLevel)
+                    {
+                        if (WIN_Native_API.CheckIfHidden(Analysis.NextFullPath()))
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_NeedOpenHiddenSwitch_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                            return;
+                        }
+                    }
                 }
 
                 if (Path.IsPathRooted(QueryText) && CommonAccessCollection.HardDeviceList.Any((Drive) => Drive.Folder.Path == Path.GetPathRoot(QueryText)))
@@ -1598,7 +1620,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            await OpenTargetFolder(Folder).ConfigureAwait(false);
+                            await OpenTargetFolder(Folder).ConfigureAwait(true);
 
                             await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
                         }
@@ -1652,6 +1674,7 @@ namespace RX_Explorer
                     StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
 
                     IsBackOrForwardAction = true;
+                    
                     if (SettingControl.IsDetachTreeViewAndPresenter)
                     {
                         await DisplayItemsInFolder(Folder).ConfigureAwait(true);
@@ -1664,6 +1687,7 @@ namespace RX_Explorer
                         {
 
                             TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                            
                             if (TargetNode == null)
                             {
                                 QueueContentDialog dialog = new QueueContentDialog

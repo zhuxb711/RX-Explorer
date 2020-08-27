@@ -3234,8 +3234,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">此操作將嘗試定向Win + E以啟動RX 檔案總管，並且您需要在刪除RX 檔案總管之前關閉此開關，否則Win + E密鑰無法重置為初始狀態。 稍後您將看到UAC權限提示，請允許其執行必要的操作。 是否繼續？</target>
         </trans-unit>
         <trans-unit id="QueueDialog_InterceptWindowsETipFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to redirect Win+E due to an unexpected error. You can do it manually according to the following methods: \r\r1.Click manual operation below \r2.Save the .reg file to any location \r3.Right-click the file and edit with Notepad \r4.Enter %LOCALAPPDATA% into the address bar of the system file manager and go to that location \r5.Copy the location of the current folder, paste and replace %LOCALAPPDATA% in the .reg file \r6.Save and double-click the .reg file to run</source>
-          <target state="translated">由於意外錯誤，無法定向Win + E。 您可以按照以下方法手動進行操作：\r\r1。單擊\r2下的手動操作。將.reg文件保存到任何位置\r3。右鍵單擊該文件並使用記事本\r4進行編輯。輸入％LOCALAPPDATA％ 進入系統文件管理器的地址欄並轉到該位置\r5。複製當前資料夾的位置，將％LOCALAPPDATA％貼上並替換為.reg文件\r6。保存並雙擊.reg文件以執行</target>
+          <source>Unable to redirect Win+E due to an unexpected error</source>
+          <target state="translated">由於意外錯誤，無法定向Win+E</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RestoreWindowsETipFailure_Content" translate="yes" xml:space="preserve">
           <source>Unable to restore Win+E due to an unexpected error</source>
@@ -3286,14 +3286,6 @@ Invalid names include
         <trans-unit id="CustomUISubtype3.Content" translate="yes" xml:space="preserve">
           <source>Bing wallpaper</source>
           <target state="translated">Bing 桌布</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_InterceptWindowsETipFailure_PrimaryButton" translate="yes" xml:space="preserve">
-          <source>Manual operation</source>
-          <target state="translated" state-qualifier="tm-suggestion">手動操作</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_RestoreWindowsETipFailure_PrimaryButton" translate="yes" xml:space="preserve">
-          <source>Manual operation</source>
-          <target state="translated" state-qualifier="tm-suggestion">手動操作</target>
         </trans-unit>
         <trans-unit id="Progress_Tip_WaitingForAction" translate="yes" xml:space="preserve">
           <source>Waiting for action...</source>
@@ -3410,6 +3402,10 @@ Invalid names include
         <trans-unit id="QuickStart_Picker_Web" translate="yes" xml:space="preserve">
           <source>Custom icon</source>
           <target state="translated">自定義圖標</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_NeedOpenHiddenSwitch_Content" translate="yes" xml:space="preserve">
+          <source>The path contains hidden folders, please turn on the "Show hidden folders" switch or hide the folder tree on the left</source>
+          <target state="translated">該路徑包含隱藏的文件夾，請打開“顯示隱藏的文件夾”開關或隱藏左側的文件夾樹</target>
         </trans-unit>
       </group>
     </body>

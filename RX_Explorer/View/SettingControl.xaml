@@ -203,8 +203,7 @@
                                   OnContent="启用"
                                   OffContent="隐藏"
                                   x:Name="TreeViewDetach"
-                                  x:Uid="SettingTreeViewDetach"
-                                  Toggled="TreeViewDetach_Toggled" />
+                                  x:Uid="SettingTreeViewDetach"/>
 
                     <ToggleSwitch Margin="0,20,0,0"
                                   Header="显示隐藏文件/文件夹"

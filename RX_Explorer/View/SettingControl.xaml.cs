@@ -252,6 +252,7 @@ namespace RX_Explorer
 
             DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
             UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
+            TreeViewDetach.Toggled += TreeViewDetach_Toggled;
         }
 
         private async void SettingPage_Loaded(object sender, RoutedEventArgs e)
@@ -1346,32 +1347,14 @@ namespace RX_Explorer
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_InterceptWindowsETipFailure_Content"),
-                                PrimaryButtonText = Globalization.GetString("QueueDialog_InterceptWindowsETipFailure_PrimaryButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
-                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                            {
-                                StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_WIN_E.reg"));
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
 
-                                FolderPicker Picker = new FolderPicker
-                                {
-                                    SuggestedStartLocation = PickerLocationId.Desktop
-                                };
-                                Picker.FileTypeFilter.Add("*");
-
-                                if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
-                                {
-                                    await InterceptFile.CopyAsync(Folder, InterceptFile.Name, NameCollisionOption.ReplaceExisting);
-                                    await Launcher.LaunchFolderAsync(Folder);
-                                }
-                            }
-                            else
-                            {
-                                UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
-                                UseWinAndEActivate.IsOn = false;
-                                UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
-                            }
+                            UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
+                            UseWinAndEActivate.IsOn = false;
+                            UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
                         }
                     }
                     else
@@ -1393,32 +1376,14 @@ namespace RX_Explorer
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_RestoreWindowsETipFailure_Content"),
-                            PrimaryButtonText = Globalization.GetString("QueueDialog_RestoreWindowsETipFailure_PrimaryButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            StorageFile RestoreFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_WIN_E.reg"));
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
 
-                            FolderPicker Picker = new FolderPicker
-                            {
-                                SuggestedStartLocation = PickerLocationId.Desktop
-                            };
-                            Picker.FileTypeFilter.Add("*");
-
-                            if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
-                            {
-                                await RestoreFile.CopyAsync(Folder, RestoreFile.Name, NameCollisionOption.ReplaceExisting);
-                                await Launcher.LaunchFolderAsync(Folder);
-                            }
-                        }
-                        else
-                        {
-                            UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
-                            UseWinAndEActivate.IsOn = true;
-                            UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
-                        }
+                        UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
+                        UseWinAndEActivate.IsOn = true;
+                        UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
                     }
                 }
             }
