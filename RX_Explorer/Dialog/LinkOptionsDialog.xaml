@@ -1,0 +1,84 @@
+﻿<Cls:QueueContentDialog 
+    xmlns:Cls="using:RX_Explorer.Class"
+    x:Class="RX_Explorer.Dialog.LinkOptionsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RX_Explorer.Dialog"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d"
+    x:Uid="LinkOptionsDialog"
+    Title="快捷方式选项"
+    PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ContinueButton')}"
+    PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick"
+    CloseButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}">
+
+    <Cls:QueueContentDialog.Resources>
+        <controls:TeachingTip x:Name="EmptyTip"
+                              Title="Tips"
+                              PreferredPlacement="TopRight"
+                              IsLightDismissEnabled="True"
+                              x:Uid="QuickStartEmptyTip"
+                              Subtitle="此处不能为空" 
+                              Target="{x:Bind TargetPath}"/>
+    </Cls:QueueContentDialog.Resources>
+
+    <Grid>
+        <StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBox Header="目标"
+                         x:Uid="LinkOptionsDialog_TargetPath"
+                         Width="300" 
+                         Name="TargetPath"
+                         PlaceholderText="输入或浏览目标路径"/>
+                <Button Content="浏览"
+                        MinWidth="80"
+                        x:Uid="LinkOptionsDialog_Browser"
+                        Margin="5,0,0,0"
+                        Height="33"
+                        VerticalAlignment="Bottom">
+                    <Button.Flyout>
+                        <Flyout>
+                            <StackPanel>
+                                <TextBlock Text="需要选择文件还是文件夹?"
+                                           x:Uid="LinkOptionsDialog_Browser_Flyout_Text"/>
+                                <Grid Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Content="文件"
+                                            Name="BrowserFileButton"
+                                            HorizontalAlignment="Stretch"
+                                            x:Uid="LinkOptionsDialog_Browser_Flyout_File"
+                                            Margin="0,0,5,0"
+                                            Click="BrowserFileButton_Click"/>
+                                    <Button Content="文件夹"
+                                            Name="BrowserFolderButton"
+                                            x:Uid="LinkOptionsDialog_Browser_Flyout_Folder"
+                                            HorizontalAlignment="Stretch"
+                                            Margin="5,0,0,0"
+                                            Grid.Column="1"
+                                            Click="BrowserFolderButton_Click"/>
+                                </Grid>
+                            </StackPanel>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+            </StackPanel>
+
+            <TextBox Header="参数 (可选)"
+                     Margin="0,10,0,0"
+                     Name="LinkArgument"
+                     x:Uid="LinkOptionsDialog_LinkArgument"
+                     PlaceholderText="输入参数"/>
+
+            <TextBox Header="备注信息 (可选)"
+                     Margin="0,10,0,0"
+                     x:Uid="LinkOptionsDialog_LinkDescription"
+                     Name="LinkDescription"
+                     PlaceholderText="输入快捷方式的描述"/>
+        </StackPanel>
+    </Grid>
+</Cls:QueueContentDialog>

@@ -78,7 +78,7 @@ namespace RX_Explorer
         {
             if (e.WindowActivationState != CoreWindowActivationState.Deactivated)
             {
-                AppInstanceIdContainer.SetAsLastActivateId();
+                AppInstanceIdContainer.SetCurrentIdAsLastActivateId();
             }
         }
 

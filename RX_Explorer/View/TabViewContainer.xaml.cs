@@ -207,15 +207,25 @@ namespace RX_Explorer
                     args.Handled = true;
                     SettingControl.IsInputFromPrimaryButton = false;
 
-                    if (!QueueContentDialog.IsRunningOrWaiting && Control.Nav.CurrentSourcePageType.Name == nameof(FilePresenter))
+                    if (!QueueContentDialog.IsRunningOrWaiting)
                     {
-                        if (Control.GoBackRecord.IsEnabled)
+                        if (Control.Nav.CurrentSourcePageType.Name == nameof(FilePresenter))
                         {
-                            Control.GoBackRecord_Click(null, null);
+                            if (Control.GoBackRecord.IsEnabled)
+                            {
+                                Control.GoBackRecord_Click(null, null);
+                            }
+                            else
+                            {
+                                MainPage.ThisPage.NavView_BackRequested(null, null);
+                            }
                         }
                         else
                         {
-                            MainPage.ThisPage.NavView_BackRequested(null, null);
+                            if(Control.Nav.CanGoBack)
+                            {
+                                Control.Nav.GoBack();
+                            }
                         }
                     }
                 }
@@ -278,17 +288,31 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (CreateNewTab(await StorageFolder.GetFolderFromPathAsync(Path)) is TabViewItem Item)
+                    if (WIN_Native_API.CheckIfHidden(Path))
                     {
-                        TabViewControl.TabItems.Add(Item);
-                        TabViewControl.UpdateLayout();
-                        TabViewControl.SelectedItem = Item;
-
-                        if (TabViewControl.TabItems.Count > 1)
+                        QueueContentDialog Dialog = new QueueContentDialog
                         {
-                            foreach (TabViewItem Tab in TabViewControl.TabItems)
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        if (CreateNewTab(await StorageFolder.GetFolderFromPathAsync(Path)) is TabViewItem Item)
+                        {
+                            TabViewControl.TabItems.Add(Item);
+                            TabViewControl.UpdateLayout();
+                            TabViewControl.SelectedItem = Item;
+
+                            if (TabViewControl.TabItems.Count > 1)
                             {
-                                Tab.IsClosable = true;
+                                foreach (TabViewItem Tab in TabViewControl.TabItems)
+                                {
+                                    Tab.IsClosable = true;
+                                }
                             }
                         }
                     }
@@ -490,7 +514,6 @@ namespace RX_Explorer
         {
             Loaded -= TabViewContainer_Loaded;
 
-
             if (MainPage.ThisPage.IsPathActivate)
             {
                 try
@@ -527,9 +550,6 @@ namespace RX_Explorer
                         CommonAccessCollection.HotWebList.Add(Item.Value);
                     }
                 }
-
-                CommonAccessCollection.QuickStartList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
-                CommonAccessCollection.HotWebList.Add(new QuickStartItem(new BitmapImage(new Uri("ms-appx:///Assets/Add.png")) { DecodePixelHeight = 100, DecodePixelWidth = 100 }, null, default, null));
 
                 if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("IsLibraryInitialized"))
                 {

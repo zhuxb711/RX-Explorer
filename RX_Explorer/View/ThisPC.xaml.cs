@@ -170,49 +170,38 @@ namespace RX_Explorer
 
         private async void QuickStartGridView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            if (e.ClickedItem is QuickStartItem Item && !string.IsNullOrEmpty(Item.Protocol))
+            if (e.ClickedItem is QuickStartItem Item)
             {
-                Uri Ur = new Uri(Item.Protocol);
-
-                if (Ur.IsFile)
+                if ((sender as GridView).Name == nameof(QuickStartGridView))
                 {
-                    if (WIN_Native_API.CheckExist(Item.Protocol))
+                    Uri Ur = new Uri(Item.Protocol);
+
+                    if (Ur.IsFile)
                     {
-                        await FullTrustExcutorController.Current.RunAsync(Item.Protocol).ConfigureAwait(true);
+                        if (WIN_Native_API.CheckExist(Item.Protocol))
+                        {
+                            await FullTrustExcutorController.Current.RunAsync(Item.Protocol).ConfigureAwait(true);
+                        }
+                        else
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_ApplicationNotFound_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        }
                     }
                     else
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_ApplicationNotFound_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        await Launcher.LaunchUriAsync(Ur);
                     }
                 }
                 else
                 {
-                    await Launcher.LaunchUriAsync(Ur);
+                    await Launcher.LaunchUriAsync(new Uri(Item.Protocol));
                 }
-            }
-            else
-            {
-                QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.Application);
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
-            }
-        }
-
-        private async void WebGridView_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            if (e.ClickedItem is QuickStartItem Item && !string.IsNullOrEmpty(Item.Protocol))
-            {
-                await Launcher.LaunchUriAsync(new Uri(Item.Protocol));
-            }
-            else
-            {
-                QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.WebSite);
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
@@ -256,37 +245,30 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
+                if ((sender as GridView).Name == nameof(QuickStartGridView))
                 {
-                    CurrentSelectedItem = Item;
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
+                    {
+                        CurrentSelectedItem = Item;
 
-                    if (Item == null || Item.Protocol == null)
-                    {
-                        QuickStartGridView.ContextFlyout = null;
-                    }
-                    else
-                    {
                         QuickStartGridView.ContextFlyout = AppFlyout;
                     }
-                }
-            }
-        }
-
-        private void WebGridView_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
-        {
-            if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
-            {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
-                {
-                    CurrentSelectedItem = Item;
-
-                    if (Item == null || Item.Protocol == null)
+                    else
                     {
-                        WebGridView.ContextFlyout = null;
+                        QuickStartGridView.ContextFlyout = AppEmptyFlyout;
+                    }
+                }
+                else
+                {
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
+                    {
+                        CurrentSelectedItem = Item;
+
+                        WebGridView.ContextFlyout = WebFlyout;
                     }
                     else
                     {
-                        WebGridView.ContextFlyout = WebFlyout;
+                        WebGridView.ContextFlyout = WebEmptyFlyout;
                     }
                 }
             }
@@ -652,37 +634,30 @@ namespace RX_Explorer
         {
             if (e.HoldingState == HoldingState.Started)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
+                if ((sender as GridView).Name == nameof(QuickStartGridView))
                 {
-                    CurrentSelectedItem = Item;
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
+                    {
+                        CurrentSelectedItem = Item;
 
-                    if (Item == null || Item.Protocol == null)
-                    {
-                        QuickStartGridView.ContextFlyout = null;
-                    }
-                    else
-                    {
                         QuickStartGridView.ContextFlyout = AppFlyout;
                     }
-                }
-            }
-        }
-
-        private void WebGridView_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
-        {
-            if (e.HoldingState == HoldingState.Started)
-            {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
-                {
-                    CurrentSelectedItem = Item;
-
-                    if (Item == null || Item.Protocol == null)
+                    else
                     {
-                        WebGridView.ContextFlyout = null;
+                        QuickStartGridView.ContextFlyout = AppEmptyFlyout;
+                    }
+                }
+                else
+                {
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
+                    {
+                        CurrentSelectedItem = Item;
+
+                        WebGridView.ContextFlyout = WebFlyout;
                     }
                     else
                     {
-                        WebGridView.ContextFlyout = WebFlyout;
+                        WebGridView.ContextFlyout = WebEmptyFlyout;
                     }
                 }
             }
@@ -801,5 +776,16 @@ namespace RX_Explorer
             ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
         }
 
+        private async void AddQuickStartWeb_Click(object sender, RoutedEventArgs e)
+        {
+            QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.WebSite);
+            _ = await dialog.ShowAsync().ConfigureAwait(true);
+        }
+
+        private async void AddQuickStartApp_Click(object sender, RoutedEventArgs e)
+        {
+            QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.Application);
+            _ = await dialog.ShowAsync().ConfigureAwait(true);
+        }
     }
 }

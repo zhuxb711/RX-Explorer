@@ -1,5 +1,6 @@
 ﻿using RX_Explorer.Class;
 using System;
+using System.Linq;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
@@ -30,11 +31,25 @@ namespace RX_Explorer
                     {
                         AppInstance.RecommendedInstance.RedirectActivationTo();
                     }
-                    else if (!string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId)
-                             && AppInstance.FindOrRegisterInstanceForKey(AppInstanceIdContainer.LastActiveId) is AppInstance TargetInstance
-                             && !TargetInstance.IsCurrentInstance)
+                    else if (!string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
                     {
-                        TargetInstance.RedirectActivationTo();
+                        do
+                        {
+                            if (AppInstance.GetInstances().Any((Ins) => Ins.Key == AppInstanceIdContainer.LastActiveId))
+                            {
+                                if (AppInstance.FindOrRegisterInstanceForKey(AppInstanceIdContainer.LastActiveId) is AppInstance TargetInstance)
+                                {
+                                    TargetInstance.RedirectActivationTo();
+                                }
+
+                                break;
+                            }
+                            else
+                            {
+                                AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.LastActiveId);
+                            }
+                        }
+                        while (!string.IsNullOrEmpty(AppInstanceIdContainer.LastActiveId));
                     }
                     else
                     {

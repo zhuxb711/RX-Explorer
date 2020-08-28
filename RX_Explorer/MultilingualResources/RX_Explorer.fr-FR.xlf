@@ -3407,6 +3407,54 @@ Les noms non valides incluent
           <source>The path contains hidden folders, please turn on the "Show hidden folders" switch or hide the folder tree on the left</source>
           <target state="translated">Le chemin contient des dossiers cachés, veuillez activer le commutateur "Afficher les dossiers cachés" ou masquer l'arborescence des dossiers sur la gauche</target>
         </trans-unit>
+        <trans-unit id="QuickStartAddButton.Label" translate="yes" xml:space="preserve">
+          <source>Add</source>
+          <target state="translated">Ajouter</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog.Title" translate="yes" xml:space="preserve">
+          <source>Shortcut options</source>
+          <target state="translated">Options de raccourci</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_Browser.Content" translate="yes" xml:space="preserve">
+          <source>Browser</source>
+          <target state="translated">Navigateur</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_Browser_Flyout_File.Content" translate="yes" xml:space="preserve">
+          <source>File</source>
+          <target state="translated">Fichier</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_Browser_Flyout_Folder.Content" translate="yes" xml:space="preserve">
+          <source>Folder</source>
+          <target state="translated">Dossier</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_Browser_Flyout_Text.Text" translate="yes" xml:space="preserve">
+          <source>Need to choose a file or a folder?</source>
+          <target state="translated">Besoin de choisir un fichier ou un dossier?</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkArgument.Header" translate="yes" xml:space="preserve">
+          <source>Parameters (optional)</source>
+          <target state="translated">Paramètres (facultatif)</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkArgument.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter parameters</source>
+          <target state="translated">Entrez les paramètres</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkDescription.Header" translate="yes" xml:space="preserve">
+          <source>Remarks (optional)</source>
+          <target state="translated">Remarques (facultatif)</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkDescription.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter a description of the shortcut</source>
+          <target state="translated">Entrez une description du raccourci</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_TargetPath.Header" translate="yes" xml:space="preserve">
+          <source>Target</source>
+          <target state="translated">Cible</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_TargetPath.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter or browse the target path</source>
+          <target state="translated">Entrez ou parcourez le chemin cible</target>
+        </trans-unit>
       </group>
     </body>
   </file>

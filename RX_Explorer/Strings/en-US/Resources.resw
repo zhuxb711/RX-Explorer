@@ -2677,4 +2677,40 @@ Invalid names include
   <data name="QueueDialog_NeedOpenHiddenSwitch_Content" xml:space="preserve">
     <value>The path contains hidden folders, please turn on the "Show hidden folders" switch or hide the folder tree on the left</value>
   </data>
+  <data name="QuickStartAddButton.Label" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="LinkOptionsDialog.Title" xml:space="preserve">
+    <value>Shortcut options</value>
+  </data>
+  <data name="LinkOptionsDialog_Browser.Content" xml:space="preserve">
+    <value>Browser</value>
+  </data>
+  <data name="LinkOptionsDialog_Browser_Flyout_File.Content" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="LinkOptionsDialog_Browser_Flyout_Folder.Content" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="LinkOptionsDialog_Browser_Flyout_Text.Text" xml:space="preserve">
+    <value>Need to choose a file or a folder?</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkArgument.Header" xml:space="preserve">
+    <value>Parameters (optional)</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkArgument.PlaceholderText" xml:space="preserve">
+    <value>Enter parameters</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkDescription.Header" xml:space="preserve">
+    <value>Remarks (optional)</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkDescription.PlaceholderText" xml:space="preserve">
+    <value>Enter a description of the shortcut</value>
+  </data>
+  <data name="LinkOptionsDialog_TargetPath.Header" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="LinkOptionsDialog_TargetPath.PlaceholderText" xml:space="preserve">
+    <value>Enter or browse the target path</value>
+  </data>
 </root>

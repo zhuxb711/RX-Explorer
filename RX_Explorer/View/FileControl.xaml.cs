@@ -364,7 +364,7 @@ namespace RX_Explorer
             }
         }
 
-        private async Task OpenTargetFolder(StorageFolder Folder)
+        public async Task OpenTargetFolder(StorageFolder Folder)
         {
             CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.Clear();
             CommonAccessCollection.GetFilePresenterInstance(this).HasFile.Visibility = Visibility.Collapsed;
@@ -380,37 +380,44 @@ namespace RX_Explorer
                 IsNetworkDevice = false;
             }
 
-            bool HasItem = (await Folder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
-
-            StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetPathRoot(Folder.Path));
-
-            TreeViewNode RootNode = new TreeViewNode
+            if(SettingControl.IsDetachTreeViewAndPresenter)
             {
-                Content = new TreeViewNodeContent(ParentFolder),
-                HasUnrealizedChildren = HasItem,
-                IsExpanded = HasItem
-            };
-            FolderTree.RootNodes.Add(RootNode);
-
-            if (HasItem)
+                await DisplayItemsInFolder(Folder).ConfigureAwait(false);
+            }
+            else
             {
-                await FillTreeNode(RootNode).ConfigureAwait(true);
+                StorageFolder RootFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetPathRoot(Folder.Path));
 
-                TreeViewNode TargetNode = await RootNode.GetChildNodeAsync(new PathAnalysis(Folder.Path, string.Empty)).ConfigureAwait(true);
+                bool HasItem = (await RootFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
 
-                if (TargetNode == null)
+                TreeViewNode RootNode = new TreeViewNode
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    Content = new TreeViewNodeContent(RootFolder),
+                    HasUnrealizedChildren = HasItem,
+                    IsExpanded = HasItem
+                };
+                FolderTree.RootNodes.Add(RootNode);
+
+                if (HasItem)
+                {
+                    await FillTreeNode(RootNode).ConfigureAwait(true);
+
+                    TreeViewNode TargetNode = await RootNode.GetChildNodeAsync(new PathAnalysis(Folder.Path, string.Empty)).ConfigureAwait(true);
+
+                    if (TargetNode == null)
                     {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
+                    }
                 }
             }
         }
@@ -1447,6 +1454,7 @@ namespace RX_Explorer
                         if (QueryText.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                         {
                             TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                            
                             if (TargetNode != null)
                             {
                                 await DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
@@ -1685,7 +1693,6 @@ namespace RX_Explorer
                     {
                         if (Path.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                         {
-
                             TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
                             
                             if (TargetNode == null)
@@ -1740,6 +1747,7 @@ namespace RX_Explorer
             {
                 AddressBox.Text = CurrentFolder.Path;
             }
+
             AddressButtonScrollViewer.Visibility = Visibility.Collapsed;
 
             AddressBox.ItemsSource = await SQLite.Current.GetRelatedPathHistoryAsync().ConfigureAwait(true);
@@ -1867,6 +1875,26 @@ namespace RX_Explorer
             }
             else
             {
+                if (!SettingControl.IsDisplayHiddenItem)
+                {
+                    PathAnalysis Analysis = new PathAnalysis(ActualString, string.Empty);
+                    while (Analysis.HasNextLevel)
+                    {
+                        if (WIN_Native_API.CheckIfHidden(Analysis.NextFullPath()))
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_NeedOpenHiddenSwitch_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                            return;
+                        }
+                    }
+                }
+
                 if (ActualString.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                 {
                     if ((await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(ActualString, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true)) is TreeViewNode TargetNode)

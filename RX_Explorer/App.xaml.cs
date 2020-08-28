@@ -10,7 +10,6 @@ using Windows.UI;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media.Animation;
 
 namespace RX_Explorer
 {
@@ -41,7 +40,7 @@ namespace RX_Explorer
 
         private async void App_Resuming(object sender, object e)
         {
-            await FullTrustExcutorController.Current.TryConnectToFullTrustExutor().ConfigureAwait(true);
+            await FullTrustExcutorController.Current.TryConnectToFullTrustExcutor().ConfigureAwait(true);
             AppInstanceIdContainer.RegisterCurrentId(AppInstanceIdContainer.CurrentId);
         }
 
@@ -169,19 +168,16 @@ namespace RX_Explorer
             viewTitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             viewTitleBar.ButtonForegroundColor = (Color)Resources["SystemBaseHighColor"];
 
-            if (Window.Current.Content is Frame mainPageFrame)
+            if (args is CommandLineActivatedEventArgs CmdArgs)
             {
-                var cmdArgs = args as CommandLineActivatedEventArgs;
-                var mainPage = mainPageFrame.Content as MainPage;
-                Window.Current.Activate();
-                mainPage.NavView.IsBackEnabled = (TabViewContainer.CurrentTabNavigation?.CanGoBack).GetValueOrDefault();
-                mainPage.Nav.Navigate(typeof(TabViewContainer), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
-                TabViewContainer tabViewContainer = mainPage.Nav.Content as TabViewContainer;
-                _ = tabViewContainer.CreateNewTabAndOpenTargetFolder(cmdArgs.Operation.Arguments.Substring(16));
-            }
-            else //Window.Current.Content is Frame(MainPage)
-            {
-                if (args is CommandLineActivatedEventArgs CmdArgs)
+                if (Window.Current.Content is Frame mainPageFrame)
+                {
+                    if (mainPageFrame.Content is MainPage mainPage && mainPage.Nav.Content is TabViewContainer tabViewContainer)
+                    {
+                        _ = tabViewContainer.CreateNewTabAndOpenTargetFolder(CmdArgs.Operation.Arguments.Split(" ").LastOrDefault());
+                    }
+                }
+                else
                 {
                     if (string.IsNullOrWhiteSpace(CmdArgs.Operation.Arguments))
                     {
@@ -204,27 +200,27 @@ namespace RX_Explorer
                         }
                     }
                 }
-                else if (args is ProtocolActivatedEventArgs ProtocalArgs)
+            }
+            else if (args is ProtocolActivatedEventArgs ProtocalArgs)
+            {
+                if (!string.IsNullOrWhiteSpace(ProtocalArgs.Uri.LocalPath))
                 {
-                    if (!string.IsNullOrWhiteSpace(ProtocalArgs.Uri.LocalPath))
-                    {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{ProtocalArgs.Uri.LocalPath}");
-                        Window.Current.Content = extendedSplash;
-                    }
-                    else
-                    {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
-                        Window.Current.Content = extendedSplash;
-                    }
+                    ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{ProtocalArgs.Uri.LocalPath}");
+                    Window.Current.Content = extendedSplash;
                 }
                 else
                 {
                     ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
                     Window.Current.Content = extendedSplash;
                 }
-
-                Window.Current.Activate();
             }
+            else
+            {
+                ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
+                Window.Current.Content = extendedSplash;
+            }
+
+            Window.Current.Activate();
         }
 
         protected override void OnFileActivated(FileActivatedEventArgs args)

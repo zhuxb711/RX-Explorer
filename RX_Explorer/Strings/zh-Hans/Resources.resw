@@ -2572,4 +2572,40 @@
   <data name="QueueDialog_NeedOpenHiddenSwitch_Content" xml:space="preserve">
     <value>该路径包含隐藏文件夹，请打开“显示隐藏文件夹”开关或隐藏左侧文件目录树</value>
   </data>
+  <data name="QuickStartAddButton.Label" xml:space="preserve">
+    <value>添加</value>
+  </data>
+  <data name="LinkOptionsDialog.Title" xml:space="preserve">
+    <value>快捷方式选项</value>
+  </data>
+  <data name="LinkOptionsDialog_Browser.Content" xml:space="preserve">
+    <value>浏览</value>
+  </data>
+  <data name="LinkOptionsDialog_Browser_Flyout_File.Content" xml:space="preserve">
+    <value>文件</value>
+  </data>
+  <data name="LinkOptionsDialog_Browser_Flyout_Folder.Content" xml:space="preserve">
+    <value>文件夹</value>
+  </data>
+  <data name="LinkOptionsDialog_Browser_Flyout_Text.Text" xml:space="preserve">
+    <value>需要选择文件还是文件夹?</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkArgument.Header" xml:space="preserve">
+    <value>参数 (可选)</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkArgument.PlaceholderText" xml:space="preserve">
+    <value>输入参数</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkDescription.Header" xml:space="preserve">
+    <value>备注 (可选)</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkDescription.PlaceholderText" xml:space="preserve">
+    <value>输入快捷方式的描述</value>
+  </data>
+  <data name="LinkOptionsDialog_TargetPath.Header" xml:space="preserve">
+    <value>目标</value>
+  </data>
+  <data name="LinkOptionsDialog_TargetPath.PlaceholderText" xml:space="preserve">
+    <value>输入或浏览目标路径</value>
+  </data>
 </root>

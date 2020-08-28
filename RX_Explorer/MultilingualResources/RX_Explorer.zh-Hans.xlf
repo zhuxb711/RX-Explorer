@@ -3407,6 +3407,54 @@ Invalid names include
           <source>The path contains hidden folders, please turn on the "Show hidden folders" switch or hide the folder tree on the left</source>
           <target state="translated">该路径包含隐藏文件夹，请打开“显示隐藏文件夹”开关或隐藏左侧文件目录树</target>
         </trans-unit>
+        <trans-unit id="QuickStartAddButton.Label" translate="yes" xml:space="preserve">
+          <source>Add</source>
+          <target state="translated">添加</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog.Title" translate="yes" xml:space="preserve">
+          <source>Shortcut options</source>
+          <target state="translated">快捷方式选项</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_Browser.Content" translate="yes" xml:space="preserve">
+          <source>Browser</source>
+          <target state="translated">浏览</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_Browser_Flyout_File.Content" translate="yes" xml:space="preserve">
+          <source>File</source>
+          <target state="translated">文件</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_Browser_Flyout_Folder.Content" translate="yes" xml:space="preserve">
+          <source>Folder</source>
+          <target state="translated">文件夹</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_Browser_Flyout_Text.Text" translate="yes" xml:space="preserve">
+          <source>Need to choose a file or a folder?</source>
+          <target state="translated">需要选择文件还是文件夹?</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkArgument.Header" translate="yes" xml:space="preserve">
+          <source>Parameters (optional)</source>
+          <target state="translated">参数 (可选)</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkArgument.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter parameters</source>
+          <target state="translated">输入参数</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkDescription.Header" translate="yes" xml:space="preserve">
+          <source>Remarks (optional)</source>
+          <target state="translated">备注 (可选)</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkDescription.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter a description of the shortcut</source>
+          <target state="translated">输入快捷方式的描述</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_TargetPath.Header" translate="yes" xml:space="preserve">
+          <source>Target</source>
+          <target state="translated">目标</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_TargetPath.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter or browse the target path</source>
+          <target state="translated">输入或浏览目标路径</target>
+        </trans-unit>
       </group>
     </body>
   </file>

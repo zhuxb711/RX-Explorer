@@ -2788,7 +2788,7 @@ namespace RX_Explorer
                         string AdminExcuteProgram = null;
                         if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute)
                         {
-                            string SaveUnit = ProgramExcute.Split(';', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault((Item) => Item.Split('|')[0] == TabTarget.Type);
+                            string SaveUnit = ProgramExcute.Split(';', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault((Item) => Item.Split('|')[0] == File.FileType);
                             if (!string.IsNullOrEmpty(SaveUnit))
                             {
                                 AdminExcuteProgram = SaveUnit.Split('|')[1];
@@ -2798,7 +2798,7 @@ namespace RX_Explorer
                         if (!string.IsNullOrEmpty(AdminExcuteProgram) && AdminExcuteProgram != Globalization.GetString("RX_BuildIn_Viewer_Name"))
                         {
                             bool IsExcuted = false;
-                            foreach (string Path in await SQLite.Current.GetProgramPickerRecordAsync(TabTarget.Type).ConfigureAwait(true))
+                            foreach (string Path in await SQLite.Current.GetProgramPickerRecordAsync(File.FileType).ConfigureAwait(true))
                             {
                                 try
                                 {
@@ -2808,20 +2808,20 @@ namespace RX_Explorer
 
                                     if (AppName == AdminExcuteProgram || ExcuteFile.DisplayName == AdminExcuteProgram)
                                     {
-                                        await FullTrustExcutorController.Current.RunAsync(Path, TabTarget.Path).ConfigureAwait(true);
+                                        await FullTrustExcutorController.Current.RunAsync(Path, File.Path).ConfigureAwait(true);
                                         IsExcuted = true;
                                         break;
                                     }
                                 }
                                 catch (Exception)
                                 {
-                                    await SQLite.Current.DeleteProgramPickerRecordAsync(TabTarget.Type, Path).ConfigureAwait(true);
+                                    await SQLite.Current.DeleteProgramPickerRecordAsync(File.FileType, Path).ConfigureAwait(true);
                                 }
                             }
 
                             if (!IsExcuted)
                             {
-                                if ((await Launcher.FindFileHandlersAsync(TabTarget.Type)).FirstOrDefault((Item) => Item.DisplayInfo.DisplayName == AdminExcuteProgram) is AppInfo Info)
+                                if ((await Launcher.FindFileHandlersAsync(File.FileType)).FirstOrDefault((Item) => Item.DisplayInfo.DisplayName == AdminExcuteProgram) is AppInfo Info)
                                 {
                                     if (!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
                                     {
@@ -2964,11 +2964,11 @@ namespace RX_Explorer
                                         {
                                             if (RunAsAdministrator)
                                             {
-                                                await FullTrustExcutorController.Current.RunAsAdministratorAsync(TabTarget.Path).ConfigureAwait(false);
+                                                await FullTrustExcutorController.Current.RunAsAdministratorAsync(File.Path).ConfigureAwait(false);
                                             }
                                             else
                                             {
-                                                await FullTrustExcutorController.Current.RunAsync(TabTarget.Path).ConfigureAwait(false);
+                                                await FullTrustExcutorController.Current.RunAsync(File.Path).ConfigureAwait(false);
                                             }
                                         }
                                         break;
@@ -3022,35 +3022,36 @@ namespace RX_Explorer
                             return;
                         }
 
-                        if (SettingControl.IsDetachTreeViewAndPresenter)
+                        if (Folder.Path.StartsWith((FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                         {
-                            await FileControlInstance.DisplayItemsInFolder(Folder).ConfigureAwait(true);
+                            if (SettingControl.IsDetachTreeViewAndPresenter)
+                            {
+                                await FileControlInstance.DisplayItemsInFolder(Folder).ConfigureAwait(true);
+                            }
+                            else
+                            {
+                                if (FileControlInstance.CurrentNode == null)
+                                {
+                                    FileControlInstance.CurrentNode = FileControlInstance.FolderTree.RootNodes[0];
+                                }
+
+                                TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+
+                                if (TargetNode != null)
+                                {
+                                    await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
+                                }
+                            }
                         }
                         else
                         {
-                            if (FileControlInstance.CurrentNode == null)
-                            {
-                                FileControlInstance.CurrentNode = FileControlInstance.FolderTree.RootNodes[0];
-                            }
-
-                            if (!FileControlInstance.CurrentNode.IsExpanded)
-                            {
-                                FileControlInstance.CurrentNode.IsExpanded = true;
-                            }
-
-                            TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(TabTarget.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
-
-                            if (TargetNode != null)
-                            {
-                                await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
-                            }
+                            await FileControlInstance.OpenTargetFolder(Folder).ConfigureAwait(true);
                         }
                     }
-
                 }
                 catch (Exception ex)
                 {
-                    ExceptionTracer.RequestBlueScreen(ex);
+                    Debug.WriteLine($"EnterSelectedItem error: {ex.Message}");
                 }
                 finally
                 {
@@ -3302,35 +3303,41 @@ namespace RX_Explorer
             {
                 try
                 {
-                    StorageFile NewFile = null;
-
                     switch (Path.GetExtension(Dialog.NewFileName))
                     {
                         case ".zip":
                             {
-                                NewFile = await SpecialTypeGenerator.Current.CreateZipAsync(FileControlInstance.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true);
+                                _ = await SpecialTypeGenerator.Current.CreateZipAsync(FileControlInstance.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true) ?? throw new UnauthorizedAccessException();
                                 break;
                             }
                         case ".rtf":
                             {
-                                NewFile = await SpecialTypeGenerator.Current.CreateRtfAsync(FileControlInstance.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true);
+                                _ = await SpecialTypeGenerator.Current.CreateRtfAsync(FileControlInstance.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true) ?? throw new UnauthorizedAccessException();
                                 break;
                             }
                         case ".xlsx":
                             {
-                                NewFile = await SpecialTypeGenerator.Current.CreateExcelAsync(FileControlInstance.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true);
+                                _ = await SpecialTypeGenerator.Current.CreateExcelAsync(FileControlInstance.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true) ?? throw new UnauthorizedAccessException();
+                                break;
+                            }
+                        case ".lnk":
+                            {
+                                LinkOptionsDialog dialog = new LinkOptionsDialog();
+                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                {
+                                    if (!await FullTrustExcutorController.Current.CreateLink(Path.Combine(FileControlInstance.CurrentFolder.Path, Dialog.NewFileName), dialog.Path, dialog.Description, dialog.Argument).ConfigureAwait(true))
+                                    {
+                                        throw new UnauthorizedAccessException();
+                                    }
+                                }
+
                                 break;
                             }
                         default:
                             {
-                                NewFile = await FileControlInstance.CurrentFolder.CreateFileAsync(Dialog.NewFileName, CreationCollisionOption.GenerateUniqueName);
+                                _ = await FileControlInstance.CurrentFolder.CreateFileAsync(Dialog.NewFileName, CreationCollisionOption.GenerateUniqueName) ?? throw new UnauthorizedAccessException();
                                 break;
                             }
-                    }
-
-                    if (NewFile == null)
-                    {
-                        throw new UnauthorizedAccessException();
                     }
                 }
                 catch (UnauthorizedAccessException)

@@ -63,6 +63,8 @@ namespace RX_Explorer.Class
 
         private const string ExcuteType_GetVariablePath = "Excute_GetVariable_Path";
 
+        private const string ExcuteType_CreateLink = "Excute_CreateLink";
+
         private const string ExcuteType_Test_Connection = "Excute_Test_Connection";
 
         private volatile static FullTrustExcutorController Instance;
@@ -119,7 +121,7 @@ namespace RX_Explorer.Class
             Deferral.Complete();
         }
 
-        public async Task<bool> TryConnectToFullTrustExutor()
+        public async Task<bool> TryConnectToFullTrustExcutor()
         {
             try
             {
@@ -159,13 +161,58 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task<bool> CreateLink(string LinkPath, string LinkTarget, string LinkDesc, string LinkArgument)
+        {
+            try
+            {
+                IsNowHasAnyActionExcuting = true;
+
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExcuteType", ExcuteType_CreateLink},
+                        {"LinkPath", LinkPath },
+                        {"LinkTarget", LinkTarget },
+                        {"LinkDesc", LinkDesc },
+                        {"LinkArgument", LinkArgument }
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success && Response.Message.ContainsKey("Success"))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        Debug.WriteLine(Response.Message["Error"]);
+                        return false;
+                    }
+                }
+                else
+                {
+                    throw new NoResponseException();
+                }
+            }
+            catch
+            {
+                Debug.WriteLine("Warning: CreateLink() throw an error");
+                return false;
+            }
+            finally
+            {
+                IsNowHasAnyActionExcuting = false;
+            }
+        }
+
         public async Task<string> GetVariablePath(string Variable)
         {
             try
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -206,7 +253,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -254,13 +301,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<(string, string, bool)> GetHyperlinkRelatedInformationAsync(string Path)
+        public async Task<(string, string, bool, bool)> GetHyperlinkRelatedInformationAsync(string Path)
         {
             try
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -272,7 +319,7 @@ namespace RX_Explorer.Class
 
                     if (Response.Status == AppServiceResponseStatus.Success && Response.Message.ContainsKey("Success"))
                     {
-                        return (Convert.ToString(Response.Message["TargetPath"]), Convert.ToString(Response.Message["Argument"]), Convert.ToBoolean(Response.Message["RunAs"]));
+                        return (Convert.ToString(Response.Message["TargetPath"]), Convert.ToString(Response.Message["Argument"]), Convert.ToBoolean(Response.Message["RunAs"]), Convert.ToBoolean(Response.Message["IsFile"]));
                     }
                     else
                     {
@@ -301,7 +348,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -341,7 +388,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -381,7 +428,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -422,7 +469,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -455,7 +502,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -490,7 +537,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -519,7 +566,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -546,7 +593,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -585,7 +632,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -625,7 +672,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -663,7 +710,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(true))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(true))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -711,7 +758,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -761,7 +808,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     Task ProgressTask;
 
@@ -870,7 +917,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(true))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(true))
                 {
                     List<KeyValuePair<string, string>> MessageList = new List<KeyValuePair<string, string>>();
 
@@ -1057,7 +1104,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(true))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(true))
                 {
                     List<KeyValuePair<string, string>> MessageList = new List<KeyValuePair<string, string>>();
 
@@ -1247,7 +1294,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -1291,7 +1338,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -1335,7 +1382,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExutor().ConfigureAwait(false))
+                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {

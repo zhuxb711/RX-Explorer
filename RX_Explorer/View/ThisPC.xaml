@@ -11,32 +11,6 @@
       Background="Transparent">
 
     <Page.Resources>
-        <DataTemplate x:Name="AddDataTemplate"
-                      x:DataType="Cls:QuickStartItem">
-            <Image VerticalAlignment="Center"
-                   Margin="5"
-                   HorizontalAlignment="Center"
-                   Height="50"
-                   Width="50"
-                   Source="{x:Bind Image}"
-                   Stretch="Uniform" />
-        </DataTemplate>
-        <DataTemplate x:Name="NormalDataTemplate"
-                      x:DataType="Cls:QuickStartItem">
-            <StackPanel Orientation="Vertical">
-                <Image Margin="20,10,20,5"
-                       HorizontalAlignment="Center"
-                       Height="40"
-                       Width="40"
-                       Source="{x:Bind Image,Mode=OneWay}"
-                       Stretch="Uniform" />
-                <TextBlock Width="75"
-                           FontSize="12"
-                           TextTrimming="CharacterEllipsis"
-                           HorizontalTextAlignment="Center"
-                           Text="{x:Bind DisplayName,Mode=OneWay}" />
-            </StackPanel>
-        </DataTemplate>
         <CommandBarFlyout x:Name="AppFlyout"
                           Placement="RightEdgeAlignedTop">
             <CommandBarFlyout.SecondaryCommands>
@@ -67,7 +41,26 @@
                               Click="WebDelete_Click" />
             </CommandBarFlyout.SecondaryCommands>
         </CommandBarFlyout>
-
+        <CommandBarFlyout x:Name="AppEmptyFlyout"
+                          Placement="RightEdgeAlignedTop">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Add"
+                              Label="添加"
+                              x:Uid="QuickStartAddButton"
+                              x:Name="AddQuickStartApp"
+                              Click="AddQuickStartApp_Click" />
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
+        <CommandBarFlyout x:Name="WebEmptyFlyout"
+                          Placement="RightEdgeAlignedTop">
+            <CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Add"
+                              Label="添加"
+                              x:Uid="QuickStartAddButton"
+                              x:Name="AddQuickStartWeb"
+                              Click="AddQuickStartWeb_Click" />
+            </CommandBarFlyout.SecondaryCommands>
+        </CommandBarFlyout>
         <CommandBarFlyout x:Name="LibraryFlyout"
                           Placement="RightEdgeAlignedTop">
             <CommandBarFlyout.SecondaryCommands>
@@ -191,12 +184,24 @@
                       Padding="5"
                       IsHoldingEnabled="True"
                       Holding="QuickStartGridView_Holding"
-                      ContextFlyout="{StaticResource AppFlyout}"
                       ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
-                <GridView.ItemTemplateSelector>
-                    <Cls:QuickStartSelector NormalDataTemplate="{StaticResource NormalDataTemplate}"
-                                            AddDataTemplate="{StaticResource AddDataTemplate}" />
-                </GridView.ItemTemplateSelector>
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="Cls:QuickStartItem">
+                        <StackPanel Orientation="Vertical">
+                            <Image Margin="20,10,20,5"
+                                   HorizontalAlignment="Center"
+                                   Height="40"
+                                   Width="40"
+                                   Source="{x:Bind Image,Mode=OneWay}"
+                                   Stretch="Uniform" />
+                            <TextBlock Width="75"
+                                       FontSize="12"
+                                       TextTrimming="CharacterEllipsis"
+                                       HorizontalTextAlignment="Center"
+                                       Text="{x:Bind DisplayName,Mode=OneWay}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
                 <GridView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <ItemsWrapGrid MaximumRowsOrColumns="3"
@@ -225,17 +230,29 @@
                       IsRightTapEnabled="True"
                       IsHoldingEnabled="True"
                       AllowFocusOnInteraction="False"
-                      Holding="WebGridView_Holding"
-                      ItemClick="WebGridView_ItemClick"
-                      RightTapped="WebGridView_RightTapped"
+                      Holding="QuickStartGridView_Holding"
+                      ItemClick="QuickStartGridView_ItemClick"
+                      RightTapped="QuickStartGridView_RightTapped"
                       Grid.Row="3"
                       Padding="5"
-                      ContextFlyout="{StaticResource WebFlyout}"
                       ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
-                <GridView.ItemTemplateSelector>
-                    <Cls:QuickStartSelector NormalDataTemplate="{StaticResource NormalDataTemplate}"
-                                            AddDataTemplate="{StaticResource AddDataTemplate}" />
-                </GridView.ItemTemplateSelector>
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="Cls:QuickStartItem">
+                        <StackPanel Orientation="Vertical">
+                            <Image Margin="20,10,20,5"
+                                   HorizontalAlignment="Center"
+                                   Height="40"
+                                   Width="40"
+                                   Source="{x:Bind Image,Mode=OneWay}"
+                                   Stretch="Uniform" />
+                            <TextBlock Width="75"
+                                       FontSize="12"
+                                       TextTrimming="CharacterEllipsis"
+                                       HorizontalTextAlignment="Center"
+                                       Text="{x:Bind DisplayName,Mode=OneWay}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
                 <GridView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <ItemsWrapGrid MaximumRowsOrColumns="3"

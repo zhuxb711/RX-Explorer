@@ -1,5 +1,4 @@
-﻿using ICSharpCode.SharpZipLib.Core;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -13,6 +12,8 @@ namespace RX_Explorer.Class
         public string Argument { get; private set; }
 
         public bool NeedRunAs { get; private set; }
+
+        public bool TargetPathIsFile { get; private set; }
 
         public override string Path
         {
@@ -52,13 +53,20 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    (TargetPath, Argument, NeedRunAs) = await FullTrustExcutorController.Current.GetHyperlinkRelatedInformationAsync(InternalPathString).ConfigureAwait(true);
+                    (TargetPath, Argument, NeedRunAs, TargetPathIsFile) = await FullTrustExcutorController.Current.GetHyperlinkRelatedInformationAsync(InternalPathString).ConfigureAwait(true);
 
-                    return StorageItem = await StorageFile.GetFileFromPathAsync(TargetPath);
+                    if(TargetPathIsFile)
+                    {
+                        return StorageItem = await StorageFile.GetFileFromPathAsync(TargetPath);
+                    }
+                    else
+                    {
+                        return StorageItem = await StorageFolder.GetFolderFromPathAsync(TargetPath);
+                    }
                 }
                 catch
                 {
-                    return null;
+                    return StorageItem = null;
                 }
             }
             else

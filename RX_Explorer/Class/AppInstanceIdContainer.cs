@@ -32,10 +32,10 @@ namespace RX_Explorer.Class
         {
             CurrentId = Id;
 
-            SetAsLastActivateId();
+            SetCurrentIdAsLastActivateId();
         }
 
-        public static void SetAsLastActivateId()
+        public static void SetCurrentIdAsLastActivateId()
         {
             string SavedInfo = Convert.ToString(ApplicationData.Current.LocalSettings.Values["LastActiveGuid"]);
 
@@ -55,6 +55,22 @@ namespace RX_Explorer.Class
             else
             {
                 ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonConvert.SerializeObject(new List<string>() { CurrentId });
+            }
+        }
+
+        public static void UngisterId(string Id)
+        {
+            string SavedInfo = Convert.ToString(ApplicationData.Current.LocalSettings.Values["LastActiveGuid"]);
+
+            if (!string.IsNullOrEmpty(SavedInfo))
+            {
+                List<string> Collection = JsonConvert.DeserializeObject<List<string>>(SavedInfo);
+
+                if (Collection.Contains(Id))
+                {
+                    Collection.Remove(Id);
+                    ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonConvert.SerializeObject(Collection);
+                }
             }
         }
 

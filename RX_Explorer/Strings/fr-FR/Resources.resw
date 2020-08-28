@@ -2572,4 +2572,40 @@ Les noms non valides incluent
   <data name="QueueDialog_NeedOpenHiddenSwitch_Content" xml:space="preserve">
     <value>Le chemin contient des dossiers cachés, veuillez activer le commutateur "Afficher les dossiers cachés" ou masquer l'arborescence des dossiers sur la gauche</value>
   </data>
+  <data name="QuickStartAddButton.Label" xml:space="preserve">
+    <value>Ajouter</value>
+  </data>
+  <data name="LinkOptionsDialog.Title" xml:space="preserve">
+    <value>Options de raccourci</value>
+  </data>
+  <data name="LinkOptionsDialog_Browser.Content" xml:space="preserve">
+    <value>Navigateur</value>
+  </data>
+  <data name="LinkOptionsDialog_Browser_Flyout_File.Content" xml:space="preserve">
+    <value>Fichier</value>
+  </data>
+  <data name="LinkOptionsDialog_Browser_Flyout_Folder.Content" xml:space="preserve">
+    <value>Dossier</value>
+  </data>
+  <data name="LinkOptionsDialog_Browser_Flyout_Text.Text" xml:space="preserve">
+    <value>Besoin de choisir un fichier ou un dossier?</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkArgument.Header" xml:space="preserve">
+    <value>Paramètres (facultatif)</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkArgument.PlaceholderText" xml:space="preserve">
+    <value>Entrez les paramètres</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkDescription.Header" xml:space="preserve">
+    <value>Remarques (facultatif)</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkDescription.PlaceholderText" xml:space="preserve">
+    <value>Entrez une description du raccourci</value>
+  </data>
+  <data name="LinkOptionsDialog_TargetPath.Header" xml:space="preserve">
+    <value>Cible</value>
+  </data>
+  <data name="LinkOptionsDialog_TargetPath.PlaceholderText" xml:space="preserve">
+    <value>Entrez ou parcourez le chemin cible</value>
+  </data>
 </root>

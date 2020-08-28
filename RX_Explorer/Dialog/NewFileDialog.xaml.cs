@@ -17,6 +17,7 @@ namespace RX_Explorer.Dialog
             Extension.Items.Add($"{Globalization.GetString("File_Type_TXT_Description")}(.txt)");
             Extension.Items.Add($"{Globalization.GetString("File_Type_Compress_Description")}(.zip)");
             Extension.Items.Add($"{Globalization.GetString("File_Type_RTF_Description")}(.rtf)");
+            Extension.Items.Add($"{Globalization.GetString("Link_Admin_DisplayType")}(.lnk)");
             Extension.Items.Add("Microsoft Word(.docx)");
             Extension.Items.Add("Microsoft PowerPoint(.pptx)");
             Extension.Items.Add("Microsoft Excel(.xlsx)");

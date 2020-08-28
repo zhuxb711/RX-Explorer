@@ -110,6 +110,29 @@ namespace FullTrustProcess
             {
                 switch (args.Request.Message["ExcuteType"])
                 {
+                    case "Excute_CreateLink":
+                        {
+                            string LinkPath = Convert.ToString(args.Request.Message["LinkPath"]);
+                            string LinkTarget = Convert.ToString(args.Request.Message["LinkTarget"]);
+                            string LinkDesc = Convert.ToString(args.Request.Message["LinkDesc"]);
+                            string LinkArgument = Convert.ToString(args.Request.Message["LinkArgument"]);
+
+                            ValueSet Value = new ValueSet();
+
+                            try
+                            {
+                                ShellLink.Create(LinkPath, LinkTarget, description: LinkDesc, arguments: LinkArgument).Dispose();
+                                Value.Add("Success", string.Empty);
+                            }
+                            catch(Exception e)
+                            {
+                                Value.Add("Error", e.Message);
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Excute_GetVariable_Path":
                         {
                             string Variable = Convert.ToString(args.Request.Message["Variable"]);
@@ -173,6 +196,7 @@ namespace FullTrustProcess
                                         Value.Add("TargetPath", Link.TargetPath);
                                         Value.Add("Argument", Link.Arguments);
                                         Value.Add("RunAs", Link.RunAsAdministrator);
+                                        Value.Add("IsFile", File.Exists(Link.TargetPath));
                                     }
                                 }
                                 catch (Exception e)
