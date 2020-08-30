@@ -1328,7 +1328,7 @@
     <value>Prêt pour s'appairer</value>
   </data>
   <data name="UnknownText" xml:space="preserve">
-    <value>Inconnu</value>
+    <value>Inconnue</value>
   </data>
   <data name="UnpairText" xml:space="preserve">
     <value>Déconnecter</value>
@@ -2607,5 +2607,8 @@ Les noms non valides incluent
   </data>
   <data name="LinkOptionsDialog_TargetPath.PlaceholderText" xml:space="preserve">
     <value>Entrez ou parcourez le chemin cible</value>
+  </data>
+  <data name="DeviceFileSystem.Text" xml:space="preserve">
+    <value>Système de fichiers:</value>
   </data>
 </root>

@@ -91,6 +91,8 @@ namespace RX_Explorer.Class
 
         public DriveType DriveType { get; private set; }
 
+        public string FileSystem { get; private set; }
+
         /// <summary>
         /// 初始化HardDeviceInfo对象
         /// </summary>
@@ -104,18 +106,51 @@ namespace RX_Explorer.Class
             this.Thumbnail = Thumbnail ?? new BitmapImage(new Uri("ms-appx:///Assets/DeviceIcon.png"));
             this.DriveType = DriveType;
 
-            if (PropertiesRetrieve != null && PropertiesRetrieve["System.Capacity"] is ulong TotalByte && PropertiesRetrieve["System.FreeSpace"] is ulong FreeByte)
+            if (PropertiesRetrieve != null)
             {
-                this.TotalByte = TotalByte;
-                this.FreeByte = FreeByte;
-                Capacity = GetSizeDescription(TotalByte);
-                FreeSpace = GetSizeDescription(FreeByte);
-                Percent = 1 - FreeByte / Convert.ToDouble(TotalByte);
+                if (PropertiesRetrieve.ContainsKey("System.Capacity") && PropertiesRetrieve["System.Capacity"] is ulong TotalByte)
+                {
+                    this.TotalByte = TotalByte;
+                    Capacity = GetSizeDescription(TotalByte);
+                }
+                else
+                {
+                    Capacity = Globalization.GetString("UnknownText");
+                }
+
+                if (PropertiesRetrieve.ContainsKey("System.FreeSpace") && PropertiesRetrieve["System.FreeSpace"] is ulong FreeByte)
+                {
+                    this.FreeByte = FreeByte;
+                    FreeSpace = GetSizeDescription(FreeByte);
+                }
+                else
+                {
+                    FreeSpace = Globalization.GetString("UnknownText");
+                }
+
+                if (PropertiesRetrieve.ContainsKey("System.Volume.FileSystem") && PropertiesRetrieve["System.Volume.FileSystem"] is string FileSystem)
+                {
+                    this.FileSystem = FileSystem;
+                }
+                else
+                {
+                    this.FileSystem = Globalization.GetString("UnknownText");
+                }
+
+                if (this.TotalByte != 0)
+                {
+                    Percent = 1 - this.FreeByte / Convert.ToDouble(this.TotalByte);
+                }
+                else
+                {
+                    Percent = 0;
+                }
             }
             else
             {
-                Capacity = "Unknown";
-                FreeSpace = "Unknown";
+                Capacity = Globalization.GetString("UnknownText");
+                FreeSpace = Globalization.GetString("UnknownText");
+                FileSystem = Globalization.GetString("UnknownText");
                 Percent = 0;
             }
         }

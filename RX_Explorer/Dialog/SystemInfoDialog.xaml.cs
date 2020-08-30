@@ -134,7 +134,7 @@ namespace RX_Explorer.Dialog
                 }
                 else
                 {
-                    return "Unknown";
+                    return Globalization.GetString("UnknownText");
                 }
             }
         }
@@ -164,7 +164,7 @@ namespace RX_Explorer.Dialog
 
             DisplayInformation CurrentDisplay = DisplayInformation.GetForCurrentView();
             Resolution = $"{CurrentDisplay.ScreenWidthInRawPixels} × {CurrentDisplay.ScreenHeightInRawPixels}";
-            ScreenSize = CurrentDisplay.DiagonalSizeInInches == null ? "Unknown" : $"{CurrentDisplay.DiagonalSizeInInches.GetValueOrDefault().ToString("F1")} inch";
+            ScreenSize = CurrentDisplay.DiagonalSizeInInches == null ? Globalization.GetString("UnknownText") : $"{CurrentDisplay.DiagonalSizeInInches.GetValueOrDefault():F1} inch";
             ResolutionScale = $"{Convert.ToInt16(CurrentDisplay.RawPixelsPerViewPixel * 100)}%";
             DisplayDpi = $"{Convert.ToInt16(CurrentDisplay.RawDpiX)} DPI";
 
@@ -264,7 +264,7 @@ namespace RX_Explorer.Dialog
             WindowsVersion = "Windows 10  " + $"{Version >> 48 & 0xFFFF}.{Version >> 32 & 0xFFFF}.{Version >> 16 & 0xFFFF}.{Version & 0xFFFF}";
 
             DeviceName = EAS.FriendlyName;
-            DeviceModel = string.IsNullOrEmpty(EAS.SystemProductName) ? "Unknown" : EAS.SystemProductName;
+            DeviceModel = string.IsNullOrEmpty(EAS.SystemProductName) ? Globalization.GetString("UnknownText") : EAS.SystemProductName;
 
             for (int i = 0; i < SystemInformation.GraphicAdapterInfo.Length; i++)
             {
@@ -370,7 +370,7 @@ namespace RX_Explorer.Dialog
                 TextBlock AdapterBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = string.IsNullOrEmpty(Interface.Description) ? "Unknown" : Interface.Description
+                    Text = string.IsNullOrEmpty(Interface.Description) ? Globalization.GetString("UnknownText") : Interface.Description
                 };
                 AdapterBlock.SetValue(Grid.RowProperty, i * 8);
                 AdapterBlock.SetValue(Grid.ColumnProperty, 1);
@@ -389,7 +389,7 @@ namespace RX_Explorer.Dialog
                 TextBlock IPv4AddressBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = IPv4 == null ? "Unknown" : IPv4.Address.ToString()
+                    Text = IPv4 == null ? Globalization.GetString("UnknownText") : IPv4.Address.ToString()
                 };
                 IPv4AddressBlock.SetValue(Grid.RowProperty, i * 8 + 1);
                 IPv4AddressBlock.SetValue(Grid.ColumnProperty, 1);
@@ -408,7 +408,7 @@ namespace RX_Explorer.Dialog
                 TextBlock IPv6AddressBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = IPv6 == null ? "Unknown" : IPv6.Address.ToString()
+                    Text = IPv6 == null ? Globalization.GetString("UnknownText") : IPv6.Address.ToString()
                 };
                 IPv6AddressBlock.SetValue(Grid.RowProperty, i * 8 + 2);
                 IPv6AddressBlock.SetValue(Grid.ColumnProperty, 1);
@@ -428,7 +428,7 @@ namespace RX_Explorer.Dialog
                 TextBlock GatewayAddressBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = Gateway == null ? "Unknown" : Gateway.Address.ToString()
+                    Text = Gateway == null ? Globalization.GetString("UnknownText") : Gateway.Address.ToString()
                 };
                 GatewayAddressBlock.SetValue(Grid.RowProperty, i * 8 + 3);
                 GatewayAddressBlock.SetValue(Grid.ColumnProperty, 1);
@@ -446,7 +446,7 @@ namespace RX_Explorer.Dialog
                 TextBlock MACAddressBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = PhysicalAddress == null ? "Unknown" : string.Join(":", Enumerable.Range(0, 6).Select(j => PhysicalAddress.ToString().Substring(j * 2, 2)))
+                    Text = PhysicalAddress == null ? Globalization.GetString("UnknownText") : string.Join(":", Enumerable.Range(0, 6).Select(j => PhysicalAddress.ToString().Substring(j * 2, 2)))
                 };
                 MACAddressBlock.SetValue(Grid.RowProperty, i * 8 + 4);
                 MACAddressBlock.SetValue(Grid.ColumnProperty, 1);
@@ -465,7 +465,7 @@ namespace RX_Explorer.Dialog
                 TextBlock PrimaryDNSAddressBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = PDNS == null ? "Unknown" : PDNS.ToString()
+                    Text = PDNS == null ? Globalization.GetString("UnknownText") : PDNS.ToString()
                 };
                 PrimaryDNSAddressBlock.SetValue(Grid.RowProperty, i * 8 + 5);
                 PrimaryDNSAddressBlock.SetValue(Grid.ColumnProperty, 1);
@@ -484,7 +484,7 @@ namespace RX_Explorer.Dialog
                 TextBlock SecondaryDNSAddressBlock = new TextBlock
                 {
                     VerticalAlignment = VerticalAlignment.Center,
-                    Text = !SDNS.Any() ? "Unknown" : SDNS.FirstOrDefault().ToString()
+                    Text = !SDNS.Any() ? Globalization.GetString("UnknownText") : SDNS.FirstOrDefault().ToString()
                 };
                 SecondaryDNSAddressBlock.SetValue(Grid.RowProperty, i * 8 + 6);
                 SecondaryDNSAddressBlock.SetValue(Grid.ColumnProperty, 1);

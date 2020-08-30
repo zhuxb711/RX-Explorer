@@ -1,1342 +1,1379 @@
 ﻿*****
+###What's new in Ver.5.3.0.0
+
+#####Feature Update
+
+>#####Added the ability to create lnk files
+
+>#####Added support for environment variables in the address bar, now you can use identifiers such as %LOCALAPPDATA% for navigation
+
+>#####Improved the mechanism when WIN+E is enabling. Now RX will detect in advance to ensure that WIN+E can be used normally, otherwise it is not allowed to enable
+
+#####UI Update
+
+>#####Add file system type in drive properties
+
+>#####Use the right-click menu to replace the + icon in the quick launch area
+
+>#####Now RX will support displaying files marked with System to ensure that no files or folders will be missed
+
+>>#####Note: You need to bear the risk of modifying System files/folders by yourself
+
+#####Bug fix
+
+>#####Fixed the problem that the address bar cannot navigate to the folder in some cases
+
+>#####Fixed the problem that the property page of files and folders cannot be copied such as the path or name
+
+>#####Fixed the problem that RX assumes that the target point is a file when processing lnk files
+
+>#####Fixed the problem that if the "Show Hidden Files" switch is not turned on, the non-hidden folders that contain hidden folders on the path cannot be accessed
+
+>#####Fixed the problem of not being able to use the mouse side button to go back in the image, video, and PDF viewers
+
+>#####Fixed the problem that the icons of all hidden files will be incorrectly converted to icons of normal files after the paste operation
+
+>#####Fixed the problem that may cause the file page currently being displayed to change when entering the settings page
+
+*****
 ###What's new in Ver.5.2.8.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Now you can directly use the system resource manager right-click menu to start this application. For scenarios where multiple instances are running at the same time, use the last activated instance
+>#####Now you can directly use the system resource manager right-click menu to start this application. For scenarios where multiple instances are running at the same time, use the last activated instance
 
->>#####Now you can drag tabs across instances (Beta testing function)
+>#####Now you can drag tabs across instances (Beta testing function)
 
->#####UI Update
+#####UI Update
 
->>#####Now allows the use of custom images for the website in the quick start area
+>#####Now allows the use of custom images for the website in the quick start area
 
->>#####Delete the duplicate content of the "Type" tag in the folder property page
+>#####Delete the duplicate content of the "Type" tag in the folder property page
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed a problem that other open methods cannot be called normally if there are spaces in the file path
+>#####Fixed a problem that other open methods cannot be called normally if there are spaces in the file path
 
->>#####Fixed a problem that may cause a crash when right-clicking or pressing F2 to rename
+>#####Fixed a problem that may cause a crash when right-clicking or pressing F2 to rename
 
->>#####Fixed a problem that may cause a crash when displaying hidden files
+>#####Fixed a problem that may cause a crash when displaying hidden files
 
->>#####Fixed a problem that may cause a crash when closing tabs
+>#####Fixed a problem that may cause a crash when closing tabs
 
->>#####Fixed a problem that the auxiliary process failed to shut down normally in some cases and caused the operation to fail
+>#####Fixed a problem that the auxiliary process failed to shut down normally in some cases and caused the operation to fail
 
 *****
 ###What's new in Ver.5.2.6.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Support .lnk file
+>#####Support .lnk file
 
->>#####Double-click to rename now increases the maximum time of 2000ms, after this time, no rename operation will be triggered
+>#####Double-click to rename now increases the maximum time of 2000ms, after this time, no rename operation will be triggered
 
->>#####Added "Set as Wallpaper" function to the picture viewing interface
+>#####Added "Set as Wallpaper" function to the picture viewing interface
 
->#####UI Update
+#####UI Update
 
->>#####Eliminates the problem that the small square on the address bar overflows with several pixels
+>#####Eliminates the problem that the small square on the address bar overflows with several pixels
 
->>#####The "Cannot open device" prompt at startup can now be disabled
+>#####The "Cannot open device" prompt at startup can now be disabled
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed the problem of incorrect sorting of files and folders
+>#####Fixed the problem of incorrect sorting of files and folders
 
->>#####Fixed the problem that the modified time was incorrectly displayed as UTC time instead of local time
+>#####Fixed the problem that the modified time was incorrectly displayed as UTC time instead of local time
 
->>#####Fixed the problem of multiple duplicate files caused by temporary files created by software such as Office
+>#####Fixed the problem of multiple duplicate files caused by temporary files created by software such as Office
 
->>#####Fixed the problem that may cause a crash when directly renaming files used by other applications
+>#####Fixed the problem that may cause a crash when directly renaming files used by other applications
 
->>#####Fixed the problem that may cause a crash when opening the picture fails
+>#####Fixed the problem that may cause a crash when opening the picture fails
 
->>#####Fixed the problem that may cause a crash at startup when the registration background task fails
+>#####Fixed the problem that may cause a crash at startup when the registration background task fails
 
->>#####Fixed the problem that files may be copied to the wrong location when dragging and dropping files to a folder
+>#####Fixed the problem that files may be copied to the wrong location when dragging and dropping files to a folder
 
->>#####Fixed the problem that the bottom auxiliary button is not synchronized with the right-click menu button state
+>#####Fixed the problem that the bottom auxiliary button is not synchronized with the right-click menu button state
 
->>#####Fixed the problem that may cause subsequent operations to crash when switching "folder directory"
+>#####Fixed the problem that may cause subsequent operations to crash when switching "folder directory"
 
 >#####Component Update
 
->>#####Update to the latest version of Microsoft's UI control library, which reduces the probability of accidental crashes and fixes some control problems
+>#####Update to the latest version of Microsoft's UI control library, which reduces the probability of accidental crashes and fixes some control problems
 
->>#####Update SQLite database
+>#####Update SQLite database
 
 *****
 ###What's new in Ver.5.2.3.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Now the quick launch bar can add Win32 and UWP applications, and also has the function of automatically obtaining icons
+>#####Now the quick launch bar can add Win32 and UWP applications, and also has the function of automatically obtaining icons
 
->>#####Added the "Windows Default" option to "Settings-Personalization-Pure Color Mode", which will synchronize Windows themes
+>#####Added the "Windows Default" option to "Settings-Personalization-Pure Color Mode", which will synchronize Windows themes
 
->#####UI Update
+#####UI Update
 
->>#####Updated the appearance of the text viewer and added a scroll bar
+>#####Updated the appearance of the text viewer and added a scroll bar
 
->>#####Updated the tab color to better match the solid color mode
+>#####Updated the tab color to better match the solid color mode
 
->>#####Use "#1E1E1E" instead of black in solid color mode
+>#####Use "#1E1E1E" instead of black in solid color mode
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed the problem that when the background is set to Bing image, if there is no network connection when restarting, it will cause a crash
+>#####Fixed the problem that when the background is set to Bing image, if there is no network connection when restarting, it will cause a crash
 
->>#####Fixed the problem that part of the system information is blocked
+>#####Fixed the problem that part of the system information is blocked
 
->>#####Fixed the problem that switching to Traditional Chinese is invalid
+>#####Fixed the problem that switching to Traditional Chinese is invalid
 
->>#####Fixed the problem that may be stuck when searching for the default associated program
+>#####Fixed the problem that may be stuck when searching for the default associated program
 
->>#####Fixed the problem that the menu bar at the bottom does not disappear when entering other pages
+>#####Fixed the problem that the menu bar at the bottom does not disappear when entering other pages
 
->>#####To solve the problem that the right-click menu may move the list, temporarily disable the column header sticky function
+>#####To solve the problem that the right-click menu may move the list, temporarily disable the column header sticky function
 
 *****
 ###What's new in Ver.5.2.0.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Added support for "Network Drive" (Beta test)
+>#####Added support for "Network Drive" (Beta test)
 
->>#####Add sorting memory function
+>#####Add sorting memory function
 
->>#####Add "Sort" button
+>#####Add "Sort" button
 
->>#####Added "Chinese (Traditional)" language support
+>#####Added "Chinese (Traditional)" language support
 
->>#####When you click "Shift" and press the "Delete" button, the permanent deletion will be performed
+>#####When you click "Shift" and press the "Delete" button, the permanent deletion will be performed
 
->>#####Now you can use Ctrl+wheel to switch the display mode
+>#####Now you can use Ctrl+wheel to switch the display mode
 
->>#####Now you can use Shift and Ctrl for multiple selection in single selection mode
+>#####Now you can use Shift and Ctrl for multiple selection in single selection mode
 
->#####UI Update
+#####UI Update
 
->>#####Speeds up the startup animation (1200ms→800ms)
+>#####Speeds up the startup animation (1200ms→800ms)
 
->>#####Extend the activation time of the rename function to avoid false triggering of this function (700ms→1200ms)
+>#####Extend the activation time of the rename function to avoid false triggering of this function (700ms→1200ms)
 
->>#####Optimized the behavior of the left file directory when renaming the folder
+>#####Optimized the behavior of the left file directory when renaming the folder
 
->>#####In single-click mode, when the mouse stays on the corresponding item, it will no longer wait and select immediately
+>#####In single-click mode, when the mouse stays on the corresponding item, it will no longer wait and select immediately
 
->>#####The icon on the left side of the main page has been updated to a Fluent icon
+>#####The icon on the left side of the main page has been updated to a Fluent icon
 
->#####Bug fix
+#####Bug fix
 
->>#####Resolved the problem that the Recycle Bin cannot perform "permanent deletion"
+>#####Resolved the problem that the Recycle Bin cannot perform "permanent deletion"
 
->>#####Fixed an issue that may cause a crash if the folder is occupied when the folder is renamed
+>#####Fixed an issue that may cause a crash if the folder is occupied when the folder is renamed
 
->>#####Fixed an issue where the "Empty Recycle Bin" button may be incorrectly enabled if the Recycle Bin is empty
+>#####Fixed an issue where the "Empty Recycle Bin" button may be incorrectly enabled if the Recycle Bin is empty
 
->>#####Fixed an issue that the "Move" command cannot be executed when dragging a folder to the address bar
+>#####Fixed an issue that the "Move" command cannot be executed when dragging a folder to the address bar
 
->>#####Fixed an issue that the "Add Drive" button may allow adding unsupported drives
+>#####Fixed an issue that the "Add Drive" button may allow adding unsupported drives
 
->>#####Fixed an issue that files and folders in the renamed state will not be automatically restored to the normal state when dragging and dropping
+>#####Fixed an issue that files and folders in the renamed state will not be automatically restored to the normal state when dragging and dropping
 
->>#####Fixed some problems when switching languages, which may cause incorrect language display
+>#####Fixed some problems when switching languages, which may cause incorrect language display
 
 *****
 ###What's new in Ver.5.1.7.0
 
->#####Feature Update
+#####Feature Update
 
->>#####New personalized settings-"Bing wallpaper" can be used as the background
+>#####New personalized settings-"Bing wallpaper" can be used as the background
 
->>#####Rename function now allows to keep only file suffix
+>#####Rename function now allows to keep only file suffix
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed the related problems of the background controller and improve the performance of this module
+>#####Fixed the related problems of the background controller and improve the performance of this module
 
->>#####Fixed the problem that illegal characters in the file name were not checked when creating a new file
+>#####Fixed the problem that illegal characters in the file name were not checked when creating a new file
 
->>#####Fixed the problem of not checking the reserved names of the system when creating new files and renaming existing files
+>#####Fixed the problem of not checking the reserved names of the system when creating new files and renaming existing files
 
->>#####Fixed the problem that the name displayed when the rename box is clicked the second time does not match the actual name when the rename fails
+>#####Fixed the problem that the name displayed when the rename box is clicked the second time does not match the actual name when the rename fails
 
->>#####Fixed the problem that changing the file name by mistake in the case of rename failure
+>#####Fixed the problem that changing the file name by mistake in the case of rename failure
 
->>#####Fixed the problem that caused a crash at startup when the USB device denied access
+>#####Fixed the problem that caused a crash at startup when the USB device denied access
 
->>#####Improved the reliability of the SQL database connection pool to avoid accidental disconnection from the cloud database
+>#####Improved the reliability of the SQL database connection pool to avoid accidental disconnection from the cloud database
 
->>#####Fixed the problem that may cause a crash when right-clicking the folder directory on the left and selecting delete
+>#####Fixed the problem that may cause a crash when right-clicking the folder directory on the left and selecting delete
 
->>#####Fixed the problem that the font color of "Black" could not be saved in "Recommended" mode
+>#####Fixed the problem that the font color of "Black" could not be saved in "Recommended" mode
 
->>#####Fixed the problem that may crash when placed in the background for a long time
+>#####Fixed the problem that may crash when placed in the background for a long time
 
->>#####Fixed the problem that the removable hard drive displays multiple duplicate drive letters
+>#####Fixed the problem that the removable hard drive displays multiple duplicate drive letters
 
 *****
 ###What's new in Ver.5.1.4.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Supports detection of MTP devices (such as mobile phones, etc.), but RX-Explorer itself cannot be opened, you need to use the system explorer to open
+>#####Supports detection of MTP devices (such as mobile phones, etc.), but RX-Explorer itself cannot be opened, you need to use the system explorer to open
 
->>#####Completely remove the hidden drive function (the function left over from the history when the function is not perfect at the initial stage of development)
+>#####Completely remove the hidden drive function (the function left over from the history when the function is not perfect at the initial stage of development)
 
->#####UI Update
+#####UI Update
 
->>#####Replaced several default wallpapers, the original wallpapers may cause the text to be unreadable
+>#####Replaced several default wallpapers, the original wallpapers may cause the text to be unreadable
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem that WIN+E could not start the RX-Explorer
+>#####Solved the problem that WIN+E could not start the RX-Explorer
 
->>#####Resolved the problem that the background communication task may crash if the auxiliary process exits before the application due to an exception (small probability)
+>#####Resolved the problem that the background communication task may crash if the auxiliary process exits before the application due to an exception (small probability)
 
->>#####Resolved the problem that after RX-Explorer is transformed into a multi-instance application, clicking the push notification in the lower right corner will start a new process
+>#####Resolved the problem that after RX-Explorer is transformed into a multi-instance application, clicking the push notification in the lower right corner will start a new process
 
 *****
 ###What's new in Ver.5.1.2.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Added display of hidden files and folders
+>#####Added display of hidden files and folders
 
->>#####Added support for opening .bat files
+>#####Added support for opening .bat files
 
->>#####The icon of the file to be moved will be dimmed
+>#####The icon of the file to be moved will be dimmed
 
->>#####Add drag copy function in the same folder, which will automatically generate file copies
+>#####Add drag copy function in the same folder, which will automatically generate file copies
 
->>#####Even if the application is closed, the copied and cut content will continue to be valid
+>#####Even if the application is closed, the copied and cut content will continue to be valid
 
->>#####From this version, the default display mode is changed from "Tile" to "Detail"
+>#####From this version, the default display mode is changed from "Tile" to "Detail"
 
->>#####Added "Use Win+E to activate the app" function, now you can use Win+E to start RX
+>#####Added "Use Win+E to activate the app" function, now you can use Win+E to start RX
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem that "Open as administrator" is invalid
+>#####Solved the problem that "Open as administrator" is invalid
 
->>#####Improved the background controller and added defensive verification to solve possible errors
+>#####Improved the background controller and added defensive verification to solve possible errors
 
->>#####Solve the problem of allowing multiple undo operations to be performed simultaneously
+>#####Solve the problem of allowing multiple undo operations to be performed simultaneously
 
->>#####Solve the problem that if a name conflict occurs when copying or moving a file and the file is finally renamed, the undo record will be wrong, and the problem will eventually lead to irreversibility.
+>#####Solve the problem that if a name conflict occurs when copying or moving a file and the file is finally renamed, the undo record will be wrong, and the problem will eventually lead to irreversibility.
 
->>#####Solve the problem that some files may be missed if a large number of modifications, additions, and deletions are made to the current folder in a short time
+>#####Solve the problem that some files may be missed if a large number of modifications, additions, and deletions are made to the current folder in a short time
 
->>#####Solved the problem that the state of the forward and backward keys will be changed incorrectly when refreshing. This problem will cause the array to cross the boundary and cause the RX to crash
+>#####Solved the problem that the state of the forward and backward keys will be changed incorrectly when refreshing. This problem will cause the array to cross the boundary and cause the RX to crash
 
 *****
 ###What's new in Ver.5.0.7.0
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed an issue that could cause a crash after being in the background for a long time
+>#####Fixed an issue that could cause a crash after being in the background for a long time
 
->>#####Fixed the issue that the copy, move and delete functions are invalid in Win10 2004 and below. To track the progress of related operations, please update to Win10 2004 version.
+>#####Fixed the issue that the copy, move and delete functions are invalid in Win10 2004 and below. To track the progress of related operations, please update to Win10 2004 version.
 
 *****
 ###What's new in Ver.5.0.6.0
 
->#####Feature update
+#####Feature Update
 
->>#####Additional progress tracking of the operation of copying, moving and deleting three files
+>#####Additional progress tracking of the operation of copying, moving and deleting three files
 
->>#####Added "Tile" display mode, mouse hover to display file name function
+>#####Added "Tile" display mode, mouse hover to display file name function
 
->>#####Add a blank space right-click menu button "Cancel"
+>#####Add a blank space right-click menu button "Cancel"
 
->>#####The "Undo" function can now undo the delete operation
+>#####The "Undo" function can now undo the delete operation
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed the problem that the "Undo" operation can only undo the most recent operation, and now all operations can be undo
+>#####Fixed the problem that the "Undo" operation can only undo the most recent operation, and now all operations can be undo
 
->>#####Fixed the problem of crash if "Undo" operation fails
+>#####Fixed the problem of crash if "Undo" operation fails
 
->>#####Fixed the problem that the "Copying..." and other prompts did not cover the left folder tree
+>#####Fixed the problem that the "Copying..." and other prompts did not cover the left folder tree
 
->>#####Fixed the problem of providing incorrect information after an error occurs during copy, move, delete operations
+>#####Fixed the problem of providing incorrect information after an error occurs during copy, move, delete operations
 
 *****
 ###What's new in Ver.5.0.3.0
 
->#####Feature update
+#####Feature Update
 
->>#####Improved the design of the background service and now allows multiple RX file managers to run simultaneously
+>#####Improved the design of the background service and now allows multiple RX file managers to run simultaneously
 
->>#####Add right-click menu "Open in new window" and "Open in new tab"
+>#####Add right-click menu "Open in new window" and "Open in new tab"
 
->>#####Add the function of renaming by clicking the file. Rename will be activated when the difference between two clicks is more than 700ms
+>#####Add the function of renaming by clicking the file. Rename will be activated when the difference between two clicks is more than 700ms
 
->>#####Add Toast notification after ejecting USB device
+>#####Add Toast notification after ejecting USB device
 
->#####UI update
+#####UI Update
 
->>#####Replaced some icons in the right-click menu
+>#####Replaced some icons in the right-click menu
 
->>#####Changed the alternate icon displayed when the file thumbnail cannot be loaded
+>#####Changed the alternate icon displayed when the file thumbnail cannot be loaded
 
->>#####Acrylic acrylic effect now covers areas such as address bar, search bar and tab page
+>#####Acrylic acrylic effect now covers areas such as address bar, search bar and tab page
 
->>#####Adjusted text and interface size
+>#####Adjusted text and interface size
 
 >#####Performance optimization
 
->>#####Improved the expansion speed of the folder directory on the left
+>#####Improved the expansion speed of the folder directory on the left
 
->>#####Reduced memory space occupied by file and folder thumbnails
+>#####Reduced memory space occupied by file and folder thumbnails
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed an issue that if the file is larger than 4GB, its size cannot be displayed correctly
+>#####Fixed an issue that if the file is larger than 4GB, its size cannot be displayed correctly
 
->>#####Fixed an issue that might cause a crash when quickly switching and expanding folders
+>#####Fixed an issue that might cause a crash when quickly switching and expanding folders
 
->>#####Fixed an issue that the folder on the left will not be updated when a folder rename is detected
+>#####Fixed an issue that the folder on the left will not be updated when a folder rename is detected
 
 *****
 ###What's new in Ver.5.0.0.0
 
->#####Feature update
+#####Feature Update
 
->>#####Add "Eject" option for USB devices
+>#####Add "Eject" option for USB devices
 
->>#####New "Open in Terminal" option, preferred to start Windows Terminal, otherwise start Powershell
+>#####New "Open in Terminal" option, preferred to start Windows Terminal, otherwise start Powershell
 
->>#####Add a new own background
+>#####Add a new own background
 
->>#####New file monitoring module, can now detect file changes
+>#####New file monitoring module, can now detect file changes
 
 >#####Performance optimization
 
->>#####Accelerate the suspension of the calculation of the hash check value, now it is better to suspend the calculation before the calculation is completed
+>#####Accelerate the suspension of the calculation of the hash check value, now it is better to suspend the calculation before the calculation is completed
 
->>#####Speed ​​up the speed of obtaining feedback suggestions. Now the content will not be translated by default, but you can right-click "Translate"
+>#####Speed ​​up the speed of obtaining feedback suggestions. Now the content will not be translated by default, but you can right-click "Translate"
 
->>#####Improved the algorithm of filters such as "Auto Optimize", "Sketch", "Binary" in picture editing
+>#####Improved the algorithm of filters such as "Auto Optimize", "Sketch", "Binary" in picture editing
 
->>#####Speed ​​up the processing of image filters
+>#####Speed ​​up the processing of image filters
 
->>#####Improved the speed of batch operation files
+>#####Improved the speed of batch operation files
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed some issues that may cause the "Recycle Bin" to crash
+>#####Fixed some issues that may cause the "Recycle Bin" to crash
 
->>#####Fixed an issue that could cause a jam when operating the recycle bin
+>#####Fixed an issue that could cause a jam when operating the recycle bin
 
->>#####Fixed an issue where improper translation resources might cause a crash
+>#####Fixed an issue where improper translation resources might cause a crash
 
->>#####Fixed an issue that the hidden drive function failed in some cases
+>#####Fixed an issue that the hidden drive function failed in some cases
 
->>#####Fixed an issue that Windows Terminal is not started in the current directory
+>#####Fixed an issue that Windows Terminal is not started in the current directory
 
->>#####Fixed an issue that the search system default opening method is invalid
+>#####Fixed an issue that the search system default opening method is invalid
 
->>#####Fixed an issue that transcoding module failure
+>#####Fixed an issue that transcoding module failure
 
->>#####Fixed an issue where the "Empty" button is still allowed to be clicked when the recycle bin has been emptied
+>#####Fixed an issue where the "Empty" button is still allowed to be clicked when the recycle bin has been emptied
 
 *****
 ###What's new in Ver.4.9.0.0
 
->#####Feature update
+#####Feature Update
 
->>#####New "Recycle Bin" module, you can query the contents of the Recycle Bin folder and perform operations such as Restore, Emptying, Permanent delete, etc.
+>#####New "Recycle Bin" module, you can query the contents of the Recycle Bin folder and perform operations such as Restore, Emptying, Permanent delete, etc.
 
->>#####Add two right-click menu options of "Unlock occupancy" and "Compute hash"
+>#####Add two right-click menu options of "Unlock occupancy" and "Compute hash"
 
->>#####The default deletion behavior has been changed, and a new deletion menu option "Skip the recycle bin, delete directly" has been added
+>#####The default deletion behavior has been changed, and a new deletion menu option "Skip the recycle bin, delete directly" has been added
 
->>#####If there is a name conflict when copying or moving a folder, a prompt will appear as to whether to merge or rename
+>#####If there is a name conflict when copying or moving a folder, a prompt will appear as to whether to merge or rename
 
->>#####Added support for Windows Terminal and common system tools (eg enter wt/regedit in the address bar, etc.)
+>#####Added support for Windows Terminal and common system tools (eg enter wt/regedit in the address bar, etc.)
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem of inconsistency caused by SQL statements
+>#####Solved the problem of inconsistency caused by SQL statements
 
->>#####Fixed the problem of unhiding the left folder directory in the settings after hiding the left folder directory to view the file, and then unable to enter the folder
+>#####Fixed the problem of unhiding the left folder directory in the settings after hiding the left folder directory to view the file, and then unable to enter the folder
 
->>#####Fixed the problem of incorrect calculation of folder size, subdirectories and subfiles in folder properties
+>#####Fixed the problem of incorrect calculation of folder size, subdirectories and subfiles in folder properties
 
->>#####Fixed the problem that the cancelled files still displayed when using Ctrl+Z to cancel the operation
+>#####Fixed the problem that the cancelled files still displayed when using Ctrl+Z to cancel the operation
 
->>#####Fixed the problem that when renaming a folder, the folder name cannot be selected correctly
+>#####Fixed the problem that when renaming a folder, the folder name cannot be selected correctly
 
 *****
 ###What's new in Ver.4.8.2.0
 
->#####Feature update
+#####Feature Update
 
->>#####You can now remove the folders that come with "Libraries"
+>#####You can now remove the folders that come with "Libraries"
 
->>#####Quicklook can now be used to view the root directory of the disk
+>#####Quicklook can now be used to view the root directory of the disk
 
->>#####Expand keyboard shortcuts to the main interface
+>#####Expand keyboard shortcuts to the main interface
 
->>#####Hover selection feature now supports "Libraries" and "Device and drive"
+>#####Hover selection feature now supports "Libraries" and "Device and drive"
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed an issue that could cause other functions to be triggered when calling "Quicklook" using the space bar
+>#####Fixed an issue that could cause other functions to be triggered when calling "Quicklook" using the space bar
 
->>#####Solved some translation problems
+>#####Solved some translation problems
 
->>#####Fixed an issue where mouse hover might not be automatically selected in single-click mode
+>#####Fixed an issue where mouse hover might not be automatically selected in single-click mode
 
->>#####Fixed an issue where multiple "Notepads" might be displayed in the "Choose another application" window
+>#####Fixed an issue where multiple "Notepads" might be displayed in the "Choose another application" window
 
 *****
 ###What's new in Ver.4.8.0.0
 
->#####Feature update
+#####Feature Update
 
->>#####A new column is added in "Details" and "List" modes. Click here to directly pop up the "Blank Area Right-click Menu"
+>#####A new column is added in "Details" and "List" modes. Click here to directly pop up the "Blank Area Right-click Menu"
 
->>#####Automatically save and restore the "folder and library" and "device and drive" expanded and collapsed states
+>#####Automatically save and restore the "folder and library" and "device and drive" expanded and collapsed states
 
->>#####Win10 2004 version is officially supported
+>#####Win10 2004 version is officially supported
 
 >#####Performance improvement
 
->>#####Significantly improved the speed of calculating the number of folders and files in "Properties" and the speed of calculating the size of folders
+>#####Significantly improved the speed of calculating the number of folders and files in "Properties" and the speed of calculating the size of folders
 
->>#####Removed some redundant operations
+>#####Removed some redundant operations
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed an issue where clicking "Open with" might cause a crash
+>#####Fixed an issue where clicking "Open with" might cause a crash
 
->>#####Fixed an issue where entering illegal characters would cause a crash when modifying the name of the quick start item
+>#####Fixed an issue where entering illegal characters would cause a crash when modifying the name of the quick start item
 
->>#####Fixed an issue that could cause a crash when repeatedly clicking the forward and backward buttons while viewing a file
+>#####Fixed an issue that could cause a crash when repeatedly clicking the forward and backward buttons while viewing a file
 
->>#####Fixed the problem of file directory loss, but the expansion speed was slightly reduced
+>#####Fixed the problem of file directory loss, but the expansion speed was slightly reduced
 
->>#####Fixed an issue of lack of touch long press support in "Details" and "List" modes
+>#####Fixed an issue of lack of touch long press support in "Details" and "List" modes
 
->>#####Fixed an issue that the language option in the settings may be blocked
+>#####Fixed an issue that the language option in the settings may be blocked
 
->>#####Fixed an issue that the keyboard shortcut still responds even if there is a pop-up window (such as rename window, etc.)
+>#####Fixed an issue that the keyboard shortcut still responds even if there is a pop-up window (such as rename window, etc.)
 
->>#####Fixed an issue that the full selection includes the suffix name when renaming
+>#####Fixed an issue that the full selection includes the suffix name when renaming
 
->>#####Fixed an issue where some content could not be displayed correctly after language switching
+>#####Fixed an issue where some content could not be displayed correctly after language switching
 
 *****
 ###What's new in Ver.4.7.5.0
 
->#####Feature update
+#####Feature Update
 
->>#####Added "Setting-Personalization-Animation effect" switch
+>#####Added "Setting-Personalization-Animation effect" switch
 
->>#####New multi-select right-click menu, now you can use the right-click menu after multi-select
+>#####New multi-select right-click menu, now you can use the right-click menu after multi-select
 
->>#####New system default associated program detection, now no need to manually specify the open program
+>#####New system default associated program detection, now no need to manually specify the open program
 
->>#####New language-French
+>#####New language-French
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed the problem that when the folder is compressed, the outermost folder will not be included in the compressed file
+>#####Fixed the problem that when the folder is compressed, the outermost folder will not be included in the compressed file
 
->>#####Solved many translation problems
+>#####Solved many translation problems
 
->>#####Solved the problem that the prompt of "lack of permission" may appear repeatedly
+>#####Solved the problem that the prompt of "lack of permission" may appear repeatedly
 
->>#####Resolved an issue that could cause a crash when dragging a tab to the file area
+>#####Resolved an issue that could cause a crash when dragging a tab to the file area
 
 *****
 ###What's new in Ver.4.7.0.0
 
->#####Feature update
+#####Feature Update
 
->>#####Expand the application range of the mouse side keys
+>#####Expand the application range of the mouse side keys
 
->#####Bug fix
+#####Bug fix
 
->>#####Resolved the incompatibility problem of the setup page on Win10-1809 version, this problem will cause RX to crash
+>#####Resolved the incompatibility problem of the setup page on Win10-1809 version, this problem will cause RX to crash
 
->>#####Fixed the problem of file structure damage when creating new xlsx, rtf, zip files
+>#####Fixed the problem of file structure damage when creating new xlsx, rtf, zip files
 
 *****
 ###What's new in Ver.4.6.8.0
 
->#####Feature update
+#####Feature Update
 
->>#####Add the function of automatically selecting by mouse hovering in "click to open folder" mode
+>#####Add the function of automatically selecting by mouse hovering in "click to open folder" mode
 
->>#####Add Ctrl + Z undo function (only copy, cut)
+>#####Add Ctrl + Z undo function (only copy, cut)
 
->>#####Added cross-tab drag and drop support
+>#####Added cross-tab drag and drop support
 
->>#####New language setting options, and now you no longer need to reset all settings to switch languages
+>#####New language setting options, and now you no longer need to reset all settings to switch languages
 
->>#####Add auxiliary bottom bar to optimize touch screen experience
+>#####Add auxiliary bottom bar to optimize touch screen experience
 
 >#####Performance improvement
 
->>#####Significantly speed up the loading speed of the image viewer, now no need to wait for the image cache to load
+>#####Significantly speed up the loading speed of the image viewer, now no need to wait for the image cache to load
 
->>#####Improved the expansion speed of the folder directory on the left
+>#####Improved the expansion speed of the folder directory on the left
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem that if the directory on the left is collapsed in use, it may cause the folder cannot be entered
+>#####Solved the problem that if the directory on the left is collapsed in use, it may cause the folder cannot be entered
 
->>#####Fixed an issue where the image viewer incorrectly loaded an unreadable image type
+>#####Fixed an issue where the image viewer incorrectly loaded an unreadable image type
 
->>#####Fixed the issue that the search page cannot be navigated to the file page in some cases
+>#####Fixed the issue that the search page cannot be navigated to the file page in some cases
 
->>#####Solved the problem that the right-click menu cannot be expanded correctly when using the touch screen
+>#####Solved the problem that the right-click menu cannot be expanded correctly when using the touch screen
 
->>#####Fixed the problem that the tips in the settings page is blocked
+>#####Fixed the problem that the tips in the settings page is blocked
 
 *****
 ###What's new in Ver.4.6.0.0
 
->#####Feature update
+#####Feature Update
 
->>#####Added QuickLook preview support
+>#####Added QuickLook preview support
 
->>#####Added support for the back button in the lower left corner in tablet mode
+>#####Added support for the back button in the lower left corner in tablet mode
 
->>#####Add the function to hide the left file directory
+>#####Add the function to hide the left file directory
 
->>#####Add the function of dragging files / folders to the upper address navigation bar
+>#####Add the function of dragging files / folders to the upper address navigation bar
 
->>#####When dragging a folder / file to the top of the target folder, the corresponding folder name will be displayed
+>#####When dragging a folder / file to the top of the target folder, the corresponding folder name will be displayed
 
->>#####Improved sorting function in "Detailed List" view
+>#####Improved sorting function in "Detailed List" view
 
 >#####Performance improvement
 
->>#####Greatly speed up the display of folder content
+>#####Greatly speed up the display of folder content
 
->>#####Reduce some unnecessary file read and write operations
+>#####Reduce some unnecessary file read and write operations
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed the problem that when the folder is renamed, the left directory will not be updated synchronously
+>#####Fixed the problem that when the folder is renamed, the left directory will not be updated synchronously
 
->>#####Fixed the problem that in the "Details" view, if there are too many files, the blank area cannot be right-clicked. Now the blank part of each line of the right-click will be equivalent to the right-click blank area
+>#####Fixed the problem that in the "Details" view, if there are too many files, the blank area cannot be right-clicked. Now the blank part of each line of the right-click will be equivalent to the right-click blank area
 
->>#####Fixed some PC crash issues when using RX's built-in image viewer
+>#####Fixed some PC crash issues when using RX's built-in image viewer
 
->>#####Removed some factors that may cause performance to decrease when resizing the window
+>#####Removed some factors that may cause performance to decrease when resizing the window
 
->>#####Resolved an issue where dragging in a folder with a large number of files may cause an exception
+>#####Resolved an issue where dragging in a folder with a large number of files may cause an exception
 
->>#####Fixed an issue that may cause RX to crash when non-U disk devices such as mobile phones are inserted into the PC
+>#####Fixed an issue that may cause RX to crash when non-U disk devices such as mobile phones are inserted into the PC
 
->>#####Fixed the issue that the theme will not match when switching back to other modes after switching to "pure white" mode
+>#####Fixed the issue that the theme will not match when switching back to other modes after switching to "pure white" mode
 
 *****
 ###What's new in Ver.4.5.4.0
 
->#####Feature update
+#####Feature Update
 
->>#####Win10-1809 system compatible support, but some animation effects are missing
+>#####Win10-1809 system compatible support, but some animation effects are missing
 
->>#####Support dragging and dropping files / folders, and at the same time can use Ctrl to switch copy / cut operations
+>#####Support dragging and dropping files / folders, and at the same time can use Ctrl to switch copy / cut operations
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed an issue where entering a folder may cause a freeze in some cases
+>#####Fixed an issue where entering a folder may cause a freeze in some cases
 
->>#####Resolved an issue that could cause a crash when returning to the main interface while the image viewer was loading the image cache
+>#####Resolved an issue that could cause a crash when returning to the main interface while the image viewer was loading the image cache
 
->>#####Fixed the problem that the original folder will be deleted accidentally when cutting to the same folder
+>#####Fixed the problem that the original folder will be deleted accidentally when cutting to the same folder
 
->>#####Fixed the issue that the expanded option will be displayed at the target location even if the cut or copied content does not include a folder
+>#####Fixed the issue that the expanded option will be displayed at the target location even if the cut or copied content does not include a folder
 
->>#####Fixed the problem that the evaluation prompt still does not disappear after evaluation through the settings page (if there is this problem, you can click the evaluation button again to solve)
+>#####Fixed the problem that the evaluation prompt still does not disappear after evaluation through the settings page (if there is this problem, you can click the evaluation button again to solve)
 
 *****
 ###What's new in Ver.4.5.0.0
 
->#####Feature update
+#####Feature Update
 
->>#####Added support for mouse side buttons
+>#####Added support for mouse side buttons
 
->#####UI update
+#####UI Update
 
->>#####Simplified some animation effects
+>#####Simplified some animation effects
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed some problems that may be caused when selecting other applications to open
+>#####Fixed some problems that may be caused when selecting other applications to open
 
 *****
 ###What's new in Ver.4.4.8.0
 
->#####Feature update
+#####Feature Update
 
->>#####Add "Related Information" in the file properties page to provide related information of image, video and audio files
+>#####Add "Related Information" in the file properties page to provide related information of image, video and audio files
 
->>#####Re-open the same format transcoding function for MP4 files and WMV files
+>#####Re-open the same format transcoding function for MP4 files and WMV files
 
->#####UI update
+#####UI Update
 
->>#####Optimized the format of error messages and email reports
+>#####Optimized the format of error messages and email reports
 
->#####Bug fix
+#####Bug fix
 
->>#####Resolved an issue that could cause a crash when using the keyboard's Backspace key
+>#####Resolved an issue that could cause a crash when using the keyboard's Backspace key
 
->>#####Fixed the problem of the font color not being synchronized on the "File System Access Permission" page
+>#####Fixed the problem of the font color not being synchronized on the "File System Access Permission" page
 
->>#####Solved the problem that if the file thumbnail cannot be obtained, it may cause unresponsiveness
+>#####Solved the problem that if the file thumbnail cannot be obtained, it may cause unresponsiveness
 
 *****
 ###What's new in Ver.4.4.5.0
 
->#####Feature Update
+#####Feature Update
 
->>#####New UI mode-solid color
+>#####New UI mode-solid color
 
->#####Bug fix
+#####Bug fix
 
->>#####Solve many problems of Bluetooth module
+>#####Solve many problems of Bluetooth module
 
->>#####Resolved an issue that could cause incorrect loading after enabling preload
+>#####Resolved an issue that could cause incorrect loading after enabling preload
 
 *****
 ###What's new in Ver.4.4.3.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Added support for pre-launching technology, which can maximize application startup speed
+>#####Added support for pre-launching technology, which can maximize application startup speed
 
->>#####Added a minimization prompt (when in transcoding or other state), if this application is minimized, a prompt will pop up
+>#####Added a minimization prompt (when in transcoding or other state), if this application is minimized, a prompt will pop up
 
->>#####Changed the logic of USB access, the new tab will now show the connected devices
+>#####Changed the logic of USB access, the new tab will now show the connected devices
 
->>#####When the USB device is unplugged, if the folder of this device is already open, the corresponding tab will be automatically closed
+>#####When the USB device is unplugged, if the folder of this device is already open, the corresponding tab will be automatically closed
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem that closed tab resources may not be automatically recycled
+>#####Solved the problem that closed tab resources may not be automatically recycled
 
->>#####Resolved an issue where search pages might not correctly identify the current path in the case of multiple tabs
+>#####Resolved an issue where search pages might not correctly identify the current path in the case of multiple tabs
 
 *****
 ###What's new in Ver.4.3.9.0
 
 >#####UI improvements
 
->>#####Fixed the problem that when the main window is zoomed to a smaller state, it cannot scroll to view some content
+>#####Fixed the problem that when the main window is zoomed to a smaller state, it cannot scroll to view some content
 
->>#####The sidebar will now change size as the window shrinks
+>#####The sidebar will now change size as the window shrinks
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem that the setting interface will not be displayed again when the setting interface is clicked again when the setting interface is closing
+>#####Solved the problem that the setting interface will not be displayed again when the setting interface is clicked again when the setting interface is closing
 
 *****
 ###What's new in Ver.4.3.7.0
 
->#####UI Update
+#####UI Update
 
->>#####The new settings interface is online, including new transition animations
+>#####The new settings interface is online, including new transition animations
 
->#####Bug fix
+#####Bug fix
 
->>######Resolved an issue that could prevent normal blue screen entry
+>######Resolved an issue that could prevent normal blue screen entry
 
->>######Fixed the problem that after removing the Zip-Viewer, you still can see the "Use built-in viewer" prompt in "Open with"
+>######Fixed the problem that after removing the Zip-Viewer, you still can see the "Use built-in viewer" prompt in "Open with"
 
 *****
 ###What's new in Ver.4.3.5.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Reduce the number of options for Zip compression level
+>#####Reduce the number of options for Zip compression level
 
->>#####Added support for compression and decompression of files larger than 4GB
+>#####Added support for compression and decompression of files larger than 4GB
 
->>#####Removed the built-in Zip viewer
+>#####Removed the built-in Zip viewer
 
->>#####Added the ability to change the suffix when renaming, thumbnails will now be regenerated after renaming
+>#####Added the ability to change the suffix when renaming, thumbnails will now be regenerated after renaming
 
 >#####Performance improvement
 
->>#####Improved speed on first launch
+>#####Improved speed on first launch
 
->>#####Reduces disk space usage
+>#####Reduces disk space usage
 
->>#####Optimized the algorithm when Zip compressed folders
+>#####Optimized the algorithm when Zip compressed folders
 
->#####Bug fix
+#####Bug fix
 
->>#####Resolved an issue where the back button was not disabled when entering the settings page from another page
+>#####Resolved an issue where the back button was not disabled when entering the settings page from another page
 
->>#####Solve the problem that changing Zip compression level in Chinese environment is invalid
+>#####Solve the problem that changing Zip compression level in Chinese environment is invalid
 
->>#####Fixed a crash when renaming a file or folder due to invalid characters being entered
+>#####Fixed a crash when renaming a file or folder due to invalid characters being entered
 
->>#####Solved the problem of unable to edit and delete popular websites and quick launch
+>#####Solved the problem of unable to edit and delete popular websites and quick launch
 
->>#####Resolved an issue that could cause crashes when getting feedback content
+>#####Resolved an issue that could cause crashes when getting feedback content
 
->>#####Fixed the issue that the drive letter could not be entered and crashed in single-click mode
+>#####Fixed the issue that the drive letter could not be entered and crashed in single-click mode
 
 *****
 ###What's new in Ver.4.3.0.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Close the prompt again. If you click Close while RX is processing or operating the file, a prompt box will pop up.
+>#####Close the prompt again. If you click Close while RX is processing or operating the file, a prompt box will pop up.
 
 >#####Component updates
 
->>#####Updated compilation components
+>#####Updated compilation components
 
->#####Bug fixes
+#####Bug fixes
 
->>#####Solved the problem of crashing again on the blue screen interface after RX crashed
+>#####Solved the problem of crashing again on the blue screen interface after RX crashed
 
->>#####Solved the display problem of some file names, which may cause blanks or the length of the name to exceed the display range
+>#####Solved the display problem of some file names, which may cause blanks or the length of the name to exceed the display range
 
->>#####Fixed the problem that when you are in the picture editing interface and you switch folders, you cannot completely return to the file interface
+>#####Fixed the problem that when you are in the picture editing interface and you switch folders, you cannot completely return to the file interface
 
 *****
 ###What's new in Ver.4.2.7.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Add support for address bar drop-down menu
+>#####Add support for address bar drop-down menu
 
->>#####Add "Copy full path" option to right-click menu of search interface
+>#####Add "Copy full path" option to right-click menu of search interface
 
 >#####Performance improvement
 
->>#####Improved the efficiency of listing devices when USB devices are connected
+>#####Improved the efficiency of listing devices when USB devices are connected
 
->>#####Other minor performance improvements
+>#####Other minor performance improvements
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed some issues that caused "Method was called at unexpected time" error
+>#####Fixed some issues that caused "Method was called at unexpected time" error
 
->>#####Fixed the issue that the "RX Explorer" name is not displayed in the initial interface
+>#####Fixed the issue that the "RX Explorer" name is not displayed in the initial interface
 
->>#####Solved the problem that when there are multiple folders with the same name in the address bar, it cannot be distinguished correctly, which will lead to navigation errors or failure to enter specific folders
+>#####Solved the problem that when there are multiple folders with the same name in the address bar, it cannot be distinguished correctly, which will lead to navigation errors or failure to enter specific folders
 
->>#####Addresses an issue where drives may not be listed properly in special cases
+>#####Addresses an issue where drives may not be listed properly in special cases
 
->>#####Resolved an issue that could cause a crash when quickly clicking back or forward
+>#####Resolved an issue that could cause a crash when quickly clicking back or forward
 
 *****
 ###What's new in Ver.4.2.4.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Add multi-tab support
+>#####Add multi-tab support
 
 >#####Performance improvement
 
->>#####Optimize the performance of asynchronous operations, improve the response speed of the UI, reduce the busy time
+>#####Optimize the performance of asynchronous operations, improve the response speed of the UI, reduce the busy time
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed the problem of unclear suffix format when transcoding images
+>#####Fixed the problem of unclear suffix format when transcoding images
 
->>#####Resolved an issue that caused a crash when the picture could not be transcoded due to missing codecs or other reasons
+>#####Resolved an issue that caused a crash when the picture could not be transcoded due to missing codecs or other reasons
 
->>#####Fixed an issue where clicking Cancel at the last moment of the process of importing files in a security domain would cause a crash
+>#####Fixed an issue where clicking Cancel at the last moment of the process of importing files in a security domain would cause a crash
 
->>#####Resolved an issue that could cause Google Translate to crash if the network was unavailable
+>#####Resolved an issue that could cause Google Translate to crash if the network was unavailable
 
->>#####Solved the problem that the newly generated file was displayed in RX incorrectly when the picture was transcoded
+>#####Solved the problem that the newly generated file was displayed in RX incorrectly when the picture was transcoded
 
->>#####Solve some problems in English language environment
+>#####Solve some problems in English language environment
 
 *****
 ###What's new in Ver.4.2.0.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Added the ability to decompress Zip archives containing folders
+>#####Added the ability to decompress Zip archives containing folders
 
->>#####Add the ability to open PDF files with password
+>#####Add the ability to open PDF files with password
 
->>#####New ability to compress folders
+>#####New ability to compress folders
 
->>#####Add cancel button when encrypting and decrypting files in security zone
+>#####Add cancel button when encrypting and decrypting files in security zone
 
 >#####UI improvements
 
->>#####Renewed icon
+>#####Renewed icon
 
->>#####Slightly extended the initial animation time
+>#####Slightly extended the initial animation time
 
->>#####Changed the content and layout of the settings page
+>#####Changed the content and layout of the settings page
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed the problem that after opening a blank compressed package, files could not be added to it
+>#####Fixed the problem that after opening a blank compressed package, files could not be added to it
 
->>#####Solved the problem that the "Extract All" button was not disabled when there were no files in the compressed package
+>#####Solved the problem that the "Extract All" button was not disabled when there were no files in the compressed package
 
->>#####Fixed the issue that when starting the RX Explorer after connecting to a USB device, there may be multiple identical drive letters
+>#####Fixed the issue that when starting the RX Explorer after connecting to a USB device, there may be multiple identical drive letters
 
->>#####Resolved an issue where opening a USB file using RX would cause a crash if "File System Access" permissions were not granted to RX
+>#####Resolved an issue where opening a USB file using RX would cause a crash if "File System Access" permissions were not granted to RX
 
->>#####Solved the display and localization of tile icon names
+>#####Solved the display and localization of tile icon names
 
 *****
 ###What's new in Ver.4.1.5.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Feedback module automatic translation function returns, Chinese and English reviews will be automatically translated according to system language
+>#####Feedback module automatic translation function returns, Chinese and English reviews will be automatically translated according to system language
 
->>#####Enhanced the protection mechanism of encryption and decryption vectors inside the security domain
+>#####Enhanced the protection mechanism of encryption and decryption vectors inside the security domain
 
->>#####Reduces the security risks of network connections such as databases connection
+>#####Reduces the security risks of network connections such as databases connection
 
->#####UI Update
+#####UI Update
 
->>#####Updated Windows Hello login status icon in Security Area
+>#####Updated Windows Hello login status icon in Security Area
 
 *****
 ###What's new in Ver.4.1.3.0
 
->#####Bug fixes
+#####Bug fixes
 
->>#####Solved the translation of some content
+>#####Solved the translation of some content
 
->>#####Delete redundant files
+>#####Delete redundant files
 
 *****
 ###What's new in Ver.4.1.2.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Add "New File" function, merge with "New Folder"
+>#####Add "New File" function, merge with "New Folder"
 
 >#####Component updates
 
->>#####Update add-ons to the latest version
+>#####Update add-ons to the latest version
 
 >#####Performance improvement
 
->>#####Improved the speed of obtaining feedback content and solved the problem that caused feedback content to fail to load
+>#####Improved the speed of obtaining feedback content and solved the problem that caused feedback content to fail to load
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed the problem that when sharing a file via WIFI, when the previous sharing interface is not closed, another file sharing interface is called again, which will cause RX to crash
+>#####Fixed the problem that when sharing a file via WIFI, when the previous sharing interface is not closed, another file sharing interface is called again, which will cause RX to crash
 
->>#####Added processing mechanism for situations such as Zip not being able to parse
+>#####Added processing mechanism for situations such as Zip not being able to parse
 
->>#####Fixed a possible crash when checking for update tasks
+>#####Fixed a possible crash when checking for update tasks
 
->>#####Solved the problem of incorrectly using Chinese as an alternative language when running in non-English and non-Chinese regions
+>#####Solved the problem of incorrectly using Chinese as an alternative language when running in non-English and non-Chinese regions
 
->>#####Addressed an issue that would cause a crash when deleting a file already in use by another application
+>#####Addressed an issue that would cause a crash when deleting a file already in use by another application
 
->>#####Solved the problem that when the folder fixed to the "Folders and Libraries" area has been moved and deleted, the next time you start Rx, it will cause an exception
+>#####Solved the problem that when the folder fixed to the "Folders and Libraries" area has been moved and deleted, the next time you start Rx, it will cause an exception
 
->>#####Solved the problem that the left file directory accidentally allows dragging, adjusting the position, and nesting. This problem may lead to chaotic folder relationships
+>#####Solved the problem that the left file directory accidentally allows dragging, adjusting the position, and nesting. This problem may lead to chaotic folder relationships
 
 *****
 ###What's new in Ver.4.0.8.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Add administrator permissions to open the application function, all applications started with administrator permissions may trigger UAC
+>#####Add administrator permissions to open the application function, all applications started with administrator permissions may trigger UAC
 
->>#####When starting Powershell and cmd from the address bar, it is started with administrator privileges by default, which may trigger UAC
+>#####When starting Powershell and cmd from the address bar, it is started with administrator privileges by default, which may trigger UAC
 
->>#####Added sort function for name, modification time, and size in "Detail" mode. Unable to sort types due to UWP restrictions
+>#####Added sort function for name, modification time, and size in "Detail" mode. Unable to sort types due to UWP restrictions
 
 >#####UI improvements
 
->>#####Solve the problem that the built-in document reader style is different from the theme style
+>#####Solve the problem that the built-in document reader style is different from the theme style
 
 >#####Performance improvements
 
->>#####Improved database performance, now feedback content loads and updates faster
+>#####Improved database performance, now feedback content loads and updates faster
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed the problem of "network exception" when checking the license status of "Security Area", if the check fails because the user is not logged in to the Microsoft Store
+>#####Fixed the problem of "network exception" when checking the license status of "Security Area", if the check fails because the user is not logged in to the Microsoft Store
 
->>#####Solved the problem of mismatch when the user clicked the "Agree" and "Against" buttons of the feedback content and displayed again.
+>#####Solved the problem of mismatch when the user clicked the "Agree" and "Against" buttons of the feedback content and displayed again.
 
->>#####Solved the problem that the feedback content dialog box would check the spelling of the input
+>#####Solved the problem that the feedback content dialog box would check the spelling of the input
 
->>#####Fixed the problem that after adding feedback content, the list will not automatically scroll to the end
+>#####Fixed the problem that after adding feedback content, the list will not automatically scroll to the end
 
->>#####Solved the problem that when the file of a certain type could not be opened with the specified software, the "Choose other Application" dialog box would not pop up when the corresponding file was opened next
+>#####Solved the problem that when the file of a certain type could not be opened with the specified software, the "Choose other Application" dialog box would not pop up when the corresponding file was opened next
 
->>#####Solved the problem that when RX opens the slow response disk such as mechanical hard disk, clicking the address bar will cause a crash
+>#####Solved the problem that when RX opens the slow response disk such as mechanical hard disk, clicking the address bar will cause a crash
 
->>#####Resolved an issue where Notepad could not be set as the default open handler
+>#####Resolved an issue where Notepad could not be set as the default open handler
 
->>#####Solves many problems with the built-in PDF reader, including:
+>#####Solves many problems with the built-in PDF reader, including:
 
->>>#####Due to the problems of the progressive loading of the built-in PDF, continuous page turning may cause the problem of page loss
+>>#####Due to the problems of the progressive loading of the built-in PDF, continuous page turning may cause the problem of page loss
 
->>>#####Because the built-in PDF will preload 10 pages at startup, this mechanism may conflict with the progressive loading logic, causing the problem of out-of-order loading
+>>#####Because the built-in PDF will preload 10 pages at startup, this mechanism may conflict with the progressive loading logic, causing the problem of out-of-order loading
 
 *****
 ###What's new in Ver.4.0.2.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Added support for directly opening executable files (.exe)
+>#####Added support for directly opening executable files (.exe)
 
->>#####You can now enter powershell or cmd directly in the address bar to open a command prompt
+>#####You can now enter powershell or cmd directly in the address bar to open a command prompt
 
->>#####Added "Open with", support to open specific types of files with custom applications
+>#####Added "Open with", support to open specific types of files with custom applications
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem that the feedback module would crash when the network was abnormal
+>#####Solved the problem that the feedback module would crash when the network was abnormal
 
->>#####Optimized the database implementation of the feedback module
+>#####Optimized the database implementation of the feedback module
 
 *****
 ###What's new in Ver.3.9.5.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Add new address bar feature update, you can directly click to enter any folder on the current folder path
+>#####Add new address bar feature update, you can directly click to enter any folder on the current folder path
 
->>#####Temporarily remove the "Browser" module to ensure the stability of RX and prepare for the kernel change of UWP browser
+>#####Temporarily remove the "Browser" module to ensure the stability of RX and prepare for the kernel change of UWP browser
 
->>#####When you manually enter the path into the address bar, intelligent prompts will be performed according to the content entered by the user to speed up the address input. Use Tab to select the first prompt path
+>#####When you manually enter the path into the address bar, intelligent prompts will be performed according to the content entered by the user to speed up the address input. Use Tab to select the first prompt path
 
->>#####Added the ability to manually add drives and hide specific drives
+>#####Added the ability to manually add drives and hide specific drives
 
->>#####Removed the ability to encrypt AES files separately, and the security domain is responsible
+>#####Removed the ability to encrypt AES files separately, and the security domain is responsible
 
 >#####Performance enhancements
 
->>#####Changed the design of the donation module and now it executes faster
+>#####Changed the design of the donation module and now it executes faster
 
->#####UI Update
+#####UI Update
 
->>#####Optimized the display effect of large, medium and small icons, and adjusted the text size of the file directory tree
+>#####Optimized the display effect of large, medium and small icons, and adjusted the text size of the file directory tree
 
->>#####Reduce the font size of the feedback module
+>#####Reduce the font size of the feedback module
 
->>#####Disable the click function of the feedback module and hide the scroll bar
+>#####Disable the click function of the feedback module and hide the scroll bar
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem that when RX is started in a non-tiled display mode, the file cannot be clicked or manipulated
+>#####Solved the problem that when RX is started in a non-tiled display mode, the file cannot be clicked or manipulated
 
->>#####Fixed the issue that "No suggestions or feedback" was displayed incorrectly when "Feedback Suggestion List" was loading
+>#####Fixed the issue that "No suggestions or feedback" was displayed incorrectly when "Feedback Suggestion List" was loading
 
->>#####Resolved the problem that after donating RX project, the prompt still pops up
+>#####Resolved the problem that after donating RX project, the prompt still pops up
 
 *****
 ###What's new in Ver.3.9.0.0
 
->#####UI Update
+#####UI Update
 
->>#####In response to Microsoft Store requirements, add a "User Privacy Statement" to the settings module for users to obtain the privacy statement of RX
+>#####In response to Microsoft Store requirements, add a "User Privacy Statement" to the settings module for users to obtain the privacy statement of RX
 
->#####Feature Update
+#####Feature Update
 
->>#####New file icon conversion function, now you can freely choose between "tile", "details", "list", "large, medium and small icons"
+>#####New file icon conversion function, now you can freely choose between "tile", "details", "list", "large, medium and small icons"
 
->>#####Add new folder related operations: copy, move
+>#####Add new folder related operations: copy, move
 
->>#####Implicitly supports the copy, move, and delete operations of multiple folders / files. Only keyboard shortcuts are allowed. You can use Ctrl and Shift to select multiple files, and then use the keyboard shortcuts Ctrl + D, Ctrl + X, Ctrl + C, Ctrl + V
+>#####Implicitly supports the copy, move, and delete operations of multiple folders / files. Only keyboard shortcuts are allowed. You can use Ctrl and Shift to select multiple files, and then use the keyboard shortcuts Ctrl + D, Ctrl + X, Ctrl + C, Ctrl + V
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem that the feedback module prompts "network error", the feedback module is back online
+>#####Solved the problem that the feedback module prompts "network error", the feedback module is back online
 
->>#####Solved the problem that the files in the corresponding folder will not be displayed when navigating directly to the corresponding folder through the address bar
+>#####Solved the problem that the files in the corresponding folder will not be displayed when navigating directly to the corresponding folder through the address bar
 
->>#####Solved the problem that on a slower computer or when entering the file immediately when RX starts, it will cause an abnormal crash
+>#####Solved the problem that on a slower computer or when entering the file immediately when RX starts, it will cause an abnormal crash
 
 *****
 ###What's new in Ver.3.8.7.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Add new merge function of video files
+>#####Add new merge function of video files
 
->>#####Added setting to switch black / white font
+>#####Added setting to switch black / white font
 
->>#####Added memory reclamation mechanism when the RX file manager reaches the system memory limit and is in a minimized or other inactive state
+>#####Added memory reclamation mechanism when the RX file manager reaches the system memory limit and is in a minimized or other inactive state
 
->>#####Added support for automatic startup with the system, now RX can be started with the system as needed
+>#####Added support for automatic startup with the system, now RX can be started with the system as needed
 
 >#####Performance improvements
 
->>#####Rewrites the appearance of the folded area, and now the "devices and drives" and "folders and libraries" will be more beautiful
+>#####Rewrites the appearance of the folded area, and now the "devices and drives" and "folders and libraries" will be more beautiful
 
->>#####Improved the loading timing of custom background images
+>#####Improved the loading timing of custom background images
 
->>#####Using C# 8.0 features, greatly improving the speed of obtaining feedback content
+>#####Using C# 8.0 features, greatly improving the speed of obtaining feedback content
 
->>#####Using a custom adaptive SQL database connection pool to improve SQL concurrency and throughput
+>#####Using a custom adaptive SQL database connection pool to improve SQL concurrency and throughput
 
->>#####Improved the information acquisition mechanism when a problem occurs, and will provide richer tracking information when an exception occurs
+>#####Improved the information acquisition mechanism when a problem occurs, and will provide richer tracking information when an exception occurs
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed the problem that after transcoding files, the new files generated will not be automatically displayed in the RX explorer
+>#####Fixed the problem that after transcoding files, the new files generated will not be automatically displayed in the RX explorer
 
->>#####Solved the problem of allowing MKV files to be cropped by mistake, now only allows operations on WMV and MP4 files
+>#####Solved the problem of allowing MKV files to be cropped by mistake, now only allows operations on WMV and MP4 files
 
->>#####Solved the problem that some files could not get preview icons
+>#####Solved the problem that some files could not get preview icons
 
->>#####Fixed the problem that some resources could not be released correctly when getting the file preview icon
+>#####Fixed the problem that some resources could not be released correctly when getting the file preview icon
 
->>#####Resolved the error problem that may be caused by entering the browser module, at the cost of more stuttering when the web page loads
+>#####Resolved the error problem that may be caused by entering the browser module, at the cost of more stuttering when the web page loads
 
 *****
 ###What's new in Ver.3.8.2.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Now when navigating to a specified folder by file path, the left folder bar will follow the progress of folder expansion
+>#####Now when navigating to a specified folder by file path, the left folder bar will follow the progress of folder expansion
 
->>#####Improved the way to find the library folder, now libraries other than the "Downloads" folder will be automatically located without the need to manually specify
+>#####Improved the way to find the library folder, now libraries other than the "Downloads" folder will be automatically located without the need to manually specify
 
->>#####Updated UI controls for folder bar
+>#####Updated UI controls for folder bar
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed the problem that RX fails to save the settings after the user specified the library folder, the dialog will pop up every time
+>#####Fixed the problem that RX fails to save the settings after the user specified the library folder, the dialog will pop up every time
 
->>#####Cleaned up deprecated update tips
+>#####Cleaned up deprecated update tips
 
 *****
 ###What's new in Ver.3.8.0.0
 
->#####Feature Update
+#####Feature Update
 
->>#####New video file editing feature allows to adjust the length of video and generate brand new files
+>#####New video file editing feature allows to adjust the length of video and generate brand new files
 
->>#####You can now transcode pictures directly from the right-click menu
+>#####You can now transcode pictures directly from the right-click menu
 
->#####Bug fix
+#####Bug fix
 
->>#####Removed support for GIF files in image transcoding
+>#####Removed support for GIF files in image transcoding
 
->>#####Fixed an issue that may cause a crash when returning to viewing the file after returning to the main interface from viewers such as videos, pictures, etc.
+>#####Fixed an issue that may cause a crash when returning to viewing the file after returning to the main interface from viewers such as videos, pictures, etc.
 
->>#####Resolved the issue that when some authentication errors occur in the Security Area, it cannot be returned
+>#####Resolved the issue that when some authentication errors occur in the Security Area, it cannot be returned
 
 *****
 ###What's new in Ver.3.7.6.0
 
->#####Feature Update
+#####Feature Update
 
->>#####If background tasks are disabled now, a prompt will pop up to request approval for background task execution
+>#####If background tasks are disabled now, a prompt will pop up to request approval for background task execution
 
->>#####Add new background task restriction: run when not using billing traffic
+>#####Add new background task restriction: run when not using billing traffic
 
->#####Bug fix
+#####Bug fix
 
->>#####Solve the problem that some right-click operations in the root folder of the drive do not work
+>#####Solve the problem that some right-click operations in the root folder of the drive do not work
 
->>#####Solved some text translation issues
+>#####Solved some text translation issues
 
 *****
 ###What's new in Ver.3.7.4.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Added a new file validity check to ensure that no error occurs when the file or folder does not exist
+>#####Added a new file validity check to ensure that no error occurs when the file or folder does not exist
 
->>#####Search and file display interface with new progress bar
+>#####Search and file display interface with new progress bar
 
->#####Bug fix
+#####Bug fix
 
->>#####Fixed the problem that when you enter the Security Area from the settings page and then click back, you cannot return
+>#####Fixed the problem that when you enter the Security Area from the settings page and then click back, you cannot return
 
->>#####Solved the problem that when clicking on other pages when viewing files on the "This PC" page, it would not switch
+>#####Solved the problem that when clicking on other pages when viewing files on the "This PC" page, it would not switch
 
->>#####Fixed the problem that when a subfolder of an unexpanded folder is deleted, the subfolder still appears in the folder
+>#####Fixed the problem that when a subfolder of an unexpanded folder is deleted, the subfolder still appears in the folder
 
->>#####Fixed the problem that after the current folder is deleted, RX automatically returns to the parent folder, the folder still exists
+>#####Fixed the problem that after the current folder is deleted, RX automatically returns to the parent folder, the folder still exists
 
->>#####Clear and merge some legacy code to avoid unnecessary operations
+>#####Clear and merge some legacy code to avoid unnecessary operations
 
->>#####Solved the problem that the search box was too close to the right margin, adjusted the docking position of the search option
+>#####Solved the problem that the search box was too close to the right margin, adjusted the docking position of the search option
 
 *****
 ###What's new in Ver.3.7.0.0
 
->#####Feature Update
+#####Feature Update
 
->>#####New top-level navigation page-"Secure Area", supports Windows Hello, plus AES encryption to protect private files
+>#####New top-level navigation page-"Secure Area", supports Windows Hello, plus AES encryption to protect private files
 
->>#####New brand new update reminder mechanism, no need to start RX file manager to receive update reminder
+>#####New brand new update reminder mechanism, no need to start RX file manager to receive update reminder
 
->>#####New reset interface is added, allowing exporting files of security domain before reset
+>#####New reset interface is added, allowing exporting files of security domain before reset
 
->>#####Removed the zoom button of the picture viewer interface, only retaining the double-click zoom function
+>#####Removed the zoom button of the picture viewer interface, only retaining the double-click zoom function
 
->>#####New brand new top page switching effects are added to make the interface more uniform
+>#####New brand new top page switching effects are added to make the interface more uniform
 
 >#####Performance improvements
 
->>#####The AES encryption method has been greatly optimized and enhanced, the original less secure ECB mode has been replaced, and the new CBC mode has been adopted.
+>#####The AES encryption method has been greatly optimized and enhanced, the original less secure ECB mode has been replaced, and the new CBC mode has been adopted.
 
->>#####Other design pattern improvements
+>#####Other design pattern improvements
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem that using keyboard shortcuts will cause misoperation when the focus is on the address bar and search box
+>#####Solved the problem that using keyboard shortcuts will cause misoperation when the focus is on the address bar and search box
 
->>#####Resolved an issue that could cause layout circular reference exceptions when using the Enter key on the address bar and search bar
+>#####Resolved an issue that could cause layout circular reference exceptions when using the Enter key on the address bar and search bar
 
 *****
 ###What's new in Ver.3.6.3.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Support deleting custom background image
+>#####Support deleting custom background image
 
->>#####Improved the clarity of all thumbnail icons
+>#####Improved the clarity of all thumbnail icons
 
 >#####Performance improvements
 
->>#####Connect to cloud database in advance, optimizing data acquisition speed of feedback list
+>#####Connect to cloud database in advance, optimizing data acquisition speed of feedback list
 
->>#####Using C # 8.0 features -<asynchronous streaming traversal>- improves data acquisition speed in some scenarios
+>#####Using C # 8.0 features -<asynchronous streaming traversal>- improves data acquisition speed in some scenarios
 
->>######Optimize the loading speed of images and the speed of obtaining cloud database, and solve the problem of stuttering when entering the setting interface
+>######Optimize the loading speed of images and the speed of obtaining cloud database, and solve the problem of stuttering when entering the setting interface
 
->#####Bug fix
+#####Bug fix
 
->>######Solved the problem that users may not display correctly after importing background images
+>######Solved the problem that users may not display correctly after importing background images
 
->>######Fixed the problem of scrolling animation of picture list when switching between different background modes
+>######Fixed the problem of scrolling animation of picture list when switching between different background modes
 
 *****
 ###What's new in Ver.3.6.0.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Add new custom picture background options, Settings-Adjust UI display mode-Custom-Picture custom background
+>#####Add new custom picture background options, Settings-Adjust UI display mode-Custom-Picture custom background
 
->#####Bug fix
+#####Bug fix
 
->>######Resolved an issue that could cause RX to crash when returning directly to the main interface
+>######Resolved an issue that could cause RX to crash when returning directly to the main interface
 
 >#####Performance improvements
 
->>######Updated the control logic of the global background controller, combining the control of the picture background and the background of the acrylic material
+>######Updated the control logic of the global background controller, combining the control of the picture background and the background of the acrylic material
 
->>######Improved the way to get feedback data, reduce network usage, and improve interface response speed
+>######Improved the way to get feedback data, reduce network usage, and improve interface response speed
 
 *****
 ###What's new in Ver.3.5.7.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Feedback module adds automatic translation for two languages supported by RX (English and Chinese)
+>#####Feedback module adds automatic translation for two languages supported by RX (English and Chinese)
 
->>#####English feedback will be translated into Chinese, and Chinese feedback will be translated into English (depending on the current Windows language)
+>#####English feedback will be translated into Chinese, and Chinese feedback will be translated into English (depending on the current Windows language)
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem of translation of some controls
+>#####Solved the problem of translation of some controls
 
 *****
 ###What's new in Ver.3.5.5.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Added setting options "Sidebar Switch" and "Folder Opening Method"
+>#####Added setting options "Sidebar Switch" and "Folder Opening Method"
 
->>#####Added keyboard shortcut support, including Ctrl + C, Ctrl + V, Ctrl + X, Ctrl + L, Ctrl + F, Ctrl + D, Ctrl + Shift + N, F2, F5, Delete , Backspace, Enter, etc.
+>#####Added keyboard shortcut support, including Ctrl + C, Ctrl + V, Ctrl + X, Ctrl + L, Ctrl + F, Ctrl + D, Ctrl + Shift + N, F2, F5, Delete , Backspace, Enter, etc.
 
->>#####Add automatic user path analysis and support user-defined location of each library folder
+>#####Add automatic user path analysis and support user-defined location of each library folder
 
->>#####Removed the setting option "Maximum search result rows", now the default value is 100
+>#####Removed the setting option "Maximum search result rows", now the default value is 100
 
->#####Bug fix
+#####Bug fix
 
->>#####Resolved an issue that caused RX to crash when copying or cutting files to a directory with no files or folders
+>#####Resolved an issue that caused RX to crash when copying or cutting files to a directory with no files or folders
 
->>#####Solved the problem that RX still displays feedback on the interface when feedback cannot be submitted due to network problems
+>#####Solved the problem that RX still displays feedback on the interface when feedback cannot be submitted due to network problems
 
 *****
 ###What's new in Ver.3.5.0.0
 
->#####Feature Update
+#####Feature Update
 
->>#####Added a setting page "Feedback and Suggestion List", where all users can ask questions or support others' suggestions
+>#####Added a setting page "Feedback and Suggestion List", where all users can ask questions or support others' suggestions
 
 *****
 ###What's new in Ver.3.4.5.0
 
 >#####Function update
 
->>#####Remove the multi-instance mode of RX
+>#####Remove the multi-instance mode of RX
 
->>#####Adding the manual refresh button of the drive and user can reload manually
+>#####Adding the manual refresh button of the drive and user can reload manually
 
->>#####Clicking on the address bar will automatically pop up the history
+>#####Clicking on the address bar will automatically pop up the history
 
->>#####Simplifies the operation flow of the “Restore and Initialize” button. RX can now be restarted automatically without user manual operation
+>#####Simplifies the operation flow of the “Restore and Initialize” button. RX can now be restarted automatically without user manual operation
 
->>#####Adding "system sharing" to "file sharing", you can now use the sharing function that comes with Windows
+>#####Adding "system sharing" to "file sharing", you can now use the sharing function that comes with Windows
 
->>#####Change rating module, now you can directly rate it directly inside RX
+>#####Change rating module, now you can directly rate it directly inside RX
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem that the drive property page cannot correctly distinguish different types of drives
+>#####Solved the problem that the drive property page cannot correctly distinguish different types of drives
 
->>#####Solved the "System Information" module, if the device is not currently connected to the network or the network drive is not working, there is nothing to display
+>#####Solved the "System Information" module, if the device is not currently connected to the network or the network drive is not working, there is nothing to display
 
 *****
 ###What's new in Ver.3.4.2.0
 
 >#####Function update
 
->>#####Allow copy and paste across drives
+>#####Allow copy and paste across drives
 
->>#####"Popular Website" module adds the icon automatic acquisition function, which can automatically query the corresponding icon according to the URL.
+>#####"Popular Website" module adds the icon automatic acquisition function, which can automatically query the corresponding icon according to the URL.
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem that the address bar and related buttons are invalid in the non-disk root directory (such as the "picture" folder)
+>#####Solved the problem that the address bar and related buttons are invalid in the non-disk root directory (such as the "picture" folder)
 
->>#####Solved the problem that the address bar cannot enter the subdirectory of the current directory
+>#####Solved the problem that the address bar cannot enter the subdirectory of the current directory
 
->>#####Solved a problem that some special exceptions were thrown during the initialization phase but were not processed
+>#####Solved a problem that some special exceptions were thrown during the initialization phase but were not processed
 
 *****
 ###What's new in Ver.3.4.0.0
 
 >#####Function update
 
->>#####File browsing module adds address bar and "forward", "backward" and "return to superior" button
+>#####File browsing module adds address bar and "forward", "backward" and "return to superior" button
 
->>#####Integration search bar to file browsing module
+>#####Integration search bar to file browsing module
 
->>#####Cancel the back navigation between "this computer" and "browser"
+>#####Cancel the back navigation between "this computer" and "browser"
 
->>#####Now you can directly locate the corresponding disk folder through the address bar. Switching between disks does not have to go back to the main interface.
+>#####Now you can directly locate the corresponding disk folder through the address bar. Switching between disks does not have to go back to the main interface.
 
->>#####In the case of directly inputting the file path through the address bar, RX will directly call the system default program processing
+>#####In the case of directly inputting the file path through the address bar, RX will directly call the system default program processing
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem that RX can't open the corresponding type of file, and the will not pop up the program selection box when there is no default application available
+>#####Solved the problem that RX can't open the corresponding type of file, and the will not pop up the program selection box when there is no default application available
 
 *****
 ###What's new in Ver.3.3.6.0
 
 >#####Function update
 
->>##### "System Information" module adds screen related parameters
+>##### "System Information" module adds screen related parameters
 
->>##### "Transcoding" module no longer uses multi-process model
+>##### "Transcoding" module no longer uses multi-process model
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem that the transcoding module could not be started
+>#####Solved the problem that the transcoding module could not be started
 
->>#####Solved the problem that the capacity display color of the disk drive information page does not change with the theme
+>#####Solved the problem that the capacity display color of the disk drive information page does not change with the theme
 
 >#####Other updates
 
->>#####Updated the latest control package with many bugfixes
+>#####Updated the latest control package with many bugfixes
 
 *****
 ###What's new in Ver.3.3.3.0
 
 >#####Function update
 
->>#####Display more information in folder properties, including "file & folder num", "folder size"
+>#####Display more information in folder properties, including "file & folder num", "folder size"
 
->>#####Now if you right click on "Folder Properties" in the root directory of the disk, the disk information will be automatically displayed.
+>#####Now if you right click on "Folder Properties" in the root directory of the disk, the disk information will be automatically displayed.
 
->>#####Add the right-click menu of "Folders and Libraries" - "Properties"
+>#####Add the right-click menu of "Folders and Libraries" - "Properties"
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem that the update log will pop up every time RX is started
+>#####Solved the problem that the update log will pop up every time RX is started
 
->>#####Now different identifiers are used to distinguish different disks
+>#####Now different identifiers are used to distinguish different disks
 
->>#####Resolve translation problems of some modules
+>#####Resolve translation problems of some modules
 
 >#####Performance optimization
 
->>#####Improve the rendering speed and scrolling fluency of files and files
+>#####Improve the rendering speed and scrolling fluency of files and files
 
 *****
 ###What's new in Ver.3.2.7.0
 
 >#####UI optimization
 
->>#####Optimized the effect of the "About Developer" page
+>#####Optimized the effect of the "About Developer" page
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem that the "View System Information" module cannot correctly process graphics card data larger than 2GB, this problem will cause crash
+>#####Solved the problem that the "View System Information" module cannot correctly process graphics card data larger than 2GB, this problem will cause crash
 
->>#####Resolved the problem that the “View System Information” module does not prioritize the display of IPv4 addresses when processing the gateway IP address.
+>#####Resolved the problem that the “View System Information” module does not prioritize the display of IPv4 addresses when processing the gateway IP address.
 
 *****
 ###What's new in Ver.3.2.5.0
 
 >#####Interface optimization
 
->>#####Improved the homepage text size
+>#####Improved the homepage text size
 
->>#####Fixed issue where "Folder and Library" and "Device and Drive" are not aligned
+>#####Fixed issue where "Folder and Library" and "Device and Drive" are not aligned
 
->>#####Fixed a problem where some content failed to change according to system language
+>#####Fixed a problem where some content failed to change according to system language
 
 >#####Function update
 
->>#####Add custom "folders and libraries" function, allowing folders to be fixed to the homepage for quick access
+>#####Add custom "folders and libraries" function, allowing folders to be fixed to the homepage for quick access
 
->>#####Optimized the Zip file viewer interface to adjust the trigger mechanism of Zip related functions
+>#####Optimized the Zip file viewer interface to adjust the trigger mechanism of Zip related functions
 
->>#####Optimized the logic of Zip plus decompression algorithm, faster
+>#####Optimized the logic of Zip plus decompression algorithm, faster
 
->#####Bug fix
+#####Bug fix
 
->>#####Solved the problem of incorrectly creating folders after Zip unpacking
+>#####Solved the problem of incorrectly creating folders after Zip unpacking
 
->>#####Solved the problem that Zip does not automatically jump to the unzipped folder after decompression
+>#####Solved the problem that Zip does not automatically jump to the unzipped folder after decompression
 
 *****
 ###What's new in Ver.3.2.2.0
 
->#####Bug fix
+#####Bug fix
 
->>#####Improved the file path indexing algorithm, which solves the problem that clicking “Open File Location” is invalid after searching in “Folder and Library”
+>#####Improved the file path indexing algorithm, which solves the problem that clicking “Open File Location” is invalid after searching in “Folder and Library”
 
 >#####Performance optimization
 
->>#####Slightly improved the rendering speed of search results
+>#####Slightly improved the rendering speed of search results
 
 >#####Improved the interaction behavior of the search box
 
->>#####Now click on the search box to display history without waiting for input
+>#####Now click on the search box to display history without waiting for input
 
->>#####Solved the problem that the search confirm button is not selected by default
+>#####Solved the problem that the search confirm button is not selected by default
 
->>#####If there are no search results, the result list will no longer be hidden
+>#####If there are no search results, the result list will no longer be hidden
 
 *****
 ###What's new in Ver.3.2.0.0
@@ -1356,9 +1393,9 @@
 
 >#####Setting page to add system information viewing function
 
->>#####Support to view system information, CPU information, memory information, GPU information, etc.
+>#####Support to view system information, CPU information, memory information, GPU information, etc.
 
->>#####If the CPU is Arm processor, the system information viewing function will not be enabled.
+>#####If the CPU is Arm processor, the system information viewing function will not be enabled.
 
 >#####Resolved the issue of delays when clicking the View System Log button
 

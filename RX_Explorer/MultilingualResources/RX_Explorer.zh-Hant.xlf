@@ -3455,6 +3455,10 @@ Invalid names include
           <source>Enter or browse the target path</source>
           <target state="translated">輸入或瀏覽目標路徑</target>
         </trans-unit>
+        <trans-unit id="DeviceFileSystem.Text" translate="yes" xml:space="preserve">
+          <source>File system:</source>
+          <target state="translated">文件系統:</target>
+        </trans-unit>
       </group>
     </body>
   </file>

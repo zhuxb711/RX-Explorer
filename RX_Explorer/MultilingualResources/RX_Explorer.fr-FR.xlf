@@ -1762,7 +1762,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         </trans-unit>
         <trans-unit id="UnknownText" translate="yes" xml:space="preserve">
           <source>Unknown</source>
-          <target state="translated">Inconnu</target>
+          <target state="translated">Inconnue</target>
         </trans-unit>
         <trans-unit id="UnpairText" translate="yes" xml:space="preserve">
           <source>Unpair</source>
@@ -3454,6 +3454,10 @@ Les noms non valides incluent
         <trans-unit id="LinkOptionsDialog_TargetPath.PlaceholderText" translate="yes" xml:space="preserve">
           <source>Enter or browse the target path</source>
           <target state="translated">Entrez ou parcourez le chemin cible</target>
+        </trans-unit>
+        <trans-unit id="DeviceFileSystem.Text" translate="yes" xml:space="preserve">
+          <source>File system:</source>
+          <target state="translated">Système de fichiers:</target>
         </trans-unit>
       </group>
     </body>

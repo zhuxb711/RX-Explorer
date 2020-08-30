@@ -1762,7 +1762,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
         </trans-unit>
         <trans-unit id="UnknownText" translate="yes" xml:space="preserve">
           <source>Unknown</source>
-          <target state="translated">未知设备</target>
+          <target state="translated">未知</target>
         </trans-unit>
         <trans-unit id="UnpairText" translate="yes" xml:space="preserve">
           <source>Unpair</source>
@@ -3454,6 +3454,10 @@ Invalid names include
         <trans-unit id="LinkOptionsDialog_TargetPath.PlaceholderText" translate="yes" xml:space="preserve">
           <source>Enter or browse the target path</source>
           <target state="translated">输入或浏览目标路径</target>
+        </trans-unit>
+        <trans-unit id="DeviceFileSystem.Text" translate="yes" xml:space="preserve">
+          <source>File system:</source>
+          <target state="translated">文件系统:</target>
         </trans-unit>
       </group>
     </body>

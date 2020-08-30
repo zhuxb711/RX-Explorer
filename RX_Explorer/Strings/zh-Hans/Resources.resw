@@ -1328,7 +1328,7 @@
     <value>准备配对</value>
   </data>
   <data name="UnknownText" xml:space="preserve">
-    <value>未知设备</value>
+    <value>未知</value>
   </data>
   <data name="UnpairText" xml:space="preserve">
     <value>取消配对</value>
@@ -2607,5 +2607,8 @@
   </data>
   <data name="LinkOptionsDialog_TargetPath.PlaceholderText" xml:space="preserve">
     <value>输入或浏览目标路径</value>
+  </data>
+  <data name="DeviceFileSystem.Text" xml:space="preserve">
+    <value>文件系统:</value>
   </data>
 </root>

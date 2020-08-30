@@ -1,14 +1,14 @@
 ﻿using RX_Explorer.Class;
 using System;
 using System.IO;
-using System.Linq;
 using Windows.UI.Xaml;
 
 namespace RX_Explorer.Dialog
 {
     public sealed partial class DeviceInfoDialog : QueueContentDialog
     {
-        HardDeviceInfo Device;
+        private HardDeviceInfo Device;
+
         public DeviceInfoDialog(HardDeviceInfo Device)
         {
             InitializeComponent();
@@ -18,14 +18,45 @@ namespace RX_Explorer.Dialog
             DeviceName.Text = Device.Name;
             Thumbnail.Source = Device.Thumbnail;
 
-            string Unit = Globalization.GetString("Device_Capacity_Unit");
-            FreeByte.Text = $"{Device.FreeByte:N0} {Unit}";
-            TotalByte.Text = $"{Device.TotalByte:N0} {Unit}";
-            UsedByte.Text = $"{Device.TotalByte - Device.FreeByte:N0} {Unit}";
+            FreeByte.Text = $"{Device.FreeByte:N0} {Globalization.GetString("Device_Capacity_Unit")}";
+            TotalByte.Text = $"{Device.TotalByte:N0} {Globalization.GetString("Device_Capacity_Unit")}";
+            UsedByte.Text = $"{Device.TotalByte - Device.FreeByte:N0} {Globalization.GetString("Device_Capacity_Unit")}";
 
             FreeSpace.Text = Device.FreeSpace;
             TotalSpace.Text = Device.Capacity;
             UsedSpace.Text = GetSizeDescription(Device.TotalByte - Device.FreeByte);
+
+            switch (Device.DriveType)
+            {
+                case DriveType.Fixed:
+                    {
+                        DeviceType.Text = Globalization.GetString("Device_Type_1");
+                        break;
+                    }
+                case DriveType.Network:
+                    {
+                        DeviceType.Text = Globalization.GetString("Device_Type_2");
+                        break;
+                    }
+                case DriveType.Removable:
+                    {
+                        DeviceType.Text = Globalization.GetString("Device_Type_3");
+                        break;
+                    }
+                case DriveType.Ram:
+                    {
+                        DeviceType.Text = Globalization.GetString("Device_Type_4");
+                        break;
+                    }
+                default:
+                    {
+                        DeviceType.Text = Globalization.GetString("Device_Type_5");
+                        break;
+                    }
+            }
+
+            FileSystem.Text = Device.FileSystem;
+
             Loaded += DeviceInfoDialog_Loaded;
         }
 
@@ -33,42 +64,6 @@ namespace RX_Explorer.Dialog
         {
             DoubleAnimation.To = Device.Percent * 100;
             Animation.Begin();
-
-            if (DriveInfo.GetDrives().FirstOrDefault((Drive) => Drive.RootDirectory.FullName == Device.Folder.Path) is DriveInfo Info)
-            {
-                switch (Info.DriveType)
-                {
-                    case DriveType.Fixed:
-                        {
-                            DeviceType.Text = Globalization.GetString("Device_Type_1");
-                            break;
-                        }
-                    case DriveType.Network:
-                        {
-                            DeviceType.Text = Globalization.GetString("Device_Type_2");
-                            break;
-                        }
-                    case DriveType.Removable:
-                        {
-                            DeviceType.Text = Globalization.GetString("Device_Type_3");
-                            break;
-                        }
-                    case DriveType.Ram:
-                        {
-                            DeviceType.Text = Globalization.GetString("Device_Type_4");
-                            break;
-                        }
-                    default:
-                        {
-                            DeviceType.Text = Globalization.GetString("Device_Type_5");
-                            break;
-                        }
-                }
-            }
-            else
-            {
-                DeviceType.Text = Globalization.GetString("Device_Type_5");
-            }
         }
 
         private string GetSizeDescription(ulong Size)

@@ -2713,4 +2713,7 @@ Invalid names include
   <data name="LinkOptionsDialog_TargetPath.PlaceholderText" xml:space="preserve">
     <value>Enter or browse the target path</value>
   </data>
+  <data name="DeviceFileSystem.Text" xml:space="preserve">
+    <value>File system:</value>
+  </data>
 </root>

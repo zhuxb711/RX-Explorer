@@ -58,12 +58,12 @@ namespace RX_Explorer.Dialog
                     }
                     else
                     {
-                        Level = "Unknown";
+                        Level = Globalization.GetString("UnknownText");
                     }
                 }
                 else
                 {
-                    Level = "Unknown";
+                    Level = Globalization.GetString("UnknownText");
                 }
             }
 

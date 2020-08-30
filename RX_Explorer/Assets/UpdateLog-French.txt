@@ -1,456 +1,493 @@
 ﻿*****
+###Quoi de neuf dans la version 5.3.0.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout de la possibilité de créer des fichiers lnk
+
+>#####Ajout de la prise en charge des variables d'environnement dans la barre d'adresse, vous pouvez désormais utiliser des identifiants tels que% LOCALAPPDATA% pour la navigation
+
+>#####Amélioration du mécanisme lorsque WIN+E est activé. Maintenant, RX détectera à l'avance pour s'assurer que WIN+E peut être utilisé normalement, sinon il n'est pas autorisé à activer
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Ajouter le type de système de fichiers dans les propriétés du lecteur
+
+>#####Utilisez le menu contextuel pour remplacer l'icône + dans la zone de lancement rapide
+
+>#####Maintenant, RX prend en charge l'affichage des fichiers marqués avec System pour s'assurer qu'aucun fichier ou dossier ne sera manqué
+
+>>#####Remarque: vous devez supporter le risque de modifier vous-même les fichiers/dossiers système
+
+#####Correction de bogue
+
+>#####Correction du problème qui empêchait la barre d'adresse d'accéder au dossier dans certains cas
+
+>#####Correction du problème qui empêchait de copier la page de propriétés des fichiers et des dossiers, comme le chemin ou le nom
+
+>#####Correction du problème selon lequel RX suppose que le point cible est un fichier lors du traitement des fichiers lnk
+
+>#####Correction du problème suivant: si le commutateur "Afficher les fichiers cachés" n'est pas activé, les dossiers non cachés contenant des dossiers cachés sur le chemin ne sont pas accessibles
+
+>#####Correction du problème de ne pas pouvoir utiliser le bouton latéral de la souris pour revenir en arrière dans les visionneuses d'images, de vidéos et de PDF
+
+>#####Correction du problème de conversion incorrecte des icônes de tous les fichiers cachés en icônes de fichiers normaux après l'opération de collage
+
+>#####Correction du problème pouvant entraîner le changement de la page de fichier actuellement affichée lors de l'entrée dans la page de paramètres
+
+*****
 ###Quoi de neuf dans la version 5.2.8.0
 
->#####Mise à jour des fonctionnalités
+#####Mise à jour des fonctionnalités
 
->>#####Vous pouvez maintenant utiliser directement le menu contextuel du gestionnaire de ressources système pour démarrer cette application. Pour les scénarios où plusieurs instances s'exécutent en même temps, utilisez la dernière instance activée
+>#####Vous pouvez maintenant utiliser directement le menu contextuel du gestionnaire de ressources système pour démarrer cette application. Pour les scénarios où plusieurs instances s'exécutent en même temps, utilisez la dernière instance activée
 
->>#####Vous pouvez maintenant faire glisser des onglets entre les instances (fonction de test bêta)
+>#####Vous pouvez maintenant faire glisser des onglets entre les instances (fonction de test bêta)
 
->#####Mise à jour de l'interface utilisateur
+#####Mise à jour de l'interface utilisateur
 
->>#####Permet désormais d'utiliser des images personnalisées pour le site Web dans la zone de démarrage rapide
+>#####Permet désormais d'utiliser des images personnalisées pour le site Web dans la zone de démarrage rapide
 
->>#####Supprimer le contenu dupliqué de la balise "Type" dans la page de propriétés du dossier
+>#####Supprimer le contenu dupliqué de la balise "Type" dans la page de propriétés du dossier
 
->#####Correction de bogue
+#####Correction de bogue
 
->>#####Correction d'un problème selon lequel les autres méthodes ouvertes ne peuvent pas être appelées normalement s'il y a des espaces dans le chemin du fichier
+>#####Correction d'un problème selon lequel les autres méthodes ouvertes ne peuvent pas être appelées normalement s'il y a des espaces dans le chemin du fichier
 
->>#####Correction d'un problème pouvant provoquer un plantage lors d'un clic droit ou d'une pression sur F2 pour renommer
+>#####Correction d'un problème pouvant provoquer un plantage lors d'un clic droit ou d'une pression sur F2 pour renommer
 
->>#####Correction d'un problème pouvant provoquer un crash lors de l'affichage de fichiers cachés
+>#####Correction d'un problème pouvant provoquer un crash lors de l'affichage de fichiers cachés
 
->>#####Correction d'un problème pouvant provoquer un plantage lors de la fermeture des onglets
+>#####Correction d'un problème pouvant provoquer un plantage lors de la fermeture des onglets
 
->>#####Correction d'un problème qui empêchait le processus auxiliaire de s'arrêter normalement dans certains cas et provoquait l'échec de l'opération
+>#####Correction d'un problème qui empêchait le processus auxiliaire de s'arrêter normalement dans certains cas et provoquait l'échec de l'opération
 
 *****
 ###Quoi de neuf dans la version 5.2.6.0
 
->#####Mise à jour des fonctionnalités
+#####Mise à jour des fonctionnalités
 
->>#####Supporte le fichier .lnk
+>#####Supporte le fichier .lnk
 
->>#####Le double-clic pour renommer augmente maintenant le temps maximum de 2000ms, après ce temps, aucune opération de changement de nom ne sera déclenchée
+>#####Le double-clic pour renommer augmente maintenant le temps maximum de 2000ms, après ce temps, aucune opération de changement de nom ne sera déclenchée
 
->>#####Ajout de la fonction "Définir comme fond d'écran" à l'interface de visualisation des images
+>#####Ajout de la fonction "Définir comme fond d'écran" à l'interface de visualisation des images
 
->#####Mise à jour de l'interface utilisateur
+#####Mise à jour de l'interface utilisateur
 
->>#####Élimine le problème que le petit carré de la barre d'adresse déborde de plusieurs pixels
+>#####Élimine le problème que le petit carré de la barre d'adresse déborde de plusieurs pixels
 
->>#####L'invite "Impossible d'ouvrir le périphérique" au démarrage peut maintenant être désactivée
+>#####L'invite "Impossible d'ouvrir le périphérique" au démarrage peut maintenant être désactivée
 
->#####Correction de bogue
+#####Correction de bogue
 
->>#####Correction du problème de tri incorrect des fichiers et des dossiers
+>#####Correction du problème de tri incorrect des fichiers et des dossiers
 
->>#####Correction du problème d'affichage incorrect de l'heure modifiée en temps UTC au lieu de l'heure locale
+>#####Correction du problème d'affichage incorrect de l'heure modifiée en temps UTC au lieu de l'heure locale
 
->>#####Correction du problème de plusieurs fichiers en double causé par des fichiers temporaires créés par un logiciel tel qu'Office
+>#####Correction du problème de plusieurs fichiers en double causé par des fichiers temporaires créés par un logiciel tel qu'Office
 
->>#####Correction du problème pouvant provoquer un plantage lors du changement de nom direct des fichiers utilisés par d'autres applications
+>#####Correction du problème pouvant provoquer un plantage lors du changement de nom direct des fichiers utilisés par d'autres applications
 
->>#####Correction du problème qui peut provoquer un crash lors de l'ouverture de l'image échoue
+>#####Correction du problème qui peut provoquer un crash lors de l'ouverture de l'image échoue
 
->>#####Correction du problème pouvant provoquer un crash au démarrage lorsque la tâche d'enregistrement en arrière-plan échoue
+>#####Correction du problème pouvant provoquer un crash au démarrage lorsque la tâche d'enregistrement en arrière-plan échoue
 
->>#####Correction du problème selon lequel les fichiers peuvent être copiés au mauvais emplacement lors du glisser-déposer des fichiers dans un dossier
+>#####Correction du problème selon lequel les fichiers peuvent être copiés au mauvais emplacement lors du glisser-déposer des fichiers dans un dossier
 
->>#####Correction du problème selon lequel le bouton auxiliaire inférieur n'est pas synchronisé avec l'état du bouton du menu contextuel
+>#####Correction du problème selon lequel le bouton auxiliaire inférieur n'est pas synchronisé avec l'état du bouton du menu contextuel
 
->>#####Correction du problème pouvant entraîner le blocage des opérations ultérieures lors du changement de "répertoire de dossiers"
+>#####Correction du problème pouvant entraîner le blocage des opérations ultérieures lors du changement de "répertoire de dossiers"
 
 >#####Mise à jour des composants
 
->>#####Mise à jour vers la dernière version de la bibliothèque de contrôle de l'interface utilisateur de Microsoft, ce qui réduit la probabilité de plantages accidentels et corrige certains problèmes de contrôle
+>#####Mise à jour vers la dernière version de la bibliothèque de contrôle de l'interface utilisateur de Microsoft, ce qui réduit la probabilité de plantages accidentels et corrige certains problèmes de contrôle
 
->>#####Mettre à jour la base de données SQLite
+>#####Mettre à jour la base de données SQLite
 
 *****
 ###Quoi de neuf dans la version 5.2.3.0
 
->#####Mise à jour des fonctionnalités
+#####Mise à jour des fonctionnalités
 
->>#####Maintenant, la barre de lancement rapide peut ajouter des applications Win32 et UWP, et a également la fonction d'obtenir automatiquement des icônes
+>#####Maintenant, la barre de lancement rapide peut ajouter des applications Win32 et UWP, et a également la fonction d'obtenir automatiquement des icônes
 
->>#####Ajout de l'option "Windows par défaut" à "Paramètres-Personnalisation-Mode couleur pure", qui synchronisera les thèmes Windows
+>#####Ajout de l'option "Windows par défaut" à "Paramètres-Personnalisation-Mode couleur pure", qui synchronisera les thèmes Windows
 
->#####Mise à jour de l'interface utilisateur
+#####Mise à jour de l'interface utilisateur
 
->>#####Mise à jour de l'apparence de la visionneuse de texte et ajout d'une barre de défilement
+>#####Mise à jour de l'apparence de la visionneuse de texte et ajout d'une barre de défilement
 
->>#####Mise à jour de la couleur de l'onglet pour mieux correspondre au mode de couleur unie
+>#####Mise à jour de la couleur de l'onglet pour mieux correspondre au mode de couleur unie
 
->>#####Utilisez "# 1E1E1E" au lieu du noir en mode couleur unie
+>#####Utilisez "# 1E1E1E" au lieu du noir en mode couleur unie
 
->#####Correction de bogue
+#####Correction de bogue
 
->>#####Correction du problème suivant: lorsque l'arrière-plan est défini sur l'image Bing, s'il n'y a pas de connexion réseau lors du redémarrage, cela provoquera un crash
+>#####Correction du problème suivant: lorsque l'arrière-plan est défini sur l'image Bing, s'il n'y a pas de connexion réseau lors du redémarrage, cela provoquera un crash
 
->>#####Correction du problème de blocage d'une partie des informations système
+>#####Correction du problème de blocage d'une partie des informations système
 
->>#####Correction du problème qui empêchait le passage au chinois traditionnel
+>#####Correction du problème qui empêchait le passage au chinois traditionnel
 
->>#####Correction du problème qui pouvait être bloqué lors de la recherche du programme associé par défaut
+>#####Correction du problème qui pouvait être bloqué lors de la recherche du programme associé par défaut
 
->>#####Correction du problème que la barre de menu en bas ne disparaît pas lors de la saisie d'autres pages
+>#####Correction du problème que la barre de menu en bas ne disparaît pas lors de la saisie d'autres pages
 
->>#####Pour résoudre le problème selon lequel le menu contextuel peut déplacer la liste, désactivez temporairement la fonction rémanente d'en-tête de colonne
+>#####Pour résoudre le problème selon lequel le menu contextuel peut déplacer la liste, désactivez temporairement la fonction rémanente d'en-tête de colonne
 
 *****
 ###Quoi de neuf dans la version 5.2.0.0
 
->#####Mise à jour des fonctionnalités
+#####Mise à jour des fonctionnalités
 
->>#####Ajout de la prise en charge de "Network Drive" (test bêta)
+>#####Ajout de la prise en charge de "Network Drive" (test bêta)
 
->>#####Ajouter une fonction de mémoire de tri
+>#####Ajouter une fonction de mémoire de tri
 
->>#####Ajouter le bouton "Trier"
+>#####Ajouter le bouton "Trier"
 
->>#####Ajout de la prise en charge de la langue "chinois (traditionnel)"
+>#####Ajout de la prise en charge de la langue "chinois (traditionnel)"
 
->>#####Lorsque vous cliquez sur "Shift" et appuyez sur le bouton "Supprimer", la suppression définitive sera effectuée
+>#####Lorsque vous cliquez sur "Shift" et appuyez sur le bouton "Supprimer", la suppression définitive sera effectuée
 
->>#####Vous pouvez maintenant utiliser Ctrl + molette pour changer le mode d'affichage
+>#####Vous pouvez maintenant utiliser Ctrl + molette pour changer le mode d'affichage
 
->>#####Vous pouvez maintenant utiliser Shift et Ctrl pour une sélection multiple en mode de sélection unique
+>#####Vous pouvez maintenant utiliser Shift et Ctrl pour une sélection multiple en mode de sélection unique
 
->#####Mise à jour de l'interface utilisateur
+#####Mise à jour de l'interface utilisateur
 
->>#####Accélère l'animation de démarrage (1200ms → 800ms)
+>#####Accélère l'animation de démarrage (1200ms → 800ms)
 
->>#####Prolonger le temps d'activation de la fonction de renommage pour éviter un faux déclenchement de cette fonction (700ms → 1200ms)
+>#####Prolonger le temps d'activation de la fonction de renommage pour éviter un faux déclenchement de cette fonction (700ms → 1200ms)
 
->>#####Optimisation du comportement du répertoire de fichiers de gauche lors du changement de nom du dossier
+>#####Optimisation du comportement du répertoire de fichiers de gauche lors du changement de nom du dossier
 
->>#####En mode simple clic, lorsque la souris reste sur l'élément correspondant, elle n'attend plus et sélectionne immédiatement
+>#####En mode simple clic, lorsque la souris reste sur l'élément correspondant, elle n'attend plus et sélectionne immédiatement
 
->>#####L'icône sur le côté gauche de la page principale a été mise à jour en icône Fluent
+>#####L'icône sur le côté gauche de la page principale a été mise à jour en icône Fluent
 
->#####Correction de bogue
+#####Correction de bogue
 
->>#####Résolution du problème selon lequel la corbeille ne peut pas effectuer de «suppression permanente»
+>#####Résolution du problème selon lequel la corbeille ne peut pas effectuer de «suppression permanente»
 
->>#####Correction d'un problème pouvant provoquer un plantage si le dossier est occupé lorsque le dossier est renommé
+>#####Correction d'un problème pouvant provoquer un plantage si le dossier est occupé lorsque le dossier est renommé
 
->>#####Correction d'un problème où le bouton "Vider la Corbeille" pouvait être incorrectement activé si la Corbeille est vide
+>#####Correction d'un problème où le bouton "Vider la Corbeille" pouvait être incorrectement activé si la Corbeille est vide
 
->>#####Correction d'un problème qui empêchait l'exécution de la commande "Déplacer" lors du glissement d'un dossier vers la barre d'adresse
+>#####Correction d'un problème qui empêchait l'exécution de la commande "Déplacer" lors du glissement d'un dossier vers la barre d'adresse
 
->>#####Correction d'un problème où le bouton "Ajouter un lecteur" pouvait autoriser l'ajout de lecteurs non pris en charge
+>#####Correction d'un problème où le bouton "Ajouter un lecteur" pouvait autoriser l'ajout de lecteurs non pris en charge
 
->>#####Correction d'un problème selon lequel les fichiers et les dossiers dans l'état renommé ne seront pas automatiquement restaurés à l'état normal lors du glisser-déposer
+>#####Correction d'un problème selon lequel les fichiers et les dossiers dans l'état renommé ne seront pas automatiquement restaurés à l'état normal lors du glisser-déposer
 
->>#####Correction de certains problèmes lors du changement de langue, ce qui peut entraîner un affichage incorrect de la langue
+>#####Correction de certains problèmes lors du changement de langue, ce qui peut entraîner un affichage incorrect de la langue
 
 *****
 ###Quoi de neuf dans la version 5.1.7.0
 
->#####Mise à jour des fonctionnalités
+#####Mise à jour des fonctionnalités
 
->>#####Nouveaux paramètres personnalisés - "Fonds d'écran Bing" peut être utilisé comme arrière-plan
+>#####Nouveaux paramètres personnalisés - "Fonds d'écran Bing" peut être utilisé comme arrière-plan
 
->>#####La fonction Renommer permet désormais de ne conserver que le suffixe de fichier
+>#####La fonction Renommer permet désormais de ne conserver que le suffixe de fichier
 
->#####Correction de bogue
+#####Correction de bogue
 
->>#####Correction des problèmes liés au contrôleur d'arrière-plan et amélioration des performances de ce module
+>#####Correction des problèmes liés au contrôleur d'arrière-plan et amélioration des performances de ce module
 
->>#####Correction du problème selon lequel les caractères illégaux dans le nom de fichier n'étaient pas vérifiés lors de la création d'un nouveau fichier
+>#####Correction du problème selon lequel les caractères illégaux dans le nom de fichier n'étaient pas vérifiés lors de la création d'un nouveau fichier
 
->>#####Correction du problème de ne pas vérifier les noms réservés du système lors de la création de nouveaux fichiers et du changement de nom des fichiers existants
+>#####Correction du problème de ne pas vérifier les noms réservés du système lors de la création de nouveaux fichiers et du changement de nom des fichiers existants
 
->>#####Correction du problème selon lequel le nom affiché lorsque le renommage est cliqué la deuxième fois ne correspond pas au nom réel lorsque le changement de nom échoue
+>#####Correction du problème selon lequel le nom affiché lorsque le renommage est cliqué la deuxième fois ne correspond pas au nom réel lorsque le changement de nom échoue
 
->>#####Correction du problème de modification du nom de fichier par erreur en cas d'échec du changement de nom
+>#####Correction du problème de modification du nom de fichier par erreur en cas d'échec du changement de nom
 
->>#####Correction du problème qui provoquait un crash au démarrage lorsque le périphérique USB refusait l'accès
+>#####Correction du problème qui provoquait un crash au démarrage lorsque le périphérique USB refusait l'accès
 
->>#####Amélioration de la fiabilité du pool de connexion à la base de données SQL pour éviter une déconnexion accidentelle de la base de données cloud
+>#####Amélioration de la fiabilité du pool de connexion à la base de données SQL pour éviter une déconnexion accidentelle de la base de données cloud
 
->>#####Correction du problème qui pouvait provoquer un plantage lors d'un clic droit sur le répertoire du dossier à gauche et en sélectionnant Supprimer
+>#####Correction du problème qui pouvait provoquer un plantage lors d'un clic droit sur le répertoire du dossier à gauche et en sélectionnant Supprimer
 
->>#####Correction du problème selon lequel la couleur de police de "Noir" ne pouvait pas être enregistrée en mode "Recommander"
+>#####Correction du problème selon lequel la couleur de police de "Noir" ne pouvait pas être enregistrée en mode "Recommander"
 
->>#####Correction du problème qui pouvait planter lorsqu'il était placé en arrière-plan pendant une longue période
+>#####Correction du problème qui pouvait planter lorsqu'il était placé en arrière-plan pendant une longue période
 
->>#####Résolution du problème suivant: le disque dur amovible affiche plusieurs lettres de lecteur en double
+>#####Résolution du problème suivant: le disque dur amovible affiche plusieurs lettres de lecteur en double
 
 *****
 ###Quoi de neuf dans la version 5.1.4.0
 
->#####Mise à jour des fonctionnalités
+#####Mise à jour des fonctionnalités
 
->>#####Prend en charge la détection des périphériques MTP (tels que les téléphones mobiles, etc.), mais RX-Explorer lui-même ne peut pas être ouvert, vous devez utiliser l'explorateur système pour ouvrir
+>#####Prend en charge la détection des périphériques MTP (tels que les téléphones mobiles, etc.), mais RX-Explorer lui-même ne peut pas être ouvert, vous devez utiliser l'explorateur système pour ouvrir
 
->>#####Supprimez complètement la fonction de lecteur caché (la fonction qui reste de l'historique lorsque la fonction n'est pas parfaite au stade initial du développement)
+>#####Supprimez complètement la fonction de lecteur caché (la fonction qui reste de l'historique lorsque la fonction n'est pas parfaite au stade initial du développement)
 
->#####Mise à jour de l'interface utilisateur
+#####Mise à jour de l'interface utilisateur
 
->>#####Remplacé plusieurs fonds d'écran par défaut, les fonds d'écran d'origine peuvent rendre le texte illisible
+>#####Remplacé plusieurs fonds d'écran par défaut, les fonds d'écran d'origine peuvent rendre le texte illisible
 
->#####Correction de bogue
+#####Correction de bogue
 
->>#####Résolution du problème selon lequel WIN + E ne pouvait pas démarrer le RX-Explorer
+>#####Résolution du problème selon lequel WIN + E ne pouvait pas démarrer le RX-Explorer
 
->>#####Résolution du problème selon lequel la tâche de communication en arrière-plan peut planter si le processus auxiliaire se termine avant l'application en raison d'une exception (faible probabilité)
+>#####Résolution du problème selon lequel la tâche de communication en arrière-plan peut planter si le processus auxiliaire se termine avant l'application en raison d'une exception (faible probabilité)
 
->>#####Résolution du problème suivant: après la transformation de RX-Explorer en une application multi-instance, cliquer sur la notification push dans le coin inférieur droit lancera un nouveau processus
+>#####Résolution du problème suivant: après la transformation de RX-Explorer en une application multi-instance, cliquer sur la notification push dans le coin inférieur droit lancera un nouveau processus
 
 *****
 ###Quoi de neuf dans la version 5.1.2.0
 
->#####Mise à jour des fonctionnalités
+#####Mise à jour des fonctionnalités
 
->>#####Ajout de l'affichage des fichiers et dossiers cachés
+>#####Ajout de l'affichage des fichiers et dossiers cachés
 
->>#####Ajout de la prise en charge de l'ouverture des fichiers .bat
+>#####Ajout de la prise en charge de l'ouverture des fichiers .bat
 
->>#####L'icône du fichier à déplacer sera grisée
+>#####L'icône du fichier à déplacer sera grisée
 
->>#####Ajouter la fonction de copie de glisser dans le même dossier, qui générera automatiquement des copies de fichiers
+>#####Ajouter la fonction de copie de glisser dans le même dossier, qui générera automatiquement des copies de fichiers
 
->>#####Même si l'application est fermée, le contenu copié et coupé continuera d'être valide
+>#####Même si l'application est fermée, le contenu copié et coupé continuera d'être valide
 
->>#####A partir de cette version, le mode d'affichage par défaut passe de "Tile" à "Detail"
+>#####A partir de cette version, le mode d'affichage par défaut passe de "Tile" à "Detail"
 
->>#####Ajout de la fonction "Utiliser Win + E pour activer l'application", maintenant vous pouvez utiliser Win+E pour démarrer RX
+>#####Ajout de la fonction "Utiliser Win + E pour activer l'application", maintenant vous pouvez utiliser Win+E pour démarrer RX
 
->#####Correction de bogue
+#####Correction de bogue
 
->>#####Résolution du problème selon lequel "Ouvrir en tant qu'administrateur" n'est pas valide
+>#####Résolution du problème selon lequel "Ouvrir en tant qu'administrateur" n'est pas valide
 
->>#####Amélioration du contrôleur d'arrière-plan et ajout d'une vérification défensive pour résoudre les erreurs possibles
+>#####Amélioration du contrôleur d'arrière-plan et ajout d'une vérification défensive pour résoudre les erreurs possibles
 
->>#####Résoudre le problème de permettre l'exécution simultanée de plusieurs opérations d'annulation
+>#####Résoudre le problème de permettre l'exécution simultanée de plusieurs opérations d'annulation
 
->>#####Résolvez le problème suivant: si un conflit de nom se produit lors de la copie ou du déplacement d'un fichier et que le fichier est finalement renommé, l'enregistrement d'annulation sera erroné et le problème finira par conduire à l'irréversibilité.
+>#####Résolvez le problème suivant: si un conflit de nom se produit lors de la copie ou du déplacement d'un fichier et que le fichier est finalement renommé, l'enregistrement d'annulation sera erroné et le problème finira par conduire à l'irréversibilité.
 
->>#####Résolvez le problème selon lequel certains fichiers peuvent être manqués si un grand nombre de modifications, d'ajouts et de suppressions sont apportés au dossier actuel en peu de temps
+>#####Résolvez le problème selon lequel certains fichiers peuvent être manqués si un grand nombre de modifications, d'ajouts et de suppressions sont apportés au dossier actuel en peu de temps
 
->>#####Résolution du problème suivant: l'état des touches avant et arrière sera modifié de manière incorrecte lors de l'actualisation. Ce problème provoquera le dépassement de la limite par le tableau et le crash du RX
+>#####Résolution du problème suivant: l'état des touches avant et arrière sera modifié de manière incorrecte lors de l'actualisation. Ce problème provoquera le dépassement de la limite par le tableau et le crash du RX
 
 *****
 ###Quoi de neuf dans la version 5.0.7.0
 
 >#####Correction d'un bug
 
->>#####Correction d'un problème qui pouvait provoquer un crash après avoir été en arrière-plan pendant une longue période
+>#####Correction d'un problème qui pouvait provoquer un crash après avoir été en arrière-plan pendant une longue période
 
->>#####Correction du problème selon lequel les fonctions de copie, de déplacement et de suppression ne sont pas valides dans Win10 2004 et versions antérieures. Pour suivre la progression des opérations connexes, veuillez mettre à jour vers la version Win10 2004.
+>#####Correction du problème selon lequel les fonctions de copie, de déplacement et de suppression ne sont pas valides dans Win10 2004 et versions antérieures. Pour suivre la progression des opérations connexes, veuillez mettre à jour vers la version Win10 2004.
 
 *****
 ###Quoi de neuf dans la version 5.0.6.0
 
->#####Mise à jour des fonctionnalités
+#####Mise à jour des fonctionnalités
 
->>#####Suivi supplémentaire de la progression de l'opération de copie, de déplacement et de suppression de trois fichiers
+>#####Suivi supplémentaire de la progression de l'opération de copie, de déplacement et de suppression de trois fichiers
 
->>#####Ajout du mode d'affichage "Tile", survol de la souris pour afficher la fonction de nom de fichier
+>#####Ajout du mode d'affichage "Tile", survol de la souris pour afficher la fonction de nom de fichier
 
->>#####Ajouter un espace vide clic droit bouton de menu "Annuler"
+>#####Ajouter un espace vide clic droit bouton de menu "Annuler"
 
->>#####La fonction "Annuler" peut maintenant annuler l'opération de suppression
+>#####La fonction "Annuler" peut maintenant annuler l'opération de suppression
 
 >#####Correction d'un bug
 
->>#####Correction du problème selon lequel l'opération "Annuler" ne peut annuler que l'opération la plus récente, et maintenant toutes les opérations peuvent être annulées
+>#####Correction du problème selon lequel l'opération "Annuler" ne peut annuler que l'opération la plus récente, et maintenant toutes les opérations peuvent être annulées
 
->>#####Correction du problème de plantage en cas d'échec de l'opération "Annuler"
+>#####Correction du problème de plantage en cas d'échec de l'opération "Annuler"
 
->>#####Correction du problème selon lequel "Copie ..." et d'autres invites ne couvraient pas l'arborescence de dossiers de gauche
+>#####Correction du problème selon lequel "Copie ..." et d'autres invites ne couvraient pas l'arborescence de dossiers de gauche
 
->>#####Correction du problème de fournir des informations incorrectes après une erreur lors de la copie, le déplacement, la suppression des opérations
+>#####Correction du problème de fournir des informations incorrectes après une erreur lors de la copie, le déplacement, la suppression des opérations
 
 *****
 ###Quoi de neuf dans la version 5.0.3.0
 
->#####Mise à jour des fonctionnalités
+#####Mise à jour des fonctionnalités
 
->>#####Amélioration de la conception du service d'arrière-plan et permet désormais à plusieurs gestionnaires de fichiers RX de s'exécuter simultanément
+>#####Amélioration de la conception du service d'arrière-plan et permet désormais à plusieurs gestionnaires de fichiers RX de s'exécuter simultanément
 
->>#####Ajouter un menu contextuel "Ouvrir dans une nouvelle fenêtre" et "Ouvrir dans un nouvel onglet"
+>#####Ajouter un menu contextuel "Ouvrir dans une nouvelle fenêtre" et "Ouvrir dans un nouvel onglet"
 
->>#####Ajoutez la fonction de renommage en cliquant sur le fichier. Renommer sera activé lorsque la différence entre deux clics est supérieure à 700 ms
+>#####Ajoutez la fonction de renommage en cliquant sur le fichier. Renommer sera activé lorsque la différence entre deux clics est supérieure à 700 ms
 
->>#####Ajouter une notification Toast après l'éjection du périphérique USB
+>#####Ajouter une notification Toast après l'éjection du périphérique USB
 
->#####Mise à jour de l'interface utilisateur
+#####Mise à jour de l'interface utilisateur
 
->>#####Remplacement de certaines icônes dans le menu contextuel
+>#####Remplacement de certaines icônes dans le menu contextuel
 
->>#####Modification de l'icône alternative affichée lorsque la miniature du fichier ne peut pas être chargée
+>#####Modification de l'icône alternative affichée lorsque la miniature du fichier ne peut pas être chargée
 
->>#####L'effet acrylique acrylique couvre désormais des domaines tels que la barre d'adresse, la barre de recherche et la page à onglet
+>#####L'effet acrylique acrylique couvre désormais des domaines tels que la barre d'adresse, la barre de recherche et la page à onglet
 
->>#####Taille du texte et de l'interface ajustée
+>#####Taille du texte et de l'interface ajustée
 
 >#####Optimisation des performances
 
->>#####Amélioration de la vitesse d'expansion du répertoire des dossiers sur la gauche
+>#####Amélioration de la vitesse d'expansion du répertoire des dossiers sur la gauche
 
->>#####Espace mémoire réduit occupé par les vignettes de fichiers et de dossiers
+>#####Espace mémoire réduit occupé par les vignettes de fichiers et de dossiers
 
 >#####Correction d'un bug
 
->>#####Correction d'un problème selon lequel si le fichier est supérieur à 4 Go, sa taille ne peut pas s'afficher correctement
+>#####Correction d'un problème selon lequel si le fichier est supérieur à 4 Go, sa taille ne peut pas s'afficher correctement
 
->>#####Correction d'un problème qui pouvait provoquer un crash lors du changement et de l'expansion rapides des dossiers
+>#####Correction d'un problème qui pouvait provoquer un crash lors du changement et de l'expansion rapides des dossiers
 
->>#####Correction d'un problème selon lequel le dossier de gauche ne serait pas mis à jour lorsqu'un dossier renommé était détecté
+>#####Correction d'un problème selon lequel le dossier de gauche ne serait pas mis à jour lorsqu'un dossier renommé était détecté
 
 *****
 ###Quoi de neuf dans la version 5.0.0.0
 
->#####Mise à jour des fonctionnalités
+#####Mise à jour des fonctionnalités
 
->>#####Ajouter une option "Ejecter" pour les périphériques USB
+>#####Ajouter une option "Ejecter" pour les périphériques USB
 
->>#####Nouvelle option "Ouvrir dans le terminal", préférable de démarrer Windows Terminal, sinon démarrer Powershell
+>#####Nouvelle option "Ouvrir dans le terminal", préférable de démarrer Windows Terminal, sinon démarrer Powershell
 
->>#####Ajouter un nouveau fond
+>#####Ajouter un nouveau fond
 
->>#####Nouveau module de surveillance de fichiers, peut désormais détecter les modifications de fichiers
+>#####Nouveau module de surveillance de fichiers, peut désormais détecter les modifications de fichiers
 
 >#####Optimisation des performances
 
->>#####Accélérez la suspension du calcul de la valeur de contrôle de hachage, maintenant il est préférable de suspendre le calcul avant la fin du calcul
+>#####Accélérez la suspension du calcul de la valeur de contrôle de hachage, maintenant il est préférable de suspendre le calcul avant la fin du calcul
 
->>#####Accélérez la vitesse d'obtention des suggestions de commentaires. Maintenant, le contenu ne sera pas traduit par défaut, mais vous pouvez cliquer avec le bouton droit sur "Traduire"
+>#####Accélérez la vitesse d'obtention des suggestions de commentaires. Maintenant, le contenu ne sera pas traduit par défaut, mais vous pouvez cliquer avec le bouton droit sur "Traduire"
 
->>#####Amélioration de l'algorithme des filtres tels que "Auto Optimiser", "Esquisse", "Binaire" dans l'édition d'image
+>#####Amélioration de l'algorithme des filtres tels que "Auto Optimiser", "Esquisse", "Binaire" dans l'édition d'image
 
->>#####Accélérez le traitement des filtres d'image
+>#####Accélérez le traitement des filtres d'image
 
->>#####Amélioration de la vitesse des fichiers d'opérations par lots
+>#####Amélioration de la vitesse des fichiers d'opérations par lots
 
 >#####Correction d'un bug
 
->>#####Correction de certains problèmes pouvant entraîner le blocage de la "Corbeille"
+>#####Correction de certains problèmes pouvant entraîner le blocage de la "Corbeille"
 
->>#####Correction d'un problème qui pouvait provoquer un bourrage lors de l'utilisation de la corbeille
+>#####Correction d'un problème qui pouvait provoquer un bourrage lors de l'utilisation de la corbeille
 
->>#####Correction d'un problème où des ressources de traduction incorrectes pouvaient provoquer un crash
+>#####Correction d'un problème où des ressources de traduction incorrectes pouvaient provoquer un crash
 
->>#####Correction d'un problème où la fonction de lecteur caché a échoué dans certains cas
+>#####Correction d'un problème où la fonction de lecteur caché a échoué dans certains cas
 
->>#####Correction d'un problème empêchant le démarrage de Windows Terminal dans le répertoire actuel
+>#####Correction d'un problème empêchant le démarrage de Windows Terminal dans le répertoire actuel
 
->>#####Correction d'un problème selon lequel la méthode d'ouverture par défaut du système de recherche n'était pas valide
+>#####Correction d'un problème selon lequel la méthode d'ouverture par défaut du système de recherche n'était pas valide
 
->>#####Correction d'un problème qui provoquait une défaillance du module de transcodage
+>#####Correction d'un problème qui provoquait une défaillance du module de transcodage
 
->>#####Correction d'un problème où le bouton "Vide" est toujours autorisé à être cliqué lorsque la corbeille a été vidée
+>#####Correction d'un problème où le bouton "Vide" est toujours autorisé à être cliqué lorsque la corbeille a été vidée
 
 *****
 ###Quoi de neuf dans la version 4.9.0.0
 
->#####Mise à jour des fonctionnalités
+#####Mise à jour des fonctionnalités
 
->>#####Nouveau module "Corbeille", vous pouvez interroger le contenu du dossier Corbeille et effectuer des opérations telles que la restauration, la vidange, la suppression permanente, etc.
+>#####Nouveau module "Corbeille", vous pouvez interroger le contenu du dossier Corbeille et effectuer des opérations telles que la restauration, la vidange, la suppression permanente, etc.
 
->>#####Ajoutez deux options du menu contextuel "Déverrouiller l'occupation" et "Calculer le hachage"
+>#####Ajoutez deux options du menu contextuel "Déverrouiller l'occupation" et "Calculer le hachage"
 
->>#####Le comportement de suppression par défaut a été modifié et une nouvelle option de menu de suppression "Ignorer la corbeille, supprimer directement" a été ajoutée
+>#####Le comportement de suppression par défaut a été modifié et une nouvelle option de menu de suppression "Ignorer la corbeille, supprimer directement" a été ajoutée
 
->>#####En cas de conflit de nom lors de la copie ou du déplacement d'un dossier, une invite apparaîtra pour savoir si fusionner ou renommer
+>#####En cas de conflit de nom lors de la copie ou du déplacement d'un dossier, une invite apparaîtra pour savoir si fusionner ou renommer
 
->>#####Ajout de la prise en charge de Windows Terminal et des outils système courants (par exemple, entrez wt / regedit dans la barre d'adresse, etc.)
+>#####Ajout de la prise en charge de Windows Terminal et des outils système courants (par exemple, entrez wt / regedit dans la barre d'adresse, etc.)
 
 >#####Correction d'un bug
 
->>#####Correction du problème d'incohérence causé par les instructions SQL
+>#####Correction du problème d'incohérence causé par les instructions SQL
 
->>#####Correction du problème de dévoilement du répertoire du dossier gauche dans les paramètres après avoir masqué le répertoire du dossier gauche pour afficher le fichier, puis impossible d'accéder au dossier
+>#####Correction du problème de dévoilement du répertoire du dossier gauche dans les paramètres après avoir masqué le répertoire du dossier gauche pour afficher le fichier, puis impossible d'accéder au dossier
 
->>#####Correction du problème de calcul incorrect de la taille du dossier, des sous-répertoires et des sous-fichiers dans les propriétés du dossier
+>#####Correction du problème de calcul incorrect de la taille du dossier, des sous-répertoires et des sous-fichiers dans les propriétés du dossier
 
->>#####Correction du problème selon lequel les fichiers annulés s'affichaient toujours lors de l'utilisation de Ctrl + Z pour annuler l'opération
+>#####Correction du problème selon lequel les fichiers annulés s'affichaient toujours lors de l'utilisation de Ctrl + Z pour annuler l'opération
 
->>#####Correction du problème selon lequel lors du changement de nom d'un dossier, le nom du dossier ne peut pas être sélectionné correctement
+>#####Correction du problème selon lequel lors du changement de nom d'un dossier, le nom du dossier ne peut pas être sélectionné correctement
 
 *****
 ###Quoi de neuf dans la version 4.8.2.0
 
->#####Mise à jour des fonctionnalités
+#####Mise à jour des fonctionnalités
 
->>#####Vous pouvez maintenant supprimer les dossiers fournis avec "Bibliothèques"
+>#####Vous pouvez maintenant supprimer les dossiers fournis avec "Bibliothèques"
 
->>#####Quicklook peut maintenant être utilisé pour afficher le répertoire racine du disque
+>#####Quicklook peut maintenant être utilisé pour afficher le répertoire racine du disque
 
->>#####Développez les raccourcis clavier vers l'interface principale
+>#####Développez les raccourcis clavier vers l'interface principale
 
->>#####La fonction de sélection au survol prend désormais en charge les «bibliothèques» et «périphérique et lecteur»
+>#####La fonction de sélection au survol prend désormais en charge les «bibliothèques» et «périphérique et lecteur»
 
 >#####Correction d'un bug
 
->>#####Correction d'un problème qui pouvait entraîner le déclenchement d'autres fonctions lors de l'appel de "Quicklook" à l'aide de la barre d'espace
+>#####Correction d'un problème qui pouvait entraîner le déclenchement d'autres fonctions lors de l'appel de "Quicklook" à l'aide de la barre d'espace
 
->>#####Résolution de quelques problèmes de traduction
+>#####Résolution de quelques problèmes de traduction
 
->>#####Correction d'un problème où le survol de la souris ne pouvait pas être sélectionné automatiquement en mode simple clic
+>#####Correction d'un problème où le survol de la souris ne pouvait pas être sélectionné automatiquement en mode simple clic
 
->>#####Résolution d'un problème où plusieurs "Bloc-notes" pouvaient s'afficher dans la fenêtre "Choisir une autre application"
+>#####Résolution d'un problème où plusieurs "Bloc-notes" pouvaient s'afficher dans la fenêtre "Choisir une autre application"
 
 *****
 ###Quoi de neuf dans la version 4.8.0.0
 
->#####Mise à jour des fonctionnalités
+#####Mise à jour des fonctionnalités
 
->>#####Une nouvelle colonne est ajoutée dans les modes "Détails" et "Liste". Cliquez ici pour faire apparaître directement le "Menu contextuel de la zone vide"
+>#####Une nouvelle colonne est ajoutée dans les modes "Détails" et "Liste". Cliquez ici pour faire apparaître directement le "Menu contextuel de la zone vide"
 
->>#####Enregistrez et restaurez automatiquement les états développés et réduits de "dossier et bibliothèque" et "périphérique et lecteur"
+>#####Enregistrez et restaurez automatiquement les états développés et réduits de "dossier et bibliothèque" et "périphérique et lecteur"
 
->>#####La version Win10 2004 est officiellement supportée
+>#####La version Win10 2004 est officiellement supportée
 
 >#####Amélioration des performances
 
->>#####Amélioration significative de la vitesse de calcul du nombre de dossiers et de fichiers dans "Propriétés" et de la vitesse de calcul de la taille des dossiers
+>#####Amélioration significative de la vitesse de calcul du nombre de dossiers et de fichiers dans "Propriétés" et de la vitesse de calcul de la taille des dossiers
 
->>#####Suppression de certaines opérations redondantes
+>#####Suppression de certaines opérations redondantes
 
 >#####Correction d'un bug
 
->>#####Correction d'un problème où le fait de cliquer sur "Ouvrir avec" pouvait provoquer un crash
+>#####Correction d'un problème où le fait de cliquer sur "Ouvrir avec" pouvait provoquer un crash
 
->>#####Correction d'un problème où la saisie de caractères illégaux provoquait un crash lors de la modification du nom de l'élément de démarrage rapide
+>#####Correction d'un problème où la saisie de caractères illégaux provoquait un crash lors de la modification du nom de l'élément de démarrage rapide
 
->>#####Correction d'un problème qui pouvait provoquer un crash lors d'un clic répétitif sur les boutons avant et arrière lors de la visualisation d'un fichier
+>#####Correction d'un problème qui pouvait provoquer un crash lors d'un clic répétitif sur les boutons avant et arrière lors de la visualisation d'un fichier
 
->>#####Correction du problème de perte de répertoire de fichiers, mais la vitesse d'expansion a été légèrement réduite
+>#####Correction du problème de perte de répertoire de fichiers, mais la vitesse d'expansion a été légèrement réduite
 
->>#####Correction d'un problème de manque de prise en charge de la pression longue dans les modes "Détails" et "Liste"
+>#####Correction d'un problème de manque de prise en charge de la pression longue dans les modes "Détails" et "Liste"
 
->>#####Correction d'un problème de blocage de l'option de langue dans les paramètres
+>#####Correction d'un problème de blocage de l'option de langue dans les paramètres
 
->>#####Correction d'un problème auquel le raccourci clavier répond toujours même s'il y a une fenêtre contextuelle (comme renommer la fenêtre, etc.)
+>#####Correction d'un problème auquel le raccourci clavier répond toujours même s'il y a une fenêtre contextuelle (comme renommer la fenêtre, etc.)
 
->>#####Correction d'un problème selon lequel la sélection complète inclut le nom du suffixe lors du changement de nom
+>#####Correction d'un problème selon lequel la sélection complète inclut le nom du suffixe lors du changement de nom
 
->>#####Correction d'un problème où certains contenus ne pouvaient pas être affichés correctement après le changement de langue
+>#####Correction d'un problème où certains contenus ne pouvaient pas être affichés correctement après le changement de langue
 
 *****
 ###Quoi de neuf dans la version 4.7.5.0
 
->#####Mise à jour des fonctionnalités
+#####Mise à jour des fonctionnalités
 
->>#####Ajout du commutateur "Setting-Personalization-Animation effect"
+>#####Ajout du commutateur "Setting-Personalization-Animation effect"
 
->>#####Nouveau menu de clic droit multi-sélection, maintenant vous pouvez utiliser le menu de clic droit après la multi-sélection
+>#####Nouveau menu de clic droit multi-sélection, maintenant vous pouvez utiliser le menu de clic droit après la multi-sélection
 
->>#####Nouveau système de détection de programme associé par défaut, plus besoin de spécifier manuellement le programme ouvert
+>#####Nouveau système de détection de programme associé par défaut, plus besoin de spécifier manuellement le programme ouvert
 
->>#####Nouvelle langue-français
+>#####Nouvelle langue-français
 
 >#####Correction d'un bug
 
->>#####Correction du problème suivant: lorsque le dossier est compressé, le dossier le plus à l'extérieur ne sera pas inclus dans le fichier compressé
+>#####Correction du problème suivant: lorsque le dossier est compressé, le dossier le plus à l'extérieur ne sera pas inclus dans le fichier compressé
 
->>#####Résolution de nombreux problèmes de traduction
+>#####Résolution de nombreux problèmes de traduction
 
->>#####Résolution du problème selon lequel l'invite "absence d'autorisation" peut apparaître à plusieurs reprises
+>#####Résolution du problème selon lequel l'invite "absence d'autorisation" peut apparaître à plusieurs reprises
 
->>#####Résolution d'un problème pouvant entraîner un plantage lors du déplacement d'un onglet vers la zone de fichiers
+>#####Résolution d'un problème pouvant entraîner un plantage lors du déplacement d'un onglet vers la zone de fichiers
