@@ -23,7 +23,7 @@ namespace RX_Explorer.Class
             }
 
             this.OriginPath = OriginPath;
-            ModifiedTimeRaw = CreateTime;
+            ModifiedTimeRaw = CreateTime.ToLocalTime();
             StorageType = Item.StorageType;
             InternalPathString = Item.Path;
             Thumbnail = Item.Thumbnail;

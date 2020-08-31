@@ -108,7 +108,7 @@ namespace RX_Explorer.Class
         public FileSystemStorageItemBase(WIN_Native_API.WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset ModifiedTime)
         {
             InternalPathString = Path;
-            ModifiedTimeRaw = ModifiedTime;
+            ModifiedTimeRaw = ModifiedTime.ToLocalTime();
             this.StorageType = StorageType;
 
             if (StorageType != StorageItemTypes.Folder)
@@ -276,7 +276,14 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return ModifiedTimeRaw.ToString("F");
+                if (ModifiedTimeRaw == DateTimeOffset.MaxValue.ToLocalTime())
+                {
+                    return Globalization.GetString("UnknownText");
+                }
+                else
+                {
+                    return ModifiedTimeRaw.ToString("F");
+                }
             }
         }
 

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices.ComTypes;
 using Vanara.Extensions;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
@@ -20,17 +21,22 @@ namespace FullTrustProcess
                 {
                     try
                     {
-                        if (!Item.IsLink)
+                        Dictionary<string, string> PropertyDic = new Dictionary<string, string>
                         {
-                            Dictionary<string, string> PropertyDic = new Dictionary<string, string>
-                            {
-                                { "OriginPath", Item.Name },
-                                { "ActualPath", Item.FileSystemPath },
-                                { "CreateTime", Convert.ToString(((System.Runtime.InteropServices.ComTypes.FILETIME)Item.Properties[Ole32.PROPERTYKEY.System.DateCreated]).ToDateTime().ToBinary())}
-                            };
+                            { "OriginPath", Item.IsLink ? $"{Item.Name}.lnk" : Item.Name },
+                            { "ActualPath", Item.FileSystemPath }
+                        };
 
-                            RecycleItemList.Add(PropertyDic);
+                        if (Item.Properties.ContainsKey(Ole32.PROPERTYKEY.System.DateCreated))
+                        {
+                            PropertyDic.Add("CreateTime", Convert.ToString(((FILETIME)Item.Properties[Ole32.PROPERTYKEY.System.DateCreated]).ToInt64()));
                         }
+                        else
+                        {
+                            PropertyDic.Add("CreateTime", Convert.ToString(DateTimeOffset.MaxValue.ToFileTime()));
+                        }
+
+                        RecycleItemList.Add(PropertyDic);
                     }
                     finally
                     {

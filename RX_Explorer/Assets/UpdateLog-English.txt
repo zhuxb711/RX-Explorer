@@ -35,6 +35,8 @@
 
 >#####Fixed the problem that may cause the file page currently being displayed to change when entering the settings page
 
+>#####Fixed the problem that the lnk file is not displayed on the recycle bin interface
+
 *****
 ###What's new in Ver.5.2.8.0
 

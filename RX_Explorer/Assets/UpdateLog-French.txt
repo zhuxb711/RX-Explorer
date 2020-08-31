@@ -35,6 +35,8 @@
 
 >#####Correction du problème pouvant entraîner le changement de la page de fichier actuellement affichée lors de l'entrée dans la page de paramètres
 
+>#####Correction du problème que le fichier lnk n'est pas affiché sur l'interface de la corbeille
+
 *****
 ###Quoi de neuf dans la version 5.2.8.0
 

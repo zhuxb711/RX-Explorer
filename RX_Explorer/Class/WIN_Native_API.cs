@@ -496,11 +496,11 @@ namespace RX_Explorer.Class
 
                                     if (Attribute.HasFlag(FileAttributes.Hidden))
                                     {
-                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
                                     }
                                     else
                                     {
-                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
                                     }
                                 }
                             }
@@ -511,7 +511,7 @@ namespace RX_Explorer.Class
 
                                 if (Attribute.HasFlag(FileAttributes.Hidden))
                                 {
-                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
                                 }
                                 else
                                 {
@@ -519,11 +519,11 @@ namespace RX_Explorer.Class
                                     {
                                         if (Data.cFileName.EndsWith(".lnk"))
                                         {
-                                            Result.Add(new HyperlinkStorageItem(Data, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                            Result.Add(new HyperlinkStorageItem(Data, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
                                         }
                                         else
                                         {
-                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
                                         }
                                     }
                                 }
@@ -582,11 +582,11 @@ namespace RX_Explorer.Class
 
                                         if (Attribute.HasFlag(FileAttributes.Hidden))
                                         {
-                                            Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, Path, ModifiedTime.ToLocalTime()));
+                                            Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, Path, ModifiedTime));
                                         }
                                         else
                                         {
-                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, Path, ModifiedTime.ToLocalTime()));
+                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, Path, ModifiedTime));
                                         }
                                     }
                                 }
@@ -597,7 +597,7 @@ namespace RX_Explorer.Class
 
                                     if (Attribute.HasFlag(FileAttributes.Hidden))
                                     {
-                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, Path, ModifiedTime.ToLocalTime()));
+                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, Path, ModifiedTime));
                                     }
                                     else
                                     {
@@ -605,11 +605,11 @@ namespace RX_Explorer.Class
                                         {
                                             if (Data.cFileName.EndsWith(".lnk"))
                                             {
-                                                Result.Add(new HyperlinkStorageItem(Data, Path, ModifiedTime.ToLocalTime()));
+                                                Result.Add(new HyperlinkStorageItem(Data, Path, ModifiedTime));
                                             }
                                             else
                                             {
-                                                Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path, ModifiedTime.ToLocalTime()));
+                                                Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path, ModifiedTime));
                                             }
                                         }
                                     }
@@ -665,11 +665,11 @@ namespace RX_Explorer.Class
 
                                     if (Attribute.HasFlag(FileAttributes.Hidden))
                                     {
-                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
                                     }
                                     else
                                     {
-                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
                                     }
                                 }
                             }
@@ -680,7 +680,7 @@ namespace RX_Explorer.Class
 
                                 if (Attribute.HasFlag(FileAttributes.Hidden))
                                 {
-                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
                                 }
                                 else
                                 {
@@ -688,11 +688,11 @@ namespace RX_Explorer.Class
                                     {
                                         if (Data.cFileName.EndsWith(".lnk"))
                                         {
-                                            Result.Add(new HyperlinkStorageItem(Data, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                            Result.Add(new HyperlinkStorageItem(Data, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
                                         }
                                         else
                                         {
-                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime.ToLocalTime()));
+                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
                                         }
                                     }
                                 }
