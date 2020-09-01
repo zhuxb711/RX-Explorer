@@ -1,5 +1,5 @@
 ﻿*****
-###Quoi de neuf dans la version 5.3.0.0
+###Quoi de neuf dans la version 5.3.1.0
 
 #####Mise à jour des fonctionnalités
 
@@ -36,6 +36,10 @@
 >#####Correction du problème pouvant entraîner le changement de la page de fichier actuellement affichée lors de l'entrée dans la page de paramètres
 
 >#####Correction du problème que le fichier lnk n'est pas affiché sur l'interface de la corbeille
+
+>#####Correction du problème selon lequel le tri des fichiers dans la corbeille provoquait le plantage de la corbeille
+
+>#####Correction du problème selon lequel le fichier de la corbeille utilisait par erreur l'heure de création du fichier comme heure de suppression du fichier
 
 *****
 ###Quoi de neuf dans la version 5.2.8.0

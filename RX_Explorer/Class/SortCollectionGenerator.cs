@@ -82,7 +82,16 @@ namespace RX_Explorer.Class
                     }
                 default:
                     {
-                        return null;
+                        if(typeof(T) == typeof(RecycleStorageItem))
+                        {
+                            return TempDirection == SortDirection.Ascending
+                                ? new List<T>(FolderList.Select((Item)=>Item as RecycleStorageItem).OrderBy((Item) => Item.OriginPath).Concat(FileList.Select((Item) => Item as RecycleStorageItem).OrderBy((Item) => Item.OriginPath)).Select((Item)=>Item as T))
+                                : new List<T>(FolderList.Select((Item) => Item as RecycleStorageItem).OrderByDescending((Item) => Item.OriginPath).Concat(FileList.Select((Item) => Item as RecycleStorageItem).OrderByDescending((Item) => Item.OriginPath)).Select((Item) => Item as T));
+                        }
+                        else
+                        {
+                            return null;
+                        }
                     }
             }
         }

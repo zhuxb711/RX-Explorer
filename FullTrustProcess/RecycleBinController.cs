@@ -27,13 +27,15 @@ namespace FullTrustProcess
                             { "ActualPath", Item.FileSystemPath }
                         };
 
-                        if (Item.Properties.ContainsKey(Ole32.PROPERTYKEY.System.DateCreated))
+                        Ole32.PROPERTYKEY DeleteTimePropertyKey = new Ole32.PROPERTYKEY(new Guid("{9b174b33-40ff-11d2-a27e-00c04fc30871}"), 3);
+
+                        if (Item.Properties.ContainsKey(DeleteTimePropertyKey))
                         {
-                            PropertyDic.Add("CreateTime", Convert.ToString(((FILETIME)Item.Properties[Ole32.PROPERTYKEY.System.DateCreated]).ToInt64()));
+                            PropertyDic.Add("DeleteTime", Convert.ToString(((FILETIME)Item.Properties[DeleteTimePropertyKey]).ToInt64()));
                         }
                         else
                         {
-                            PropertyDic.Add("CreateTime", Convert.ToString(DateTimeOffset.MaxValue.ToFileTime()));
+                            PropertyDic.Add("DeleteTime", Convert.ToString(DateTimeOffset.MaxValue.ToFileTime()));
                         }
 
                         RecycleItemList.Add(PropertyDic);

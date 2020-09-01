@@ -1,5 +1,5 @@
 ﻿*****
-###What's new in Ver.5.3.0.0
+###What's new in Ver.5.3.1.0
 
 #####Feature Update
 
@@ -36,6 +36,10 @@
 >#####Fixed the problem that may cause the file page currently being displayed to change when entering the settings page
 
 >#####Fixed the problem that the lnk file is not displayed on the recycle bin interface
+
+>#####Fixed the problem that sorting files in the Recycle Bin would cause the Recycle Bin to crash
+
+>#####Fixed the problem that the recycle bin file mistakenly used the file creation time as the file deletion time
 
 *****
 ###What's new in Ver.5.2.8.0
