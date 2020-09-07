@@ -2611,4 +2611,10 @@ Les noms non valides incluent
   <data name="DeviceFileSystem.Text" xml:space="preserve">
     <value>Système de fichiers:</value>
   </data>
+  <data name="FilePresenterBottomStatusTip_SelectedItem" xml:space="preserve">
+    <value>{ItemNum} élément sélectionné</value>
+  </data>
+  <data name="FilePresenterBottomStatusTip_TotalItem" xml:space="preserve">
+    <value>{ItemNum} éléments</value>
+  </data>
 </root>

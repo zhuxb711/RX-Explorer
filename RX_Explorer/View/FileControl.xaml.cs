@@ -685,6 +685,7 @@ namespace RX_Explorer
                             uint ItemCount = await Query.GetItemCountAsync();
 
                             Presenter.HasFile.Visibility = ItemCount > 0 ? Visibility.Collapsed : Visibility.Visible;
+                            Presenter.StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", ItemCount.ToString());
 
                             for (uint i = 0; i < ItemCount && !AddItemCancellation.IsCancellationRequested; i += 10)
                             {
@@ -709,6 +710,7 @@ namespace RX_Explorer
                             List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(WIN_Native_API.GetStorageItems(Content.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder));
 
                             Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                            Presenter.StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", ItemList.Count.ToString());
 
                             for (int i = 0; i < ItemList.Count; i++)
                             {
@@ -802,6 +804,7 @@ namespace RX_Explorer
                     uint ItemCount = await Query.GetItemCountAsync();
 
                     Presenter.HasFile.Visibility = ItemCount > 0 ? Visibility.Collapsed : Visibility.Visible;
+                    Presenter.StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", ItemCount.ToString());
 
                     for (uint i = 0; i < ItemCount && !AddItemCancellation.IsCancellationRequested; i += 10)
                     {
@@ -826,6 +829,7 @@ namespace RX_Explorer
                     List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(WIN_Native_API.GetStorageItems(Folder, SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder));
 
                     Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                    Presenter.StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", ItemList.Count.ToString());
 
                     for (int i = 0; i < ItemList.Count; i++)
                     {

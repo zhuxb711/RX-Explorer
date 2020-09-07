@@ -1705,6 +1705,27 @@ namespace RX_Explorer
                     }
                 }
             }
+
+            string[] StatusTipsSplit = StatusTips.Text.Split("  |  ", StringSplitOptions.RemoveEmptyEntries);
+
+            if (SelectedItems.Count > 0)
+            {
+                if (StatusTipsSplit.Length > 0)
+                {
+                    StatusTips.Text = $"{StatusTipsSplit[0]}  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItems.Count.ToString())}";
+                }
+                else
+                {
+                    StatusTips.Text += $"  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItems.Count.ToString())}";
+                }
+            }
+            else
+            {
+                if (StatusTipsSplit.Length > 0)
+                {
+                    StatusTips.Text = StatusTipsSplit[0];
+                }
+            }
         }
 
         private void ViewControl_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
@@ -2886,7 +2907,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            switch (File.FileType)
+                            switch (File.FileType.ToLower())
                             {
                                 case ".jpg":
                                 case ".png":

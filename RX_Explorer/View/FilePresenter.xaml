@@ -567,8 +567,8 @@
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
-                       Height="60"
-                       Width="60" />
+                       Height="55"
+                       Width="55" />
                 <StackPanel Orientation="Vertical"
                             VerticalAlignment="Top"
                             Margin="5,0,0,0">
@@ -869,7 +869,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />
-            <RowDefinition Height="40" />
+            <RowDefinition Height="43" />
         </Grid.RowDefinitions>
         <ListView Background="Transparent"
                   x:Name="ListViewControl"
@@ -895,7 +895,6 @@
                   DoubleTapped="ViewControl_DoubleTapped"
                   x:FieldModifier="Public"
                   Visibility="Collapsed"
-                  Margin="0,0,0,-16"
                   HeaderTemplate="{StaticResource ListHeaderDataTemplate}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterListViewTransitions,Mode=OneWay}">
             <ListView.ItemContainerStyle>
@@ -931,7 +930,6 @@
                   IsDoubleTapEnabled="True"
                   DoubleTapped="ViewControl_DoubleTapped"
                   x:FieldModifier="Public"
-                  Margin="0,0,0,-16"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterGridViewTransitions,Mode=OneWay}">
             <GridView.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -948,13 +946,20 @@
                    Text="无文件"
                    FontSize="16"
                    Visibility="Collapsed" />
-        <CommandBar IsOpen="False"
-                    Grid.Row="1"
-                    VerticalAlignment="Bottom"
-                    ClosedDisplayMode="Minimal"
-                    DefaultLabelPosition="Right"
-                    Name="BottomCommandBar"
-                    Opening="BottomCommandBar_Opening"
-                    Background="{StaticResource ElementAcrylicBrush}" />
+        <StackPanel Grid.Row="1"
+                    VerticalAlignment="Bottom">
+            <TextBlock x:Name="StatusTips"
+                       x:FieldModifier="public"
+                       FontSize="14"
+                       Margin="10,0,0,0"
+                       TextTrimming="CharacterEllipsis"
+                       VerticalAlignment="Center"/>
+            <CommandBar IsOpen="False"
+                        ClosedDisplayMode="Minimal"
+                        DefaultLabelPosition="Right"
+                        Name="BottomCommandBar"
+                        Opening="BottomCommandBar_Opening"
+                        Background="{StaticResource ElementAcrylicBrush}" />
+        </StackPanel>
     </Grid>
 </Page>

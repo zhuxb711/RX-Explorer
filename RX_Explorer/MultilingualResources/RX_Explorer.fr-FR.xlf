@@ -3459,6 +3459,16 @@ Les noms non valides incluent
           <source>File system:</source>
           <target state="translated">Système de fichiers:</target>
         </trans-unit>
+        <trans-unit id="FilePresenterBottomStatusTip_SelectedItem" translate="yes" xml:space="preserve">
+          <source>{ItemNum} item selected</source>
+          <target state="translated">{ItemNum} élément sélectionné</target>
+          <note from="MultilingualEditor" annotates="source" priority="4">Do not modify {ItemNum}</note>
+        </trans-unit>
+        <trans-unit id="FilePresenterBottomStatusTip_TotalItem" translate="yes" xml:space="preserve">
+          <source>{ItemNum} items</source>
+          <target state="translated">{ItemNum} éléments</target>
+          <note from="MultilingualEditor" annotates="source" priority="4">Do not modify {ItemNum}</note>
+        </trans-unit>
       </group>
     </body>
   </file>

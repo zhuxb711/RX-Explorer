@@ -3459,6 +3459,16 @@ Invalid names include
           <source>File system:</source>
           <target state="translated">文件系统:</target>
         </trans-unit>
+        <trans-unit id="FilePresenterBottomStatusTip_SelectedItem" translate="yes" xml:space="preserve">
+          <source>{ItemNum} item selected</source>
+          <target state="translated">已选择 {ItemNum} 个项目</target>
+          <note from="MultilingualEditor" annotates="source" priority="4">Do not modify {ItemNum}</note>
+        </trans-unit>
+        <trans-unit id="FilePresenterBottomStatusTip_TotalItem" translate="yes" xml:space="preserve">
+          <source>{ItemNum} items</source>
+          <target state="translated">{ItemNum} 个项目</target>
+          <note from="MultilingualEditor" annotates="source" priority="4">Do not modify {ItemNum}</note>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -2611,4 +2611,10 @@
   <data name="DeviceFileSystem.Text" xml:space="preserve">
     <value>文件系统:</value>
   </data>
+  <data name="FilePresenterBottomStatusTip_SelectedItem" xml:space="preserve">
+    <value>已选择 {ItemNum} 个项目</value>
+  </data>
+  <data name="FilePresenterBottomStatusTip_TotalItem" xml:space="preserve">
+    <value>{ItemNum} 个项目</value>
+  </data>
 </root>

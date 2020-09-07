@@ -2716,4 +2716,10 @@ Invalid names include
   <data name="DeviceFileSystem.Text" xml:space="preserve">
     <value>File system:</value>
   </data>
+  <data name="FilePresenterBottomStatusTip_SelectedItem" xml:space="preserve">
+    <value>{ItemNum} item selected</value>
+  </data>
+  <data name="FilePresenterBottomStatusTip_TotalItem" xml:space="preserve">
+    <value>{ItemNum} items</value>
+  </data>
 </root>
