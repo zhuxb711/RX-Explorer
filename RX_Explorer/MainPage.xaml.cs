@@ -103,6 +103,29 @@ namespace RX_Explorer
                 ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] = false;
                 SettingControl.IsDisplayHiddenItem = false;
             }
+
+            if(!ApplicationData.Current.LocalSettings.Values.ContainsKey("DefaultTerminal"))
+            {
+                ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] = "Powershell";
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)
+            {
+                SettingControl.IsDoubleClickEnable = IsDoubleClick;
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = true;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] is bool IsDetach)
+            {
+                SettingControl.IsDetachTreeViewAndPresenter = IsDetach;
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = false;
+            }
         }
 
         private void MainPage_BackRequested(object sender, BackRequestedEventArgs e)
@@ -230,24 +253,6 @@ namespace RX_Explorer
         {
             try
             {
-                if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)
-                {
-                    SettingControl.IsDoubleClickEnable = IsDoubleClick;
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = true;
-                }
-
-                if (ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] is bool IsDetach)
-                {
-                    SettingControl.IsDetachTreeViewAndPresenter = IsDetach;
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = false;
-                }
-
                 PageDictionary = new Dictionary<Type, string>()
                 {
                     {typeof(TabViewContainer),Globalization.GetString("MainPage_PageDictionary_ThisPC_Label") },

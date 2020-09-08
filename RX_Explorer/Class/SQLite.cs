@@ -15,7 +15,7 @@ namespace RX_Explorer.Class
     /// </summary>
     public sealed class SQLite : IDisposable
     {
-        private bool IsDisposed = false;
+        private bool IsDisposed;
         private static readonly object Locker = new object();
         private volatile static SQLite SQL;
         private SQLConnectionPool<SqliteConnection> ConnectionPool;
@@ -62,6 +62,7 @@ namespace RX_Explorer.Class
                                 Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
                                 Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));
                                 Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null, Primary Key(FileType,Path));
+                                Create Table If Not Exists TerminalProfile (Name Text Not Null, Path Text Not Null, Argument Text Not Null, Primary Key(Name));
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture3.jpg');
@@ -77,11 +78,64 @@ namespace RX_Explorer.Class
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture13.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture15.jpg');
-                                Insert Or Ignore Into ProgramPicker Values ('.*','{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\notepad.exe")}');";
+                                Insert Or Ignore Into ProgramPicker Values ('.*', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\notepad.exe")}');
+                                Insert Or Ignore Into TerminalProfile Values ('Powershell', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe")}', '-NoExit -Command Set-Location [CurrentLocation]');
+                                Insert Or Ignore Into TerminalProfile Values ('CMD', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe")}', '/k cd /d [CurrentLocation]');";
             using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBasePoolAsync().Result)
             using (SqliteCommand CreateTable = Connection.CreateDbCommandFromConnection<SqliteCommand>(Command))
             {
                 _ = CreateTable.ExecuteNonQuery();
+            }
+        }
+
+        public async Task<List<TerminalProfile>> GetAllTerminalProfile()
+        {
+            List<TerminalProfile> Result = new List<TerminalProfile>();
+
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From TerminalProfile"))
+            using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+            {
+                while (Reader.Read())
+                {
+                    Result.Add(new TerminalProfile(Reader[0].ToString(), Reader[1].ToString(), Reader[2].ToString()));
+                }
+            }
+
+            return Result;
+        }
+
+        public async Task SetOrModifyTerminalProfile(TerminalProfile Profile)
+        {
+            if (Profile == null)
+            {
+                throw new ArgumentNullException(nameof(Profile), "Argument could not be null");
+            }
+
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select Count(*) From TerminalProfile Where Name = @Name"))
+            {
+                _ = Command.Parameters.AddWithValue("@Name", Profile.Name);
+                if (Convert.ToInt32(await Command.ExecuteScalarAsync().ConfigureAwait(false)) > 0)
+                {
+                    using (SqliteCommand UpdateCommand = Connection.CreateDbCommandFromConnection<SqliteCommand>("Update TerminalProfile Set Path = @Path, Argument = @Argument Where Name = @Name"))
+                    {
+                        _ = UpdateCommand.Parameters.AddWithValue("@Name", Profile.Name);
+                        _ = UpdateCommand.Parameters.AddWithValue("@Path", Profile.Path);
+                        _ = UpdateCommand.Parameters.AddWithValue("@Argument", Profile.Argument);
+                        _ = await UpdateCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    }
+                }
+                else
+                {
+                    using (SqliteCommand AddCommand = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into TerminalProfile Values (@Name,@Path,@Argument)"))
+                    {
+                        _ = AddCommand.Parameters.AddWithValue("@Name", Profile.Name);
+                        _ = AddCommand.Parameters.AddWithValue("@Path", Profile.Path);
+                        _ = AddCommand.Parameters.AddWithValue("@Argument", Profile.Argument);
+                        _ = await AddCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    }
+                }
             }
         }
 

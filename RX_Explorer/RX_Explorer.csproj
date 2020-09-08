@@ -172,6 +172,7 @@
     <Compile Include="Class\SpecialTypeGenerator.cs" />
     <Compile Include="Class\StorageAreaWatcher.cs" />
     <Compile Include="Class\FileSystemItemNameChecker.cs" />
+    <Compile Include="Class\TerminalProfile.cs" />
     <Compile Include="Class\TreeViewNodeContent.cs" />
     <Compile Include="Class\ValueConverter.cs" />
     <Compile Include="Class\WIN_Native_API.cs" />
@@ -184,6 +185,9 @@
     </Compile>
     <Compile Include="Dialog\LinkOptionsDialog.xaml.cs">
       <DependentUpon>LinkOptionsDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\ModifyDefaultTerminalDialog.xaml.cs">
+      <DependentUpon>ModifyDefaultTerminalDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialog\NewFileDialog.xaml.cs">
       <DependentUpon>NewFileDialog.xaml</DependentUpon>
@@ -523,6 +527,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\LinkOptionsDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\ModifyDefaultTerminalDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

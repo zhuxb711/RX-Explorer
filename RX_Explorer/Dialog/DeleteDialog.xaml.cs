@@ -14,12 +14,6 @@ namespace RX_Explorer.Dialog
         {
             InitializeComponent();
             DisplayText.Text = Text;
-
-            if(Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down))
-            {
-                PermanentDelete.IsChecked = true;
-                PermanentDelete.IsEnabled = false;
-            }
         }
 
         private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

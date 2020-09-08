@@ -872,15 +872,13 @@ namespace RX_Explorer
                 return;
             }
 
-            DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFolder_Content"));
-
-            if (await QueueContenDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+            if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down))
             {
                 await LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
 
                 try
                 {
-                    await FullTrustExcutorController.Current.DeleteAsync(CurrentFolder, QueueContenDialog.IsPermanentDelete).ConfigureAwait(true);
+                    await FullTrustExcutorController.Current.DeleteAsync(CurrentFolder, true).ConfigureAwait(true);
 
                     if (IsNetworkDevice)
                     {
@@ -949,6 +947,87 @@ namespace RX_Explorer
                 }
 
                 await LoadingActivation(false).ConfigureAwait(true);
+            }
+            else
+            {
+                DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFolder_Content"));
+
+                if (await QueueContenDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                {
+                    await LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
+
+                    try
+                    {
+                        await FullTrustExcutorController.Current.DeleteAsync(CurrentFolder, QueueContenDialog.IsPermanentDelete).ConfigureAwait(true);
+
+                        if (IsNetworkDevice)
+                        {
+                            TreeViewNode ParentNode = CurrentNode.Parent;
+
+                            ParentNode.Children.Remove(CurrentNode);
+
+                            if (ParentNode.Children.Count == 0)
+                            {
+                                ParentNode.HasUnrealizedChildren = false;
+                            }
+
+                            await DisplayItemsInFolder(ParentNode).ConfigureAwait(true);
+                        }
+                        else
+                        {
+                            await DisplayItemsInFolder(CurrentNode.Parent).ConfigureAwait(true);
+
+                            await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                        }
+                    }
+                    catch (FileCaputureException)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                        };
+
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
+                        await DisplayItemsInFolder(CurrentNode.Parent).ConfigureAwait(true);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    }
+                    catch (Exception)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    }
+
+                    await LoadingActivation(false).ConfigureAwait(true);
+                }
             }
         }
 
@@ -1348,8 +1427,7 @@ namespace RX_Explorer
 
             if (string.Equals(QueryText, "Wt", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Wt.exe", StringComparison.OrdinalIgnoreCase))
             {
-                LaunchQuerySupportStatus CheckResult = await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe");
-                switch (CheckResult)
+                switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
                 {
                     case LaunchQuerySupportStatus.Available:
                     case LaunchQuerySupportStatus.NotSupported:

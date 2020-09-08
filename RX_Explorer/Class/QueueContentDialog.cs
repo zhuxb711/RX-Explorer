@@ -14,7 +14,7 @@ namespace RX_Explorer.Class
     {
         private static readonly AutoResetEvent Locker = new AutoResetEvent(true);
 
-        private static int WaitCount = 0;
+        private static int WaitCount;
 
 
         /// <summary>
@@ -55,6 +55,8 @@ namespace RX_Explorer.Class
         /// </summary>
         public QueueContentDialog()
         {
+            DefaultButton = ContentDialogButton.Primary;
+
             if (AppThemeController.Current.Theme == ElementTheme.Dark)
             {
                 Background = Application.Current.Resources["DialogAcrylicBrush"] as Brush;

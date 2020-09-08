@@ -27,11 +27,9 @@ namespace FullTrustProcess
                             { "ActualPath", Item.FileSystemPath }
                         };
 
-                        Ole32.PROPERTYKEY DeleteTimePropertyKey = new Ole32.PROPERTYKEY(new Guid("{9b174b33-40ff-11d2-a27e-00c04fc30871}"), 3);
-
-                        if (Item.Properties.ContainsKey(DeleteTimePropertyKey))
+                        if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Recycle.DateDeleted, out object DeleteFileTime))
                         {
-                            PropertyDic.Add("DeleteTime", Convert.ToString(((FILETIME)Item.Properties[DeleteTimePropertyKey]).ToInt64()));
+                            PropertyDic.Add("DeleteTime", Convert.ToString(((FILETIME)DeleteFileTime).ToInt64()));
                         }
                         else
                         {

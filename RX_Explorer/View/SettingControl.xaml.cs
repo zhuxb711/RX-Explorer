@@ -182,7 +182,7 @@ namespace RX_Explorer
             Visual.StartAnimationGroup(AnimationGroup);
         }
 
-        private void SettingPage_Loading(FrameworkElement sender, object args)
+        private async void SettingPage_Loading(FrameworkElement sender, object args)
         {
             UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Recommend"));
             UIMode.Items.Add(Globalization.GetString("Setting_UIMode_SolidColor"));
@@ -199,6 +199,35 @@ namespace RX_Explorer
 
             CustomFontColor.Items.Add(Globalization.GetString("Font_Color_White"));
             CustomFontColor.Items.Add(Globalization.GetString("Font_Color_Black"));
+
+            switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
+            {
+                case LaunchQuerySupportStatus.Available:
+                case LaunchQuerySupportStatus.NotSupported:
+                    {
+                        DefaultTerminal.Items.Add("Windows Terminal");
+                        break;
+                    }
+            }
+
+            foreach(TerminalProfile Profile in await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true))
+            {
+                DefaultTerminal.Items.Add(Profile.Name);
+            }
+
+            if(ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] is string Terminal)
+            {
+                if (DefaultTerminal.Items.Contains(Terminal))
+                {
+                    DefaultTerminal.SelectedItem = Terminal;
+                }
+                else
+                {
+                    DefaultTerminal.SelectedIndex = 0;
+                }
+            }
+
+            DefaultTerminal.SelectionChanged += DefaultTerminal_SelectionChanged;
 
             if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is int ModeIndex)
             {
@@ -253,6 +282,11 @@ namespace RX_Explorer
             DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
             UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
             TreeViewDetach.Toggled += TreeViewDetach_Toggled;
+        }
+
+        private void DefaultTerminal_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] = DefaultTerminal.SelectedItem.ToString();
         }
 
         private async void SettingPage_Loaded(object sender, RoutedEventArgs e)
@@ -1429,6 +1463,12 @@ namespace RX_Explorer
             }
 
             GetBingPhotoState.Visibility = Visibility.Collapsed;
+        }
+
+        private async void ModifyTerminal_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            ModifyDefaultTerminalDialog Dialog = new ModifyDefaultTerminalDialog();
+            await Dialog.ShowAsync().ConfigureAwait(true);
         }
     }
 }

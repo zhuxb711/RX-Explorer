@@ -296,13 +296,21 @@
                                   OffContent="禁用"
                                   x:Uid="UseWinAndEActivate"/>
 
-                    <ComboBox Header="自定义字体颜色"
-                              Margin="0,20,0,0"
-                              MinWidth="120"
-                              SelectedIndex="{x:Bind local:AppThemeController.Current.Theme,Mode=TwoWay,Converter={StaticResource ThemeConverter}}"
-                              x:Uid="CustomFontColor"
-                              Name="CustomFontColor"
-                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"/>
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,20,0,0">
+                        <ComboBox Header="默认终端应用"
+                                  Name="DefaultTerminal"
+                                  MinWidth="140"
+                                  Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
+                        <Viewbox VerticalAlignment="Bottom"
+                                 Margin="10,0,0,8"
+                                 Width="15">
+                            <SymbolIcon Symbol="Edit"
+                                        Foreground="{ThemeResource SystemAccentColor}"
+                                        x:Name="ModifyTerminal"
+                                        Tapped="ModifyTerminal_Tapped" />
+                        </Viewbox>
+                    </StackPanel>
 
                     <TextBlock Text="个性化"
                                x:Uid="SettingPersonalize"
@@ -316,6 +324,14 @@
                                   x:Uid="SettingPageAnimationSwitch"
                                   Name="AnimationSwitch"
                                   IsOn="{x:Bind local:AnimationController.Current.IsEnableAnimation,Mode=TwoWay}" />
+
+                    <ComboBox Header="自定义字体颜色"
+                              Margin="0,20,0,0"
+                              MinWidth="120"
+                              SelectedIndex="{x:Bind local:AppThemeController.Current.Theme,Mode=TwoWay,Converter={StaticResource ThemeConverter}}"
+                              x:Uid="CustomFontColor"
+                              Name="CustomFontColor"
+                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
 
                     <ComboBox Header="模式"
                               x:Uid="SettingPageUIMode"

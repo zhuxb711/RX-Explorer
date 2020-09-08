@@ -18,7 +18,7 @@ namespace RX_Explorer
     /// </summary>
     sealed partial class App : Application
     {
-        bool IsInBackgroundMode = false;
+        bool IsInBackgroundMode;
 
         /// <summary>
         /// 初始化单一实例应用程序对象。这是执行的创作代码的第一行，

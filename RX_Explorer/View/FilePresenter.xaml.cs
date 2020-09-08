@@ -1185,9 +1185,7 @@ namespace RX_Explorer
         {
             Restore();
 
-            DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"));
-
-            if ((await QueueContenDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+            if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down))
             {
                 await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
 
@@ -1200,7 +1198,7 @@ namespace RX_Explorer
                 {
                     List<string> PathList = SelectedItems.Select((Item) => Item.Path).ToList();
 
-                    await FullTrustExcutorController.Current.DeleteAsync(PathList, QueueContenDialog.IsPermanentDelete, (s, arg) =>
+                    await FullTrustExcutorController.Current.DeleteAsync(PathList, true, (s, arg) =>
                     {
                         FileControlInstance.ProBar.IsIndeterminate = false;
                         FileControlInstance.ProBar.Value = arg.ProgressPercentage;
@@ -1289,6 +1287,114 @@ namespace RX_Explorer
                 }
 
                 await FileControlInstance.LoadingActivation(false).ConfigureAwait(false);
+            }
+            else
+            {
+                DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"));
+
+                if ((await QueueContenDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                {
+                    await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
+
+                    bool IsItemNotFound = false;
+                    bool IsUnauthorized = false;
+                    bool IsCaptured = false;
+                    bool IsOperateFailed = false;
+
+                    try
+                    {
+                        List<string> PathList = SelectedItems.Select((Item) => Item.Path).ToList();
+
+                        await FullTrustExcutorController.Current.DeleteAsync(PathList, QueueContenDialog.IsPermanentDelete, (s, arg) =>
+                        {
+                            FileControlInstance.ProBar.IsIndeterminate = false;
+                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                        }).ConfigureAwait(true);
+
+                        if (FileControlInstance.IsNetworkDevice)
+                        {
+                            foreach (FileSystemStorageItemBase Item in FileCollection.Where((Item) => PathList.Contains(Item.Path)).ToList())
+                            {
+                                FileCollection.Remove(Item);
+
+                                if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                {
+                                    if (FileControlInstance.CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == Item.Path) is TreeViewNode Node)
+                                    {
+                                        FileControlInstance.CurrentNode.Children.Remove(Node);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        IsItemNotFound = true;
+                    }
+                    catch (FileCaputureException)
+                    {
+                        IsCaptured = true;
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        IsOperateFailed = true;
+                    }
+                    catch (Exception)
+                    {
+                        IsUnauthorized = true;
+                    }
+
+                    if (IsItemNotFound)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
+                        await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(true);
+                    }
+                    else if (IsUnauthorized)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                        };
+
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                        }
+                    }
+                    else if (IsCaptured)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    }
+                    else if (IsOperateFailed)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    }
+
+                    await FileControlInstance.LoadingActivation(false).ConfigureAwait(false);
+                }
             }
         }
 
@@ -4759,18 +4865,38 @@ namespace RX_Explorer
 
         private async void OpenInTerminal_Click(object sender, RoutedEventArgs e)
         {
-            switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
+            switch(Convert.ToString(ApplicationData.Current.LocalSettings.Values["DefaultTerminal"]))
             {
-                case LaunchQuerySupportStatus.Available:
-                case LaunchQuerySupportStatus.NotSupported:
-                    {
-                        await FullTrustExcutorController.Current.RunAsync("wt.exe", "/d", FileControlInstance.CurrentFolder.Path).ConfigureAwait(false);
-                        break;
-                    }
-                default:
+                case "Powershell":
                     {
                         string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe");
                         await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, "-NoExit", "-Command", "Set-Location", FileControlInstance.CurrentFolder.Path).ConfigureAwait(false);
+                        break;
+                    }
+                case "Windows Terminal":
+                    {
+                        switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
+                        {
+                            case LaunchQuerySupportStatus.Available:
+                            case LaunchQuerySupportStatus.NotSupported:
+                                {
+                                    await FullTrustExcutorController.Current.RunAsync("wt.exe", "/d", FileControlInstance.CurrentFolder.Path).ConfigureAwait(false);
+                                    break;
+                                }
+                            default:
+                                {
+                                    ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] = "Powershell";
+                                    string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe");
+                                    await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, "-NoExit", "-Command", "Set-Location", FileControlInstance.CurrentFolder.Path).ConfigureAwait(false);
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "CMD":
+                    {
+                        string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
+                        await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, "/k", "cd", "/d", FileControlInstance.CurrentFolder.Path).ConfigureAwait(false);
                         break;
                     }
             }
