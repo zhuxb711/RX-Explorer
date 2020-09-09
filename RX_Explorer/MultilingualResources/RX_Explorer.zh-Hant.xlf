@@ -3469,6 +3469,14 @@ Invalid names include
           <target state="translated">{ItemNum} 個項目</target>
           <note from="MultilingualEditor" annotates="source" priority="4">Do not modify {ItemNum}</note>
         </trans-unit>
+        <trans-unit id="TerminalDialogFormatErrorTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Must contain [CurrentLocation], this parameter is used to instruct RX how to fill in the current folder location. Format: <it id="1" pos="open">&lt;Switch to directory command&gt;</it> [CurrentLocation]</source>
+          <target state="translated">必須包含[CurrentLocation]，此參數用於指示RX如何填寫當前文件夾位置.。格式: <it id="1" pos="open">&lt;切換到目錄命令&gt;</it> [CurrentLocation]</target>
+        </trans-unit>
+        <trans-unit id="TerminalDialogFormatErrorTip.Title" translate="yes" xml:space="preserve">
+          <source>Error</source>
+          <target state="translated">錯誤</target>
+        </trans-unit>
       </group>
     </body>
   </file>

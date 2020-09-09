@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -4865,40 +4866,9 @@ namespace RX_Explorer
 
         private async void OpenInTerminal_Click(object sender, RoutedEventArgs e)
         {
-            switch(Convert.ToString(ApplicationData.Current.LocalSettings.Values["DefaultTerminal"]))
+            if (await SQLite.Current.GetTerminalProfileByName(Convert.ToString(ApplicationData.Current.LocalSettings.Values["DefaultTerminal"])).ConfigureAwait(true) is TerminalProfile Profile)
             {
-                case "Powershell":
-                    {
-                        string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe");
-                        await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, "-NoExit", "-Command", "Set-Location", FileControlInstance.CurrentFolder.Path).ConfigureAwait(false);
-                        break;
-                    }
-                case "Windows Terminal":
-                    {
-                        switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
-                        {
-                            case LaunchQuerySupportStatus.Available:
-                            case LaunchQuerySupportStatus.NotSupported:
-                                {
-                                    await FullTrustExcutorController.Current.RunAsync("wt.exe", "/d", FileControlInstance.CurrentFolder.Path).ConfigureAwait(false);
-                                    break;
-                                }
-                            default:
-                                {
-                                    ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] = "Powershell";
-                                    string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe");
-                                    await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, "-NoExit", "-Command", "Set-Location", FileControlInstance.CurrentFolder.Path).ConfigureAwait(false);
-                                    break;
-                                }
-                        }
-                        break;
-                    }
-                case "CMD":
-                    {
-                        string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
-                        await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, "/k", "cd", "/d", FileControlInstance.CurrentFolder.Path).ConfigureAwait(false);
-                        break;
-                    }
+                await FullTrustExcutorController.Current.RunAsAdministratorAsync(Profile.Path, Regex.Matches(Profile.Argument.Replace("[CurrentLocation]", $"\"{FileControlInstance.CurrentFolder.Path}\""), "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value).ToArray()).ConfigureAwait(false);
             }
         }
 

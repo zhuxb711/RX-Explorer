@@ -2722,4 +2722,10 @@ Invalid names include
   <data name="FilePresenterBottomStatusTip_TotalItem" xml:space="preserve">
     <value>{ItemNum} items</value>
   </data>
+  <data name="TerminalDialogFormatErrorTip.Subtitle" xml:space="preserve">
+    <value>Must contain [CurrentLocation], this parameter is used to instruct RX how to fill in the current folder location. Format: &lt;Switch to directory command&gt; [CurrentLocation]</value>
+  </data>
+  <data name="TerminalDialogFormatErrorTip.Title" xml:space="preserve">
+    <value>Error</value>
+  </data>
 </root>

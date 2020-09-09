@@ -3469,6 +3469,14 @@ Les noms non valides incluent
           <target state="translated">{ItemNum} éléments</target>
           <note from="MultilingualEditor" annotates="source" priority="4">Do not modify {ItemNum}</note>
         </trans-unit>
+        <trans-unit id="TerminalDialogFormatErrorTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Must contain [CurrentLocation], this parameter is used to instruct RX how to fill in the current folder location. Format: <it id="1" pos="open">&lt;Switch to directory command&gt;</it> [CurrentLocation]</source>
+          <target state="translated">Doit contenir [CurrentLocation], ce paramètre est utilisé pour indiquer à RX comment remplir l'emplacement actuel du dossier. Format: <it id="1" pos="open">&lt;Passer à la commande de répertoire&gt;</it> [CurrentLocation]</target>
+        </trans-unit>
+        <trans-unit id="TerminalDialogFormatErrorTip.Title" translate="yes" xml:space="preserve">
+          <source>Error</source>
+          <target state="translated">Erreur</target>
+        </trans-unit>
       </group>
     </body>
   </file>

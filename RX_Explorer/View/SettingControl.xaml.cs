@@ -1468,7 +1468,14 @@ namespace RX_Explorer
         private async void ModifyTerminal_Tapped(object sender, TappedRoutedEventArgs e)
         {
             ModifyDefaultTerminalDialog Dialog = new ModifyDefaultTerminalDialog();
-            await Dialog.ShowAsync().ConfigureAwait(true);
+            
+            if(await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+            {
+                foreach(string NewProfile in (await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true)).Select((Profile) => Profile.Name).Except(DefaultTerminal.Items).ToList())
+                {
+                    DefaultTerminal.Items.Add(NewProfile);
+                }
+            }
         }
     }
 }

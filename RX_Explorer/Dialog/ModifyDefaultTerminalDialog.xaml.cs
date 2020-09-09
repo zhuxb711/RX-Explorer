@@ -1,6 +1,5 @@
 ﻿using RX_Explorer.Class;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Windows.System;
@@ -40,7 +39,7 @@ namespace RX_Explorer.Dialog
 
         private void ProfileSelector_TextSubmitted(ComboBox sender, ComboBoxTextSubmittedEventArgs args)
         {
-            if (TerminalList.All((Profile) => Profile.Name != args.Text))
+            if (!string.IsNullOrWhiteSpace(args.Text) && TerminalList.All((Profile) => Profile.Name != args.Text))
             {
                 TerminalList.Add(new TerminalProfile(args.Text, string.Empty, string.Empty));
             }
@@ -70,16 +69,31 @@ namespace RX_Explorer.Dialog
         {
             var Deferral = args.GetDeferral();
 
-            if (string.IsNullOrWhiteSpace(ExecutablePath.Text))
+            if (ProfileSelector.SelectedItem is TerminalProfile CurrentProfile)
             {
+                CurrentProfile.Path = ExecutablePath.Text;
+                CurrentProfile.Argument = Argument.Text;
+            }
+
+            if (TerminalList.FirstOrDefault((Profile) => string.IsNullOrWhiteSpace(Profile.Name)) is TerminalProfile ErrProfile1)
+            {
+                ProfileSelector.SelectedItem = ErrProfile1;
+                EmptyTip.Target = ProfileSelector;
+                EmptyTip.IsOpen = true;
                 args.Cancel = true;
             }
-            else if (string.IsNullOrWhiteSpace(ProfileSelector.Text))
+            else if (TerminalList.FirstOrDefault((Profile) => string.IsNullOrWhiteSpace(Profile.Path)) is TerminalProfile ErrProfile2)
             {
+                ProfileSelector.SelectedItem = ErrProfile2;
+                EmptyTip.Target = ExecutablePath;
+                EmptyTip.IsOpen = true;
                 args.Cancel = true;
             }
-            else if (!Argument.Text.Contains("[CurrentLocation]"))
+            else if (TerminalList.FirstOrDefault((Profile) => !Profile.Argument.Contains("[CurrentLocation]", StringComparison.CurrentCulture)) is TerminalProfile ErrProfile3)
             {
+                ProfileSelector.SelectedItem = ErrProfile3;
+                FormatErrorTip.Target = Argument;
+                FormatErrorTip.IsOpen = true;
                 args.Cancel = true;
             }
             else
@@ -93,11 +107,17 @@ namespace RX_Explorer.Dialog
             Deferral.Complete();
         }
 
-        private void RemoveProfile_Click(object sender, RoutedEventArgs e)
+        private async void RemoveProfile_Click(object sender, RoutedEventArgs e)
         {
             if (ProfileSelector.SelectedItem is TerminalProfile Profile)
             {
+                await SQLite.Current.DeleteTerminalProfile(Profile).ConfigureAwait(true);
+
                 TerminalList.Remove(Profile);
+
+                ProfileSelector.Text = string.Empty;
+                ExecutablePath.Text = string.Empty;
+                Argument.Text = string.Empty;
             }
         }
     }

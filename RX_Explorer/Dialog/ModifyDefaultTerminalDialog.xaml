@@ -5,11 +5,27 @@
     xmlns:local="using:RX_Explorer.Class"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
+                          xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+                          mc:Ignorable="d"
     Title="终端配置文件"
     PrimaryButtonText="确定"
     SecondaryButtonText="取消"
     PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
+
+    <local:QueueContentDialog.Resources>
+        <controls:TeachingTip x:Name="FormatErrorTip"
+                              Title="Error"
+                              PreferredPlacement="BottomRight"
+                              IsLightDismissEnabled="True"
+                              x:Uid="TerminalDialogFormatErrorTip"
+                              Subtitle="必须包含[CurrentLocation]，该参数用于指导RX如何填写当前文件夹位置&#13;格式：&lt;切换到目录命令&gt; [CurrentLocation]" />
+        <controls:TeachingTip x:Name="EmptyTip"
+                              Title="Tips"
+                              PreferredPlacement="BottomRight"
+                              IsLightDismissEnabled="True"
+                              x:Uid="QuickStartEmptyTip"
+                              Subtitle="此处不能为空" />
+    </local:QueueContentDialog.Resources>
 
     <StackPanel>
         <StackPanel Orientation="Horizontal">
@@ -33,6 +49,7 @@
         <TextBox Margin="0,10,0,0"
                  MinWidth="350"
                  Header="路径"
+                 IsSpellCheckEnabled="False"
                  Name="ExecutablePath"
                  PlaceholderText="可执行文件路径"/>
 
@@ -40,6 +57,7 @@
                  Header="参数"
                  Name="Argument"
                  MinWidth="350"
+                 IsSpellCheckEnabled="False"
                  PlaceholderText="[CurrentLocation]代表当前文件夹路径"/>
     </StackPanel>
 </local:QueueContentDialog>

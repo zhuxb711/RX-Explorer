@@ -105,6 +105,42 @@ namespace RX_Explorer.Class
             return Result;
         }
 
+        public async Task<TerminalProfile> GetTerminalProfileByName(string Name)
+        {
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From TerminalProfile Where Name = @Name"))
+            {
+                _ = Command.Parameters.AddWithValue("@Name", Name);
+
+                using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+                {
+                    if (Reader.Read())
+                    {
+                        return new TerminalProfile(Reader[0].ToString(), Reader[1].ToString(), Reader[2].ToString());
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+
+        public async Task DeleteTerminalProfile(TerminalProfile Profile)
+        {
+            if (Profile == null)
+            {
+                throw new ArgumentNullException(nameof(Profile), "Argument could not be null");
+            }
+
+            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From TerminalProfile Where Name = @Name"))
+            {
+                _ = Command.Parameters.AddWithValue("@Name", Profile.Name);
+                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+        }
+
         public async Task SetOrModifyTerminalProfile(TerminalProfile Profile)
         {
             if (Profile == null)
