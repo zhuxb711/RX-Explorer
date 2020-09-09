@@ -2,7 +2,6 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -24,16 +23,6 @@ namespace RX_Explorer.Dialog
         {
             TerminalList = new ObservableCollection<TerminalProfile>(await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true));
 
-            switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
-            {
-                case LaunchQuerySupportStatus.Available:
-                case LaunchQuerySupportStatus.NotSupported:
-                    {
-                        TerminalList.Add(new TerminalProfile("Windows Terminal", "Microsoft.WindowsTerminal_8wekyb3d8bbwe", "/d [CurrentLocation]"));
-                        break;
-                    }
-            }
-
             ProfileSelector.ItemsSource = TerminalList;
         }
 
@@ -47,14 +36,12 @@ namespace RX_Explorer.Dialog
 
         private void ProfileSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            RemoveProfile.Visibility = Visibility.Visible;
+
             if (LastSelectedProfile != null)
             {
                 LastSelectedProfile.Path = ExecutablePath.Text;
                 LastSelectedProfile.Argument = Argument.Text;
-            }
-            else
-            {
-                RemoveProfile.Visibility = Visibility.Visible;
             }
 
             if (ProfileSelector.SelectedItem is TerminalProfile Profile)
@@ -118,6 +105,8 @@ namespace RX_Explorer.Dialog
                 ProfileSelector.Text = string.Empty;
                 ExecutablePath.Text = string.Empty;
                 Argument.Text = string.Empty;
+
+                RemoveProfile.Visibility = Visibility.Collapsed;
             }
         }
     }

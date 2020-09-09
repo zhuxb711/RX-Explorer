@@ -4868,7 +4868,7 @@ namespace RX_Explorer
         {
             if (await SQLite.Current.GetTerminalProfileByName(Convert.ToString(ApplicationData.Current.LocalSettings.Values["DefaultTerminal"])).ConfigureAwait(true) is TerminalProfile Profile)
             {
-                await FullTrustExcutorController.Current.RunAsAdministratorAsync(Profile.Path, Regex.Matches(Profile.Argument.Replace("[CurrentLocation]", $"\"{FileControlInstance.CurrentFolder.Path}\""), "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value).ToArray()).ConfigureAwait(false);
+                await FullTrustExcutorController.Current.RunAsync(Profile.Path, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value == "[CurrentLocation]" ? FileControlInstance.CurrentFolder.Path : Mat.Value).ToArray()).ConfigureAwait(false);
             }
         }
 

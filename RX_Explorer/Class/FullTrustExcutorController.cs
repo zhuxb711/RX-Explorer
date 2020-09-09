@@ -508,7 +508,7 @@ namespace RX_Explorer.Class
                     {
                         {"ExcuteType", ExcuteType_RunExe},
                         {"ExcutePath",Path },
-                        {"ExcuteParameter", string.Join(' ', Parameters.Select((Para) => Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"") ? $"\"{Para}\"" : Para))},
+                        {"ExcuteParameter", string.Join(' ', Parameters.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para))},
                         {"ExcuteAuthority", ExcuteAuthority_Normal}
                     };
 

@@ -3477,6 +3477,46 @@ Invalid names include
           <source>Error</source>
           <target state="translated">错误</target>
         </trans-unit>
+        <trans-unit id="Common_Dialog_ModifyButton" translate="yes" xml:space="preserve">
+          <source>Modify</source>
+          <target state="translated">修改</target>
+        </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog.Title" translate="yes" xml:space="preserve">
+          <source>Terminal configuration</source>
+          <target state="translated">终端配置</target>
+        </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog_Argument.Header" translate="yes" xml:space="preserve">
+          <source>Arguments</source>
+          <target state="translated">参数</target>
+        </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog_Argument.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>[CurrentLocation] represents the current folder path</source>
+          <target state="translated">[CurrentLocation]代表当前文件夹路径</target>
+        </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog_ExecutablePath.Header" translate="yes" xml:space="preserve">
+          <source>Path</source>
+          <target state="translated">路径</target>
+        </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog_ExecutablePath.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Executable file path</source>
+          <target state="translated">可执行文件路径</target>
+        </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog_ProfileSelector.Header" translate="yes" xml:space="preserve">
+          <source>Configuration</source>
+          <target state="translated">配置文件</target>
+        </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog_ProfileSelector.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Create or select a profile</source>
+          <target state="translated">新建或选择配置文件</target>
+        </trans-unit>
+        <trans-unit id="DefaultTerminal.Header" translate="yes" xml:space="preserve">
+          <source>Default terminal</source>
+          <target state="translated">默认终端应用</target>
+        </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog_RemoveProfile.Content" translate="yes" xml:space="preserve">
+          <source>Remove configuration</source>
+          <target state="translated">移除配置文件</target>
+        </trans-unit>
       </group>
     </body>
   </file>

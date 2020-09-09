@@ -2623,4 +2623,34 @@
   <data name="TerminalDialogFormatErrorTip.Title" xml:space="preserve">
     <value>錯誤</value>
   </data>
+  <data name="Common_Dialog_ModifyButton" xml:space="preserve">
+    <value>修改</value>
+  </data>
+  <data name="ModifyDefaultTerminalDialog.Title" xml:space="preserve">
+    <value>終端配置</value>
+  </data>
+  <data name="ModifyDefaultTerminalDialog_Argument.Header" xml:space="preserve">
+    <value>參數</value>
+  </data>
+  <data name="ModifyDefaultTerminalDialog_Argument.PlaceholderText" xml:space="preserve">
+    <value>[CurrentLocation]代表當前文件夾路徑</value>
+  </data>
+  <data name="ModifyDefaultTerminalDialog_ExecutablePath.Header" xml:space="preserve">
+    <value>路徑</value>
+  </data>
+  <data name="ModifyDefaultTerminalDialog_ExecutablePath.PlaceholderText" xml:space="preserve">
+    <value>可執行文件路徑</value>
+  </data>
+  <data name="ModifyDefaultTerminalDialog_ProfileSelector.Header" xml:space="preserve">
+    <value>組態</value>
+  </data>
+  <data name="ModifyDefaultTerminalDialog_ProfileSelector.PlaceholderText" xml:space="preserve">
+    <value>創建或選擇一個配置文件</value>
+  </data>
+  <data name="DefaultTerminal.Header" xml:space="preserve">
+    <value>默認終端</value>
+  </data>
+  <data name="ModifyDefaultTerminalDialog_RemoveProfile.Content" xml:space="preserve">
+    <value>刪除配置</value>
+  </data>
 </root>

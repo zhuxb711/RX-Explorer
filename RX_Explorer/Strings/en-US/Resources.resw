@@ -2728,4 +2728,34 @@ Invalid names include
   <data name="TerminalDialogFormatErrorTip.Title" xml:space="preserve">
     <value>Error</value>
   </data>
+  <data name="Common_Dialog_ModifyButton" xml:space="preserve">
+    <value>Modify</value>
+  </data>
+  <data name="DefaultTerminal.Header" xml:space="preserve">
+    <value>Default terminal</value>
+  </data>
+  <data name="ModifyDefaultTerminalDialog.Title" xml:space="preserve">
+    <value>Terminal configuration</value>
+  </data>
+  <data name="ModifyDefaultTerminalDialog_Argument.Header" xml:space="preserve">
+    <value>Arguments</value>
+  </data>
+  <data name="ModifyDefaultTerminalDialog_Argument.PlaceholderText" xml:space="preserve">
+    <value>[CurrentLocation] represents the current folder path</value>
+  </data>
+  <data name="ModifyDefaultTerminalDialog_ExecutablePath.Header" xml:space="preserve">
+    <value>Path</value>
+  </data>
+  <data name="ModifyDefaultTerminalDialog_ExecutablePath.PlaceholderText" xml:space="preserve">
+    <value>Executable file path</value>
+  </data>
+  <data name="ModifyDefaultTerminalDialog_ProfileSelector.Header" xml:space="preserve">
+    <value>Configuration</value>
+  </data>
+  <data name="ModifyDefaultTerminalDialog_ProfileSelector.PlaceholderText" xml:space="preserve">
+    <value>Create or select a profile</value>
+  </data>
+  <data name="ModifyDefaultTerminalDialog_RemoveProfile.Content" xml:space="preserve">
+    <value>Remove configuration</value>
+  </data>
 </root>

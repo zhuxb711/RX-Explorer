@@ -179,25 +179,17 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (string.IsNullOrWhiteSpace(CmdArgs.Operation.Arguments))
+                    string[] Arguments = CmdArgs.Operation.Arguments.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+
+                    if (Arguments.Length >= 2)
                     {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
+                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{Arguments[1]}");
                         Window.Current.Content = extendedSplash;
                     }
                     else
                     {
-                        //此处采用了简略解析方法，只能解析“RX-Explorer.exe {PathToOpen}”的命令行格式，其他的（包括有路径前缀的）解析不了。如果有需要，后面再修改。
-
-                        if (CmdArgs.Operation.Arguments.StartsWith("RX-Explorer.exe"))
-                        {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{CmdArgs.Operation.Arguments.Split(" ").LastOrDefault()}");
-                            Window.Current.Content = extendedSplash;
-                        }
-                        else
-                        {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
-                            Window.Current.Content = extendedSplash;
-                        }
+                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
+                        Window.Current.Content = extendedSplash;
                     }
                 }
             }

@@ -29,3 +29,12 @@ dotnet_diagnostic.CA1721.severity = none
 
 # CA1822: 将成员标记为 static
 dotnet_diagnostic.CA1822.severity = none
+
+# CA1305: 指定 IFormatProvider
+dotnet_diagnostic.CA1305.severity = none
+
+# CA1031: 不捕获常规异常类型
+dotnet_diagnostic.CA1031.severity = none
+
+# CA1307: 指定 StringComparison
+dotnet_diagnostic.CA1307.severity = none

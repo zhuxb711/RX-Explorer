@@ -3477,6 +3477,46 @@ Les noms non valides incluent
           <source>Error</source>
           <target state="translated">Erreur</target>
         </trans-unit>
+        <trans-unit id="Common_Dialog_ModifyButton" translate="yes" xml:space="preserve">
+          <source>Modify</source>
+          <target state="translated">Modifier</target>
+        </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog.Title" translate="yes" xml:space="preserve">
+          <source>Terminal configuration</source>
+          <target state="translated">Configuration du terminal</target>
+        </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog_Argument.Header" translate="yes" xml:space="preserve">
+          <source>Arguments</source>
+          <target state="translated">Arguments</target>
+        </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog_Argument.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>[CurrentLocation] represents the current folder path</source>
+          <target state="translated">[CurrentLocation] représente le chemin du dossier actuel</target>
+        </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog_ExecutablePath.Header" translate="yes" xml:space="preserve">
+          <source>Path</source>
+          <target state="translated">Chemin</target>
+        </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog_ExecutablePath.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Executable file path</source>
+          <target state="translated">Chemin du fichier exécutable</target>
+        </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog_ProfileSelector.Header" translate="yes" xml:space="preserve">
+          <source>Configuration</source>
+          <target state="translated">Configuration</target>
+        </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog_ProfileSelector.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Create or select a profile</source>
+          <target state="translated">Créer ou sélectionner un profil</target>
+        </trans-unit>
+        <trans-unit id="DefaultTerminal.Header" translate="yes" xml:space="preserve">
+          <source>Default terminal</source>
+          <target state="translated">Terminal par défaut</target>
+        </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog_RemoveProfile.Content" translate="yes" xml:space="preserve">
+          <source>Remove configuration</source>
+          <target state="translated">Supprimer la configuration</target>
+        </trans-unit>
       </group>
     </body>
   </file>

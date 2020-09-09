@@ -82,7 +82,7 @@ namespace RX_Explorer
             }
         }
 
-        private void MainPage_Loaded1(object sender, RoutedEventArgs e)
+        private async void MainPage_Loaded1(object sender, RoutedEventArgs e)
         {
             if (ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] is bool Enable)
             {
@@ -107,6 +107,15 @@ namespace RX_Explorer
             if(!ApplicationData.Current.LocalSettings.Values.ContainsKey("DefaultTerminal"))
             {
                 ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] = "Powershell";
+                switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
+                {
+                    case LaunchQuerySupportStatus.Available:
+                    case LaunchQuerySupportStatus.NotSupported:
+                        {
+                            await SQLite.Current.SetOrModifyTerminalProfile(new TerminalProfile("Windows Terminal", "wt.exe", "/d [CurrentLocation]")).ConfigureAwait(true);
+                            break;
+                        }
+                }
             }
 
             if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)

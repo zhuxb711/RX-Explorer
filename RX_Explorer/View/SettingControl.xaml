@@ -300,6 +300,7 @@
                                 Margin="0,20,0,0">
                         <ComboBox Header="默认终端应用"
                                   Name="DefaultTerminal"
+                                  x:Uid="DefaultTerminal"
                                   MinWidth="140"
                                   Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
                         <Viewbox VerticalAlignment="Bottom"

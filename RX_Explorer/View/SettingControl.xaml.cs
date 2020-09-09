@@ -1,6 +1,7 @@
 ﻿using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -199,16 +200,6 @@ namespace RX_Explorer
 
             CustomFontColor.Items.Add(Globalization.GetString("Font_Color_White"));
             CustomFontColor.Items.Add(Globalization.GetString("Font_Color_Black"));
-
-            switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
-            {
-                case LaunchQuerySupportStatus.Available:
-                case LaunchQuerySupportStatus.NotSupported:
-                    {
-                        DefaultTerminal.Items.Add("Windows Terminal");
-                        break;
-                    }
-            }
 
             foreach(TerminalProfile Profile in await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true))
             {
@@ -1471,9 +1462,16 @@ namespace RX_Explorer
             
             if(await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
             {
-                foreach(string NewProfile in (await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true)).Select((Profile) => Profile.Name).Except(DefaultTerminal.Items).ToList())
+                IEnumerable<string> DataBase = (await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true)).Select((Profile) => Profile.Name);
+                
+                foreach (string NewProfile in DataBase.Except(DefaultTerminal.Items).ToList())
                 {
                     DefaultTerminal.Items.Add(NewProfile);
+                }
+
+                foreach (string RemoveProfile in DefaultTerminal.Items.Except(DataBase).ToList())
+                {
+                    DefaultTerminal.Items.Remove(RemoveProfile);
                 }
             }
         }

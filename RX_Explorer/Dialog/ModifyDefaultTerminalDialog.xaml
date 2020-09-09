@@ -5,11 +5,12 @@
     xmlns:local="using:RX_Explorer.Class"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                          xmlns:controls="using:Microsoft.UI.Xaml.Controls"
-                          mc:Ignorable="d"
-    Title="终端配置文件"
-    PrimaryButtonText="确定"
-    SecondaryButtonText="取消"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d"
+    x:Uid="ModifyDefaultTerminalDialog"
+    Title="终端配置"
+    PrimaryButtonText="{x:Bind local:Globalization.GetString('Common_Dialog_ModifyButton')}"
+    CloseButtonText="{x:Bind local:Globalization.GetString('Common_Dialog_CancelButton')}"
     PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
     <local:QueueContentDialog.Resources>
@@ -33,6 +34,7 @@
                       MinWidth="180"
                       Header="配置文件"
                       Name="ProfileSelector"
+                      x:Uid="ModifyDefaultTerminalDialog_ProfileSelector"
                       DisplayMemberPath="Name"
                       SelectionChanged="ProfileSelector_SelectionChanged"
                       TextSubmitted="ProfileSelector_TextSubmitted"
@@ -43,12 +45,14 @@
                     Margin="10,0,0,0"
                     Name="RemoveProfile"
                     Visibility="Collapsed"
+                    x:Uid="ModifyDefaultTerminalDialog_RemoveProfile"
                     Click="RemoveProfile_Click"/>
         </StackPanel>
 
         <TextBox Margin="0,10,0,0"
-                 MinWidth="350"
+                 Width="380"
                  Header="路径"
+                 x:Uid="ModifyDefaultTerminalDialog_ExecutablePath"
                  IsSpellCheckEnabled="False"
                  Name="ExecutablePath"
                  PlaceholderText="可执行文件路径"/>
@@ -56,7 +60,8 @@
         <TextBox Margin="0,10,0,0"
                  Header="参数"
                  Name="Argument"
-                 MinWidth="350"
+                 x:Uid="ModifyDefaultTerminalDialog_Argument"
+                 Width="380"
                  IsSpellCheckEnabled="False"
                  PlaceholderText="[CurrentLocation]代表当前文件夹路径"/>
     </StackPanel>
