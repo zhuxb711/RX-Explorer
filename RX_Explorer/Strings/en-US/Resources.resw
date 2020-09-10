@@ -2758,4 +2758,7 @@ Invalid names include
   <data name="ModifyDefaultTerminalDialog_RemoveProfile.Content" xml:space="preserve">
     <value>Remove configuration</value>
   </data>
+  <data name="ModifyDefaultTerminalDialog_RunAsAdmin.Content" xml:space="preserve">
+    <value>Run terminal as administrator</value>
+  </data>
 </root>

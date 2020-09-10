@@ -104,7 +104,7 @@ namespace RX_Explorer
                 SettingControl.IsDisplayHiddenItem = false;
             }
 
-            if(!ApplicationData.Current.LocalSettings.Values.ContainsKey("DefaultTerminal"))
+            if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DefaultTerminal"))
             {
                 ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] = "Powershell";
                 switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
@@ -112,7 +112,7 @@ namespace RX_Explorer
                     case LaunchQuerySupportStatus.Available:
                     case LaunchQuerySupportStatus.NotSupported:
                         {
-                            await SQLite.Current.SetOrModifyTerminalProfile(new TerminalProfile("Windows Terminal", "wt.exe", "/d [CurrentLocation]")).ConfigureAwait(true);
+                            await SQLite.Current.SetOrModifyTerminalProfile(new TerminalProfile("Windows Terminal", "wt.exe", "/d [CurrentLocation]", true)).ConfigureAwait(true);
                             break;
                         }
                 }

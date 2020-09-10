@@ -62,7 +62,7 @@ namespace RX_Explorer.Class
                                 Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
                                 Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));
                                 Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null, Primary Key(FileType,Path));
-                                Create Table If Not Exists TerminalProfile (Name Text Not Null, Path Text Not Null, Argument Text Not Null, Primary Key(Name));
+                                Create Table If Not Exists TerminalProfile (Name Text Not Null, Path Text Not Null, Argument Text Not Null, RunAsAdmin Text Not Null, Primary Key(Name));
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture3.jpg');
@@ -79,8 +79,8 @@ namespace RX_Explorer.Class
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture15.jpg');
                                 Insert Or Ignore Into ProgramPicker Values ('.*', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\notepad.exe")}');
-                                Insert Or Ignore Into TerminalProfile Values ('Powershell', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe")}', '-NoExit -Command Set-Location [CurrentLocation]');
-                                Insert Or Ignore Into TerminalProfile Values ('CMD', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe")}', '/k cd /d [CurrentLocation]');";
+                                Insert Or Ignore Into TerminalProfile Values ('Powershell', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe")}', '-NoExit -Command Set-Location [CurrentLocation]', 'True');
+                                Insert Or Ignore Into TerminalProfile Values ('CMD', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe")}', '/k cd /d [CurrentLocation]', 'True');";
             using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBasePoolAsync().Result)
             using (SqliteCommand CreateTable = Connection.CreateDbCommandFromConnection<SqliteCommand>(Command))
             {
@@ -98,7 +98,7 @@ namespace RX_Explorer.Class
             {
                 while (Reader.Read())
                 {
-                    Result.Add(new TerminalProfile(Reader[0].ToString(), Reader[1].ToString(), Reader[2].ToString()));
+                    Result.Add(new TerminalProfile(Reader[0].ToString(), Reader[1].ToString(), Reader[2].ToString(), Convert.ToBoolean(Reader[3])));
                 }
             }
 
@@ -116,7 +116,7 @@ namespace RX_Explorer.Class
                 {
                     if (Reader.Read())
                     {
-                        return new TerminalProfile(Reader[0].ToString(), Reader[1].ToString(), Reader[2].ToString());
+                        return new TerminalProfile(Reader[0].ToString(), Reader[1].ToString(), Reader[2].ToString(), Convert.ToBoolean(Reader[3]));
                     }
                     else
                     {
@@ -154,21 +154,23 @@ namespace RX_Explorer.Class
                 _ = Command.Parameters.AddWithValue("@Name", Profile.Name);
                 if (Convert.ToInt32(await Command.ExecuteScalarAsync().ConfigureAwait(false)) > 0)
                 {
-                    using (SqliteCommand UpdateCommand = Connection.CreateDbCommandFromConnection<SqliteCommand>("Update TerminalProfile Set Path = @Path, Argument = @Argument Where Name = @Name"))
+                    using (SqliteCommand UpdateCommand = Connection.CreateDbCommandFromConnection<SqliteCommand>("Update TerminalProfile Set Path = @Path, Argument = @Argument, RunAsAdmin = @RunAsAdmin Where Name = @Name"))
                     {
                         _ = UpdateCommand.Parameters.AddWithValue("@Name", Profile.Name);
                         _ = UpdateCommand.Parameters.AddWithValue("@Path", Profile.Path);
                         _ = UpdateCommand.Parameters.AddWithValue("@Argument", Profile.Argument);
+                        _ = UpdateCommand.Parameters.AddWithValue("@RunAsAdmin", Convert.ToString(Profile.RunAsAdmin));
                         _ = await UpdateCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
                 }
                 else
                 {
-                    using (SqliteCommand AddCommand = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into TerminalProfile Values (@Name,@Path,@Argument)"))
+                    using (SqliteCommand AddCommand = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into TerminalProfile Values (@Name,@Path,@Argument,@RunAsAdmin)"))
                     {
                         _ = AddCommand.Parameters.AddWithValue("@Name", Profile.Name);
                         _ = AddCommand.Parameters.AddWithValue("@Path", Profile.Path);
                         _ = AddCommand.Parameters.AddWithValue("@Argument", Profile.Argument);
+                        _ = AddCommand.Parameters.AddWithValue("@RunAsAdmin", Convert.ToString(Profile.RunAsAdmin));
                         _ = await AddCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
                 }

@@ -8,11 +8,14 @@
 
         public string Path { get; set; }
 
-        public TerminalProfile(string Name, string Path, string Argument)
+        public bool RunAsAdmin { get; set; }
+
+        public TerminalProfile(string Name, string Path, string Argument, bool RunAsAdmin)
         {
             this.Name = Name;
             this.Path = Path;
             this.Argument = Argument;
+            this.RunAsAdmin = RunAsAdmin;
         }
     }
 }

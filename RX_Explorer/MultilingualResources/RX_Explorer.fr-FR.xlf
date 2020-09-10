@@ -3517,6 +3517,10 @@ Les noms non valides incluent
           <source>Remove configuration</source>
           <target state="translated">Supprimer la configuration</target>
         </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog_RunAsAdmin.Content" translate="yes" xml:space="preserve">
+          <source>Run terminal as administrator</source>
+          <target state="translated">Exécutez le terminal en tant qu'administrateur</target>
+        </trans-unit>
       </group>
     </body>
   </file>

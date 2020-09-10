@@ -30,7 +30,7 @@ namespace RX_Explorer.Dialog
         {
             if (!string.IsNullOrWhiteSpace(args.Text) && TerminalList.All((Profile) => Profile.Name != args.Text))
             {
-                TerminalList.Add(new TerminalProfile(args.Text, string.Empty, string.Empty));
+                TerminalList.Add(new TerminalProfile(args.Text, string.Empty, string.Empty, default));
             }
         }
 
@@ -42,6 +42,7 @@ namespace RX_Explorer.Dialog
             {
                 LastSelectedProfile.Path = ExecutablePath.Text;
                 LastSelectedProfile.Argument = Argument.Text;
+                LastSelectedProfile.RunAsAdmin = RunAsAdmin.IsChecked.GetValueOrDefault();
             }
 
             if (ProfileSelector.SelectedItem is TerminalProfile Profile)
@@ -49,6 +50,7 @@ namespace RX_Explorer.Dialog
                 ExecutablePath.Text = Profile.Path;
                 Argument.Text = Profile.Argument;
                 LastSelectedProfile = Profile;
+                RunAsAdmin.IsChecked = Profile.RunAsAdmin;
             }
         }
 
@@ -60,6 +62,7 @@ namespace RX_Explorer.Dialog
             {
                 CurrentProfile.Path = ExecutablePath.Text;
                 CurrentProfile.Argument = Argument.Text;
+                CurrentProfile.RunAsAdmin = RunAsAdmin.IsChecked.GetValueOrDefault();
             }
 
             if (TerminalList.FirstOrDefault((Profile) => string.IsNullOrWhiteSpace(Profile.Name)) is TerminalProfile ErrProfile1)
@@ -105,6 +108,7 @@ namespace RX_Explorer.Dialog
                 ProfileSelector.Text = string.Empty;
                 ExecutablePath.Text = string.Empty;
                 Argument.Text = string.Empty;
+                RunAsAdmin.IsChecked = false;
 
                 RemoveProfile.Visibility = Visibility.Collapsed;
             }

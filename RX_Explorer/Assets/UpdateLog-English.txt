@@ -1,4 +1,29 @@
 ﻿*****
+###What's new in Ver.5.3.3.0
+
+#####Feature update
+
+>#####Now you can set and modify the default terminal
+
+>#####Added file count and selected number prompt at the bottom of the page
+
+#####UI update
+
+>#####The prompt box will now select the main button by default and support the "Enter" key
+
+>#####When using Shift and clicking the delete button, the prompt box will not pop up and it will be deleted permanently
+
+#####Bug fix
+
+>#####Fixed the problem that an empty path could not be found when entering the wrong environment variable
+
+>#####Fixed the problem that will cause a crash when adding new icons again after deleting all icons in the quick launch area
+
+>#####Fixed the problem that if the file suffix has capital letters, it may not be processed normally
+
+>#####Fixed the problem that the command line startup parameters could not be processed correctly
+
+*****
 ###What's new in Ver.5.3.1.0
 
 #####Feature Update

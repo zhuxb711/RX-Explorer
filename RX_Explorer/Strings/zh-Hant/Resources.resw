@@ -2653,4 +2653,7 @@
   <data name="ModifyDefaultTerminalDialog_RemoveProfile.Content" xml:space="preserve">
     <value>刪除配置</value>
   </data>
+  <data name="ModifyDefaultTerminalDialog_RunAsAdmin.Content" xml:space="preserve">
+    <value>以管理員身份運行終端</value>
+  </data>
 </root>

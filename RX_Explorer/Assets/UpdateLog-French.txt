@@ -1,4 +1,29 @@
 ﻿*****
+###Quoi de neuf dans la version 5.3.3.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Vous pouvez maintenant définir et modifier le terminal par défaut
+
+>#####Ajout du nombre de fichiers et de l'invite du numéro sélectionné en bas de la page
+
+#####Mise à jour de l'interface utilisateur
+
+>#####La boîte de dialogue sélectionne maintenant le bouton principal par défaut et prend en charge la touche "Entrée"
+
+>#####Lorsque vous utilisez Shift et cliquez sur le bouton Supprimer, la boîte de dialogue n'apparaîtra pas et elle sera supprimée définitivement
+
+#####Correction d'un bug
+
+>#####Correction du problème qui empêchait de trouver un chemin vide lors de la saisie de la mauvaise variable d'environnement
+
+>#####Correction du problème qui provoquait un crash lors de l'ajout de nouvelles icônes après la suppression de toutes les icônes dans la zone de lancement rapide
+
+>#####Correction du problème suivant: si le suffixe du fichier contient des majuscules, il peut ne pas être traité normalement
+
+>#####Correction du problème selon lequel les paramètres de démarrage de la ligne de commande ne pouvaient pas être traités correctement
+
+*****
 ###Quoi de neuf dans la version 5.3.1.0
 
 #####Mise à jour des fonctionnalités

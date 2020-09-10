@@ -3517,6 +3517,10 @@ Invalid names include
           <source>Remove configuration</source>
           <target state="translated">移除配置文件</target>
         </trans-unit>
+        <trans-unit id="ModifyDefaultTerminalDialog_RunAsAdmin.Content" translate="yes" xml:space="preserve">
+          <source>Run terminal as administrator</source>
+          <target state="translated">以管理员身份运行终端</target>
+        </trans-unit>
       </group>
     </body>
   </file>

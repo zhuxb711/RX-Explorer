@@ -64,5 +64,10 @@
                  Width="380"
                  IsSpellCheckEnabled="False"
                  PlaceholderText="[CurrentLocation]代表当前文件夹路径"/>
+
+        <CheckBox Content="以管理员身份启动终端"
+                  Margin="0,10,0,0"
+                  Name="RunAsAdmin"
+                  x:Uid="ModifyDefaultTerminalDialog_RunAsAdmin"/>
     </StackPanel>
 </local:QueueContentDialog>
