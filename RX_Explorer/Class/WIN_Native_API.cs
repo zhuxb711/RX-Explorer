@@ -153,11 +153,11 @@ namespace RX_Explorer.Class
 
                     while (true)
                     {
-                        IntPtr BufferPointer = Marshal.AllocHGlobal(4096);
+                        IntPtr BufferPointer = Marshal.AllocHGlobal(8192);
 
                         try
                         {
-                            if (ReadDirectoryChangesW(Package.Item1, BufferPointer, 4096, false, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, out _, IntPtr.Zero, IntPtr.Zero))
+                            if (ReadDirectoryChangesW(Package.Item1, BufferPointer, 8192, false, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, out _, IntPtr.Zero, IntPtr.Zero))
                             {
                                 IntPtr CurrentPointer = BufferPointer;
                                 int Offset = 0;
@@ -222,9 +222,9 @@ namespace RX_Explorer.Class
                                 break;
                             }
                         }
-                        catch
+                        catch (Exception e)
                         {
-
+                            Debug.WriteLine("Exception happened when watching directory. Message: " + e.Message);
                         }
                         finally
                         {

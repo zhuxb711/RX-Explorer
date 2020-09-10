@@ -13,9 +13,9 @@ namespace RX_Explorer.Class
 {
     public sealed class StorageAreaWatcher : IDisposable
     {
-        private readonly ObservableCollection<FileSystemStorageItemBase> CurrentCollection;
+        private ObservableCollection<FileSystemStorageItemBase> CurrentCollection;
 
-        private readonly TreeView TreeView;
+        private TreeView TreeView;
 
         private IntPtr WatchPtr = IntPtr.Zero;
 
@@ -25,25 +25,26 @@ namespace RX_Explorer.Class
 
         private readonly SemaphoreSlim Locker2 = new SemaphoreSlim(1, 1);
 
-        public void SetCurrentLocation(string Path)
+        public void StartWatchDirectory(string Path)
         {
-            CurrentLocation = Path;
+            if (!string.IsNullOrWhiteSpace(Path))
+            {
+                CurrentLocation = Path;
 
-            if (string.IsNullOrWhiteSpace(Path))
-            {
-                if (WatchPtr != IntPtr.Zero)
-                {
-                    WIN_Native_API.StopDirectoryWatcher(ref WatchPtr);
-                }
-            }
-            else
-            {
                 if (WatchPtr != IntPtr.Zero)
                 {
                     WIN_Native_API.StopDirectoryWatcher(ref WatchPtr);
                 }
 
                 WatchPtr = WIN_Native_API.CreateDirectoryWatcher(Path, Added, Removed, Renamed, Modified);
+            }
+        }
+
+        public void StopWatchDirectory()
+        {
+            if (WatchPtr != IntPtr.Zero)
+            {
+                WIN_Native_API.StopDirectoryWatcher(ref WatchPtr);
             }
         }
 
@@ -252,6 +253,10 @@ namespace RX_Explorer.Class
 
             Locker1.Dispose();
             Locker2.Dispose();
+
+            CurrentCollection = null;
+            TreeView = null;
+            CurrentLocation = string.Empty;
         }
 
         public StorageAreaWatcher(ObservableCollection<FileSystemStorageItemBase> InitList, TreeView TreeView)

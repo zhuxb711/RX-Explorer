@@ -44,13 +44,13 @@ namespace RX_Explorer
             }
             set
             {
-                if (!IsNetworkDevice)
-                {
-                    CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.SetCurrentLocation((value?.Content as TreeViewNodeContent)?.Path);
-                }
-
                 if (value != null && value.Content is TreeViewNodeContent Content)
                 {
+                    if (!IsNetworkDevice)
+                    {
+                        CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.StartWatchDirectory(Content.Path);
+                    }
+
                     CurrentPath = Content.Path;
 
                     FolderTree.SelectNode(value);
@@ -127,13 +127,13 @@ namespace RX_Explorer
             }
             set
             {
-                if (!IsNetworkDevice)
-                {
-                    CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.SetCurrentLocation(value?.Path);
-                }
-
                 if (value != null)
                 {
+                    if (!IsNetworkDevice)
+                    {
+                        CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.StartWatchDirectory(value.Path);
+                    }
+
                     UpdateAddressButton(value.Path);
 
                     CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter.Focus(FocusState.Programmatic);
@@ -221,6 +221,37 @@ namespace RX_Explorer
             catch (Exception ex)
             {
                 ExceptionTracer.RequestBlueScreen(ex);
+            }
+
+            Loaded += FileControl_Loaded;
+            Unloaded += FileControl_Unloaded;
+        }
+
+        private void FileControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Suspending -= Current_Suspending;
+            Application.Current.Resuming -= Current_Resuming;
+        }
+
+        private void FileControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Suspending += Current_Suspending;
+            Application.Current.Resuming += Current_Resuming;
+        }
+
+        private void Current_Resuming(object sender, object e)
+        {
+            if (!IsNetworkDevice)
+            {
+                CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.StartWatchDirectory(CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.CurrentLocation);
+            }
+        }
+
+        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+        {
+            if (!IsNetworkDevice)
+            {
+                CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.StopWatchDirectory();
             }
         }
 
@@ -2720,6 +2751,7 @@ namespace RX_Explorer
             AddItemCancellation?.Dispose();
 
             EnterLock.Dispose();
+
             CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.Dispose();
         }
 

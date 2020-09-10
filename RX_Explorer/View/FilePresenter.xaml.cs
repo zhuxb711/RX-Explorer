@@ -125,34 +125,14 @@ namespace RX_Explorer
             Unloaded += FilePresenter_Unloaded;
         }
 
-        private void Current_Resuming(object sender, object e)
-        {
-            if (!FileControlInstance.IsNetworkDevice)
-            {
-                AreaWatcher.SetCurrentLocation(FileControlInstance.CurrentFolder?.Path);
-            }
-        }
-
-        private void Current_Suspending(object sender, SuspendingEventArgs e)
-        {
-            if (!FileControlInstance.IsNetworkDevice)
-            {
-                AreaWatcher.SetCurrentLocation(null);
-            }
-        }
-
         private void FilePresenter_Unloaded(object sender, RoutedEventArgs e)
         {
-            Application.Current.Suspending -= Current_Suspending;
-            Application.Current.Resuming -= Current_Resuming;
             CoreWindow.GetForCurrentThread().KeyDown -= Window_KeyDown;
             Dispatcher.AcceleratorKeyActivated -= Dispatcher_AcceleratorKeyActivated;
         }
 
         private void FilePresenter_Loaded(object sender, RoutedEventArgs e)
         {
-            Application.Current.Suspending += Current_Suspending;
-            Application.Current.Resuming += Current_Resuming;
             CoreWindow.GetForCurrentThread().KeyDown += Window_KeyDown;
             Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
         }

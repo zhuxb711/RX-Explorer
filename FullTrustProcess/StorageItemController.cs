@@ -183,8 +183,8 @@ namespace FullTrustProcess
                 }
 
                 ShellFileOperations.OperationFlags Options = Source.All((Item) => Path.GetDirectoryName(Item.Key) == DestinationPath)
-                                                             ? ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RenameOnCollision
-                                                             : ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent;
+                                                             ? ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RenameOnCollision | ShellFileOperations.OperationFlags.RequireElevation
+                                                             : ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RequireElevation;
 
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
@@ -196,11 +196,9 @@ namespace FullTrustProcess
 
                     foreach (KeyValuePair<string, string> SourceInfo in Source)
                     {
-                        using (ShellItem SourceItem = new ShellItem(SourceInfo.Key))
-                        using (ShellFolder DestItem = new ShellFolder(DestinationPath))
-                        {
-                            Operation.QueueCopyOperation(SourceItem, DestItem, string.IsNullOrEmpty(SourceInfo.Value) ? null : SourceInfo.Value);
-                        }
+                        ShellItem SourceItem = new ShellItem(SourceInfo.Key);
+                        ShellFolder DestItem = new ShellFolder(DestinationPath);
+                        Operation.QueueCopyOperation(SourceItem, DestItem, string.IsNullOrEmpty(SourceInfo.Value) ? null : SourceInfo.Value);
                     }
 
                     Operation.PerformOperations();

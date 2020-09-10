@@ -127,7 +127,7 @@ namespace RX_Explorer.Class
             {
                 if (!IsConnected)
                 {
-                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("Admin");
 
                     if ((await Connection.OpenAsync()) != AppServiceConnectionStatus.Success)
                     {
@@ -146,7 +146,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+                        await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("Admin");
                         goto ReCheck;
                     }
                 }

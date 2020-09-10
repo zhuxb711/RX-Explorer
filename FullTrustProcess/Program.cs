@@ -38,30 +38,50 @@ namespace FullTrustProcess
         {
             try
             {
+                if (args.Contains("Elevation_Restart"))
+                {
+                    SpinWait.SpinUntil(() => !Mutex.TryOpenExisting("RX_Explorer_FullTrustProcess", out _));
+                }
+
                 using (Mutex LaunchLocker = new Mutex(true, "RX_Explorer_FullTrustProcess", out bool IsNotExist))
                 {
-                    if (!IsNotExist)
+                    if (IsNotExist)
                     {
-                        return;
-                    }
+                        if (args.Length > 2)
+                        {
+                            if (args[2] == "RunAsAdminMode")
+                            {
+                                using (Process AdminProcess = new Process())
+                                {
+                                    AdminProcess.StartInfo.Verb = "runas";
+                                    AdminProcess.StartInfo.UseShellExecute = true;
+                                    AdminProcess.StartInfo.Arguments = "Elevation_Restart";
+                                    AdminProcess.StartInfo.FileName = Process.GetCurrentProcess().MainModule.FileName;
+                                    AdminProcess.Start();
+                                }
 
-                    Connection = new AppServiceConnection
-                    {
-                        AppServiceName = "CommunicateService",
-                        PackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t"
-                    };
-                    Connection.RequestReceived += Connection_RequestReceived;
+                                return;
+                            }
+                        }
 
-                    if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
-                    {
-                        AliveCheckTimer = new Timer(AliveCheck, null, 5000, 5000);
-                    }
-                    else
-                    {
-                        ExitLocker.Set();
-                    }
+                        Connection = new AppServiceConnection
+                        {
+                            AppServiceName = "CommunicateService",
+                            PackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t"
+                        };
+                        Connection.RequestReceived += Connection_RequestReceived;
 
-                    ExitLocker.WaitOne();
+                        if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
+                        {
+                            AliveCheckTimer = new Timer(AliveCheck, null, 5000, 5000);
+                        }
+                        else
+                        {
+                            ExitLocker.Set();
+                        }
+
+                        ExitLocker.WaitOne();
+                    }
                 }
             }
             catch (Exception e)
@@ -89,19 +109,6 @@ namespace FullTrustProcess
             }
         }
 
-        private static void InitializeNewNamedPipe(string ID)
-        {
-            NamedPipeServerStream NewPipeServer = new NamedPipeServerStream($@"Explorer_And_FullTrustProcess_NamedPipe-{ID}", PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, PipeOptions.None, 2048, 2048, null, HandleInheritability.None, PipeAccessRights.ChangePermissions);
-            PipeSecurity Security = NewPipeServer.GetAccessControl();
-            PipeAccessRule ClientRule = new PipeAccessRule(new SecurityIdentifier("S-1-15-2-1"), PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow);
-            PipeAccessRule OwnerRule = new PipeAccessRule(WindowsIdentity.GetCurrent().Owner, PipeAccessRights.FullControl, AccessControlType.Allow);
-            Security.AddAccessRule(ClientRule);
-            Security.AddAccessRule(OwnerRule);
-            NewPipeServer.SetAccessControl(Security);
-
-            PipeServers.Add(ID, NewPipeServer);
-        }
-
         private async static void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
         {
             AppServiceDeferral Deferral = args.GetDeferral();
@@ -124,7 +131,7 @@ namespace FullTrustProcess
                                 ShellLink.Create(LinkPath, LinkTarget, description: LinkDesc, arguments: LinkArgument).Dispose();
                                 Value.Add("Success", string.Empty);
                             }
-                            catch(Exception e)
+                            catch (Exception e)
                             {
                                 Value.Add("Error", e.Message);
                             }
@@ -314,25 +321,31 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_RequestClosePipe":
-                        {
-                            string Guid = Convert.ToString(args.Request.Message["Guid"]);
-
-                            if (PipeServers.ContainsKey(Guid))
-                            {
-                                PipeServers[Guid].Disconnect();
-                                PipeServers[Guid].Dispose();
-                                PipeServers.Remove(Guid);
-                            }
-                            break;
-                        }
                     case "Excute_RequestCreateNewPipe":
                         {
                             string Guid = Convert.ToString(args.Request.Message["Guid"]);
 
                             if (!PipeServers.ContainsKey(Guid))
                             {
-                                InitializeNewNamedPipe(Guid);
+                                NamedPipeServerStream NewPipeServer = new NamedPipeServerStream($@"Explorer_And_FullTrustProcess_NamedPipe-{Guid}", PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, PipeOptions.Asynchronous, 2048, 2048, null, HandleInheritability.None, PipeAccessRights.ChangePermissions);
+
+                                PipeSecurity Security = NewPipeServer.GetAccessControl();
+                                PipeAccessRule ClientRule = new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow);
+                                PipeAccessRule OwnerRule = new PipeAccessRule(WindowsIdentity.GetCurrent().Owner, PipeAccessRights.FullControl, AccessControlType.Allow);
+                                Security.AddAccessRule(ClientRule);
+                                Security.AddAccessRule(OwnerRule);
+                                NewPipeServer.SetAccessControl(Security);
+
+                                PipeServers.Add(Guid, NewPipeServer);
+
+                                _ = NewPipeServer.WaitForConnectionAsync(new CancellationTokenSource(2000).Token).ContinueWith((task) =>
+                                {
+                                    if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipe))
+                                    {
+                                        Pipe.Dispose();
+                                        PipeServers.Remove(Guid);
+                                    }
+                                }, TaskContinuationOptions.OnlyOnCanceled);
                             }
 
                             break;
@@ -505,16 +518,12 @@ namespace FullTrustProcess
                                     {
                                         try
                                         {
-                                            NamedPipeServerStream Server = PipeServers[Guid];
-
-                                            if (!Server.IsConnected)
+                                            if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
                                             {
-                                                Server.WaitForConnection();
-                                            }
-
-                                            using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
-                                            {
-                                                Writer.WriteLine(e.ProgressPercentage);
+                                                using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
+                                                {
+                                                    Writer.WriteLine(e.ProgressPercentage);
+                                                }
                                             }
                                         }
                                         catch
@@ -557,26 +566,19 @@ namespace FullTrustProcess
 
                             if (!Value.ContainsKey("Success"))
                             {
-                                lock (Locker)
+                                try
                                 {
-                                    try
+                                    if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
                                     {
-                                        NamedPipeServerStream Server = PipeServers[Guid];
-
-                                        if (!Server.IsConnected)
-                                        {
-                                            Server.WaitForConnection();
-                                        }
-
-                                        using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                        using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
                                         {
                                             Writer.WriteLine("Error_Stop_Signal");
                                         }
                                     }
-                                    catch
-                                    {
-                                        Debug.WriteLine("无法传输进度数据");
-                                    }
+                                }
+                                catch
+                                {
+                                    Debug.WriteLine("无法传输进度数据");
                                 }
                             }
 
@@ -609,16 +611,12 @@ namespace FullTrustProcess
                                         {
                                             try
                                             {
-                                                NamedPipeServerStream Server = PipeServers[Guid];
-
-                                                if (!Server.IsConnected)
+                                                if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
                                                 {
-                                                    Server.WaitForConnection();
-                                                }
-
-                                                using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
-                                                {
-                                                    Writer.WriteLine(e.ProgressPercentage);
+                                                    using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
+                                                    {
+                                                        Writer.WriteLine(e.ProgressPercentage);
+                                                    }
                                                 }
                                             }
                                             catch
@@ -661,26 +659,19 @@ namespace FullTrustProcess
 
                             if (!Value.ContainsKey("Success"))
                             {
-                                lock (Locker)
+                                try
                                 {
-                                    try
+                                    if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
                                     {
-                                        NamedPipeServerStream Server = PipeServers[Guid];
-
-                                        if (!Server.IsConnected)
-                                        {
-                                            Server.WaitForConnection();
-                                        }
-
-                                        using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                        using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
                                         {
                                             Writer.WriteLine("Error_Stop_Signal");
                                         }
                                     }
-                                    catch
-                                    {
-                                        Debug.WriteLine("无法传输进度数据");
-                                    }
+                                }
+                                catch
+                                {
+                                    Debug.WriteLine("无法传输进度数据");
                                 }
                             }
 
@@ -726,16 +717,12 @@ namespace FullTrustProcess
                                             {
                                                 try
                                                 {
-                                                    NamedPipeServerStream Server = PipeServers[Guid];
-
-                                                    if (!Server.IsConnected)
+                                                    if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
                                                     {
-                                                        Server.WaitForConnection();
-                                                    }
-
-                                                    using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
-                                                    {
-                                                        Writer.WriteLine(e.ProgressPercentage);
+                                                        using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
+                                                        {
+                                                            Writer.WriteLine(e.ProgressPercentage);
+                                                        }
                                                     }
                                                 }
                                                 catch
@@ -776,26 +763,19 @@ namespace FullTrustProcess
 
                             if (!Value.ContainsKey("Success"))
                             {
-                                lock (Locker)
+                                try
                                 {
-                                    try
+                                    if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
                                     {
-                                        NamedPipeServerStream Server = PipeServers[Guid];
-
-                                        if (!Server.IsConnected)
-                                        {
-                                            Server.WaitForConnection();
-                                        }
-
-                                        using (StreamWriter Writer = new StreamWriter(Server, new UTF8Encoding(false), 1024, true))
+                                        using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
                                         {
                                             Writer.WriteLine("Error_Stop_Signal");
                                         }
                                     }
-                                    catch
-                                    {
-                                        Debug.WriteLine("无法传输进度终止数据");
-                                    }
+                                }
+                                catch
+                                {
+                                    Debug.WriteLine("无法传输进度终止数据");
                                 }
                             }
 

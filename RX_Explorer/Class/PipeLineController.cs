@@ -93,6 +93,7 @@ namespace RX_Explorer.Class
                     await FullTrustExcutorController.Current.RequestCreateNewPipeLine(GUID).ConfigureAwait(true);
 
                     PipeHandle = WIN_Native_API.GetHandleFromNamedPipe($"Explorer_And_FullTrustProcess_NamedPipe-{GUID}");
+                    
                     ClientStream = new NamedPipeClientStream(PipeDirection.InOut, false, true, PipeHandle);
 
                     return true;
