@@ -2648,8 +2648,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedPaste_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</source>
-          <target state="translated">RX 檔案總管沒有權限貼上檔案，可能是您沒有權限訪問此資料夾\r\r立即進入檔案總管？</target>
+          <source>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2.Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
+          <target state="translated">RX 檔案總管沒有權限貼上檔案，可能需要管理員權限才能訪問此文件夾。 您要授予管理員權限嗎？\r\r注意：\r1. 除非關閉了最後一個RX實例，否則它將繼續以管理員權限運行。\ r2. 在授予權限之前，請確保其他實例未執行檔案操作，否則檔案將被損壞。</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedRenameFolder_Content" translate="yes" xml:space="preserve">
@@ -3520,6 +3520,14 @@ Invalid names include
         <trans-unit id="ModifyDefaultTerminalDialog_RunAsAdmin.Content" translate="yes" xml:space="preserve">
           <source>Run terminal as administrator</source>
           <target state="translated">以管理員身份運行終端</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DenyElevation_Content" translate="yes" xml:space="preserve">
+          <source>You refused to grant admin rights, so you cannot perform any operations</source>
+          <target state="translated">您拒絕授予管理員權限，因此無法執行任何操作</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_GrantButton" translate="yes" xml:space="preserve">
+          <source>Grant</source>
+          <target state="translated">准予</target>
         </trans-unit>
       </group>
     </body>

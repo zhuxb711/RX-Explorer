@@ -2,6 +2,12 @@
 
 namespace RX_Explorer.Class
 {
+    public enum RunMode
+    {
+        Admin = 0,
+        User = 1
+    }
+
     public enum ThumbnailStatus
     {
         Normal = 0,

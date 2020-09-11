@@ -34,11 +34,11 @@ namespace RX_Explorer.Class
 
         private SafePipeHandle PipeHandle;
 
-        public async Task ListenPipeMessage(ProgressChangedEventHandler Handler)
+        public async Task ListenPipeMessageAsync(ProgressChangedEventHandler Handler)
         {
             if (ClientStream == null)
             {
-                throw new InvalidOperationException("Excute CreateNewNamedPipe() first");
+                return;
             }
 
             try
@@ -79,13 +79,25 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<bool> CreateNewNamedPipe()
+        public async Task<bool> CreateNewNamedPipeAsync()
         {
             try
             {
                 if (ClientStream != null)
                 {
-                    return true;
+                    if (!ClientStream.IsConnected)
+                    {
+                        ClientStream.Dispose();
+                        ClientStream = null;
+                        PipeHandle.Dispose();
+                        PipeHandle = null;
+
+                        GUID = Guid.NewGuid();
+                    }
+                    else
+                    {
+                        return true;
+                    }
                 }
 
                 if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_2004))
@@ -93,7 +105,7 @@ namespace RX_Explorer.Class
                     await FullTrustExcutorController.Current.RequestCreateNewPipeLine(GUID).ConfigureAwait(true);
 
                     PipeHandle = WIN_Native_API.GetHandleFromNamedPipe($"Explorer_And_FullTrustProcess_NamedPipe-{GUID}");
-                    
+
                     ClientStream = new NamedPipeClientStream(PipeDirection.InOut, false, true, PipeHandle);
 
                     return true;

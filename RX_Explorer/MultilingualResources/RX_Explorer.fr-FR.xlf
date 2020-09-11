@@ -2618,8 +2618,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedPaste_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to paste, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</source>
-          <target state="translated">RX n'a pas la permission pour copier, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</target>
+          <source>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2.Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
+          <target state="translated">RX n'a pas la permission pour copier, des droits d'administrateur peuvent être nécessaires pour accéder à ce dossier. Voulez-vous accorder des droits d'administrateur?\r\rRemarquez: \r1. À moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur. \r2. Avant d'accorder des autorisations, assurez-vous que les autres instances n'effectuent pas d'opérations sur les fichiers, sinon les fichiers seront endommagés.</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedRenameFolder_Content" translate="yes" xml:space="preserve">
@@ -3520,6 +3520,14 @@ Les noms non valides incluent
         <trans-unit id="ModifyDefaultTerminalDialog_RunAsAdmin.Content" translate="yes" xml:space="preserve">
           <source>Run terminal as administrator</source>
           <target state="translated">Exécutez le terminal en tant qu'administrateur</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DenyElevation_Content" translate="yes" xml:space="preserve">
+          <source>You refused to grant admin rights, so you cannot perform any operations</source>
+          <target state="translated">Vous avez refusé d'accorder des droits d'administrateur, vous ne pouvez donc effectuer aucune opération</target>
+        </trans-unit>
+        <trans-unit id="Common_Dialog_GrantButton" translate="yes" xml:space="preserve">
+          <source>Grant</source>
+          <target state="translated">Subvention</target>
         </trans-unit>
       </group>
     </body>

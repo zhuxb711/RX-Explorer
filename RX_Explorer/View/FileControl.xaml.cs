@@ -2241,10 +2241,7 @@ namespace RX_Explorer
                                 {
                                     await LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
-                                    bool IsItemNotFound = false;
-                                    bool IsUnauthorized = false;
-                                    bool IsOperateFailed = false;
-
+                                    Retry:
                                     try
                                     {
                                         if (IsNetworkDevice)
@@ -2296,43 +2293,45 @@ namespace RX_Explorer
                                     }
                                     catch (FileNotFoundException)
                                     {
-                                        IsItemNotFound = true;
-                                    }
-                                    catch (InvalidOperationException)
-                                    {
-                                        IsOperateFailed = true;
-                                    }
-                                    catch (Exception)
-                                    {
-                                        IsUnauthorized = true;
-                                    }
-
-                                    if (IsItemNotFound)
-                                    {
                                         QueueContentDialog Dialog = new QueueContentDialog
                                         {
                                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                             Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
                                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                         };
+
                                         _ = await Dialog.ShowAsync().ConfigureAwait(true);
                                     }
-                                    else if (IsUnauthorized)
+                                    catch (InvalidOperationException)
                                     {
                                         QueueContentDialog dialog = new QueueContentDialog
                                         {
                                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                             Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                         };
 
                                         if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                         {
-                                            _ = await Launcher.LaunchFolderAsync(CurrentFolder);
+                                            if (await FullTrustExcutorController.Current.SwitchMode(RunMode.Admin).ConfigureAwait(true))
+                                            {
+                                                goto Retry;
+                                            }
+                                            else
+                                            {
+                                                QueueContentDialog ErrorDialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                            }
                                         }
                                     }
-                                    else if (IsOperateFailed)
+                                    catch (Exception)
                                     {
                                         QueueContentDialog dialog = new QueueContentDialog
                                         {
@@ -2340,8 +2339,10 @@ namespace RX_Explorer
                                             Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
                                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                         };
+
                                         _ = await dialog.ShowAsync().ConfigureAwait(true);
                                     }
+
                                     break;
                                 }
                             case DataPackageOperation.Move:
@@ -2353,11 +2354,7 @@ namespace RX_Explorer
 
                                     await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
-                                    bool IsItemNotFound = false;
-                                    bool IsUnauthorized = false;
-                                    bool IsCaptured = false;
-                                    bool IsOperateFailed = false;
-
+                                    Retry:
                                     try
                                     {
                                         if (IsNetworkDevice)
@@ -2424,23 +2421,6 @@ namespace RX_Explorer
                                     }
                                     catch (FileNotFoundException)
                                     {
-                                        IsItemNotFound = true;
-                                    }
-                                    catch (FileCaputureException)
-                                    {
-                                        IsCaptured = true;
-                                    }
-                                    catch (InvalidOperationException)
-                                    {
-                                        IsOperateFailed = true;
-                                    }
-                                    catch (Exception)
-                                    {
-                                        IsUnauthorized = true;
-                                    }
-
-                                    if (IsItemNotFound)
-                                    {
                                         QueueContentDialog Dialog = new QueueContentDialog
                                         {
                                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
@@ -2450,22 +2430,7 @@ namespace RX_Explorer
 
                                         _ = await Dialog.ShowAsync().ConfigureAwait(true);
                                     }
-                                    else if (IsUnauthorized)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                                        };
-
-                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            _ = await Launcher.LaunchFolderAsync(CurrentFolder);
-                                        }
-                                    }
-                                    else if (IsCaptured)
+                                    catch (FileCaputureException)
                                     {
                                         QueueContentDialog dialog = new QueueContentDialog
                                         {
@@ -2476,7 +2441,36 @@ namespace RX_Explorer
 
                                         _ = await dialog.ShowAsync().ConfigureAwait(true);
                                     }
-                                    else if (IsOperateFailed)
+                                    catch (InvalidOperationException)
+                                    {
+                                        QueueContentDialog dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                        };
+
+                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                        {
+                                            if (await FullTrustExcutorController.Current.SwitchMode(RunMode.Admin).ConfigureAwait(true))
+                                            {
+                                                goto Retry;
+                                            }
+                                            else
+                                            {
+                                                QueueContentDialog ErrorDialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                            }
+                                        }
+                                    }
+                                    catch (Exception)
                                     {
                                         QueueContentDialog dialog = new QueueContentDialog
                                         {
@@ -2484,6 +2478,7 @@ namespace RX_Explorer
                                             Content = Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"),
                                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                         };
+
                                         _ = await dialog.ShowAsync().ConfigureAwait(true);
                                     }
 
@@ -2527,10 +2522,7 @@ namespace RX_Explorer
                                     {
                                         await LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
-                                        bool IsItemNotFound = false;
-                                        bool IsUnauthorized = false;
-                                        bool IsOperateFailed = false;
-
+                                        Retry:
                                         try
                                         {
                                             await FullTrustExcutorController.Current.CopyAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
@@ -2541,43 +2533,45 @@ namespace RX_Explorer
                                         }
                                         catch (FileNotFoundException)
                                         {
-                                            IsItemNotFound = true;
-                                        }
-                                        catch (InvalidOperationException)
-                                        {
-                                            IsOperateFailed = true;
-                                        }
-                                        catch (Exception)
-                                        {
-                                            IsUnauthorized = true;
-                                        }
-
-                                        if (IsItemNotFound)
-                                        {
                                             QueueContentDialog Dialog = new QueueContentDialog
                                             {
                                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                 Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
                                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                             };
+
                                             _ = await Dialog.ShowAsync().ConfigureAwait(true);
                                         }
-                                        else if (IsUnauthorized)
+                                        catch (InvalidOperationException)
                                         {
                                             QueueContentDialog dialog = new QueueContentDialog
                                             {
                                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                 Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                                PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                                                PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                             };
 
                                             if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                             {
-                                                _ = await Launcher.LaunchFolderAsync(CurrentFolder);
+                                                if (await FullTrustExcutorController.Current.SwitchMode(RunMode.Admin).ConfigureAwait(true))
+                                                {
+                                                    goto Retry;
+                                                }
+                                                else
+                                                {
+                                                    QueueContentDialog ErrorDialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                                }
                                             }
                                         }
-                                        else if (IsOperateFailed)
+                                        catch (Exception)
                                         {
                                             QueueContentDialog dialog = new QueueContentDialog
                                             {
@@ -2585,8 +2579,10 @@ namespace RX_Explorer
                                                 Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
                                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                             };
+
                                             _ = await dialog.ShowAsync().ConfigureAwait(true);
                                         }
+
                                         break;
                                     }
                                 case DataPackageOperation.Move:
@@ -2598,11 +2594,7 @@ namespace RX_Explorer
 
                                         await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
-                                        bool IsItemNotFound = false;
-                                        bool IsUnauthorized = false;
-                                        bool IsCaptured = false;
-                                        bool IsOperateFailed = false;
-
+                                        Retry:
                                         try
                                         {
                                             await FullTrustExcutorController.Current.MoveAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
@@ -2613,23 +2605,6 @@ namespace RX_Explorer
                                         }
                                         catch (FileNotFoundException)
                                         {
-                                            IsItemNotFound = true;
-                                        }
-                                        catch (FileCaputureException)
-                                        {
-                                            IsCaptured = true;
-                                        }
-                                        catch (InvalidOperationException)
-                                        {
-                                            IsOperateFailed = true;
-                                        }
-                                        catch (Exception)
-                                        {
-                                            IsUnauthorized = true;
-                                        }
-
-                                        if (IsItemNotFound)
-                                        {
                                             QueueContentDialog Dialog = new QueueContentDialog
                                             {
                                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
@@ -2639,22 +2614,7 @@ namespace RX_Explorer
 
                                             _ = await Dialog.ShowAsync().ConfigureAwait(true);
                                         }
-                                        else if (IsUnauthorized)
-                                        {
-                                            QueueContentDialog dialog = new QueueContentDialog
-                                            {
-                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                                PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                                            };
-
-                                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                            {
-                                                _ = await Launcher.LaunchFolderAsync(CurrentFolder);
-                                            }
-                                        }
-                                        else if (IsCaptured)
+                                        catch (FileCaputureException)
                                         {
                                             QueueContentDialog dialog = new QueueContentDialog
                                             {
@@ -2665,7 +2625,36 @@ namespace RX_Explorer
 
                                             _ = await dialog.ShowAsync().ConfigureAwait(true);
                                         }
-                                        else if (IsOperateFailed)
+                                        catch (InvalidOperationException)
+                                        {
+                                            QueueContentDialog dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                                                PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                            };
+
+                                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                            {
+                                                if (await FullTrustExcutorController.Current.SwitchMode(RunMode.Admin).ConfigureAwait(true))
+                                                {
+                                                    goto Retry;
+                                                }
+                                                else
+                                                {
+                                                    QueueContentDialog ErrorDialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                                }
+                                            }
+                                        }
+                                        catch (Exception)
                                         {
                                             QueueContentDialog dialog = new QueueContentDialog
                                             {
@@ -2673,6 +2662,7 @@ namespace RX_Explorer
                                                 Content = Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"),
                                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                             };
+
                                             _ = await dialog.ShowAsync().ConfigureAwait(true);
                                         }
 

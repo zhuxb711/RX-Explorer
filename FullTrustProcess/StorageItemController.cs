@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Text.RegularExpressions;
 using Vanara.Windows.Shell;
 
@@ -12,41 +14,21 @@ namespace FullTrustProcess
 {
     public static class StorageItemController
     {
-        [DllImport("kernel32.dll")]
-        private static extern IntPtr _lopen(string lpPathName, int iReadWrite);
-        [DllImport("kernel32.dll")]
-        private static extern bool CloseHandle(IntPtr hObject);
-
-        private const int OF_READWRITE = 2;
-        private const int OF_SHARE_DENY_NONE = 0x40;
-        private static readonly IntPtr HFILE_ERROR = new IntPtr(-1);
-
         public static bool CheckOccupied(string Path)
         {
             if (File.Exists(Path))
             {
-                IntPtr Handle = IntPtr.Zero;
-
                 try
                 {
-                    Handle = _lopen(Path, OF_READWRITE | OF_SHARE_DENY_NONE);
+                    FileInfo Info = new FileInfo(Path);
+                    
+                    Info.Open(FileMode.Open, FileAccess.Read, FileShare.None).Dispose();
 
-                    if (Handle == HFILE_ERROR)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                catch
-                {
                     return false;
                 }
-                finally
+                catch (IOException)
                 {
-                    CloseHandle(Handle);
+                    return true;
                 }
             }
             else
@@ -112,13 +94,75 @@ namespace FullTrustProcess
             }
         }
 
+        private static bool CheckWritePermission(string DirectoryPath)
+        {
+            bool AllowWrite = false;
+            bool DenyWrite = false;
+
+            DirectorySecurity Security = Directory.GetAccessControl(DirectoryPath);
+            AuthorizationRuleCollection AccessRules = Security.GetAccessRules(true, true, typeof(SecurityIdentifier));
+            WindowsPrincipal CurrentUser = new WindowsPrincipal(WindowsIdentity.GetCurrent());
+
+            foreach (FileSystemAccessRule Rule in AccessRules)
+            {
+                if ((FileSystemRights.Write & Rule.FileSystemRights) == FileSystemRights.Write)
+                {
+                    if (Rule.IdentityReference.Value.StartsWith("S-1-"))
+                    {
+                        if (!CurrentUser.IsInRole(new SecurityIdentifier(Rule.IdentityReference.Value)))
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        if (!CurrentUser.IsInRole(Rule.IdentityReference.Value))
+                        {
+                            continue;
+                        }
+                    }
+
+                    switch (Rule.AccessControlType)
+                    {
+                        case AccessControlType.Allow:
+                            {
+                                AllowWrite = true;
+                                break;
+                            }
+                        case AccessControlType.Deny:
+                            {
+                                DenyWrite = true;
+                                break;
+                            }
+                    }
+                }
+            }
+
+            return AllowWrite && !DenyWrite;
+        }
+
         public static bool Rename(string Source, string DesireName)
         {
             try
             {
+                if (Directory.Exists(Source))
+                {
+                    if (!CheckWritePermission(Source))
+                    {
+                        return false;
+                    }
+                }
+                else if(File.Exists(Source))
+                {
+                    if (!CheckWritePermission(Path.GetDirectoryName(Source)))
+                    {
+                        return false;
+                    }
+                }
+
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
-                    Options = ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent
+                    Options = ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RequireElevation
                 })
                 {
                     using (ShellItem Item = new ShellItem(Source))
@@ -141,11 +185,16 @@ namespace FullTrustProcess
         {
             try
             {
+                if (Source.Where((Item) => Directory.Exists(Item)).Any((Item) => !CheckWritePermission(Item)) || Source.Where((Item) => File.Exists(Item)).Any((Item) => !CheckWritePermission(Path.GetDirectoryName(Item))))
+                {
+                    return false;
+                }
+
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
                     Options = PermanentDelete
-                    ? ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.NoConfirmation
-                    : ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.RecycleOnDelete
+                    ? ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.NoConfirmation | ShellFileOperations.OperationFlags.RequireElevation
+                    : ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.RecycleOnDelete | ShellFileOperations.OperationFlags.RequireElevation
                 })
                 {
                     Operation.UpdateProgress += Progress;
@@ -180,6 +229,11 @@ namespace FullTrustProcess
                 if (!Directory.Exists(DestinationPath))
                 {
                     _ = Directory.CreateDirectory(DestinationPath);
+                }
+
+                if(!CheckWritePermission(DestinationPath))
+                {
+                    return false;
                 }
 
                 ShellFileOperations.OperationFlags Options = Source.All((Item) => Path.GetDirectoryName(Item.Key) == DestinationPath)
@@ -224,9 +278,14 @@ namespace FullTrustProcess
                     _ = Directory.CreateDirectory(DestinationPath);
                 }
 
+                if (!CheckWritePermission(DestinationPath))
+                {
+                    return false;
+                }
+
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
-                    Options = ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent
+                    Options = ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RequireElevation
                 })
                 {
                     Operation.UpdateProgress += Progress;

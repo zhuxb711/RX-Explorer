@@ -40,7 +40,7 @@ namespace RX_Explorer
 
         private async void App_Resuming(object sender, object e)
         {
-            await FullTrustExcutorController.Current.TryConnectToFullTrustExcutor().ConfigureAwait(true);
+            await FullTrustExcutorController.Current.ConnectToFullTrustExcutorAsync().ConfigureAwait(true);
             AppInstanceIdContainer.RegisterCurrentId(AppInstanceIdContainer.CurrentId);
         }
 

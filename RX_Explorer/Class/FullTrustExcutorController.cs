@@ -67,6 +67,8 @@ namespace RX_Explorer.Class
 
         private const string ExcuteType_Test_Connection = "Excute_Test_Connection";
 
+        private const string ExcuteType_Exit = "Excute_Exit";
+
         private volatile static FullTrustExcutorController Instance;
 
         private static readonly object locker = new object();
@@ -76,6 +78,8 @@ namespace RX_Explorer.Class
         private bool IsConnected;
 
         public bool IsNowHasAnyActionExcuting { get; private set; }
+
+        public RunMode RunningMode { get; private set; } = RunMode.User;
 
         private AppServiceConnection Connection;
 
@@ -113,7 +117,7 @@ namespace RX_Explorer.Class
             {
                 case "Identity":
                     {
-                        await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" }, { "Guid", PipeLineController.Current.GUID.ToString() } });
+                        await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" } });
                         break;
                     }
             }
@@ -121,13 +125,62 @@ namespace RX_Explorer.Class
             Deferral.Complete();
         }
 
-        public async Task<bool> TryConnectToFullTrustExcutor()
+        public async Task<bool> SwitchMode(RunMode Mode)
+        {
+            try
+            {
+                IsNowHasAnyActionExcuting = true;
+
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                {
+                    await Connection.SendMessageAsync(new ValueSet { { "ExcuteType", ExcuteType_Exit } });
+
+                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync(Enum.GetName(typeof(RunMode), Mode));
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExcuteType", ExcuteType_Test_Connection }, { "ProcessId", CurrentProcessId } });
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.ContainsKey(ExcuteType_Test_Connection))
+                        {
+                            RunningMode = Mode;
+
+                            return true;
+                        }
+                        else
+                        {
+                            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync(Enum.GetName(typeof(RunMode), RunMode.User));
+
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                IsNowHasAnyActionExcuting = false;
+            }
+        }
+
+        public async Task<bool> ConnectToFullTrustExcutorAsync()
         {
             try
             {
                 if (!IsConnected)
                 {
-                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("Admin");
+                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync(Enum.GetName(typeof(RunMode), RunningMode));
 
                     if ((await Connection.OpenAsync()) != AppServiceConnectionStatus.Success)
                     {
@@ -146,7 +199,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("Admin");
+                        await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync(Enum.GetName(typeof(RunMode), RunningMode));
                         goto ReCheck;
                     }
                 }
@@ -167,7 +220,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -212,7 +265,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -253,7 +306,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -307,7 +360,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -348,7 +401,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -388,7 +441,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -428,7 +481,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -469,7 +522,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -502,7 +555,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -537,7 +590,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -566,7 +619,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -593,7 +646,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -632,7 +685,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -672,7 +725,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -710,7 +763,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(true))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(true))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -758,7 +811,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -808,13 +861,13 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     Task ProgressTask;
 
-                    if (await PipeLineController.Current.CreateNewNamedPipe().ConfigureAwait(true))
+                    if (await PipeLineController.Current.CreateNewNamedPipeAsync().ConfigureAwait(true))
                     {
-                        ProgressTask = PipeLineController.Current.ListenPipeMessage(ProgressHandler);
+                        ProgressTask = PipeLineController.Current.ListenPipeMessageAsync(ProgressHandler);
                     }
                     else
                     {
@@ -917,7 +970,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(true))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(true))
                 {
                     List<KeyValuePair<string, string>> MessageList = new List<KeyValuePair<string, string>>();
 
@@ -968,9 +1021,9 @@ namespace RX_Explorer.Class
 
                     Task ProgressTask;
 
-                    if (await PipeLineController.Current.CreateNewNamedPipe().ConfigureAwait(true))
+                    if (await PipeLineController.Current.CreateNewNamedPipeAsync().ConfigureAwait(true))
                     {
-                        ProgressTask = PipeLineController.Current.ListenPipeMessage(ProgressHandler);
+                        ProgressTask = PipeLineController.Current.ListenPipeMessageAsync(ProgressHandler);
                     }
                     else
                     {
@@ -1104,7 +1157,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(true))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(true))
                 {
                     List<KeyValuePair<string, string>> MessageList = new List<KeyValuePair<string, string>>();
 
@@ -1162,9 +1215,9 @@ namespace RX_Explorer.Class
 
                     Task ProgressTask;
 
-                    if (await PipeLineController.Current.CreateNewNamedPipe().ConfigureAwait(true))
+                    if (await PipeLineController.Current.CreateNewNamedPipeAsync().ConfigureAwait(true))
                     {
-                        ProgressTask = PipeLineController.Current.ListenPipeMessage(ProgressHandler);
+                        ProgressTask = PipeLineController.Current.ListenPipeMessageAsync(ProgressHandler);
                     }
                     else
                     {
@@ -1294,7 +1347,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -1338,7 +1391,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -1382,7 +1435,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await TryConnectToFullTrustExcutor().ConfigureAwait(false))
+                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {

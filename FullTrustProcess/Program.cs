@@ -330,7 +330,7 @@ namespace FullTrustProcess
                                 NamedPipeServerStream NewPipeServer = new NamedPipeServerStream($@"Explorer_And_FullTrustProcess_NamedPipe-{Guid}", PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, PipeOptions.Asynchronous, 2048, 2048, null, HandleInheritability.None, PipeAccessRights.ChangePermissions);
 
                                 PipeSecurity Security = NewPipeServer.GetAccessControl();
-                                PipeAccessRule ClientRule = new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow);
+                                PipeAccessRule ClientRule = new PipeAccessRule(new SecurityIdentifier("S-1-15-2-1"), PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow);
                                 PipeAccessRule OwnerRule = new PipeAccessRule(WindowsIdentity.GetCurrent().Owner, PipeAccessRights.FullControl, AccessControlType.Allow);
                                 Security.AddAccessRule(ClientRule);
                                 Security.AddAccessRule(OwnerRule);
@@ -338,7 +338,7 @@ namespace FullTrustProcess
 
                                 PipeServers.Add(Guid, NewPipeServer);
 
-                                _ = NewPipeServer.WaitForConnectionAsync(new CancellationTokenSource(2000).Token).ContinueWith((task) =>
+                                _ = NewPipeServer.WaitForConnectionAsync(new CancellationTokenSource(3000).Token).ContinueWith((task) =>
                                 {
                                     if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipe))
                                     {
@@ -873,6 +873,11 @@ namespace FullTrustProcess
             {
                 ExplorerProcesses.Remove(ExitedProcess);
                 ExitedProcess.Dispose();
+            }
+
+            foreach (var Pair in PipeServers.Where(Pair => !Pair.Value.IsConnected).ToList())
+            {
+                PipeServers.Remove(Pair.Key);
             }
 
             if (ExplorerProcesses.Count == 0)

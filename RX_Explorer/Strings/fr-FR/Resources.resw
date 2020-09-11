@@ -1978,7 +1978,7 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour copier, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>
+    <value>RX n'a pas la permission pour copier, des droits d'administrateur peuvent être nécessaires pour accéder à ce dossier. Voulez-vous accorder des droits d'administrateur?\r\rRemarquez: \r1. À moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur. \r2. Avant d'accorder des autorisations, assurez-vous que les autres instances n'effectuent pas d'opérations sur les fichiers, sinon les fichiers seront endommagés.</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFolder_Content" xml:space="preserve">
@@ -2655,5 +2655,11 @@ Les noms non valides incluent
   </data>
   <data name="ModifyDefaultTerminalDialog_RunAsAdmin.Content" xml:space="preserve">
     <value>Exécutez le terminal en tant qu'administrateur</value>
+  </data>
+  <data name="QueueDialog_DenyElevation_Content" xml:space="preserve">
+    <value>Vous avez refusé d'accorder des droits d'administrateur, vous ne pouvez donc effectuer aucune opération</value>
+  </data>
+  <data name="Common_Dialog_GrantButton" xml:space="preserve">
+    <value>Subvention</value>
   </data>
 </root>

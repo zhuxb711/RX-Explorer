@@ -2001,7 +2001,7 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX 檔案總管沒有權限貼上檔案，可能是您沒有權限訪問此資料夾\r\r立即進入檔案總管？</value>
+    <value>RX 檔案總管沒有權限貼上檔案，可能需要管理員權限才能訪問此文件夾。 您要授予管理員權限嗎？\r\r注意：\r1. 除非關閉了最後一個RX實例，否則它將繼續以管理員權限運行。\ r2. 在授予權限之前，請確保其他實例未執行檔案操作，否則檔案將被損壞。</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFolder_Content" xml:space="preserve">
@@ -2655,5 +2655,11 @@
   </data>
   <data name="ModifyDefaultTerminalDialog_RunAsAdmin.Content" xml:space="preserve">
     <value>以管理員身份運行終端</value>
+  </data>
+  <data name="QueueDialog_DenyElevation_Content" xml:space="preserve">
+    <value>您拒絕授予管理員權限，因此無法執行任何操作</value>
+  </data>
+  <data name="Common_Dialog_GrantButton" xml:space="preserve">
+    <value>准予</value>
   </data>
 </root>
