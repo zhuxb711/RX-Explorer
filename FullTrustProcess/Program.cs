@@ -29,62 +29,37 @@ namespace FullTrustProcess
 
         private static readonly object Locker = new object();
 
-        private static readonly List<Process> ExplorerProcesses = new List<Process>();
+        private static Process ExplorerProcess;
 
         private static Timer AliveCheckTimer;
-
-        private volatile static int RequestCount = 0;
 
         [STAThread]
         static async Task Main(string[] args)
         {
             try
             {
-                if (args.Contains("Elevation_Restart"))
+                if (args.Length > 2 && args[1] == "Elevation_Restart")
                 {
-                    SpinWait.SpinUntil(() => !Mutex.TryOpenExisting("RX_Explorer_FullTrustProcess", out _));
+                    ExplorerProcess = Process.GetProcessById(Convert.ToInt32(args[2]));
                 }
 
-                using (Mutex LaunchLocker = new Mutex(true, "RX_Explorer_FullTrustProcess", out bool IsNotExist))
+                Connection = new AppServiceConnection
                 {
-                    if (IsNotExist)
-                    {
-                        if (args.Length > 2)
-                        {
-                            if (args[2] == "RunAsAdminMode")
-                            {
-                                using (Process AdminProcess = new Process())
-                                {
-                                    AdminProcess.StartInfo.Verb = "runas";
-                                    AdminProcess.StartInfo.UseShellExecute = true;
-                                    AdminProcess.StartInfo.Arguments = "Elevation_Restart";
-                                    AdminProcess.StartInfo.FileName = Process.GetCurrentProcess().MainModule.FileName;
-                                    AdminProcess.Start();
-                                }
+                    AppServiceName = "CommunicateService",
+                    PackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t"
+                };
+                Connection.RequestReceived += Connection_RequestReceived;
 
-                                return;
-                            }
-                        }
-
-                        Connection = new AppServiceConnection
-                        {
-                            AppServiceName = "CommunicateService",
-                            PackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t"
-                        };
-                        Connection.RequestReceived += Connection_RequestReceived;
-
-                        if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
-                        {
-                            AliveCheckTimer = new Timer(AliveCheck, null, 5000, 5000);
-                        }
-                        else
-                        {
-                            ExitLocker.Set();
-                        }
-
-                        ExitLocker.WaitOne();
-                    }
+                if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
+                {
+                    AliveCheckTimer = new Timer(AliveCheck, null, 5000, 5000);
                 }
+                else
+                {
+                    ExitLocker.Set();
+                }
+
+                ExitLocker.WaitOne();
             }
             catch (Exception e)
             {
@@ -96,8 +71,7 @@ namespace FullTrustProcess
                 ExitLocker?.Dispose();
                 AliveCheckTimer?.Dispose();
 
-                ExplorerProcesses.ForEach((Process) => Process.Dispose());
-                ExplorerProcesses.Clear();
+                ExplorerProcess.Dispose();
 
                 PipeServers.Values.ToList().ForEach((Item) =>
                 {
@@ -117,10 +91,25 @@ namespace FullTrustProcess
 
             try
             {
-                Interlocked.Increment(ref RequestCount);
-
                 switch (args.Request.Message["ExcuteType"])
                 {
+                    case "Excute_ElevateAsAdmin":
+                        {
+                            Connection?.Dispose();
+                            Connection = null;
+
+                            using (Process AdminProcess = new Process())
+                            {
+                                AdminProcess.StartInfo.Verb = "runas";
+                                AdminProcess.StartInfo.UseShellExecute = true;
+                                AdminProcess.StartInfo.Arguments = $"Elevation_Restart {ExplorerProcess?.Id}";
+                                AdminProcess.StartInfo.FileName = Process.GetCurrentProcess().MainModule.FileName;
+                                AdminProcess.Start();
+                            }
+
+                            ExitLocker.Set();
+                            break;
+                        }
                     case "Excute_CreateLink":
                         {
                             string LinkPath = Convert.ToString(args.Request.Message["LinkPath"]);
@@ -363,7 +352,17 @@ namespace FullTrustProcess
                         }
                     case "Identity":
                         {
-                            await args.Request.SendResponseAsync(new ValueSet { { "Identity", "FullTrustProcess" } });
+                            ValueSet Value = new ValueSet
+                            {
+                                { "Identity", "FullTrustProcess" }
+                            };
+
+                            if (ExplorerProcess != null)
+                            {
+                                Value.Add("PreviousExplorerId", ExplorerProcess.Id);
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
                             break;
                         }
                     case "Excute_Quicklook":
@@ -863,9 +862,10 @@ namespace FullTrustProcess
                         {
                             try
                             {
-                                if (args.Request.Message.TryGetValue("ProcessId", out object Obj) && Obj is int Id && ExplorerProcesses.All((Process) => Process.Id != Id))
+                                if (args.Request.Message.TryGetValue("ProcessId", out object Obj) && Obj is int Id && ExplorerProcess?.Id != Id)
                                 {
-                                    ExplorerProcesses.Add(Process.GetProcessById(Id));
+                                    ExplorerProcess?.Dispose();
+                                    ExplorerProcess = Process.GetProcessById(Id);
                                 }
                             }
                             catch
@@ -895,25 +895,21 @@ namespace FullTrustProcess
             }
             finally
             {
-                _ = Interlocked.Decrement(ref RequestCount);
                 Deferral.Complete();
             }
         }
 
         private static void AliveCheck(object state)
         {
-            foreach (Process ExitedProcess in ExplorerProcesses.Where((Process) => Process.HasExited).ToList())
-            {
-                ExplorerProcesses.Remove(ExitedProcess);
-                ExitedProcess.Dispose();
-            }
-
             foreach (var Pair in PipeServers.Where(Pair => !Pair.Value.IsConnected).ToList())
             {
+                Pair.Value.Disconnect();
+                Pair.Value.Dispose();
+
                 PipeServers.Remove(Pair.Key);
             }
 
-            if (ExplorerProcesses.Count == 0)
+            if (ExplorerProcess != null && ExplorerProcess.HasExited)
             {
                 ExitLocker.Set();
             }

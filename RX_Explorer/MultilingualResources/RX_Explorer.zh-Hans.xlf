@@ -2969,9 +2969,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDelete_Content" translate="yes" xml:space="preserve">
           <source>RX does not have permission to delete this item, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2. Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
-          <target state="translated">RX无权限删除此对象，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r1. 除非最后一个RX的实例关闭，否则它将保持管理员权限运行\r2. 授予权限之前，请确保其他实例没有正在进行的文件操作，否则将会导致文件损坏
-
-</target>
+          <target state="translated">RX无权限删除此对象，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r1. 除非最后一个RX的实例关闭，否则它将保持管理员权限运行\r2. 授予权限之前，请确保其他实例没有正在进行的文件操作，否则将会导致文件损坏</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_Item_Captured_Content" translate="yes" xml:space="preserve">

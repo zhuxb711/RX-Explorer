@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
@@ -67,7 +68,7 @@ namespace RX_Explorer.Class
 
         private const string ExcuteType_Test_Connection = "Excute_Test_Connection";
 
-        private const string ExcuteType_Exit = "Excute_Exit";
+        private const string ExcuteTyep_ElevateAsAdmin = "Excute_ElevateAsAdmin";
 
         private volatile static FullTrustExcutorController Instance;
 
@@ -78,8 +79,6 @@ namespace RX_Explorer.Class
         private bool IsConnected;
 
         public bool IsNowHasAnyActionExcuting { get; private set; }
-
-        public RunMode RunningMode { get; private set; } = RunMode.User;
 
         private AppServiceConnection Connection;
 
@@ -117,7 +116,7 @@ namespace RX_Explorer.Class
             {
                 case "Identity":
                     {
-                        await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" } });
+                        await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" }, { "ProcessId", CurrentProcessId } });
                         break;
                     }
             }
@@ -131,12 +130,12 @@ namespace RX_Explorer.Class
             {
                 if (!IsConnected)
                 {
-                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync(Enum.GetName(typeof(RunMode), RunningMode));
-
                     if ((await Connection.OpenAsync()) != AppServiceConnectionStatus.Success)
                     {
                         return IsConnected = false;
                     }
+
+                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
                 }
 
             ReCheck:
@@ -150,7 +149,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync(Enum.GetName(typeof(RunMode), RunningMode));
+                        await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
                         goto ReCheck;
                     }
                 }
@@ -165,7 +164,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<bool> SwitchMode(RunMode Mode)
+        public async Task<bool> SwitchToAdminMode()
         {
             try
             {
@@ -173,9 +172,7 @@ namespace RX_Explorer.Class
 
                 if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
                 {
-                    await Connection.SendMessageAsync(new ValueSet { { "ExcuteType", ExcuteType_Exit } });
-
-                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync(Enum.GetName(typeof(RunMode), Mode));
+                    await Connection.SendMessageAsync(new ValueSet { { "ExcuteType", ExcuteTyep_ElevateAsAdmin } });
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExcuteType", ExcuteType_Test_Connection }, { "ProcessId", CurrentProcessId } });
 
@@ -183,14 +180,11 @@ namespace RX_Explorer.Class
                     {
                         if (Response.Message.ContainsKey(ExcuteType_Test_Connection))
                         {
-                            RunningMode = Mode;
-
                             return true;
                         }
                         else
                         {
-                            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync(Enum.GetName(typeof(RunMode), RunMode.User));
-
+                            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
                             return false;
                         }
                     }
@@ -323,7 +317,7 @@ namespace RX_Explorer.Class
                         {
                             throw new FileLoadException();
                         }
-                        else if(Response.Message.ContainsKey("Error_Failure"))
+                        else if (Response.Message.ContainsKey("Error_Failure"))
                         {
                             throw new InvalidOperationException();
                         }
@@ -1463,14 +1457,14 @@ namespace RX_Explorer.Class
         {
             GC.SuppressFinalize(this);
 
-            if (IsConnected)
-            {
-                IsConnected = false;
-            }
+            IsConnected = false;
 
-            Connection.RequestReceived -= Connection_RequestReceived;
-            Connection?.Dispose();
-            Connection = null;
+            if (Connection != null)
+            {
+                Connection.RequestReceived -= Connection_RequestReceived;
+                Connection.Dispose();
+                Connection = null;
+            }
 
             Instance = null;
         }

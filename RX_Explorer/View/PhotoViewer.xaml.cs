@@ -357,7 +357,7 @@ namespace RX_Explorer
 
                     if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        if (await FullTrustExcutorController.Current.SwitchMode(RunMode.Admin).ConfigureAwait(true))
+                        if (await FullTrustExcutorController.Current.SwitchToAdminMode().ConfigureAwait(true))
                         {
                             goto Retry;
                         }
@@ -433,7 +433,7 @@ namespace RX_Explorer
 
                         if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
-                            if (await FullTrustExcutorController.Current.SwitchMode(RunMode.Admin).ConfigureAwait(true))
+                            if (await FullTrustExcutorController.Current.SwitchToAdminMode().ConfigureAwait(true))
                             {
                                 goto Retry;
                             }
