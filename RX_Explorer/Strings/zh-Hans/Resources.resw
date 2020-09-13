@@ -1981,8 +1981,8 @@
     <value>RX无权将文件粘贴至此处，访问该文件夹可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r1. 除非最后一个RX的实例关闭，否则它将保持管理员权限运行\r2. 授予权限之前，请确保其他实例没有正在进行的文件操作，否则将会导致文件损坏</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_UnauthorizedRenameFolder_Content" xml:space="preserve">
-    <value>RX无权重命名此文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？</value>
+  <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
+    <value>RX无权重命名此文件夹，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r1. 除非最后一个RX的实例关闭，否则它将保持管理员权限运行\r2. 授予权限之前，请确保其他实例没有正在进行的文件操作，否则将会导致文件损坏</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
@@ -2139,10 +2139,6 @@
     <value>RX无权在此处解压Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX无权重命名此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
     <value>由于部分文件/文件夹已不存在，因此撤销操作未能完全完成</value>
   </data>
@@ -2249,7 +2245,9 @@
     <value>删除日期</value>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX无权限删除此对象，是否进入系统文件管理器？</value>
+    <value>RX无权限删除此对象，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r1. 除非最后一个RX的实例关闭，否则它将保持管理员权限运行\r2. 授予权限之前，请确保其他实例没有正在进行的文件操作，否则将会导致文件损坏
+
+</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_Item_Captured_Content" xml:space="preserve">
@@ -2661,5 +2659,8 @@
   </data>
   <data name="Common_Dialog_GrantButton" xml:space="preserve">
     <value>授予</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedRename_StartExplorer_Content" xml:space="preserve">
+    <value>RX无权重命名该文件，您要启动资源管理器进行操作吗？</value>
   </data>
 </root>

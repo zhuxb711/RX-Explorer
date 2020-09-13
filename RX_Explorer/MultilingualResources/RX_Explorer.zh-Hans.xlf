@@ -2618,13 +2618,13 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedPaste_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2.Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
+          <source>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2. Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
           <target state="translated">RX无权将文件粘贴至此处，访问该文件夹可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r1. 除非最后一个RX的实例关闭，否则它将保持管理员权限运行\r2. 授予权限之前，请确保其他实例没有正在进行的文件操作，否则将会导致文件损坏</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
-        <trans-unit id="QueueDialog_UnauthorizedRenameFolder_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to rename this folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</source>
-          <target state="translated">RX无权重命名此文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？</target>
+        <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to rename, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2. Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
+          <target state="translated">RX无权重命名此文件夹，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r1. 除非最后一个RX的实例关闭，否则它将保持管理员权限运行\r2. 授予权限之前，请确保其他实例没有正在进行的文件操作，否则将会导致文件损坏</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="Common_Dialog_GoBack" translate="yes" xml:space="preserve">
@@ -2828,11 +2828,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">RX无权在此处解压Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
-        <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to rename, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</source>
-          <target state="translated">RX无权重命名此处的文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
         <trans-unit id="QueueDialog_UndoFailure_Content" translate="yes" xml:space="preserve">
           <source>Since some files/folders no longer exist, the undo operation could not be completed completely</source>
           <target state="translated">由于部分文件/文件夹已不存在，因此撤销操作未能完全完成</target>
@@ -2973,8 +2968,10 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">删除日期</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDelete_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to delete this item, Enter the system explorer immediately?</source>
-          <target state="translated">RX无权限删除此对象，是否进入系统文件管理器？</target>
+          <source>RX does not have permission to delete this item, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2. Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
+          <target state="translated">RX无权限删除此对象，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r1. 除非最后一个RX的实例关闭，否则它将保持管理员权限运行\r2. 授予权限之前，请确保其他实例没有正在进行的文件操作，否则将会导致文件损坏
+
+</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_Item_Captured_Content" translate="yes" xml:space="preserve">
@@ -3528,6 +3525,10 @@ Invalid names include
         <trans-unit id="Common_Dialog_GrantButton" translate="yes" xml:space="preserve">
           <source>Grant</source>
           <target state="translated">授予</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedRename_StartExplorer_Content" translate="yes" xml:space="preserve">
+          <source>RX has no right to rename this file. Do you want to start explorer to operate?</source>
+          <target state="translated">RX无权重命名该文件，您要启动资源管理器进行操作吗？</target>
         </trans-unit>
       </group>
     </body>

@@ -2618,13 +2618,13 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedPaste_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2.Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
+          <source>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2. Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
           <target state="translated">RX n'a pas la permission pour copier, des droits d'administrateur peuvent être nécessaires pour accéder à ce dossier. Voulez-vous accorder des droits d'administrateur?\r\rRemarquez: \r1. À moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur. \r2. Avant d'accorder des autorisations, assurez-vous que les autres instances n'effectuent pas d'opérations sur les fichiers, sinon les fichiers seront endommagés.</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
-        <trans-unit id="QueueDialog_UnauthorizedRenameFolder_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to rename this folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</source>
-          <target state="translated">RX n'a pas la permission pour renommer ce dossier, il se peut que vous n'ayez pas accès à ce dossier\r\rEntrer dans l'explorateur système immédiatement ?</target>
+        <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to rename, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2. Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
+          <target state="translated">RX n'a pas la permission pour renommer ce dossier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rAvis: \r1. À moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur. \r2. Avant d'accorder des autorisations, assurez-vous que les autres instances n'effectuent pas d'opérations sur les fichiers, sinon les fichiers seront endommagés.</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="Common_Dialog_GoBack" translate="yes" xml:space="preserve">
@@ -2828,11 +2828,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">RX n'a pas la permission pour décompresser le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
-        <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to rename, it may be that you do not have access to this folder\r\rEnter the system explorer immediately?</source>
-          <target state="translated">RX n'a pas la permission pour renommer, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
         <trans-unit id="QueueDialog_UndoFailure_Content" translate="yes" xml:space="preserve">
           <source>Since some files/folders no longer exist, the undo operation could not be completed completely</source>
           <target state="translated">Comme certains fichiers/dossiers n'existent plus, l'opération d'annulation n'a pas pu être menée à bien complètement</target>
@@ -2973,8 +2968,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Date de recyclage</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDelete_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to delete this item, Enter the system explorer immediately?</source>
-          <target state="translated">RX n'est pas autorisé à supprimer cet élément, entrez dans l'explorateur système immédiatement?</target>
+          <source>RX does not have permission to delete this item, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2. Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
+          <target state="translated">RX n'a pas l'autorisation de supprimer cet élément, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rAvis: \r1. À moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur. \r2. Avant d'accorder des autorisations, assurez-vous que les autres instances n'effectuent pas d'opérations sur les fichiers, sinon les fichiers seront endommagés.</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_Item_Captured_Content" translate="yes" xml:space="preserve">
@@ -3528,6 +3523,10 @@ Les noms non valides incluent
         <trans-unit id="Common_Dialog_GrantButton" translate="yes" xml:space="preserve">
           <source>Grant</source>
           <target state="translated">Subvention</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedRename_StartExplorer_Content" translate="yes" xml:space="preserve">
+          <source>RX has no right to rename this file. Do you want to start explorer to operate?</source>
+          <target state="translated">RX n'a pas le droit de renommer ce fichier. Voulez-vous démarrer l'explorateur pour qu'il fonctionne?</target>
         </trans-unit>
       </group>
     </body>

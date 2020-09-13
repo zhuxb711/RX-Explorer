@@ -317,6 +317,7 @@ namespace RX_Explorer
             {
                 PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
 
+            Retry:
                 try
                 {
                     await FullTrustExcutorController.Current.DeleteAsync(Item.PhotoFile.Path, true).ConfigureAwait(true);
@@ -349,10 +350,29 @@ namespace RX_Explorer
                     QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                     };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        if (await FullTrustExcutorController.Current.SwitchMode(RunMode.Admin).ConfigureAwait(true))
+                        {
+                            goto Retry;
+                        }
+                        else
+                        {
+                            QueueContentDialog ErrorDialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                        }
+                    }
                 }
                 catch (Exception)
                 {
@@ -373,6 +393,7 @@ namespace RX_Explorer
                 {
                     PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
 
+                Retry:
                     try
                     {
                         await FullTrustExcutorController.Current.DeleteAsync(Item.PhotoFile.Path, Dialog.IsPermanentDelete).ConfigureAwait(true);
@@ -405,10 +426,29 @@ namespace RX_Explorer
                         QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                         };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        {
+                            if (await FullTrustExcutorController.Current.SwitchMode(RunMode.Admin).ConfigureAwait(true))
+                            {
+                                goto Retry;
+                            }
+                            else
+                            {
+                                QueueContentDialog ErrorDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                            }
+                        }
                     }
                     catch (Exception)
                     {

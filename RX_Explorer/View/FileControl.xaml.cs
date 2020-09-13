@@ -411,7 +411,7 @@ namespace RX_Explorer
                 IsNetworkDevice = false;
             }
 
-            if(SettingControl.IsDetachTreeViewAndPresenter)
+            if (SettingControl.IsDetachTreeViewAndPresenter)
             {
                 await DisplayItemsInFolder(Folder).ConfigureAwait(false);
             }
@@ -907,6 +907,7 @@ namespace RX_Explorer
             {
                 await LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
 
+            Retry:
                 try
                 {
                     await FullTrustExcutorController.Current.DeleteAsync(CurrentFolder, true).ConfigureAwait(true);
@@ -960,11 +961,29 @@ namespace RX_Explorer
                     QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                     };
 
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        if (await FullTrustExcutorController.Current.SwitchMode(RunMode.Admin).ConfigureAwait(true))
+                        {
+                            goto Retry;
+                        }
+                        else
+                        {
+                            QueueContentDialog ErrorDialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                        }
+                    }
                 }
                 catch (Exception)
                 {
@@ -987,6 +1006,7 @@ namespace RX_Explorer
                 {
                     await LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
 
+                Retry:
                     try
                     {
                         await FullTrustExcutorController.Current.DeleteAsync(CurrentFolder, QueueContenDialog.IsPermanentDelete).ConfigureAwait(true);
@@ -1040,11 +1060,29 @@ namespace RX_Explorer
                         QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                         };
 
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        {
+                            if (await FullTrustExcutorController.Current.SwitchMode(RunMode.Admin).ConfigureAwait(true))
+                            {
+                                goto Retry;
+                            }
+                            else
+                            {
+                                QueueContentDialog ErrorDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                            }
+                        }
                     }
                     catch (Exception)
                     {
@@ -1148,7 +1186,7 @@ namespace RX_Explorer
                     QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFolder_Content"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedRename_StartExplorer_Content"),
                         PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton"),
                     };
@@ -1567,7 +1605,7 @@ namespace RX_Explorer
                         if (QueryText.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                         {
                             TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
-                            
+
                             if (TargetNode != null)
                             {
                                 await DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
@@ -1795,7 +1833,7 @@ namespace RX_Explorer
                     StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
 
                     IsBackOrForwardAction = true;
-                    
+
                     if (SettingControl.IsDetachTreeViewAndPresenter)
                     {
                         await DisplayItemsInFolder(Folder).ConfigureAwait(true);
@@ -1807,7 +1845,7 @@ namespace RX_Explorer
                         if (Path.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                         {
                             TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
-                            
+
                             if (TargetNode == null)
                             {
                                 QueueContentDialog dialog = new QueueContentDialog
@@ -2241,7 +2279,7 @@ namespace RX_Explorer
                                 {
                                     await LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
-                                    Retry:
+                                Retry:
                                     try
                                     {
                                         if (IsNetworkDevice)
@@ -2354,7 +2392,7 @@ namespace RX_Explorer
 
                                     await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
-                                    Retry:
+                                Retry:
                                     try
                                     {
                                         if (IsNetworkDevice)
@@ -2522,7 +2560,7 @@ namespace RX_Explorer
                                     {
                                         await LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
-                                        Retry:
+                                    Retry:
                                         try
                                         {
                                             await FullTrustExcutorController.Current.CopyAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
@@ -2594,7 +2632,7 @@ namespace RX_Explorer
 
                                         await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
-                                        Retry:
+                                    Retry:
                                         try
                                         {
                                             await FullTrustExcutorController.Current.MoveAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>

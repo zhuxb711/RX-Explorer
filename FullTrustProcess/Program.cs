@@ -33,6 +33,8 @@ namespace FullTrustProcess
 
         private static Timer AliveCheckTimer;
 
+        private volatile static int RequestCount = 0;
+
         [STAThread]
         static async Task Main(string[] args)
         {
@@ -115,6 +117,8 @@ namespace FullTrustProcess
 
             try
             {
+                Interlocked.Increment(ref RequestCount);
+
                 switch (args.Request.Message["ExcuteType"])
                 {
                     case "Excute_CreateLink":
@@ -168,13 +172,20 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (StorageItemController.Rename(ExcutePath, DesireName))
+                                    if (StorageItemController.CheckWritePermission(Path.GetDirectoryName(ExcutePath)))
                                     {
-                                        Value.Add("Success", string.Empty);
+                                        if (StorageItemController.Rename(ExcutePath, DesireName))
+                                        {
+                                            Value.Add("Success", string.Empty);
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Error", "Error happened when rename");
+                                        }
                                     }
                                     else
                                     {
-                                        Value.Add("Error", "Error happened when rename");
+                                        Value.Add("Error_Failure", "Error happened when rename");
                                     }
                                 }
                             }
@@ -512,46 +523,53 @@ namespace FullTrustProcess
 
                             if (SourcePathList.All((Item) => Directory.Exists(Item.Key) || File.Exists(Item.Key)))
                             {
-                                if (StorageItemController.Copy(SourcePathList, DestinationPath, (s, e) =>
+                                if (StorageItemController.CheckWritePermission(DestinationPath))
                                 {
-                                    lock (Locker)
+                                    if (StorageItemController.Copy(SourcePathList, DestinationPath, (s, e) =>
                                     {
-                                        try
+                                        lock (Locker)
                                         {
-                                            if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
+                                            try
                                             {
-                                                using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
+                                                if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
                                                 {
-                                                    Writer.WriteLine(e.ProgressPercentage);
+                                                    using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
+                                                    {
+                                                        Writer.WriteLine(e.ProgressPercentage);
+                                                    }
                                                 }
                                             }
+                                            catch
+                                            {
+                                                Debug.WriteLine("无法传输进度数据");
+                                            }
                                         }
-                                        catch
-                                        {
-                                            Debug.WriteLine("无法传输进度数据");
-                                        }
-                                    }
-                                },
-                                (se, arg) =>
-                                {
-                                    if (arg.Result == HRESULT.S_OK && !IsUndo)
+                                    },
+                                    (se, arg) =>
                                     {
-                                        if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                        if (arg.Result == HRESULT.S_OK && !IsUndo)
                                         {
-                                            OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{(Directory.Exists(arg.SourceItem.FileSystemPath) ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                            if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                            {
+                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{(Directory.Exists(arg.SourceItem.FileSystemPath) ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                            }
+                                            else
+                                            {
+                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{(Directory.Exists(arg.SourceItem.FileSystemPath) ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                            }
                                         }
-                                        else
-                                        {
-                                            OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{(Directory.Exists(arg.SourceItem.FileSystemPath) ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
-                                        }
-                                    }
-                                }))
-                                {
-                                    Value.Add("Success", string.Empty);
+                                    }))
+                                    {
+                                        Value.Add("Success", string.Empty);
 
-                                    if (OperationRecordList.Count > 0)
+                                        if (OperationRecordList.Count > 0)
+                                        {
+                                            Value.Add("OperationRecord", JsonConvert.SerializeObject(OperationRecordList));
+                                        }
+                                    }
+                                    else
                                     {
-                                        Value.Add("OperationRecord", JsonConvert.SerializeObject(OperationRecordList));
+                                        Value.Add("Error", "An error occurred while copying the folder");
                                     }
                                 }
                                 else
@@ -605,45 +623,52 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (StorageItemController.Move(SourcePathList, DestinationPath, (s, e) =>
+                                    if (StorageItemController.CheckWritePermission(DestinationPath))
                                     {
-                                        lock (Locker)
+                                        if (StorageItemController.Move(SourcePathList, DestinationPath, (s, e) =>
                                         {
-                                            try
+                                            lock (Locker)
                                             {
-                                                if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
+                                                try
                                                 {
-                                                    using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
+                                                    if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
                                                     {
-                                                        Writer.WriteLine(e.ProgressPercentage);
+                                                        using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
+                                                        {
+                                                            Writer.WriteLine(e.ProgressPercentage);
+                                                        }
                                                     }
                                                 }
+                                                catch
+                                                {
+                                                    Debug.WriteLine("无法传输进度数据");
+                                                }
                                             }
-                                            catch
+                                        },
+                                        (se, arg) =>
+                                        {
+                                            if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN && !IsUndo)
                                             {
-                                                Debug.WriteLine("无法传输进度数据");
+                                                if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
+                                                {
+                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{(Directory.Exists(arg.SourceItem.FileSystemPath) ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                }
+                                                else
+                                                {
+                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{(Directory.Exists(arg.SourceItem.FileSystemPath) ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                }
+                                            }
+                                        }))
+                                        {
+                                            Value.Add("Success", string.Empty);
+                                            if (OperationRecordList.Count > 0)
+                                            {
+                                                Value.Add("OperationRecord", JsonConvert.SerializeObject(OperationRecordList));
                                             }
                                         }
-                                    },
-                                    (se, arg) =>
-                                    {
-                                        if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN && !IsUndo)
+                                        else
                                         {
-                                            if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
-                                            {
-                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{(Directory.Exists(arg.SourceItem.FileSystemPath) ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
-                                            }
-                                            else
-                                            {
-                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{(Directory.Exists(arg.SourceItem.FileSystemPath) ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
-                                            }
-                                        }
-                                    }))
-                                    {
-                                        Value.Add("Success", string.Empty);
-                                        if (OperationRecordList.Count > 0)
-                                        {
-                                            Value.Add("OperationRecord", JsonConvert.SerializeObject(OperationRecordList));
+                                            Value.Add("Error", "An error occurred while moving the folder");
                                         }
                                     }
                                     else
@@ -711,38 +736,45 @@ namespace FullTrustProcess
                                             Info.Attributes &= ~FileAttributes.ReadOnly;
                                         });
 
-                                        if (StorageItemController.Delete(ExcutePathList, PermanentDelete, (s, e) =>
+                                        if (ExcutePathList.Where((Item) => Directory.Exists(Item)).All((Item) => StorageItemController.CheckWritePermission(Item)) && ExcutePathList.Where((Item) => File.Exists(Item)).All((Item) => StorageItemController.CheckWritePermission(Path.GetDirectoryName(Item))))
                                         {
-                                            lock (Locker)
+                                            if (StorageItemController.Delete(ExcutePathList, PermanentDelete, (s, e) =>
                                             {
-                                                try
+                                                lock (Locker)
                                                 {
-                                                    if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
+                                                    try
                                                     {
-                                                        using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
+                                                        if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
                                                         {
-                                                            Writer.WriteLine(e.ProgressPercentage);
+                                                            using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
+                                                            {
+                                                                Writer.WriteLine(e.ProgressPercentage);
+                                                            }
                                                         }
                                                     }
+                                                    catch
+                                                    {
+                                                        Debug.WriteLine("无法传输进度数据");
+                                                    }
                                                 }
-                                                catch
+                                            },
+                                            (se, arg) =>
+                                            {
+                                                if (!PermanentDelete && !IsUndo)
                                                 {
-                                                    Debug.WriteLine("无法传输进度数据");
+                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
+                                                }
+                                            }))
+                                            {
+                                                Value.Add("Success", string.Empty);
+                                                if (OperationRecordList.Count > 0)
+                                                {
+                                                    Value.Add("OperationRecord", JsonConvert.SerializeObject(OperationRecordList));
                                                 }
                                             }
-                                        },
-                                        (se, arg) =>
-                                        {
-                                            if (!PermanentDelete && !IsUndo)
+                                            else
                                             {
-                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
-                                            }
-                                        }))
-                                        {
-                                            Value.Add("Success", string.Empty);
-                                            if (OperationRecordList.Count > 0)
-                                            {
-                                                Value.Add("OperationRecord", JsonConvert.SerializeObject(OperationRecordList));
+                                                Value.Add("Error", "The specified file could not be deleted");
                                             }
                                         }
                                         else
@@ -863,6 +895,7 @@ namespace FullTrustProcess
             }
             finally
             {
+                _ = Interlocked.Decrement(ref RequestCount);
                 Deferral.Complete();
             }
         }

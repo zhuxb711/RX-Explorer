@@ -1981,8 +1981,8 @@
     <value>RX n'a pas la permission pour copier, des droits d'administrateur peuvent être nécessaires pour accéder à ce dossier. Voulez-vous accorder des droits d'administrateur?\r\rRemarquez: \r1. À moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur. \r2. Avant d'accorder des autorisations, assurez-vous que les autres instances n'effectuent pas d'opérations sur les fichiers, sinon les fichiers seront endommagés.</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_UnauthorizedRenameFolder_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour renommer ce dossier, il se peut que vous n'ayez pas accès à ce dossier\r\rEntrer dans l'explorateur système immédiatement ?</value>
+  <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
+    <value>RX n'a pas la permission pour renommer ce dossier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rAvis: \r1. À moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur. \r2. Avant d'accorder des autorisations, assurez-vous que les autres instances n'effectuent pas d'opérations sur les fichiers, sinon les fichiers seront endommagés.</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
@@ -2139,10 +2139,6 @@
     <value>RX n'a pas la permission pour décompresser le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour renommer, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
     <value>Comme certains fichiers/dossiers n'existent plus, l'opération d'annulation n'a pas pu être menée à bien complètement</value>
   </data>
@@ -2249,7 +2245,7 @@
     <value>Date de recyclage</value>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX n'est pas autorisé à supprimer cet élément, entrez dans l'explorateur système immédiatement?</value>
+    <value>RX n'a pas l'autorisation de supprimer cet élément, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rAvis: \r1. À moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur. \r2. Avant d'accorder des autorisations, assurez-vous que les autres instances n'effectuent pas d'opérations sur les fichiers, sinon les fichiers seront endommagés.</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_Item_Captured_Content" xml:space="preserve">
@@ -2661,5 +2657,8 @@ Les noms non valides incluent
   </data>
   <data name="Common_Dialog_GrantButton" xml:space="preserve">
     <value>Subvention</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedRename_StartExplorer_Content" xml:space="preserve">
+    <value>RX n'a pas le droit de renommer ce fichier. Voulez-vous démarrer l'explorateur pour qu'il fonctionne?</value>
   </data>
 </root>

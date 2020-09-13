@@ -125,6 +125,46 @@ namespace RX_Explorer.Class
             Deferral.Complete();
         }
 
+        public async Task<bool> ConnectToFullTrustExcutorAsync()
+        {
+            try
+            {
+                if (!IsConnected)
+                {
+                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync(Enum.GetName(typeof(RunMode), RunningMode));
+
+                    if ((await Connection.OpenAsync()) != AppServiceConnectionStatus.Success)
+                    {
+                        return IsConnected = false;
+                    }
+                }
+
+            ReCheck:
+                AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExcuteType", ExcuteType_Test_Connection }, { "ProcessId", CurrentProcessId } });
+
+                if (Response.Status == AppServiceResponseStatus.Success)
+                {
+                    if (Response.Message.ContainsKey(ExcuteType_Test_Connection))
+                    {
+                        return IsConnected = true;
+                    }
+                    else
+                    {
+                        await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync(Enum.GetName(typeof(RunMode), RunningMode));
+                        goto ReCheck;
+                    }
+                }
+                else
+                {
+                    return IsConnected = false;
+                }
+            }
+            catch
+            {
+                return IsConnected = false;
+            }
+        }
+
         public async Task<bool> SwitchMode(RunMode Mode)
         {
             try
@@ -171,46 +211,6 @@ namespace RX_Explorer.Class
             finally
             {
                 IsNowHasAnyActionExcuting = false;
-            }
-        }
-
-        public async Task<bool> ConnectToFullTrustExcutorAsync()
-        {
-            try
-            {
-                if (!IsConnected)
-                {
-                    await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync(Enum.GetName(typeof(RunMode), RunningMode));
-
-                    if ((await Connection.OpenAsync()) != AppServiceConnectionStatus.Success)
-                    {
-                        return IsConnected = false;
-                    }
-                }
-
-            ReCheck:
-                AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExcuteType", ExcuteType_Test_Connection }, { "ProcessId", CurrentProcessId } });
-
-                if (Response.Status == AppServiceResponseStatus.Success)
-                {
-                    if (Response.Message.ContainsKey(ExcuteType_Test_Connection))
-                    {
-                        return IsConnected = true;
-                    }
-                    else
-                    {
-                        await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync(Enum.GetName(typeof(RunMode), RunningMode));
-                        goto ReCheck;
-                    }
-                }
-                else
-                {
-                    return IsConnected = false;
-                }
-            }
-            catch
-            {
-                return IsConnected = false;
             }
         }
 
@@ -300,7 +300,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<bool> RenameAsync(string Path, string DesireName)
+        public async Task RenameAsync(string Path, string DesireName)
         {
             try
             {
@@ -317,36 +317,26 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    if (Response.Status == AppServiceResponseStatus.Success && Response.Message.ContainsKey("Success"))
-                    {
-                        return true;
-                    }
-                    else
+                    if (Response.Status == AppServiceResponseStatus.Success)
                     {
                         if (Response.Message.ContainsKey("Error_Occupied"))
                         {
                             throw new FileLoadException();
                         }
-                        else
+                        else if(Response.Message.ContainsKey("Error_Failure"))
                         {
-                            return false;
+                            throw new InvalidOperationException();
                         }
+                    }
+                    else
+                    {
+                        throw new NoResponseException();
                     }
                 }
                 else
                 {
                     throw new NoResponseException();
                 }
-            }
-            catch (FileLoadException)
-            {
-                Debug.WriteLine("Warning: GetHyperlinkRelatedInformation() throw an error");
-                throw;
-            }
-            catch
-            {
-                Debug.WriteLine("Warning: GetHyperlinkRelatedInformation() throw an error");
-                return false;
             }
             finally
             {

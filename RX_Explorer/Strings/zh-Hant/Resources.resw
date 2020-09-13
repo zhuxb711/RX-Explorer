@@ -1997,15 +1997,15 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX沒有權限刪除此項目，立即進入檔案總管？</value>
+    <value>RX無權刪除此項目，可能需要管理員權限。 您是否要授予管理員權限？\r\r注意：\r1. 除非關閉最後一個RX實例，否則它將以管理員權限繼續運行。\r2. 在授予權限之前，請確保其他實例未執行文件操作，否則文件將被損壞</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
     <value>RX 檔案總管沒有權限貼上檔案，可能需要管理員權限才能訪問此文件夾。 您要授予管理員權限嗎？\r\r注意：\r1. 除非關閉了最後一個RX實例，否則它將繼續以管理員權限運行。\ r2. 在授予權限之前，請確保其他實例未執行檔案操作，否則檔案將被損壞。</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
-  <data name="QueueDialog_UnauthorizedRenameFolder_Content" xml:space="preserve">
-    <value>RX 檔案總管沒有權限重新命名，可能是您沒有權限訪問此資料夾\r\r立即進入檔案總管？</value>
+  <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
+    <value>RX 檔案總管沒有權限重新命名，可能需要管理員權限，您是否要授予管理員權限？\r\r注意：\r1. 除非關閉最後一個RX實例，否則它將以管理員權限繼續運行。\r2. 在授予權限之前，請確保其他實例未執行文件操作，否則文件將被損壞。</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
@@ -2160,10 +2160,6 @@
   </data>
   <data name="QueueDialog_UnauthorizedDecompression_Content" xml:space="preserve">
     <value>RX 檔案總管沒有在此處解壓Zip檔案的權限，可能是您沒有權限訪問此檔案\r\r立即進入檔案總管？</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX沒有重新命名的權限，可能是您無權訪問此資料夾\r\r立即進入檔案總管？</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
@@ -2661,5 +2657,8 @@
   </data>
   <data name="Common_Dialog_GrantButton" xml:space="preserve">
     <value>准予</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedRename_StartExplorer_Content" xml:space="preserve">
+    <value>RX無權重命名該文件，您要啟動資源管理器進行操作嗎？</value>
   </data>
 </root>

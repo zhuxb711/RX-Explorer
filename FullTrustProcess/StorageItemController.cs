@@ -21,7 +21,7 @@ namespace FullTrustProcess
                 try
                 {
                     FileInfo Info = new FileInfo(Path);
-                    
+
                     Info.Open(FileMode.Open, FileAccess.Read, FileShare.None).Dispose();
 
                     return false;
@@ -94,7 +94,7 @@ namespace FullTrustProcess
             }
         }
 
-        private static bool CheckWritePermission(string DirectoryPath)
+        public static bool CheckWritePermission(string DirectoryPath)
         {
             bool AllowWrite = false;
             bool DenyWrite = false;
@@ -145,21 +145,6 @@ namespace FullTrustProcess
         {
             try
             {
-                if (Directory.Exists(Source))
-                {
-                    if (!CheckWritePermission(Source))
-                    {
-                        return false;
-                    }
-                }
-                else if(File.Exists(Source))
-                {
-                    if (!CheckWritePermission(Path.GetDirectoryName(Source)))
-                    {
-                        return false;
-                    }
-                }
-
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
                     Options = ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RequireElevation
@@ -185,11 +170,6 @@ namespace FullTrustProcess
         {
             try
             {
-                if (Source.Where((Item) => Directory.Exists(Item)).Any((Item) => !CheckWritePermission(Item)) || Source.Where((Item) => File.Exists(Item)).Any((Item) => !CheckWritePermission(Path.GetDirectoryName(Item))))
-                {
-                    return false;
-                }
-
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
                     Options = PermanentDelete
@@ -231,11 +211,6 @@ namespace FullTrustProcess
                     _ = Directory.CreateDirectory(DestinationPath);
                 }
 
-                if(!CheckWritePermission(DestinationPath))
-                {
-                    return false;
-                }
-
                 ShellFileOperations.OperationFlags Options = Source.All((Item) => Path.GetDirectoryName(Item.Key) == DestinationPath)
                                                              ? ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RenameOnCollision | ShellFileOperations.OperationFlags.RequireElevation
                                                              : ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RequireElevation;
@@ -265,6 +240,7 @@ namespace FullTrustProcess
             }
             catch
             {
+                var temp = new Win32Exception(Marshal.GetLastWin32Error());
                 return false;
             }
         }
@@ -276,11 +252,6 @@ namespace FullTrustProcess
                 if (!Directory.Exists(DestinationPath))
                 {
                     _ = Directory.CreateDirectory(DestinationPath);
-                }
-
-                if (!CheckWritePermission(DestinationPath))
-                {
-                    return false;
                 }
 
                 using (ShellFileOperations Operation = new ShellFileOperations
