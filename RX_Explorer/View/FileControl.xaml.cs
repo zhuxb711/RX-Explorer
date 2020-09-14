@@ -2547,7 +2547,7 @@ namespace RX_Explorer
                         Document.LoadHtml(Fragment);
                         HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
 
-                        if (HeadNode?.InnerText == "RX-Explorer-TransferLinkItem")
+                        if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                         {
                             HtmlNodeCollection BodyNode = Document.DocumentNode.SelectNodes("/p");
                             List<string> LinkItemsPath = BodyNode.Select((Node) => Node.InnerText).ToList();

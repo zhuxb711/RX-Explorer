@@ -95,13 +95,6 @@ namespace RX_Explorer.Class
 
         private FullTrustExcutorController()
         {
-            Connection = new AppServiceConnection
-            {
-                AppServiceName = "CommunicateService",
-                PackageFamilyName = Package.Current.Id.FamilyName
-            };
-            Connection.RequestReceived += Connection_RequestReceived;
-
             using (Process CurrentProcess = Process.GetCurrentProcess())
             {
                 CurrentProcessId = CurrentProcess.Id;
@@ -130,6 +123,20 @@ namespace RX_Explorer.Class
             {
                 if (!IsConnected)
                 {
+                    if (Connection != null)
+                    {
+                        Connection.Dispose();
+                        Connection.RequestReceived -= Connection_RequestReceived;
+                    }
+
+                    Connection = new AppServiceConnection
+                    {
+                        AppServiceName = "CommunicateService",
+                        PackageFamilyName = Package.Current.Id.FamilyName
+                    };
+
+                    Connection.RequestReceived += Connection_RequestReceived;
+
                     if ((await Connection.OpenAsync()) != AppServiceConnectionStatus.Success)
                     {
                         return IsConnected = false;

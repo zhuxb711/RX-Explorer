@@ -6,6 +6,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+      xmlns:media="using:Microsoft.Toolkit.Uwp.UI.Media"
       mc:Ignorable="d"
       RequestedTheme="{x:Bind Cla:AppThemeController.Current.Theme,Mode=OneWay}"
       Background="{x:Bind Cla:BackgroundController.Current.BackgroundBrush,Mode=OneWay}">
@@ -46,6 +47,10 @@
             <RowDefinition Height="30" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <Grid.Background>
+            <media:BackdropBlurBrush x:Name="BackgroundBlur"
+                                     x:FieldModifier="public"/>
+        </Grid.Background>
 
         <Border x:Name="TitleBar"
                 Background="Transparent"

@@ -2766,4 +2766,7 @@ Invalid names include
   <data name="QueueDialog_UnauthorizedRename_StartExplorer_Content" xml:space="preserve">
     <value>RX has no right to rename this file. Do you want to start explorer to operate?</value>
   </data>
+  <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
+    <value>Cannot access clipboard, copy/cut operation failed</value>
+  </data>
 </root>

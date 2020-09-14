@@ -32,6 +32,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
+using Windows.Foundation;
 using ZXing;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
@@ -173,8 +174,9 @@ namespace RX_Explorer
         {
             CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
             CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
+            bool HasHiddenItem = SelectedItems.Any((Item) => Item is HiddenStorageItem);
 
-            if (!FileControlInstance.IsSearchOrPathBoxFocused && !QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning && SelectedItems.All((Item) => !(Item is HiddenStorageItem)))
+            if (!FileControlInstance.IsSearchOrPathBoxFocused && !QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning)
             {
                 args.Handled = true;
 
@@ -195,7 +197,7 @@ namespace RX_Explorer
                             Delete_Click(null, null);
                             break;
                         }
-                    case VirtualKey.F2:
+                    case VirtualKey.F2 when !HasHiddenItem:
                         {
                             Rename_Click(null, null);
                             break;
@@ -205,7 +207,7 @@ namespace RX_Explorer
                             Refresh_Click(null, null);
                             break;
                         }
-                    case VirtualKey.Enter when SelectedItem is FileSystemStorageItemBase Item:
+                    case VirtualKey.Enter when SelectedItems.Count == 1 && SelectedItem is FileSystemStorageItemBase Item && !HasHiddenItem:
                         {
                             await EnterSelectedItem(Item).ConfigureAwait(false);
                             break;
@@ -258,6 +260,31 @@ namespace RX_Explorer
                     case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && OperationRecorder.Current.Value.Count > 0:
                         {
                             await Ctrl_Z_Click().ConfigureAwait(false);
+                            break;
+                        }
+                    case VirtualKey.E when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && FileControlInstance.CurrentFolder != null:
+                        {
+                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                            break;
+                        }
+                    case VirtualKey.T when ShiftState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            OpenInTerminal_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            OpenFolderInNewTab_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.W when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            OpenFolderInNewWindow_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.G when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            ItemOpen_Click(null, null);
                             break;
                         }
                 }
@@ -338,6 +365,7 @@ namespace RX_Explorer
             FolderFlyout.Hide();
             EmptyFlyout.Hide();
             MixedFlyout.Hide();
+            HiddenItemFlyout.Hide();
         }
 
         private async Task Ctrl_Z_Click()
@@ -615,56 +643,57 @@ namespace RX_Explorer
         {
             Restore();
 
-            if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
+            try
+            {
+                Clipboard.Clear();
+
+                List<IStorageItem> TempItemList = new List<IStorageItem>(SelectedItems.Count);
+
+                foreach (FileSystemStorageItemBase Item in SelectedItems.Where((Item) => !(Item is HyperlinkStorageItem || Item is HiddenStorageItem)))
+                {
+                    if (await Item.GetStorageItem().ConfigureAwait(true) is IStorageItem It)
+                    {
+                        TempItemList.Add(It);
+                    }
+                }
+
+                DataPackage Package = new DataPackage
+                {
+                    RequestedOperation = DataPackageOperation.Copy
+                };
+
+                List<FileSystemStorageItemBase> NotStorageItems = SelectedItems.Where((Item) => Item is HyperlinkStorageItem || Item is HiddenStorageItem).ToList();
+                if (NotStorageItems.Count > 0)
+                {
+                    StringBuilder Builder = new StringBuilder("<head>RX-Explorer-TransferNotStorageItem</head>");
+
+                    foreach (FileSystemStorageItemBase Item in NotStorageItems)
+                    {
+                        Builder.Append($"<p>{Item.Path}</p>");
+                    }
+
+                    Package.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat(Builder.ToString()));
+                }
+
+                if (TempItemList.Count > 0)
+                {
+                    Package.SetStorageItems(TempItemList, false);
+                }
+
+                Clipboard.SetContent(Package);
+
+                FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
+            }
+            catch
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
+                    Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
-
                 _ = await Dialog.ShowAsync().ConfigureAwait(false);
-                return;
             }
-
-            Clipboard.Clear();
-
-            List<IStorageItem> TempItemList = new List<IStorageItem>(SelectedItems.Count);
-
-            foreach (var Item in SelectedItems.Where((Item) => !(Item is HyperlinkStorageItem)))
-            {
-                if (await Item.GetStorageItem().ConfigureAwait(true) is IStorageItem It)
-                {
-                    TempItemList.Add(It);
-                }
-            }
-
-            DataPackage Package = new DataPackage
-            {
-                RequestedOperation = DataPackageOperation.Copy
-            };
-
-            if (SelectedItems.Any((Item) => Item is HyperlinkStorageItem))
-            {
-                StringBuilder Builder = new StringBuilder("<head>RX-Explorer-TransferLinkItem</head>");
-
-                foreach (HyperlinkStorageItem Item in SelectedItems.Where((Item) => Item is HyperlinkStorageItem))
-                {
-                    Builder.Append($"<p>{Item.Path}</p>");
-                }
-
-                Package.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat(Builder.ToString()));
-            }
-
-            if (TempItemList.Count > 0)
-            {
-                Package.SetStorageItems(TempItemList, false);
-            }
-
-            Clipboard.SetContent(Package);
-
-            FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
         }
 
         private async void Paste_Click(object sender, RoutedEventArgs e)
@@ -923,7 +952,7 @@ namespace RX_Explorer
                     Document.LoadHtml(Fragment);
                     HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
 
-                    if (HeadNode?.InnerText == "RX-Explorer-TransferLinkItem")
+                    if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                     {
                         HtmlNodeCollection BodyNode = Document.DocumentNode.SelectNodes("/p");
                         List<string> LinkItemsPath = BodyNode.Select((Node) => Node.InnerText).ToList();
@@ -1098,56 +1127,57 @@ namespace RX_Explorer
         {
             Restore();
 
-            if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
+            try
+            {
+                Clipboard.Clear();
+
+                List<IStorageItem> TempItemList = new List<IStorageItem>(SelectedItems.Count);
+                foreach (FileSystemStorageItemBase Item in SelectedItems.Where((Item) => !(Item is HyperlinkStorageItem || Item is HiddenStorageItem)))
+                {
+                    if (await Item.GetStorageItem().ConfigureAwait(true) is IStorageItem It)
+                    {
+                        TempItemList.Add(It);
+                    }
+                }
+
+                DataPackage Package = new DataPackage
+                {
+                    RequestedOperation = DataPackageOperation.Move
+                };
+
+                List<FileSystemStorageItemBase> NotStorageItems = SelectedItems.Where((Item) => Item is HyperlinkStorageItem || Item is HiddenStorageItem).ToList();
+                if (NotStorageItems.Count > 0)
+                {
+                    StringBuilder Builder = new StringBuilder("<head>RX-Explorer-TransferNotStorageItem</head>");
+
+                    foreach (FileSystemStorageItemBase Item in NotStorageItems)
+                    {
+                        Builder.Append($"<p>{Item.Path}</p>");
+                    }
+
+                    Package.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat(Builder.ToString()));
+                }
+
+                if (TempItemList.Count > 0)
+                {
+                    Package.SetStorageItems(TempItemList, false);
+                }
+
+                Clipboard.SetContent(Package);
+
+                FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
+                SelectedItems.ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.ReduceOpacity));
+            }
+            catch
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
+                    Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
-
                 _ = await Dialog.ShowAsync().ConfigureAwait(false);
-                return;
             }
-
-            Clipboard.Clear();
-
-            List<IStorageItem> TempItemList = new List<IStorageItem>(SelectedItems.Count);
-            foreach (var Item in SelectedItems.Where((Item) => !(Item is HyperlinkStorageItem)))
-            {
-                if (await Item.GetStorageItem().ConfigureAwait(true) is IStorageItem It)
-                {
-                    TempItemList.Add(It);
-                }
-            }
-
-            DataPackage Package = new DataPackage
-            {
-                RequestedOperation = DataPackageOperation.Move
-            };
-
-            if (SelectedItems.Any((Item) => Item is HyperlinkStorageItem))
-            {
-                StringBuilder Builder = new StringBuilder("<head>RX-Explorer-TransferLinkItem</head>");
-
-                foreach (HyperlinkStorageItem Item in SelectedItems.Where((Item) => Item is HyperlinkStorageItem))
-                {
-                    Builder.Append($"<p>{Item.Path}</p>");
-                }
-
-                Package.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat(Builder.ToString()));
-            }
-
-            if (TempItemList.Count > 0)
-            {
-                Package.SetStorageItems(TempItemList, false);
-            }
-
-            Clipboard.SetContent(Package);
-
-            FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
-            SelectedItems.ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.ReduceOpacity));
         }
 
         private async void Delete_Click(object sender, RoutedEventArgs e)
@@ -1781,9 +1811,13 @@ namespace RX_Explorer
                                 break;
                             }
                         case ".exe":
-                        case ".bat":
                             {
                                 ChooseOtherApp.IsEnabled = false;
+                                RunWithSystemAuthority.IsEnabled = true;
+                                break;
+                            }
+                        case ".bat":
+                            {
                                 RunWithSystemAuthority.IsEnabled = true;
                                 break;
                             }
@@ -1840,7 +1874,20 @@ namespace RX_Explorer
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
                     {
-                        if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
+                        if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
+                        {
+                            if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
+                            {
+                                MixZip.IsEnabled = false;
+                            }
+                            else
+                            {
+                                MixZip.IsEnabled = true;
+                            }
+
+                            ItemPresenter.ContextFlyout = MixedFlyout;
+                        }
+                        else
                         {
                             if (Context is HiddenStorageItem)
                             {
@@ -1853,17 +1900,6 @@ namespace RX_Explorer
 
                             SelectedItem = Context;
                         }
-                        else
-                        {
-                            if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
-                            {
-                                ItemPresenter.ContextFlyout = null;
-                            }
-                            else
-                            {
-                                ItemPresenter.ContextFlyout = MixedFlyout;
-                            }
-                        }
                     }
                     else
                     {
@@ -1873,16 +1909,24 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource as FrameworkElement)?.Name == "EmptyTextblock")
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
                     {
-                        SelectedItem = null;
-                        ItemPresenter.ContextFlyout = EmptyFlyout;
-                    }
-                    else
-                    {
-                        if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
+                        if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                         {
-                            if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
+                            if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
+                            {
+                                MixZip.IsEnabled = false;
+                            }
+                            else
+                            {
+                                MixZip.IsEnabled = true;
+                            }
+
+                            ItemPresenter.ContextFlyout = MixedFlyout;
+                        }
+                        else
+                        {
+                            if (SelectedItem == Context)
                             {
                                 if (Context is HiddenStorageItem)
                                 {
@@ -1892,26 +1936,34 @@ namespace RX_Explorer
                                 {
                                     ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
                                 }
-
-                                SelectedItem = Context;
                             }
                             else
                             {
-                                if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
+                                if (e.OriginalSource is TextBlock)
                                 {
-                                    ItemPresenter.ContextFlyout = null;
+                                    SelectedItem = Context;
+
+                                    if (Context is HiddenStorageItem)
+                                    {
+                                        ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                    }
+                                    else
+                                    {
+                                        ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                    }
                                 }
                                 else
                                 {
-                                    ItemPresenter.ContextFlyout = MixedFlyout;
+                                    SelectedItem = null;
+                                    ItemPresenter.ContextFlyout = EmptyFlyout;
                                 }
                             }
                         }
-                        else
-                        {
-                            SelectedItem = null;
-                            ItemPresenter.ContextFlyout = EmptyFlyout;
-                        }
+                    }
+                    else
+                    {
+                        SelectedItem = null;
+                        ItemPresenter.ContextFlyout = EmptyFlyout;
                     }
                 }
             }
@@ -2477,16 +2529,6 @@ namespace RX_Explorer
             }
         }
 
-        private async void FolderOpen_Click(object sender, RoutedEventArgs e)
-        {
-            Restore();
-
-            if (SelectedItem is FileSystemStorageItemBase Item)
-            {
-                await EnterSelectedItem(Item).ConfigureAwait(false);
-            }
-        }
-
         private async void FolderProperty_Click(object sender, RoutedEventArgs e)
         {
             Restore();
@@ -2642,7 +2684,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void FileOpen_Click(object sender, RoutedEventArgs e)
+        private async void ItemOpen_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -2766,7 +2808,7 @@ namespace RX_Explorer
                     Document.LoadHtml(Fragment);
                     HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
 
-                    if (HeadNode?.InnerText == "RX-Explorer-TransferLinkItem")
+                    if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                     {
                         Paste.IsEnabled = true;
                     }
@@ -3830,7 +3872,7 @@ namespace RX_Explorer
                         Document.LoadHtml(Fragment);
                         HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
 
-                        if (HeadNode?.InnerText == "RX-Explorer-TransferLinkItem")
+                        if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                         {
                             HtmlNodeCollection BodyNode = Document.DocumentNode.SelectNodes("/p");
                             List<string> LinkItemsPath = BodyNode.Select((Node) => Node.InnerText).ToList();
@@ -4021,54 +4063,40 @@ namespace RX_Explorer
                 List<IStorageItem> TempList = new List<IStorageItem>(e.Items.Count);
                 List<FileSystemStorageItemBase> DragList = e.Items.Select((Item) => Item as FileSystemStorageItemBase).ToList();
 
-                if (DragList.Any((Item) => Item is HiddenStorageItem))
+                foreach (FileSystemStorageItemBase StorageItem in DragList.Where((Item) => !(Item is HyperlinkStorageItem || Item is HiddenStorageItem)))
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    if (ItemPresenter.ContainerFromItem(StorageItem) is SelectorItem SItem && SItem.ContentTemplateRoot.FindChildOfType<TextBox>() is TextBox NameEditBox)
                     {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
+                        NameEditBox.Visibility = Visibility.Collapsed;
+                    }
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
-                    e.Cancel = true;
-                }
-                else
-                {
-                    foreach (FileSystemStorageItemBase StorageItem in DragList.Where((Item) => !(Item is HyperlinkStorageItem)))
+                    if (await StorageItem.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
                     {
-                        if (ItemPresenter.ContainerFromItem(StorageItem) is SelectorItem SItem && SItem.ContentTemplateRoot.FindChildOfType<TextBox>() is TextBox NameEditBox)
+                        TempList.Add(Item);
+                    }
+                }
+
+                if (TempList.Count > 0)
+                {
+                    e.Data.SetStorageItems(TempList, false);
+                }
+
+                List<FileSystemStorageItemBase> NotStorageItems = DragList.Where((Item) => Item is HyperlinkStorageItem || Item is HiddenStorageItem).ToList();
+                if (NotStorageItems.Count > 0)
+                {
+                    StringBuilder Builder = new StringBuilder("<head>RX-Explorer-TransferNotStorageItem</head>");
+
+                    foreach (FileSystemStorageItemBase Item in NotStorageItems)
+                    {
+                        if (ItemPresenter.ContainerFromItem(Item) is SelectorItem SItem && SItem.ContentTemplateRoot.FindChildOfType<TextBox>() is TextBox NameEditBox)
                         {
                             NameEditBox.Visibility = Visibility.Collapsed;
                         }
 
-                        if (await StorageItem.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
-                        {
-                            TempList.Add(Item);
-                        }
+                        Builder.Append($"<p>{Item.Path}</p>");
                     }
 
-                    if (TempList.Count > 0)
-                    {
-                        e.Data.SetStorageItems(TempList, false);
-                    }
-
-                    if (DragList.Any((Item) => Item is HyperlinkStorageItem))
-                    {
-                        StringBuilder Builder = new StringBuilder("<head>RX-Explorer-TransferLinkItem</head>");
-
-                        foreach (HyperlinkStorageItem Item in DragList.Where((Item) => Item is HyperlinkStorageItem))
-                        {
-                            if (ItemPresenter.ContainerFromItem(Item) is SelectorItem SItem && SItem.ContentTemplateRoot.FindChildOfType<TextBox>() is TextBox NameEditBox)
-                            {
-                                NameEditBox.Visibility = Visibility.Collapsed;
-                            }
-
-                            Builder.Append($"<p>{Item.Path}</p>");
-                        }
-
-                        e.Data.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat(Builder.ToString()));
-                    }
+                    e.Data.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat(Builder.ToString()));
                 }
             }
         }
@@ -4459,7 +4487,20 @@ namespace RX_Explorer
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
                     {
-                        if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
+                        if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
+                        {
+                            if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
+                            {
+                                MixZip.IsEnabled = false;
+                            }
+                            else
+                            {
+                                MixZip.IsEnabled = true;
+                            }
+
+                            ItemPresenter.ContextFlyout = MixedFlyout;
+                        }
+                        else
                         {
                             if (Context is HiddenStorageItem)
                             {
@@ -4472,17 +4513,6 @@ namespace RX_Explorer
 
                             SelectedItem = Context;
                         }
-                        else
-                        {
-                            if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
-                            {
-                                ItemPresenter.ContextFlyout = null;
-                            }
-                            else
-                            {
-                                ItemPresenter.ContextFlyout = MixedFlyout;
-                            }
-                        }
                     }
                     else
                     {
@@ -4492,16 +4522,24 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource as FrameworkElement)?.Name == "EmptyTextblock")
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
                     {
-                        SelectedItem = null;
-                        ItemPresenter.ContextFlyout = EmptyFlyout;
-                    }
-                    else
-                    {
-                        if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
+                        if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                         {
-                            if (SelectedItems.Count <= 1 || !SelectedItems.Contains(Context))
+                            if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
+                            {
+                                MixZip.IsEnabled = false;
+                            }
+                            else
+                            {
+                                MixZip.IsEnabled = true;
+                            }
+
+                            ItemPresenter.ContextFlyout = MixedFlyout;
+                        }
+                        else
+                        {
+                            if (SelectedItem == Context)
                             {
                                 if (Context is HiddenStorageItem)
                                 {
@@ -4511,26 +4549,34 @@ namespace RX_Explorer
                                 {
                                     ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
                                 }
-
-                                SelectedItem = Context;
                             }
                             else
                             {
-                                if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
+                                if (e.OriginalSource is TextBlock)
                                 {
-                                    ItemPresenter.ContextFlyout = null;
+                                    SelectedItem = Context;
+
+                                    if (Context is HiddenStorageItem)
+                                    {
+                                        ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                    }
+                                    else
+                                    {
+                                        ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                    }
                                 }
                                 else
                                 {
-                                    ItemPresenter.ContextFlyout = MixedFlyout;
+                                    SelectedItem = null;
+                                    ItemPresenter.ContextFlyout = EmptyFlyout;
                                 }
                             }
                         }
-                        else
-                        {
-                            SelectedItem = null;
-                            ItemPresenter.ContextFlyout = EmptyFlyout;
-                        }
+                    }
+                    else
+                    {
+                        SelectedItem = null;
+                        ItemPresenter.ContextFlyout = EmptyFlyout;
                     }
                 }
             }
@@ -5349,12 +5395,6 @@ namespace RX_Explorer
 
             if (SelectedItems.Count > 1)
             {
-                if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
-                {
-                    BottomCommandBar.IsOpen = false;
-                    return;
-                }
-
                 AppBarButton CopyButton = new AppBarButton
                 {
                     Icon = new SymbolIcon(Symbol.Copy),
@@ -5382,38 +5422,45 @@ namespace RX_Explorer
                 bool EnableMixZipButton = true;
                 string MixZipButtonText = Globalization.GetString("Operate_Text_Compression");
 
-                if (SelectedItems.Any((Item) => Item.StorageType != StorageItemTypes.Folder))
+                if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
                 {
-                    if (SelectedItems.All((Item) => Item.StorageType == StorageItemTypes.File))
+                    EnableMixZipButton = false;
+                }
+                else
+                {
+                    if (SelectedItems.Any((Item) => Item.StorageType != StorageItemTypes.Folder))
                     {
-                        if (SelectedItems.All((Item) => Item.Type == ".zip"))
+                        if (SelectedItems.All((Item) => Item.StorageType == StorageItemTypes.File))
                         {
-                            MixZipButtonText = Globalization.GetString("Operate_Text_Decompression");
-                        }
-                        else if (SelectedItems.All((Item) => Item.Type != ".zip"))
-                        {
-                            MixZipButtonText = Globalization.GetString("Operate_Text_Compression");
+                            if (SelectedItems.All((Item) => Item.Type == ".zip"))
+                            {
+                                MixZipButtonText = Globalization.GetString("Operate_Text_Decompression");
+                            }
+                            else if (SelectedItems.All((Item) => Item.Type != ".zip"))
+                            {
+                                MixZipButtonText = Globalization.GetString("Operate_Text_Compression");
+                            }
+                            else
+                            {
+                                EnableMixZipButton = false;
+                            }
                         }
                         else
                         {
-                            EnableMixZipButton = false;
+                            if (SelectedItems.Where((It) => It.StorageType == StorageItemTypes.File).Any((Item) => Item.Type == ".zip"))
+                            {
+                                EnableMixZipButton = false;
+                            }
+                            else
+                            {
+                                MixZipButtonText = Globalization.GetString("Operate_Text_Compression");
+                            }
                         }
                     }
                     else
                     {
-                        if (SelectedItems.Where((It) => It.StorageType == StorageItemTypes.File).Any((Item) => Item.Type == ".zip"))
-                        {
-                            EnableMixZipButton = false;
-                        }
-                        else
-                        {
-                            MixZipButtonText = Globalization.GetString("Operate_Text_Compression");
-                        }
+                        MixZipButtonText = Globalization.GetString("Operate_Text_Compression");
                     }
-                }
-                else
-                {
-                    MixZipButtonText = Globalization.GetString("Operate_Text_Compression");
                 }
 
                 AppBarButton CompressionButton = new AppBarButton
@@ -5431,6 +5478,30 @@ namespace RX_Explorer
                 {
                     if (Item is HiddenStorageItem)
                     {
+                        AppBarButton CopyButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.Copy),
+                            Label = Globalization.GetString("Operate_Text_Copy")
+                        };
+                        CopyButton.Click += Copy_Click;
+                        BottomCommandBar.PrimaryCommands.Add(CopyButton);
+
+                        AppBarButton CutButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.Cut),
+                            Label = Globalization.GetString("Operate_Text_Cut")
+                        };
+                        CutButton.Click += Cut_Click;
+                        BottomCommandBar.PrimaryCommands.Add(CutButton);
+
+                        AppBarButton DeleteButton = new AppBarButton
+                        {
+                            Icon = new SymbolIcon(Symbol.Delete),
+                            Label = Globalization.GetString("Operate_Text_Delete")
+                        };
+                        DeleteButton.Click += Delete_Click;
+                        BottomCommandBar.PrimaryCommands.Add(DeleteButton);
+
                         AppBarButton WinExButton = new AppBarButton
                         {
                             Icon = new FontIcon { Glyph = "\uEC50" },
@@ -5488,7 +5559,7 @@ namespace RX_Explorer
                                 Icon = new SymbolIcon(Symbol.OpenFile),
                                 Label = Globalization.GetString("Operate_Text_Open")
                             };
-                            OpenButton.Click += FileOpen_Click;
+                            OpenButton.Click += ItemOpen_Click;
                             BottomCommandBar.SecondaryCommands.Add(OpenButton);
 
                             MenuFlyout OpenFlyout = new MenuFlyout();
@@ -5639,7 +5710,7 @@ namespace RX_Explorer
                                 Icon = new SymbolIcon(Symbol.BackToWindow),
                                 Label = Globalization.GetString("Operate_Text_Open")
                             };
-                            OpenButton.Click += FolderOpen_Click;
+                            OpenButton.Click += ItemOpen_Click;
                             BottomCommandBar.SecondaryCommands.Add(OpenButton);
 
                             AppBarButton NewWindowButton = new AppBarButton
@@ -5705,7 +5776,7 @@ namespace RX_Explorer
                             Document.LoadHtml(Fragment);
                             HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
 
-                            if (HeadNode?.InnerText == "RX-Explorer-TransferLinkItem")
+                            if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                             {
                                 IsEnablePaste = true;
                             }

@@ -51,7 +51,11 @@ namespace RX_Explorer.Class
                     {
                         string ReadText = await Reader.ReadLineAsync().ConfigureAwait(true);
 
-                        if (!string.IsNullOrEmpty(ReadText) && ReadText != "Error_Stop_Signal")
+                        if (string.IsNullOrEmpty(ReadText) || ReadText == "Error_Stop_Signal")
+                        {
+                            break;
+                        }
+                        else
                         {
                             Percentage = Convert.ToInt32(ReadText);
 
@@ -62,10 +66,6 @@ namespace RX_Explorer.Class
                                     Handler?.Invoke(this, new ProgressChangedEventArgs(Percentage, null));
                                 });
                             }
-                        }
-                        else
-                        {
-                            break;
                         }
                     }
                 }

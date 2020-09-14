@@ -52,7 +52,7 @@ namespace FullTrustProcess
 
                 if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
                 {
-                    AliveCheckTimer = new Timer(AliveCheck, null, 5000, 5000);
+                    AliveCheckTimer = new Timer(AliveCheck, null, 10000, 5000);
                 }
                 else
                 {
@@ -71,7 +71,7 @@ namespace FullTrustProcess
                 ExitLocker?.Dispose();
                 AliveCheckTimer?.Dispose();
 
-                ExplorerProcess.Dispose();
+                ExplorerProcess?.Dispose();
 
                 PipeServers.Values.ToList().ForEach((Item) =>
                 {
@@ -161,7 +161,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (StorageItemController.CheckWritePermission(Path.GetDirectoryName(ExcutePath)))
+                                    if (StorageItemController.CheckReadWritePermission(Path.GetDirectoryName(ExcutePath)))
                                     {
                                         if (StorageItemController.Rename(ExcutePath, DesireName))
                                         {
@@ -520,9 +520,11 @@ namespace FullTrustProcess
                             List<KeyValuePair<string, string>> SourcePathList = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
 
+                            int Progress = 0;
+
                             if (SourcePathList.All((Item) => Directory.Exists(Item.Key) || File.Exists(Item.Key)))
                             {
-                                if (StorageItemController.CheckWritePermission(DestinationPath))
+                                if (StorageItemController.CheckReadWritePermission(DestinationPath))
                                 {
                                     if (StorageItemController.Copy(SourcePathList, DestinationPath, (s, e) =>
                                     {
@@ -530,6 +532,8 @@ namespace FullTrustProcess
                                         {
                                             try
                                             {
+                                                Progress = e.ProgressPercentage;
+
                                                 if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
                                                 {
                                                     using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
@@ -540,7 +544,7 @@ namespace FullTrustProcess
                                             }
                                             catch
                                             {
-                                                Debug.WriteLine("无法传输进度数据");
+                                                Debug.WriteLine("Could not send progress data");
                                             }
                                         }
                                     },
@@ -581,7 +585,7 @@ namespace FullTrustProcess
                                 Value.Add("Error_NotFound", "SourcePath is not a file or directory");
                             }
 
-                            if (!Value.ContainsKey("Success"))
+                            if (Progress < 100)
                             {
                                 try
                                 {
@@ -595,11 +599,12 @@ namespace FullTrustProcess
                                 }
                                 catch
                                 {
-                                    Debug.WriteLine("无法传输进度数据");
+                                    Debug.WriteLine("Could not send stop signal");
                                 }
                             }
 
                             await args.Request.SendResponseAsync(Value);
+
                             break;
                         }
                     case "Excute_Move":
@@ -614,6 +619,8 @@ namespace FullTrustProcess
                             List<KeyValuePair<string, string>> SourcePathList = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
 
+                            int Progress = 0;
+
                             if (SourcePathList.All((Item) => Directory.Exists(Item.Key) || File.Exists(Item.Key)))
                             {
                                 if (SourcePathList.Where((Path) => File.Exists(Path.Key)).Any((Item) => StorageItemController.CheckOccupied(Item.Key)))
@@ -622,7 +629,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (StorageItemController.CheckWritePermission(DestinationPath))
+                                    if (StorageItemController.CheckReadWritePermission(DestinationPath))
                                     {
                                         if (StorageItemController.Move(SourcePathList, DestinationPath, (s, e) =>
                                         {
@@ -630,6 +637,8 @@ namespace FullTrustProcess
                                             {
                                                 try
                                                 {
+                                                    Progress = e.ProgressPercentage;
+
                                                     if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
                                                     {
                                                         using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
@@ -640,7 +649,7 @@ namespace FullTrustProcess
                                                 }
                                                 catch
                                                 {
-                                                    Debug.WriteLine("无法传输进度数据");
+                                                    Debug.WriteLine("Could not send progress data");
                                                 }
                                             }
                                         },
@@ -681,7 +690,7 @@ namespace FullTrustProcess
                                 Value.Add("Error_NotFound", "SourcePath is not a file or directory");
                             }
 
-                            if (!Value.ContainsKey("Success"))
+                            if (Progress < 100)
                             {
                                 try
                                 {
@@ -695,7 +704,7 @@ namespace FullTrustProcess
                                 }
                                 catch
                                 {
-                                    Debug.WriteLine("无法传输进度数据");
+                                    Debug.WriteLine("Could not send progress data");
                                 }
                             }
 
@@ -714,6 +723,8 @@ namespace FullTrustProcess
                             List<string> ExcutePathList = JsonConvert.DeserializeObject<List<string>>(ExcutePathJson);
                             List<string> OperationRecordList = new List<string>();
 
+                            int Progress = 0;
+
                             try
                             {
                                 if (ExcutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
@@ -724,18 +735,7 @@ namespace FullTrustProcess
                                     }
                                     else
                                     {
-                                        ExcutePathList.Where((Path) => File.Exists(Path)).ToList().ForEach((Item) =>
-                                        {
-                                            File.SetAttributes(Item, FileAttributes.Normal);
-                                        });
-
-                                        ExcutePathList.Where((Path) => Directory.Exists(Path)).ToList().ForEach((Item) =>
-                                        {
-                                            DirectoryInfo Info = new DirectoryInfo(Item);
-                                            Info.Attributes &= ~FileAttributes.ReadOnly;
-                                        });
-
-                                        if (ExcutePathList.Where((Item) => Directory.Exists(Item)).All((Item) => StorageItemController.CheckWritePermission(Item)) && ExcutePathList.Where((Item) => File.Exists(Item)).All((Item) => StorageItemController.CheckWritePermission(Path.GetDirectoryName(Item))))
+                                        if (ExcutePathList.Where((Item) => Directory.Exists(Item)).All((Item) => StorageItemController.CheckReadWritePermission(Item)) && ExcutePathList.Where((Item) => File.Exists(Item)).All((Item) => StorageItemController.CheckReadWritePermission(Path.GetDirectoryName(Item))))
                                         {
                                             if (StorageItemController.Delete(ExcutePathList, PermanentDelete, (s, e) =>
                                             {
@@ -743,6 +743,8 @@ namespace FullTrustProcess
                                                 {
                                                     try
                                                     {
+                                                        Progress = e.ProgressPercentage;
+
                                                         if (PipeServers.TryGetValue(Guid, out NamedPipeServerStream Pipeline))
                                                         {
                                                             using (StreamWriter Writer = new StreamWriter(Pipeline, new UTF8Encoding(false), 1024, true))
@@ -753,7 +755,7 @@ namespace FullTrustProcess
                                                     }
                                                     catch
                                                     {
-                                                        Debug.WriteLine("无法传输进度数据");
+                                                        Debug.WriteLine("Could not send progress data");
                                                     }
                                                 }
                                             },
@@ -792,7 +794,7 @@ namespace FullTrustProcess
                                 Value.Add("Error_Failure", "The specified file or folder could not be deleted");
                             }
 
-                            if (!Value.ContainsKey("Success"))
+                            if (Progress < 100)
                             {
                                 try
                                 {
@@ -806,7 +808,7 @@ namespace FullTrustProcess
                                 }
                                 catch
                                 {
-                                    Debug.WriteLine("无法传输进度终止数据");
+                                    Debug.WriteLine("Could not send stop signal");
                                 }
                             }
 
@@ -826,6 +828,7 @@ namespace FullTrustProcess
                                     using (Process Process = new Process())
                                     {
                                         Process.StartInfo.FileName = ExcutePath;
+                                        Process.StartInfo.UseShellExecute = false;
 
                                         if (ExcuteAuthority == "Administrator")
                                         {
@@ -843,6 +846,7 @@ namespace FullTrustProcess
                                     {
                                         Process.StartInfo.FileName = ExcutePath;
                                         Process.StartInfo.Arguments = ExcuteParameter;
+                                        Process.StartInfo.UseShellExecute = false;
 
                                         if (ExcuteAuthority == "Administrator")
                                         {
@@ -909,7 +913,7 @@ namespace FullTrustProcess
                 PipeServers.Remove(Pair.Key);
             }
 
-            if (ExplorerProcess != null && ExplorerProcess.HasExited)
+            if (ExplorerProcess == null || ExplorerProcess.HasExited)
             {
                 ExitLocker.Set();
             }

@@ -27,6 +27,18 @@
 
         <CommandBarFlyout x:Name="HiddenItemFlyout"
                           Placement="RightEdgeAlignedTop">
+            <AppBarButton Icon="Copy"
+                          ToolTipService.ToolTip="复制"
+                          x:Uid="FileCopy"
+                          Click="Copy_Click" />
+            <AppBarButton Icon="Cut"
+                          ToolTipService.ToolTip="剪切"
+                          x:Uid="FileCut"
+                          Click="Cut_Click"/>
+            <AppBarButton Icon="Delete"
+                          ToolTipService.ToolTip="删除"
+                          x:Uid="FileDelete"
+                          Click="Delete_Click" />
             <CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="使用系统管理器打开"
                               x:Uid="SystemManagerOpen"
@@ -38,17 +50,14 @@
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="Shift"
-                                             Key="E" />
+                                             Key="E" 
+                                             IsEnabled="False"/>
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="尝试移除隐藏属性"
                               Name="RemoveHidden"
                               x:Uid="RemoveHiddenProperty"
                               Click="RemoveHidden_Click">
-                    <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control"
-                                             Key="H" />
-                    </AppBarButton.KeyboardAccelerators>
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
                                   Glyph="&#xF5EF;" />
@@ -83,10 +92,11 @@
                               Label="打开"
                               x:Uid="FileOpen"
                               x:Name="FileOpen"
-                              Click="FileOpen_Click">
+                              Click="ItemOpen_Click">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="Control"
-                                             Key="G" />
+                                             Key="G"
+                                             IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="打开方式..."
@@ -275,10 +285,11 @@
                               Label="打开"
                               x:Uid="FolderOpen"
                               x:Name="FolderOpen"
-                              Click="FolderOpen_Click">
+                              Click="ItemOpen_Click">
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="Control"
-                                             Key="G" />
+                                             Key="G"
+                                             IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="在新窗口中打开"
@@ -291,7 +302,8 @@
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="Control"
-                                             Key="W" />
+                                             Key="W"
+                                             IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="在新标签页中打开"
@@ -304,7 +316,8 @@
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="Control"
-                                             Key="T" />
+                                             Key="T"
+                                             IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarSeparator />
@@ -419,7 +432,8 @@
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="Shift"
-                                             Key="W" />
+                                             Key="T"
+                                             IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="使用系统管理器打开"
@@ -432,7 +446,8 @@
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="Shift"
-                                             Key="E" />
+                                             Key="E"
+                                             IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarSeparator />
@@ -677,8 +692,6 @@
                     <ColumnDefinition Width="3*" />
                     <ColumnDefinition Width="1.5*" />
                     <ColumnDefinition Width="1.5*" />
-                    <ColumnDefinition Width="1*"
-                                      MinWidth="50" />
                 </Grid.ColumnDefinitions>
                 <Button HorizontalContentAlignment="Left"
                         HorizontalAlignment="Stretch"
@@ -740,11 +753,6 @@
                                VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis" />
                 </Button>
-                <Button Background="{StaticResource ElementAcrylicBrush}"
-                        Style="{StaticResource ListHeaderDisableButtonStyle}"
-                        Grid.Column="4"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch" />
             </Grid>
         </DataTemplate>
 
@@ -757,8 +765,6 @@
                     <ColumnDefinition Width="3*" />
                     <ColumnDefinition Width="1.5*" />
                     <ColumnDefinition Width="1.5*" />
-                    <ColumnDefinition Width="1*"
-                                      MinWidth="50" />
                 </Grid.ColumnDefinitions>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -774,6 +780,7 @@
                            Width="30"
                            PointerPressed="GetFocus_PointerPressed" />
                     <TextBlock VerticalAlignment="Center"
+                               HorizontalAlignment="Left"
                                FontSize="14"
                                Grid.Column="1"
                                Text="{x:Bind Name,Mode=OneWay}"
@@ -794,6 +801,7 @@
                 <TextBlock VerticalAlignment="Center"
                            FontSize="14"
                            Padding="8,0,0,0"
+                           HorizontalAlignment="Left"
                            Text="{x:Bind ModifiedTime,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind ModifiedTime,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            Grid.Column="1"
@@ -802,6 +810,7 @@
                 <TextBlock VerticalAlignment="Center"
                            FontSize="14"
                            Padding="8,0,0,0"
+                           HorizontalAlignment="Left"
                            Text="{x:Bind DisplayType,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind DisplayType,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            Grid.Column="2"
@@ -810,15 +819,11 @@
                 <TextBlock VerticalAlignment="Center"
                            FontSize="14"
                            Padding="8,0,0,0"
+                           HorizontalAlignment="Left"
                            Text="{x:Bind Size,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Size,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            TextTrimming="CharacterEllipsis"
                            Grid.Column="3"
-                           PointerPressed="GetFocus_PointerPressed" />
-                <TextBlock VerticalAlignment="Center"
-                           Padding="8,0,0,0"
-                           Grid.Column="4"
-                           Name="EmptyTextblock"
                            PointerPressed="GetFocus_PointerPressed" />
             </Grid>
         </DataTemplate>
@@ -830,8 +835,6 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="40" />
                     <ColumnDefinition Width="5*" />
-                    <ColumnDefinition Width="*"
-                                      MinWidth="50" />
                 </Grid.ColumnDefinitions>
                 <Image VerticalAlignment="Center"
                        Stretch="Uniform"
@@ -841,6 +844,7 @@
                        Width="30"
                        PointerPressed="GetFocus_PointerPressed" />
                 <TextBlock VerticalAlignment="Center"
+                           HorizontalAlignment="Left"
                            FontSize="14"
                            Text="{x:Bind Name,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
@@ -849,6 +853,7 @@
                            PointerPressed="NameLabel_PointerPressed"
                            x:Name="NameLabel" />
                 <TextBox VerticalAlignment="Center"
+                         HorizontalAlignment="Left"
                          x:Name="NameEditBox"
                          FontSize="14"
                          Grid.Column="1"
@@ -857,11 +862,6 @@
                          LostFocus="NameEditBox_LostFocus"
                          BeforeTextChanging="NameEditBox_BeforeTextChanging"
                          x:DeferLoadStrategy="Lazy" />
-                <TextBlock VerticalAlignment="Center"
-                           Margin="8,0,0,0"
-                           Grid.Column="2"
-                           Name="EmptyTextblock"
-                           PointerPressed="GetFocus_PointerPressed" />
             </Grid>
         </DataTemplate>
     </Page.Resources>
@@ -872,40 +872,40 @@
             <RowDefinition Height="43" />
         </Grid.RowDefinitions>
         <ListView Background="Transparent"
-                  x:Name="ListViewControl"
-                  HorizontalAlignment="Stretch"
-                  VerticalAlignment="Stretch"
-                  PointerPressed="ViewControl_PointerPressed"
-                  RightTapped="ViewControl_RightTapped"
-                  SelectionChanged="ViewControl_SelectionChanged"
-                  SelectionMode="Extended"
-                  ItemClick="ViewControl_ItemClick"
-                  ContainerContentChanging="ViewControl_ContainerContentChanging"
-                  CanDrag="False"
-                  CanReorderItems="False"
-                  CanDragItems="True"
-                  DragItemsStarting="ViewControl_DragItemsStarting"
-                  AllowDrop="True"
-                  DragOver="ViewControl_DragOver"
-                  Drop="ViewControl_Drop"
-                  IsHoldingEnabled="True"
-                  IsItemClickEnabled="True"
-                  IsDoubleTapEnabled="True"
-                  Holding="ViewControl_Holding"
-                  DoubleTapped="ViewControl_DoubleTapped"
-                  x:FieldModifier="Public"
-                  Visibility="Collapsed"
-                  HeaderTemplate="{StaticResource ListHeaderDataTemplate}"
-                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterListViewTransitions,Mode=OneWay}">
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment"
-                            Value="Stretch" />
-                    <Setter Property="Padding"
-                            Value="0" />
-                </Style>
-            </ListView.ItemContainerStyle>
-        </ListView>
+                      x:Name="ListViewControl"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"
+                      PointerPressed="ViewControl_PointerPressed"
+                      RightTapped="ViewControl_RightTapped"
+                      SelectionChanged="ViewControl_SelectionChanged"
+                      SelectionMode="Extended"
+                      ItemClick="ViewControl_ItemClick"
+                      ContainerContentChanging="ViewControl_ContainerContentChanging"
+                      CanDrag="False"
+                      CanReorderItems="False"
+                      CanDragItems="True"
+                      DragItemsStarting="ViewControl_DragItemsStarting"
+                      AllowDrop="True"
+                      DragOver="ViewControl_DragOver"
+                      Drop="ViewControl_Drop"
+                      IsHoldingEnabled="True"
+                      IsItemClickEnabled="True"
+                      IsDoubleTapEnabled="True"
+                      Holding="ViewControl_Holding"
+                      DoubleTapped="ViewControl_DoubleTapped"
+                      x:FieldModifier="Public"
+                      Visibility="Collapsed"
+                      HeaderTemplate="{StaticResource ListHeaderDataTemplate}"
+                      ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterListViewTransitions,Mode=OneWay}">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" />
+                        <Setter Property="Padding"
+                                Value="0" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
         <GridView Name="GridViewControl"
                   Background="Transparent"
                   ContainerContentChanging="ViewControl_ContainerContentChanging"
@@ -939,13 +939,13 @@
             </GridView.ItemsPanel>
         </GridView>
         <TextBlock Name="HasFile"
-                   x:FieldModifier="public"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   x:Uid="HasFile"
-                   Text="无文件"
-                   FontSize="16"
-                   Visibility="Collapsed" />
+                       x:FieldModifier="public"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       x:Uid="HasFile"
+                       Text="无文件"
+                       FontSize="16"
+                       Visibility="Collapsed" />
         <StackPanel Grid.Row="1"
                     VerticalAlignment="Bottom">
             <TextBlock x:Name="StatusTips"

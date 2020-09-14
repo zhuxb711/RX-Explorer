@@ -424,6 +424,20 @@
                             </Button>
                         </StackPanel>
 
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="0,10,0,0">
+                            <Slider Maximum="100"
+                                    Minimum="0"
+                                    Width="220"
+                                    Header="调整模糊效果"
+                                    Name="BackgroundBlurSlider"
+                                    StepFrequency="5"
+                                    VerticalAlignment="Center" />
+                            <TextBlock Margin="5,20,0,0"
+                                       VerticalAlignment="Center"
+                                       Text="{x:Bind sys:String.Format('{0}%',BackgroundBlurSlider.Value),Mode=OneWay}" />
+                        </StackPanel>
+
                         <StackPanel x:Name="CustomAcrylicArea"
                                     Margin="0,20,0,0">
                             <Button Content="Acrylic主题颜色"

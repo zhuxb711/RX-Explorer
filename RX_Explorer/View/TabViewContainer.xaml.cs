@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Portable;
@@ -30,7 +31,7 @@ namespace RX_Explorer
 {
     public sealed partial class TabViewContainer : Page, INotifyPropertyChanged
     {
-        private int LockResource = 0;
+        private int LockResource;
 
         public static Frame CurrentTabNavigation { get; private set; }
 
@@ -837,16 +838,9 @@ namespace RX_Explorer
             args.Tab.Drop -= Item_Drop;
             sender.TabItems.Remove(args.Tab);
 
-            if (TabViewControl.TabItems.Count > 1)
+            if (TabViewControl.TabItems.Count == 0)
             {
-                foreach (TabViewItem Tab in TabViewControl.TabItems)
-                {
-                    Tab.IsClosable = true;
-                }
-            }
-            else
-            {
-                (TabViewControl.TabItems.First() as TabViewItem).IsClosable = false;
+                CoreApplication.Exit();
             }
         }
 
@@ -879,8 +873,7 @@ namespace RX_Explorer
                     TabViewItem Item = new TabViewItem
                     {
                         IconSource = new SymbolIconSource { Symbol = Symbol.Document },
-                        AllowDrop = true,
-                        IsClosable = false
+                        AllowDrop = true
                     };
                     Item.DragOver += Item_DragOver;
                     Item.Drop += Item_Drop;

@@ -2661,4 +2661,7 @@ Les noms non valides incluent
   <data name="QueueDialog_UnauthorizedRename_StartExplorer_Content" xml:space="preserve">
     <value>RX n'a pas le droit de renommer ce fichier. Voulez-vous démarrer l'explorateur pour qu'il fonctionne?</value>
   </data>
+  <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
+    <value>Impossible d'accéder au presse-papiers, l'opération de copie/coupe a échoué</value>
+  </data>
 </root>

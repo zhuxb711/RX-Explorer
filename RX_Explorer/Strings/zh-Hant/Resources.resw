@@ -2661,4 +2661,7 @@
   <data name="QueueDialog_UnauthorizedRename_StartExplorer_Content" xml:space="preserve">
     <value>RX無權重命名該文件，您要啟動資源管理器進行操作嗎？</value>
   </data>
+  <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
+    <value>無法訪問剪貼板，複製/剪切操作失敗</value>
+  </data>
 </root>

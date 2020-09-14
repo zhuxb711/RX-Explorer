@@ -3528,6 +3528,10 @@ Invalid names include
           <source>RX has no right to rename this file. Do you want to start explorer to operate?</source>
           <target state="translated">RX无权重命名该文件，您要启动资源管理器进行操作吗？</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_UnableAccessClipboard_Content" translate="yes" xml:space="preserve">
+          <source>Cannot access clipboard, copy/cut operation failed</source>
+          <target state="translated">无法访问剪切板，复制/剪切操作失败</target>
+        </trans-unit>
       </group>
     </body>
   </file>
