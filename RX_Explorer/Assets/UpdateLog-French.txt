@@ -1,4 +1,39 @@
 ﻿*****
+###Quoi de neuf dans la version 5.3.6.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout de la possibilité d'accorder des autorisations d'administrateur, maintenant l'application demandera des autorisations d'administrateur en cas de besoin
+
+>#####Ajout de fonctions de copie, de déplacement et de suppression de fichiers cachés
+
+>#####La Corbeille prend en charge les touches de raccourci telles que Ctrl+A et Ctrl+D
+
+#####Mise à jour de l'interface utilisateur
+
+>#####La logique contextuelle du menu contextuel a été modifiée pour être cohérente avec l'explorateur système
+
+>#####Permet désormais d'ajouter des effets de flou à des arrière-plans personnalisés pour améliorer l'expérience de lecture de texte
+
+>#####Le comportement des onglets a changé, il est maintenant permis de fermer le dernier onglet, et il se fermera automatiquement après la fermeture du dernier onglet
+
+#####Correction d'un bug
+
+>#####Correction d'un problème de blocage lors de la copie, du déplacement et de la suppression de fichiers dans certains cas
+
+>#####Correction d'un problème qui empêchait plusieurs instances d'effectuer des opérations sur les fichiers en même temps
+
+>#####Correction d'un problème lié à la détection de l'occupation des fichiers
+
+>#####Correction d'un problème en raison duquel les touches de raccourci dans le menu contextuel peuvent être invalides ou exécutées de manière incorrecte
+
+>#####Correction d'un problème lors de l'exploitation de plusieurs fichiers dans la corbeille en même temps
+
+>#####Correction d'un problème pouvant provoquer un crash lorsque le presse-papiers n'est pas accessible
+
+>#####Correction d'un problème qui empêchait de modifier le fichier .bat
+
+*****
 ###Quoi de neuf dans la version 5.3.3.0
 
 #####Mise à jour des fonctionnalités

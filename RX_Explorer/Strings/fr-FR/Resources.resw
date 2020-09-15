@@ -1978,11 +1978,11 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour copier, des droits d'administrateur peuvent être nécessaires pour accéder à ce dossier. Voulez-vous accorder des droits d'administrateur?\r\rRemarquez: \r1. À moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur. \r2. Avant d'accorder des autorisations, assurez-vous que les autres instances n'effectuent pas d'opérations sur les fichiers, sinon les fichiers seront endommagés.</value>
+    <value>RX n'a pas la permission pour copier, des droits d'administrateur peuvent être nécessaires pour accéder à ce dossier. Voulez-vous accorder des droits d'administrateur?\r\rRemarquez: \rÀ moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour renommer ce dossier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rAvis: \r1. À moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur. \r2. Avant d'accorder des autorisations, assurez-vous que les autres instances n'effectuent pas d'opérations sur les fichiers, sinon les fichiers seront endommagés.</value>
+    <value>RX n'a pas la permission pour renommer ce dossier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rAvis: \rÀ moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
@@ -2245,7 +2245,7 @@
     <value>Date de recyclage</value>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX n'a pas l'autorisation de supprimer cet élément, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rAvis: \r1. À moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur. \r2. Avant d'accorder des autorisations, assurez-vous que les autres instances n'effectuent pas d'opérations sur les fichiers, sinon les fichiers seront endommagés.</value>
+    <value>RX n'a pas l'autorisation de supprimer cet élément, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rAvis: \rÀ moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_Item_Captured_Content" xml:space="preserve">

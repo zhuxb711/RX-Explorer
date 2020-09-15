@@ -22,15 +22,15 @@ namespace RX_Explorer
         private StorageFile PdfFile;
         private ObservableCollection<BitmapImage> PdfCollection;
         private PdfDocument Pdf;
-        private int LastPageIndex = 0;
+        private int LastPageIndex;
         private Queue<int> LoadQueue;
         private ManualResetEvent ExitLocker;
         private CancellationTokenSource Cancellation;
-        private uint MaxLoad = 0;
+        private uint MaxLoad;
         private double OriginHorizonOffset;
         private double OriginVerticalOffset;
         private Point OriginMousePosition;
-        private int LockResource = 0;
+        private int LockResource;
         private Frame FileControlNav;
 
         public PdfReader()

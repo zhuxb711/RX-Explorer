@@ -312,7 +312,6 @@ namespace RX_Explorer
                 await Task.Delay(10000).ConfigureAwait(true);
 
                 await PinApplicationToTaskBarAsync().ConfigureAwait(true);
-
             }
             catch (Exception ex)
             {

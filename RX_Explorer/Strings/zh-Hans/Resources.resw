@@ -1978,11 +1978,11 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX无权将文件粘贴至此处，访问该文件夹可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r1. 除非最后一个RX的实例关闭，否则它将保持管理员权限运行\r2. 授予权限之前，请确保其他实例没有正在进行的文件操作，否则将会导致文件损坏</value>
+    <value>RX无权将文件粘贴至此处，访问该文件夹可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r除非最后一个RX的实例关闭，否则它将保持管理员权限运行</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX无权重命名此文件夹，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r1. 除非最后一个RX的实例关闭，否则它将保持管理员权限运行\r2. 授予权限之前，请确保其他实例没有正在进行的文件操作，否则将会导致文件损坏</value>
+    <value>RX无权重命名此文件夹，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r除非最后一个RX的实例关闭，否则它将保持管理员权限运行</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
@@ -2245,7 +2245,7 @@
     <value>删除日期</value>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX无权限删除此对象，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r1. 除非最后一个RX的实例关闭，否则它将保持管理员权限运行\r2. 授予权限之前，请确保其他实例没有正在进行的文件操作，否则将会导致文件损坏</value>
+    <value>RX无权限删除此对象，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r除非最后一个RX的实例关闭，否则它将保持管理员权限运行</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_Item_Captured_Content" xml:space="preserve">

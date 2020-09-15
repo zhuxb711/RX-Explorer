@@ -16,7 +16,7 @@
   <Identity
     Name="36186RuoFan.USB"
     Publisher="CN=4FF1CB23-04BD-4F9C-A86A-B4A43196FE02"
-    Version="5.3.3.0" />
+    Version="5.3.6.0" />
 
   <Properties>
     <DisplayName>ms-resource:App_Display_Name</DisplayName>
@@ -61,12 +61,7 @@
           <uap:Rotation Preference="landscape"/></uap:InitialRotationPreference>
       </uap:VisualElements>
       <Extensions>
-        <desktop:Extension Category="windows.fullTrustProcess" Executable="FullTrust\FullTrustProcess.exe">
-          <desktop:FullTrustProcess>
-            <desktop:ParameterGroup GroupId="Admin" Parameters="RunAsAdminMode"/>
-            <desktop:ParameterGroup GroupId="User" Parameters="RunAsUserMode"/>
-          </desktop:FullTrustProcess>
-        </desktop:Extension>
+        <desktop:Extension Category="windows.fullTrustProcess" Executable="FullTrust\FullTrustProcess.exe"/>
         <uap5:Extension Category="windows.startupTask" EntryPoint="RX_Explorer.App" Executable="RX_Explorer.exe">
           <uap5:StartupTask DisplayName="RX_Startup_Task" Enabled="true" TaskId="RXExplorer"/>
         </uap5:Extension>

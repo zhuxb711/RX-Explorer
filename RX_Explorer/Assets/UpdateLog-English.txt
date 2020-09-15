@@ -1,4 +1,39 @@
 ﻿*****
+###What's new in Ver.5.3.6.0
+
+#####Feature update
+
+>#####Added the ability to grant administrator permissions, now the app will request administrator permissions when needed
+
+>#####Added functions of copying, moving and deleting hidden files
+
+>#####Recycle Bin supports shortcut keys such as Ctrl+A and Ctrl+D
+
+#####UI update
+
+>#####The pop-up logic of the right-click menu has been changed to be consistent with the system explorer
+
+>#####Now allows adding blur effects to custom backgrounds to improve text reading experience
+
+>#####Changed the behavior of the tabs, now it is allowed to close the last tab, and it will automatically exit after the last tab is closed
+
+#####Bug fix
+
+>#####Fixed an issue of getting stuck when copying, moving and deleting files in some cases
+
+>#####Fixed an issue that multiple instances cannot perform file operations at the same time
+
+>#####Fixed an issue related to file occupation detection
+
+>#####Fixed an issue that the shortcut keys in the right-click menu may be invalid or executed incorrectly
+
+>#####Fixed an issue when operating multiple files in the recycle bin at the same time
+
+>#####Fixed an issue that may cause a crash when the clipboard cannot be accessed
+
+>#####Fixed an issue that the .bat file could not be edited
+
+*****
 ###What's new in Ver.5.3.3.0
 
 #####Feature update
