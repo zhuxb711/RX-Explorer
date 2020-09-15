@@ -556,8 +556,24 @@ namespace RX_Explorer.Class
                         {"ExcuteAuthority", ExcuteAuthority_Normal}
                     };
 
-                    await Connection.SendMessageAsync(Value);
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (!Response.Message.ContainsKey("Success"))
+                    {
+                        if (Response.Message.ContainsKey("Error_Failure"))
+                        {
+                            throw new InvalidOperationException();
+                        }
+                        else
+                        {
+                            throw new Exception();
+                        }
+                    }
                 }
+            }
+            catch (InvalidOperationException)
+            {
+                throw;
             }
             catch
             {
@@ -591,8 +607,24 @@ namespace RX_Explorer.Class
                         {"ExcuteAuthority", ExcuteAuthority_Administrator}
                     };
 
-                    await Connection.SendMessageAsync(Value);
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (!Response.Message.ContainsKey("Success"))
+                    {
+                        if (Response.Message.ContainsKey("Error_Failure"))
+                        {
+                            throw new InvalidOperationException();
+                        }
+                        else
+                        {
+                            throw new Exception();
+                        }
+                    }
                 }
+            }
+            catch (InvalidOperationException)
+            {
+                throw;
             }
             catch
             {

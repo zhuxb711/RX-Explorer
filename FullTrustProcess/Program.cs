@@ -161,7 +161,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (StorageItemController.CheckReadWritePermission(Path.GetDirectoryName(ExcutePath)))
+                                    if (StorageItemController.CheckPermission(FileSystemRights.Write, Path.GetDirectoryName(ExcutePath)))
                                     {
                                         if (StorageItemController.Rename(ExcutePath, DesireName))
                                         {
@@ -524,7 +524,7 @@ namespace FullTrustProcess
 
                             if (SourcePathList.All((Item) => Directory.Exists(Item.Key) || File.Exists(Item.Key)))
                             {
-                                if (StorageItemController.CheckReadWritePermission(DestinationPath))
+                                if (StorageItemController.CheckPermission(FileSystemRights.Read, DestinationPath))
                                 {
                                     if (StorageItemController.Copy(SourcePathList, DestinationPath, (s, e) =>
                                     {
@@ -629,7 +629,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (StorageItemController.CheckReadWritePermission(DestinationPath))
+                                    if (StorageItemController.CheckPermission(FileSystemRights.Write, DestinationPath))
                                     {
                                         if (StorageItemController.Move(SourcePathList, DestinationPath, (s, e) =>
                                         {
@@ -735,7 +735,7 @@ namespace FullTrustProcess
                                     }
                                     else
                                     {
-                                        if (ExcutePathList.Where((Item) => Directory.Exists(Item)).All((Item) => StorageItemController.CheckReadWritePermission(Item)) && ExcutePathList.Where((Item) => File.Exists(Item)).All((Item) => StorageItemController.CheckReadWritePermission(Path.GetDirectoryName(Item))))
+                                        if (ExcutePathList.Where((Item) => Directory.Exists(Item)).All((Item) => StorageItemController.CheckPermission(FileSystemRights.DeleteSubdirectoriesAndFiles, Item)) && ExcutePathList.Where((Item) => File.Exists(Item)).All((Item) => StorageItemController.CheckPermission(Path.GetDirectoryName(Item))))
                                         {
                                             if (StorageItemController.Delete(ExcutePathList, PermanentDelete, (s, e) =>
                                             {
@@ -821,44 +821,61 @@ namespace FullTrustProcess
                             string ExcuteParameter = Convert.ToString(args.Request.Message["ExcuteParameter"]);
                             string ExcuteAuthority = Convert.ToString(args.Request.Message["ExcuteAuthority"]);
 
+                            ValueSet Value = new ValueSet();
+
                             if (!string.IsNullOrEmpty(ExcutePath))
                             {
-                                if (string.IsNullOrEmpty(ExcuteParameter))
+                                if (StorageItemController.CheckPermission(FileSystemRights.ReadAndExecute, ExcutePath))
                                 {
-                                    using (Process Process = new Process())
+                                    if (string.IsNullOrEmpty(ExcuteParameter))
                                     {
-                                        Process.StartInfo.FileName = ExcutePath;
-                                        Process.StartInfo.UseShellExecute = false;
-
-                                        if (ExcuteAuthority == "Administrator")
+                                        using (Process Process = new Process())
                                         {
-                                            Process.StartInfo.Verb = "runAs";
+                                            Process.StartInfo.FileName = ExcutePath;
+                                            Process.StartInfo.UseShellExecute = false;
+
+                                            if (ExcuteAuthority == "Administrator")
+                                            {
+                                                Process.StartInfo.Verb = "runAs";
+                                            }
+
+                                            Process.Start();
+
+                                            User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
                                         }
-
-                                        Process.Start();
-
-                                        User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
                                     }
+                                    else
+                                    {
+                                        using (Process Process = new Process())
+                                        {
+                                            Process.StartInfo.FileName = ExcutePath;
+                                            Process.StartInfo.Arguments = ExcuteParameter;
+                                            Process.StartInfo.UseShellExecute = false;
+
+                                            if (ExcuteAuthority == "Administrator")
+                                            {
+                                                Process.StartInfo.Verb = "runAs";
+                                            }
+
+                                            Process.Start();
+
+                                            User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
+                                        }
+                                    }
+
+                                    Value.Add("Success", string.Empty);
                                 }
                                 else
                                 {
-                                    using (Process Process = new Process())
-                                    {
-                                        Process.StartInfo.FileName = ExcutePath;
-                                        Process.StartInfo.Arguments = ExcuteParameter;
-                                        Process.StartInfo.UseShellExecute = false;
-
-                                        if (ExcuteAuthority == "Administrator")
-                                        {
-                                            Process.StartInfo.Verb = "runAs";
-                                        }
-
-                                        Process.Start();
-
-                                        User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
-                                    }
+                                    Value.Add("Error_Failure", "The specified file could not be executed");
                                 }
                             }
+                            else
+                            {
+                                Value.Add("Success", string.Empty);
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
 
                             break;
                         }

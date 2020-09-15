@@ -94,7 +94,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool CheckReadWritePermission(string DirectoryPath)
+        public static bool CheckPermission(FileSystemRights Permission, string DirectoryPath)
         {
             bool AllowWrite = false;
             bool DenyWrite = false;
@@ -105,7 +105,7 @@ namespace FullTrustProcess
 
             foreach (FileSystemAccessRule Rule in AccessRules)
             {
-                if ((FileSystemRights.ReadData & Rule.FileSystemRights) == FileSystemRights.ReadData || (FileSystemRights.WriteData & Rule.FileSystemRights) == FileSystemRights.WriteData)
+                if ((Permission & Rule.FileSystemRights) == Permission)
                 {
                     if (Rule.IdentityReference.Value.StartsWith("S-1-"))
                     {
