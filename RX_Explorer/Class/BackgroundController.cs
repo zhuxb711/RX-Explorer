@@ -48,7 +48,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 指示当前的背景类型
         /// </summary>
-        private BackgroundBrushType CurrentType;
+        public BackgroundBrushType CurrentType { get; private set; }
 
         /// <summary>
         /// 对外统一提供背景

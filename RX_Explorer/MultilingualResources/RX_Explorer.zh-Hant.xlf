@@ -2643,18 +2643,18 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDelete_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to delete this item, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2. Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
-          <target state="translated">RX無權刪除此項目，可能需要管理員權限。 您是否要授予管理員權限？\r\r注意：\r1. 除非關閉最後一個RX實例，否則它將以管理員權限繼續運行。\r2. 在授予權限之前，請確保其他實例未執行文件操作，否則文件將被損壞</target>
+          <source>RX does not have permission to delete this item, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</source>
+          <target state="translated">RX無權刪除此項目，可能需要管理員權限。 您是否要授予管理員權限？\r\r注意：\r除非關閉最後一個RX實例，否則它將以管理員權限繼續運行</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedPaste_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2. Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
-          <target state="translated">RX 檔案總管沒有權限貼上檔案，可能需要管理員權限才能訪問此文件夾。 您要授予管理員權限嗎？\r\r注意：\r1. 除非關閉了最後一個RX實例，否則它將繼續以管理員權限運行。\ r2. 在授予權限之前，請確保其他實例未執行檔案操作，否則檔案將被損壞。</target>
+          <source>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</source>
+          <target state="translated">RX 檔案總管沒有權限貼上檔案，可能需要管理員權限才能訪問此文件夾。 您要授予管理員權限嗎？\r\r注意：\r除非關閉了最後一個RX實例，否則它將繼續以管理員權限運行</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to rename, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2. Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
-          <target state="translated">RX 檔案總管沒有權限重新命名，可能需要管理員權限，您是否要授予管理員權限？\r\r注意：\r1. 除非關閉最後一個RX實例，否則它將以管理員權限繼續運行。\r2. 在授予權限之前，請確保其他實例未執行文件操作，否則文件將被損壞。</target>
+          <source>RX does not have permission to rename, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</source>
+          <target state="translated">RX 檔案總管沒有權限重新命名，可能需要管理員權限，您是否要授予管理員權限？\r\r注意：\r除非關閉最後一個RX實例，否則它將以管理員權限繼續運行</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="Common_Dialog_GoBack" translate="yes" xml:space="preserve">
@@ -3531,6 +3531,10 @@ Invalid names include
         <trans-unit id="QueueDialog_UnableAccessClipboard_Content" translate="yes" xml:space="preserve">
           <source>Cannot access clipboard, copy/cut operation failed</source>
           <target state="translated">無法訪問剪貼板，複製/剪切操作失敗</target>
+        </trans-unit>
+        <trans-unit id="SettingPageBackgroundBlurSlider.Header" translate="yes" xml:space="preserve">
+          <source>Adjust background blur effect</source>
+          <target state="translated">調整背景模糊效果</target>
         </trans-unit>
       </group>
     </body>

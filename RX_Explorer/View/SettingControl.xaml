@@ -425,12 +425,15 @@
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal"
-                                    Margin="0,10,0,0">
+                                    Margin="0,10,0,0"
+                                    Name="BackgroundBlurSliderArea">
                             <Slider Maximum="100"
                                     Minimum="0"
                                     Width="220"
-                                    Header="调整模糊效果"
+                                    Header="调整背景模糊效果"
+                                    x:Uid="SettingPageBackgroundBlurSlider"
                                     Name="BackgroundBlurSlider"
+                                    ValueChanged="BackgroundBlurSlider_ValueChanged"
                                     StepFrequency="5"
                                     VerticalAlignment="Center" />
                             <TextBlock Margin="5,20,0,0"

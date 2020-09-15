@@ -2664,4 +2664,7 @@ Les noms non valides incluent
   <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
     <value>Impossible d'accéder au presse-papiers, l'opération de copie/coupe a échoué</value>
   </data>
+  <data name="SettingPageBackgroundBlurSlider.Header" xml:space="preserve">
+    <value>Ajuster l'effet de flou d'arrière-plan</value>
+  </data>
 </root>

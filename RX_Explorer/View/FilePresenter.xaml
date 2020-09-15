@@ -692,6 +692,7 @@
                     <ColumnDefinition Width="3*" />
                     <ColumnDefinition Width="1.5*" />
                     <ColumnDefinition Width="1.5*" />
+                    <ColumnDefinition MinWidth="50" />
                 </Grid.ColumnDefinitions>
                 <Button HorizontalContentAlignment="Left"
                         HorizontalAlignment="Stretch"
@@ -753,6 +754,11 @@
                                VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis" />
                 </Button>
+                <Button VerticalAlignment="Stretch"
+                        HorizontalAlignment="Stretch"
+                        Grid.Column="4"
+                        Background="{StaticResource ElementAcrylicBrush}"
+                        Style="{StaticResource ListHeaderButtonStyle}" />
             </Grid>
         </DataTemplate>
 
@@ -765,6 +771,7 @@
                     <ColumnDefinition Width="3*" />
                     <ColumnDefinition Width="1.5*" />
                     <ColumnDefinition Width="1.5*" />
+                    <ColumnDefinition MinWidth="50" />
                 </Grid.ColumnDefinitions>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -825,6 +832,10 @@
                            TextTrimming="CharacterEllipsis"
                            Grid.Column="3"
                            PointerPressed="GetFocus_PointerPressed" />
+                <TextBlock VerticalAlignment="Stretch"
+                           HorizontalAlignment="Stretch"
+                           Grid.Column="4"
+                           Name="EmptyTextblock" />
             </Grid>
         </DataTemplate>
 
@@ -835,6 +846,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="40" />
                     <ColumnDefinition Width="5*" />
+                    <ColumnDefinition MinWidth="50" />
                 </Grid.ColumnDefinitions>
                 <Image VerticalAlignment="Center"
                        Stretch="Uniform"
@@ -862,6 +874,10 @@
                          LostFocus="NameEditBox_LostFocus"
                          BeforeTextChanging="NameEditBox_BeforeTextChanging"
                          x:DeferLoadStrategy="Lazy" />
+                <TextBlock VerticalAlignment="Stretch"
+                           HorizontalAlignment="Stretch"
+                           Grid.Column="2"
+                           Name="EmptyTextblock" />
             </Grid>
         </DataTemplate>
     </Page.Resources>

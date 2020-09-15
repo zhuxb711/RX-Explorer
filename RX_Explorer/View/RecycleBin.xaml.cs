@@ -3,9 +3,11 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.System;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -31,6 +33,38 @@ namespace RX_Explorer.View
         {
             InitializeComponent();
             FileCollection.CollectionChanged += FileCollection_CollectionChanged;
+            Loaded += RecycleBin_Loaded;
+            Unloaded += RecycleBin_Unloaded;
+        }
+
+        private void RecycleBin_Unloaded(object sender, RoutedEventArgs e)
+        {
+            CoreWindow.GetForCurrentThread().KeyDown -= RecycleBin_KeyDown;
+        }
+
+        private void RecycleBin_Loaded(object sender, RoutedEventArgs e)
+        {
+            CoreWindow.GetForCurrentThread().KeyDown += RecycleBin_KeyDown;
+        }
+
+        private void RecycleBin_KeyDown(CoreWindow sender, KeyEventArgs args)
+        {
+            CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
+
+            switch (args.VirtualKey)
+            {
+                case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                    {
+                        ListViewControl.SelectAll();
+                        break;
+                    }
+                case VirtualKey.Delete when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                    {
+                        PermanentDelete_Click(null, null);
+                        break;
+                    }
+            }
         }
 
         private void FileCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -131,22 +165,47 @@ namespace RX_Explorer.View
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource as FrameworkElement)?.Name == "EmptyTextblock")
+                if (e.OriginalSource is FrameworkElement Element)
                 {
-                    ListViewControl.SelectedItem = null;
-                    ListViewControl.ContextFlyout = EmptyFlyout;
-                }
-                else
-                {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is RecycleStorageItem Item)
-                    {
-                        ListViewControl.ContextFlyout = SelectFlyout;
-                        ListViewControl.SelectedItem = Item;
-                    }
-                    else
+                    if (Element.Name == "EmptyTextblock")
                     {
                         ListViewControl.SelectedItem = null;
                         ListViewControl.ContextFlyout = EmptyFlyout;
+                    }
+                    else
+                    {
+                        if (Element.DataContext is RecycleStorageItem Context)
+                        {
+                            if (ListViewControl.SelectedItems.Count > 1 && ListViewControl.SelectedItems.Contains(Context))
+                            {
+                                ListViewControl.ContextFlyout = SelectFlyout;
+                            }
+                            else
+                            {
+                                if (ListViewControl.SelectedItem as RecycleStorageItem == Context)
+                                {
+                                    ListViewControl.ContextFlyout = SelectFlyout;
+                                }
+                                else
+                                {
+                                    if (e.OriginalSource is TextBlock)
+                                    {
+                                        ListViewControl.SelectedItem = Context;
+                                        ListViewControl.ContextFlyout = SelectFlyout;
+                                    }
+                                    else
+                                    {
+                                        ListViewControl.SelectedItem = null;
+                                        ListViewControl.ContextFlyout = EmptyFlyout;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            ListViewControl.SelectedItem = null;
+                            ListViewControl.ContextFlyout = EmptyFlyout;
+                        }
                     }
                 }
             }
@@ -163,7 +222,7 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
                 List<RecycleStorageItem> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Name, SortDirection.Descending);
-                
+
                 FileCollection.Clear();
 
                 foreach (RecycleStorageItem Item in SortResult)
@@ -355,45 +414,48 @@ namespace RX_Explorer.View
 
         private async void PermanentDelete_Click(object sender, RoutedEventArgs e)
         {
-            await ActivateLoading(true, Globalization.GetString("RecycleBinDeleteText")).ConfigureAwait(true);
-
-            QueueContentDialog QueueContenDialog = new QueueContentDialog
+            if (ListViewControl.SelectedItems.Count > 0)
             {
-                Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                Content = Globalization.GetString("QueueDialog_DeleteFile_Content"),
-                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-            };
+                await ActivateLoading(true, Globalization.GetString("RecycleBinDeleteText")).ConfigureAwait(true);
 
-            if ((await QueueContenDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-            {
-                List<string> ErrorList = new List<string>();
-
-                foreach (RecycleStorageItem Item in ListViewControl.SelectedItems)
+                QueueContentDialog QueueContenDialog = new QueueContentDialog
                 {
-                    if (await FullTrustExcutorController.Current.DeleteItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
+                    Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                    Content = Globalization.GetString("QueueDialog_DeleteFile_Content"),
+                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                };
+
+                if ((await QueueContenDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                {
+                    List<string> ErrorList = new List<string>();
+
+                    foreach (RecycleStorageItem Item in ListViewControl.SelectedItems.ToList())
                     {
-                        FileCollection.Remove(Item);
+                        if (await FullTrustExcutorController.Current.DeleteItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
+                        {
+                            FileCollection.Remove(Item);
+                        }
+                        else
+                        {
+                            ErrorList.Add(Item.Name);
+                        }
                     }
-                    else
+
+                    if (ErrorList.Count > 0)
                     {
-                        ErrorList.Add(Item.Name);
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = $"{Globalization.GetString("QueueDialog_RecycleBinDeleteError_Content")} {Environment.NewLine}{string.Join(Environment.NewLine, ErrorList)}",
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        _ = Dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
 
-                if (ErrorList.Count > 0)
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = $"{Globalization.GetString("QueueDialog_RecycleBinDeleteError_Content")} {Environment.NewLine}{string.Join(Environment.NewLine, ErrorList)}",
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-                    _ = Dialog.ShowAsync().ConfigureAwait(true);
-                }
+                await ActivateLoading(false).ConfigureAwait(true);
             }
-
-            await ActivateLoading(false).ConfigureAwait(true);
         }
 
         private async void ClearRecycleBin_Click(object sender, RoutedEventArgs e)
@@ -432,34 +494,37 @@ namespace RX_Explorer.View
 
         private async void RestoreRecycle_Click(object sender, RoutedEventArgs e)
         {
-            await ActivateLoading(true, Globalization.GetString("RecycleBinRestoreText")).ConfigureAwait(true);
-
-            List<string> ErrorList = new List<string>();
-
-            foreach (RecycleStorageItem Item in ListViewControl.SelectedItems)
+            if (ListViewControl.SelectedItems.Count > 0)
             {
-                if (await FullTrustExcutorController.Current.RestoreItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
-                {
-                    FileCollection.Remove(Item);
-                }
-                else
-                {
-                    ErrorList.Add(Item.Name);
-                }
-            }
+                await ActivateLoading(true, Globalization.GetString("RecycleBinRestoreText")).ConfigureAwait(true);
 
-            if (ErrorList.Count > 0)
-            {
-                QueueContentDialog Dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = $"{Globalization.GetString("QueueDialog_RecycleBinRestoreError_Content")} {Environment.NewLine}{string.Join(Environment.NewLine, ErrorList)}",
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-                _ = Dialog.ShowAsync().ConfigureAwait(true);
-            }
+                List<string> ErrorList = new List<string>();
 
-            await ActivateLoading(false).ConfigureAwait(true);
+                foreach (RecycleStorageItem Item in ListViewControl.SelectedItems.ToList())
+                {
+                    if (await FullTrustExcutorController.Current.RestoreItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
+                    {
+                        FileCollection.Remove(Item);
+                    }
+                    else
+                    {
+                        ErrorList.Add(Item.Name);
+                    }
+                }
+
+                if (ErrorList.Count > 0)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = $"{Globalization.GetString("QueueDialog_RecycleBinRestoreError_Content")} {Environment.NewLine}{string.Join(Environment.NewLine, ErrorList)}",
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = Dialog.ShowAsync().ConfigureAwait(true);
+                }
+
+                await ActivateLoading(false).ConfigureAwait(true);
+            }
         }
 
         private async Task ActivateLoading(bool IsLoading, string Message = null)

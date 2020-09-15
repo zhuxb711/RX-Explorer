@@ -2664,4 +2664,7 @@
   <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
     <value>無法訪問剪貼板，複製/剪切操作失敗</value>
   </data>
+  <data name="SettingPageBackgroundBlurSlider.Header" xml:space="preserve">
+    <value>調整背景模糊效果</value>
+  </data>
 </root>

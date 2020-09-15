@@ -2108,11 +2108,11 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX does not have permission to delete this item, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2. Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</value>
+    <value>RX does not have permission to delete this item, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2. Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</value>
+    <value>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
@@ -2270,7 +2270,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX does not have permission to rename, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2. Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</value>
+    <value>RX does not have permission to rename, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
@@ -2768,5 +2768,8 @@ Invalid names include
   </data>
   <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
     <value>Cannot access clipboard, copy/cut operation failed</value>
+  </data>
+  <data name="SettingPageBackgroundBlurSlider.Header" xml:space="preserve">
+    <value>Adjust background blur effect</value>
   </data>
 </root>

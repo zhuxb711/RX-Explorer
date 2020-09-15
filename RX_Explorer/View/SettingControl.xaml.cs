@@ -55,6 +55,8 @@ namespace RX_Explorer
 
         private int EnterAndExitLock;
 
+        private int BlurChangeLock;
+
         public bool IsOpened { get; private set; }
 
         public SettingControl()
@@ -201,12 +203,14 @@ namespace RX_Explorer
             CustomFontColor.Items.Add(Globalization.GetString("Font_Color_White"));
             CustomFontColor.Items.Add(Globalization.GetString("Font_Color_Black"));
 
-            foreach(TerminalProfile Profile in await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true))
+            BackgroundBlurSlider.Value = MainPage.ThisPage.BackgroundBlur.Amount * 5;
+
+            foreach (TerminalProfile Profile in await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true))
             {
                 DefaultTerminal.Items.Add(Profile.Name);
             }
 
-            if(ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] is string Terminal)
+            if (ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] is string Terminal)
             {
                 if (DefaultTerminal.Items.Contains(Terminal))
                 {
@@ -485,6 +489,7 @@ namespace RX_Explorer
                         SolidColor_FollowSystem.IsChecked = null;
                         SolidColor_Black.IsChecked = null;
                         CustomFontColor.IsEnabled = false;
+                        MainPage.ThisPage.BackgroundBlur.Amount = 0;
 
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
                         BackgroundController.Current.TintOpacity = 0.6;
@@ -501,6 +506,7 @@ namespace RX_Explorer
                         PictureMode.IsChecked = null;
                         BingPictureMode.IsChecked = null;
                         CustomFontColor.IsEnabled = false;
+                        MainPage.ThisPage.BackgroundBlur.Amount = 0;
 
                         if (ApplicationData.Current.LocalSettings.Values["SolidColorType"] is string ColorType)
                         {
@@ -836,6 +842,8 @@ namespace RX_Explorer
             CustomAcrylicArea.Visibility = Visibility.Visible;
             CustomPictureArea.Visibility = Visibility.Collapsed;
             GetBingPhotoState.Visibility = Visibility.Collapsed;
+            BackgroundBlurSliderArea.Visibility = Visibility.Collapsed;
+            MainPage.ThisPage.BackgroundBlur.Amount = 0;
 
             ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Acrylic);
 
@@ -876,6 +884,8 @@ namespace RX_Explorer
             CustomAcrylicArea.Visibility = Visibility.Collapsed;
             CustomPictureArea.Visibility = Visibility.Visible;
             GetBingPhotoState.Visibility = Visibility.Collapsed;
+            BackgroundBlurSliderArea.Visibility = Visibility.Visible;
+            MainPage.ThisPage.BackgroundBlur.Amount = Convert.ToDouble(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
 
             if (PictureList.Count == 0)
             {
@@ -1427,6 +1437,8 @@ namespace RX_Explorer
             CustomAcrylicArea.Visibility = Visibility.Collapsed;
             CustomPictureArea.Visibility = Visibility.Collapsed;
             GetBingPhotoState.Visibility = Visibility.Visible;
+            BackgroundBlurSliderArea.Visibility = Visibility.Visible;
+            MainPage.ThisPage.BackgroundBlur.Amount = Convert.ToDouble(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
 
             if (await BingPictureDownloader.DownloadDailyPicture().ConfigureAwait(true) is StorageFile File)
             {
@@ -1459,11 +1471,11 @@ namespace RX_Explorer
         private async void ModifyTerminal_Tapped(object sender, TappedRoutedEventArgs e)
         {
             ModifyDefaultTerminalDialog Dialog = new ModifyDefaultTerminalDialog();
-            
-            if(await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+
+            if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
             {
                 IEnumerable<string> DataBase = (await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true)).Select((Profile) => Profile.Name);
-                
+
                 foreach (string NewProfile in DataBase.Except(DefaultTerminal.Items).ToList())
                 {
                     DefaultTerminal.Items.Add(NewProfile);
@@ -1472,6 +1484,28 @@ namespace RX_Explorer
                 foreach (string RemoveProfile in DefaultTerminal.Items.Except(DataBase).ToList())
                 {
                     DefaultTerminal.Items.Remove(RemoveProfile);
+                }
+            }
+        }
+
+        private void BackgroundBlurSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            if (Interlocked.Exchange(ref BlurChangeLock, 1) == 0)
+            {
+                try
+                {
+                    double BlurValue = e.NewValue / 5;
+
+                    MainPage.ThisPage.BackgroundBlur.Amount = BlurValue;
+                    ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] = BlurValue;
+                }
+                catch
+                {
+                    Debug.WriteLine("Change BackgroundBlur failed");
+                }
+                finally
+                {
+                    _ = Interlocked.Exchange(ref BlurChangeLock, 0);
                 }
             }
         }

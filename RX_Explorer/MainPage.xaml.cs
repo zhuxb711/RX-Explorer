@@ -84,6 +84,28 @@ namespace RX_Explorer
 
         private async void MainPage_Loaded1(object sender, RoutedEventArgs e)
         {
+            if(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] is double BlurValue)
+            {
+                switch(BackgroundController.Current.CurrentType)
+                {
+                    case BackgroundBrushType.BingPicture:
+                    case BackgroundBrushType.Picture:
+                        {
+                            BackgroundBlur.Amount = BlurValue;
+                            break;
+                        }
+                    default:
+                        {
+                            BackgroundBlur.Amount = 0;
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] = 0d;
+            }
+
             if (ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] is bool Enable)
             {
                 SettingControl.IsQuicklookEnable = Enable;

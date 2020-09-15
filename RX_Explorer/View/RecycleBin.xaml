@@ -74,103 +74,97 @@
                   ItemsSource="{x:Bind FileCollection}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterListViewTransitions,Mode=OneWay}">
             <ListView.Header>
-                <controls:ScrollHeader Mode="Sticky">
-                    <controls:ScrollHeader.ContentTemplate>
-                        <DataTemplate>
-                            <Grid Height="35">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="4*" />
-                                    <ColumnDefinition Width="3*" />
-                                    <ColumnDefinition Width="2*" />
-                                    <ColumnDefinition Width="2*" />
-                                    <ColumnDefinition Width="1.5*" />
-                                    <ColumnDefinition Width="1*"
-                                                      MinWidth="50" />
-                                </Grid.ColumnDefinitions>
-                                <Button HorizontalContentAlignment="Left"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch"
-                                        AllowFocusOnInteraction="False"
-                                        Grid.Column="0"
-                                        x:Name="ListHeaderName"
-                                        Click="ListHeaderName_Click"
-                                        Background="{StaticResource ElementAcrylicBrush}"
-                                        Style="{StaticResource ListHeaderButtonStyle}">
-                                    <TextBlock Text="名称"
-                                               FontSize="14"
-                                               x:Uid="SearchName"
-                                               VerticalAlignment="Center"
-                                               TextTrimming="CharacterEllipsis" />
-                                </Button>
-                                <Button HorizontalContentAlignment="Left"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch"
-                                        AllowFocusOnInteraction="False"
-                                        Grid.Column="1"
-                                        x:Name="ListHeaderOriginLocation"
-                                        Click="ListHeaderOriginLocation_Click"
-                                        Background="{StaticResource ElementAcrylicBrush}"
-                                        Style="{StaticResource ListHeaderButtonStyle}">
-                                    <TextBlock Text="原位置"
-                                               FontSize="14"
-                                               x:Uid="RecycleOriginLocation"
-                                               VerticalAlignment="Center"
-                                               TextTrimming="CharacterEllipsis" />
-                                </Button>
-                                <Button HorizontalContentAlignment="Left"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch"
-                                        AllowFocusOnInteraction="False"
-                                        Grid.Column="2"
-                                        Name="ListHeaderModifiedTime"
-                                        Click="ListHeaderModifiedTime_Click"
-                                        Background="{StaticResource ElementAcrylicBrush}"
-                                        Style="{StaticResource ListHeaderButtonStyle}">
-                                    <TextBlock Text="删除日期"
-                                               FontSize="14"
-                                               x:Uid="RecycleTime"
-                                               VerticalAlignment="Center"
-                                               TextTrimming="CharacterEllipsis" />
-                                </Button>
-                                <Button Grid.Column="3"
-                                        HorizontalContentAlignment="Left"
-                                        AllowFocusOnInteraction="False"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch"
-                                        Name="ListHeaderType"
-                                        Click="ListHeaderType_Click"
-                                        Background="{StaticResource ElementAcrylicBrush}"
-                                        Style="{StaticResource ListHeaderButtonStyle}">
-                                    <TextBlock Text="类型"
-                                               FontSize="14"
-                                               x:Uid="SearchType"
-                                               VerticalAlignment="Center"
-                                               TextTrimming="CharacterEllipsis" />
-                                </Button>
-                                <Button HorizontalContentAlignment="Left"
-                                        HorizontalAlignment="Stretch"
-                                        AllowFocusOnInteraction="False"
-                                        VerticalAlignment="Stretch"
-                                        Name="ListHeaderSize"
-                                        Grid.Column="4"
-                                        Click="ListHeaderSize_Click"
-                                        Background="{StaticResource ElementAcrylicBrush}"
-                                        Style="{StaticResource ListHeaderButtonStyle}">
-                                    <TextBlock Text="大小"
-                                               FontSize="14"
-                                               x:Uid="SearchSize"
-                                               VerticalAlignment="Center"
-                                               TextTrimming="CharacterEllipsis" />
-                                </Button>
-                                <Button Background="{StaticResource ElementAcrylicBrush}"
-                                        Style="{StaticResource ListHeaderDisableButtonStyle}"
-                                        Grid.Column="5"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch" />
-                            </Grid>
-                        </DataTemplate>
-                    </controls:ScrollHeader.ContentTemplate>
-                </controls:ScrollHeader>
+                <Grid Height="35">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="4*" />
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="1.5*" />
+                        <ColumnDefinition Width="1*"
+                                          MinWidth="50" />
+                    </Grid.ColumnDefinitions>
+                    <Button HorizontalContentAlignment="Left"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            AllowFocusOnInteraction="False"
+                            Grid.Column="0"
+                            x:Name="ListHeaderName"
+                            Click="ListHeaderName_Click"
+                            Background="{StaticResource ElementAcrylicBrush}"
+                            Style="{StaticResource ListHeaderButtonStyle}">
+                        <TextBlock Text="名称"
+                                   FontSize="14"
+                                   x:Uid="SearchName"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Button>
+                    <Button HorizontalContentAlignment="Left"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            AllowFocusOnInteraction="False"
+                            Grid.Column="1"
+                            x:Name="ListHeaderOriginLocation"
+                            Click="ListHeaderOriginLocation_Click"
+                            Background="{StaticResource ElementAcrylicBrush}"
+                            Style="{StaticResource ListHeaderButtonStyle}">
+                        <TextBlock Text="原位置"
+                                   FontSize="14"
+                                   x:Uid="RecycleOriginLocation"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Button>
+                    <Button HorizontalContentAlignment="Left"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            AllowFocusOnInteraction="False"
+                            Grid.Column="2"
+                            Name="ListHeaderModifiedTime"
+                            Click="ListHeaderModifiedTime_Click"
+                            Background="{StaticResource ElementAcrylicBrush}"
+                            Style="{StaticResource ListHeaderButtonStyle}">
+                        <TextBlock Text="删除日期"
+                                   FontSize="14"
+                                   x:Uid="RecycleTime"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Button>
+                    <Button Grid.Column="3"
+                            HorizontalContentAlignment="Left"
+                            AllowFocusOnInteraction="False"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Name="ListHeaderType"
+                            Click="ListHeaderType_Click"
+                            Background="{StaticResource ElementAcrylicBrush}"
+                            Style="{StaticResource ListHeaderButtonStyle}">
+                        <TextBlock Text="类型"
+                                   FontSize="14"
+                                   x:Uid="SearchType"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Button>
+                    <Button HorizontalContentAlignment="Left"
+                            HorizontalAlignment="Stretch"
+                            AllowFocusOnInteraction="False"
+                            VerticalAlignment="Stretch"
+                            Name="ListHeaderSize"
+                            Grid.Column="4"
+                            Click="ListHeaderSize_Click"
+                            Background="{StaticResource ElementAcrylicBrush}"
+                            Style="{StaticResource ListHeaderButtonStyle}">
+                        <TextBlock Text="大小"
+                                   FontSize="14"
+                                   x:Uid="SearchSize"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Button>
+                    <Button Background="{StaticResource ElementAcrylicBrush}"
+                            Style="{StaticResource ListHeaderDisableButtonStyle}"
+                            Grid.Column="5"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch" />
+                </Grid>
             </ListView.Header>
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
@@ -207,12 +201,14 @@
                             <TextBlock VerticalAlignment="Center"
                                        FontSize="14"
                                        Grid.Column="1"
+                                       HorizontalAlignment="Left"
                                        Text="{x:Bind Name}"
                                        ToolTipService.ToolTip="{x:Bind Name}"
                                        TextTrimming="CharacterEllipsis" />
                         </Grid>
                         <TextBlock VerticalAlignment="Center"
                                    FontSize="14"
+                                   HorizontalAlignment="Left"
                                    Text="{x:Bind OriginPath}"
                                    ToolTipService.ToolTip="{x:Bind OriginPath}"
                                    Grid.Column="1"
@@ -220,6 +216,7 @@
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
                                    FontSize="14"
+                                   HorizontalAlignment="Left"
                                    Text="{x:Bind ModifiedTime,Mode=OneWay}"
                                    ToolTipService.ToolTip="{x:Bind ModifiedTime,Mode=OneWay}"
                                    Grid.Column="2"
@@ -227,6 +224,7 @@
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
                                    FontSize="14"
+                                   HorizontalAlignment="Left"
                                    Text="{x:Bind DisplayType,Mode=OneWay}"
                                    ToolTipService.ToolTip="{x:Bind DisplayType}"
                                    Grid.Column="3"
@@ -234,6 +232,7 @@
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
                                    FontSize="14"
+                                   HorizontalAlignment="Left"
                                    Padding="8,0,0,0"
                                    Text="{x:Bind Size}"
                                    ToolTipService.ToolTip="{x:Bind Size}"

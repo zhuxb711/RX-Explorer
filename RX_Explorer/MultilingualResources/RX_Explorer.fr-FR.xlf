@@ -2618,13 +2618,13 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedPaste_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2. Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
-          <target state="translated">RX n'a pas la permission pour copier, des droits d'administrateur peuvent être nécessaires pour accéder à ce dossier. Voulez-vous accorder des droits d'administrateur?\r\rRemarquez: \r1. À moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur. \r2. Avant d'accorder des autorisations, assurez-vous que les autres instances n'effectuent pas d'opérations sur les fichiers, sinon les fichiers seront endommagés.</target>
+          <source>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</source>
+          <target state="translated">RX n'a pas la permission pour copier, des droits d'administrateur peuvent être nécessaires pour accéder à ce dossier. Voulez-vous accorder des droits d'administrateur?\r\rRemarquez: \rÀ moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to rename, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2. Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
-          <target state="translated">RX n'a pas la permission pour renommer ce dossier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rAvis: \r1. À moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur. \r2. Avant d'accorder des autorisations, assurez-vous que les autres instances n'effectuent pas d'opérations sur les fichiers, sinon les fichiers seront endommagés.</target>
+          <source>RX does not have permission to rename, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</source>
+          <target state="translated">RX n'a pas la permission pour renommer ce dossier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rAvis: \rÀ moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="Common_Dialog_GoBack" translate="yes" xml:space="preserve">
@@ -2968,8 +2968,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Date de recyclage</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDelete_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to delete this item, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\r1. Unless the last RX instance is shut down, it will keep running with administrator privileges.\r2. Before granting permissions, make sure that other instances are not performing file operations, otherwise the files will be damaged.</source>
-          <target state="translated">RX n'a pas l'autorisation de supprimer cet élément, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rAvis: \r1. À moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur. \r2. Avant d'accorder des autorisations, assurez-vous que les autres instances n'effectuent pas d'opérations sur les fichiers, sinon les fichiers seront endommagés.</target>
+          <source>RX does not have permission to delete this item, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</source>
+          <target state="translated">RX n'a pas l'autorisation de supprimer cet élément, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rAvis: \rÀ moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_Item_Captured_Content" translate="yes" xml:space="preserve">
@@ -3531,6 +3531,10 @@ Les noms non valides incluent
         <trans-unit id="QueueDialog_UnableAccessClipboard_Content" translate="yes" xml:space="preserve">
           <source>Cannot access clipboard, copy/cut operation failed</source>
           <target state="translated">Impossible d'accéder au presse-papiers, l'opération de copie/coupe a échoué</target>
+        </trans-unit>
+        <trans-unit id="SettingPageBackgroundBlurSlider.Header" translate="yes" xml:space="preserve">
+          <source>Adjust background blur effect</source>
+          <target state="translated">Ajuster l'effet de flou d'arrière-plan</target>
         </trans-unit>
       </group>
     </body>

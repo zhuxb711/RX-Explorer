@@ -32,7 +32,6 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
-using Windows.Foundation;
 using ZXing;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
@@ -1909,61 +1908,72 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
+                    if (e.OriginalSource is FrameworkElement Element)
                     {
-                        if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
+                        if (Element.Name == "EmptyTextblock")
                         {
-                            if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
-                            {
-                                MixZip.IsEnabled = false;
-                            }
-                            else
-                            {
-                                MixZip.IsEnabled = true;
-                            }
-
-                            ItemPresenter.ContextFlyout = MixedFlyout;
+                            SelectedItem = null;
+                            ItemPresenter.ContextFlyout = EmptyFlyout;
                         }
                         else
                         {
-                            if (SelectedItem == Context)
+                            if (Element.DataContext is FileSystemStorageItemBase Context)
                             {
-                                if (Context is HiddenStorageItem)
+                                if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                                 {
-                                    ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                    if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
+                                    {
+                                        MixZip.IsEnabled = false;
+                                    }
+                                    else
+                                    {
+                                        MixZip.IsEnabled = true;
+                                    }
+
+                                    ItemPresenter.ContextFlyout = MixedFlyout;
                                 }
                                 else
                                 {
-                                    ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                    if (SelectedItem == Context)
+                                    {
+                                        if (Context is HiddenStorageItem)
+                                        {
+                                            ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                        }
+                                        else
+                                        {
+                                            ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (e.OriginalSource is TextBlock)
+                                        {
+                                            SelectedItem = Context;
+
+                                            if (Context is HiddenStorageItem)
+                                            {
+                                                ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                            }
+                                            else
+                                            {
+                                                ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            SelectedItem = null;
+                                            ItemPresenter.ContextFlyout = EmptyFlyout;
+                                        }
+                                    }
                                 }
                             }
                             else
                             {
-                                if (e.OriginalSource is TextBlock)
-                                {
-                                    SelectedItem = Context;
-
-                                    if (Context is HiddenStorageItem)
-                                    {
-                                        ItemPresenter.ContextFlyout = HiddenItemFlyout;
-                                    }
-                                    else
-                                    {
-                                        ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
-                                    }
-                                }
-                                else
-                                {
-                                    SelectedItem = null;
-                                    ItemPresenter.ContextFlyout = EmptyFlyout;
-                                }
+                                SelectedItem = null;
+                                ItemPresenter.ContextFlyout = EmptyFlyout;
                             }
                         }
-                    }
-                    else
-                    {
-                        SelectedItem = null;
-                        ItemPresenter.ContextFlyout = EmptyFlyout;
                     }
                 }
             }
@@ -4522,61 +4532,72 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
+                    if (e.OriginalSource is FrameworkElement Element)
                     {
-                        if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
+                        if (Element.Name == "EmptyTextblock")
                         {
-                            if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
-                            {
-                                MixZip.IsEnabled = false;
-                            }
-                            else
-                            {
-                                MixZip.IsEnabled = true;
-                            }
-
-                            ItemPresenter.ContextFlyout = MixedFlyout;
+                            SelectedItem = null;
+                            ItemPresenter.ContextFlyout = EmptyFlyout;
                         }
                         else
                         {
-                            if (SelectedItem == Context)
+                            if (Element.DataContext is FileSystemStorageItemBase Context)
                             {
-                                if (Context is HiddenStorageItem)
+                                if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                                 {
-                                    ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                    if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
+                                    {
+                                        MixZip.IsEnabled = false;
+                                    }
+                                    else
+                                    {
+                                        MixZip.IsEnabled = true;
+                                    }
+
+                                    ItemPresenter.ContextFlyout = MixedFlyout;
                                 }
                                 else
                                 {
-                                    ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                    if (SelectedItem == Context)
+                                    {
+                                        if (Context is HiddenStorageItem)
+                                        {
+                                            ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                        }
+                                        else
+                                        {
+                                            ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (e.OriginalSource is TextBlock)
+                                        {
+                                            SelectedItem = Context;
+
+                                            if (Context is HiddenStorageItem)
+                                            {
+                                                ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                            }
+                                            else
+                                            {
+                                                ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            SelectedItem = null;
+                                            ItemPresenter.ContextFlyout = EmptyFlyout;
+                                        }
+                                    }
                                 }
                             }
                             else
                             {
-                                if (e.OriginalSource is TextBlock)
-                                {
-                                    SelectedItem = Context;
-
-                                    if (Context is HiddenStorageItem)
-                                    {
-                                        ItemPresenter.ContextFlyout = HiddenItemFlyout;
-                                    }
-                                    else
-                                    {
-                                        ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
-                                    }
-                                }
-                                else
-                                {
-                                    SelectedItem = null;
-                                    ItemPresenter.ContextFlyout = EmptyFlyout;
-                                }
+                                SelectedItem = null;
+                                ItemPresenter.ContextFlyout = EmptyFlyout;
                             }
                         }
-                    }
-                    else
-                    {
-                        SelectedItem = null;
-                        ItemPresenter.ContextFlyout = EmptyFlyout;
                     }
                 }
             }
