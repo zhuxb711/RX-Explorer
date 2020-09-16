@@ -1980,9 +1980,6 @@
   <data name="QueueDialog_DeleteFolder_Content" xml:space="preserve">
     <value>這將刪除資料夾中的所有內容。 是否繼續？</value>
   </data>
-  <data name="QueueDialog_EmptyFolderName_Content" xml:space="preserve">
-    <value>資料夾名稱不能為空，重新命名失敗</value>
-  </data>
   <data name="QueueDialog_LocatePathFailure_Content" xml:space="preserve">
     <value>無法找到路徑：</value>
   </data>
@@ -2666,5 +2663,8 @@
   </data>
   <data name="SettingPageBackgroundBlurSlider.Header" xml:space="preserve">
     <value>調整背景模糊效果</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
+    <value>RX沒有執行文件的權限，可能需要管理員權限。您是否要授予管理員權限？\r\r注意：\r除非關閉了最後一個RX實例，否則它將以管理員權限繼續運行</value>
   </data>
 </root>

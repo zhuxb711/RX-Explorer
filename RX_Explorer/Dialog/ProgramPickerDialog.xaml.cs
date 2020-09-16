@@ -79,7 +79,7 @@ namespace RX_Explorer.Dialog
 
             List<ProgramPickerItem> TempList = new List<ProgramPickerItem>();
 
-            string SystemAssociate = await FullTrustExcutorController.Current.GetAssociateFromPathAsync(OpenFile.Path).ConfigureAwait(true);
+            string SystemAssociate = await FullTrustProcessController.Current.GetAssociateFromPathAsync(OpenFile.Path).ConfigureAwait(true);
             if (!string.IsNullOrEmpty(SystemAssociate))
             {
                 await SQLite.Current.SetProgramPickerRecordAsync(OpenFile.FileType, SystemAssociate).ConfigureAwait(true);
@@ -252,7 +252,40 @@ namespace RX_Explorer.Dialog
                 {
                     if (CurrentItem.IsCustomApp)
                     {
-                        await FullTrustExcutorController.Current.RunAsync(CurrentItem.Path, OpenFile.Path).ConfigureAwait(true);
+                        Retry:
+                        try
+                        {
+                            await FullTrustProcessController.Current.RunAsync(CurrentItem.Path, OpenFile.Path).ConfigureAwait(true);
+                        }
+                        catch(InvalidOperationException)
+                        {
+                            QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            };
+
+                            if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                            {
+                                if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                {
+                                    goto Retry;
+                                }
+                                else
+                                {
+                                    QueueContentDialog ErrorDialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+
+                                    _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                }
+                            }
+                        }
                     }
                     else
                     {
@@ -297,7 +330,40 @@ namespace RX_Explorer.Dialog
                 {
                     if (OtherItem.IsCustomApp)
                     {
-                        await FullTrustExcutorController.Current.RunAsync(OtherItem.Path, OpenFile.Path).ConfigureAwait(true);
+                        Retry:
+                        try
+                        {
+                            await FullTrustProcessController.Current.RunAsync(OtherItem.Path, OpenFile.Path).ConfigureAwait(true);
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            };
+
+                            if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                            {
+                                if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                {
+                                    goto Retry;
+                                }
+                                else
+                                {
+                                    QueueContentDialog ErrorDialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+
+                                    _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                }
+                            }
+                        }
                     }
                     else
                     {

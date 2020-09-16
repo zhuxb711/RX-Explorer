@@ -212,7 +212,7 @@ namespace RX_Explorer
         {
             Deferral Deferral = e.GetDeferral();
 
-            if (IsAnyTaskRunning || GeneralTransformer.IsAnyTransformTaskRunning || FullTrustExcutorController.Current.IsNowHasAnyActionExcuting)
+            if (IsAnyTaskRunning || GeneralTransformer.IsAnyTransformTaskRunning || FullTrustProcessController.Current.IsNowHasAnyActionExcuting)
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {

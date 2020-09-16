@@ -38,9 +38,9 @@ namespace FullTrustProcess
         {
             try
             {
-                if (args.Length > 2 && args[1] == "Elevation_Restart")
+                if (args.Contains("Elevation_Restart") && int.TryParse(args.LastOrDefault(), out int Id))
                 {
-                    ExplorerProcess = Process.GetProcessById(Convert.ToInt32(args[2]));
+                    ExplorerProcess = Process.GetProcessById(Id);
                 }
 
                 Connection = new AppServiceConnection
@@ -73,11 +73,17 @@ namespace FullTrustProcess
 
                 ExplorerProcess?.Dispose();
 
-                PipeServers.Values.ToList().ForEach((Item) =>
+                try
                 {
-                    Item.Disconnect();
-                    Item.Dispose();
-                });
+                    PipeServers.Values.ToList().ForEach((Item) =>
+                    {
+                        Item.Dispose();
+                    });
+                }
+                catch
+                {
+
+                }
 
                 PipeServers.Clear();
 
@@ -148,22 +154,22 @@ namespace FullTrustProcess
                         }
                     case "Excute_Rename":
                         {
-                            string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            string ExecutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
                             string DesireName = Convert.ToString(args.Request.Message["DesireName"]);
 
                             ValueSet Value = new ValueSet();
 
-                            if (File.Exists(ExcutePath))
+                            if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
                             {
-                                if (StorageItemController.CheckOccupied(ExcutePath))
+                                if (StorageItemController.CheckOccupied(ExecutePath))
                                 {
                                     Value.Add("Error_Occupied", "FileLoadException");
                                 }
                                 else
                                 {
-                                    if (StorageItemController.CheckPermission(FileSystemRights.Write, Path.GetDirectoryName(ExcutePath)))
+                                    if (StorageItemController.CheckPermission(FileSystemRights.Modify, Path.GetDirectoryName(ExecutePath)))
                                     {
-                                        if (StorageItemController.Rename(ExcutePath, DesireName))
+                                        if (StorageItemController.Rename(ExecutePath, DesireName))
                                         {
                                             Value.Add("Success", string.Empty);
                                         }
@@ -524,7 +530,7 @@ namespace FullTrustProcess
 
                             if (SourcePathList.All((Item) => Directory.Exists(Item.Key) || File.Exists(Item.Key)))
                             {
-                                if (StorageItemController.CheckPermission(FileSystemRights.Read, DestinationPath))
+                                if (StorageItemController.CheckPermission(FileSystemRights.Modify, DestinationPath))
                                 {
                                     if (StorageItemController.Copy(SourcePathList, DestinationPath, (s, e) =>
                                     {
@@ -623,13 +629,13 @@ namespace FullTrustProcess
 
                             if (SourcePathList.All((Item) => Directory.Exists(Item.Key) || File.Exists(Item.Key)))
                             {
-                                if (SourcePathList.Where((Path) => File.Exists(Path.Key)).Any((Item) => StorageItemController.CheckOccupied(Item.Key)))
+                                if (SourcePathList.Any((Item) => StorageItemController.CheckOccupied(Item.Key)))
                                 {
                                     Value.Add("Error_Capture", "An error occurred while moving the folder");
                                 }
                                 else
                                 {
-                                    if (StorageItemController.CheckPermission(FileSystemRights.Write, DestinationPath))
+                                    if (StorageItemController.CheckPermission(FileSystemRights.Modify, DestinationPath))
                                     {
                                         if (StorageItemController.Move(SourcePathList, DestinationPath, (s, e) =>
                                         {
@@ -729,13 +735,13 @@ namespace FullTrustProcess
                             {
                                 if (ExcutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                 {
-                                    if (ExcutePathList.Where((Path) => File.Exists(Path)).Any((Item) => StorageItemController.CheckOccupied(Item)))
+                                    if (ExcutePathList.Any((Item) => StorageItemController.CheckOccupied(Item)))
                                     {
                                         Value.Add("Error_Capture", "An error occurred while deleting the folder");
                                     }
                                     else
                                     {
-                                        if (ExcutePathList.Where((Item) => Directory.Exists(Item)).All((Item) => StorageItemController.CheckPermission(FileSystemRights.DeleteSubdirectoriesAndFiles, Item)) && ExcutePathList.Where((Item) => File.Exists(Item)).All((Item) => StorageItemController.CheckPermission(Path.GetDirectoryName(Item))))
+                                        if (ExcutePathList.Where((Item) => Directory.Exists(Item)).All((Item) => StorageItemController.CheckPermission(FileSystemRights.Modify, Item)) && ExcutePathList.Where((Item) => File.Exists(Item)).All((Item) => StorageItemController.CheckPermission(FileSystemRights.Modify, Path.GetDirectoryName(Item))))
                                         {
                                             if (StorageItemController.Delete(ExcutePathList, PermanentDelete, (s, e) =>
                                             {
@@ -813,6 +819,7 @@ namespace FullTrustProcess
                             }
 
                             await args.Request.SendResponseAsync(Value);
+
                             break;
                         }
                     case "Excute_RunExe":
@@ -825,7 +832,7 @@ namespace FullTrustProcess
 
                             if (!string.IsNullOrEmpty(ExcutePath))
                             {
-                                if (StorageItemController.CheckPermission(FileSystemRights.ReadAndExecute, ExcutePath))
+                                if (StorageItemController.CheckPermission(FileSystemRights.ExecuteFile, ExcutePath))
                                 {
                                     if (string.IsNullOrEmpty(ExcuteParameter))
                                     {
@@ -922,14 +929,6 @@ namespace FullTrustProcess
 
         private static void AliveCheck(object state)
         {
-            foreach (var Pair in PipeServers.Where(Pair => !Pair.Value.IsConnected).ToList())
-            {
-                Pair.Value.Disconnect();
-                Pair.Value.Dispose();
-
-                PipeServers.Remove(Pair.Key);
-            }
-
             if (ExplorerProcess == null || ExplorerProcess.HasExited)
             {
                 ExitLocker.Set();

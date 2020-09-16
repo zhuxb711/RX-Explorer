@@ -910,7 +910,7 @@ namespace RX_Explorer
             Retry:
                 try
                 {
-                    await FullTrustExcutorController.Current.DeleteAsync(CurrentFolder, true).ConfigureAwait(true);
+                    await FullTrustProcessController.Current.DeleteAsync(CurrentFolder, true).ConfigureAwait(true);
 
                     if (IsNetworkDevice)
                     {
@@ -968,7 +968,7 @@ namespace RX_Explorer
 
                     if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        if (await FullTrustExcutorController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                        if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
                         {
                             goto Retry;
                         }
@@ -1009,7 +1009,7 @@ namespace RX_Explorer
                 Retry:
                     try
                     {
-                        await FullTrustExcutorController.Current.DeleteAsync(CurrentFolder, QueueContenDialog.IsPermanentDelete).ConfigureAwait(true);
+                        await FullTrustProcessController.Current.DeleteAsync(CurrentFolder, QueueContenDialog.IsPermanentDelete).ConfigureAwait(true);
 
                         if (IsNetworkDevice)
                         {
@@ -1067,7 +1067,7 @@ namespace RX_Explorer
 
                         if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
-                            if (await FullTrustExcutorController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                            if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
                             {
                                 goto Retry;
                             }
@@ -1146,36 +1146,24 @@ namespace RX_Explorer
         {
             if (!await CurrentFolder.CheckExist().ConfigureAwait(true))
             {
-                QueueContentDialog dialog = new QueueContentDialog
+                QueueContentDialog ErrorDialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
                 return;
             }
 
-            RenameDialog renameDialog = new RenameDialog(CurrentFolder);
-            if (await renameDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+            RenameDialog dialog = new RenameDialog(CurrentFolder);
+
+            if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
-                if (string.IsNullOrEmpty(renameDialog.DesireName))
-                {
-                    QueueContentDialog content = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_EmptyFolderName_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    _ = await content.ShowAsync().ConfigureAwait(true);
-                    return;
-                }
-
                 try
                 {
-                    await CurrentFolder.RenameAsync(renameDialog.DesireName);
+                    await CurrentFolder.RenameAsync(dialog.DesireName);
 
                     (CurrentNode.Content as TreeViewNodeContent).Update(CurrentFolder);
 
@@ -1183,29 +1171,29 @@ namespace RX_Explorer
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_UnauthorizedRename_StartExplorer_Content"),
                         PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                     };
 
-                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
                         _ = await Launcher.LaunchFolderAsync(CurrentFolder);
                     }
                 }
                 catch (FileLoadException)
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_FolderOccupied_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                     };
 
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 catch
                 {
@@ -1219,9 +1207,9 @@ namespace RX_Explorer
 
                     if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        await CurrentFolder.RenameAsync(renameDialog.DesireName, NameCollisionOption.GenerateUniqueName);
+                        await CurrentFolder.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
 
-                        await CurrentNode.Parent.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                        (CurrentNode.Content as TreeViewNodeContent).Update(CurrentFolder);
 
                         UpdateAddressButton(CurrentFolder.Path);
                     }
@@ -1483,14 +1471,84 @@ namespace RX_Explorer
             if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Powershell.exe", StringComparison.OrdinalIgnoreCase))
             {
                 string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe");
-                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, "-NoExit", "-Command", "Set-Location", CurrentFolder.Path).ConfigureAwait(false);
+
+            Retry1:
+                try
+                {
+                    await FullTrustProcessController.Current.RunAsAdministratorAsync(ExcutePath, "-NoExit", "-Command", "Set-Location", CurrentFolder.Path).ConfigureAwait(false);
+                }
+                catch (InvalidOperationException)
+                {
+                    QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                    };
+
+                    if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                        {
+                            goto Retry1;
+                        }
+                        else
+                        {
+                            QueueContentDialog ErrorDialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                        }
+                    }
+                }
+
                 return;
             }
 
             if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Cmd.exe", StringComparison.OrdinalIgnoreCase))
             {
                 string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
-                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ExcutePath, "/k", "cd", "/d", CurrentFolder.Path).ConfigureAwait(false);
+
+            Retry2:
+                try
+                {
+                    await FullTrustProcessController.Current.RunAsAdministratorAsync(ExcutePath, "/k", "cd", "/d", CurrentFolder.Path).ConfigureAwait(false);
+                }
+                catch (InvalidOperationException)
+                {
+                    QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                    };
+
+                    if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                        {
+                            goto Retry2;
+                        }
+                        else
+                        {
+                            QueueContentDialog ErrorDialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                        }
+                    }
+                }
+
                 return;
             }
 
@@ -1501,30 +1559,95 @@ namespace RX_Explorer
                     case LaunchQuerySupportStatus.Available:
                     case LaunchQuerySupportStatus.NotSupported:
                         {
-                            await FullTrustExcutorController.Current.RunAsync("wt.exe", "/d", CurrentFolder.Path).ConfigureAwait(false);
+                            try
+                            {
+                                await FullTrustProcessController.Current.RunAsync("wt.exe", "/d", CurrentFolder.Path).ConfigureAwait(false);
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                {
+                                    if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                    {
+                                        goto Retry;
+                                    }
+                                    else
+                                    {
+                                        QueueContentDialog ErrorDialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                    }
+                                }
+                            }
                             return;
                         }
                 }
             }
 
-            string ProtentialPath1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), QueryText.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? QueryText.ToLower() : $"{QueryText.ToLower()}.exe");
-            string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? QueryText.ToLower() : $"{QueryText.ToLower()}.exe");
-            string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? QueryText.ToLower() : $"{QueryText.ToLower()}.exe");
+        Retry:
+            try
+            {
+                string ProtentialPath1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), QueryText.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? QueryText.ToLower() : $"{QueryText.ToLower()}.exe");
+                string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? QueryText.ToLower() : $"{QueryText.ToLower()}.exe");
+                string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? QueryText.ToLower() : $"{QueryText.ToLower()}.exe");
 
-            if (WIN_Native_API.CheckExist(ProtentialPath1))
-            {
-                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ProtentialPath1).ConfigureAwait(false);
-                return;
+                if (WIN_Native_API.CheckExist(ProtentialPath1))
+                {
+                    await FullTrustProcessController.Current.RunAsAdministratorAsync(ProtentialPath1).ConfigureAwait(false);
+                    return;
+                }
+                else if (WIN_Native_API.CheckExist(ProtentialPath2))
+                {
+                    await FullTrustProcessController.Current.RunAsAdministratorAsync(ProtentialPath2).ConfigureAwait(false);
+                    return;
+                }
+                else if (WIN_Native_API.CheckExist(ProtentialPath3))
+                {
+                    await FullTrustProcessController.Current.RunAsAdministratorAsync(ProtentialPath3).ConfigureAwait(false);
+                    return;
+                }
             }
-            else if (WIN_Native_API.CheckExist(ProtentialPath2))
+            catch (InvalidOperationException)
             {
-                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ProtentialPath2).ConfigureAwait(false);
-                return;
-            }
-            else if (WIN_Native_API.CheckExist(ProtentialPath3))
-            {
-                await FullTrustExcutorController.Current.RunAsAdministratorAsync(ProtentialPath3).ConfigureAwait(false);
-                return;
+                QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
+                    PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                };
+
+                if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                {
+                    if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                    {
+                        goto Retry;
+                    }
+                    else
+                    {
+                        QueueContentDialog ErrorDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                    }
+                }
             }
 
             try
@@ -2267,6 +2390,191 @@ namespace RX_Explorer
             {
                 try
                 {
+                    if (e.DataView.Contains(StandardDataFormats.Html))
+                    {
+                        if (IsNetworkDevice)
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_NotAllowInNetwordDevice_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                            return;
+                        }
+
+                        string Html = await e.DataView.GetHtmlFormatAsync();
+                        string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+
+                        HtmlDocument Document = new HtmlDocument();
+                        Document.LoadHtml(Fragment);
+                        HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+
+                        if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                        {
+                            HtmlNodeCollection BodyNode = Document.DocumentNode.SelectNodes("/p");
+                            List<string> LinkItemsPath = BodyNode.Select((Node) => Node.InnerText).ToList();
+
+                            StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(ActualPath);
+
+                            switch (e.AcceptedOperation)
+                            {
+                                case DataPackageOperation.Copy:
+                                    {
+                                        await LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
+
+                                    Retry:
+                                        try
+                                        {
+                                            await FullTrustProcessController.Current.CopyAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
+                                            {
+                                                ProBar.IsIndeterminate = false;
+                                                ProBar.Value = arg.ProgressPercentage;
+                                            }).ConfigureAwait(true);
+                                        }
+                                        catch (FileNotFoundException)
+                                        {
+                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+
+                                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                        }
+                                        catch (InvalidOperationException)
+                                        {
+                                            QueueContentDialog dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                                                PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                            };
+
+                                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                            {
+                                                if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                                {
+                                                    goto Retry;
+                                                }
+                                                else
+                                                {
+                                                    QueueContentDialog ErrorDialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                                }
+                                            }
+                                        }
+                                        catch (Exception)
+                                        {
+                                            QueueContentDialog dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+
+                                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                        }
+
+                                        break;
+                                    }
+                                case DataPackageOperation.Move:
+                                    {
+                                        if (LinkItemsPath.All((Item) => Path.GetDirectoryName(Item) == ActualPath))
+                                        {
+                                            return;
+                                        }
+
+                                        await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
+
+                                    Retry:
+                                        try
+                                        {
+                                            await FullTrustProcessController.Current.MoveAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
+                                            {
+                                                ProBar.IsIndeterminate = false;
+                                                ProBar.Value = arg.ProgressPercentage;
+                                            }).ConfigureAwait(true);
+                                        }
+                                        catch (FileNotFoundException)
+                                        {
+                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+
+                                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                        }
+                                        catch (FileCaputureException)
+                                        {
+                                            QueueContentDialog dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+
+                                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                        }
+                                        catch (InvalidOperationException)
+                                        {
+                                            QueueContentDialog dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                                                PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                            };
+
+                                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                            {
+                                                if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                                {
+                                                    goto Retry;
+                                                }
+                                                else
+                                                {
+                                                    QueueContentDialog ErrorDialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                                }
+                                            }
+                                        }
+                                        catch (Exception)
+                                        {
+                                            QueueContentDialog dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+
+                                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                        }
+
+                                        break;
+                                    }
+                            }
+                        }
+                    }
+
                     if (e.DataView.Contains(StandardDataFormats.StorageItems))
                     {
                         List<IStorageItem> DragItemList = (await e.DataView.GetStorageItemsAsync()).ToList();
@@ -2317,7 +2625,7 @@ namespace RX_Explorer
                                         }
                                         else
                                         {
-                                            await FullTrustExcutorController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
+                                            await FullTrustProcessController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
                                             {
                                                 ProBar.IsIndeterminate = false;
                                                 ProBar.Value = arg.ProgressPercentage;
@@ -2352,7 +2660,7 @@ namespace RX_Explorer
 
                                         if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                         {
-                                            if (await FullTrustExcutorController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                            if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
                                             {
                                                 goto Retry;
                                             }
@@ -2445,7 +2753,7 @@ namespace RX_Explorer
                                         }
                                         else
                                         {
-                                            await FullTrustExcutorController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
+                                            await FullTrustProcessController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
                                             {
                                                 ProBar.IsIndeterminate = false;
                                                 ProBar.Value = arg.ProgressPercentage;
@@ -2491,7 +2799,7 @@ namespace RX_Explorer
 
                                         if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                         {
-                                            if (await FullTrustExcutorController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                            if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
                                             {
                                                 goto Retry;
                                             }
@@ -2522,191 +2830,6 @@ namespace RX_Explorer
 
                                     break;
                                 }
-                        }
-                    }
-
-                    if (e.DataView.Contains(StandardDataFormats.Html))
-                    {
-                        if (IsNetworkDevice)
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_NotAllowInNetwordDevice_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
-                            return;
-                        }
-
-                        string Html = await e.DataView.GetHtmlFormatAsync();
-                        string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
-
-                        HtmlDocument Document = new HtmlDocument();
-                        Document.LoadHtml(Fragment);
-                        HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
-
-                        if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
-                        {
-                            HtmlNodeCollection BodyNode = Document.DocumentNode.SelectNodes("/p");
-                            List<string> LinkItemsPath = BodyNode.Select((Node) => Node.InnerText).ToList();
-
-                            StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(ActualPath);
-
-                            switch (e.AcceptedOperation)
-                            {
-                                case DataPackageOperation.Copy:
-                                    {
-                                        await LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
-
-                                    Retry:
-                                        try
-                                        {
-                                            await FullTrustExcutorController.Current.CopyAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
-                                            {
-                                                ProBar.IsIndeterminate = false;
-                                                ProBar.Value = arg.ProgressPercentage;
-                                            }).ConfigureAwait(true);
-                                        }
-                                        catch (FileNotFoundException)
-                                        {
-                                            QueueContentDialog Dialog = new QueueContentDialog
-                                            {
-                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                            };
-
-                                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                        }
-                                        catch (InvalidOperationException)
-                                        {
-                                            QueueContentDialog dialog = new QueueContentDialog
-                                            {
-                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                                PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                            };
-
-                                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                            {
-                                                if (await FullTrustExcutorController.Current.SwitchToAdminMode().ConfigureAwait(true))
-                                                {
-                                                    goto Retry;
-                                                }
-                                                else
-                                                {
-                                                    QueueContentDialog ErrorDialog = new QueueContentDialog
-                                                    {
-                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                        Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                    };
-
-                                                    _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                                                }
-                                            }
-                                        }
-                                        catch (Exception)
-                                        {
-                                            QueueContentDialog dialog = new QueueContentDialog
-                                            {
-                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                            };
-
-                                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                        }
-
-                                        break;
-                                    }
-                                case DataPackageOperation.Move:
-                                    {
-                                        if (LinkItemsPath.All((Item) => Path.GetDirectoryName(Item) == ActualPath))
-                                        {
-                                            return;
-                                        }
-
-                                        await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
-
-                                    Retry:
-                                        try
-                                        {
-                                            await FullTrustExcutorController.Current.MoveAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
-                                            {
-                                                ProBar.IsIndeterminate = false;
-                                                ProBar.Value = arg.ProgressPercentage;
-                                            }).ConfigureAwait(true);
-                                        }
-                                        catch (FileNotFoundException)
-                                        {
-                                            QueueContentDialog Dialog = new QueueContentDialog
-                                            {
-                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                            };
-
-                                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                        }
-                                        catch (FileCaputureException)
-                                        {
-                                            QueueContentDialog dialog = new QueueContentDialog
-                                            {
-                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                            };
-
-                                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                        }
-                                        catch (InvalidOperationException)
-                                        {
-                                            QueueContentDialog dialog = new QueueContentDialog
-                                            {
-                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                                PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                            };
-
-                                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                            {
-                                                if (await FullTrustExcutorController.Current.SwitchToAdminMode().ConfigureAwait(true))
-                                                {
-                                                    goto Retry;
-                                                }
-                                                else
-                                                {
-                                                    QueueContentDialog ErrorDialog = new QueueContentDialog
-                                                    {
-                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                        Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                    };
-
-                                                    _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                                                }
-                                            }
-                                        }
-                                        catch (Exception)
-                                        {
-                                            QueueContentDialog dialog = new QueueContentDialog
-                                            {
-                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                Content = Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                            };
-
-                                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                        }
-
-                                        break;
-                                    }
-                            }
                         }
                     }
                 }

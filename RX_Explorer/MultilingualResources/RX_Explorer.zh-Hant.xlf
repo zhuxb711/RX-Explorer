@@ -2621,10 +2621,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>This will delete everything in the folder. Whether to continue?</source>
           <target state="translated">這將刪除資料夾中的所有內容。 是否繼續？</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_EmptyFolderName_Content" translate="yes" xml:space="preserve">
-          <source>Folder name cannot be empty, rename failed</source>
-          <target state="translated">資料夾名稱不能為空，重新命名失敗</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_LocatePathFailure_Content" translate="yes" xml:space="preserve">
           <source>Unable to locate the path:</source>
           <target state="translated">無法找到路徑：</target>
@@ -3535,6 +3531,10 @@ Invalid names include
         <trans-unit id="SettingPageBackgroundBlurSlider.Header" translate="yes" xml:space="preserve">
           <source>Adjust background blur effect</source>
           <target state="translated">調整背景模糊效果</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedExecute_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to execute the file, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</source>
+          <target state="translated">RX沒有執行文件的權限，可能需要管理員權限。您是否要授予管理員權限？\r\r注意：\r除非關閉了最後一個RX實例，否則它將以管理員權限繼續運行</target>
         </trans-unit>
       </group>
     </body>

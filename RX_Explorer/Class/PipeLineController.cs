@@ -102,7 +102,7 @@ namespace RX_Explorer.Class
 
                 if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_2004))
                 {
-                    await FullTrustExcutorController.Current.RequestCreateNewPipeLine(GUID).ConfigureAwait(true);
+                    await FullTrustProcessController.Current.RequestCreateNewPipeLine(GUID).ConfigureAwait(true);
 
                     PipeHandle = WIN_Native_API.GetHandleFromNamedPipe($"Explorer_And_FullTrustProcess_NamedPipe-{GUID}");
 

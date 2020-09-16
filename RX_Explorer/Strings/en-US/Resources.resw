@@ -2091,9 +2091,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_DeleteFolder_Content" xml:space="preserve">
     <value>This will delete everything in the folder. Whether to continue?</value>
   </data>
-  <data name="QueueDialog_EmptyFolderName_Content" xml:space="preserve">
-    <value>Folder name cannot be empty, rename failed</value>
-  </data>
   <data name="QueueDialog_LocatePathFailure_Content" xml:space="preserve">
     <value>Unable to locate the path:</value>
   </data>
@@ -2771,5 +2768,8 @@ Invalid names include
   </data>
   <data name="SettingPageBackgroundBlurSlider.Header" xml:space="preserve">
     <value>Adjust background blur effect</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
+    <value>RX does not have permission to execute the file, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</value>
   </data>
 </root>

@@ -40,13 +40,13 @@ namespace RX_Explorer
 
         private async void App_Resuming(object sender, object e)
         {
-            await FullTrustExcutorController.Current.ConnectToFullTrustExcutorAsync().ConfigureAwait(true);
+            await FullTrustProcessController.Current.ConnectToFullTrustExcutorAsync().ConfigureAwait(true);
             AppInstanceIdContainer.RegisterCurrentId(AppInstanceIdContainer.CurrentId);
         }
 
         protected async override void OnWindowCreated(WindowCreatedEventArgs args)
         {
-            if (await FullTrustExcutorController.Current.CheckQuicklookIsAvaliableAsync().ConfigureAwait(true))
+            if (await FullTrustProcessController.Current.CheckQuicklookIsAvaliableAsync().ConfigureAwait(true))
             {
                 SettingControl.IsQuicklookAvailable = true;
             }
@@ -59,7 +59,7 @@ namespace RX_Explorer
         private void App_Suspending(object sender, SuspendingEventArgs e)
         {
             PipeLineController.Current.Dispose();
-            FullTrustExcutorController.Current.Dispose();
+            FullTrustProcessController.Current.Dispose();
             AppInstanceIdContainer.UngisterCurrentId();
         }
 
@@ -100,10 +100,10 @@ namespace RX_Explorer
             SQLite.Current.Dispose();
             MySQL.Current.Dispose();
 
-            if (!FullTrustExcutorController.Current.IsNowHasAnyActionExcuting)
+            if (!FullTrustProcessController.Current.IsNowHasAnyActionExcuting)
             {
                 PipeLineController.Current.Dispose();
-                FullTrustExcutorController.Current.Dispose();
+                FullTrustProcessController.Current.Dispose();
             }
 
             GC.Collect();

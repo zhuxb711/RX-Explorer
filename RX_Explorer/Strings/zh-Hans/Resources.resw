@@ -1961,9 +1961,6 @@
   <data name="QueueDialog_DeleteFolder_Content" xml:space="preserve">
     <value>此操作将删除该文件夹内的所有内容，是否继续?</value>
   </data>
-  <data name="QueueDialog_EmptyFolderName_Content" xml:space="preserve">
-    <value>文件夹名不能为空，重命名失败</value>
-  </data>
   <data name="QueueDialog_LocatePathFailure_Content" xml:space="preserve">
     <value>无法找到路径:</value>
   </data>
@@ -2666,5 +2663,8 @@
   </data>
   <data name="SettingPageBackgroundBlurSlider.Header" xml:space="preserve">
     <value>调整背景模糊效果</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
+    <value>RX无权执行此文件，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r除非最后一个RX的实例关闭，否则它将保持管理员权限运行</value>
   </data>
 </root>

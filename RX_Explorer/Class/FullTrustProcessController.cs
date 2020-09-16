@@ -18,7 +18,7 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 用于启动具备完全权限的附加程序的控制器
     /// </summary>
-    public sealed class FullTrustExcutorController : IDisposable
+    public sealed class FullTrustProcessController : IDisposable
     {
         private const string ExcuteType_RunExe = "Excute_RunExe";
 
@@ -70,7 +70,7 @@ namespace RX_Explorer.Class
 
         private const string ExcuteTyep_ElevateAsAdmin = "Excute_ElevateAsAdmin";
 
-        private volatile static FullTrustExcutorController Instance;
+        private volatile static FullTrustProcessController Instance;
 
         private static readonly object locker = new object();
 
@@ -82,18 +82,18 @@ namespace RX_Explorer.Class
 
         private AppServiceConnection Connection;
 
-        public static FullTrustExcutorController Current
+        public static FullTrustProcessController Current
         {
             get
             {
                 lock (locker)
                 {
-                    return Instance ??= new FullTrustExcutorController();
+                    return Instance ??= new FullTrustProcessController();
                 }
             }
         }
 
-        private FullTrustExcutorController()
+        private FullTrustProcessController()
         {
             using (Process CurrentProcess = Process.GetCurrentProcess())
             {
@@ -1508,7 +1508,7 @@ namespace RX_Explorer.Class
             Instance = null;
         }
 
-        ~FullTrustExcutorController()
+        ~FullTrustProcessController()
         {
             Dispose();
         }

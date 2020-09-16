@@ -33,6 +33,14 @@
 
 >#####Correction d'un problème qui empêchait de modifier le fichier .bat
 
+>#####Correction d'un problème qui pouvait entraîner un blocage inattendu du processus auxiliaire
+
+>#####Correction d'un problème qui empêchait la copie du fichier caché / fichier .lnk par glisser-déposer
+
+>#####Correction d'un problème qui autorisait incorrectement les raccourcis clavier à fonctionner sans sélectionner de fichiers / dossiers
+
+>#####Correction d'un problème selon lequel aucune invite n'apparaîtra lors de l'exécution d'un fichier exe sans autorisation
+
 *****
 ###Quoi de neuf dans la version 5.3.3.0
 

@@ -109,7 +109,6 @@
   <Capabilities>
     <rescap:Capability Name="confirmAppClose"/>
     <rescap:Capability Name="runFullTrust" />
-    <rescap:Capability Name="allowElevation" />
     <rescap:Capability Name="broadFileSystemAccess" />
     <Capability Name="internetClientServer"/>
     <Capability Name="privateNetworkClientServer" />

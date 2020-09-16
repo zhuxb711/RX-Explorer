@@ -1372,7 +1372,7 @@ namespace RX_Explorer
 
                     if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        if (await FullTrustExcutorController.Current.InterceptWindowsPlusE().ConfigureAwait(true))
+                        if (await FullTrustProcessController.Current.InterceptWindowsPlusE().ConfigureAwait(true))
                         {
                             ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = true;
                         }
@@ -1401,7 +1401,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (await FullTrustExcutorController.Current.RestoreWindowsPlusE().ConfigureAwait(true))
+                    if (await FullTrustProcessController.Current.RestoreWindowsPlusE().ConfigureAwait(true))
                     {
                         ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = false;
                     }

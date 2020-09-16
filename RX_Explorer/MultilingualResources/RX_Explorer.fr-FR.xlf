@@ -2596,10 +2596,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>This will delete everything in the folder. Whether to continue?</source>
           <target state="translated">Cette opération va supprimer le dossier et tout son contenu. Voulez-vous continuer ?</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_EmptyFolderName_Content" translate="yes" xml:space="preserve">
-          <source>Folder name cannot be empty, rename failed</source>
-          <target state="translated">Le nom du dossier ne peut pas être vide, le renommage a échoué</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_LocatePathFailure_Content" translate="yes" xml:space="preserve">
           <source>Unable to locate the path:</source>
           <target state="translated">Impossible de localiser le chemin:</target>
@@ -3535,6 +3531,10 @@ Les noms non valides incluent
         <trans-unit id="SettingPageBackgroundBlurSlider.Header" translate="yes" xml:space="preserve">
           <source>Adjust background blur effect</source>
           <target state="translated">Ajuster l'effet de flou d'arrière-plan</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnauthorizedExecute_Content" translate="yes" xml:space="preserve">
+          <source>RX does not have permission to execute the file, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</source>
+          <target state="translated">RX n'a pas l'autorisation d'exécuter le fichier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rRemarque: \rÀ moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur.</target>
         </trans-unit>
       </group>
     </body>

@@ -31,7 +31,6 @@
     <GenerateTestArtifacts>False</GenerateTestArtifacts>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-    <PackageCertificateThumbprint>4E046336ED8A3A7DF04046E4516E7D179412E4D3</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -229,7 +228,7 @@
     <Compile Include="Dialog\WhatIsNew.xaml.cs">
       <DependentUpon>WhatIsNew.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Class\FullTrustExcutorController.cs" />
+    <Compile Include="Class\FullTrustProcessController.cs" />
     <Compile Include="Class\ExceptionTracer.cs" />
     <Compile Include="Class\ProgramPickerItem.cs" />
     <Compile Include="Class\Extention.cs" />

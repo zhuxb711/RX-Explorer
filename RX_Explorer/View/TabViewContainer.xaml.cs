@@ -167,11 +167,11 @@ namespace RX_Explorer
                         {
                             if (PC.DeviceGrid.SelectedItem is HardDeviceInfo Device)
                             {
-                                await FullTrustExcutorController.Current.ViewWithQuicklookAsync(Device.Folder.Path).ConfigureAwait(false);
+                                await FullTrustProcessController.Current.ViewWithQuicklookAsync(Device.Folder.Path).ConfigureAwait(false);
                             }
                             else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library)
                             {
-                                await FullTrustExcutorController.Current.ViewWithQuicklookAsync(Library.Folder.Path).ConfigureAwait(false);
+                                await FullTrustProcessController.Current.ViewWithQuicklookAsync(Library.Folder.Path).ConfigureAwait(false);
                             }
                             break;
                         }
@@ -184,11 +184,11 @@ namespace RX_Explorer
                         {
                             if (PC.DeviceGrid.SelectedItem is HardDeviceInfo Device)
                             {
-                                await FullTrustExcutorController.Current.ViewWithQuicklookAsync(Device.Folder.Path).ConfigureAwait(false);
+                                await FullTrustProcessController.Current.ViewWithQuicklookAsync(Device.Folder.Path).ConfigureAwait(false);
                             }
                             else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library)
                             {
-                                await FullTrustExcutorController.Current.ViewWithQuicklookAsync(Library.Folder.Path).ConfigureAwait(false);
+                                await FullTrustProcessController.Current.ViewWithQuicklookAsync(Library.Folder.Path).ConfigureAwait(false);
                             }
                             break;
                         }

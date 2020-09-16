@@ -53,7 +53,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    (TargetPath, Argument, NeedRunAs, TargetPathIsFile) = await FullTrustExcutorController.Current.GetHyperlinkRelatedInformationAsync(InternalPathString).ConfigureAwait(true);
+                    (TargetPath, Argument, NeedRunAs, TargetPathIsFile) = await FullTrustProcessController.Current.GetHyperlinkRelatedInformationAsync(InternalPathString).ConfigureAwait(true);
 
                     if(TargetPathIsFile)
                     {

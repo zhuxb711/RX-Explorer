@@ -83,7 +83,7 @@ namespace RX_Explorer.View
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(await FullTrustExcutorController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true), SortTarget.Name, SortDirection.Ascending))
+            foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(await FullTrustProcessController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true), SortTarget.Name, SortDirection.Ascending))
             {
                 FileCollection.Add(Item);
             }
@@ -432,7 +432,7 @@ namespace RX_Explorer.View
 
                     foreach (RecycleStorageItem Item in ListViewControl.SelectedItems.ToList())
                     {
-                        if (await FullTrustExcutorController.Current.DeleteItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
+                        if (await FullTrustProcessController.Current.DeleteItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
                         {
                             FileCollection.Remove(Item);
                         }
@@ -472,7 +472,7 @@ namespace RX_Explorer.View
             {
                 await ActivateLoading(true, Globalization.GetString("RecycleBinEmptyingText")).ConfigureAwait(true);
 
-                if (await FullTrustExcutorController.Current.EmptyRecycleBinAsync().ConfigureAwait(true))
+                if (await FullTrustProcessController.Current.EmptyRecycleBinAsync().ConfigureAwait(true))
                 {
                     FileCollection.Clear();
                 }
@@ -502,7 +502,7 @@ namespace RX_Explorer.View
 
                 foreach (RecycleStorageItem Item in ListViewControl.SelectedItems.ToList())
                 {
-                    if (await FullTrustExcutorController.Current.RestoreItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
+                    if (await FullTrustProcessController.Current.RestoreItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
                     {
                         FileCollection.Remove(Item);
                     }
@@ -547,7 +547,7 @@ namespace RX_Explorer.View
         {
             FileCollection.Clear();
 
-            foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(await FullTrustExcutorController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true), SortTarget.Name, SortDirection.Ascending))
+            foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(await FullTrustProcessController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true), SortTarget.Name, SortDirection.Ascending))
             {
                 FileCollection.Add(Item);
             }

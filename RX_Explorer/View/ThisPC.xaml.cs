@@ -180,7 +180,40 @@ namespace RX_Explorer
                     {
                         if (WIN_Native_API.CheckExist(Item.Protocol))
                         {
-                            await FullTrustExcutorController.Current.RunAsync(Item.Protocol).ConfigureAwait(true);
+                            Retry:
+                            try
+                            {
+                                await FullTrustProcessController.Current.RunAsync(Item.Protocol).ConfigureAwait(true);
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                {
+                                    if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                    {
+                                        goto Retry;
+                                    }
+                                    else
+                                    {
+                                        QueueContentDialog ErrorDialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                    }
+                                }
+                            }
                         }
                         else
                         {
@@ -722,7 +755,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (await FullTrustExcutorController.Current.EjectPortableDevice(Item.Folder.Path).ConfigureAwait(true))
+                    if (await FullTrustProcessController.Current.EjectPortableDevice(Item.Folder.Path).ConfigureAwait(true))
                     {
                         ShowEjectNotification();
                     }

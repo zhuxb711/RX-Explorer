@@ -1961,9 +1961,6 @@
   <data name="QueueDialog_DeleteFolder_Content" xml:space="preserve">
     <value>Cette opération va supprimer le dossier et tout son contenu. Voulez-vous continuer ?</value>
   </data>
-  <data name="QueueDialog_EmptyFolderName_Content" xml:space="preserve">
-    <value>Le nom du dossier ne peut pas être vide, le renommage a échoué</value>
-  </data>
   <data name="QueueDialog_LocatePathFailure_Content" xml:space="preserve">
     <value>Impossible de localiser le chemin:</value>
   </data>
@@ -2666,5 +2663,8 @@ Les noms non valides incluent
   </data>
   <data name="SettingPageBackgroundBlurSlider.Header" xml:space="preserve">
     <value>Ajuster l'effet de flou d'arrière-plan</value>
+  </data>
+  <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
+    <value>RX n'a pas l'autorisation d'exécuter le fichier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rRemarque: \rÀ moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur.</value>
   </data>
 </root>

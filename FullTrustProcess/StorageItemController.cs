@@ -33,7 +33,7 @@ namespace FullTrustProcess
             }
             else
             {
-                throw new FileNotFoundException();
+                return false;
             }
         }
 
@@ -99,9 +99,9 @@ namespace FullTrustProcess
             bool AllowWrite = false;
             bool DenyWrite = false;
 
+            WindowsPrincipal CurrentUser = new WindowsPrincipal(WindowsIdentity.GetCurrent());
             DirectorySecurity Security = Directory.GetAccessControl(DirectoryPath);
             AuthorizationRuleCollection AccessRules = Security.GetAccessRules(true, true, typeof(SecurityIdentifier));
-            WindowsPrincipal CurrentUser = new WindowsPrincipal(WindowsIdentity.GetCurrent());
 
             foreach (FileSystemAccessRule Rule in AccessRules)
             {
@@ -147,7 +147,7 @@ namespace FullTrustProcess
             {
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
-                    Options = ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RequireElevation
+                    Options = ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RequireElevation | ShellFileOperations.OperationFlags.RenameOnCollision
                 })
                 {
                     using (ShellItem Item = new ShellItem(Source))

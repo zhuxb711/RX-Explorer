@@ -320,7 +320,7 @@ namespace RX_Explorer
             Retry:
                 try
                 {
-                    await FullTrustExcutorController.Current.DeleteAsync(Item.PhotoFile.Path, true).ConfigureAwait(true);
+                    await FullTrustProcessController.Current.DeleteAsync(Item.PhotoFile.Path, true).ConfigureAwait(true);
                     PhotoCollection.Remove(Item);
                     Behavior.InitAnimation(InitOption.Full);
                 }
@@ -357,7 +357,7 @@ namespace RX_Explorer
 
                     if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        if (await FullTrustExcutorController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                        if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
                         {
                             goto Retry;
                         }
@@ -396,7 +396,7 @@ namespace RX_Explorer
                 Retry:
                     try
                     {
-                        await FullTrustExcutorController.Current.DeleteAsync(Item.PhotoFile.Path, Dialog.IsPermanentDelete).ConfigureAwait(true);
+                        await FullTrustProcessController.Current.DeleteAsync(Item.PhotoFile.Path, Dialog.IsPermanentDelete).ConfigureAwait(true);
                         PhotoCollection.Remove(Item);
                         Behavior.InitAnimation(InitOption.Full);
                     }
@@ -433,7 +433,7 @@ namespace RX_Explorer
 
                         if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
-                            if (await FullTrustExcutorController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                            if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
                             {
                                 goto Retry;
                             }

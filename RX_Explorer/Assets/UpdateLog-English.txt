@@ -33,6 +33,14 @@
 
 >#####Fixed an issue that the .bat file could not be edited
 
+>#####Fixed an issue that may cause the auxiliary process to crash unexpectedly
+
+>#####Fixed an issue that the hidden file/.lnk file cannot be copied by dragging and dropping
+
+>#####Fixed an issue that incorrectly allowing keyboard shortcuts to operate without selecting any files/folders
+
+>#####Fixed an issue that no prompt will pop up when executing exe file without permission
+
 *****
 ###What's new in Ver.5.3.3.0
 

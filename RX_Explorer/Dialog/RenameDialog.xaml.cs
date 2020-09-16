@@ -13,7 +13,7 @@ namespace RX_Explorer.Dialog
 
         private IStorageItem SItem;
 
-        private HyperlinkStorageItem Item;
+        private FileSystemStorageItemBase Item;
 
         public RenameDialog(IStorageItem SItem)
         {
@@ -25,7 +25,7 @@ namespace RX_Explorer.Dialog
             Loaded += RenameDialog_Loaded;
         }
 
-        public RenameDialog(HyperlinkStorageItem Item)
+        public RenameDialog(FileSystemStorageItemBase Item)
         {
             InitializeComponent();
             

@@ -14,7 +14,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                return await FullTrustExcutorController.Current.GetVariablePath(Variable.Trim('%')).ConfigureAwait(false);
+                return await FullTrustProcessController.Current.GetVariablePath(Variable.Trim('%')).ConfigureAwait(false);
             }
         }
 
@@ -30,7 +30,7 @@ namespace RX_Explorer.Class
 
                 foreach (string Var in Regex.Matches(PathWithVariable, @"(?<=(%))[\s\S]+(?=(%))").Select((Item) => Item.Value).Distinct())
                 {
-                    string ActualPath = await FullTrustExcutorController.Current.GetVariablePath(Var).ConfigureAwait(false);
+                    string ActualPath = await FullTrustProcessController.Current.GetVariablePath(Var).ConfigureAwait(false);
 
                     if (string.IsNullOrWhiteSpace(ActualPath))
                     {
