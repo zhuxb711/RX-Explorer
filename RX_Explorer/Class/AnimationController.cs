@@ -126,6 +126,24 @@ namespace RX_Explorer.Class
             }
         }
 
+        public TransitionCollection RepositionTransitions
+        {
+            get
+            {
+                if (IsEnableAnimation)
+                {
+                    return new TransitionCollection
+                    {
+                        new RepositionThemeTransition()
+                    };
+                }
+                else
+                {
+                    return new TransitionCollection();
+                }
+            }
+        }
+
         public TransitionCollection PaneLeftTransitions
         {
             get
@@ -179,6 +197,8 @@ namespace RX_Explorer.Class
                 if (value != isEnableAnimation)
                 {
                     isEnableAnimation = value;
+
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsEnableAnimation)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DeviceAndLibraryTransitions)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(QuickStartTransitions)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PresenterGridViewTransitions)));
@@ -187,13 +207,30 @@ namespace RX_Explorer.Class
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(EntranceTransitions)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PaneLeftTransitions)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PaneTopTransitions)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RepositionTransitions)));
 
                     ApplicationData.Current.LocalSettings.Values["EnableAnimation"] = value;
                 }
             }
         }
 
+        public bool IsDisableStartupAnimation
+        {
+            get
+            {
+                return isDisableStarupAnimation || !isEnableAnimation;
+            }
+            set
+            {
+                isDisableStarupAnimation = value;
+                ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsDisableStartupAnimation)));
+            }
+        }
+
         private bool isEnableAnimation;
+
+        private bool isDisableStarupAnimation;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -214,7 +251,7 @@ namespace RX_Explorer.Class
 
         private AnimationController()
         {
-            if(ApplicationData.Current.LocalSettings.Values["EnableAnimation"] is bool Enable)
+            if (ApplicationData.Current.LocalSettings.Values["EnableAnimation"] is bool Enable)
             {
                 isEnableAnimation = Enable;
             }
@@ -222,6 +259,16 @@ namespace RX_Explorer.Class
             {
                 ApplicationData.Current.LocalSettings.Values["EnableAnimation"] = true;
                 isEnableAnimation = true;
+            }
+
+            if(ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] is bool StartupAnimation)
+            {
+                isDisableStarupAnimation = StartupAnimation;
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] = false;
+                isDisableStarupAnimation = false;
             }
         }
     }

@@ -223,7 +223,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            if(Control.Nav.CanGoBack)
+                            if (Control.Nav.CanGoBack)
                             {
                                 Control.Nav.GoBack();
                             }
@@ -1002,7 +1002,7 @@ namespace RX_Explorer
 
         private void TabViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            foreach (var Nav in TabViewControl.TabItems.Select((Item) => (Item as TabViewItem).Content as Frame))
+            foreach (Frame Nav in TabViewControl.TabItems.Select((Item) => (Item as TabViewItem).Content as Frame))
             {
                 Nav.Navigated -= Nav_Navigated;
             }
@@ -1011,6 +1011,16 @@ namespace RX_Explorer
             {
                 CurrentTabNavigation = Item.Content as Frame;
                 CurrentTabNavigation.Navigated += Nav_Navigated;
+
+                if (CurrentTabNavigation.Content is ThisPC)
+                {
+                    TaskBarController.SetText(null);
+                }
+                else if (CurrentTabNavigation.Content is FileControl Control)
+                {
+                    TaskBarController.SetText(Control.CurrentFolder?.DisplayName);
+                }
+
                 MainPage.ThisPage.NavView.IsBackEnabled = CurrentTabNavigation.CanGoBack;
             }
         }

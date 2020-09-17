@@ -269,9 +269,24 @@ namespace RX_Explorer
                 IsDisplayHiddenItem = IsHidden;
             }
 
+            if(ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] is bool AlwaysStartNew)
+            {
+                AlwaysLaunchNew.IsChecked = AlwaysStartNew;
+            }
+            else
+            {
+                AlwaysLaunchNew.IsChecked = true;
+            }
+
             if (ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] is bool IsIntercepted)
             {
                 UseWinAndEActivate.IsOn = IsIntercepted;
+
+                AlwaysLaunchNewArea.Visibility = IsIntercepted ? Visibility.Visible : Visibility.Collapsed;
+            }
+            else
+            {
+                AlwaysLaunchNewArea.Visibility = Visibility.Collapsed;
             }
 
             DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
@@ -1362,6 +1377,8 @@ namespace RX_Explorer
 
                 if (UseWinAndEActivate.IsOn)
                 {
+                    AlwaysLaunchNewArea.Visibility = Visibility.Visible;
+
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_TipTitle"),
@@ -1389,6 +1406,7 @@ namespace RX_Explorer
 
                             UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
                             UseWinAndEActivate.IsOn = false;
+                            AlwaysLaunchNewArea.Visibility = Visibility.Collapsed;
                             UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
                         }
                     }
@@ -1396,11 +1414,14 @@ namespace RX_Explorer
                     {
                         UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
                         UseWinAndEActivate.IsOn = false;
+                        AlwaysLaunchNewArea.Visibility = Visibility.Collapsed;
                         UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
                     }
                 }
                 else
                 {
+                    AlwaysLaunchNewArea.Visibility = Visibility.Collapsed;
+
                     if (await FullTrustProcessController.Current.RestoreWindowsPlusE().ConfigureAwait(true))
                     {
                         ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = false;
@@ -1418,6 +1439,7 @@ namespace RX_Explorer
 
                         UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
                         UseWinAndEActivate.IsOn = true;
+                        AlwaysLaunchNewArea.Visibility = Visibility.Visible;
                         UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
                     }
                 }
@@ -1508,6 +1530,21 @@ namespace RX_Explorer
                     _ = Interlocked.Exchange(ref BlurChangeLock, 0);
                 }
             }
+        }
+
+        private void AlwaysLaunchNew_Checked(object sender, RoutedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = true;
+        }
+
+        private void AlwaysLaunchNew_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = false;
+        }
+
+        private void AnimationSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            ExceptAnimationArea.Visibility = AnimationSwitch.IsOn ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 }

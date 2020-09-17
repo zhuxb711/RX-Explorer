@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.Storage;
 using Windows.UI.Xaml;
 
 namespace RX_Explorer
@@ -62,11 +63,52 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    string InstanceId = Guid.NewGuid().ToString();
-                    AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                    AppInstanceIdContainer.RegisterCurrentId(InstanceId);
+                    if(ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] is bool AlwaysStartNew)
+                    {
+                        if(AlwaysStartNew)
+                        {
+                            string InstanceId = Guid.NewGuid().ToString();
+                            AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
+                            AppInstanceIdContainer.RegisterCurrentId(InstanceId);
 
-                    Application.Start((p) => new App());
+                            Application.Start((p) => new App());
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
+                            {
+                                do
+                                {
+                                    if (AppInstance.GetInstances().Any((Ins) => Ins.Key == AppInstanceIdContainer.LastActiveId))
+                                    {
+                                        if (AppInstance.FindOrRegisterInstanceForKey(AppInstanceIdContainer.LastActiveId) is AppInstance TargetInstance)
+                                        {
+                                            TargetInstance.RedirectActivationTo();
+                                        }
+
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.LastActiveId);
+                                    }
+                                }
+                                while (!string.IsNullOrEmpty(AppInstanceIdContainer.LastActiveId));
+                            }
+                            else
+                            {
+                                string InstanceId = Guid.NewGuid().ToString();
+                                AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
+                                AppInstanceIdContainer.RegisterCurrentId(InstanceId);
+
+                                Application.Start((p) => new App());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = true;
+                    }
                 }
             }
             else

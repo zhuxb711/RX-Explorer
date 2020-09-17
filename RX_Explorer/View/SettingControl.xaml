@@ -185,7 +185,8 @@
                     <ColumnDefinition />
                     <ColumnDefinition Width="350" />
                 </Grid.ColumnDefinitions>
-                <StackPanel Name="LeftPanel">
+                <StackPanel Name="LeftPanel"
+                            ChildrenTransitions="{x:Bind local:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
                     <TextBlock Text="基本"
                                FontSize="22"
                                x:Uid="SettingBasicText" />
@@ -297,6 +298,21 @@
                                   x:Uid="UseWinAndEActivate"/>
 
                     <StackPanel Orientation="Horizontal"
+                                Name="AlwaysLaunchNewArea">
+                        <Line X1="7"
+                              X2="7"
+                              Y1="3"
+                              Y2="29"
+                              StrokeThickness="3"
+                              Stroke="Gray"/>
+                        <CheckBox Content="激活时始终启动新的进程"
+                                  Margin="20,0,0,0"
+                                  Name="AlwaysLaunchNew"
+                                  Checked="AlwaysLaunchNew_Checked"
+                                  Unchecked="AlwaysLaunchNew_Unchecked"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal"
                                 Margin="0,20,0,0">
                         <ComboBox Header="默认终端应用"
                                   Name="DefaultTerminal"
@@ -324,8 +340,23 @@
                                   OnContent="启用"
                                   x:Uid="SettingPageAnimationSwitch"
                                   Name="AnimationSwitch"
+                                  Toggled="AnimationSwitch_Toggled"
                                   IsOn="{x:Bind local:AnimationController.Current.IsEnableAnimation,Mode=TwoWay}" />
 
+                    <StackPanel Orientation="Horizontal"
+                                Name="ExceptAnimationArea">
+                        <Line X1="7"
+                              X2="7"
+                              Y1="3"
+                              Y2="29"
+                              StrokeThickness="3"
+                              Stroke="Gray" />
+                        <CheckBox Content="关闭初始动画以加快启动速度"
+                                  Margin="20,0,0,0"
+                                  IsChecked="{x:Bind local:AnimationController.Current.IsDisableStartupAnimation,Mode=TwoWay}"
+                                  Name="ExceptAnimation"/>
+                    </StackPanel>
+                    
                     <ComboBox Header="自定义字体颜色"
                               Margin="0,20,0,0"
                               MinWidth="120"
@@ -342,7 +373,7 @@
                               MinWidth="120"
                               Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
 
-                    <StackPanel Margin="0,10,0,0"
+                    <StackPanel Margin="5,10,0,0"
                                 Name="SolidColorArea">
                         <RadioButton Content="Windows默认"
                                      Name="SolidColor_FollowSystem"
@@ -357,7 +388,7 @@
                                      Name="SolidColor_Black"
                                      Checked="SolidColor_Black_Checked" />
                     </StackPanel>
-                    <StackPanel Margin="0,10,0,0"
+                    <StackPanel Margin="5,10,0,0"
                                 Name="CustomUIArea">
                         <RadioButton Content="Acrylic背景"
                                      x:Uid="CustomUISubtype1"

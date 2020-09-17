@@ -172,6 +172,7 @@
     <Compile Include="Class\SpecialTypeGenerator.cs" />
     <Compile Include="Class\StorageAreaWatcher.cs" />
     <Compile Include="Class\FileSystemItemNameChecker.cs" />
+    <Compile Include="Class\TaskBarController.cs" />
     <Compile Include="Class\TerminalProfile.cs" />
     <Compile Include="Class\TreeViewNodeContent.cs" />
     <Compile Include="Class\ValueConverter.cs" />

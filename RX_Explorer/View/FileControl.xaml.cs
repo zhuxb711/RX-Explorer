@@ -18,6 +18,7 @@ using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
 using Windows.System;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -52,6 +53,8 @@ namespace RX_Explorer
                     }
 
                     CurrentPath = Content.Path;
+
+                    TaskBarController.SetText(Content.DisplayName);
 
                     FolderTree.SelectNode(value);
 
@@ -133,6 +136,8 @@ namespace RX_Explorer
                     {
                         CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.StartWatchDirectory(value.Path);
                     }
+
+                    TaskBarController.SetText(value.DisplayName);
 
                     UpdateAddressButton(value.Path);
 
@@ -222,21 +227,6 @@ namespace RX_Explorer
             {
                 ExceptionTracer.RequestBlueScreen(ex);
             }
-
-            Loaded += FileControl_Loaded;
-            Unloaded += FileControl_Unloaded;
-        }
-
-        private void FileControl_Unloaded(object sender, RoutedEventArgs e)
-        {
-            Application.Current.Suspending -= Current_Suspending;
-            Application.Current.Resuming -= Current_Resuming;
-        }
-
-        private void FileControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            Application.Current.Suspending += Current_Suspending;
-            Application.Current.Resuming += Current_Resuming;
         }
 
         private void Current_Resuming(object sender, object e)
@@ -457,6 +447,9 @@ namespace RX_Explorer
         {
             if (e.Parameter is Tuple<Microsoft.UI.Xaml.Controls.TabViewItem, StorageFolder, ThisPC> Parameters)
             {
+                Application.Current.Suspending += Current_Suspending;
+                Application.Current.Resuming += Current_Resuming;
+
                 string PlaceText = Parameters.Item2.DisplayName.Length > 18 ? Parameters.Item2.DisplayName.Substring(0, 18) + "..." : Parameters.Item2.DisplayName;
 
                 GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {PlaceText}";
@@ -497,6 +490,9 @@ namespace RX_Explorer
 
             CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.Clear();
             CommonAccessCollection.GetFilePresenterInstance(this).HasFile.Visibility = Visibility.Collapsed;
+
+            Application.Current.Suspending -= Current_Suspending;
+            Application.Current.Resuming -= Current_Resuming;
 
             RecordIndex = 0;
 

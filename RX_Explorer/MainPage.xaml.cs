@@ -264,7 +264,7 @@ namespace RX_Explorer
                         }
                 }
 
-                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && AnimationController.Current.IsEnableAnimation && !IsPathActivate)
+                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && !AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
                 {
                     EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, Parameter.Item2);
                     EntranceEffectProvider.PrepareEntranceEffect();
@@ -272,7 +272,7 @@ namespace RX_Explorer
             }
             else if (e.Parameter is Rect SplashRect)
             {
-                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && AnimationController.Current.IsEnableAnimation && !IsPathActivate)
+                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && !AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
                 {
                     EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, SplashRect);
                     EntranceEffectProvider.PrepareEntranceEffect();
@@ -294,7 +294,7 @@ namespace RX_Explorer
 
                 await BackgroundController.Current.Initialize().ConfigureAwait(true);
 
-                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && AnimationController.Current.IsEnableAnimation && !IsPathActivate)
+                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && !AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
                 {
                     EntranceEffectProvider.StartEntranceEffect();
                 }
