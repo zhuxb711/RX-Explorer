@@ -167,7 +167,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (StorageItemController.CheckPermission(FileSystemRights.Modify, Path.GetDirectoryName(ExecutePath)))
+                                    if (StorageItemController.CheckPermission(FileSystemRights.Modify, ExecutePath))
                                     {
                                         if (StorageItemController.Rename(ExecutePath, DesireName))
                                         {
@@ -741,7 +741,7 @@ namespace FullTrustProcess
                                     }
                                     else
                                     {
-                                        if (ExcutePathList.Where((Item) => Directory.Exists(Item)).All((Item) => StorageItemController.CheckPermission(FileSystemRights.Modify, Item)) && ExcutePathList.Where((Item) => File.Exists(Item)).All((Item) => StorageItemController.CheckPermission(FileSystemRights.Modify, Path.GetDirectoryName(Item))))
+                                        if (ExcutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)) && ExcutePathList.All((Item)=> StorageItemController.CheckPermission(FileSystemRights.Modify, Item)))
                                         {
                                             if (StorageItemController.Delete(ExcutePathList, PermanentDelete, (s, e) =>
                                             {

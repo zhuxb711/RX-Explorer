@@ -94,13 +94,29 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool CheckPermission(FileSystemRights Permission, string DirectoryPath)
+        public static bool CheckPermission(FileSystemRights Permission, string Path)
         {
             bool AllowWrite = false;
             bool DenyWrite = false;
 
             WindowsPrincipal CurrentUser = new WindowsPrincipal(WindowsIdentity.GetCurrent());
-            DirectorySecurity Security = Directory.GetAccessControl(DirectoryPath);
+
+            FileSystemSecurity Security;
+
+            if (Directory.Exists(Path))
+            {
+                Security = Directory.GetAccessControl(Path);
+            }
+            else if(File.Exists(Path))
+            {
+                Security = File.GetAccessControl(Path);
+            }
+            else
+            {
+                //Relative path will come here, so we won't check its permission becasue no full path available
+                return true;
+            }
+
             AuthorizationRuleCollection AccessRules = Security.GetAccessRules(true, true, typeof(SecurityIdentifier));
 
             foreach (FileSystemAccessRule Rule in AccessRules)
