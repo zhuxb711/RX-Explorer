@@ -27,7 +27,7 @@ namespace RX_Explorer
         private Frame Nav;
         private TabViewItem TabItem;
         private QuickStartItem CurrentSelectedItem;
-        private int LockResource = 0;
+        private int LockResource;
 
         public ThisPC()
         {

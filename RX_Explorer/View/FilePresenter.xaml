@@ -12,16 +12,16 @@
 
     <Page.Resources>
         <muxc:TeachingTip x:Name="InvalidCharTip"
-                               IsLightDismissEnabled="True"
-                               x:Uid="PresentInvalidCharTip"
-                               Title="错误"
-                               Subtitle="不能包含非法字符&#x000A;非法字符包括 \ / : * ? &quot; &lt; &gt; |" />
+                          IsLightDismissEnabled="True"
+                          x:Uid="PresentInvalidCharTip"
+                          Title="错误"
+                          Subtitle="不能包含非法字符&#x000A;非法字符包括 \ / : * ? &quot; &lt; &gt; |" />
 
         <muxc:TeachingTip x:Name="InvalidNameTip"
-                               IsLightDismissEnabled="True"
-                               x:Uid="PresentInvalidNameTip"
-                               Title="错误"
-                               Subtitle="名称不能为空且不能包含无效的名称" />
+                          IsLightDismissEnabled="True"
+                          x:Uid="PresentInvalidNameTip"
+                          Title="错误"
+                          Subtitle="名称不能为空且不能包含无效的名称" />
 
         <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
 
@@ -34,7 +34,7 @@
             <AppBarButton Icon="Cut"
                           ToolTipService.ToolTip="剪切"
                           x:Uid="FileCut"
-                          Click="Cut_Click"/>
+                          Click="Cut_Click" />
             <AppBarButton Icon="Delete"
                           ToolTipService.ToolTip="删除"
                           x:Uid="FileDelete"
@@ -50,8 +50,8 @@
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="Shift"
-                                             Key="E" 
-                                             IsEnabled="False"/>
+                                             Key="E"
+                                             IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="尝试移除隐藏属性"
@@ -386,28 +386,28 @@
                                                       Name="OrderByName"
                                                       x:Uid="SearchName"
                                                       GroupName="Order"
-                                                      Click="OrderByName_Click"/>
-                            <muxc:RadioMenuFlyoutItem Text="修改时间" 
+                                                      Click="OrderByName_Click" />
+                            <muxc:RadioMenuFlyoutItem Text="修改时间"
                                                       Name="OrderByTime"
                                                       x:Uid="SearchModified"
                                                       GroupName="Order"
-                                                      Click="OrderByTime_Click"/>
-                            <muxc:RadioMenuFlyoutItem Text="类型" 
+                                                      Click="OrderByTime_Click" />
+                            <muxc:RadioMenuFlyoutItem Text="类型"
                                                       Name="OrderByType"
                                                       x:Uid="SearchType"
                                                       GroupName="Order"
-                                                      Click="OrderByType_Click"/>
-                            <muxc:RadioMenuFlyoutItem Text="大小" 
+                                                      Click="OrderByType_Click" />
+                            <muxc:RadioMenuFlyoutItem Text="大小"
                                                       Name="OrderBySize"
                                                       x:Uid="SearchSize"
                                                       GroupName="Order"
-                                                      Click="OrderBySize_Click"/>
+                                                      Click="OrderBySize_Click" />
                             <MenuFlyoutSeparator />
                             <muxc:RadioMenuFlyoutItem Text="升序"
                                                       Name="Asc"
                                                       x:Uid="CollectionSortDirection_Asc"
                                                       GroupName="Direction"
-                                                      Click="Asc_Click"/>
+                                                      Click="Asc_Click" />
                             <muxc:RadioMenuFlyoutItem Text="降序"
                                                       Name="Desc"
                                                       x:Uid="CollectionSortDirection_Desc"
@@ -460,11 +460,11 @@
         </CommandBarFlyout>
 
         <muxc:TeachingTip PreferredPlacement="Auto"
-                               Title="WIFI分享"
-                               x:Uid="WIFIShareTip"
-                               HeroContentPlacement="Auto"
-                               Closing="QRTeachTip_Closing"
-                               x:Name="QRTeachTip">
+                          Title="WIFI分享"
+                          x:Uid="WIFIShareTip"
+                          HeroContentPlacement="Auto"
+                          Closing="QRTeachTip_Closing"
+                          x:Name="QRTeachTip">
             <muxc:TeachingTip.HeroContent>
                 <Image Stretch="UniformToFill"
                        Name="QRImage" />
@@ -498,10 +498,10 @@
         </muxc:TeachingTip>
 
         <muxc:TeachingTip PreferredPlacement="Auto"
-                               Title="Hash计算"
-                               x:Name="HashTeachTip"
-                               x:Uid="HashTeachTip"
-                               Closing="HashTeachTip_Closing">
+                          Title="Hash计算"
+                          x:Name="HashTeachTip"
+                          x:Uid="HashTeachTip"
+                          Closing="HashTeachTip_Closing">
             <muxc:TeachingTip.Content>
                 <StackPanel HorizontalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
@@ -888,40 +888,40 @@
             <RowDefinition Height="43" />
         </Grid.RowDefinitions>
         <ListView Background="Transparent"
-                      x:Name="ListViewControl"
-                      HorizontalAlignment="Stretch"
-                      VerticalAlignment="Stretch"
-                      PointerPressed="ViewControl_PointerPressed"
-                      RightTapped="ViewControl_RightTapped"
-                      SelectionChanged="ViewControl_SelectionChanged"
-                      SelectionMode="Extended"
-                      ItemClick="ViewControl_ItemClick"
-                      ContainerContentChanging="ViewControl_ContainerContentChanging"
-                      CanDrag="False"
-                      CanReorderItems="False"
-                      CanDragItems="True"
-                      DragItemsStarting="ViewControl_DragItemsStarting"
-                      AllowDrop="True"
-                      DragOver="ViewControl_DragOver"
-                      Drop="ViewControl_Drop"
-                      IsHoldingEnabled="True"
-                      IsItemClickEnabled="True"
-                      IsDoubleTapEnabled="True"
-                      Holding="ViewControl_Holding"
-                      DoubleTapped="ViewControl_DoubleTapped"
-                      x:FieldModifier="Public"
-                      Visibility="Collapsed"
-                      HeaderTemplate="{StaticResource ListHeaderDataTemplate}"
-                      ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterListViewTransitions,Mode=OneWay}">
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment"
-                                Value="Stretch" />
-                        <Setter Property="Padding"
-                                Value="0" />
-                    </Style>
-                </ListView.ItemContainerStyle>
-            </ListView>
+                  x:Name="ListViewControl"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  PointerPressed="ViewControl_PointerPressed"
+                  RightTapped="ViewControl_RightTapped"
+                  SelectionChanged="ViewControl_SelectionChanged"
+                  SelectionMode="Extended"
+                  ItemClick="ViewControl_ItemClick"
+                  ContainerContentChanging="ViewControl_ContainerContentChanging"
+                  CanDrag="False"
+                  CanReorderItems="False"
+                  CanDragItems="True"
+                  DragItemsStarting="ViewControl_DragItemsStarting"
+                  AllowDrop="True"
+                  DragOver="ViewControl_DragOver"
+                  Drop="ViewControl_Drop"
+                  IsHoldingEnabled="True"
+                  IsItemClickEnabled="True"
+                  IsDoubleTapEnabled="True"
+                  Holding="ViewControl_Holding"
+                  DoubleTapped="ViewControl_DoubleTapped"
+                  x:FieldModifier="Public"
+                  Visibility="Collapsed"
+                  HeaderTemplate="{StaticResource ListHeaderDataTemplate}"
+                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterListViewTransitions,Mode=OneWay}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment"
+                            Value="Stretch" />
+                    <Setter Property="Padding"
+                            Value="0" />
+                </Style>
+            </ListView.ItemContainerStyle>
+        </ListView>
         <GridView Name="GridViewControl"
                   Background="Transparent"
                   ContainerContentChanging="ViewControl_ContainerContentChanging"
@@ -955,13 +955,13 @@
             </GridView.ItemsPanel>
         </GridView>
         <TextBlock Name="HasFile"
-                       x:FieldModifier="public"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       x:Uid="HasFile"
-                       Text="无文件"
-                       FontSize="16"
-                       Visibility="Collapsed" />
+                   x:FieldModifier="public"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   x:Uid="HasFile"
+                   Text="无文件"
+                   FontSize="16"
+                   Visibility="Collapsed" />
         <StackPanel Grid.Row="1"
                     VerticalAlignment="Bottom">
             <TextBlock x:Name="StatusTips"
@@ -969,7 +969,7 @@
                        FontSize="14"
                        Margin="10,0,0,0"
                        TextTrimming="CharacterEllipsis"
-                       VerticalAlignment="Center"/>
+                       VerticalAlignment="Center" />
             <CommandBar IsOpen="False"
                         ClosedDisplayMode="Minimal"
                         DefaultLabelPosition="Right"

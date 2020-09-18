@@ -180,18 +180,6 @@ namespace RX_Explorer
                             PC.Refresh_Click(null, null);
                             break;
                         }
-                    case VirtualKey.Enter:
-                        {
-                            if (PC.DeviceGrid.SelectedItem is HardDeviceInfo Device)
-                            {
-                                await FullTrustProcessController.Current.ViewWithQuicklookAsync(Device.Folder.Path).ConfigureAwait(false);
-                            }
-                            else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library)
-                            {
-                                await FullTrustProcessController.Current.ViewWithQuicklookAsync(Library.Folder.Path).ConfigureAwait(false);
-                            }
-                            break;
-                        }
                 }
             }
         }

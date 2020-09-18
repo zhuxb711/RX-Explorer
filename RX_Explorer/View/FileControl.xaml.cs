@@ -137,8 +137,6 @@ namespace RX_Explorer
                         CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.StartWatchDirectory(value.Path);
                     }
 
-                    TaskBarController.SetText(value.DisplayName);
-
                     UpdateAddressButton(value.Path);
 
                     CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter.Focus(FocusState.Programmatic);
@@ -164,6 +162,8 @@ namespace RX_Explorer
                         TabItem.Header = value.DisplayName;
                     }
                 }
+
+                TaskBarController.SetText(value?.DisplayName);
 
                 currentFolder = value;
                 CurrentPath = value?.Path;

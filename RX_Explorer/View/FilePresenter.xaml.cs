@@ -29,6 +29,7 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
@@ -100,6 +101,11 @@ namespace RX_Explorer
             set
             {
                 ItemPresenter.SelectedItem = value;
+                
+                if (value != null)
+                {
+                    (ItemPresenter.ContainerFromItem(value) as ListViewItem)?.Focus(FocusState.Programmatic);
+                }
             }
         }
 
@@ -4585,6 +4591,8 @@ namespace RX_Explorer
 
         private async void ViewControl_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
         {
+            args.ItemContainer.UseSystemFocusVisuals = false;
+
             if (args.InRecycleQueue)
             {
                 args.ItemContainer.AllowDrop = false;

@@ -51,6 +51,7 @@ namespace RX_Explorer
             InitializeComponent();
             ThisPage = this;
             Window.Current.SetTitleBar(TitleBar);
+            Application.Current.FocusVisualKind = FocusVisualKind.Reveal;
             Loaded += MainPage_Loaded;
             Loaded += MainPage_Loaded1;
             Window.Current.Activated += MainPage_Activated;
