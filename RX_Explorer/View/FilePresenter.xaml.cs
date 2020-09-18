@@ -173,7 +173,7 @@ namespace RX_Explorer
         {
             CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
             CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
-            
+
             bool HasHiddenItem = SelectedItems.Any((Item) => Item is HiddenStorageItem);
 
             if (!FileControlInstance.IsSearchOrPathBoxFocused && !QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning)
@@ -2386,6 +2386,8 @@ namespace RX_Explorer
 
         private async void ViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
+            e.Handled = true;
+
             if (SettingControl.IsInputFromPrimaryButton && (e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase ReFile)
             {
                 await EnterSelectedItem(ReFile).ConfigureAwait(false);
@@ -2983,27 +2985,140 @@ namespace RX_Explorer
                                     if (!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
                                     {
                                         ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
+
                                         if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                         {
-                                            if (Dialog.OpenFailed)
+                                            if (Dialog.SelectedProgram.PackageName == Package.Current.Id.FamilyName)
                                             {
-                                                QueueContentDialog dialog = new QueueContentDialog
+                                                switch (File.FileType.ToLower())
                                                 {
-                                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                                    Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
-                                                    PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
-                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                                };
-
-                                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                                {
-                                                    if (!await Launcher.LaunchFileAsync(File))
-                                                    {
-                                                        LauncherOptions options = new LauncherOptions
+                                                    case ".jpg":
+                                                    case ".png":
+                                                    case ".bmp":
                                                         {
-                                                            DisplayApplicationPicker = true
+                                                            if (AnimationController.Current.IsEnableAnimation)
+                                                            {
+                                                                FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new DrillInNavigationTransitionInfo());
+                                                            }
+                                                            else
+                                                            {
+                                                                FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new SuppressNavigationTransitionInfo());
+                                                            }
+                                                            break;
+                                                        }
+                                                    case ".mkv":
+                                                    case ".mp4":
+                                                    case ".mp3":
+                                                    case ".flac":
+                                                    case ".wma":
+                                                    case ".wmv":
+                                                    case ".m4a":
+                                                    case ".mov":
+                                                    case ".alac":
+                                                        {
+                                                            if (AnimationController.Current.IsEnableAnimation)
+                                                            {
+                                                                FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
+                                                            }
+                                                            else
+                                                            {
+                                                                FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
+                                                            }
+                                                            break;
+                                                        }
+                                                    case ".txt":
+                                                        {
+                                                            if (AnimationController.Current.IsEnableAnimation)
+                                                            {
+                                                                FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, File), new DrillInNavigationTransitionInfo());
+                                                            }
+                                                            else
+                                                            {
+                                                                FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, File), new SuppressNavigationTransitionInfo());
+                                                            }
+                                                            break;
+                                                        }
+                                                    case ".pdf":
+                                                        {
+                                                            if (AnimationController.Current.IsEnableAnimation)
+                                                            {
+                                                                FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new DrillInNavigationTransitionInfo());
+                                                            }
+                                                            else
+                                                            {
+                                                                FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new SuppressNavigationTransitionInfo());
+                                                            }
+                                                            break;
+                                                        }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (Dialog.SelectedProgram.IsCustomApp)
+                                                {
+                                                Retry:
+                                                    try
+                                                    {
+                                                        await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, File.Path).ConfigureAwait(true);
+                                                    }
+                                                    catch (InvalidOperationException)
+                                                    {
+                                                        QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                                                        {
+                                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                            Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
+                                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                                         };
-                                                        _ = await Launcher.LaunchFileAsync(File, options);
+
+                                                        if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                        {
+                                                            if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                                            {
+                                                                goto Retry;
+                                                            }
+                                                            else
+                                                            {
+                                                                QueueContentDialog ErrorDialog = new QueueContentDialog
+                                                                {
+                                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                                    Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                                };
+
+                                                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if (!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.PackageName, DisplayApplicationPicker = false }))
+                                                    {
+                                                        if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute1)
+                                                        {
+                                                            ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = ProgramExcute1.Replace($"{File.FileType}|{File.Name};", string.Empty);
+                                                        }
+
+                                                        QueueContentDialog dialog = new QueueContentDialog
+                                                        {
+                                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                                            Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
+                                                            PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
+                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                                        };
+
+                                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                        {
+                                                            if (!await Launcher.LaunchFileAsync(File))
+                                                            {
+                                                                LauncherOptions options = new LauncherOptions
+                                                                {
+                                                                    DisplayApplicationPicker = true
+                                                                };
+                                                                _ = await Launcher.LaunchFileAsync(File, options);
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
@@ -3013,27 +3128,140 @@ namespace RX_Explorer
                                 else
                                 {
                                     ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
+                                    
                                     if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                     {
-                                        if (Dialog.OpenFailed)
+                                        if (Dialog.SelectedProgram.PackageName == Package.Current.Id.FamilyName)
                                         {
-                                            QueueContentDialog dialog = new QueueContentDialog
+                                            switch (File.FileType.ToLower())
                                             {
-                                                Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                                Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
-                                                PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                            };
-
-                                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                            {
-                                                if (!await Launcher.LaunchFileAsync(File))
-                                                {
-                                                    LauncherOptions options = new LauncherOptions
+                                                case ".jpg":
+                                                case ".png":
+                                                case ".bmp":
                                                     {
-                                                        DisplayApplicationPicker = true
+                                                        if (AnimationController.Current.IsEnableAnimation)
+                                                        {
+                                                            FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new DrillInNavigationTransitionInfo());
+                                                        }
+                                                        else
+                                                        {
+                                                            FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new SuppressNavigationTransitionInfo());
+                                                        }
+                                                        break;
+                                                    }
+                                                case ".mkv":
+                                                case ".mp4":
+                                                case ".mp3":
+                                                case ".flac":
+                                                case ".wma":
+                                                case ".wmv":
+                                                case ".m4a":
+                                                case ".mov":
+                                                case ".alac":
+                                                    {
+                                                        if (AnimationController.Current.IsEnableAnimation)
+                                                        {
+                                                            FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
+                                                        }
+                                                        else
+                                                        {
+                                                            FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
+                                                        }
+                                                        break;
+                                                    }
+                                                case ".txt":
+                                                    {
+                                                        if (AnimationController.Current.IsEnableAnimation)
+                                                        {
+                                                            FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, File), new DrillInNavigationTransitionInfo());
+                                                        }
+                                                        else
+                                                        {
+                                                            FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, File), new SuppressNavigationTransitionInfo());
+                                                        }
+                                                        break;
+                                                    }
+                                                case ".pdf":
+                                                    {
+                                                        if (AnimationController.Current.IsEnableAnimation)
+                                                        {
+                                                            FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new DrillInNavigationTransitionInfo());
+                                                        }
+                                                        else
+                                                        {
+                                                            FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new SuppressNavigationTransitionInfo());
+                                                        }
+                                                        break;
+                                                    }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (Dialog.SelectedProgram.IsCustomApp)
+                                            {
+                                            Retry:
+                                                try
+                                                {
+                                                    await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, File.Path).ConfigureAwait(true);
+                                                }
+                                                catch (InvalidOperationException)
+                                                {
+                                                    QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
+                                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                                     };
-                                                    _ = await Launcher.LaunchFileAsync(File, options);
+
+                                                    if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                    {
+                                                        if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                                        {
+                                                            goto Retry;
+                                                        }
+                                                        else
+                                                        {
+                                                            QueueContentDialog ErrorDialog = new QueueContentDialog
+                                                            {
+                                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                                Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                            };
+
+                                                            _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.PackageName, DisplayApplicationPicker = false }))
+                                                {
+                                                    if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute1)
+                                                    {
+                                                        ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = ProgramExcute1.Replace($"{File.FileType}|{File.Name};", string.Empty);
+                                                    }
+
+                                                    QueueContentDialog dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
+                                                        PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                                    };
+
+                                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                    {
+                                                        if (!await Launcher.LaunchFileAsync(File))
+                                                        {
+                                                            LauncherOptions options = new LauncherOptions
+                                                            {
+                                                                DisplayApplicationPicker = true
+                                                            };
+                                                            _ = await Launcher.LaunchFileAsync(File, options);
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -3083,11 +3311,11 @@ namespace RX_Explorer
                                     {
                                         if (AnimationController.Current.IsEnableAnimation)
                                         {
-                                            FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, FileSystemStorageItemBase>(FileControlInstance, TabTarget), new DrillInNavigationTransitionInfo());
+                                            FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, File), new DrillInNavigationTransitionInfo());
                                         }
                                         else
                                         {
-                                            FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, FileSystemStorageItemBase>(FileControlInstance, TabTarget), new SuppressNavigationTransitionInfo());
+                                            FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, File), new SuppressNavigationTransitionInfo());
                                         }
                                         break;
                                     }
@@ -3169,25 +3397,137 @@ namespace RX_Explorer
                                         ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
                                         if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                         {
-                                            if (Dialog.OpenFailed)
+                                            if (Dialog.SelectedProgram.PackageName == Package.Current.Id.FamilyName)
                                             {
-                                                QueueContentDialog dialog = new QueueContentDialog
+                                                switch (File.FileType.ToLower())
                                                 {
-                                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                                    Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
-                                                    PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
-                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                                };
-
-                                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                                {
-                                                    if (!await Launcher.LaunchFileAsync(File))
-                                                    {
-                                                        LauncherOptions options = new LauncherOptions
+                                                    case ".jpg":
+                                                    case ".png":
+                                                    case ".bmp":
                                                         {
-                                                            DisplayApplicationPicker = true
+                                                            if (AnimationController.Current.IsEnableAnimation)
+                                                            {
+                                                                FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new DrillInNavigationTransitionInfo());
+                                                            }
+                                                            else
+                                                            {
+                                                                FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new SuppressNavigationTransitionInfo());
+                                                            }
+                                                            break;
+                                                        }
+                                                    case ".mkv":
+                                                    case ".mp4":
+                                                    case ".mp3":
+                                                    case ".flac":
+                                                    case ".wma":
+                                                    case ".wmv":
+                                                    case ".m4a":
+                                                    case ".mov":
+                                                    case ".alac":
+                                                        {
+                                                            if (AnimationController.Current.IsEnableAnimation)
+                                                            {
+                                                                FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
+                                                            }
+                                                            else
+                                                            {
+                                                                FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
+                                                            }
+                                                            break;
+                                                        }
+                                                    case ".txt":
+                                                        {
+                                                            if (AnimationController.Current.IsEnableAnimation)
+                                                            {
+                                                                FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, File), new DrillInNavigationTransitionInfo());
+                                                            }
+                                                            else
+                                                            {
+                                                                FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, File), new SuppressNavigationTransitionInfo());
+                                                            }
+                                                            break;
+                                                        }
+                                                    case ".pdf":
+                                                        {
+                                                            if (AnimationController.Current.IsEnableAnimation)
+                                                            {
+                                                                FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new DrillInNavigationTransitionInfo());
+                                                            }
+                                                            else
+                                                            {
+                                                                FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new SuppressNavigationTransitionInfo());
+                                                            }
+                                                            break;
+                                                        }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (Dialog.SelectedProgram.IsCustomApp)
+                                                {
+                                                Retry:
+                                                    try
+                                                    {
+                                                        await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, File.Path).ConfigureAwait(true);
+                                                    }
+                                                    catch (InvalidOperationException)
+                                                    {
+                                                        QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                                                        {
+                                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                            Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
+                                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                                         };
-                                                        _ = await Launcher.LaunchFileAsync(File, options);
+
+                                                        if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                        {
+                                                            if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                                            {
+                                                                goto Retry;
+                                                            }
+                                                            else
+                                                            {
+                                                                QueueContentDialog ErrorDialog = new QueueContentDialog
+                                                                {
+                                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                                    Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                                };
+
+                                                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if (!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.PackageName, DisplayApplicationPicker = false }))
+                                                    {
+                                                        if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute1)
+                                                        {
+                                                            ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = ProgramExcute1.Replace($"{File.FileType}|{File.Name};", string.Empty);
+                                                        }
+
+                                                        QueueContentDialog dialog = new QueueContentDialog
+                                                        {
+                                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                                            Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
+                                                            PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
+                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                                        };
+
+                                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                        {
+                                                            if (!await Launcher.LaunchFileAsync(File))
+                                                            {
+                                                                LauncherOptions options = new LauncherOptions
+                                                                {
+                                                                    DisplayApplicationPicker = true
+                                                                };
+                                                                _ = await Launcher.LaunchFileAsync(File, options);
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
@@ -3317,33 +3657,142 @@ namespace RX_Explorer
             if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile Item)
             {
                 ProgramPickerDialog Dialog = new ProgramPickerDialog(Item);
+                
                 if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
-                    if (Dialog.OpenFailed)
+                    if (Dialog.SelectedProgram.PackageName == Package.Current.Id.FamilyName)
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
+                        switch (Item.FileType.ToLower())
                         {
-                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                            Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
-                            PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                        };
-
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            if (!await Launcher.LaunchFileAsync(Item))
-                            {
-                                LauncherOptions options = new LauncherOptions
+                            case ".jpg":
+                            case ".png":
+                            case ".bmp":
                                 {
-                                    DisplayApplicationPicker = true
-                                };
-                                _ = await Launcher.LaunchFileAsync(Item, options);
-                            }
+                                    if (AnimationController.Current.IsEnableAnimation)
+                                    {
+                                        FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, Item.Name), new DrillInNavigationTransitionInfo());
+                                    }
+                                    else
+                                    {
+                                        FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, Item.Name), new SuppressNavigationTransitionInfo());
+                                    }
+                                    break;
+                                }
+                            case ".mkv":
+                            case ".mp4":
+                            case ".mp3":
+                            case ".flac":
+                            case ".wma":
+                            case ".wmv":
+                            case ".m4a":
+                            case ".mov":
+                            case ".alac":
+                                {
+                                    if (AnimationController.Current.IsEnableAnimation)
+                                    {
+                                        FileControlInstance.Nav.Navigate(typeof(MediaPlayer), Item, new DrillInNavigationTransitionInfo());
+                                    }
+                                    else
+                                    {
+                                        FileControlInstance.Nav.Navigate(typeof(MediaPlayer), Item, new SuppressNavigationTransitionInfo());
+                                    }
+                                    break;
+                                }
+                            case ".txt":
+                                {
+                                    if (AnimationController.Current.IsEnableAnimation)
+                                    {
+                                        FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, Item), new DrillInNavigationTransitionInfo());
+                                    }
+                                    else
+                                    {
+                                        FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, Item), new SuppressNavigationTransitionInfo());
+                                    }
+                                    break;
+                                }
+                            case ".pdf":
+                                {
+                                    if (AnimationController.Current.IsEnableAnimation)
+                                    {
+                                        FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, Item), new DrillInNavigationTransitionInfo());
+                                    }
+                                    else
+                                    {
+                                        FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, Item), new SuppressNavigationTransitionInfo());
+                                    }
+                                    break;
+                                }
                         }
                     }
-                    else if (Dialog.ContinueUseInnerViewer)
+                    else
                     {
-                        await EnterSelectedItem(SelectedItem).ConfigureAwait(false);
+                        if (Dialog.SelectedProgram.IsCustomApp)
+                        {
+                        Retry:
+                            try
+                            {
+                                await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, Item.Path).ConfigureAwait(true);
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                {
+                                    if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                    {
+                                        goto Retry;
+                                    }
+                                    else
+                                    {
+                                        QueueContentDialog ErrorDialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (!await Launcher.LaunchFileAsync(Item, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.PackageName, DisplayApplicationPicker = false }))
+                            {
+                                if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute)
+                                {
+                                    ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = ProgramExcute.Replace($"{Item.FileType}|{Item.Name};", string.Empty);
+                                }
+
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                    Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
+                                    PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                {
+                                    if (!await Launcher.LaunchFileAsync(Item))
+                                    {
+                                        LauncherOptions options = new LauncherOptions
+                                        {
+                                            DisplayApplicationPicker = true
+                                        };
+                                        _ = await Launcher.LaunchFileAsync(Item, options);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -5175,7 +5624,7 @@ namespace RX_Explorer
                     {
                         TimeSpan ClickSpan = DateTimeOffset.Now - LastClickTime;
 
-                        if (ClickSpan.TotalMilliseconds > 1200 && ClickSpan.TotalMilliseconds < 2000)
+                        if (ClickSpan.TotalMilliseconds > 800 && ClickSpan.TotalMilliseconds < 3000)
                         {
                             NameLabel.Visibility = Visibility.Collapsed;
                             CurrentNameEditItem = Item;

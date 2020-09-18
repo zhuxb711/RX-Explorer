@@ -112,8 +112,7 @@
                       x:Uid="ProgramPickerDialogUseAsAdmin"
                       Margin="0,10,0,0"
                       Name="UseAsAdmin"
-                      FontSize="15"
-                      IsChecked="True" />
+                      FontSize="15"/>
         </StackPanel>
         <TextBlock Name="LoadingText"
                    VerticalAlignment="Center"

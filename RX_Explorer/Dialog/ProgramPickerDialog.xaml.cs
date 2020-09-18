@@ -21,9 +21,7 @@ namespace RX_Explorer.Dialog
 
         private StorageFile OpenFile;
 
-        public bool ContinueUseInnerViewer { get; private set; } = false;
-
-        public bool OpenFailed { get; private set; } = false;
+        public ProgramPickerItem SelectedProgram { get; private set; }
 
         public ProgramPickerDialog(StorageFile OpenFile)
         {
@@ -218,90 +216,16 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private async void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            var Deferral = args.GetDeferral();
-
             if (CurrentUseProgramList.SelectedItem is ProgramPickerItem CurrentItem)
             {
-                if (UseAsAdmin.IsChecked.GetValueOrDefault())
-                {
-                    if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute)
-                    {
-                        string SaveUnit = ProgramExcute.Split(';', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault((Item) => Item.Split('|')[0] == OpenFile.FileType);
-                        if (string.IsNullOrEmpty(SaveUnit))
-                        {
-                            ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = ProgramExcute + $"{OpenFile.FileType}|{CurrentItem.Name};";
-                        }
-                        else
-                        {
-                            ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = ProgramExcute.Replace(SaveUnit, $"{OpenFile.FileType}|{CurrentItem.Name}");
-                        }
-                    }
-                    else
-                    {
-                        ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = $"{OpenFile.FileType}|{CurrentItem.Name};";
-                    }
-                }
-
-                if (CurrentItem.PackageName == Package.Current.Id.FamilyName)
-                {
-                    ContinueUseInnerViewer = true;
-                }
-                else
-                {
-                    if (CurrentItem.IsCustomApp)
-                    {
-                        Retry:
-                        try
-                        {
-                            await FullTrustProcessController.Current.RunAsync(CurrentItem.Path, OpenFile.Path).ConfigureAwait(true);
-                        }
-                        catch(InvalidOperationException)
-                        {
-                            QueueContentDialog UnauthorizeDialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
-
-                            if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                            {
-                                if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
-                                {
-                                    goto Retry;
-                                }
-                                else
-                                {
-                                    QueueContentDialog ErrorDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (!await Launcher.LaunchFileAsync(OpenFile, new LauncherOptions { TargetApplicationPackageFamilyName = CurrentItem.PackageName, DisplayApplicationPicker = false }))
-                        {
-                            OpenFailed = true;
-                            if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute)
-                            {
-                                ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = ProgramExcute.Replace($"{OpenFile.FileType}|{CurrentItem.Name};", string.Empty);
-                            }
-                        }
-                    }
-                }
+                SelectedProgram = CurrentItem;
             }
             else if (OtherProgramList.SelectedItem is ProgramPickerItem OtherItem)
             {
+                SelectedProgram = OtherItem;
+
                 if (UseAsAdmin.IsChecked.GetValueOrDefault())
                 {
                     if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute)
@@ -321,65 +245,7 @@ namespace RX_Explorer.Dialog
                         ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = $"{OpenFile.FileType}|{OtherItem.Name};";
                     }
                 }
-
-                if (OtherItem.PackageName == Package.Current.Id.FamilyName)
-                {
-                    ContinueUseInnerViewer = true;
-                }
-                else
-                {
-                    if (OtherItem.IsCustomApp)
-                    {
-                        Retry:
-                        try
-                        {
-                            await FullTrustProcessController.Current.RunAsync(OtherItem.Path, OpenFile.Path).ConfigureAwait(true);
-                        }
-                        catch (InvalidOperationException)
-                        {
-                            QueueContentDialog UnauthorizeDialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
-
-                            if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                            {
-                                if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
-                                {
-                                    goto Retry;
-                                }
-                                else
-                                {
-                                    QueueContentDialog ErrorDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (!await Launcher.LaunchFileAsync(OpenFile, new LauncherOptions { TargetApplicationPackageFamilyName = OtherItem.PackageName, DisplayApplicationPicker = false }))
-                        {
-                            OpenFailed = true;
-                            if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute)
-                            {
-                                ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = ProgramExcute.Replace($"{OpenFile.FileType}|{OtherItem.Name};", string.Empty);
-                            }
-                        }
-                    }
-                }
             }
-
-            Deferral.Complete();
         }
     }
 }

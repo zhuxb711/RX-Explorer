@@ -1,5 +1,4 @@
-﻿using RX_Explorer.Class;
-using System;
+﻿using System;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -13,7 +12,7 @@ namespace RX_Explorer
 {
     public sealed partial class TextViewer : Page
     {
-        private FileSystemStorageItemBase SFile;
+        private StorageFile SFile;
         private FileControl FileControlInstance;
 
         public TextViewer()
@@ -26,11 +25,9 @@ namespace RX_Explorer
             LoadingControl.IsLoading = true;
             MainPage.ThisPage.IsAnyTaskRunning = true;
 
-            IStorageItem Item = await SFile.GetStorageItem().ConfigureAwait(true);
-
             try
             {
-                string FileText = await FileIO.ReadTextAsync(Item as StorageFile);
+                string FileText = await FileIO.ReadTextAsync(SFile);
 
                 Text.Text = FileText;
 
@@ -38,7 +35,7 @@ namespace RX_Explorer
             }
             catch (ArgumentOutOfRangeException)
             {
-                IBuffer buffer = await FileIO.ReadBufferAsync(Item as StorageFile);
+                IBuffer buffer = await FileIO.ReadBufferAsync(SFile);
                 DataReader reader = DataReader.FromBuffer(buffer);
                 byte[] fileContent = new byte[reader.UnconsumedBufferLength];
                 reader.ReadBytes(fileContent);
@@ -60,7 +57,7 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is Tuple<FileControl, FileSystemStorageItemBase> Parameters)
+            if (e.Parameter is Tuple<FileControl, StorageFile> Parameters)
             {
                 FileControlInstance = Parameters.Item1;
                 SFile = Parameters.Item2;
@@ -78,13 +75,10 @@ namespace RX_Explorer
 
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
-            if (await SFile.GetStorageItem().ConfigureAwait(true) is StorageFile File)
-            {
-                StorageFolder Folder = await File.GetParentAsync();
-                StorageFile NewFile = await Folder.CreateFileAsync(SFile.Name, CreationCollisionOption.ReplaceExisting);
-                await FileIO.WriteTextAsync(NewFile, Text.Text);
-                FileControlInstance.Nav.GoBack();
-            }
+            StorageFolder Folder = await SFile.GetParentAsync();
+            StorageFile NewFile = await Folder.CreateFileAsync(SFile.Name, CreationCollisionOption.ReplaceExisting);
+            await FileIO.WriteTextAsync(NewFile, Text.Text);
+            FileControlInstance.Nav.GoBack();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
