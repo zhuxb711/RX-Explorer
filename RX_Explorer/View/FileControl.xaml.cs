@@ -233,7 +233,10 @@ namespace RX_Explorer
         {
             if (!IsNetworkDevice)
             {
-                CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.StartWatchDirectory(CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.CurrentLocation);
+                if (CommonAccessCollection.GetFilePresenterInstance(this) is FilePresenter Presenter)
+                {
+                    Presenter.AreaWatcher.StartWatchDirectory(Presenter.AreaWatcher.CurrentLocation);
+                }
             }
         }
 
@@ -241,7 +244,10 @@ namespace RX_Explorer
         {
             if (!IsNetworkDevice)
             {
-                CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.StopWatchDirectory();
+                if (CommonAccessCollection.GetFilePresenterInstance(this) is FilePresenter Presenter)
+                {
+                    Presenter.AreaWatcher.StopWatchDirectory();
+                }
             }
         }
 

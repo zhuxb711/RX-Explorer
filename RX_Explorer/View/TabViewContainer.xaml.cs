@@ -265,14 +265,6 @@ namespace RX_Explorer
                         TabViewControl.TabItems.Add(Item);
                         TabViewControl.UpdateLayout();
                         TabViewControl.SelectedItem = Item;
-
-                        if (TabViewControl.TabItems.Count > 1)
-                        {
-                            foreach (TabViewItem Tab in TabViewControl.TabItems)
-                            {
-                                Tab.IsClosable = true;
-                            }
-                        }
                     }
                 }
                 else
@@ -295,14 +287,6 @@ namespace RX_Explorer
                             TabViewControl.TabItems.Add(Item);
                             TabViewControl.UpdateLayout();
                             TabViewControl.SelectedItem = Item;
-
-                            if (TabViewControl.TabItems.Count > 1)
-                            {
-                                foreach (TabViewItem Tab in TabViewControl.TabItems)
-                                {
-                                    Tab.IsClosable = true;
-                                }
-                            }
                         }
                     }
                 }
@@ -405,11 +389,6 @@ namespace RX_Explorer
                                     Control.Dispose();
 
                                     TabViewControl.TabItems.RemoveAt(j);
-
-                                    if (TabViewControl.TabItems.Count == 1)
-                                    {
-                                        (TabViewControl.TabItems.First() as TabViewItem).IsClosable = false;
-                                    }
                                 }
                             }
                         }
@@ -839,14 +818,6 @@ namespace RX_Explorer
                 sender.TabItems.Add(Item);
                 sender.UpdateLayout();
                 sender.SelectedItem = Item;
-
-                if (sender.TabItems.Count > 1)
-                {
-                    foreach (TabViewItem Tab in TabViewControl.TabItems)
-                    {
-                        Tab.IsClosable = true;
-                    }
-                }
             }
         }
 
@@ -1058,16 +1029,27 @@ namespace RX_Explorer
 
                 sender.TabItems.Remove(args.Tab);
 
-                if (TabViewControl.TabItems.Count >= 1)
-                {
-                    foreach (TabViewItem Tab in TabViewControl.TabItems)
-                    {
-                        Tab.IsClosable = true;
-                    }
-                }
-                else
+                if (TabViewControl.TabItems.Count == 0)
                 {
                     Application.Current.Exit();
+                }
+            }
+        }
+
+        private async void TabViewControl_TabDroppedOutside(TabView sender, TabViewTabDroppedOutsideEventArgs args)
+        {
+            if (sender.TabItems.Count > 1)
+            {
+                sender.TabItems.Remove(args.Tab);
+                sender.UpdateLayout();
+
+                if ((args.Tab.Content as Frame)?.Content is ThisPC)
+                {
+                    await Launcher.LaunchUriAsync(new Uri($"rx-explorer:"));
+                }
+                else if ((args.Tab.Content as Frame)?.Content is FileControl Control)
+                {
+                    await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(Control.CurrentFolder.Path)}"));
                 }
             }
         }

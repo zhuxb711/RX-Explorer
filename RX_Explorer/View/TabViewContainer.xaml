@@ -22,6 +22,7 @@
                       TabDragStarting="TabViewControl_TabDragStarting"
                       SelectionChanged="TabViewControl_SelectionChanged"
                       TabCloseRequested="TabViewControl_TabCloseRequested"
+                      TabDroppedOutside="TabViewControl_TabDroppedOutside"
                       AddTabButtonClick="TabViewControl_AddTabButtonClick">
             <muxc:TabView.Resources>
                 <SolidColorBrush x:Key="TabViewBackground"
