@@ -253,7 +253,7 @@ namespace FullTrustProcess
 
                                     using (Process Process = Process.Start(TempFile.Path))
                                     {
-                                        User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
+                                        SetWindowsZPosition(Process);
                                         Process.WaitForExit();
                                     }
 
@@ -283,7 +283,7 @@ namespace FullTrustProcess
 
                                 using (Process Process = Process.Start(RestoreFile.Path))
                                 {
-                                    User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
+                                    SetWindowsZPosition(Process);
                                     Process.WaitForExit();
                                 }
 
@@ -741,7 +741,7 @@ namespace FullTrustProcess
                                     }
                                     else
                                     {
-                                        if (ExcutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)) && ExcutePathList.All((Item)=> StorageItemController.CheckPermission(FileSystemRights.Modify, Item)))
+                                        if (ExcutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)) && ExcutePathList.All((Item) => StorageItemController.CheckPermission(FileSystemRights.Modify, Item)))
                                         {
                                             if (StorageItemController.Delete(ExcutePathList, PermanentDelete, (s, e) =>
                                             {
@@ -848,7 +848,7 @@ namespace FullTrustProcess
 
                                             Process.Start();
 
-                                            User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
+                                            SetWindowsZPosition(Process);
                                         }
                                     }
                                     else
@@ -866,7 +866,7 @@ namespace FullTrustProcess
 
                                             Process.Start();
 
-                                            User32.SetWindowPos(Process.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
+                                            SetWindowsZPosition(Process);
                                         }
                                     }
 
@@ -925,6 +925,16 @@ namespace FullTrustProcess
             {
                 Deferral.Complete();
             }
+        }
+
+        private static void SetWindowsZPosition(Process OtherProcess)
+        {
+            if (ExplorerProcess != null && !ExplorerProcess.HasExited)
+            {
+                User32.SetWindowPos(ExplorerProcess.MainWindowHandle, new IntPtr(1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_HIDEWINDOW);
+            }
+
+            User32.SetWindowPos(OtherProcess.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
         }
 
         private static void AliveCheck(object state)
