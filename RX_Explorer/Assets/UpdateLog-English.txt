@@ -1,4 +1,33 @@
 ﻿*****
+###What's new in Ver.5.4.0.0
+
+#####Feature update
+
+>#####Now the taskbar area will display the name of the current folder
+
+>#####Dragging the tab to the outside and releasing it will launch a new window
+
+#####UI update
+
+>#####Add some options to the settings page
+
+>#####Set the page to apply some new animation effects
+
+>#####The element with focus will now be more beautiful
+
+#####Bug fix
+
+>#####Fixed an issue that not being able to start Windows Terminal
+
+>#####Fixed an issue where an application cannot be switched back to the built-in viewer after setting an application as the default opening method
+
+>#####Fixed an issue that using the Enter key will cause unexpected behavior after using the keyboard to jump directly to the corresponding file
+
+>#####Fixed an issue that the double-click renaming function is too time-critical
+
+>#####Fixed an issue that may exist when sorting files
+
+*****
 ###What's new in Ver.5.3.6.0
 
 #####Feature update

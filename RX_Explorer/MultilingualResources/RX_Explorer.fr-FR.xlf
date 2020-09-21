@@ -3536,6 +3536,14 @@ Les noms non valides incluent
           <source>RX does not have permission to execute the file, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</source>
           <target state="translated">RX n'a pas l'autorisation d'exécuter le fichier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rRemarque: \rÀ moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur.</target>
         </trans-unit>
+        <trans-unit id="SettingPageAlwaysLaunchNew.Content" translate="yes" xml:space="preserve">
+          <source>Always start a new process when activated</source>
+          <target state="translated">Toujours démarrer un nouveau processus lorsqu'il est activé</target>
+        </trans-unit>
+        <trans-unit id="SettingPageExceptAnimation.Content" translate="yes" xml:space="preserve">
+          <source>Turn off the initial animation to speed up the startup</source>
+          <target state="translated">Désactivez l'animation initiale pour accélérer le démarrage</target>
+        </trans-unit>
       </group>
     </body>
   </file>

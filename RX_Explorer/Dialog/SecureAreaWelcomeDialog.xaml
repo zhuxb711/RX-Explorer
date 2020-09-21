@@ -30,7 +30,7 @@
                               Target="{x:Bind ConfirmPassword}"/>
     </local:QueueContentDialog.Resources>
     
-    <Grid>
+    <Grid MinWidth="320">
         <StackPanel>
             <PasswordBox Header="主密码"
                          PlaceholderText="设置解锁密码"

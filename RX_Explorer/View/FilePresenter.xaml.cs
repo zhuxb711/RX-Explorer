@@ -5632,7 +5632,7 @@ namespace RX_Explorer
                     {
                         TimeSpan ClickSpan = DateTimeOffset.Now - LastClickTime;
 
-                        if (ClickSpan.TotalMilliseconds > 800 && ClickSpan.TotalMilliseconds < 3000)
+                        if (ClickSpan.TotalMilliseconds > 1000 && ClickSpan.TotalMilliseconds < 3000)
                         {
                             NameLabel.Visibility = Visibility.Collapsed;
                             CurrentNameEditItem = Item;

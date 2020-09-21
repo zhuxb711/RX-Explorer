@@ -2667,4 +2667,10 @@
   <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
     <value>RX沒有執行文件的權限，可能需要管理員權限。您是否要授予管理員權限？\r\r注意：\r除非關閉了最後一個RX實例，否則它將以管理員權限繼續運行</value>
   </data>
+  <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
+    <value>激活後始終啟動新流程</value>
+  </data>
+  <data name="SettingPageExceptAnimation.Content" xml:space="preserve">
+    <value>關閉初始動畫以加快啟動速度</value>
+  </data>
 </root>

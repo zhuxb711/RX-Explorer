@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Windows.Security.Credentials;
+﻿using Windows.Security.Credentials;
 
 namespace RX_Explorer.Class
 {
@@ -17,7 +16,7 @@ namespace RX_Explorer.Class
         {
             PasswordVault Vault = new PasswordVault();
 
-            PasswordCredential Credential = Vault.RetrieveAll().Where((Cre) => Cre.UserName == Name).FirstOrDefault();
+            PasswordCredential Credential = Vault.Retrieve("RX_Secure_Vault", Name);
 
             if (Credential != null)
             {
@@ -39,9 +38,7 @@ namespace RX_Explorer.Class
         {
             PasswordVault Vault = new PasswordVault();
 
-            PasswordCredential Credential = Vault.RetrieveAll().Where((Cre) => Cre.UserName == Name).FirstOrDefault();
-
-            if (Credential != null)
+            foreach (PasswordCredential Credential in Vault.FindAllByResource("RX_Secure_Vault"))
             {
                 Vault.Remove(Credential);
             }

@@ -2667,4 +2667,10 @@ Les noms non valides incluent
   <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
     <value>RX n'a pas l'autorisation d'exécuter le fichier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rRemarque: \rÀ moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur.</value>
   </data>
+  <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
+    <value>Toujours démarrer un nouveau processus lorsqu'il est activé</value>
+  </data>
+  <data name="SettingPageExceptAnimation.Content" xml:space="preserve">
+    <value>Désactivez l'animation initiale pour accélérer le démarrage</value>
+  </data>
 </root>

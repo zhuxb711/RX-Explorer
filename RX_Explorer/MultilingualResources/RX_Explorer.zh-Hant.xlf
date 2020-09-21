@@ -3536,6 +3536,14 @@ Invalid names include
           <source>RX does not have permission to execute the file, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</source>
           <target state="translated">RX沒有執行文件的權限，可能需要管理員權限。您是否要授予管理員權限？\r\r注意：\r除非關閉了最後一個RX實例，否則它將以管理員權限繼續運行</target>
         </trans-unit>
+        <trans-unit id="SettingPageAlwaysLaunchNew.Content" translate="yes" xml:space="preserve">
+          <source>Always start a new process when activated</source>
+          <target state="translated">激活後始終啟動新流程</target>
+        </trans-unit>
+        <trans-unit id="SettingPageExceptAnimation.Content" translate="yes" xml:space="preserve">
+          <source>Turn off the initial animation to speed up the startup</source>
+          <target state="translated">關閉初始動畫以加快啟動速度</target>
+        </trans-unit>
       </group>
     </body>
   </file>

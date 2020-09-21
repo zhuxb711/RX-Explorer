@@ -3,6 +3,35 @@
 
 #####Mise à jour des fonctionnalités
 
+>#####Maintenant, la zone de la barre des tâches affichera le nom du dossier actuel
+
+>#####Faire glisser l'onglet vers l'extérieur et le relâcher lancera une nouvelle fenêtre
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Ajouter des options à la page des paramètres
+
+>#####Configurez la page pour appliquer de nouveaux effets d'animation
+
+>#####L'élément avec le focus sera désormais plus beau
+
+#####Correction d'un bug
+
+>#####Correction d'un problème qui empêchait de démarrer Windows Terminal
+
+>#####Correction d'un problème où une application ne peut pas être basculée vers la visionneuse intégrée après avoir défini une application comme méthode d'ouverture par défaut
+
+>#####Correction d'un problème en raison duquel l'utilisation de la touche Entrée provoquait un comportement inattendu après l'utilisation du clavier pour accéder directement au fichier correspondant
+
+>#####Correction d'un problème selon lequel la fonction de changement de nom par double-clic est trop urgente
+
+>#####Correction d'un problème pouvant exister lors du tri des fichiers
+
+*****
+###Quoi de neuf dans la version 5.3.6.0
+
+#####Mise à jour des fonctionnalités
+
 >#####Ajout de la possibilité d'accorder des autorisations d'administrateur, maintenant l'application demandera des autorisations d'administrateur en cas de besoin
 
 >#####Ajout de fonctions de copie, de déplacement et de suppression de fichiers cachés
