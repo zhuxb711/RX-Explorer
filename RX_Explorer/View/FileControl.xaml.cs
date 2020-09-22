@@ -18,7 +18,6 @@ using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
 using Windows.System;
 using Windows.UI.Core;
-using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -1795,7 +1794,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void GoParentFolder_Click(object sender, RoutedEventArgs e)
+        public async void GoParentFolder_Click(object sender, RoutedEventArgs e)
         {
             await CancelAddItemOperation().ConfigureAwait(true);
 
@@ -1803,36 +1802,39 @@ namespace RX_Explorer
             {
                 try
                 {
-                    if (WIN_Native_API.CheckIfHidden(Path.GetDirectoryName(CurrentFolder.Path)))
+                    if (GoParentFolder.IsEnabled)
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        if (WIN_Native_API.CheckIfHidden(Path.GetDirectoryName(CurrentFolder.Path)))
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
-
-                        return;
-                    }
-
-                    if (SettingControl.IsDetachTreeViewAndPresenter)
-                    {
-                        if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
-                        {
-                            await DisplayItemsInFolder(ParentFolder).ConfigureAwait(false);
-                        }
-                    }
-                    else
-                    {
-                        if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
-                        {
-                            TreeViewNode ParentNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
-
-                            if (ParentFolder != null)
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
-                                await DisplayItemsInFolder(ParentNode).ConfigureAwait(false);
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+
+                            return;
+                        }
+
+                        if (SettingControl.IsDetachTreeViewAndPresenter)
+                        {
+                            if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
+                            {
+                                await DisplayItemsInFolder(ParentFolder).ConfigureAwait(false);
+                            }
+                        }
+                        else
+                        {
+                            if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
+                            {
+                                TreeViewNode ParentNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+
+                                if (ParentFolder != null)
+                                {
+                                    await DisplayItemsInFolder(ParentNode).ConfigureAwait(false);
+                                }
                             }
                         }
                     }
@@ -1850,64 +1852,70 @@ namespace RX_Explorer
 
             if (Interlocked.Exchange(ref NavigateLockResource, 1) == 0)
             {
-                string Path = GoAndBackRecord[--RecordIndex];
-
-                if (WIN_Native_API.CheckIfHidden(Path))
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
-
-                    _ = Interlocked.Exchange(ref NavigateLockResource, 0);
-                    return;
-                }
+                string Path = string.Empty;
 
                 try
                 {
-                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
-
-                    IsBackOrForwardAction = true;
-
-                    if (SettingControl.IsDetachTreeViewAndPresenter)
+                    if (GoBackRecord.IsEnabled)
                     {
-                        await DisplayItemsInFolder(Folder).ConfigureAwait(true);
+                        Path = GoAndBackRecord[--RecordIndex];
 
-                        await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        if (Path.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
+                        if (WIN_Native_API.CheckIfHidden(Path))
                         {
-                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
-
-                            if (TargetNode == null)
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
-                                QueueContentDialog dialog = new QueueContentDialog
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+
+                            _ = Interlocked.Exchange(ref NavigateLockResource, 0);
+                            return;
+                        }
+
+                        StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
+
+                        IsBackOrForwardAction = true;
+
+                        if (SettingControl.IsDetachTreeViewAndPresenter)
+                        {
+                            await DisplayItemsInFolder(Folder).ConfigureAwait(true);
+
+                            await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
+                        }
+                        else
+                        {
+                            if (Path.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
+                            {
+                                TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+
+                                if (TargetNode == null)
                                 {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                    QueueContentDialog dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+                                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                }
+                                else
+                                {
+                                    await DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
+
+                                    await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
+                                }
                             }
                             else
                             {
-                                await DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
+                                await OpenTargetFolder(Folder).ConfigureAwait(true);
 
                                 await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
                             }
                         }
-                        else
-                        {
-                            await OpenTargetFolder(Folder).ConfigureAwait(true);
 
-                            await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
-                        }
                     }
                 }
                 catch (Exception)
@@ -1935,64 +1943,70 @@ namespace RX_Explorer
 
             if (Interlocked.Exchange(ref NavigateLockResource, 1) == 0)
             {
-                string Path = GoAndBackRecord[++RecordIndex];
-
-                if (WIN_Native_API.CheckIfHidden(Path))
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
-
-                    _ = Interlocked.Exchange(ref NavigateLockResource, 0);
-
-                    return;
-                }
+                string Path = string.Empty;
 
                 try
                 {
-                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
-
-                    IsBackOrForwardAction = true;
-
-                    if (SettingControl.IsDetachTreeViewAndPresenter)
+                    if (GoForwardRecord.IsEnabled)
                     {
-                        await DisplayItemsInFolder(Folder).ConfigureAwait(true);
+                        Path = GoAndBackRecord[++RecordIndex];
 
-                        await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        if (Path.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
+                        if (WIN_Native_API.CheckIfHidden(Path))
                         {
-                            TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
-
-                            if (TargetNode == null)
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                await DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
 
-                                await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
-                            }
+                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+
+                            _ = Interlocked.Exchange(ref NavigateLockResource, 0);
+
+                            return;
+                        }
+
+
+                        StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
+
+                        IsBackOrForwardAction = true;
+
+                        if (SettingControl.IsDetachTreeViewAndPresenter)
+                        {
+                            await DisplayItemsInFolder(Folder).ConfigureAwait(true);
+
+                            await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
                         }
                         else
                         {
-                            await OpenTargetFolder(Folder).ConfigureAwait(true);
+                            if (Path.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
+                            {
+                                TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
 
-                            await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
+                                if (TargetNode == null)
+                                {
+                                    QueueContentDialog dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+                                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                }
+                                else
+                                {
+                                    await DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
+
+                                    await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
+                                }
+                            }
+                            else
+                            {
+                                await OpenTargetFolder(Folder).ConfigureAwait(true);
+
+                                await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
+                            }
                         }
                     }
                 }

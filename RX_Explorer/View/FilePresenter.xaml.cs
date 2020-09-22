@@ -29,7 +29,6 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
@@ -101,7 +100,7 @@ namespace RX_Explorer
             set
             {
                 ItemPresenter.SelectedItem = value;
-                
+
                 if (value != null)
                 {
                     (ItemPresenter.ContainerFromItem(value) as ListViewItem)?.Focus(FocusState.Programmatic);
@@ -149,12 +148,12 @@ namespace RX_Explorer
             {
                 switch (args.VirtualKey)
                 {
-                    case VirtualKey.Left when FileControlInstance.GoBackRecord.IsEnabled:
+                    case VirtualKey.Left:
                         {
                             FileControlInstance.GoBackRecord_Click(null, null);
                             break;
                         }
-                    case VirtualKey.Right when FileControlInstance.GoForwardRecord.IsEnabled:
+                    case VirtualKey.Right:
                         {
                             FileControlInstance.GoForwardRecord_Click(null, null);
                             break;
@@ -218,7 +217,7 @@ namespace RX_Explorer
                             await EnterSelectedItem(Item).ConfigureAwait(false);
                             break;
                         }
-                    case VirtualKey.Back when FileControlInstance.GoBackRecord.IsEnabled:
+                    case VirtualKey.Back:
                         {
                             FileControlInstance.GoBackRecord_Click(null, null);
                             break;
@@ -2394,9 +2393,16 @@ namespace RX_Explorer
         {
             e.Handled = true;
 
-            if (SettingControl.IsInputFromPrimaryButton && (e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase ReFile)
+            if (SettingControl.IsInputFromPrimaryButton)
             {
-                await EnterSelectedItem(ReFile).ConfigureAwait(false);
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase ReFile)
+                {
+                    await EnterSelectedItem(ReFile).ConfigureAwait(false);
+                }
+                else
+                {
+                    FileControlInstance.GoParentFolder_Click(null, null);
+                }
             }
         }
 
@@ -3134,7 +3140,7 @@ namespace RX_Explorer
                                 else
                                 {
                                     ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
-                                    
+
                                     if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                     {
                                         if (Dialog.SelectedProgram.PackageName == Package.Current.Id.FamilyName)
@@ -3663,7 +3669,7 @@ namespace RX_Explorer
             if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile Item)
             {
                 ProgramPickerDialog Dialog = new ProgramPickerDialog(Item);
-                
+
                 if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
                     if (Dialog.SelectedProgram.PackageName == Package.Current.Id.FamilyName)

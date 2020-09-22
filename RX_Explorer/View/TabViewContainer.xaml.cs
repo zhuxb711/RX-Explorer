@@ -223,7 +223,7 @@ namespace RX_Explorer
                     args.Handled = true;
                     SettingControl.IsInputFromPrimaryButton = false;
 
-                    if (Control.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && !QueueContentDialog.IsRunningOrWaiting && Control.GoForwardRecord.IsEnabled)
+                    if (Control.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && !QueueContentDialog.IsRunningOrWaiting)
                     {
                         Control.GoForwardRecord_Click(null, null);
                     }
