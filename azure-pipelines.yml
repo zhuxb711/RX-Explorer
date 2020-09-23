@@ -13,6 +13,8 @@ variables:
 - group: UWP-PipeLineVariable
 - name: buildProject
   value: '**/Package/Package.wapproj'
+- name: solution
+  value: '**/*.sln'
 - name: buildPlatform
   value: 'x86|x64|ARM'
 - name: buildConfiguration
