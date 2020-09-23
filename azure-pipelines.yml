@@ -11,8 +11,8 @@ pool:
 
 variables:
 - group: UWP-PipeLineVariable
-- name: solution
-  value: '**/*.sln'
+- name: buildProject
+  value: 'RX-Explorer/Package/*.wapproj'
 - name: buildPlatform
   value: 'x86|x64|ARM'
 - name: buildConfiguration
@@ -53,7 +53,7 @@ steps:
 - task: VSBuild@1
   displayName: 'Build RX-Explorer'
   inputs:
-    solution: '$(solution)'
+    solution: '$(buildProject)'
     configuration: '$(buildConfiguration)'
     msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)"
                   /p:AppxPackageDir="$(appxPackageDir)"
