@@ -11,7 +11,7 @@ pool:
 
 variables:
   solution: '**/*.sln'
-  buildPlatform: 'x86|x64'
+  buildPlatform: 'x86|x64|ARM'
   buildConfiguration: 'Release'
   appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
 
@@ -50,11 +50,11 @@ steps:
     rootFolderOrFile: '$(build.artifactstagingdirectory)'
     includeRootFolder: true
     archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/Package.zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/Compiled_Package.zip'
     replaceExistingArchive: true
 
 - task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: Package'
+  displayName: 'Publish Artifact: Compiled_Package'
   inputs:
-    artifactName: 'Package'
-    PathtoPublish: '$(build.artifactstagingdirectory)/Package.zip'
+    artifactName: 'Compiled_Package'
+    PathtoPublish: '$(build.artifactstagingdirectory)/Compiled_Package.zip'
