@@ -28,7 +28,7 @@ steps:
     restoreSolution: '$(solution)'
 
 - task: DownloadSecureFile@1
-  name: signingCert
+  name: secureFile
   displayName: 'Download CA Certificate'
   inputs:
     secureFile: '$(signingCert.secureFileName)'
@@ -39,7 +39,7 @@ steps:
     script: |
       Write-Host "Start adding the PFX file to the certificate store."
 
-      $pfxpath = '$(signingCert.secureFileName)'
+      $pfxpath = '$(secureFile.secureFilePath)'
       $password = '$(signingCert.password)'      
       
       Add-Type -AssemblyName System.Security
@@ -62,7 +62,7 @@ steps:
                   /p:UapAppxPackageBuildMode=StoreUpload
                   /p:AppxPackageSigningEnabled=true
                   /p:PackageCertificateThumbprint="$(signingCert.thumbprint)"
-                  /p:PackageCertificateKeyFile="$(signingCert.secureFileName)"
+                  /p:PackageCertificateKeyFile="$(secureFilePath.secureFilePath)"
                   /p:PackageCertificatePassword="$(signingCert.password)"'
     clean: true
 
