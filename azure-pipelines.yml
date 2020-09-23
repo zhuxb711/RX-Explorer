@@ -53,7 +53,6 @@ steps:
 - task: VSBuild@1
   displayName: 'Build RX-Explorer'
   inputs:
-    platform: 'x86'
     solution: '$(solution)'
     configuration: '$(buildConfiguration)'
     msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)"
