@@ -11,7 +11,7 @@ pool:
 
 variables:
   solution: '**/*.sln'
-  buildPlatform: 'x86|x64|ARM'
+  buildPlatform: 'x86|x64'
   buildConfiguration: 'Release'
   appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
 
@@ -31,7 +31,7 @@ steps:
 - task: VSBuild@1
   displayName: 'Build RX-Explorer'
   inputs:
-    platform: 'X64'
+    platform: 'X86'
     solution: '$(solution)'
     configuration: '$(buildConfiguration)'
     clean: true
