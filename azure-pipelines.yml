@@ -12,7 +12,7 @@ pool:
 variables:
 - group: UWP-PipeLineVariable
 - name: buildProject
-  value: 'RX-Explorer/Package/*.wapproj'
+  value: '**/Package/Package.wapproj'
 - name: buildPlatform
   value: 'x86|x64|ARM'
 - name: buildConfiguration
