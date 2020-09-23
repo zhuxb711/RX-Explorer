@@ -44,7 +44,7 @@ steps:
       
       Add-Type -AssemblyName System.Security
       $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-      $cert.Import($pfxpath, $password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]"PersistKeySet")
+      $cert.Import($pfxpath, $password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
       $store = new-object system.security.cryptography.X509Certificates.X509Store -argumentlist "MY", CurrentUser
       $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
       $store.Add($cert)
@@ -64,6 +64,7 @@ steps:
                   /p:PackageCertificateThumbprint="$(signingCert.thumbprint)"
                   /p:PackageCertificateKeyFile="$(signingCert.secureFileName)"
                   /p:PackageCertificatePassword="$(signingCert.password)"'
+    clean: true
 
 - task: CopyFiles@2
   displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
