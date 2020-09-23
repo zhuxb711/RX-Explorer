@@ -29,10 +29,13 @@ steps:
     secureFile: 'RX_Explorer_TemporaryKey.pfx'
 
 - task: VSBuild@1
+  displayName: 'Build RX-Explorer'
   inputs:
-    platform: 'x64'
+    platform: 'X64'
     solution: '$(solution)'
     configuration: '$(buildConfiguration)'
+    clean: true
+    msbuildArchitecture: x64
     msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=SideloadOnly /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="" /p:PackageCertificateKeyFile="$(signingCert.secureFilePath)"'
 
 - task: CopyFiles@2
