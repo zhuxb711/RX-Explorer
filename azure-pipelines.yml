@@ -14,7 +14,7 @@ variables:
 - name: solution
   value: '**/*.sln'
 - name: buildPlatform
-  value: 'x86|x64'
+  value: 'x86|x64|ARM'
 - name: buildConfiguration
   value: 'Release'
 - name: appxPackageDir
@@ -62,7 +62,7 @@ steps:
                   /p:UapAppxPackageBuildMode=StoreUpload
                   /p:AppxPackageSigningEnabled=true
                   /p:PackageCertificateThumbprint="$(signingCert.thumbprint)"
-                  /p:PackageCertificateKeyFile="$(secureFilePath.secureFilePath)"
+                  /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)"
                   /p:PackageCertificatePassword="$(signingCert.password)"'
     clean: true
 
