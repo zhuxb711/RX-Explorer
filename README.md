@@ -1,5 +1,7 @@
 # RX文件管理器
 
+[![Build Status](https://dev.azure.com/zhuxb711/RX-Explorer/_apis/build/status/zhuxb711.RX-Explorer?branchName=master)](https://dev.azure.com/zhuxb711/RX-Explorer/_build/latest?definitionId=1&branchName=master)
+
 一款完全免费无广告的文件管理器。
 
 该文件管理器能轻松管理文件系统，包括复制、粘贴、剪切、删除、搜索等基本操作，以及Zip压缩/解压、蓝牙文件分享、WIFI文件分享、音视频文件转码、图片编辑裁剪和滤镜功能、图片转码、文件保险柜等，同时还支持直接执行exe文件。
@@ -11,6 +13,8 @@
 Microsoft Store下载链接: https://www.microsoft.com/store/productId/9N88QBQKF2RS
 
 # RX Explorer
+
+[![Build Status](https://dev.azure.com/zhuxb711/RX-Explorer/_apis/build/status/zhuxb711.RX-Explorer?branchName=master)](https://dev.azure.com/zhuxb711/RX-Explorer/_build/latest?definitionId=1&branchName=master)
 
 A completely free and ad-free explorer.
 
