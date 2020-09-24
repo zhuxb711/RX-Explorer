@@ -12,7 +12,7 @@ pool:
 variables:
 - group: UWP-PipeLineVariable
 - name: buildProject
-  value: '**/Package/Package.wapproj'
+  value: 'Package'
 - name: solution
   value: '**/*.sln'
 - name: buildPlatform
