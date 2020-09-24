@@ -27,6 +27,8 @@ variables:
   value: 'Release'
 - name: appxPackageDir
   value: '$(build.artifactStagingDirectory)\AppxPackages\\'
+- name: publishZipPath
+  value: $(Build.ArtifactStagingDirectory)\Compiled_Package.zip
 
 jobs:
 - job: ReleaseBuild
@@ -80,22 +82,10 @@ jobs:
                       /p:PackageCertificatePassword="$(signingCert.password)"'
         clean: true
 
-    - task: CopyFiles@2
-      displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
-      inputs:
-        SourceFolder: '$(system.defaultworkingdirectory)'
-        Contents: '**\bin\$(BuildConfiguration)\**'
-        TargetFolder: '$(build.artifactstagingdirectory)'
-
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Artifact: Release-Package'
-      inputs:
-        PathtoPublish: '$(build.artifactstagingdirectory)'
-
     - task: ArchiveFiles@2
       inputs:
-        rootFolderOrFile: '$(build.artifactstagingdirectory)'
-        includeRootFolder: true
+        rootFolderOrFile: '$(appxPackageDir)'
+        includeRootFolder: false
         archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/Compiled_Package.zip'
+        archiveFile: '$(publishZipPath)'
         replaceExistingArchive: true
