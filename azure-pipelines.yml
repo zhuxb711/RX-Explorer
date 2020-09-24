@@ -99,4 +99,5 @@ jobs:
     - task: PublishBuildArtifacts@1
       displayName: 'Publish Artifact: Package'
       inputs:
+        ArtifactName: 'Download_Publish'
         PathtoPublish: '$(publishZipPath)'
