@@ -4,9 +4,15 @@
 # https://aka.ms/yaml
 
 trigger:
- tags:
-   include:
-   - v*
+  tags:
+    include:
+    - v*
+
+pr:
+  autoCancel: true
+  branches:
+    include:
+    - master
 
 schedules:
   - cron: 0 12 * * *
