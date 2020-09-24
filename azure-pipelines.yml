@@ -30,7 +30,7 @@ variables:
 
 jobs:
 - job: ReleaseBuild
-  timeoutInMinutes: 180
+  timeoutInMinutes: 0
   pool:
     vmImage: 'windows-latest'
   steps:
