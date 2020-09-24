@@ -15,87 +15,86 @@ schedules:
       include:
       - master
 
-pool:
-  vmImage: 'windows-latest'
+jobs:
+- job: ReleaseBuild
+  timeoutInMinutes: 180
+  pool:
+    vmImage: 'windows-latest'
+  variables:
+  - group: UWP-PipeLineVariable
+  - name: buildProject
+    value: 'Package'
+  - name: solution
+    value: '**/*.sln'
+  - name: buildPlatform
+    value: 'x86|x64|ARM'
+  - name: buildConfiguration
+    value: 'Release'
+  - name: appxPackageDir
+    value: '$(build.artifactStagingDirectory)\AppxPackages\\'
+  steps:
+    - task: NuGetToolInstaller@1
+    - task: NuGetCommand@2
+      inputs:
+        restoreSolution: '$(solution)'
 
-variables:
-- group: UWP-PipeLineVariable
-- name: buildProject
-  value: 'Package'
-- name: solution
-  value: '**/*.sln'
-- name: buildPlatform
-  value: 'x86|x64|ARM'
-- name: buildConfiguration
-  value: 'Release'
-- name: appxPackageDir
-  value: '$(build.artifactStagingDirectory)\AppxPackages\\'
+    - task: DownloadSecureFile@1
+      name: secureFile
+      displayName: 'Download CA Certificate'
+      inputs:
+        secureFile: '$(signingCert.secureFileName)'
 
-steps:
-- task: NuGetToolInstaller@1
+    - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "Start adding the PFX file to the certificate store."
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
-
-- task: DownloadSecureFile@1
-  name: secureFile
-  displayName: 'Download CA Certificate'
-  inputs:
-    secureFile: '$(signingCert.secureFileName)'
-
-- task: PowerShell@2
-  inputs:
-    targetType: 'inline'
-    script: |
-      Write-Host "Start adding the PFX file to the certificate store."
-
-      $pfxpath = '$(secureFile.secureFilePath)'
-      $password = '$(signingCert.password)'      
+          $pfxpath = '$(secureFile.secureFilePath)'
+          $password = '$(signingCert.password)'      
       
-      Add-Type -AssemblyName System.Security
-      $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-      $cert.Import($pfxpath, $password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
-      $store = new-object system.security.cryptography.X509Certificates.X509Store -argumentlist "MY", CurrentUser
-      $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
-      $store.Add($cert)
-      $store.Close()
+          Add-Type -AssemblyName System.Security
+          $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
+          $cert.Import($pfxpath, $password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
+          $store = new-object system.security.cryptography.X509Certificates.X509Store -argumentlist "MY", CurrentUser
+          $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
+          $store.Add($cert)
+          $store.Close()
 
-- task: VSBuild@1
-  displayName: 'Build RX-Explorer'
-  timeoutInMinutes: 0
-  inputs:
-    solution: '$(solution)'
-    msbuildArchitecture: 'x64'
-    configuration: '$(buildConfiguration)'
-    msbuildArgs: '/m
-                  /t:$(buildProject):Rebuild
-                  /p:AppxBundlePlatforms="$(buildPlatform)"
-                  /p:AppxPackageDir="$(appxPackageDir)"
-                  /p:AppxBundle=Always
-                  /p:UapAppxPackageBuildMode=StoreUpload
-                  /p:AppxPackageSigningEnabled=true
-                  /p:PackageCertificateThumbprint="$(signingCert.thumbprint)"
-                  /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)"
-                  /p:PackageCertificatePassword="$(signingCert.password)"'
-    clean: true
+    - task: VSBuild@1
+      displayName: 'Build RX-Explorer'
+      inputs:
+        solution: '$(solution)'
+        msbuildArchitecture: 'x64'
+        configuration: '$(buildConfiguration)'
+        msbuildArgs: '/m
+                      /t:$(buildProject):Rebuild
+                      /p:AppxBundlePlatforms="$(buildPlatform)"
+                      /p:AppxPackageDir="$(appxPackageDir)"
+                      /p:AppxBundle=Always
+                      /p:UapAppxPackageBuildMode=StoreUpload
+                      /p:AppxPackageSigningEnabled=true
+                      /p:PackageCertificateThumbprint="$(signingCert.thumbprint)"
+                      /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)"
+                      /p:PackageCertificatePassword="$(signingCert.password)"'
+        clean: true
 
-- task: CopyFiles@2
-  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
-  inputs:
-    SourceFolder: '$(system.defaultworkingdirectory)'
-    Contents: '**\bin\$(BuildConfiguration)\**'
-    TargetFolder: '$(build.artifactstagingdirectory)'
+    - task: CopyFiles@2
+      displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+      inputs:
+        SourceFolder: '$(system.defaultworkingdirectory)'
+        Contents: '**\bin\$(BuildConfiguration)\**'
+        TargetFolder: '$(build.artifactstagingdirectory)'
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: Release-Package'
-  inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)'
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: Release-Package'
+      inputs:
+        PathtoPublish: '$(build.artifactstagingdirectory)'
 
-- task: ArchiveFiles@2
-  inputs:
-    rootFolderOrFile: '$(build.artifactstagingdirectory)'
-    includeRootFolder: true
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/Compiled_Package.zip'
-    replaceExistingArchive: true
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: '$(build.artifactstagingdirectory)'
+        includeRootFolder: true
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/Compiled_Package.zip'
+        replaceExistingArchive: true
