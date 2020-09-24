@@ -89,3 +89,8 @@ jobs:
         archiveType: 'zip'
         archiveFile: '$(publishZipPath)'
         replaceExistingArchive: true
+    
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: Package'
+      inputs:
+        PathtoPublish: '$(publishZipPath)'
