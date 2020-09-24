@@ -55,9 +55,12 @@ steps:
 - task: VSBuild@1
   displayName: 'Build RX-Explorer'
   inputs:
-    solution: '$(buildProject)'
+    solution: '$(solution)'
+    msbuildArchitecture: 'x64'
     configuration: '$(buildConfiguration)'
-    msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)"
+    msbuildArgs: '/m
+                  /t:$(buildProject):Rebuild
+                  /p:AppxBundlePlatforms="$(buildPlatform)"
                   /p:AppxPackageDir="$(appxPackageDir)"
                   /p:AppxBundle=Always
                   /p:UapAppxPackageBuildMode=StoreUpload
