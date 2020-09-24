@@ -54,6 +54,7 @@ steps:
 
 - task: VSBuild@1
   displayName: 'Build RX-Explorer'
+  timeoutInMinutes: 0
   inputs:
     solution: '$(solution)'
     msbuildArchitecture: 'x64'
