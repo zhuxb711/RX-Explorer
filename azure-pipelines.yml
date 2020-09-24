@@ -15,23 +15,24 @@ schedules:
       include:
       - master
 
+variables:
+- group: UWP-PipeLineVariable
+- name: buildProject
+  value: 'Package'
+- name: solution
+  value: '**/*.sln'
+- name: buildPlatform
+  value: 'x86|x64|ARM'
+- name: buildConfiguration
+  value: 'Release'
+- name: appxPackageDir
+  value: '$(build.artifactStagingDirectory)\AppxPackages\\'
+
 jobs:
 - job: ReleaseBuild
   timeoutInMinutes: 180
   pool:
     vmImage: 'windows-latest'
-  variables:
-  - group: UWP-PipeLineVariable
-  - name: buildProject
-    value: 'Package'
-  - name: solution
-    value: '**/*.sln'
-  - name: buildPlatform
-    value: 'x86|x64|ARM'
-  - name: buildConfiguration
-    value: 'Release'
-  - name: appxPackageDir
-    value: '$(build.artifactStagingDirectory)\AppxPackages\\'
   steps:
     - task: NuGetToolInstaller@1
     - task: NuGetCommand@2
