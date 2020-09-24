@@ -4,7 +4,16 @@
 # https://aka.ms/yaml
 
 trigger:
-- master
+ tags:
+   include:
+   - v*
+
+schedules:
+  - cron: 0 12 * * *
+    displayName: DailyBuild
+    branches:
+      include:
+      - master
 
 pool:
   vmImage: 'windows-latest'
