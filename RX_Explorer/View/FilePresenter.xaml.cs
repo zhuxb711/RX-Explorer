@@ -2401,7 +2401,14 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    FileControlInstance.GoParentFolder_Click(null, null);
+                    if (Path.IsPathRooted(FileControlInstance.CurrentFolder.Path))
+                    {
+                        MainPage.ThisPage.NavView_BackRequested(null, null);
+                    }
+                    else
+                    {
+                        FileControlInstance.GoParentFolder_Click(null, null);
+                    }
                 }
             }
         }
