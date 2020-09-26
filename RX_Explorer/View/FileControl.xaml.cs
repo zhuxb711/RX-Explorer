@@ -392,6 +392,11 @@ namespace RX_Explorer
 
         public async Task OpenTargetFolder(StorageFolder Folder)
         {
+            if (Folder == null)
+            {
+                throw new ArgumentNullException(nameof(Stream), "Argument could not be null");
+            }
+
             CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.Clear();
             CommonAccessCollection.GetFilePresenterInstance(this).HasFile.Visibility = Visibility.Collapsed;
 
@@ -450,7 +455,7 @@ namespace RX_Explorer
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is Tuple<Microsoft.UI.Xaml.Controls.TabViewItem, StorageFolder, ThisPC> Parameters)
+            if (e?.Parameter is Tuple<Microsoft.UI.Xaml.Controls.TabViewItem, StorageFolder, ThisPC> Parameters)
             {
                 Application.Current.Suspending += Current_Suspending;
                 Application.Current.Resuming += Current_Resuming;
@@ -1331,7 +1336,7 @@ namespace RX_Explorer
             else
             {
                 BitmapImage Thumbnail = await CurrentFolder.GetThumbnailBitmapAsync().ConfigureAwait(true);
-                CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(CurrentFolder, Thumbnail));
+                CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(CurrentFolder, Thumbnail, LibraryType.UserCustom));
                 await SQLite.Current.SetLibraryPathAsync(CurrentFolder.Path, LibraryType.UserCustom).ConfigureAwait(false);
             }
         }

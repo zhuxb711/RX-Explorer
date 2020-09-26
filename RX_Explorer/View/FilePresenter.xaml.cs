@@ -164,7 +164,7 @@ namespace RX_Explorer
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is FileControl Instance)
+            if (e?.Parameter is FileControl Instance)
             {
                 CommonAccessCollection.Register(Instance, this);
 
@@ -2716,7 +2716,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(folder, await folder.GetThumbnailBitmapAsync().ConfigureAwait(true)));
+                    CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(folder, await folder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibraryType.UserCustom));
                     await SQLite.Current.SetLibraryPathAsync(folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
                 }
             }

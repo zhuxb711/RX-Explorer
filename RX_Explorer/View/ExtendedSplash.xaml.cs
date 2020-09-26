@@ -22,7 +22,7 @@ namespace RX_Explorer
 
         private readonly SplashScreen Splash;
 
-        private string ActivateParameter = null;
+        private string ActivateParameter;
 
         public ExtendedSplash(SplashScreen Screen, bool IsPreLaunch = false, string ActivateParameter = null)
         {

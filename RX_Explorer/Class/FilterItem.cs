@@ -23,7 +23,7 @@ namespace RX_Explorer.Class
         /// </summary>
         public SoftwareBitmapSource Bitmap { get; private set; }
 
-        private bool IsDisposed = false;
+        private bool IsDisposed;
 
         /// <summary>
         /// 初始化FilterItem对象

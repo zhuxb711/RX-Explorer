@@ -50,7 +50,7 @@ namespace RX_Explorer.Class
         /// </summary>
         public string GUID { get; private set; }
 
-        public bool IsTranslated { get; set; } = false;
+        public bool IsTranslated { get; set; }
 
         /// <summary>
         /// 记录当前用户的操作

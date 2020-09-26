@@ -263,7 +263,7 @@ namespace SystemInformationProvider
 				DWORD processorCoreCount = 0;
 				DWORD byteOffset = 0;
 				PCACHE_DESCRIPTOR Cache;
-				DWORD L1SIZE, L2SIZE, L3SIZE;
+				DWORD L1SIZE = 0, L2SIZE = 0, L3SIZE = 0;
 
 				MEMORY_BASIC_INFORMATION info = {};
 				if (VirtualQuery(VirtualQuery, &info, sizeof(info)))

@@ -28,7 +28,7 @@ namespace RX_Explorer.Class
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-        public struct WIN32_FIND_DATA
+        public struct WIN32_FIND_DATA : IEquatable<WIN32_FIND_DATA>
         {
             public uint dwFileAttributes;
             public FILETIME ftCreationTime;
@@ -44,6 +44,31 @@ namespace RX_Explorer.Class
 
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 14)]
             public string cAlternateFileName;
+
+            public override bool Equals(object obj)
+            {
+                return cFileName.Equals(obj);
+            }
+
+            public override int GetHashCode()
+            {
+                return cFileName.GetHashCode();
+            }
+
+            public static bool operator ==(WIN32_FIND_DATA left, WIN32_FIND_DATA right)
+            {
+                return left.cFileName.Equals(right.cFileName);
+            }
+
+            public static bool operator !=(WIN32_FIND_DATA left, WIN32_FIND_DATA right)
+            {
+                return !(left.cFileName == right.cFileName);
+            }
+
+            public bool Equals(WIN32_FIND_DATA other)
+            {
+                return cFileName.Equals(other.cFileName);
+            }
         }
 
         [StructLayout(LayoutKind.Sequential)]

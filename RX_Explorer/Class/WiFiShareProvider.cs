@@ -19,7 +19,7 @@ namespace RX_Explorer.Class
     {
         private HttpListener Listener;
 
-        private bool IsDisposed = false;
+        private bool IsDisposed;
 
         private CancellationTokenSource Cancellation = new CancellationTokenSource();
 
@@ -29,7 +29,7 @@ namespace RX_Explorer.Class
 
         public string CurrentUri { get; private set; }
 
-        public bool IsListeningThreadWorking { get; private set; } = false;
+        public bool IsListeningThreadWorking { get; private set; }
 
         /// <summary>
         /// 初始化WiFiShareProvider对象

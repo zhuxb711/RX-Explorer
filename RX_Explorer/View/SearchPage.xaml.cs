@@ -22,7 +22,6 @@ namespace RX_Explorer
     {
         private ObservableCollection<FileSystemStorageItemBase> SearchResult;
         private StorageItemQueryResult ItemQuery;
-        private CancellationTokenSource Cancellation;
         private FileControl FileControlInstance;
 
         public QueryOptions SetSearchTarget
@@ -50,9 +49,8 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is Tuple<FileControl, StorageItemQueryResult> Parameters)
+            if (e?.Parameter is Tuple<FileControl, StorageItemQueryResult> Parameters)
             {
-                FileControlInstance = Parameters.Item1;
                 ItemQuery = Parameters.Item2;
 
                 CommonAccessCollection.Register(FileControlInstance, this);
@@ -70,9 +68,10 @@ namespace RX_Explorer
 
             IReadOnlyList<IStorageItem> SearchItems = null;
 
+            CancellationTokenSource Cancellation = new CancellationTokenSource();
+
             try
             {
-                Cancellation = new CancellationTokenSource();
                 Cancellation.Token.Register(() =>
                 {
                     HasItem.Visibility = Visibility.Visible;
@@ -123,7 +122,7 @@ namespace RX_Explorer
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             SearchResult.Clear();
-            Cancellation?.Cancel();
+            FileControlInstance = null;
         }
 
         private async void Location_Click(object sender, RoutedEventArgs e)

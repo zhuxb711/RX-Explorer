@@ -41,16 +41,19 @@ namespace RX_Explorer.Class
             }
         }
 
+        public LibraryType Type { get; private set; }
+
         /// <summary>
         /// 初始化LibraryFolder
         /// </summary>
         /// <param name="Folder">文件夹对象</param>
         /// <param name="Thumbnail">缩略图</param>
         /// <param name="Source">类型</param>
-        public LibraryFolder(StorageFolder Folder, BitmapImage Thumbnail)
+        public LibraryFolder(StorageFolder Folder, BitmapImage Thumbnail, LibraryType Type)
         {
             this.Folder = Folder ?? throw new FileNotFoundException();
             this.Thumbnail = Thumbnail;
+            this.Type = Type;
         }
     }
 }

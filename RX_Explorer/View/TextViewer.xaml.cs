@@ -57,7 +57,7 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is Tuple<FileControl, StorageFile> Parameters)
+            if (e?.Parameter is Tuple<FileControl, StorageFile> Parameters)
             {
                 FileControlInstance = Parameters.Item1;
                 SFile = Parameters.Item2;

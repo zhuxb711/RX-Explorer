@@ -252,7 +252,7 @@ namespace RX_Explorer
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is Tuple<string, Rect> Parameter)
+            if (e?.Parameter is Tuple<string, Rect> Parameter)
             {
                 string[] Paras = Parameter.Item1.Split("||");
                 switch (Paras[0])

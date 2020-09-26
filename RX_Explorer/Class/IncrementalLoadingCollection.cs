@@ -19,10 +19,10 @@ namespace RX_Explorer.Class
         public StorageItemQueryResult ItemQuery { get; private set; }
         public StorageFolderQueryResult FolderQuery { get; private set; }
 
-        private uint CurrentIndex = 0;
+        private uint CurrentIndex;
         private Func<uint, uint, StorageItemQueryResult, Task<IEnumerable<T>>> MoreItemsNeed;
         private Func<uint, uint, StorageFolderQueryResult, Task<IEnumerable<T>>> MoreFolderNeed;
-        private uint MaxNum = 0;
+        private uint MaxNum;
 
         /// <summary>
         /// 初始化IncrementalLoadingCollection
@@ -136,6 +136,6 @@ namespace RX_Explorer.Class
             });
         }
 
-        public bool HasMoreItems { get; set; } = false;
+        public bool HasMoreItems { get; set; }
     }
 }

@@ -703,18 +703,18 @@ namespace RX_Explorer
                 }
 
                 Queue<string> ErrorList = new Queue<string>();
-                foreach (var FolderPath in await SQLite.Current.GetLibraryPathAsync().ConfigureAwait(true))
+                foreach ((string, LibraryType) Library in await SQLite.Current.GetLibraryPathAsync().ConfigureAwait(true))
                 {
                     try
                     {
-                        StorageFolder PinFile = await StorageFolder.GetFolderFromPathAsync(FolderPath);
+                        StorageFolder PinFile = await StorageFolder.GetFolderFromPathAsync(Library.Item1);
                         BitmapImage Thumbnail = await PinFile.GetThumbnailBitmapAsync().ConfigureAwait(true);
-                        CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(PinFile, Thumbnail));
+                        CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(PinFile, Thumbnail, Library.Item2));
                     }
                     catch (Exception)
                     {
-                        ErrorList.Enqueue(FolderPath);
-                        await SQLite.Current.DeleteLibraryAsync(FolderPath).ConfigureAwait(true);
+                        ErrorList.Enqueue(Library.Item1);
+                        await SQLite.Current.DeleteLibraryAsync(Library.Item1).ConfigureAwait(true);
                     }
                 }
 

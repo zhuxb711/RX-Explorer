@@ -27,7 +27,7 @@ namespace RX_Explorer
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is string ExceptionMessage)
+            if (e?.Parameter is string ExceptionMessage)
             {
                 Message.Text = ExceptionMessage;
             }

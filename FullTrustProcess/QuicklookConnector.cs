@@ -14,18 +14,17 @@ namespace FullTrustProcess
         {
             try
             {
-                using (NamedPipeClientStream Client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out))
+                NamedPipeClientStream Client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out);
+
+                Client.Connect(2000);
+
+                using (StreamWriter Writer = new StreamWriter(Client))
                 {
-                    Client.Connect(2000);
-
-                    using (StreamWriter Writer = new StreamWriter(Client))
-                    {
-                        Writer.WriteLine($"{SwitchCommand}|");
-                        Writer.Flush();
-                    }
-
-                    return true;
+                    Writer.WriteLine($"{SwitchCommand}|");
+                    Writer.Flush();
                 }
+
+                return true;
             }
             catch
             {
@@ -42,15 +41,14 @@ namespace FullTrustProcess
 
             try
             {
-                using (NamedPipeClientStream Client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out))
-                {
-                    Client.Connect(2000);
+                NamedPipeClientStream Client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out);
 
-                    using (StreamWriter Writer = new StreamWriter(Client))
-                    {
-                        Writer.WriteLine($"{ToggleCommand}|{Path}");
-                        Writer.Flush();
-                    }
+                Client.Connect(2000);
+
+                using (StreamWriter Writer = new StreamWriter(Client))
+                {
+                    Writer.WriteLine($"{ToggleCommand}|{Path}");
+                    Writer.Flush();
                 }
 
                 return true;

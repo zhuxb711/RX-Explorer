@@ -108,9 +108,9 @@ namespace FullTrustProcess
         [DllImport("setupapi.dll")]
         private static extern IntPtr SetupDiGetClassDevs(
             ref Guid classGuid,
-            int enumerator,
+            uint enumerator,
             IntPtr hwndParent,
-            int flags);
+            uint flags);
 
         [DllImport("setupapi.dll", SetLastError = true, CharSet = CharSet.Auto)]
         private static extern bool SetupDiEnumDeviceInterfaces(
@@ -147,7 +147,7 @@ namespace FullTrustProcess
             int ulNameLength,
             int ulFlags);
 
-        [DllImport("setupapi.dll", EntryPoint = "CM_Request_Device_Eject")]
+        [DllImport("setupapi.dll", EntryPoint = "CM_Request_Device_Eject",CharSet = CharSet.Unicode)]
         private static extern int CM_Request_Device_Eject_NoUi(
             int dnDevInst,
             IntPtr pVetoType,

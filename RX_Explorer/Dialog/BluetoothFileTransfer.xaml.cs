@@ -15,7 +15,7 @@ namespace RX_Explorer.Dialog
 
         private ObexService ObexClient;
 
-        private bool AbortFromHere = false;
+        private bool AbortFromHere;
 
         public BluetoothFileTransfer(StorageFile FileToSend)
         {

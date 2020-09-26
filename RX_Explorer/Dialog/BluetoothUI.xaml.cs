@@ -20,11 +20,11 @@ namespace RX_Explorer.Dialog
     {
         ObservableCollection<BluetoothList> BluetoothDeviceCollection;
         List<BluetoothDevice> PairedBluetoothDeviceCollection;
-        AutoResetEvent PinLock = null;
-        DeviceWatcher BluetoothWatcher = null;
+        AutoResetEvent PinLock;
+        DeviceWatcher BluetoothWatcher;
         private int LastSelectIndex = -1;
-        private bool IsPinConfirm = false;
-        private bool IsAdding = false;
+        private bool IsPinConfirm;
+        private bool IsAdding;
         private Queue<DeviceInformation> AddQueue;
         private static readonly object Locker = new object();
 

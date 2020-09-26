@@ -21,7 +21,7 @@ namespace RX_Explorer.Class
     {
         private volatile static MySQL Instance;
 
-        private bool IsDisposed = false;
+        private bool IsDisposed;
 
         private SQLConnectionPool<MySqlConnection> ConnectionPool;
 

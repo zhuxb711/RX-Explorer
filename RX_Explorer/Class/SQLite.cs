@@ -54,9 +54,6 @@ namespace RX_Explorer.Class
         private void InitializeDatabase()
         {
             string Command = $@"Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));
-                                Create Table If Not Exists WebFavourite (Subject Text Not Null, WebSite Text Not Null, Primary Key (WebSite));
-                                Create Table If Not Exists WebHistory (Subject Text Not Null, WebSite Text Not Null, DateTime Text Not Null, Primary Key (Subject, WebSite, DateTime));
-                                Create Table If Not Exists DownloadHistory (UniqueID Text Not Null, ActualName Text Not Null, Uri Text Not Null, State Text Not Null, Primary Key(UniqueID));
                                 Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
                                 Create Table If Not Exists Library (Path Text Not Null, Type Text Not Null, Primary Key (Path));
                                 Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
@@ -289,16 +286,16 @@ namespace RX_Explorer.Class
         /// 获取文件夹和库区域内用户自定义的文件夹路径
         /// </summary>
         /// <returns></returns>
-        public async Task<List<string>> GetLibraryPathAsync()
+        public async Task<List<(string, LibraryType)>> GetLibraryPathAsync()
         {
-            List<string> list = new List<string>();
+            List<(string, LibraryType)> list = new List<(string, LibraryType)>();
             using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
             using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From Library"))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
             {
                 while (query.Read())
                 {
-                    list.Add(query[0].ToString());
+                    list.Add((query[0].ToString(), (LibraryType)Enum.Parse(typeof(LibraryType), query[1].ToString())));
                 }
             }
             return list;
@@ -514,19 +511,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<string>> GetQuickStartAsync()
+        public async Task DeleteQuickStartItemAsync(QuickStartType Type)
         {
-            List<string> result = new List<string>();
             using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From QuickStart"))
-            using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(true))
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From QuickStart Where Type=@Type"))
             {
-                while (Reader.Read())
-                {
-                    result.Add(Reader[0].ToString());
-                }
+                _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
+                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
-            return result;
         }
 
         /// <summary>
@@ -638,24 +630,10 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="TableName">数据表名</param>
         /// <returns></returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "<挂起>")]
         public async Task ClearTableAsync(string TableName)
         {
             using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From " + TableName))
-            {
-                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-            }
-        }
-
-        /// <summary>
-        /// 清空搜索历史记录
-        /// </summary>
-        /// <returns></returns>
-        public async Task ClearSearchHistoryRecord()
-        {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From SearchHistory"))
+            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>($"Delete From {TableName}"))
             {
                 _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }

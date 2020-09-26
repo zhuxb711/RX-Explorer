@@ -36,7 +36,7 @@ namespace RX_Explorer
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is Tuple<TabViewItem, Frame> Parameters)
+            if (e?.Parameter is Tuple<TabViewItem, Frame> Parameters)
             {
                 Nav = Parameters.Item2;
                 TabItem = Parameters.Item1;
@@ -180,7 +180,7 @@ namespace RX_Explorer
                     {
                         if (WIN_Native_API.CheckExist(Item.Protocol))
                         {
-                            Retry:
+                        Retry:
                             try
                             {
                                 await FullTrustProcessController.Current.RunAsync(Item.Protocol).ConfigureAwait(true);
@@ -819,6 +819,36 @@ namespace RX_Explorer
         {
             QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.Application);
             _ = await dialog.ShowAsync().ConfigureAwait(true);
+        }
+
+        private async void WebGridView_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+        {
+            await SQLite.Current.DeleteQuickStartItemAsync(QuickStartType.WebSite).ConfigureAwait(true);
+
+            foreach (QuickStartItem Item in CommonAccessCollection.HotWebList)
+            {
+                await SQLite.Current.SetQuickStartItemAsync(Item.DisplayName, Item.RelativePath, Item.Protocol, QuickStartType.WebSite).ConfigureAwait(true);
+            }
+        }
+
+        private async void QuickStartGridView_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+        {
+            await SQLite.Current.DeleteQuickStartItemAsync(QuickStartType.Application).ConfigureAwait(true);
+
+            foreach (QuickStartItem Item in CommonAccessCollection.QuickStartList)
+            {
+                await SQLite.Current.SetQuickStartItemAsync(Item.DisplayName, Item.RelativePath, Item.Protocol, QuickStartType.Application).ConfigureAwait(true);
+            }
+        }
+
+        private async void LibraryGrid_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+        {
+            await SQLite.Current.ClearTableAsync("Library").ConfigureAwait(true);
+
+            foreach (LibraryFolder Item in CommonAccessCollection.LibraryFolderList)
+            {
+                await SQLite.Current.SetLibraryPathAsync(Item.Folder.Path, Item.Type).ConfigureAwait(true);
+            }
         }
     }
 }

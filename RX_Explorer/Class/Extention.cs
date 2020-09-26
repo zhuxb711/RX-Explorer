@@ -254,6 +254,16 @@ namespace RX_Explorer.Class
 
         public static async Task<TreeViewNode> GetChildNodeAsync(this TreeViewNode Node, PathAnalysis Analysis, bool DoNotExpandNodeWhenSearching = false)
         {
+            if (Node == null)
+            {
+                throw new ArgumentNullException(nameof(Node), "Argument could not be null");
+            }
+
+            if (Analysis == null)
+            {
+                throw new ArgumentNullException(nameof(Node), "Argument could not be null");
+            }
+
             if (Node.HasUnrealizedChildren && !Node.IsExpanded && !DoNotExpandNodeWhenSearching)
             {
                 Node.IsExpanded = true;
@@ -730,11 +740,11 @@ namespace RX_Explorer.Class
                             using (ICryptoTransform Encryptor = AES.CreateEncryptor())
                             {
                                 byte[] Detail = Encoding.UTF8.GetBytes("$" + KeySize + "|" + OriginFile.FileType + "$");
-                                await EncryptFileStream.WriteAsync(Detail, 0, Detail.Length).ConfigureAwait(false);
+                                await EncryptFileStream.WriteAsync(Detail, 0, Detail.Length, CancelToken).ConfigureAwait(false);
 
                                 byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
                                 byte[] EncryptPasswordFlag = Encryptor.TransformFinalBlock(PasswordFlag, 0, PasswordFlag.Length);
-                                await EncryptFileStream.WriteAsync(EncryptPasswordFlag, 0, EncryptPasswordFlag.Length).ConfigureAwait(false);
+                                await EncryptFileStream.WriteAsync(EncryptPasswordFlag, 0, EncryptPasswordFlag.Length, CancelToken).ConfigureAwait(false);
 
                                 using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Encryptor, CryptoStreamMode.Write))
                                 {
@@ -825,7 +835,7 @@ namespace RX_Explorer.Class
                             {
                                 byte[] DecryptByteBuffer = new byte[20];
 
-                                await EncryptFileStream.ReadAsync(DecryptByteBuffer, 0, DecryptByteBuffer.Length).ConfigureAwait(false);
+                                await EncryptFileStream.ReadAsync(DecryptByteBuffer, 0, DecryptByteBuffer.Length, CancelToken).ConfigureAwait(false);
 
                                 string FileType;
                                 if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
@@ -858,7 +868,7 @@ namespace RX_Explorer.Class
                                 {
                                     byte[] PasswordConfirm = new byte[16];
                                     EncryptFileStream.Seek(Info.Length + 2, SeekOrigin.Begin);
-                                    await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length).ConfigureAwait(false);
+                                    await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length, CancelToken).ConfigureAwait(false);
 
                                     if (Encoding.UTF8.GetString(Decryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length)) == "PASSWORD_CORRECT")
                                     {
@@ -1229,6 +1239,11 @@ namespace RX_Explorer.Class
 
         public static string ComputeMD5Hash(this Stream Stream)
         {
+            if (Stream == null)
+            {
+                throw new ArgumentNullException(nameof(Stream), "Argument could not be null");
+            }
+
             using (MD5 md5 = MD5.Create())
             {
                 Stream.Seek(0, SeekOrigin.Begin);

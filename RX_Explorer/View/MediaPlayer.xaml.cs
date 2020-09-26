@@ -133,7 +133,7 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            MediaFile = e.Parameter as StorageFile;
+            MediaFile = e?.Parameter as StorageFile;
             await Initialize().ConfigureAwait(false);
         }
 

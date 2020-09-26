@@ -46,7 +46,7 @@ namespace RX_Explorer
         {
             try
             {
-                if (e.Parameter is Tuple<Frame, object> Parameters)
+                if (e?.Parameter is Tuple<Frame, object> Parameters)
                 {
                     FileControlNav = Parameters.Item1;
 

@@ -167,6 +167,7 @@ namespace RX_Explorer
                 ExitLocker.WaitOne();
             }).ConfigureAwait(true);
 
+            FileControlInstance = null;
             ExitLocker.Dispose();
             ExitLocker = null;
             Cancellation.Dispose();

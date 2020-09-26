@@ -35,7 +35,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 是否是用户自定义应用
         /// </summary>
-        public bool IsCustomApp { get; private set; } = false;
+        public bool IsCustomApp { get; private set; }
 
         /// <summary>
         /// 初始化ProgramPickerItem实例
