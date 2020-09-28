@@ -51,6 +51,7 @@ namespace RX_Explorer
         {
             if (e?.Parameter is Tuple<FileControl, StorageItemQueryResult> Parameters)
             {
+                FileControlInstance = Parameters.Item1;
                 ItemQuery = Parameters.Item2;
 
                 CommonAccessCollection.Register(FileControlInstance, this);

@@ -1,4 +1,27 @@
 ﻿*****
+###What's new in Ver.5.4.2.0
+
+#####Feature update
+
+>#####Double-click on the blank area to return to the previous directory
+
+#####UI update
+
+>#####"Quick Launch" area and "Folders and Libraries" area now allow drag and drop sorting
+
+>#####Experimental use of preview version of Windows UI controls to solve some crash issues
+
+#####Bug fix
+
+>#####Fixed the problem that if the folder does not exist, the forward and back buttons may be invalid
+
+>#####Fixed the problem that when deleting or renaming in single-click mode, non-selected files may be changed incorrectly
+
+>#####Fixed the problem that may cause the Quicklook running status cannot be detected correctly
+
+>#####Fixed the crash when initializing the security domain
+
+*****
 ###What's new in Ver.5.4.0.0
 
 #####Feature update

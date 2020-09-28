@@ -1198,6 +1198,8 @@ namespace RX_Explorer
 
             if (SelectedItems.Count > 0)
             {
+                List<string> PathList = SelectedItems.Select((Item) => Item.Path).ToList();
+
                 if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down))
                 {
                     await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
@@ -1205,8 +1207,6 @@ namespace RX_Explorer
                 Retry:
                     try
                     {
-                        List<string> PathList = SelectedItems.Select((Item) => Item.Path).ToList();
-
                         await FullTrustProcessController.Current.DeleteAsync(PathList, true, (s, arg) =>
                         {
                             FileControlInstance.ProBar.IsIndeterminate = false;
@@ -1306,8 +1306,6 @@ namespace RX_Explorer
                     Retry:
                         try
                         {
-                            List<string> PathList = SelectedItems.Select((Item) => Item.Path).ToList();
-
                             await FullTrustProcessController.Current.DeleteAsync(PathList, QueueContenDialog.IsPermanentDelete, (s, arg) =>
                             {
                                 FileControlInstance.ProBar.IsIndeterminate = false;
@@ -1419,18 +1417,20 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    RenameDialog dialog = new RenameDialog(SelectedItem);
+                    FileSystemStorageItemBase RenameItem = SelectedItem;
+
+                    RenameDialog dialog = new RenameDialog(RenameItem);
 
                     if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         if (FileControlInstance.IsNetworkDevice)
                         {
-                            if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
+                            if ((await RenameItem.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
                             {
                                 try
                                 {
                                     await File.RenameAsync(dialog.DesireName);
-                                    await SelectedItem.Replace(File.Path).ConfigureAwait(true);
+                                    await RenameItem.Replace(File.Path).ConfigureAwait(true);
                                 }
                                 catch (UnauthorizedAccessException)
                                 {
@@ -1471,11 +1471,11 @@ namespace RX_Explorer
                                     if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                     {
                                         await File.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
-                                        await SelectedItem.Replace(File.Path).ConfigureAwait(true);
+                                        await RenameItem.Replace(File.Path).ConfigureAwait(true);
                                     }
                                 }
                             }
-                            else if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFolder Folder)
+                            else if ((await RenameItem.GetStorageItem().ConfigureAwait(true)) is StorageFolder Folder)
                             {
                                 try
                                 {
@@ -1483,7 +1483,7 @@ namespace RX_Explorer
 
                                     await Folder.RenameAsync(dialog.DesireName);
 
-                                    await SelectedItem.Replace(Folder.Path).ConfigureAwait(true);
+                                    await RenameItem.Replace(Folder.Path).ConfigureAwait(true);
 
                                     if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.Children.Select((Item) => Item.Content as TreeViewNodeContent).FirstOrDefault((Item) => Item.Path == OldPath) is TreeViewNodeContent Content)
                                     {
@@ -1532,7 +1532,7 @@ namespace RX_Explorer
 
                                         await Folder.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
 
-                                        await SelectedItem.Replace(Folder.Path).ConfigureAwait(true);
+                                        await RenameItem.Replace(Folder.Path).ConfigureAwait(true);
 
                                         if (!SettingControl.IsDetachTreeViewAndPresenter && FileControlInstance.CurrentNode.Children.Select((Item) => Item.Content as TreeViewNodeContent).FirstOrDefault((Item) => Item.Path == Folder.Path) is TreeViewNodeContent Content)
                                         {
@@ -1559,7 +1559,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            if (WIN_Native_API.CheckExist(Path.Combine(Path.GetDirectoryName(SelectedItem.Path), dialog.DesireName)))
+                            if (WIN_Native_API.CheckExist(Path.Combine(Path.GetDirectoryName(RenameItem.Path), dialog.DesireName)))
                             {
                                 QueueContentDialog Dialog = new QueueContentDialog
                                 {
@@ -1578,7 +1578,7 @@ namespace RX_Explorer
                         Retry:
                             try
                             {
-                                await FullTrustProcessController.Current.RenameAsync(SelectedItem.Path, dialog.DesireName).ConfigureAwait(true);
+                                await FullTrustProcessController.Current.RenameAsync(RenameItem.Path, dialog.DesireName).ConfigureAwait(true);
                             }
                             catch (FileLoadException)
                             {

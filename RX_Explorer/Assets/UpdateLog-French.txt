@@ -1,5 +1,28 @@
 ﻿*****
-###Quoi de neuf dans la version 5.3.6.0
+###Quoi de neuf dans la version 5.4.2.0
+
+##### Mise à jour des fonctionnalités
+
+>#####Double-cliquez sur la zone vide pour revenir au répertoire précédent
+
+#####Mise à jour de l'interface utilisateur
+
+>#####La zone "Lancement rapide" et la zone "Dossiers et bibliothèques" permettent désormais le tri par glisser-déposer
+
+>#####Utilisation expérimentale de la version préliminaire des contrôles de l'interface utilisateur Windows pour résoudre certains problèmes de plantage
+
+#####Correction d'un bug
+
+>#####Correction du problème suivant: si le dossier n'existe pas, les boutons avant et arrière peuvent être invalides
+
+>#####Résolution du problème suivant: lors de la suppression ou du changement de nom en mode simple clic, les fichiers non sélectionnés peuvent être modifiés de manière incorrecte
+
+>#####Correction du problème qui pouvait empêcher la détection correcte de l'état d'exécution de Quicklook
+
+>#####Correction du crash lors de l'initialisation du domaine de sécurité
+
+*****
+###Quoi de neuf dans la version 5.4.0.0
 
 #####Mise à jour des fonctionnalités
 
