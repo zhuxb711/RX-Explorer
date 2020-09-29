@@ -82,16 +82,177 @@ namespace RX_Explorer.Class
                     }
                 default:
                     {
-                        if(typeof(T) == typeof(RecycleStorageItem))
+                        if (typeof(T) == typeof(RecycleStorageItem))
                         {
                             return TempDirection == SortDirection.Ascending
-                                ? new List<T>(FolderList.Select((Item)=>Item as RecycleStorageItem).OrderBy((Item) => Item.OriginPath).Concat(FileList.Select((Item) => Item as RecycleStorageItem).OrderBy((Item) => Item.OriginPath)).Select((Item)=>Item as T))
+                                ? new List<T>(FolderList.Select((Item) => Item as RecycleStorageItem).OrderBy((Item) => Item.OriginPath).Concat(FileList.Select((Item) => Item as RecycleStorageItem).OrderBy((Item) => Item.OriginPath)).Select((Item) => Item as T))
                                 : new List<T>(FolderList.Select((Item) => Item as RecycleStorageItem).OrderByDescending((Item) => Item.OriginPath).Concat(FileList.Select((Item) => Item as RecycleStorageItem).OrderByDescending((Item) => Item.OriginPath)).Select((Item) => Item as T));
                         }
                         else
                         {
                             return null;
                         }
+                    }
+            }
+        }
+
+        public int SearchInsertLocation<T>(ICollection<T> InputCollection, T SearchTarget) where T : FileSystemStorageItemBase
+        {
+            if(InputCollection == null)
+            {
+                throw new ArgumentNullException(nameof(InputCollection), "Argument could not be null");
+            }
+
+            if (SearchTarget == null)
+            {
+                throw new ArgumentNullException(nameof(SearchTarget), "Argument could not be null");
+            }
+
+            switch (SortTarget)
+            {
+                case SortTarget.Name:
+                    {
+                        if (SortDirection == SortDirection.Ascending)
+                        {
+                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.Name.CompareTo(SearchTarget.Name) > 0);
+
+                            if (SearchResult == default)
+                            {
+                                return InputCollection.Count - 1;
+                            }
+                            else
+                            {
+                                if (SearchTarget.StorageType == StorageItemTypes.File)
+                                {
+                                    return SearchResult.Index + InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.Folder);
+                                }
+                                else
+                                {
+                                    return SearchResult.Index;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
+                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.Name.CompareTo(SearchTarget.Name) < 0).Index;
+
+                            if (SearchTarget.StorageType == StorageItemTypes.Folder)
+                            {
+                                Index += InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.File);
+                            }
+
+                            return Index;
+                        }
+                    }
+                case SortTarget.Type:
+                    {
+                        if (SortDirection == SortDirection.Ascending)
+                        {
+                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.Type.CompareTo(SearchTarget.Type) > 0);
+
+                            if (SearchResult == default)
+                            {
+                                return InputCollection.Count - 1;
+                            }
+                            else
+                            {
+                                if (SearchTarget.StorageType == StorageItemTypes.File)
+                                {
+                                    return SearchResult.Index + InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.Folder);
+                                }
+                                else
+                                {
+                                    return SearchResult.Index;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
+                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.Type.CompareTo(SearchTarget.Type) < 0).Index;
+
+                            if (SearchTarget.StorageType == StorageItemTypes.Folder)
+                            {
+                                Index += InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.File);
+                            }
+
+                            return Index;
+                        }
+                    }
+                case SortTarget.ModifiedTime:
+                    {
+                        if (SortDirection == SortDirection.Ascending)
+                        {
+                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.ModifiedTimeRaw.CompareTo(SearchTarget.ModifiedTimeRaw) > 0);
+
+                            if(SearchResult == default)
+                            {
+                                return InputCollection.Count - 1;
+                            }
+                            else
+                            {
+                                if (SearchTarget.StorageType == StorageItemTypes.File)
+                                {
+                                    return SearchResult.Index + InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.Folder);
+                                }
+                                else
+                                {
+                                    return SearchResult.Index;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
+                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.ModifiedTimeRaw.CompareTo(SearchTarget.ModifiedTimeRaw) < 0).Index;
+
+                            if (SearchTarget.StorageType == StorageItemTypes.Folder)
+                            {
+                                Index += InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.File);
+                            }
+
+                            return Index;
+                        }
+                    }
+                case SortTarget.Size:
+                    {
+                        if (SortDirection == SortDirection.Ascending)
+                        {
+                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) > 0);
+
+                            if (SearchResult == default)
+                            {
+                                return InputCollection.Count - 1;
+                            }
+                            else
+                            {
+                                if (SearchTarget.StorageType == StorageItemTypes.File)
+                                {
+                                    return SearchResult.Index + InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.Folder);
+                                }
+                                else
+                                {
+                                    return SearchResult.Index;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
+                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) < 0).Index;
+
+                            if (SearchTarget.StorageType == StorageItemTypes.Folder)
+                            {
+                                Index += InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.File);
+                            }
+
+                            return Index;
+                        }
+                    }
+                default:
+                    {
+                        return -1;
                     }
             }
         }

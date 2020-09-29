@@ -97,9 +97,18 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        foreach (FileSystemStorageItemBase ItemToUpdate in CurrentCollection)
+                        if(WIN_Native_API.GetStorageItems(NewPath).FirstOrDefault() is FileSystemStorageItemBase Item)
                         {
-                            await ItemToUpdate.Update(false).ConfigureAwait(true);
+                            int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, Item);
+                            
+                            if(Index == CurrentCollection.Count - 1)
+                            {
+                                CurrentCollection.Add(Item);
+                            }
+                            else
+                            {
+                                CurrentCollection.Insert(Index, Item);
+                            }
                         }
                     }
 
